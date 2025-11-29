@@ -13,25 +13,25 @@ class FewShotExample:
 
     Attributes
     ----------
-        evaluating_response (str):
         generation_prompt_and_response (str):
+        evaluating_response (str):
     """
 
-    evaluating_response: str
     generation_prompt_and_response: str
+    evaluating_response: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        evaluating_response = self.evaluating_response
-
         generation_prompt_and_response = self.generation_prompt_and_response
+
+        evaluating_response = self.evaluating_response
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "evaluating_response": evaluating_response,
                 "generation_prompt_and_response": generation_prompt_and_response,
+                "evaluating_response": evaluating_response,
             }
         )
 
@@ -40,12 +40,12 @@ class FewShotExample:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        evaluating_response = d.pop("evaluating_response")
-
         generation_prompt_and_response = d.pop("generation_prompt_and_response")
 
+        evaluating_response = d.pop("evaluating_response")
+
         few_shot_example = cls(
-            evaluating_response=evaluating_response, generation_prompt_and_response=generation_prompt_and_response
+            generation_prompt_and_response=generation_prompt_and_response, evaluating_response=evaluating_response
         )
 
         few_shot_example.additional_properties = d

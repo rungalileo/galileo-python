@@ -18,24 +18,26 @@ class DatasetRowMetadata:
     """
     Attributes
     ----------
+        created_in_version (int):
         created_at (datetime.datetime):
         created_by_user (Union['UserInfo', None]):
-        created_in_version (int):
+        updated_in_version (int):
         updated_at (datetime.datetime):
         updated_by_user (Union['UserInfo', None]):
-        updated_in_version (int):
     """
 
+    created_in_version: int
     created_at: datetime.datetime
     created_by_user: Union["UserInfo", None]
-    created_in_version: int
+    updated_in_version: int
     updated_at: datetime.datetime
     updated_by_user: Union["UserInfo", None]
-    updated_in_version: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.user_info import UserInfo
+
+        created_in_version = self.created_in_version
 
         created_at = self.created_at.isoformat()
 
@@ -45,7 +47,7 @@ class DatasetRowMetadata:
         else:
             created_by_user = self.created_by_user
 
-        created_in_version = self.created_in_version
+        updated_in_version = self.updated_in_version
 
         updated_at = self.updated_at.isoformat()
 
@@ -55,18 +57,16 @@ class DatasetRowMetadata:
         else:
             updated_by_user = self.updated_by_user
 
-        updated_in_version = self.updated_in_version
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "created_in_version": created_in_version,
                 "created_at": created_at,
                 "created_by_user": created_by_user,
-                "created_in_version": created_in_version,
+                "updated_in_version": updated_in_version,
                 "updated_at": updated_at,
                 "updated_by_user": updated_by_user,
-                "updated_in_version": updated_in_version,
             }
         )
 
@@ -77,6 +77,8 @@ class DatasetRowMetadata:
         from ..models.user_info import UserInfo
 
         d = dict(src_dict)
+        created_in_version = d.pop("created_in_version")
+
         created_at = isoparse(d.pop("created_at"))
 
         def _parse_created_by_user(data: object) -> Union["UserInfo", None]:
@@ -93,7 +95,7 @@ class DatasetRowMetadata:
 
         created_by_user = _parse_created_by_user(d.pop("created_by_user"))
 
-        created_in_version = d.pop("created_in_version")
+        updated_in_version = d.pop("updated_in_version")
 
         updated_at = isoparse(d.pop("updated_at"))
 
@@ -111,15 +113,13 @@ class DatasetRowMetadata:
 
         updated_by_user = _parse_updated_by_user(d.pop("updated_by_user"))
 
-        updated_in_version = d.pop("updated_in_version")
-
         dataset_row_metadata = cls(
+            created_in_version=created_in_version,
             created_at=created_at,
             created_by_user=created_by_user,
-            created_in_version=created_in_version,
+            updated_in_version=updated_in_version,
             updated_at=updated_at,
             updated_by_user=updated_by_user,
-            updated_in_version=updated_in_version,
         )
 
         dataset_row_metadata.additional_properties = d

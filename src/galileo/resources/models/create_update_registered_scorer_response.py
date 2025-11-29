@@ -16,40 +16,42 @@ class CreateUpdateRegisteredScorerResponse:
     """
     Attributes
     ----------
-        created_at (datetime.datetime):
-        created_by (str):
-        data_type (Union[DataTypeOptions, None]):
         id (str):
         name (str):
         score_type (Union[None, str]):
-        scoreable_node_types (Union[None, list[str]]):
+        created_at (datetime.datetime):
         updated_at (datetime.datetime):
+        created_by (str):
+        data_type (Union[DataTypeOptions, None]):
+        scoreable_node_types (Union[None, list[str]]):
     """
 
-    created_at: datetime.datetime
-    created_by: str
-    data_type: Union[DataTypeOptions, None]
     id: str
     name: str
     score_type: Union[None, str]
-    scoreable_node_types: Union[None, list[str]]
+    created_at: datetime.datetime
     updated_at: datetime.datetime
+    created_by: str
+    data_type: Union[DataTypeOptions, None]
+    scoreable_node_types: Union[None, list[str]]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        created_at = self.created_at.isoformat()
-
-        created_by = self.created_by
-
-        data_type: Union[None, str]
-        data_type = self.data_type.value if isinstance(self.data_type, DataTypeOptions) else self.data_type
-
         id = self.id
 
         name = self.name
 
         score_type: Union[None, str]
         score_type = self.score_type
+
+        created_at = self.created_at.isoformat()
+
+        updated_at = self.updated_at.isoformat()
+
+        created_by = self.created_by
+
+        data_type: Union[None, str]
+        data_type = self.data_type.value if isinstance(self.data_type, DataTypeOptions) else self.data_type
 
         scoreable_node_types: Union[None, list[str]]
         if isinstance(self.scoreable_node_types, list):
@@ -58,20 +60,18 @@ class CreateUpdateRegisteredScorerResponse:
         else:
             scoreable_node_types = self.scoreable_node_types
 
-        updated_at = self.updated_at.isoformat()
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "created_at": created_at,
-                "created_by": created_by,
-                "data_type": data_type,
                 "id": id,
                 "name": name,
                 "score_type": score_type,
-                "scoreable_node_types": scoreable_node_types,
+                "created_at": created_at,
                 "updated_at": updated_at,
+                "created_by": created_by,
+                "data_type": data_type,
+                "scoreable_node_types": scoreable_node_types,
             }
         )
 
@@ -80,7 +80,20 @@ class CreateUpdateRegisteredScorerResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        id = d.pop("id")
+
+        name = d.pop("name")
+
+        def _parse_score_type(data: object) -> Union[None, str]:
+            if data is None:
+                return data
+            return cast(Union[None, str], data)
+
+        score_type = _parse_score_type(d.pop("score_type"))
+
         created_at = isoparse(d.pop("created_at"))
+
+        updated_at = isoparse(d.pop("updated_at"))
 
         created_by = d.pop("created_by")
 
@@ -98,17 +111,6 @@ class CreateUpdateRegisteredScorerResponse:
 
         data_type = _parse_data_type(d.pop("data_type"))
 
-        id = d.pop("id")
-
-        name = d.pop("name")
-
-        def _parse_score_type(data: object) -> Union[None, str]:
-            if data is None:
-                return data
-            return cast(Union[None, str], data)
-
-        score_type = _parse_score_type(d.pop("score_type"))
-
         def _parse_scoreable_node_types(data: object) -> Union[None, list[str]]:
             if data is None:
                 return data
@@ -123,17 +125,15 @@ class CreateUpdateRegisteredScorerResponse:
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types"))
 
-        updated_at = isoparse(d.pop("updated_at"))
-
         create_update_registered_scorer_response = cls(
-            created_at=created_at,
-            created_by=created_by,
-            data_type=data_type,
             id=id,
             name=name,
             score_type=score_type,
-            scoreable_node_types=scoreable_node_types,
+            created_at=created_at,
             updated_at=updated_at,
+            created_by=created_by,
+            data_type=data_type,
+            scoreable_node_types=scoreable_node_types,
         )
 
         create_update_registered_scorer_response.additional_properties = d

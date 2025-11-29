@@ -15,35 +15,32 @@ class CustomIntegrationCreate:
     """
     Attributes
     ----------
-        endpoint (str): Endpoint URL for the custom integration.
         models (list[str]): List of model names for the custom integration
+        endpoint (str): Endpoint URL for the custom integration.
         token (str):
-        authentication_scope (Union[None, Unset, str]): Optional scope for OAuth2 authentication.
         authentication_type (Union[Unset, CustomAuthenticationType]):
         default_model (Union[None, Unset, str]): Default model to use. If not provided, defaults to the first model in
             the models list.
+        authentication_scope (Union[None, Unset, str]): Optional scope for OAuth2 authentication.
         oauth2_token_url (Union[None, Unset, str]): OAuth2 token URL for custom OAuth2 authentication. If not provided,
             defaults to the endpoint.
     """
 
-    endpoint: str
     models: list[str]
+    endpoint: str
     token: str
-    authentication_scope: Union[None, Unset, str] = UNSET
     authentication_type: Union[Unset, CustomAuthenticationType] = UNSET
     default_model: Union[None, Unset, str] = UNSET
+    authentication_scope: Union[None, Unset, str] = UNSET
     oauth2_token_url: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        endpoint = self.endpoint
-
         models = self.models
 
-        token = self.token
+        endpoint = self.endpoint
 
-        authentication_scope: Union[None, Unset, str]
-        authentication_scope = UNSET if isinstance(self.authentication_scope, Unset) else self.authentication_scope
+        token = self.token
 
         authentication_type: Union[Unset, str] = UNSET
         if not isinstance(self.authentication_type, Unset):
@@ -52,18 +49,21 @@ class CustomIntegrationCreate:
         default_model: Union[None, Unset, str]
         default_model = UNSET if isinstance(self.default_model, Unset) else self.default_model
 
+        authentication_scope: Union[None, Unset, str]
+        authentication_scope = UNSET if isinstance(self.authentication_scope, Unset) else self.authentication_scope
+
         oauth2_token_url: Union[None, Unset, str]
         oauth2_token_url = UNSET if isinstance(self.oauth2_token_url, Unset) else self.oauth2_token_url
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"endpoint": endpoint, "models": models, "token": token})
-        if authentication_scope is not UNSET:
-            field_dict["authentication_scope"] = authentication_scope
+        field_dict.update({"models": models, "endpoint": endpoint, "token": token})
         if authentication_type is not UNSET:
             field_dict["authentication_type"] = authentication_type
         if default_model is not UNSET:
             field_dict["default_model"] = default_model
+        if authentication_scope is not UNSET:
+            field_dict["authentication_scope"] = authentication_scope
         if oauth2_token_url is not UNSET:
             field_dict["oauth2_token_url"] = oauth2_token_url
 
@@ -72,20 +72,11 @@ class CustomIntegrationCreate:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        endpoint = d.pop("endpoint")
-
         models = cast(list[str], d.pop("models"))
 
+        endpoint = d.pop("endpoint")
+
         token = d.pop("token")
-
-        def _parse_authentication_scope(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        authentication_scope = _parse_authentication_scope(d.pop("authentication_scope", UNSET))
 
         _authentication_type = d.pop("authentication_type", UNSET)
         authentication_type: Union[Unset, CustomAuthenticationType]
@@ -103,6 +94,15 @@ class CustomIntegrationCreate:
 
         default_model = _parse_default_model(d.pop("default_model", UNSET))
 
+        def _parse_authentication_scope(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        authentication_scope = _parse_authentication_scope(d.pop("authentication_scope", UNSET))
+
         def _parse_oauth2_token_url(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -113,12 +113,12 @@ class CustomIntegrationCreate:
         oauth2_token_url = _parse_oauth2_token_url(d.pop("oauth2_token_url", UNSET))
 
         custom_integration_create = cls(
-            endpoint=endpoint,
             models=models,
+            endpoint=endpoint,
             token=token,
-            authentication_scope=authentication_scope,
             authentication_type=authentication_type,
             default_model=default_model,
+            authentication_scope=authentication_scope,
             oauth2_token_url=oauth2_token_url,
         )
 

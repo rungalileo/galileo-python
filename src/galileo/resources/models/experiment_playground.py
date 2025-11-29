@@ -14,43 +14,34 @@ class ExperimentPlayground:
     """
     Attributes
     ----------
-        name (Union[None, Unset, str]):
         playground_id (Union[None, Unset, str]):
+        name (Union[None, Unset, str]):
     """
 
-    name: Union[None, Unset, str] = UNSET
     playground_id: Union[None, Unset, str] = UNSET
+    name: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name: Union[None, Unset, str]
-        name = UNSET if isinstance(self.name, Unset) else self.name
-
         playground_id: Union[None, Unset, str]
         playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
+
+        name: Union[None, Unset, str]
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if name is not UNSET:
-            field_dict["name"] = name
         if playground_id is not UNSET:
             field_dict["playground_id"] = playground_id
+        if name is not UNSET:
+            field_dict["name"] = name
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-
-        def _parse_name(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        name = _parse_name(d.pop("name", UNSET))
 
         def _parse_playground_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -61,7 +52,16 @@ class ExperimentPlayground:
 
         playground_id = _parse_playground_id(d.pop("playground_id", UNSET))
 
-        experiment_playground = cls(name=name, playground_id=playground_id)
+        def _parse_name(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        name = _parse_name(d.pop("name", UNSET))
+
+        experiment_playground = cls(playground_id=playground_id, name=name)
 
         experiment_playground.additional_properties = d
         return experiment_playground

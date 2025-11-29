@@ -15,15 +15,17 @@ class MetricPending:
     """
     Attributes
     ----------
-        scorer_type (Union[None, ScorerType, Unset]):
         status_type (Union[Literal['pending'], Unset]):  Default: 'pending'.
+        scorer_type (Union[None, ScorerType, Unset]):
     """
 
-    scorer_type: Union[None, ScorerType, Unset] = UNSET
     status_type: Union[Literal["pending"], Unset] = "pending"
+    scorer_type: Union[None, ScorerType, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        status_type = self.status_type
+
         scorer_type: Union[None, Unset, str]
         if isinstance(self.scorer_type, Unset):
             scorer_type = UNSET
@@ -32,21 +34,22 @@ class MetricPending:
         else:
             scorer_type = self.scorer_type
 
-        status_type = self.status_type
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if scorer_type is not UNSET:
-            field_dict["scorer_type"] = scorer_type
         if status_type is not UNSET:
             field_dict["status_type"] = status_type
+        if scorer_type is not UNSET:
+            field_dict["scorer_type"] = scorer_type
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        status_type = cast(Union[Literal["pending"], Unset], d.pop("status_type", UNSET))
+        if status_type != "pending" and not isinstance(status_type, Unset):
+            raise ValueError(f"status_type must match const 'pending', got '{status_type}'")
 
         def _parse_scorer_type(data: object) -> Union[None, ScorerType, Unset]:
             if data is None:
@@ -64,11 +67,7 @@ class MetricPending:
 
         scorer_type = _parse_scorer_type(d.pop("scorer_type", UNSET))
 
-        status_type = cast(Union[Literal["pending"], Unset], d.pop("status_type", UNSET))
-        if status_type != "pending" and not isinstance(status_type, Unset):
-            raise ValueError(f"status_type must match const 'pending', got '{status_type}'")
-
-        metric_pending = cls(scorer_type=scorer_type, status_type=status_type)
+        metric_pending = cls(status_type=status_type, scorer_type=scorer_type)
 
         metric_pending.additional_properties = d
         return metric_pending

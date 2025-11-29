@@ -17,28 +17,28 @@ class AggregatedTraceViewGraph:
     """
     Attributes
     ----------
-        edges (list['AggregatedTraceViewEdge']):
         nodes (list['AggregatedTraceViewNode']):
+        edges (list['AggregatedTraceViewEdge']):
     """
 
-    edges: list["AggregatedTraceViewEdge"]
     nodes: list["AggregatedTraceViewNode"]
+    edges: list["AggregatedTraceViewEdge"]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        edges = []
-        for edges_item_data in self.edges:
-            edges_item = edges_item_data.to_dict()
-            edges.append(edges_item)
-
         nodes = []
         for nodes_item_data in self.nodes:
             nodes_item = nodes_item_data.to_dict()
             nodes.append(nodes_item)
 
+        edges = []
+        for edges_item_data in self.edges:
+            edges_item = edges_item_data.to_dict()
+            edges.append(edges_item)
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"edges": edges, "nodes": nodes})
+        field_dict.update({"nodes": nodes, "edges": edges})
 
         return field_dict
 
@@ -48,13 +48,6 @@ class AggregatedTraceViewGraph:
         from ..models.aggregated_trace_view_node import AggregatedTraceViewNode
 
         d = dict(src_dict)
-        edges = []
-        _edges = d.pop("edges")
-        for edges_item_data in _edges:
-            edges_item = AggregatedTraceViewEdge.from_dict(edges_item_data)
-
-            edges.append(edges_item)
-
         nodes = []
         _nodes = d.pop("nodes")
         for nodes_item_data in _nodes:
@@ -62,7 +55,14 @@ class AggregatedTraceViewGraph:
 
             nodes.append(nodes_item)
 
-        aggregated_trace_view_graph = cls(edges=edges, nodes=nodes)
+        edges = []
+        _edges = d.pop("edges")
+        for edges_item_data in _edges:
+            edges_item = AggregatedTraceViewEdge.from_dict(edges_item_data)
+
+            edges.append(edges_item)
+
+        aggregated_trace_view_graph = cls(nodes=nodes, edges=edges)
 
         aggregated_trace_view_graph.additional_properties = d
         return aggregated_trace_view_graph

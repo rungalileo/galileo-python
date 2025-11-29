@@ -18,21 +18,30 @@ class ListExperimentResponse:
     """
     Attributes
     ----------
-        experiments (Union[Unset, list['ExperimentResponse']]):
-        limit (Union[Unset, int]):  Default: 100.
-        next_starting_token (Union[None, Unset, int]):
-        paginated (Union[Unset, bool]):  Default: False.
         starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        paginated (Union[Unset, bool]):  Default: False.
+        next_starting_token (Union[None, Unset, int]):
+        experiments (Union[Unset, list['ExperimentResponse']]):
     """
 
-    experiments: Union[Unset, list["ExperimentResponse"]] = UNSET
-    limit: Union[Unset, int] = 100
-    next_starting_token: Union[None, Unset, int] = UNSET
-    paginated: Union[Unset, bool] = False
     starting_token: Union[Unset, int] = 0
+    limit: Union[Unset, int] = 100
+    paginated: Union[Unset, bool] = False
+    next_starting_token: Union[None, Unset, int] = UNSET
+    experiments: Union[Unset, list["ExperimentResponse"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        starting_token = self.starting_token
+
+        limit = self.limit
+
+        paginated = self.paginated
+
+        next_starting_token: Union[None, Unset, int]
+        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
+
         experiments: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.experiments, Unset):
             experiments = []
@@ -40,28 +49,19 @@ class ListExperimentResponse:
                 experiments_item = experiments_item_data.to_dict()
                 experiments.append(experiments_item)
 
-        limit = self.limit
-
-        next_starting_token: Union[None, Unset, int]
-        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
-
-        paginated = self.paginated
-
-        starting_token = self.starting_token
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if experiments is not UNSET:
-            field_dict["experiments"] = experiments
-        if limit is not UNSET:
-            field_dict["limit"] = limit
-        if next_starting_token is not UNSET:
-            field_dict["next_starting_token"] = next_starting_token
-        if paginated is not UNSET:
-            field_dict["paginated"] = paginated
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
+        if limit is not UNSET:
+            field_dict["limit"] = limit
+        if paginated is not UNSET:
+            field_dict["paginated"] = paginated
+        if next_starting_token is not UNSET:
+            field_dict["next_starting_token"] = next_starting_token
+        if experiments is not UNSET:
+            field_dict["experiments"] = experiments
 
         return field_dict
 
@@ -70,14 +70,11 @@ class ListExperimentResponse:
         from ..models.experiment_response import ExperimentResponse
 
         d = dict(src_dict)
-        experiments = []
-        _experiments = d.pop("experiments", UNSET)
-        for experiments_item_data in _experiments or []:
-            experiments_item = ExperimentResponse.from_dict(experiments_item_data)
-
-            experiments.append(experiments_item)
+        starting_token = d.pop("starting_token", UNSET)
 
         limit = d.pop("limit", UNSET)
+
+        paginated = d.pop("paginated", UNSET)
 
         def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -88,16 +85,19 @@ class ListExperimentResponse:
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
-        paginated = d.pop("paginated", UNSET)
+        experiments = []
+        _experiments = d.pop("experiments", UNSET)
+        for experiments_item_data in _experiments or []:
+            experiments_item = ExperimentResponse.from_dict(experiments_item_data)
 
-        starting_token = d.pop("starting_token", UNSET)
+            experiments.append(experiments_item)
 
         list_experiment_response = cls(
-            experiments=experiments,
-            limit=limit,
-            next_starting_token=next_starting_token,
-            paginated=paginated,
             starting_token=starting_token,
+            limit=limit,
+            paginated=paginated,
+            next_starting_token=next_starting_token,
+            experiments=experiments,
         )
 
         list_experiment_response.additional_properties = d

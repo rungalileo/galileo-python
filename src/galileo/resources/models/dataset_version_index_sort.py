@@ -14,30 +14,30 @@ class DatasetVersionIndexSort:
     """
     Attributes
     ----------
-        ascending (Union[Unset, bool]):  Default: True.
         name (Union[Literal['version_index'], Unset]):  Default: 'version_index'.
+        ascending (Union[Unset, bool]):  Default: True.
         sort_type (Union[Literal['column'], Unset]):  Default: 'column'.
     """
 
-    ascending: Union[Unset, bool] = True
     name: Union[Literal["version_index"], Unset] = "version_index"
+    ascending: Union[Unset, bool] = True
     sort_type: Union[Literal["column"], Unset] = "column"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        ascending = self.ascending
-
         name = self.name
+
+        ascending = self.ascending
 
         sort_type = self.sort_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if ascending is not UNSET:
-            field_dict["ascending"] = ascending
         if name is not UNSET:
             field_dict["name"] = name
+        if ascending is not UNSET:
+            field_dict["ascending"] = ascending
         if sort_type is not UNSET:
             field_dict["sort_type"] = sort_type
 
@@ -46,17 +46,17 @@ class DatasetVersionIndexSort:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        ascending = d.pop("ascending", UNSET)
-
         name = cast(Union[Literal["version_index"], Unset], d.pop("name", UNSET))
         if name != "version_index" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'version_index', got '{name}'")
+
+        ascending = d.pop("ascending", UNSET)
 
         sort_type = cast(Union[Literal["column"], Unset], d.pop("sort_type", UNSET))
         if sort_type != "column" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'column', got '{sort_type}'")
 
-        dataset_version_index_sort = cls(ascending=ascending, name=name, sort_type=sort_type)
+        dataset_version_index_sort = cls(name=name, ascending=ascending, sort_type=sort_type)
 
         dataset_version_index_sort.additional_properties = d
         return dataset_version_index_sort

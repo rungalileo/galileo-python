@@ -73,41 +73,28 @@ class CreateJobRequest:
     ----------
         project_id (str):
         run_id (str):
-        dataset_id (Union[None, Unset, str]):
-        dataset_version_index (Union[None, Unset, int]):
-        epoch (Union[Unset, int]):  Default: 0.
-        feature_names (Union[None, Unset, list[str]]):
+        resource_limits (Union['TaskResourceLimits', None, Unset]):
         job_id (Union[None, Unset, str]):
         job_name (Union[Unset, str]):  Default: 'default'.
+        should_retry (Union[Unset, bool]):  Default: True.
+        user_id (Union[None, Unset, str]):
+        task_type (Union[None, TaskType, Unset]):
         labels (Union[Unset, list[list[str]], list[str]]):
-        log_metric_computing_records (Union[Unset, bool]):  Default: False.
-        luna_model (Union[None, Unset, str]):
-        metric_critique_configuration (Union['MetricCritiqueJobConfiguration', None, Unset]):
-        migration_name (Union[None, Unset, str]):
-        monitor_batch_id (Union[None, Unset, str]):
         ner_labels (Union[None, Unset, list[str]]):
+        tasks (Union[None, Unset, list[str]]):
         non_inference_logged (Union[Unset, bool]):  Default: False.
+        migration_name (Union[None, Unset, str]):
+        xray (Union[Unset, bool]):  Default: True.
         process_existing_inference_runs (Union[Unset, bool]):  Default: False.
-        prompt_customized_scorers_configuration (Union[None, Unset,
-            list[Union['CustomizedAgenticSessionSuccessGPTScorer', 'CustomizedAgenticWorkflowSuccessGPTScorer',
-            'CustomizedChunkAttributionUtilizationGPTScorer', 'CustomizedCompletenessGPTScorer',
-            'CustomizedFactualityGPTScorer', 'CustomizedGroundTruthAdherenceGPTScorer', 'CustomizedGroundednessGPTScorer',
-            'CustomizedInputSexistGPTScorer', 'CustomizedInputToxicityGPTScorer', 'CustomizedInstructionAdherenceGPTScorer',
-            'CustomizedPromptInjectionGPTScorer', 'CustomizedSexistGPTScorer', 'CustomizedToolErrorRateGPTScorer',
-            'CustomizedToolSelectionQualityGPTScorer', 'CustomizedToxicityGPTScorer']]]):
+        feature_names (Union[None, Unset, list[str]]):
         prompt_dataset_id (Union[None, Unset, str]):
-        prompt_finetuned_scorers_configuration (Union[None, Unset, list['FineTunedScorer']]):
-        prompt_generated_scorers_configuration (Union[None, Unset, list[str]]):
-        prompt_optimization_configuration (Union['PromptOptimizationConfiguration', None, Unset]):
-        prompt_registered_scorers_configuration (Union[None, Unset, list['RegisteredScorer']]):
-        prompt_scorer_settings (Union['BaseScorer', None, Unset]):
-        prompt_scorers_configuration (Union['ScorersConfiguration', None, Unset]):
-        prompt_settings (Union['PromptRunSettings', None, Unset]):
+        dataset_id (Union[None, Unset, str]):
+        dataset_version_index (Union[None, Unset, int]):
         prompt_template_version_id (Union[None, Unset, str]):
-        protect_scorer_payload (Union[File, None, Unset]):
+        monitor_batch_id (Union[None, Unset, str]):
         protect_trace_id (Union[None, Unset, str]):
-        resource_limits (Union['TaskResourceLimits', None, Unset]):
-        scorer_config (Union['ScorerConfig', None, Unset]):
+        protect_scorer_payload (Union[File, None, Unset]):
+        prompt_settings (Union['PromptRunSettings', None, Unset]):
         scorers (Union[None, Unset, list['ScorerConfig'], list[Union['AgenticSessionSuccessScorer',
             'AgenticWorkflowSuccessScorer', 'BleuScorer', 'ChunkAttributionUtilizationScorer', 'CompletenessScorer',
             'ContextAdherenceScorer', 'ContextRelevanceScorer', 'CorrectnessScorer', 'GroundTruthAdherenceScorer',
@@ -116,69 +103,53 @@ class CreateJobRequest:
             'PromptPerplexityScorer', 'RougeScorer', 'ToolErrorRateScorer', 'ToolSelectionQualityScorer',
             'UncertaintyScorer']]]): For G2.0 we send all scorers as ScorerConfig, for G1.0 we send preset scorers  as
             GalileoScorer
-        segment_filters (Union[None, Unset, list['SegmentFilter']]):
-        should_retry (Union[Unset, bool]):  Default: True.
+        prompt_registered_scorers_configuration (Union[None, Unset, list['RegisteredScorer']]):
+        prompt_generated_scorers_configuration (Union[None, Unset, list[str]]):
+        prompt_finetuned_scorers_configuration (Union[None, Unset, list['FineTunedScorer']]):
+        prompt_scorers_configuration (Union['ScorersConfiguration', None, Unset]):
+        prompt_customized_scorers_configuration (Union[None, Unset,
+            list[Union['CustomizedAgenticSessionSuccessGPTScorer', 'CustomizedAgenticWorkflowSuccessGPTScorer',
+            'CustomizedChunkAttributionUtilizationGPTScorer', 'CustomizedCompletenessGPTScorer',
+            'CustomizedFactualityGPTScorer', 'CustomizedGroundTruthAdherenceGPTScorer', 'CustomizedGroundednessGPTScorer',
+            'CustomizedInputSexistGPTScorer', 'CustomizedInputToxicityGPTScorer', 'CustomizedInstructionAdherenceGPTScorer',
+            'CustomizedPromptInjectionGPTScorer', 'CustomizedSexistGPTScorer', 'CustomizedToolErrorRateGPTScorer',
+            'CustomizedToolSelectionQualityGPTScorer', 'CustomizedToxicityGPTScorer']]]):
+        prompt_scorer_settings (Union['BaseScorer', None, Unset]):
+        scorer_config (Union['ScorerConfig', None, Unset]):
         sub_scorers (Union[Unset, list[ScorerName]]):
-        task_type (Union[None, TaskType, Unset]):
-        tasks (Union[None, Unset, list[str]]):
+        luna_model (Union[None, Unset, str]):
+        segment_filters (Union[None, Unset, list['SegmentFilter']]):
+        prompt_optimization_configuration (Union['PromptOptimizationConfiguration', None, Unset]):
+        epoch (Union[Unset, int]):  Default: 0.
+        metric_critique_configuration (Union['MetricCritiqueJobConfiguration', None, Unset]):
         upload_data_in_separate_task (Union[Unset, bool]):  Default: True.
-        user_id (Union[None, Unset, str]):
-        xray (Union[Unset, bool]):  Default: True.
+        log_metric_computing_records (Union[Unset, bool]):  Default: False.
     """
 
     project_id: str
     run_id: str
-    dataset_id: Union[None, Unset, str] = UNSET
-    dataset_version_index: Union[None, Unset, int] = UNSET
-    epoch: Union[Unset, int] = 0
-    feature_names: Union[None, Unset, list[str]] = UNSET
+    resource_limits: Union["TaskResourceLimits", None, Unset] = UNSET
     job_id: Union[None, Unset, str] = UNSET
     job_name: Union[Unset, str] = "default"
+    should_retry: Union[Unset, bool] = True
+    user_id: Union[None, Unset, str] = UNSET
+    task_type: Union[None, TaskType, Unset] = UNSET
     labels: Union[Unset, list[list[str]], list[str]] = UNSET
-    log_metric_computing_records: Union[Unset, bool] = False
-    luna_model: Union[None, Unset, str] = UNSET
-    metric_critique_configuration: Union["MetricCritiqueJobConfiguration", None, Unset] = UNSET
-    migration_name: Union[None, Unset, str] = UNSET
-    monitor_batch_id: Union[None, Unset, str] = UNSET
     ner_labels: Union[None, Unset, list[str]] = UNSET
+    tasks: Union[None, Unset, list[str]] = UNSET
     non_inference_logged: Union[Unset, bool] = False
+    migration_name: Union[None, Unset, str] = UNSET
+    xray: Union[Unset, bool] = True
     process_existing_inference_runs: Union[Unset, bool] = False
-    prompt_customized_scorers_configuration: Union[
-        None,
-        Unset,
-        list[
-            Union[
-                "CustomizedAgenticSessionSuccessGPTScorer",
-                "CustomizedAgenticWorkflowSuccessGPTScorer",
-                "CustomizedChunkAttributionUtilizationGPTScorer",
-                "CustomizedCompletenessGPTScorer",
-                "CustomizedFactualityGPTScorer",
-                "CustomizedGroundTruthAdherenceGPTScorer",
-                "CustomizedGroundednessGPTScorer",
-                "CustomizedInputSexistGPTScorer",
-                "CustomizedInputToxicityGPTScorer",
-                "CustomizedInstructionAdherenceGPTScorer",
-                "CustomizedPromptInjectionGPTScorer",
-                "CustomizedSexistGPTScorer",
-                "CustomizedToolErrorRateGPTScorer",
-                "CustomizedToolSelectionQualityGPTScorer",
-                "CustomizedToxicityGPTScorer",
-            ]
-        ],
-    ] = UNSET
+    feature_names: Union[None, Unset, list[str]] = UNSET
     prompt_dataset_id: Union[None, Unset, str] = UNSET
-    prompt_finetuned_scorers_configuration: Union[None, Unset, list["FineTunedScorer"]] = UNSET
-    prompt_generated_scorers_configuration: Union[None, Unset, list[str]] = UNSET
-    prompt_optimization_configuration: Union["PromptOptimizationConfiguration", None, Unset] = UNSET
-    prompt_registered_scorers_configuration: Union[None, Unset, list["RegisteredScorer"]] = UNSET
-    prompt_scorer_settings: Union["BaseScorer", None, Unset] = UNSET
-    prompt_scorers_configuration: Union["ScorersConfiguration", None, Unset] = UNSET
-    prompt_settings: Union["PromptRunSettings", None, Unset] = UNSET
+    dataset_id: Union[None, Unset, str] = UNSET
+    dataset_version_index: Union[None, Unset, int] = UNSET
     prompt_template_version_id: Union[None, Unset, str] = UNSET
-    protect_scorer_payload: Union[File, None, Unset] = UNSET
+    monitor_batch_id: Union[None, Unset, str] = UNSET
     protect_trace_id: Union[None, Unset, str] = UNSET
-    resource_limits: Union["TaskResourceLimits", None, Unset] = UNSET
-    scorer_config: Union["ScorerConfig", None, Unset] = UNSET
+    protect_scorer_payload: Union[File, None, Unset] = UNSET
+    prompt_settings: Union["PromptRunSettings", None, Unset] = UNSET
     scorers: Union[
         None,
         Unset,
@@ -212,14 +183,43 @@ class CreateJobRequest:
             ]
         ],
     ] = UNSET
-    segment_filters: Union[None, Unset, list["SegmentFilter"]] = UNSET
-    should_retry: Union[Unset, bool] = True
+    prompt_registered_scorers_configuration: Union[None, Unset, list["RegisteredScorer"]] = UNSET
+    prompt_generated_scorers_configuration: Union[None, Unset, list[str]] = UNSET
+    prompt_finetuned_scorers_configuration: Union[None, Unset, list["FineTunedScorer"]] = UNSET
+    prompt_scorers_configuration: Union["ScorersConfiguration", None, Unset] = UNSET
+    prompt_customized_scorers_configuration: Union[
+        None,
+        Unset,
+        list[
+            Union[
+                "CustomizedAgenticSessionSuccessGPTScorer",
+                "CustomizedAgenticWorkflowSuccessGPTScorer",
+                "CustomizedChunkAttributionUtilizationGPTScorer",
+                "CustomizedCompletenessGPTScorer",
+                "CustomizedFactualityGPTScorer",
+                "CustomizedGroundTruthAdherenceGPTScorer",
+                "CustomizedGroundednessGPTScorer",
+                "CustomizedInputSexistGPTScorer",
+                "CustomizedInputToxicityGPTScorer",
+                "CustomizedInstructionAdherenceGPTScorer",
+                "CustomizedPromptInjectionGPTScorer",
+                "CustomizedSexistGPTScorer",
+                "CustomizedToolErrorRateGPTScorer",
+                "CustomizedToolSelectionQualityGPTScorer",
+                "CustomizedToxicityGPTScorer",
+            ]
+        ],
+    ] = UNSET
+    prompt_scorer_settings: Union["BaseScorer", None, Unset] = UNSET
+    scorer_config: Union["ScorerConfig", None, Unset] = UNSET
     sub_scorers: Union[Unset, list[ScorerName]] = UNSET
-    task_type: Union[None, TaskType, Unset] = UNSET
-    tasks: Union[None, Unset, list[str]] = UNSET
+    luna_model: Union[None, Unset, str] = UNSET
+    segment_filters: Union[None, Unset, list["SegmentFilter"]] = UNSET
+    prompt_optimization_configuration: Union["PromptOptimizationConfiguration", None, Unset] = UNSET
+    epoch: Union[Unset, int] = 0
+    metric_critique_configuration: Union["MetricCritiqueJobConfiguration", None, Unset] = UNSET
     upload_data_in_separate_task: Union[Unset, bool] = True
-    user_id: Union[None, Unset, str] = UNSET
-    xray: Union[Unset, bool] = True
+    log_metric_computing_records: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -274,27 +274,31 @@ class CreateJobRequest:
 
         run_id = self.run_id
 
-        dataset_id: Union[None, Unset, str]
-        dataset_id = UNSET if isinstance(self.dataset_id, Unset) else self.dataset_id
-
-        dataset_version_index: Union[None, Unset, int]
-        dataset_version_index = UNSET if isinstance(self.dataset_version_index, Unset) else self.dataset_version_index
-
-        epoch = self.epoch
-
-        feature_names: Union[None, Unset, list[str]]
-        if isinstance(self.feature_names, Unset):
-            feature_names = UNSET
-        elif isinstance(self.feature_names, list):
-            feature_names = self.feature_names
-
+        resource_limits: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.resource_limits, Unset):
+            resource_limits = UNSET
+        elif isinstance(self.resource_limits, TaskResourceLimits):
+            resource_limits = self.resource_limits.to_dict()
         else:
-            feature_names = self.feature_names
+            resource_limits = self.resource_limits
 
         job_id: Union[None, Unset, str]
         job_id = UNSET if isinstance(self.job_id, Unset) else self.job_id
 
         job_name = self.job_name
+
+        should_retry = self.should_retry
+
+        user_id: Union[None, Unset, str]
+        user_id = UNSET if isinstance(self.user_id, Unset) else self.user_id
+
+        task_type: Union[None, Unset, int]
+        if isinstance(self.task_type, Unset):
+            task_type = UNSET
+        elif isinstance(self.task_type, TaskType):
+            task_type = self.task_type.value
+        else:
+            task_type = self.task_type
 
         labels: Union[Unset, list[list[str]], list[str]]
         if isinstance(self.labels, Unset):
@@ -309,25 +313,6 @@ class CreateJobRequest:
         else:
             labels = self.labels
 
-        log_metric_computing_records = self.log_metric_computing_records
-
-        luna_model: Union[None, Unset, str]
-        luna_model = UNSET if isinstance(self.luna_model, Unset) else self.luna_model
-
-        metric_critique_configuration: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.metric_critique_configuration, Unset):
-            metric_critique_configuration = UNSET
-        elif isinstance(self.metric_critique_configuration, MetricCritiqueJobConfiguration):
-            metric_critique_configuration = self.metric_critique_configuration.to_dict()
-        else:
-            metric_critique_configuration = self.metric_critique_configuration
-
-        migration_name: Union[None, Unset, str]
-        migration_name = UNSET if isinstance(self.migration_name, Unset) else self.migration_name
-
-        monitor_batch_id: Union[None, Unset, str]
-        monitor_batch_id = UNSET if isinstance(self.monitor_batch_id, Unset) else self.monitor_batch_id
-
         ner_labels: Union[None, Unset, list[str]]
         if isinstance(self.ner_labels, Unset):
             ner_labels = UNSET
@@ -337,130 +322,53 @@ class CreateJobRequest:
         else:
             ner_labels = self.ner_labels
 
+        tasks: Union[None, Unset, list[str]]
+        if isinstance(self.tasks, Unset):
+            tasks = UNSET
+        elif isinstance(self.tasks, list):
+            tasks = self.tasks
+
+        else:
+            tasks = self.tasks
+
         non_inference_logged = self.non_inference_logged
+
+        migration_name: Union[None, Unset, str]
+        migration_name = UNSET if isinstance(self.migration_name, Unset) else self.migration_name
+
+        xray = self.xray
 
         process_existing_inference_runs = self.process_existing_inference_runs
 
-        prompt_customized_scorers_configuration: Union[None, Unset, list[dict[str, Any]]]
-        if isinstance(self.prompt_customized_scorers_configuration, Unset):
-            prompt_customized_scorers_configuration = UNSET
-        elif isinstance(self.prompt_customized_scorers_configuration, list):
-            prompt_customized_scorers_configuration = []
-            for (
-                prompt_customized_scorers_configuration_type_0_item_data
-            ) in self.prompt_customized_scorers_configuration:
-                prompt_customized_scorers_configuration_type_0_item: dict[str, Any]
-                if isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data,
-                    (
-                        CustomizedAgenticSessionSuccessGPTScorer,
-                        CustomizedAgenticWorkflowSuccessGPTScorer,
-                        CustomizedChunkAttributionUtilizationGPTScorer,
-                        CustomizedCompletenessGPTScorer,
-                        CustomizedFactualityGPTScorer,
-                        CustomizedGroundednessGPTScorer,
-                        CustomizedInstructionAdherenceGPTScorer,
-                        CustomizedGroundTruthAdherenceGPTScorer,
-                        CustomizedPromptInjectionGPTScorer,
-                        CustomizedSexistGPTScorer,
-                        CustomizedInputSexistGPTScorer,
-                        CustomizedToolSelectionQualityGPTScorer,
-                        CustomizedToolErrorRateGPTScorer,
-                        CustomizedToxicityGPTScorer,
-                    ),
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                else:
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-
-                prompt_customized_scorers_configuration.append(prompt_customized_scorers_configuration_type_0_item)
+        feature_names: Union[None, Unset, list[str]]
+        if isinstance(self.feature_names, Unset):
+            feature_names = UNSET
+        elif isinstance(self.feature_names, list):
+            feature_names = self.feature_names
 
         else:
-            prompt_customized_scorers_configuration = self.prompt_customized_scorers_configuration
+            feature_names = self.feature_names
 
         prompt_dataset_id: Union[None, Unset, str]
         prompt_dataset_id = UNSET if isinstance(self.prompt_dataset_id, Unset) else self.prompt_dataset_id
 
-        prompt_finetuned_scorers_configuration: Union[None, Unset, list[dict[str, Any]]]
-        if isinstance(self.prompt_finetuned_scorers_configuration, Unset):
-            prompt_finetuned_scorers_configuration = UNSET
-        elif isinstance(self.prompt_finetuned_scorers_configuration, list):
-            prompt_finetuned_scorers_configuration = []
-            for prompt_finetuned_scorers_configuration_type_0_item_data in self.prompt_finetuned_scorers_configuration:
-                prompt_finetuned_scorers_configuration_type_0_item = (
-                    prompt_finetuned_scorers_configuration_type_0_item_data.to_dict()
-                )
-                prompt_finetuned_scorers_configuration.append(prompt_finetuned_scorers_configuration_type_0_item)
+        dataset_id: Union[None, Unset, str]
+        dataset_id = UNSET if isinstance(self.dataset_id, Unset) else self.dataset_id
 
-        else:
-            prompt_finetuned_scorers_configuration = self.prompt_finetuned_scorers_configuration
-
-        prompt_generated_scorers_configuration: Union[None, Unset, list[str]]
-        if isinstance(self.prompt_generated_scorers_configuration, Unset):
-            prompt_generated_scorers_configuration = UNSET
-        elif isinstance(self.prompt_generated_scorers_configuration, list):
-            prompt_generated_scorers_configuration = self.prompt_generated_scorers_configuration
-
-        else:
-            prompt_generated_scorers_configuration = self.prompt_generated_scorers_configuration
-
-        prompt_optimization_configuration: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.prompt_optimization_configuration, Unset):
-            prompt_optimization_configuration = UNSET
-        elif isinstance(self.prompt_optimization_configuration, PromptOptimizationConfiguration):
-            prompt_optimization_configuration = self.prompt_optimization_configuration.to_dict()
-        else:
-            prompt_optimization_configuration = self.prompt_optimization_configuration
-
-        prompt_registered_scorers_configuration: Union[None, Unset, list[dict[str, Any]]]
-        if isinstance(self.prompt_registered_scorers_configuration, Unset):
-            prompt_registered_scorers_configuration = UNSET
-        elif isinstance(self.prompt_registered_scorers_configuration, list):
-            prompt_registered_scorers_configuration = []
-            for (
-                prompt_registered_scorers_configuration_type_0_item_data
-            ) in self.prompt_registered_scorers_configuration:
-                prompt_registered_scorers_configuration_type_0_item = (
-                    prompt_registered_scorers_configuration_type_0_item_data.to_dict()
-                )
-                prompt_registered_scorers_configuration.append(prompt_registered_scorers_configuration_type_0_item)
-
-        else:
-            prompt_registered_scorers_configuration = self.prompt_registered_scorers_configuration
-
-        prompt_scorer_settings: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.prompt_scorer_settings, Unset):
-            prompt_scorer_settings = UNSET
-        elif isinstance(self.prompt_scorer_settings, BaseScorer):
-            prompt_scorer_settings = self.prompt_scorer_settings.to_dict()
-        else:
-            prompt_scorer_settings = self.prompt_scorer_settings
-
-        prompt_scorers_configuration: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.prompt_scorers_configuration, Unset):
-            prompt_scorers_configuration = UNSET
-        elif isinstance(self.prompt_scorers_configuration, ScorersConfiguration):
-            prompt_scorers_configuration = self.prompt_scorers_configuration.to_dict()
-        else:
-            prompt_scorers_configuration = self.prompt_scorers_configuration
-
-        prompt_settings: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.prompt_settings, Unset):
-            prompt_settings = UNSET
-        elif isinstance(self.prompt_settings, PromptRunSettings):
-            prompt_settings = self.prompt_settings.to_dict()
-        else:
-            prompt_settings = self.prompt_settings
+        dataset_version_index: Union[None, Unset, int]
+        dataset_version_index = UNSET if isinstance(self.dataset_version_index, Unset) else self.dataset_version_index
 
         prompt_template_version_id: Union[None, Unset, str]
         if isinstance(self.prompt_template_version_id, Unset):
             prompt_template_version_id = UNSET
         else:
             prompt_template_version_id = self.prompt_template_version_id
+
+        monitor_batch_id: Union[None, Unset, str]
+        monitor_batch_id = UNSET if isinstance(self.monitor_batch_id, Unset) else self.monitor_batch_id
+
+        protect_trace_id: Union[None, Unset, str]
+        protect_trace_id = UNSET if isinstance(self.protect_trace_id, Unset) else self.protect_trace_id
 
         protect_scorer_payload: Union[FileTypes, None, Unset]
         if isinstance(self.protect_scorer_payload, Unset):
@@ -471,24 +379,13 @@ class CreateJobRequest:
         else:
             protect_scorer_payload = self.protect_scorer_payload
 
-        protect_trace_id: Union[None, Unset, str]
-        protect_trace_id = UNSET if isinstance(self.protect_trace_id, Unset) else self.protect_trace_id
-
-        resource_limits: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.resource_limits, Unset):
-            resource_limits = UNSET
-        elif isinstance(self.resource_limits, TaskResourceLimits):
-            resource_limits = self.resource_limits.to_dict()
+        prompt_settings: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.prompt_settings, Unset):
+            prompt_settings = UNSET
+        elif isinstance(self.prompt_settings, PromptRunSettings):
+            prompt_settings = self.prompt_settings.to_dict()
         else:
-            resource_limits = self.resource_limits
-
-        scorer_config: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.scorer_config, Unset):
-            scorer_config = UNSET
-        elif isinstance(self.scorer_config, ScorerConfig):
-            scorer_config = self.scorer_config.to_dict()
-        else:
-            scorer_config = self.scorer_config
+            prompt_settings = self.prompt_settings
 
         scorers: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.scorers, Unset):
@@ -540,6 +437,120 @@ class CreateJobRequest:
         else:
             scorers = self.scorers
 
+        prompt_registered_scorers_configuration: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.prompt_registered_scorers_configuration, Unset):
+            prompt_registered_scorers_configuration = UNSET
+        elif isinstance(self.prompt_registered_scorers_configuration, list):
+            prompt_registered_scorers_configuration = []
+            for (
+                prompt_registered_scorers_configuration_type_0_item_data
+            ) in self.prompt_registered_scorers_configuration:
+                prompt_registered_scorers_configuration_type_0_item = (
+                    prompt_registered_scorers_configuration_type_0_item_data.to_dict()
+                )
+                prompt_registered_scorers_configuration.append(prompt_registered_scorers_configuration_type_0_item)
+
+        else:
+            prompt_registered_scorers_configuration = self.prompt_registered_scorers_configuration
+
+        prompt_generated_scorers_configuration: Union[None, Unset, list[str]]
+        if isinstance(self.prompt_generated_scorers_configuration, Unset):
+            prompt_generated_scorers_configuration = UNSET
+        elif isinstance(self.prompt_generated_scorers_configuration, list):
+            prompt_generated_scorers_configuration = self.prompt_generated_scorers_configuration
+
+        else:
+            prompt_generated_scorers_configuration = self.prompt_generated_scorers_configuration
+
+        prompt_finetuned_scorers_configuration: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.prompt_finetuned_scorers_configuration, Unset):
+            prompt_finetuned_scorers_configuration = UNSET
+        elif isinstance(self.prompt_finetuned_scorers_configuration, list):
+            prompt_finetuned_scorers_configuration = []
+            for prompt_finetuned_scorers_configuration_type_0_item_data in self.prompt_finetuned_scorers_configuration:
+                prompt_finetuned_scorers_configuration_type_0_item = (
+                    prompt_finetuned_scorers_configuration_type_0_item_data.to_dict()
+                )
+                prompt_finetuned_scorers_configuration.append(prompt_finetuned_scorers_configuration_type_0_item)
+
+        else:
+            prompt_finetuned_scorers_configuration = self.prompt_finetuned_scorers_configuration
+
+        prompt_scorers_configuration: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.prompt_scorers_configuration, Unset):
+            prompt_scorers_configuration = UNSET
+        elif isinstance(self.prompt_scorers_configuration, ScorersConfiguration):
+            prompt_scorers_configuration = self.prompt_scorers_configuration.to_dict()
+        else:
+            prompt_scorers_configuration = self.prompt_scorers_configuration
+
+        prompt_customized_scorers_configuration: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.prompt_customized_scorers_configuration, Unset):
+            prompt_customized_scorers_configuration = UNSET
+        elif isinstance(self.prompt_customized_scorers_configuration, list):
+            prompt_customized_scorers_configuration = []
+            for (
+                prompt_customized_scorers_configuration_type_0_item_data
+            ) in self.prompt_customized_scorers_configuration:
+                prompt_customized_scorers_configuration_type_0_item: dict[str, Any]
+                if isinstance(
+                    prompt_customized_scorers_configuration_type_0_item_data,
+                    (
+                        CustomizedAgenticSessionSuccessGPTScorer,
+                        CustomizedAgenticWorkflowSuccessGPTScorer,
+                        CustomizedChunkAttributionUtilizationGPTScorer,
+                        CustomizedCompletenessGPTScorer,
+                        CustomizedFactualityGPTScorer,
+                        CustomizedGroundednessGPTScorer,
+                        CustomizedInstructionAdherenceGPTScorer,
+                        CustomizedGroundTruthAdherenceGPTScorer,
+                        CustomizedPromptInjectionGPTScorer,
+                        CustomizedSexistGPTScorer,
+                        CustomizedInputSexistGPTScorer,
+                        CustomizedToolSelectionQualityGPTScorer,
+                        CustomizedToolErrorRateGPTScorer,
+                        CustomizedToxicityGPTScorer,
+                    ),
+                ):
+                    prompt_customized_scorers_configuration_type_0_item = (
+                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
+                    )
+                else:
+                    prompt_customized_scorers_configuration_type_0_item = (
+                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
+                    )
+
+                prompt_customized_scorers_configuration.append(prompt_customized_scorers_configuration_type_0_item)
+
+        else:
+            prompt_customized_scorers_configuration = self.prompt_customized_scorers_configuration
+
+        prompt_scorer_settings: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.prompt_scorer_settings, Unset):
+            prompt_scorer_settings = UNSET
+        elif isinstance(self.prompt_scorer_settings, BaseScorer):
+            prompt_scorer_settings = self.prompt_scorer_settings.to_dict()
+        else:
+            prompt_scorer_settings = self.prompt_scorer_settings
+
+        scorer_config: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.scorer_config, Unset):
+            scorer_config = UNSET
+        elif isinstance(self.scorer_config, ScorerConfig):
+            scorer_config = self.scorer_config.to_dict()
+        else:
+            scorer_config = self.scorer_config
+
+        sub_scorers: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.sub_scorers, Unset):
+            sub_scorers = []
+            for sub_scorers_item_data in self.sub_scorers:
+                sub_scorers_item = sub_scorers_item_data.value
+                sub_scorers.append(sub_scorers_item)
+
+        luna_model: Union[None, Unset, str]
+        luna_model = UNSET if isinstance(self.luna_model, Unset) else self.luna_model
+
         segment_filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.segment_filters, Unset):
             segment_filters = UNSET
@@ -552,118 +563,107 @@ class CreateJobRequest:
         else:
             segment_filters = self.segment_filters
 
-        should_retry = self.should_retry
-
-        sub_scorers: Union[Unset, list[str]] = UNSET
-        if not isinstance(self.sub_scorers, Unset):
-            sub_scorers = []
-            for sub_scorers_item_data in self.sub_scorers:
-                sub_scorers_item = sub_scorers_item_data.value
-                sub_scorers.append(sub_scorers_item)
-
-        task_type: Union[None, Unset, int]
-        if isinstance(self.task_type, Unset):
-            task_type = UNSET
-        elif isinstance(self.task_type, TaskType):
-            task_type = self.task_type.value
+        prompt_optimization_configuration: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.prompt_optimization_configuration, Unset):
+            prompt_optimization_configuration = UNSET
+        elif isinstance(self.prompt_optimization_configuration, PromptOptimizationConfiguration):
+            prompt_optimization_configuration = self.prompt_optimization_configuration.to_dict()
         else:
-            task_type = self.task_type
+            prompt_optimization_configuration = self.prompt_optimization_configuration
 
-        tasks: Union[None, Unset, list[str]]
-        if isinstance(self.tasks, Unset):
-            tasks = UNSET
-        elif isinstance(self.tasks, list):
-            tasks = self.tasks
+        epoch = self.epoch
 
+        metric_critique_configuration: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.metric_critique_configuration, Unset):
+            metric_critique_configuration = UNSET
+        elif isinstance(self.metric_critique_configuration, MetricCritiqueJobConfiguration):
+            metric_critique_configuration = self.metric_critique_configuration.to_dict()
         else:
-            tasks = self.tasks
+            metric_critique_configuration = self.metric_critique_configuration
 
         upload_data_in_separate_task = self.upload_data_in_separate_task
 
-        user_id: Union[None, Unset, str]
-        user_id = UNSET if isinstance(self.user_id, Unset) else self.user_id
-
-        xray = self.xray
+        log_metric_computing_records = self.log_metric_computing_records
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"project_id": project_id, "run_id": run_id})
-        if dataset_id is not UNSET:
-            field_dict["dataset_id"] = dataset_id
-        if dataset_version_index is not UNSET:
-            field_dict["dataset_version_index"] = dataset_version_index
-        if epoch is not UNSET:
-            field_dict["epoch"] = epoch
-        if feature_names is not UNSET:
-            field_dict["feature_names"] = feature_names
+        if resource_limits is not UNSET:
+            field_dict["resource_limits"] = resource_limits
         if job_id is not UNSET:
             field_dict["job_id"] = job_id
         if job_name is not UNSET:
             field_dict["job_name"] = job_name
-        if labels is not UNSET:
-            field_dict["labels"] = labels
-        if log_metric_computing_records is not UNSET:
-            field_dict["log_metric_computing_records"] = log_metric_computing_records
-        if luna_model is not UNSET:
-            field_dict["luna_model"] = luna_model
-        if metric_critique_configuration is not UNSET:
-            field_dict["metric_critique_configuration"] = metric_critique_configuration
-        if migration_name is not UNSET:
-            field_dict["migration_name"] = migration_name
-        if monitor_batch_id is not UNSET:
-            field_dict["monitor_batch_id"] = monitor_batch_id
-        if ner_labels is not UNSET:
-            field_dict["ner_labels"] = ner_labels
-        if non_inference_logged is not UNSET:
-            field_dict["non_inference_logged"] = non_inference_logged
-        if process_existing_inference_runs is not UNSET:
-            field_dict["process_existing_inference_runs"] = process_existing_inference_runs
-        if prompt_customized_scorers_configuration is not UNSET:
-            field_dict["prompt_customized_scorers_configuration"] = prompt_customized_scorers_configuration
-        if prompt_dataset_id is not UNSET:
-            field_dict["prompt_dataset_id"] = prompt_dataset_id
-        if prompt_finetuned_scorers_configuration is not UNSET:
-            field_dict["prompt_finetuned_scorers_configuration"] = prompt_finetuned_scorers_configuration
-        if prompt_generated_scorers_configuration is not UNSET:
-            field_dict["prompt_generated_scorers_configuration"] = prompt_generated_scorers_configuration
-        if prompt_optimization_configuration is not UNSET:
-            field_dict["prompt_optimization_configuration"] = prompt_optimization_configuration
-        if prompt_registered_scorers_configuration is not UNSET:
-            field_dict["prompt_registered_scorers_configuration"] = prompt_registered_scorers_configuration
-        if prompt_scorer_settings is not UNSET:
-            field_dict["prompt_scorer_settings"] = prompt_scorer_settings
-        if prompt_scorers_configuration is not UNSET:
-            field_dict["prompt_scorers_configuration"] = prompt_scorers_configuration
-        if prompt_settings is not UNSET:
-            field_dict["prompt_settings"] = prompt_settings
-        if prompt_template_version_id is not UNSET:
-            field_dict["prompt_template_version_id"] = prompt_template_version_id
-        if protect_scorer_payload is not UNSET:
-            field_dict["protect_scorer_payload"] = protect_scorer_payload
-        if protect_trace_id is not UNSET:
-            field_dict["protect_trace_id"] = protect_trace_id
-        if resource_limits is not UNSET:
-            field_dict["resource_limits"] = resource_limits
-        if scorer_config is not UNSET:
-            field_dict["scorer_config"] = scorer_config
-        if scorers is not UNSET:
-            field_dict["scorers"] = scorers
-        if segment_filters is not UNSET:
-            field_dict["segment_filters"] = segment_filters
         if should_retry is not UNSET:
             field_dict["should_retry"] = should_retry
-        if sub_scorers is not UNSET:
-            field_dict["sub_scorers"] = sub_scorers
-        if task_type is not UNSET:
-            field_dict["task_type"] = task_type
-        if tasks is not UNSET:
-            field_dict["tasks"] = tasks
-        if upload_data_in_separate_task is not UNSET:
-            field_dict["upload_data_in_separate_task"] = upload_data_in_separate_task
         if user_id is not UNSET:
             field_dict["user_id"] = user_id
+        if task_type is not UNSET:
+            field_dict["task_type"] = task_type
+        if labels is not UNSET:
+            field_dict["labels"] = labels
+        if ner_labels is not UNSET:
+            field_dict["ner_labels"] = ner_labels
+        if tasks is not UNSET:
+            field_dict["tasks"] = tasks
+        if non_inference_logged is not UNSET:
+            field_dict["non_inference_logged"] = non_inference_logged
+        if migration_name is not UNSET:
+            field_dict["migration_name"] = migration_name
         if xray is not UNSET:
             field_dict["xray"] = xray
+        if process_existing_inference_runs is not UNSET:
+            field_dict["process_existing_inference_runs"] = process_existing_inference_runs
+        if feature_names is not UNSET:
+            field_dict["feature_names"] = feature_names
+        if prompt_dataset_id is not UNSET:
+            field_dict["prompt_dataset_id"] = prompt_dataset_id
+        if dataset_id is not UNSET:
+            field_dict["dataset_id"] = dataset_id
+        if dataset_version_index is not UNSET:
+            field_dict["dataset_version_index"] = dataset_version_index
+        if prompt_template_version_id is not UNSET:
+            field_dict["prompt_template_version_id"] = prompt_template_version_id
+        if monitor_batch_id is not UNSET:
+            field_dict["monitor_batch_id"] = monitor_batch_id
+        if protect_trace_id is not UNSET:
+            field_dict["protect_trace_id"] = protect_trace_id
+        if protect_scorer_payload is not UNSET:
+            field_dict["protect_scorer_payload"] = protect_scorer_payload
+        if prompt_settings is not UNSET:
+            field_dict["prompt_settings"] = prompt_settings
+        if scorers is not UNSET:
+            field_dict["scorers"] = scorers
+        if prompt_registered_scorers_configuration is not UNSET:
+            field_dict["prompt_registered_scorers_configuration"] = prompt_registered_scorers_configuration
+        if prompt_generated_scorers_configuration is not UNSET:
+            field_dict["prompt_generated_scorers_configuration"] = prompt_generated_scorers_configuration
+        if prompt_finetuned_scorers_configuration is not UNSET:
+            field_dict["prompt_finetuned_scorers_configuration"] = prompt_finetuned_scorers_configuration
+        if prompt_scorers_configuration is not UNSET:
+            field_dict["prompt_scorers_configuration"] = prompt_scorers_configuration
+        if prompt_customized_scorers_configuration is not UNSET:
+            field_dict["prompt_customized_scorers_configuration"] = prompt_customized_scorers_configuration
+        if prompt_scorer_settings is not UNSET:
+            field_dict["prompt_scorer_settings"] = prompt_scorer_settings
+        if scorer_config is not UNSET:
+            field_dict["scorer_config"] = scorer_config
+        if sub_scorers is not UNSET:
+            field_dict["sub_scorers"] = sub_scorers
+        if luna_model is not UNSET:
+            field_dict["luna_model"] = luna_model
+        if segment_filters is not UNSET:
+            field_dict["segment_filters"] = segment_filters
+        if prompt_optimization_configuration is not UNSET:
+            field_dict["prompt_optimization_configuration"] = prompt_optimization_configuration
+        if epoch is not UNSET:
+            field_dict["epoch"] = epoch
+        if metric_critique_configuration is not UNSET:
+            field_dict["metric_critique_configuration"] = metric_critique_configuration
+        if upload_data_in_separate_task is not UNSET:
+            field_dict["upload_data_in_separate_task"] = upload_data_in_separate_task
+        if log_metric_computing_records is not UNSET:
+            field_dict["log_metric_computing_records"] = log_metric_computing_records
 
         return field_dict
 
@@ -726,41 +726,21 @@ class CreateJobRequest:
 
         run_id = d.pop("run_id")
 
-        def _parse_dataset_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        dataset_id = _parse_dataset_id(d.pop("dataset_id", UNSET))
-
-        def _parse_dataset_version_index(data: object) -> Union[None, Unset, int]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, int], data)
-
-        dataset_version_index = _parse_dataset_version_index(d.pop("dataset_version_index", UNSET))
-
-        epoch = d.pop("epoch", UNSET)
-
-        def _parse_feature_names(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_resource_limits(data: object) -> Union["TaskResourceLimits", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             try:
-                if not isinstance(data, list):
+                if not isinstance(data, dict):
                     raise TypeError()
-                return cast(list[str], data)
+                return TaskResourceLimits.from_dict(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(Union["TaskResourceLimits", None, Unset], data)
 
-        feature_names = _parse_feature_names(d.pop("feature_names", UNSET))
+        resource_limits = _parse_resource_limits(d.pop("resource_limits", UNSET))
 
         def _parse_job_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -772,6 +752,33 @@ class CreateJobRequest:
         job_id = _parse_job_id(d.pop("job_id", UNSET))
 
         job_name = d.pop("job_name", UNSET)
+
+        should_retry = d.pop("should_retry", UNSET)
+
+        def _parse_user_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        user_id = _parse_user_id(d.pop("user_id", UNSET))
+
+        def _parse_task_type(data: object) -> Union[None, TaskType, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, int):
+                    raise TypeError()
+                return TaskType(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, TaskType, Unset], data)
+
+        task_type = _parse_task_type(d.pop("task_type", UNSET))
 
         def _parse_labels(data: object) -> Union[Unset, list[list[str]], list[str]]:
             if isinstance(data, Unset):
@@ -795,53 +802,6 @@ class CreateJobRequest:
 
         labels = _parse_labels(d.pop("labels", UNSET))
 
-        log_metric_computing_records = d.pop("log_metric_computing_records", UNSET)
-
-        def _parse_luna_model(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        luna_model = _parse_luna_model(d.pop("luna_model", UNSET))
-
-        def _parse_metric_critique_configuration(data: object) -> Union["MetricCritiqueJobConfiguration", None, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return MetricCritiqueJobConfiguration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union["MetricCritiqueJobConfiguration", None, Unset], data)
-
-        metric_critique_configuration = _parse_metric_critique_configuration(
-            d.pop("metric_critique_configuration", UNSET)
-        )
-
-        def _parse_migration_name(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        migration_name = _parse_migration_name(d.pop("migration_name", UNSET))
-
-        def _parse_monitor_batch_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        monitor_batch_id = _parse_monitor_batch_id(d.pop("monitor_batch_id", UNSET))
-
         def _parse_ner_labels(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
@@ -858,253 +818,7 @@ class CreateJobRequest:
 
         ner_labels = _parse_ner_labels(d.pop("ner_labels", UNSET))
 
-        non_inference_logged = d.pop("non_inference_logged", UNSET)
-
-        process_existing_inference_runs = d.pop("process_existing_inference_runs", UNSET)
-
-        def _parse_prompt_customized_scorers_configuration(
-            data: object,
-        ) -> Union[
-            None,
-            Unset,
-            list[
-                Union[
-                    "CustomizedAgenticSessionSuccessGPTScorer",
-                    "CustomizedAgenticWorkflowSuccessGPTScorer",
-                    "CustomizedChunkAttributionUtilizationGPTScorer",
-                    "CustomizedCompletenessGPTScorer",
-                    "CustomizedFactualityGPTScorer",
-                    "CustomizedGroundTruthAdherenceGPTScorer",
-                    "CustomizedGroundednessGPTScorer",
-                    "CustomizedInputSexistGPTScorer",
-                    "CustomizedInputToxicityGPTScorer",
-                    "CustomizedInstructionAdherenceGPTScorer",
-                    "CustomizedPromptInjectionGPTScorer",
-                    "CustomizedSexistGPTScorer",
-                    "CustomizedToolErrorRateGPTScorer",
-                    "CustomizedToolSelectionQualityGPTScorer",
-                    "CustomizedToxicityGPTScorer",
-                ]
-            ],
-        ]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                prompt_customized_scorers_configuration_type_0 = []
-                _prompt_customized_scorers_configuration_type_0 = data
-                for (
-                    prompt_customized_scorers_configuration_type_0_item_data
-                ) in _prompt_customized_scorers_configuration_type_0:
-
-                    def _parse_prompt_customized_scorers_configuration_type_0_item(
-                        data: object,
-                    ) -> Union[
-                        "CustomizedAgenticSessionSuccessGPTScorer",
-                        "CustomizedAgenticWorkflowSuccessGPTScorer",
-                        "CustomizedChunkAttributionUtilizationGPTScorer",
-                        "CustomizedCompletenessGPTScorer",
-                        "CustomizedFactualityGPTScorer",
-                        "CustomizedGroundTruthAdherenceGPTScorer",
-                        "CustomizedGroundednessGPTScorer",
-                        "CustomizedInputSexistGPTScorer",
-                        "CustomizedInputToxicityGPTScorer",
-                        "CustomizedInstructionAdherenceGPTScorer",
-                        "CustomizedPromptInjectionGPTScorer",
-                        "CustomizedSexistGPTScorer",
-                        "CustomizedToolErrorRateGPTScorer",
-                        "CustomizedToolSelectionQualityGPTScorer",
-                        "CustomizedToxicityGPTScorer",
-                    ]:
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedAgenticSessionSuccessGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedAgenticWorkflowSuccessGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedChunkAttributionUtilizationGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedCompletenessGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedFactualityGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedGroundednessGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedInstructionAdherenceGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedGroundTruthAdherenceGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedPromptInjectionGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedSexistGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedInputSexistGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedToolSelectionQualityGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedToolErrorRateGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return CustomizedToxicityGPTScorer.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        if not isinstance(data, dict):
-                            raise TypeError()
-                        return CustomizedInputToxicityGPTScorer.from_dict(data)
-
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        _parse_prompt_customized_scorers_configuration_type_0_item(
-                            prompt_customized_scorers_configuration_type_0_item_data
-                        )
-                    )
-
-                    prompt_customized_scorers_configuration_type_0.append(
-                        prompt_customized_scorers_configuration_type_0_item
-                    )
-
-                return prompt_customized_scorers_configuration_type_0
-            except:  # noqa: E722
-                pass
-            return cast(
-                Union[
-                    None,
-                    Unset,
-                    list[
-                        Union[
-                            "CustomizedAgenticSessionSuccessGPTScorer",
-                            "CustomizedAgenticWorkflowSuccessGPTScorer",
-                            "CustomizedChunkAttributionUtilizationGPTScorer",
-                            "CustomizedCompletenessGPTScorer",
-                            "CustomizedFactualityGPTScorer",
-                            "CustomizedGroundTruthAdherenceGPTScorer",
-                            "CustomizedGroundednessGPTScorer",
-                            "CustomizedInputSexistGPTScorer",
-                            "CustomizedInputToxicityGPTScorer",
-                            "CustomizedInstructionAdherenceGPTScorer",
-                            "CustomizedPromptInjectionGPTScorer",
-                            "CustomizedSexistGPTScorer",
-                            "CustomizedToolErrorRateGPTScorer",
-                            "CustomizedToolSelectionQualityGPTScorer",
-                            "CustomizedToxicityGPTScorer",
-                        ]
-                    ],
-                ],
-                data,
-            )
-
-        prompt_customized_scorers_configuration = _parse_prompt_customized_scorers_configuration(
-            d.pop("prompt_customized_scorers_configuration", UNSET)
-        )
-
-        def _parse_prompt_dataset_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        prompt_dataset_id = _parse_prompt_dataset_id(d.pop("prompt_dataset_id", UNSET))
-
-        def _parse_prompt_finetuned_scorers_configuration(data: object) -> Union[None, Unset, list["FineTunedScorer"]]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                prompt_finetuned_scorers_configuration_type_0 = []
-                _prompt_finetuned_scorers_configuration_type_0 = data
-                for (
-                    prompt_finetuned_scorers_configuration_type_0_item_data
-                ) in _prompt_finetuned_scorers_configuration_type_0:
-                    prompt_finetuned_scorers_configuration_type_0_item = FineTunedScorer.from_dict(
-                        prompt_finetuned_scorers_configuration_type_0_item_data
-                    )
-
-                    prompt_finetuned_scorers_configuration_type_0.append(
-                        prompt_finetuned_scorers_configuration_type_0_item
-                    )
-
-                return prompt_finetuned_scorers_configuration_type_0
-            except:  # noqa: E722
-                pass
-            return cast(Union[None, Unset, list["FineTunedScorer"]], data)
-
-        prompt_finetuned_scorers_configuration = _parse_prompt_finetuned_scorers_configuration(
-            d.pop("prompt_finetuned_scorers_configuration", UNSET)
-        )
-
-        def _parse_prompt_generated_scorers_configuration(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_tasks(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1118,33 +832,24 @@ class CreateJobRequest:
                 pass
             return cast(Union[None, Unset, list[str]], data)
 
-        prompt_generated_scorers_configuration = _parse_prompt_generated_scorers_configuration(
-            d.pop("prompt_generated_scorers_configuration", UNSET)
-        )
+        tasks = _parse_tasks(d.pop("tasks", UNSET))
 
-        def _parse_prompt_optimization_configuration(
-            data: object,
-        ) -> Union["PromptOptimizationConfiguration", None, Unset]:
+        non_inference_logged = d.pop("non_inference_logged", UNSET)
+
+        def _parse_migration_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return PromptOptimizationConfiguration.from_dict(data)
+            return cast(Union[None, Unset, str], data)
 
-            except:  # noqa: E722
-                pass
-            return cast(Union["PromptOptimizationConfiguration", None, Unset], data)
+        migration_name = _parse_migration_name(d.pop("migration_name", UNSET))
 
-        prompt_optimization_configuration = _parse_prompt_optimization_configuration(
-            d.pop("prompt_optimization_configuration", UNSET)
-        )
+        xray = d.pop("xray", UNSET)
 
-        def _parse_prompt_registered_scorers_configuration(
-            data: object,
-        ) -> Union[None, Unset, list["RegisteredScorer"]]:
+        process_existing_inference_runs = d.pop("process_existing_inference_runs", UNSET)
+
+        def _parse_feature_names(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1152,75 +857,40 @@ class CreateJobRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                prompt_registered_scorers_configuration_type_0 = []
-                _prompt_registered_scorers_configuration_type_0 = data
-                for (
-                    prompt_registered_scorers_configuration_type_0_item_data
-                ) in _prompt_registered_scorers_configuration_type_0:
-                    prompt_registered_scorers_configuration_type_0_item = RegisteredScorer.from_dict(
-                        prompt_registered_scorers_configuration_type_0_item_data
-                    )
+                return cast(list[str], data)
 
-                    prompt_registered_scorers_configuration_type_0.append(
-                        prompt_registered_scorers_configuration_type_0_item
-                    )
-
-                return prompt_registered_scorers_configuration_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["RegisteredScorer"]], data)
+            return cast(Union[None, Unset, list[str]], data)
 
-        prompt_registered_scorers_configuration = _parse_prompt_registered_scorers_configuration(
-            d.pop("prompt_registered_scorers_configuration", UNSET)
-        )
+        feature_names = _parse_feature_names(d.pop("feature_names", UNSET))
 
-        def _parse_prompt_scorer_settings(data: object) -> Union["BaseScorer", None, Unset]:
+        def _parse_prompt_dataset_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return BaseScorer.from_dict(data)
+            return cast(Union[None, Unset, str], data)
 
-            except:  # noqa: E722
-                pass
-            return cast(Union["BaseScorer", None, Unset], data)
+        prompt_dataset_id = _parse_prompt_dataset_id(d.pop("prompt_dataset_id", UNSET))
 
-        prompt_scorer_settings = _parse_prompt_scorer_settings(d.pop("prompt_scorer_settings", UNSET))
-
-        def _parse_prompt_scorers_configuration(data: object) -> Union["ScorersConfiguration", None, Unset]:
+        def _parse_dataset_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return ScorersConfiguration.from_dict(data)
+            return cast(Union[None, Unset, str], data)
 
-            except:  # noqa: E722
-                pass
-            return cast(Union["ScorersConfiguration", None, Unset], data)
+        dataset_id = _parse_dataset_id(d.pop("dataset_id", UNSET))
 
-        prompt_scorers_configuration = _parse_prompt_scorers_configuration(d.pop("prompt_scorers_configuration", UNSET))
-
-        def _parse_prompt_settings(data: object) -> Union["PromptRunSettings", None, Unset]:
+        def _parse_dataset_version_index(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return PromptRunSettings.from_dict(data)
+            return cast(Union[None, Unset, int], data)
 
-            except:  # noqa: E722
-                pass
-            return cast(Union["PromptRunSettings", None, Unset], data)
-
-        prompt_settings = _parse_prompt_settings(d.pop("prompt_settings", UNSET))
+        dataset_version_index = _parse_dataset_version_index(d.pop("dataset_version_index", UNSET))
 
         def _parse_prompt_template_version_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -1230,6 +900,24 @@ class CreateJobRequest:
             return cast(Union[None, Unset, str], data)
 
         prompt_template_version_id = _parse_prompt_template_version_id(d.pop("prompt_template_version_id", UNSET))
+
+        def _parse_monitor_batch_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        monitor_batch_id = _parse_monitor_batch_id(d.pop("monitor_batch_id", UNSET))
+
+        def _parse_protect_trace_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        protect_trace_id = _parse_protect_trace_id(d.pop("protect_trace_id", UNSET))
 
         def _parse_protect_scorer_payload(data: object) -> Union[File, None, Unset]:
             if data is None:
@@ -1247,16 +935,7 @@ class CreateJobRequest:
 
         protect_scorer_payload = _parse_protect_scorer_payload(d.pop("protect_scorer_payload", UNSET))
 
-        def _parse_protect_trace_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        protect_trace_id = _parse_protect_trace_id(d.pop("protect_trace_id", UNSET))
-
-        def _parse_resource_limits(data: object) -> Union["TaskResourceLimits", None, Unset]:
+        def _parse_prompt_settings(data: object) -> Union["PromptRunSettings", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1264,29 +943,13 @@ class CreateJobRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return TaskResourceLimits.from_dict(data)
+                return PromptRunSettings.from_dict(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union["TaskResourceLimits", None, Unset], data)
+            return cast(Union["PromptRunSettings", None, Unset], data)
 
-        resource_limits = _parse_resource_limits(d.pop("resource_limits", UNSET))
-
-        def _parse_scorer_config(data: object) -> Union["ScorerConfig", None, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return ScorerConfig.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union["ScorerConfig", None, Unset], data)
-
-        scorer_config = _parse_scorer_config(d.pop("scorer_config", UNSET))
+        prompt_settings = _parse_prompt_settings(d.pop("prompt_settings", UNSET))
 
         def _parse_scorers(
             data: object,
@@ -1586,6 +1249,353 @@ class CreateJobRequest:
 
         scorers = _parse_scorers(d.pop("scorers", UNSET))
 
+        def _parse_prompt_registered_scorers_configuration(
+            data: object,
+        ) -> Union[None, Unset, list["RegisteredScorer"]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                prompt_registered_scorers_configuration_type_0 = []
+                _prompt_registered_scorers_configuration_type_0 = data
+                for (
+                    prompt_registered_scorers_configuration_type_0_item_data
+                ) in _prompt_registered_scorers_configuration_type_0:
+                    prompt_registered_scorers_configuration_type_0_item = RegisteredScorer.from_dict(
+                        prompt_registered_scorers_configuration_type_0_item_data
+                    )
+
+                    prompt_registered_scorers_configuration_type_0.append(
+                        prompt_registered_scorers_configuration_type_0_item
+                    )
+
+                return prompt_registered_scorers_configuration_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list["RegisteredScorer"]], data)
+
+        prompt_registered_scorers_configuration = _parse_prompt_registered_scorers_configuration(
+            d.pop("prompt_registered_scorers_configuration", UNSET)
+        )
+
+        def _parse_prompt_generated_scorers_configuration(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        prompt_generated_scorers_configuration = _parse_prompt_generated_scorers_configuration(
+            d.pop("prompt_generated_scorers_configuration", UNSET)
+        )
+
+        def _parse_prompt_finetuned_scorers_configuration(data: object) -> Union[None, Unset, list["FineTunedScorer"]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                prompt_finetuned_scorers_configuration_type_0 = []
+                _prompt_finetuned_scorers_configuration_type_0 = data
+                for (
+                    prompt_finetuned_scorers_configuration_type_0_item_data
+                ) in _prompt_finetuned_scorers_configuration_type_0:
+                    prompt_finetuned_scorers_configuration_type_0_item = FineTunedScorer.from_dict(
+                        prompt_finetuned_scorers_configuration_type_0_item_data
+                    )
+
+                    prompt_finetuned_scorers_configuration_type_0.append(
+                        prompt_finetuned_scorers_configuration_type_0_item
+                    )
+
+                return prompt_finetuned_scorers_configuration_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list["FineTunedScorer"]], data)
+
+        prompt_finetuned_scorers_configuration = _parse_prompt_finetuned_scorers_configuration(
+            d.pop("prompt_finetuned_scorers_configuration", UNSET)
+        )
+
+        def _parse_prompt_scorers_configuration(data: object) -> Union["ScorersConfiguration", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ScorersConfiguration.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["ScorersConfiguration", None, Unset], data)
+
+        prompt_scorers_configuration = _parse_prompt_scorers_configuration(d.pop("prompt_scorers_configuration", UNSET))
+
+        def _parse_prompt_customized_scorers_configuration(
+            data: object,
+        ) -> Union[
+            None,
+            Unset,
+            list[
+                Union[
+                    "CustomizedAgenticSessionSuccessGPTScorer",
+                    "CustomizedAgenticWorkflowSuccessGPTScorer",
+                    "CustomizedChunkAttributionUtilizationGPTScorer",
+                    "CustomizedCompletenessGPTScorer",
+                    "CustomizedFactualityGPTScorer",
+                    "CustomizedGroundTruthAdherenceGPTScorer",
+                    "CustomizedGroundednessGPTScorer",
+                    "CustomizedInputSexistGPTScorer",
+                    "CustomizedInputToxicityGPTScorer",
+                    "CustomizedInstructionAdherenceGPTScorer",
+                    "CustomizedPromptInjectionGPTScorer",
+                    "CustomizedSexistGPTScorer",
+                    "CustomizedToolErrorRateGPTScorer",
+                    "CustomizedToolSelectionQualityGPTScorer",
+                    "CustomizedToxicityGPTScorer",
+                ]
+            ],
+        ]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                prompt_customized_scorers_configuration_type_0 = []
+                _prompt_customized_scorers_configuration_type_0 = data
+                for (
+                    prompt_customized_scorers_configuration_type_0_item_data
+                ) in _prompt_customized_scorers_configuration_type_0:
+
+                    def _parse_prompt_customized_scorers_configuration_type_0_item(
+                        data: object,
+                    ) -> Union[
+                        "CustomizedAgenticSessionSuccessGPTScorer",
+                        "CustomizedAgenticWorkflowSuccessGPTScorer",
+                        "CustomizedChunkAttributionUtilizationGPTScorer",
+                        "CustomizedCompletenessGPTScorer",
+                        "CustomizedFactualityGPTScorer",
+                        "CustomizedGroundTruthAdherenceGPTScorer",
+                        "CustomizedGroundednessGPTScorer",
+                        "CustomizedInputSexistGPTScorer",
+                        "CustomizedInputToxicityGPTScorer",
+                        "CustomizedInstructionAdherenceGPTScorer",
+                        "CustomizedPromptInjectionGPTScorer",
+                        "CustomizedSexistGPTScorer",
+                        "CustomizedToolErrorRateGPTScorer",
+                        "CustomizedToolSelectionQualityGPTScorer",
+                        "CustomizedToxicityGPTScorer",
+                    ]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedAgenticSessionSuccessGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedAgenticWorkflowSuccessGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedChunkAttributionUtilizationGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedCompletenessGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedFactualityGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedGroundednessGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedInstructionAdherenceGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedGroundTruthAdherenceGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedPromptInjectionGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedSexistGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedInputSexistGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedToolSelectionQualityGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedToolErrorRateGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return CustomizedToxicityGPTScorer.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return CustomizedInputToxicityGPTScorer.from_dict(data)
+
+                    prompt_customized_scorers_configuration_type_0_item = (
+                        _parse_prompt_customized_scorers_configuration_type_0_item(
+                            prompt_customized_scorers_configuration_type_0_item_data
+                        )
+                    )
+
+                    prompt_customized_scorers_configuration_type_0.append(
+                        prompt_customized_scorers_configuration_type_0_item
+                    )
+
+                return prompt_customized_scorers_configuration_type_0
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union[
+                    None,
+                    Unset,
+                    list[
+                        Union[
+                            "CustomizedAgenticSessionSuccessGPTScorer",
+                            "CustomizedAgenticWorkflowSuccessGPTScorer",
+                            "CustomizedChunkAttributionUtilizationGPTScorer",
+                            "CustomizedCompletenessGPTScorer",
+                            "CustomizedFactualityGPTScorer",
+                            "CustomizedGroundTruthAdherenceGPTScorer",
+                            "CustomizedGroundednessGPTScorer",
+                            "CustomizedInputSexistGPTScorer",
+                            "CustomizedInputToxicityGPTScorer",
+                            "CustomizedInstructionAdherenceGPTScorer",
+                            "CustomizedPromptInjectionGPTScorer",
+                            "CustomizedSexistGPTScorer",
+                            "CustomizedToolErrorRateGPTScorer",
+                            "CustomizedToolSelectionQualityGPTScorer",
+                            "CustomizedToxicityGPTScorer",
+                        ]
+                    ],
+                ],
+                data,
+            )
+
+        prompt_customized_scorers_configuration = _parse_prompt_customized_scorers_configuration(
+            d.pop("prompt_customized_scorers_configuration", UNSET)
+        )
+
+        def _parse_prompt_scorer_settings(data: object) -> Union["BaseScorer", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return BaseScorer.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["BaseScorer", None, Unset], data)
+
+        prompt_scorer_settings = _parse_prompt_scorer_settings(d.pop("prompt_scorer_settings", UNSET))
+
+        def _parse_scorer_config(data: object) -> Union["ScorerConfig", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ScorerConfig.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["ScorerConfig", None, Unset], data)
+
+        scorer_config = _parse_scorer_config(d.pop("scorer_config", UNSET))
+
+        sub_scorers = []
+        _sub_scorers = d.pop("sub_scorers", UNSET)
+        for sub_scorers_item_data in _sub_scorers or []:
+            sub_scorers_item = ScorerName(sub_scorers_item_data)
+
+            sub_scorers.append(sub_scorers_item)
+
+        def _parse_luna_model(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        luna_model = _parse_luna_model(d.pop("luna_model", UNSET))
+
         def _parse_segment_filters(data: object) -> Union[None, Unset, list["SegmentFilter"]]:
             if data is None:
                 return data
@@ -1608,101 +1618,91 @@ class CreateJobRequest:
 
         segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
 
-        should_retry = d.pop("should_retry", UNSET)
-
-        sub_scorers = []
-        _sub_scorers = d.pop("sub_scorers", UNSET)
-        for sub_scorers_item_data in _sub_scorers or []:
-            sub_scorers_item = ScorerName(sub_scorers_item_data)
-
-            sub_scorers.append(sub_scorers_item)
-
-        def _parse_task_type(data: object) -> Union[None, TaskType, Unset]:
+        def _parse_prompt_optimization_configuration(
+            data: object,
+        ) -> Union["PromptOptimizationConfiguration", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             try:
-                if not isinstance(data, int):
+                if not isinstance(data, dict):
                     raise TypeError()
-                return TaskType(data)
+                return PromptOptimizationConfiguration.from_dict(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, TaskType, Unset], data)
+            return cast(Union["PromptOptimizationConfiguration", None, Unset], data)
 
-        task_type = _parse_task_type(d.pop("task_type", UNSET))
+        prompt_optimization_configuration = _parse_prompt_optimization_configuration(
+            d.pop("prompt_optimization_configuration", UNSET)
+        )
 
-        def _parse_tasks(data: object) -> Union[None, Unset, list[str]]:
+        epoch = d.pop("epoch", UNSET)
+
+        def _parse_metric_critique_configuration(data: object) -> Union["MetricCritiqueJobConfiguration", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             try:
-                if not isinstance(data, list):
+                if not isinstance(data, dict):
                     raise TypeError()
-                return cast(list[str], data)
+                return MetricCritiqueJobConfiguration.from_dict(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(Union["MetricCritiqueJobConfiguration", None, Unset], data)
 
-        tasks = _parse_tasks(d.pop("tasks", UNSET))
+        metric_critique_configuration = _parse_metric_critique_configuration(
+            d.pop("metric_critique_configuration", UNSET)
+        )
 
         upload_data_in_separate_task = d.pop("upload_data_in_separate_task", UNSET)
 
-        def _parse_user_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        user_id = _parse_user_id(d.pop("user_id", UNSET))
-
-        xray = d.pop("xray", UNSET)
+        log_metric_computing_records = d.pop("log_metric_computing_records", UNSET)
 
         create_job_request = cls(
             project_id=project_id,
             run_id=run_id,
-            dataset_id=dataset_id,
-            dataset_version_index=dataset_version_index,
-            epoch=epoch,
-            feature_names=feature_names,
+            resource_limits=resource_limits,
             job_id=job_id,
             job_name=job_name,
-            labels=labels,
-            log_metric_computing_records=log_metric_computing_records,
-            luna_model=luna_model,
-            metric_critique_configuration=metric_critique_configuration,
-            migration_name=migration_name,
-            monitor_batch_id=monitor_batch_id,
-            ner_labels=ner_labels,
-            non_inference_logged=non_inference_logged,
-            process_existing_inference_runs=process_existing_inference_runs,
-            prompt_customized_scorers_configuration=prompt_customized_scorers_configuration,
-            prompt_dataset_id=prompt_dataset_id,
-            prompt_finetuned_scorers_configuration=prompt_finetuned_scorers_configuration,
-            prompt_generated_scorers_configuration=prompt_generated_scorers_configuration,
-            prompt_optimization_configuration=prompt_optimization_configuration,
-            prompt_registered_scorers_configuration=prompt_registered_scorers_configuration,
-            prompt_scorer_settings=prompt_scorer_settings,
-            prompt_scorers_configuration=prompt_scorers_configuration,
-            prompt_settings=prompt_settings,
-            prompt_template_version_id=prompt_template_version_id,
-            protect_scorer_payload=protect_scorer_payload,
-            protect_trace_id=protect_trace_id,
-            resource_limits=resource_limits,
-            scorer_config=scorer_config,
-            scorers=scorers,
-            segment_filters=segment_filters,
             should_retry=should_retry,
-            sub_scorers=sub_scorers,
-            task_type=task_type,
-            tasks=tasks,
-            upload_data_in_separate_task=upload_data_in_separate_task,
             user_id=user_id,
+            task_type=task_type,
+            labels=labels,
+            ner_labels=ner_labels,
+            tasks=tasks,
+            non_inference_logged=non_inference_logged,
+            migration_name=migration_name,
             xray=xray,
+            process_existing_inference_runs=process_existing_inference_runs,
+            feature_names=feature_names,
+            prompt_dataset_id=prompt_dataset_id,
+            dataset_id=dataset_id,
+            dataset_version_index=dataset_version_index,
+            prompt_template_version_id=prompt_template_version_id,
+            monitor_batch_id=monitor_batch_id,
+            protect_trace_id=protect_trace_id,
+            protect_scorer_payload=protect_scorer_payload,
+            prompt_settings=prompt_settings,
+            scorers=scorers,
+            prompt_registered_scorers_configuration=prompt_registered_scorers_configuration,
+            prompt_generated_scorers_configuration=prompt_generated_scorers_configuration,
+            prompt_finetuned_scorers_configuration=prompt_finetuned_scorers_configuration,
+            prompt_scorers_configuration=prompt_scorers_configuration,
+            prompt_customized_scorers_configuration=prompt_customized_scorers_configuration,
+            prompt_scorer_settings=prompt_scorer_settings,
+            scorer_config=scorer_config,
+            sub_scorers=sub_scorers,
+            luna_model=luna_model,
+            segment_filters=segment_filters,
+            prompt_optimization_configuration=prompt_optimization_configuration,
+            epoch=epoch,
+            metric_critique_configuration=metric_critique_configuration,
+            upload_data_in_separate_task=upload_data_in_separate_task,
+            log_metric_computing_records=log_metric_computing_records,
         )
 
         create_job_request.additional_properties = d

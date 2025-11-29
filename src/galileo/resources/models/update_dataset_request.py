@@ -19,19 +19,27 @@ class UpdateDatasetRequest:
     """
     Attributes
     ----------
+        name (Union['Name', None, Unset, str]):
         column_mapping (Union['ColumnMapping', None, Unset]):
         draft (Union[None, Unset, bool]):
-        name (Union['Name', None, Unset, str]):
     """
 
+    name: Union["Name", None, Unset, str] = UNSET
     column_mapping: Union["ColumnMapping", None, Unset] = UNSET
     draft: Union[None, Unset, bool] = UNSET
-    name: Union["Name", None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.column_mapping import ColumnMapping
         from ..models.name import Name
+
+        name: Union[None, Unset, dict[str, Any], str]
+        if isinstance(self.name, Unset):
+            name = UNSET
+        elif isinstance(self.name, Name):
+            name = self.name.to_dict()
+        else:
+            name = self.name
 
         column_mapping: Union[None, Unset, dict[str, Any]]
         if isinstance(self.column_mapping, Unset):
@@ -44,23 +52,15 @@ class UpdateDatasetRequest:
         draft: Union[None, Unset, bool]
         draft = UNSET if isinstance(self.draft, Unset) else self.draft
 
-        name: Union[None, Unset, dict[str, Any], str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        elif isinstance(self.name, Name):
-            name = self.name.to_dict()
-        else:
-            name = self.name
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if name is not UNSET:
+            field_dict["name"] = name
         if column_mapping is not UNSET:
             field_dict["column_mapping"] = column_mapping
         if draft is not UNSET:
             field_dict["draft"] = draft
-        if name is not UNSET:
-            field_dict["name"] = name
 
         return field_dict
 
@@ -70,6 +70,22 @@ class UpdateDatasetRequest:
         from ..models.name import Name
 
         d = dict(src_dict)
+
+        def _parse_name(data: object) -> Union["Name", None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return Name.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["Name", None, Unset, str], data)
+
+        name = _parse_name(d.pop("name", UNSET))
 
         def _parse_column_mapping(data: object) -> Union["ColumnMapping", None, Unset]:
             if data is None:
@@ -96,23 +112,7 @@ class UpdateDatasetRequest:
 
         draft = _parse_draft(d.pop("draft", UNSET))
 
-        def _parse_name(data: object) -> Union["Name", None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return Name.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union["Name", None, Unset, str], data)
-
-        name = _parse_name(d.pop("name", UNSET))
-
-        update_dataset_request = cls(column_mapping=column_mapping, draft=draft, name=name)
+        update_dataset_request = cls(name=name, column_mapping=column_mapping, draft=draft)
 
         update_dataset_request.additional_properties = d
         return update_dataset_request

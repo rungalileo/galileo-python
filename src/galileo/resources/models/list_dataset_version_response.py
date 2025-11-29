@@ -19,17 +19,17 @@ class ListDatasetVersionResponse:
     Attributes
     ----------
         versions (list['DatasetVersionDB']):
-        limit (Union[Unset, int]):  Default: 100.
-        next_starting_token (Union[None, Unset, int]):
-        paginated (Union[Unset, bool]):  Default: False.
         starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        paginated (Union[Unset, bool]):  Default: False.
+        next_starting_token (Union[None, Unset, int]):
     """
 
     versions: list["DatasetVersionDB"]
-    limit: Union[Unset, int] = 100
-    next_starting_token: Union[None, Unset, int] = UNSET
-    paginated: Union[Unset, bool] = False
     starting_token: Union[Unset, int] = 0
+    limit: Union[Unset, int] = 100
+    paginated: Union[Unset, bool] = False
+    next_starting_token: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,26 +38,26 @@ class ListDatasetVersionResponse:
             versions_item = versions_item_data.to_dict()
             versions.append(versions_item)
 
+        starting_token = self.starting_token
+
         limit = self.limit
+
+        paginated = self.paginated
 
         next_starting_token: Union[None, Unset, int]
         next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
-        paginated = self.paginated
-
-        starting_token = self.starting_token
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"versions": versions})
-        if limit is not UNSET:
-            field_dict["limit"] = limit
-        if next_starting_token is not UNSET:
-            field_dict["next_starting_token"] = next_starting_token
-        if paginated is not UNSET:
-            field_dict["paginated"] = paginated
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
+        if limit is not UNSET:
+            field_dict["limit"] = limit
+        if paginated is not UNSET:
+            field_dict["paginated"] = paginated
+        if next_starting_token is not UNSET:
+            field_dict["next_starting_token"] = next_starting_token
 
         return field_dict
 
@@ -73,7 +73,11 @@ class ListDatasetVersionResponse:
 
             versions.append(versions_item)
 
+        starting_token = d.pop("starting_token", UNSET)
+
         limit = d.pop("limit", UNSET)
+
+        paginated = d.pop("paginated", UNSET)
 
         def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -84,16 +88,12 @@ class ListDatasetVersionResponse:
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
-        paginated = d.pop("paginated", UNSET)
-
-        starting_token = d.pop("starting_token", UNSET)
-
         list_dataset_version_response = cls(
             versions=versions,
-            limit=limit,
-            next_starting_token=next_starting_token,
-            paginated=paginated,
             starting_token=starting_token,
+            limit=limit,
+            paginated=paginated,
+            next_starting_token=next_starting_token,
         )
 
         list_dataset_version_response.additional_properties = d

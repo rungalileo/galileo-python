@@ -22,17 +22,18 @@ class MetricCritiqueJobConfiguration:
 
     Attributes
     ----------
-        critique_ids (list[str]):
-        metric_name (str):
         project_type (Union[Literal['gen_ai'], Literal['llm_monitor'], Literal['prompt_evaluation']]):
+        metric_name (str):
+        critique_ids (list[str]):
+        scorer_id (Union[None, Unset, str]):
         recompute_settings (Union['RecomputeSettingsLogStream', 'RecomputeSettingsObserve', 'RecomputeSettingsProject',
             'RecomputeSettingsRuns', None, Unset]):
-        scorer_id (Union[None, Unset, str]):
     """
 
-    critique_ids: list[str]
-    metric_name: str
     project_type: Union[Literal["gen_ai"], Literal["llm_monitor"], Literal["prompt_evaluation"]]
+    metric_name: str
+    critique_ids: list[str]
+    scorer_id: Union[None, Unset, str] = UNSET
     recompute_settings: Union[
         "RecomputeSettingsLogStream",
         "RecomputeSettingsObserve",
@@ -41,7 +42,6 @@ class MetricCritiqueJobConfiguration:
         None,
         Unset,
     ] = UNSET
-    scorer_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -50,12 +50,15 @@ class MetricCritiqueJobConfiguration:
         from ..models.recompute_settings_project import RecomputeSettingsProject
         from ..models.recompute_settings_runs import RecomputeSettingsRuns
 
-        critique_ids = self.critique_ids
+        project_type: Union[Literal["gen_ai"], Literal["llm_monitor"], Literal["prompt_evaluation"]]
+        project_type = self.project_type
 
         metric_name = self.metric_name
 
-        project_type: Union[Literal["gen_ai"], Literal["llm_monitor"], Literal["prompt_evaluation"]]
-        project_type = self.project_type
+        critique_ids = self.critique_ids
+
+        scorer_id: Union[None, Unset, str]
+        scorer_id = UNSET if isinstance(self.scorer_id, Unset) else self.scorer_id
 
         recompute_settings: Union[None, Unset, dict[str, Any]]
         if isinstance(self.recompute_settings, Unset):
@@ -68,16 +71,13 @@ class MetricCritiqueJobConfiguration:
         else:
             recompute_settings = self.recompute_settings
 
-        scorer_id: Union[None, Unset, str]
-        scorer_id = UNSET if isinstance(self.scorer_id, Unset) else self.scorer_id
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"critique_ids": critique_ids, "metric_name": metric_name, "project_type": project_type})
-        if recompute_settings is not UNSET:
-            field_dict["recompute_settings"] = recompute_settings
+        field_dict.update({"project_type": project_type, "metric_name": metric_name, "critique_ids": critique_ids})
         if scorer_id is not UNSET:
             field_dict["scorer_id"] = scorer_id
+        if recompute_settings is not UNSET:
+            field_dict["recompute_settings"] = recompute_settings
 
         return field_dict
 
@@ -89,9 +89,6 @@ class MetricCritiqueJobConfiguration:
         from ..models.recompute_settings_runs import RecomputeSettingsRuns
 
         d = dict(src_dict)
-        critique_ids = cast(list[str], d.pop("critique_ids"))
-
-        metric_name = d.pop("metric_name")
 
         def _parse_project_type(
             data: object,
@@ -112,6 +109,19 @@ class MetricCritiqueJobConfiguration:
             return project_type_type_2
 
         project_type = _parse_project_type(d.pop("project_type"))
+
+        metric_name = d.pop("metric_name")
+
+        critique_ids = cast(list[str], d.pop("critique_ids"))
+
+        def _parse_scorer_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        scorer_id = _parse_scorer_id(d.pop("scorer_id", UNSET))
 
         def _parse_recompute_settings(
             data: object,
@@ -169,21 +179,12 @@ class MetricCritiqueJobConfiguration:
 
         recompute_settings = _parse_recompute_settings(d.pop("recompute_settings", UNSET))
 
-        def _parse_scorer_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        scorer_id = _parse_scorer_id(d.pop("scorer_id", UNSET))
-
         metric_critique_job_configuration = cls(
-            critique_ids=critique_ids,
-            metric_name=metric_name,
             project_type=project_type,
-            recompute_settings=recompute_settings,
+            metric_name=metric_name,
+            critique_ids=critique_ids,
             scorer_id=scorer_id,
+            recompute_settings=recompute_settings,
         )
 
         metric_critique_job_configuration.additional_properties = d

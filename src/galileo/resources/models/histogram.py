@@ -18,33 +18,33 @@ class Histogram:
     """
     Attributes
     ----------
-        buckets (list['HistogramBucket']): List of histogram buckets containing the binned data
-        edges (list[float]): List of bin edges (monotonically increasing, length = number of buckets + 1)
         strategy (HistogramStrategy):
+        edges (list[float]): List of bin edges (monotonically increasing, length = number of buckets + 1)
+        buckets (list['HistogramBucket']): List of histogram buckets containing the binned data
         total (int): Total number of data points in the histogram.
     """
 
-    buckets: list["HistogramBucket"]
-    edges: list[float]
     strategy: HistogramStrategy
+    edges: list[float]
+    buckets: list["HistogramBucket"]
     total: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        strategy = self.strategy.value
+
+        edges = self.edges
+
         buckets = []
         for buckets_item_data in self.buckets:
             buckets_item = buckets_item_data.to_dict()
             buckets.append(buckets_item)
 
-        edges = self.edges
-
-        strategy = self.strategy.value
-
         total = self.total
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"buckets": buckets, "edges": edges, "strategy": strategy, "total": total})
+        field_dict.update({"strategy": strategy, "edges": edges, "buckets": buckets, "total": total})
 
         return field_dict
 
@@ -53,6 +53,10 @@ class Histogram:
         from ..models.histogram_bucket import HistogramBucket
 
         d = dict(src_dict)
+        strategy = HistogramStrategy(d.pop("strategy"))
+
+        edges = cast(list[float], d.pop("edges"))
+
         buckets = []
         _buckets = d.pop("buckets")
         for buckets_item_data in _buckets:
@@ -60,13 +64,9 @@ class Histogram:
 
             buckets.append(buckets_item)
 
-        edges = cast(list[float], d.pop("edges"))
-
-        strategy = HistogramStrategy(d.pop("strategy"))
-
         total = d.pop("total")
 
-        histogram = cls(buckets=buckets, edges=edges, strategy=strategy, total=total)
+        histogram = cls(strategy=strategy, edges=edges, buckets=buckets, total=total)
 
         histogram.additional_properties = d
         return histogram

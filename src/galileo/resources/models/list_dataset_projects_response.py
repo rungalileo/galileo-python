@@ -18,27 +18,29 @@ class ListDatasetProjectsResponse:
     """
     Attributes
     ----------
-        limit (Union[Unset, int]):  Default: 100.
-        next_starting_token (Union[None, Unset, int]):
-        paginated (Union[Unset, bool]):  Default: False.
-        projects (Union[Unset, list['DatasetProject']]):
         starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        paginated (Union[Unset, bool]):  Default: False.
+        next_starting_token (Union[None, Unset, int]):
+        projects (Union[Unset, list['DatasetProject']]):
     """
 
-    limit: Union[Unset, int] = 100
-    next_starting_token: Union[None, Unset, int] = UNSET
-    paginated: Union[Unset, bool] = False
-    projects: Union[Unset, list["DatasetProject"]] = UNSET
     starting_token: Union[Unset, int] = 0
+    limit: Union[Unset, int] = 100
+    paginated: Union[Unset, bool] = False
+    next_starting_token: Union[None, Unset, int] = UNSET
+    projects: Union[Unset, list["DatasetProject"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        starting_token = self.starting_token
+
         limit = self.limit
+
+        paginated = self.paginated
 
         next_starting_token: Union[None, Unset, int]
         next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
-
-        paginated = self.paginated
 
         projects: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.projects, Unset):
@@ -47,21 +49,19 @@ class ListDatasetProjectsResponse:
                 projects_item = projects_item_data.to_dict()
                 projects.append(projects_item)
 
-        starting_token = self.starting_token
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if limit is not UNSET:
-            field_dict["limit"] = limit
-        if next_starting_token is not UNSET:
-            field_dict["next_starting_token"] = next_starting_token
-        if paginated is not UNSET:
-            field_dict["paginated"] = paginated
-        if projects is not UNSET:
-            field_dict["projects"] = projects
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
+        if limit is not UNSET:
+            field_dict["limit"] = limit
+        if paginated is not UNSET:
+            field_dict["paginated"] = paginated
+        if next_starting_token is not UNSET:
+            field_dict["next_starting_token"] = next_starting_token
+        if projects is not UNSET:
+            field_dict["projects"] = projects
 
         return field_dict
 
@@ -70,7 +70,11 @@ class ListDatasetProjectsResponse:
         from ..models.dataset_project import DatasetProject
 
         d = dict(src_dict)
+        starting_token = d.pop("starting_token", UNSET)
+
         limit = d.pop("limit", UNSET)
+
+        paginated = d.pop("paginated", UNSET)
 
         def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -81,8 +85,6 @@ class ListDatasetProjectsResponse:
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
-        paginated = d.pop("paginated", UNSET)
-
         projects = []
         _projects = d.pop("projects", UNSET)
         for projects_item_data in _projects or []:
@@ -90,14 +92,12 @@ class ListDatasetProjectsResponse:
 
             projects.append(projects_item)
 
-        starting_token = d.pop("starting_token", UNSET)
-
         list_dataset_projects_response = cls(
-            limit=limit,
-            next_starting_token=next_starting_token,
-            paginated=paginated,
-            projects=projects,
             starting_token=starting_token,
+            limit=limit,
+            paginated=paginated,
+            next_starting_token=next_starting_token,
+            projects=projects,
         )
 
         list_dataset_projects_response.additional_properties = d

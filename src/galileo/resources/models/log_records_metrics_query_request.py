@@ -25,20 +25,22 @@ class LogRecordsMetricsQueryRequest:
     """
     Attributes
     ----------
-        end_time (datetime.datetime): Include traces up to this time.
         start_time (datetime.datetime): Include traces from this time onward.
+        end_time (datetime.datetime): Include traces up to this time.
+        log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
         filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
             'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
-        group_by (Union[None, Unset, str]):
         interval (Union[Unset, int]):  Default: 5.
-        log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
-        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
+        group_by (Union[None, Unset, str]):
     """
 
-    end_time: datetime.datetime
     start_time: datetime.datetime
+    end_time: datetime.datetime
+    log_stream_id: Union[None, Unset, str] = UNSET
     experiment_id: Union[None, Unset, str] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
     filters: Union[
         Unset,
         list[
@@ -52,10 +54,8 @@ class LogRecordsMetricsQueryRequest:
             ]
         ],
     ] = UNSET
-    group_by: Union[None, Unset, str] = UNSET
     interval: Union[Unset, int] = 5
-    log_stream_id: Union[None, Unset, str] = UNSET
-    metrics_testing_id: Union[None, Unset, str] = UNSET
+    group_by: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -65,12 +65,18 @@ class LogRecordsMetricsQueryRequest:
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
 
+        start_time = self.start_time.isoformat()
+
         end_time = self.end_time.isoformat()
 
-        start_time = self.start_time.isoformat()
+        log_stream_id: Union[None, Unset, str]
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
+
+        metrics_testing_id: Union[None, Unset, str]
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -93,32 +99,26 @@ class LogRecordsMetricsQueryRequest:
 
                 filters.append(filters_item)
 
+        interval = self.interval
+
         group_by: Union[None, Unset, str]
         group_by = UNSET if isinstance(self.group_by, Unset) else self.group_by
 
-        interval = self.interval
-
-        log_stream_id: Union[None, Unset, str]
-        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
-
-        metrics_testing_id: Union[None, Unset, str]
-        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"end_time": end_time, "start_time": start_time})
-        if experiment_id is not UNSET:
-            field_dict["experiment_id"] = experiment_id
-        if filters is not UNSET:
-            field_dict["filters"] = filters
-        if group_by is not UNSET:
-            field_dict["group_by"] = group_by
-        if interval is not UNSET:
-            field_dict["interval"] = interval
+        field_dict.update({"start_time": start_time, "end_time": end_time})
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
+        if experiment_id is not UNSET:
+            field_dict["experiment_id"] = experiment_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
+        if filters is not UNSET:
+            field_dict["filters"] = filters
+        if interval is not UNSET:
+            field_dict["interval"] = interval
+        if group_by is not UNSET:
+            field_dict["group_by"] = group_by
 
         return field_dict
 
@@ -132,9 +132,18 @@ class LogRecordsMetricsQueryRequest:
         from ..models.log_records_text_filter import LogRecordsTextFilter
 
         d = dict(src_dict)
+        start_time = isoparse(d.pop("start_time"))
+
         end_time = isoparse(d.pop("end_time"))
 
-        start_time = isoparse(d.pop("start_time"))
+        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
         def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -144,6 +153,15 @@ class LogRecordsMetricsQueryRequest:
             return cast(Union[None, Unset, str], data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
+
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
         filters = []
         _filters = d.pop("filters", UNSET)
@@ -202,6 +220,8 @@ class LogRecordsMetricsQueryRequest:
 
             filters.append(filters_item)
 
+        interval = d.pop("interval", UNSET)
+
         def _parse_group_by(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -211,35 +231,15 @@ class LogRecordsMetricsQueryRequest:
 
         group_by = _parse_group_by(d.pop("group_by", UNSET))
 
-        interval = d.pop("interval", UNSET)
-
-        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
-
-        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
-
         log_records_metrics_query_request = cls(
-            end_time=end_time,
             start_time=start_time,
-            experiment_id=experiment_id,
-            filters=filters,
-            group_by=group_by,
-            interval=interval,
+            end_time=end_time,
             log_stream_id=log_stream_id,
+            experiment_id=experiment_id,
             metrics_testing_id=metrics_testing_id,
+            filters=filters,
+            interval=interval,
+            group_by=group_by,
         )
 
         log_records_metrics_query_request.additional_properties = d

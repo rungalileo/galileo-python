@@ -17,25 +17,25 @@ class RenderTemplateRequest:
     """
     Attributes
     ----------
-        data (Union['DatasetData', 'StringData']):
         template (str):
+        data (Union['DatasetData', 'StringData']):
     """
 
-    data: Union["DatasetData", "StringData"]
     template: str
+    data: Union["DatasetData", "StringData"]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_data import DatasetData
 
+        template = self.template
+
         data: dict[str, Any]
         data = self.data.to_dict() if isinstance(self.data, DatasetData) else self.data.to_dict()
 
-        template = self.template
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"data": data, "template": template})
+        field_dict.update({"template": template, "data": data})
 
         return field_dict
 
@@ -45,6 +45,7 @@ class RenderTemplateRequest:
         from ..models.string_data import StringData
 
         d = dict(src_dict)
+        template = d.pop("template")
 
         def _parse_data(data: object) -> Union["DatasetData", "StringData"]:
             try:
@@ -60,9 +61,7 @@ class RenderTemplateRequest:
 
         data = _parse_data(d.pop("data"))
 
-        template = d.pop("template")
-
-        render_template_request = cls(data=data, template=template)
+        render_template_request = cls(template=template, data=data)
 
         render_template_request.additional_properties = d
         return render_template_request

@@ -17,14 +17,14 @@ class ScorerTagsFilter:
     ----------
         operator (ScorerTagsFilterOperator):
         value (Union[list[str], str]):
-        case_sensitive (Union[Unset, bool]):  Default: True.
         name (Union[Literal['tags'], Unset]):  Default: 'tags'.
+        case_sensitive (Union[Unset, bool]):  Default: True.
     """
 
     operator: ScorerTagsFilterOperator
     value: Union[list[str], str]
-    case_sensitive: Union[Unset, bool] = True
     name: Union[Literal["tags"], Unset] = "tags"
+    case_sensitive: Union[Unset, bool] = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,17 +33,17 @@ class ScorerTagsFilter:
         value: Union[list[str], str]
         value = self.value if isinstance(self.value, list) else self.value
 
-        case_sensitive = self.case_sensitive
-
         name = self.name
+
+        case_sensitive = self.case_sensitive
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"operator": operator, "value": value})
-        if case_sensitive is not UNSET:
-            field_dict["case_sensitive"] = case_sensitive
         if name is not UNSET:
             field_dict["name"] = name
+        if case_sensitive is not UNSET:
+            field_dict["case_sensitive"] = case_sensitive
 
         return field_dict
 
@@ -64,13 +64,13 @@ class ScorerTagsFilter:
 
         value = _parse_value(d.pop("value"))
 
-        case_sensitive = d.pop("case_sensitive", UNSET)
-
         name = cast(Union[Literal["tags"], Unset], d.pop("name", UNSET))
         if name != "tags" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'tags', got '{name}'")
 
-        scorer_tags_filter = cls(operator=operator, value=value, case_sensitive=case_sensitive, name=name)
+        case_sensitive = d.pop("case_sensitive", UNSET)
+
+        scorer_tags_filter = cls(operator=operator, value=value, name=name, case_sensitive=case_sensitive)
 
         scorer_tags_filter.additional_properties = d
         return scorer_tags_filter

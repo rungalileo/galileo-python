@@ -22,73 +22,64 @@ class RunDB:
     """
     Attributes
     ----------
-        created_at (datetime.datetime):
         created_by (str):
-        creator (UserDB):
-        id (str):
-        last_updated_by (str):
-        logged_inference_names (list[str]):
-        logged_splits (list[str]):
         num_samples (int):
-        updated_at (datetime.datetime):
         winner (bool):
-        dataset_hash (Union[None, Unset, str]):
-        dataset_version_id (Union[None, Unset, str]):
-        example_content_id (Union[None, Unset, str]):
+        id (str):
+        created_at (datetime.datetime):
+        updated_at (datetime.datetime):
+        last_updated_by (str):
+        creator (UserDB):
+        logged_splits (list[str]):
+        logged_inference_names (list[str]):
         name (Union[None, Unset, str]):
         project_id (Union[None, Unset, str]):
-        run_tags (Union[Unset, list['RunTagDB']]):
+        dataset_hash (Union[None, Unset, str]):
+        dataset_version_id (Union[None, Unset, str]):
         task_type (Union[None, TaskType, Unset]):
+        run_tags (Union[Unset, list['RunTagDB']]):
+        example_content_id (Union[None, Unset, str]):
     """
 
-    created_at: datetime.datetime
     created_by: str
-    creator: "UserDB"
-    id: str
-    last_updated_by: str
-    logged_inference_names: list[str]
-    logged_splits: list[str]
     num_samples: int
-    updated_at: datetime.datetime
     winner: bool
-    dataset_hash: Union[None, Unset, str] = UNSET
-    dataset_version_id: Union[None, Unset, str] = UNSET
-    example_content_id: Union[None, Unset, str] = UNSET
+    id: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+    last_updated_by: str
+    creator: "UserDB"
+    logged_splits: list[str]
+    logged_inference_names: list[str]
     name: Union[None, Unset, str] = UNSET
     project_id: Union[None, Unset, str] = UNSET
-    run_tags: Union[Unset, list["RunTagDB"]] = UNSET
+    dataset_hash: Union[None, Unset, str] = UNSET
+    dataset_version_id: Union[None, Unset, str] = UNSET
     task_type: Union[None, TaskType, Unset] = UNSET
+    run_tags: Union[Unset, list["RunTagDB"]] = UNSET
+    example_content_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        created_at = self.created_at.isoformat()
-
         created_by = self.created_by
-
-        creator = self.creator.to_dict()
-
-        id = self.id
-
-        last_updated_by = self.last_updated_by
-
-        logged_inference_names = self.logged_inference_names
-
-        logged_splits = self.logged_splits
 
         num_samples = self.num_samples
 
-        updated_at = self.updated_at.isoformat()
-
         winner = self.winner
 
-        dataset_hash: Union[None, Unset, str]
-        dataset_hash = UNSET if isinstance(self.dataset_hash, Unset) else self.dataset_hash
+        id = self.id
 
-        dataset_version_id: Union[None, Unset, str]
-        dataset_version_id = UNSET if isinstance(self.dataset_version_id, Unset) else self.dataset_version_id
+        created_at = self.created_at.isoformat()
 
-        example_content_id: Union[None, Unset, str]
-        example_content_id = UNSET if isinstance(self.example_content_id, Unset) else self.example_content_id
+        updated_at = self.updated_at.isoformat()
+
+        last_updated_by = self.last_updated_by
+
+        creator = self.creator.to_dict()
+
+        logged_splits = self.logged_splits
+
+        logged_inference_names = self.logged_inference_names
 
         name: Union[None, Unset, str]
         name = UNSET if isinstance(self.name, Unset) else self.name
@@ -96,12 +87,11 @@ class RunDB:
         project_id: Union[None, Unset, str]
         project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
-        run_tags: Union[Unset, list[dict[str, Any]]] = UNSET
-        if not isinstance(self.run_tags, Unset):
-            run_tags = []
-            for run_tags_item_data in self.run_tags:
-                run_tags_item = run_tags_item_data.to_dict()
-                run_tags.append(run_tags_item)
+        dataset_hash: Union[None, Unset, str]
+        dataset_hash = UNSET if isinstance(self.dataset_hash, Unset) else self.dataset_hash
+
+        dataset_version_id: Union[None, Unset, str]
+        dataset_version_id = UNSET if isinstance(self.dataset_version_id, Unset) else self.dataset_version_id
 
         task_type: Union[None, Unset, int]
         if isinstance(self.task_type, Unset):
@@ -111,36 +101,46 @@ class RunDB:
         else:
             task_type = self.task_type
 
+        run_tags: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.run_tags, Unset):
+            run_tags = []
+            for run_tags_item_data in self.run_tags:
+                run_tags_item = run_tags_item_data.to_dict()
+                run_tags.append(run_tags_item)
+
+        example_content_id: Union[None, Unset, str]
+        example_content_id = UNSET if isinstance(self.example_content_id, Unset) else self.example_content_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "created_at": created_at,
                 "created_by": created_by,
-                "creator": creator,
-                "id": id,
-                "last_updated_by": last_updated_by,
-                "logged_inference_names": logged_inference_names,
-                "logged_splits": logged_splits,
                 "num_samples": num_samples,
-                "updated_at": updated_at,
                 "winner": winner,
+                "id": id,
+                "created_at": created_at,
+                "updated_at": updated_at,
+                "last_updated_by": last_updated_by,
+                "creator": creator,
+                "logged_splits": logged_splits,
+                "logged_inference_names": logged_inference_names,
             }
         )
-        if dataset_hash is not UNSET:
-            field_dict["dataset_hash"] = dataset_hash
-        if dataset_version_id is not UNSET:
-            field_dict["dataset_version_id"] = dataset_version_id
-        if example_content_id is not UNSET:
-            field_dict["example_content_id"] = example_content_id
         if name is not UNSET:
             field_dict["name"] = name
         if project_id is not UNSET:
             field_dict["project_id"] = project_id
-        if run_tags is not UNSET:
-            field_dict["run_tags"] = run_tags
+        if dataset_hash is not UNSET:
+            field_dict["dataset_hash"] = dataset_hash
+        if dataset_version_id is not UNSET:
+            field_dict["dataset_version_id"] = dataset_version_id
         if task_type is not UNSET:
             field_dict["task_type"] = task_type
+        if run_tags is not UNSET:
+            field_dict["run_tags"] = run_tags
+        if example_content_id is not UNSET:
+            field_dict["example_content_id"] = example_content_id
 
         return field_dict
 
@@ -150,52 +150,25 @@ class RunDB:
         from ..models.user_db import UserDB
 
         d = dict(src_dict)
-        created_at = isoparse(d.pop("created_at"))
-
         created_by = d.pop("created_by")
-
-        creator = UserDB.from_dict(d.pop("creator"))
-
-        id = d.pop("id")
-
-        last_updated_by = d.pop("last_updated_by")
-
-        logged_inference_names = cast(list[str], d.pop("logged_inference_names"))
-
-        logged_splits = cast(list[str], d.pop("logged_splits"))
 
         num_samples = d.pop("num_samples")
 
-        updated_at = isoparse(d.pop("updated_at"))
-
         winner = d.pop("winner")
 
-        def _parse_dataset_hash(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
+        id = d.pop("id")
 
-        dataset_hash = _parse_dataset_hash(d.pop("dataset_hash", UNSET))
+        created_at = isoparse(d.pop("created_at"))
 
-        def _parse_dataset_version_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
+        updated_at = isoparse(d.pop("updated_at"))
 
-        dataset_version_id = _parse_dataset_version_id(d.pop("dataset_version_id", UNSET))
+        last_updated_by = d.pop("last_updated_by")
 
-        def _parse_example_content_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
+        creator = UserDB.from_dict(d.pop("creator"))
 
-        example_content_id = _parse_example_content_id(d.pop("example_content_id", UNSET))
+        logged_splits = cast(list[str], d.pop("logged_splits"))
+
+        logged_inference_names = cast(list[str], d.pop("logged_inference_names"))
 
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -215,12 +188,23 @@ class RunDB:
 
         project_id = _parse_project_id(d.pop("project_id", UNSET))
 
-        run_tags = []
-        _run_tags = d.pop("run_tags", UNSET)
-        for run_tags_item_data in _run_tags or []:
-            run_tags_item = RunTagDB.from_dict(run_tags_item_data)
+        def _parse_dataset_hash(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
 
-            run_tags.append(run_tags_item)
+        dataset_hash = _parse_dataset_hash(d.pop("dataset_hash", UNSET))
+
+        def _parse_dataset_version_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        dataset_version_id = _parse_dataset_version_id(d.pop("dataset_version_id", UNSET))
 
         def _parse_task_type(data: object) -> Union[None, TaskType, Unset]:
             if data is None:
@@ -238,24 +222,40 @@ class RunDB:
 
         task_type = _parse_task_type(d.pop("task_type", UNSET))
 
+        run_tags = []
+        _run_tags = d.pop("run_tags", UNSET)
+        for run_tags_item_data in _run_tags or []:
+            run_tags_item = RunTagDB.from_dict(run_tags_item_data)
+
+            run_tags.append(run_tags_item)
+
+        def _parse_example_content_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        example_content_id = _parse_example_content_id(d.pop("example_content_id", UNSET))
+
         run_db = cls(
-            created_at=created_at,
             created_by=created_by,
-            creator=creator,
-            id=id,
-            last_updated_by=last_updated_by,
-            logged_inference_names=logged_inference_names,
-            logged_splits=logged_splits,
             num_samples=num_samples,
-            updated_at=updated_at,
             winner=winner,
-            dataset_hash=dataset_hash,
-            dataset_version_id=dataset_version_id,
-            example_content_id=example_content_id,
+            id=id,
+            created_at=created_at,
+            updated_at=updated_at,
+            last_updated_by=last_updated_by,
+            creator=creator,
+            logged_splits=logged_splits,
+            logged_inference_names=logged_inference_names,
             name=name,
             project_id=project_id,
-            run_tags=run_tags,
+            dataset_hash=dataset_hash,
+            dataset_version_id=dataset_version_id,
             task_type=task_type,
+            run_tags=run_tags,
+            example_content_id=example_content_id,
         )
 
         run_db.additional_properties = d
