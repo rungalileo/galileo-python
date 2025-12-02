@@ -1,4 +1,5 @@
 import logging
+import uuid
 from datetime import datetime, timezone
 from typing import Any, Optional, cast
 
@@ -18,6 +19,7 @@ from galileo.utils.openai_agents import (
     _map_span_type,
 )
 from galileo.utils.serialization import convert_time_delta_to_ns, convert_to_string_dict, serialize_to_str
+from galileo_core.schemas.logging.span import LlmMetrics, LlmSpan
 from galileo_core.schemas.logging.span import Span as GalileoSpan
 
 _logger = logging.getLogger(__name__)
@@ -151,27 +153,36 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
             is_workflow_span = True
         elif node.node_type in ("llm", "chat"):
             tools = node.span_params.get("tools")
-            self._galileo_logger.add_llm_span(
+
+            span = LlmSpan(
                 input=input,
                 output=output,
+                name=name or "LLM Span",
+                created_at=start_time_iso,
+                user_metadata=metadata or {},
+                tags=tags or [],
+                metrics=LlmMetrics.model_validate(
+                    {
+                        "duration_ns": node.span_params.get("duration_ns"),
+                        "num_input_tokens": node.span_params.get("num_input_tokens"),
+                        "num_output_tokens": node.span_params.get("num_output_tokens"),
+                        "num_total_tokens": node.span_params.get("total_tokens"),
+                        "time_to_first_token_ns": node.span_params.get("time_to_first_token_ns"),
+                        "num_reasoning_tokens": node.span_params.get("num_reasoning_tokens"),
+                        "num_cached_input_tokens": node.span_params.get("num_cached_input_tokens"),
+                    }
+                ),
+                tools=tools,
                 model=node.span_params.get(
                     "model", node.span_params.get("metadata", {}).get("response_metadata", {}).get("model")
                 ),
                 temperature=node.span_params.get(
                     "temperature", node.span_params.get("metadata", {}).get("response_metadata", {}).get("temperature")
                 ),
-                tools=tools,
-                name=name,
-                metadata=metadata,
-                tags=tags,
-                created_at=start_time_iso,
                 status_code=node.span_params.get("status_code", 200),
-                num_input_tokens=node.span_params.get("num_input_tokens"),
-                num_output_tokens=node.span_params.get("num_output_tokens"),
-                total_tokens=node.span_params.get("total_tokens"),
-                time_to_first_token_ns=node.span_params.get("time_to_first_token_ns"),
-                duration_ns=node.span_params.get("duration_ns"),
+                id=uuid.uuid4(),
             )
+            self._galileo_logger.add_child_span_to_parent(span)
         elif node.node_type == "retriever":
             self._galileo_logger.add_retriever_span(
                 input=input,

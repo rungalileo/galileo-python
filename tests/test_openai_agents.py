@@ -382,17 +382,8 @@ async def test_token_details_extraction() -> None:
     assert extracted_data["num_input_tokens"] == 100
     assert extracted_data["num_output_tokens"] == 50
     assert extracted_data["num_total_tokens"] == 150
-
-    # Verify detailed token breakdowns in metadata
-    assert "input_tokens_details" in extracted_data["metadata"]
-    assert extracted_data["metadata"]["input_tokens_details"]["cached_tokens"] == 30
-    assert "num_cached_input_tokens" in extracted_data["metadata"]
-    assert extracted_data["metadata"]["num_cached_input_tokens"] == 30
-
-    assert "output_tokens_details" in extracted_data["metadata"]
-    assert extracted_data["metadata"]["output_tokens_details"]["reasoning_tokens"] == 25
-    assert "num_reasoning_tokens" in extracted_data["metadata"]
-    assert extracted_data["metadata"]["num_reasoning_tokens"] == 25
+    assert extracted_data["num_cached_input_tokens"] == 30
+    assert extracted_data["num_reasoning_tokens"] == 25
 
     # Test with None usage (should not crash)
     mock_span_data_no_usage = MagicMock(spec=ResponseSpanData)

@@ -215,16 +215,14 @@ def _extract_llm_data(span_data: Union[GenerationSpanData, ResponseSpanData]) ->
 
             # Add detailed token breakdowns to metadata
             if usage.get("input_tokens_details"):
-                data["metadata"]["input_tokens_details"] = usage["input_tokens_details"]
                 # Extract specific cached tokens metric
                 if "cached_tokens" in usage["input_tokens_details"]:
-                    data["metadata"]["num_cached_input_tokens"] = usage["input_tokens_details"]["cached_tokens"]
+                    data["num_cached_input_tokens"] = usage["input_tokens_details"]["cached_tokens"]
 
             if usage.get("output_tokens_details"):
-                data["metadata"]["output_tokens_details"] = usage["output_tokens_details"]
                 # Extract specific reasoning tokens metric
                 if "reasoning_tokens" in usage["output_tokens_details"]:
-                    data["metadata"]["num_reasoning_tokens"] = usage["output_tokens_details"]["reasoning_tokens"]
+                    data["num_reasoning_tokens"] = usage["output_tokens_details"]["reasoning_tokens"]
 
             data["temperature"] = response.temperature
 
