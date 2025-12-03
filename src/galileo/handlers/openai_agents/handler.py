@@ -166,7 +166,7 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
                         "duration_ns": node.span_params.get("duration_ns"),
                         "num_input_tokens": node.span_params.get("num_input_tokens"),
                         "num_output_tokens": node.span_params.get("num_output_tokens"),
-                        "num_total_tokens": node.span_params.get("total_tokens"),
+                        "num_total_tokens": node.span_params.get("num_total_tokens"),
                         "time_to_first_token_ns": node.span_params.get("time_to_first_token_ns"),
                         "num_reasoning_tokens": node.span_params.get("num_reasoning_tokens"),
                         "num_cached_input_tokens": node.span_params.get("num_cached_input_tokens"),
