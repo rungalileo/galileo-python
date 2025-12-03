@@ -66,7 +66,7 @@ from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 STREAMING_MAX_RETRIES = 3
-DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 30  # Timeout for waiting on background trace/span update tasks
+DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 60  # Timeout for waiting on background trace/span update tasks
 
 
 class GalileoLogger(TracesLogger, DecorateAllMethods):
@@ -1477,16 +1477,30 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             return await self._flush_distributed()
         return await self._flush_batch()
 
-    def _conclude_trace_if_needed(self) -> None:
-        """Helper to conclude any unconcluded trace before flushing."""
-        current_parent = self.current_parent()
-        if current_parent is not None and isinstance(current_parent, Trace):
-            self._logger.info("Concluding unconcluded trace before flush...")
-            # Get output from last child span if trace has no output
-            output, redacted_output = GalileoLogger._get_last_output(current_parent)
-            # conclude() will send the update with is_complete=True (in distributed mode)
-            # or mark trace as complete (in batch mode)
-            self.conclude(output=output, redacted_output=redacted_output, conclude_all=True)
+    def _conclude_if_trace(self) -> None:
+        """Helper to conclude any unconcluded trace before flushing.
+
+        Note: We assume at most one active trace at a time. start_trace() enforces this
+        by raising an error if current_parent() is not None (i.e., a trace is already active).
+        Therefore, if there's an unconcluded trace, it will be the last one in self.traces.
+        """
+        if not self._parent_stack:
+            # Nothing to conclude - all traces already concluded
+            return
+
+        if not self.traces:
+            return
+
+        self._logger.info("Concluding unconcluded trace before flush...")
+        # Use the last trace in self.traces (should be the only active trace)
+        trace = self.traces[-1]
+
+        # Get output from last child span if trace has no explicit output
+        output, redacted_output = GalileoLogger._get_last_output(trace)
+
+        # conclude() with conclude_all=True will conclude all unconcluded spans/traces
+        # in the stack (the trace and any unconcluded spans within it)
+        self.conclude(output=output, redacted_output=redacted_output, conclude_all=True)
 
     async def _flush_distributed(self) -> list[Trace]:
         """Flush in distributed mode: conclude traces and wait for pending tasks.
@@ -1505,7 +1519,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         Returns empty list since traces were already sent.
         """
-        self._conclude_trace_if_needed()
+        self._conclude_if_trace()
 
         # Wait for all pending trace/span update requests to complete
         self._logger.info("Waiting for all distributed tracing tasks to complete...")
@@ -1514,11 +1528,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         # Poll ThreadPoolExecutor completion status (no native async event support)
         while not self._task_handler.all_tasks_completed():
             if time.time() - start_wait > DISTRIBUTED_FLUSH_TIMEOUT_SECONDS:
-                self._logger.warning(
+                raise TimeoutError(
                     f"Flush timeout reached after {DISTRIBUTED_FLUSH_TIMEOUT_SECONDS}s. "
                     "Some trace/span update requests may still be in progress."
                 )
-                break
             await asyncio.sleep(0.1)
 
         if self._task_handler.all_tasks_completed():
@@ -1532,7 +1545,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self._logger.info("No traces to flush.")
             return []
 
-        self._conclude_trace_if_needed()
+        self._conclude_if_trace()
 
         if self.local_metrics:
             self._logger.info("Computing metrics for local scorers...")

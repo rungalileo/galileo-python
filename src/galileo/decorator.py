@@ -695,15 +695,19 @@ class GalileoDecorator:
         -------
         The original result
         """
-        # Initialize output before try block so it's available in finally block
+        # Initialize logger before try block
+        logger = self.get_logger_instance()
+
+        # Serialize output and redacted_output - set to None if serialization fails
         output = span_params.get("output")
         if output is None:
             output = result if result is not None else ""
 
-        # Initialize logger before try block so it's available in finally block
-        logger = self.get_logger_instance()
+        redacted_output = span_params.get("redacted_output")
+        span_name = span_params.get("name", "unknown")
 
         try:
+            # Serialize output
             if not isinstance(output, str) and (
                 # an empty span_type means it's a workflow span
                 not span_type
@@ -717,6 +721,10 @@ class GalileoDecorator:
             else:
                 # Serialize and deserialize to ensure proper JSON serialization.
                 output = json.loads(json.dumps(output, cls=EventSerializer))
+
+            # Serialize redacted_output if present
+            if redacted_output is not None and not isinstance(redacted_output, str):
+                redacted_output = serialize_to_str(redacted_output)
 
             stack = _get_or_init_list(_span_stack_context)
 
@@ -764,7 +772,10 @@ class GalileoDecorator:
 
                     method(**filtered_kwargs)
         except Exception as e:
-            _logger.error(f"Failed to create trace: {e}", exc_info=True)
+            _logger.error(f"Failed to create trace for span '{span_name}' (type: {span_type}): {e}", exc_info=True)
+            # If serialization failed, set to None to avoid passing unconverted objects
+            output = None
+            redacted_output = None
         finally:
             # If all decorator spans are done, conclude the current parent with output and duration
             # Re-fetch stack in finally block to ensure we have the current state
@@ -779,7 +790,12 @@ class GalileoDecorator:
                         start_ns = current_parent.created_at.timestamp() * 1e9
                         duration_ns = round(end_time_ns - start_ns)
 
-                    logger.conclude(output=output, duration_ns=duration_ns, status_code=span_params.get("status_code"))
+                    logger.conclude(
+                        output=output,
+                        redacted_output=redacted_output,
+                        duration_ns=duration_ns,
+                        status_code=span_params.get("status_code"),
+                    )
                     # Only clear trace context in distributed mode - in batch mode, trace should remain until flush
                     if logger.mode == "distributed":
                         _trace_context.set(None)
