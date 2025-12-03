@@ -1,10 +1,16 @@
+import json
 import logging
 import os
 import uuid
+from collections.abc import Generator
+from contextlib import contextmanager
 from typing import Any, NoReturn, Optional, Protocol
 from urllib.parse import urljoin
 
 from galileo.config import GalileoPythonConfig
+from galileo.utils.retrievers import document_adapter
+from galileo_core.schemas.logging.span import RetrieverSpan
+from galileo_core.schemas.logging.span import Span as GalileoSpan
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +25,7 @@ class TracerProvider(Protocol):
 
 
 try:
-    from opentelemetry import context
+    from opentelemetry import context, trace
     from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
         OTLPSpanExporter,  # pyright: ignore[reportAssignmentType]
     )
@@ -202,3 +208,30 @@ class GalileoSpanProcessor(SpanProcessor):
 def add_galileo_span_processor(tracer_provider: TracerProvider, processor: GalileoSpanProcessor) -> None:
     """Add the Galileo span processor to the tracer provider."""
     tracer_provider.add_span_processor(processor)
+
+
+def _set_retriever_span_attributes(span: trace.Span, galileo_span: RetrieverSpan) -> None:
+    span.set_attribute("db.operation", "search")
+    span.set_attribute("gen_ai.input.messages", json.dumps([{"role": "user", "content": galileo_span.input}]))
+    span.set_attribute(
+        "gen_ai.output.messages",
+        json.dumps(
+            [
+                {
+                    "role": "assistant",
+                    "content": {"documents": document_adapter.dump_python(galileo_span.output, mode="json")},
+                }
+            ]
+        ),
+    )
+
+
+@contextmanager
+def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, None]:
+    tracer_provider = trace.get_tracer_provider()
+    tracer = tracer_provider.get_tracer("galileo-tracer")
+    with tracer.start_as_current_span(galileo_span.name) as span:
+        yield span
+        span.set_attribute("gen_ai.system", "galileo-otel")
+        if isinstance(galileo_span, RetrieverSpan):
+            _set_retriever_span_attributes(span, galileo_span)
