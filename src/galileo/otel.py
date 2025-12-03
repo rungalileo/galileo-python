@@ -106,6 +106,7 @@ class GalileoOTLPExporter(OTLPSpanExporter):
             "Galileo-API-Key": config.api_key.get_secret_value() if config.api_key else None,
             "project": self.project,
             "logstream": self.logstream,
+            "X-Use-Otel-New": str(kwargs.pop("use_new_otel", False)).lower(),
         }
 
         super().__init__(endpoint=endpoint, headers=exporter_headers, **kwargs)
@@ -128,7 +129,12 @@ class GalileoSpanProcessor(SpanProcessor):
     """
 
     def __init__(
-        self, project: Optional[str] = None, logstream: Optional[str] = None, SpanProcessor: Optional[type] = None
+        self,
+        project: Optional[str] = None,
+        logstream: Optional[str] = None,
+        SpanProcessor: Optional[type] = None,
+        *,
+        use_new_otel: bool = True,
     ) -> None:
         """
         Initialize the Galileo span processor with export configuration.
@@ -154,7 +160,7 @@ class GalileoSpanProcessor(SpanProcessor):
             )
 
         # Create the exporter using the config-based approach
-        self._exporter = GalileoOTLPExporter(project=project, logstream=logstream)
+        self._exporter = GalileoOTLPExporter(project=project, logstream=logstream, use_new_otel=use_new_otel)
 
         if SpanProcessor is None:
             SpanProcessor = BatchSpanProcessor
