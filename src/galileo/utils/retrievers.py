@@ -16,6 +16,8 @@ def convert_to_documents(data: RetrieverSpanAllowedOutputType, field_name: Union
         return [Document(content="", metadata={})]
 
     if isinstance(data, list):
+        if all(isinstance(doc, Document) for doc in data):
+            return cast(list[Document], data)
         if all(isinstance(doc, GalileoDocument) for doc in data):
             return [
                 Document(content=doc.content, metadata=doc.metadata.to_dict() if doc.metadata else {})

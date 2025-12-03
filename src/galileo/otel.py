@@ -125,11 +125,15 @@ class GalileoOTLPExporter(OTLPSpanExporter):
         if not self.logstream:
             self.logstream = "default"
 
+        use_new_otel = kwargs.pop("use_new_otel", False)
+
         exporter_headers = {
             "Galileo-API-Key": config.api_key.get_secret_value() if config.api_key else None,
             "project": self.project,
             "logstream": self.logstream,
-            "X-Use-Otel-New": str(kwargs.pop("use_new_otel", False)).lower(),
+            "X-Use-Otel-New": str(
+                use_new_otel
+            ).lower(),  # TODO: remove this once we fully migrate to the new OTLP implementation
         }
 
         super().__init__(endpoint=endpoint, headers=exporter_headers, **kwargs)
