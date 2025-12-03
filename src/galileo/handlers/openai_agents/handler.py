@@ -1,15 +1,16 @@
 import logging
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from agents import Span, Trace, TracingProcessor
-from agents.tracing import ResponseSpanData
+from agents.tracing import ResponseSpanData, get_current_span, get_trace_provider
 
 from galileo import GalileoLogger, galileo_context
 from galileo.schema.handlers import Node
 from galileo.utils import _get_timestamp
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.openai_agents import (
+    GalileoCustomSpan,
     _extract_llm_data,
     _extract_tool_data,
     _extract_workflow_data,
@@ -17,6 +18,7 @@ from galileo.utils.openai_agents import (
     _map_span_type,
 )
 from galileo.utils.serialization import convert_time_delta_to_ns, convert_to_string_dict, serialize_to_str
+from galileo_core.schemas.logging.span import Span as GalileoSpan
 
 _logger = logging.getLogger(__name__)
 
@@ -266,6 +268,21 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
                     "status_code": wf_data.get("status_code", 200),
                 }
             )
+        elif galileo_type == "galileo_custom":
+            custom_span = cast(GalileoCustomSpan, span.span_data)
+            initial_params.update(
+                {
+                    "input": custom_span.span.input,
+                    "output": custom_span.span.output,
+                    "metadata": custom_span.span.user_metadata or {},
+                    "tags": custom_span.span.tags,
+                    "status_code": custom_span.span.status_code,
+                }
+            )
+            galileo_type = custom_span.span.type.value
+
+        if galileo_type == "galileo_custom":
+            galileo_type = "workflow"
 
         # Create the node
         node = Node(node_type=galileo_type, span_params=initial_params, run_id=span_id, parent_run_id=parent_id)
@@ -464,3 +481,11 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
         if item_type == "custom_tool_call":
             return serialize_to_str(None)
         return serialize_to_str(item_dict.get("output") or item_dict.get("results"))
+
+    @staticmethod
+    def add_galileo_custom_span(span: GalileoSpan) -> Span[GalileoCustomSpan]:
+        """Add a Galileo custom span to the trace."""
+        trace_provider = get_trace_provider()
+        current_span = get_current_span()
+        custom_span = GalileoCustomSpan(span, span.user_metadata)
+        return trace_provider.create_span(custom_span, parent=current_span)
