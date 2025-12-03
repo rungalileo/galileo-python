@@ -76,9 +76,20 @@ def _map_span_name(span: Span[Any]) -> str:
     return "Unknown Span"
 
 
-def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Union[int, None]]:
-    """Safely parse usage data into a standardized dictionary."""
-    parsed: dict[str, Union[int, None]] = {"input_tokens": None, "output_tokens": None, "total_tokens": None}
+def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Any]:
+    """
+    Safely parse usage data into a standardized dictionary with detailed token breakdowns.
+
+    Extracts standard token counts plus detailed breakdowns like reasoning tokens,
+    cached tokens, audio tokens, etc.
+    """
+    parsed: dict[str, Any] = {
+        "input_tokens": None,
+        "output_tokens": None,
+        "total_tokens": None,
+        "input_tokens_details": None,
+        "output_tokens_details": None,
+    }
     if usage_data is None:
         return parsed
 
@@ -107,6 +118,41 @@ def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Union[int, Non
         if isinstance(parsed["input_tokens"], int) and isinstance(parsed["output_tokens"], int):
             parsed["total_tokens"] = parsed["input_tokens"] + parsed["output_tokens"]
 
+    # Extract detailed token breakdowns
+    for tokens_details_key in ["input_tokens_details", "output_tokens_details"]:
+        if tokens_details_key in usage_dict and usage_dict[tokens_details_key] is not None:
+            tokens_details = usage_dict[tokens_details_key]
+            # Convert to dict if it's an object
+            if hasattr(tokens_details, "model_dump"):
+                try:
+                    tokens_details = tokens_details.model_dump()
+                except Exception:
+                    _logger.debug(f"Failed to model_dump {tokens_details_key}.", exc_info=True)
+                    if hasattr(tokens_details, "__dict__"):
+                        tokens_details = tokens_details.__dict__
+                    elif isinstance(tokens_details, dict):
+                        pass
+                    else:
+                        continue
+            elif hasattr(tokens_details, "__dict__"):
+                tokens_details = tokens_details.__dict__
+            elif not isinstance(tokens_details, dict):
+                continue
+
+            # Filter out None values and store
+            filtered_details = {k: v for k, v in tokens_details.items() if v is not None}
+            if filtered_details:
+                parsed[tokens_details_key] = filtered_details
+
+    # Ensure standard token values are integers if not None
+    for key in ["input_tokens", "output_tokens", "total_tokens"]:
+        if parsed[key] is not None:
+            try:
+                parsed[key] = int(parsed[key])
+            except (ValueError, TypeError):
+                _logger.warning(f"Could not convert usage value '{parsed[key]}' for key '{key}' to int.")
+                parsed[key] = None
+
     return parsed
 
 
@@ -131,7 +177,23 @@ def _extract_llm_data(span_data: Union[GenerationSpanData, ResponseSpanData]) ->
         data["output"] = span_data.output
         data["model"] = span_data.model
         usage = _parse_usage(span_data.usage)
-        data.update({f"num_{k}": v for k, v in usage.items() if v is not None})
+        # Extract standard token counts
+        for key in ["input_tokens", "output_tokens", "total_tokens"]:
+            if usage.get(key) is not None:
+                data[f"num_{key}"] = usage[key]
+
+        # Add detailed token breakdowns to metadata
+        if usage.get("input_tokens_details"):
+            data["metadata"]["input_tokens_details"] = usage["input_tokens_details"]
+            # Extract specific cached tokens metric
+            if "cached_tokens" in usage["input_tokens_details"]:
+                data["metadata"]["num_cached_input_tokens"] = usage["input_tokens_details"]["cached_tokens"]
+
+        if usage.get("output_tokens_details"):
+            data["metadata"]["output_tokens_details"] = usage["output_tokens_details"]
+            # Extract specific reasoning tokens metric
+            if "reasoning_tokens" in usage["output_tokens_details"]:
+                data["metadata"]["num_reasoning_tokens"] = usage["output_tokens_details"]["reasoning_tokens"]
 
         if span_data.model_config:
             # Ensure model_config is a dict
@@ -146,7 +208,22 @@ def _extract_llm_data(span_data: Union[GenerationSpanData, ResponseSpanData]) ->
             data["output"] = response.output
             data["model"] = response.model
             usage = _parse_usage(response.usage)
-            data.update({f"num_{k}": v for k, v in usage.items() if v is not None})
+            # Extract standard token counts
+            for key in ["input_tokens", "output_tokens", "total_tokens"]:
+                if usage.get(key) is not None:
+                    data[f"num_{key}"] = usage[key]
+
+            # Add detailed token breakdowns to metadata
+            if usage.get("input_tokens_details"):
+                # Extract specific cached tokens metric
+                if "cached_tokens" in usage["input_tokens_details"]:
+                    data["num_cached_input_tokens"] = usage["input_tokens_details"]["cached_tokens"]
+
+            if usage.get("output_tokens_details"):
+                # Extract specific reasoning tokens metric
+                if "reasoning_tokens" in usage["output_tokens_details"]:
+                    data["num_reasoning_tokens"] = usage["output_tokens_details"]["reasoning_tokens"]
+
             data["temperature"] = response.temperature
 
             tools_raw = getattr(response, "tools", None)

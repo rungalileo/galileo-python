@@ -1,5 +1,5 @@
 import os
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import httpx
 import pytest
@@ -14,11 +14,13 @@ from agents import (
     Runner,
     set_trace_processors,
 )
+from agents.tracing import ResponseSpanData
 from pydantic import BaseModel
 from pytest import MonkeyPatch, mark
 
 from galileo.handlers.openai_agents import GalileoTracingProcessor
 from galileo.logger.logger import GalileoLogger
+from galileo.utils.openai_agents import _extract_llm_data, _parse_usage
 from galileo_core.schemas.logging.span import LlmSpan, ToolSpan
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
@@ -296,3 +298,109 @@ async def test_pre_built_tools_multiple_types(
     galileo_logger.flush()
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     assert len(payload.traces) == 1
+
+
+@mark.asyncio
+async def test_token_details_extraction() -> None:
+    """Test that reasoning tokens, cached tokens, and other token details are extracted properly."""
+
+    # Test _parse_usage with detailed token information
+    usage_with_details = {
+        "input_tokens": 100,
+        "output_tokens": 50,
+        "total_tokens": 150,
+        "input_tokens_details": {"cached_tokens": 20, "audio_tokens": 5},
+        "output_tokens_details": {"reasoning_tokens": 15, "audio_tokens": 3},
+    }
+
+    parsed_usage = _parse_usage(usage_with_details)
+    assert parsed_usage["input_tokens"] == 100
+    assert parsed_usage["output_tokens"] == 50
+    assert parsed_usage["total_tokens"] == 150
+    assert parsed_usage["input_tokens_details"] == {"cached_tokens": 20, "audio_tokens": 5}
+    assert parsed_usage["output_tokens_details"] == {"reasoning_tokens": 15, "audio_tokens": 3}
+
+    # Test with object that has model_dump
+    class MockUsageObject:
+        def __init__(self):
+            self.input_tokens = 100
+            self.output_tokens = 50
+            self.total_tokens = 150
+            self.input_tokens_details = MockInputTokensDetails()
+            self.output_tokens_details = MockOutputTokensDetails()
+
+        def model_dump(self):
+            return {
+                "input_tokens": self.input_tokens,
+                "output_tokens": self.output_tokens,
+                "total_tokens": self.total_tokens,
+                "input_tokens_details": self.input_tokens_details,
+                "output_tokens_details": self.output_tokens_details,
+            }
+
+    class MockInputTokensDetails:
+        def __init__(self):
+            self.cached_tokens = 30
+            self.audio_tokens = 0
+
+        def model_dump(self):
+            return {"cached_tokens": self.cached_tokens, "audio_tokens": self.audio_tokens}
+
+    class MockOutputTokensDetails:
+        def __init__(self):
+            self.reasoning_tokens = 25
+            self.audio_tokens = 0
+
+        def model_dump(self):
+            return {"reasoning_tokens": self.reasoning_tokens, "audio_tokens": self.audio_tokens}
+
+    mock_usage_obj = MockUsageObject()
+    parsed_usage_obj = _parse_usage(mock_usage_obj)
+    assert parsed_usage_obj["input_tokens"] == 100
+    assert parsed_usage_obj["output_tokens"] == 50
+    assert parsed_usage_obj["total_tokens"] == 150
+    assert parsed_usage_obj["input_tokens_details"]["cached_tokens"] == 30
+    assert parsed_usage_obj["output_tokens_details"]["reasoning_tokens"] == 25
+
+    # Test _extract_llm_data with ResponseSpanData
+    mock_response = MagicMock()
+    mock_response.output = "Test output"
+    mock_response.model = "gpt-4"
+    mock_response.temperature = 0.7
+    mock_response.usage = mock_usage_obj
+    mock_response.error = None
+    mock_response.instructions = None
+    mock_response.model_dump.return_value = {"model": "gpt-4", "temperature": 0.7, "max_output_tokens": 1000}
+
+    mock_span_data = MagicMock(spec=ResponseSpanData)
+    mock_span_data.input = "Test input"
+    mock_span_data.response = mock_response
+
+    extracted_data = _extract_llm_data(mock_span_data)
+
+    # Verify standard token counts
+    assert extracted_data["num_input_tokens"] == 100
+    assert extracted_data["num_output_tokens"] == 50
+    assert extracted_data["num_total_tokens"] == 150
+    assert extracted_data["num_cached_input_tokens"] == 30
+    assert extracted_data["num_reasoning_tokens"] == 25
+
+    # Test with None usage (should not crash)
+    mock_span_data_no_usage = MagicMock(spec=ResponseSpanData)
+    mock_span_data_no_usage.input = "Test input"
+    mock_response_no_usage = MagicMock()
+    mock_response_no_usage.output = "Test output"
+    mock_response_no_usage.model = "gpt-4"
+    mock_response_no_usage.temperature = 0.7
+    mock_response_no_usage.usage = None
+    mock_response_no_usage.error = None
+    mock_response_no_usage.instructions = None
+    mock_response_no_usage.model_dump.return_value = {"model": "gpt-4", "temperature": 0.7}
+    mock_span_data_no_usage.response = mock_response_no_usage
+
+    extracted_data_no_usage = _extract_llm_data(mock_span_data_no_usage)
+    assert extracted_data_no_usage.get("num_input_tokens") is None
+    assert extracted_data_no_usage.get("num_output_tokens") is None
+    assert extracted_data_no_usage.get("num_total_tokens") is None
+    assert "input_tokens_details" not in extracted_data_no_usage["metadata"]
+    assert "output_tokens_details" not in extracted_data_no_usage["metadata"]
