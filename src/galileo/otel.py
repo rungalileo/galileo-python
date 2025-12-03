@@ -1,10 +1,13 @@
+import contextvars
 import json
 import logging
 import os
+import typing
 import uuid
+from _contextvars import ContextVar
 from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Any, NoReturn, Optional, Protocol
+from typing import Any, NoReturn, Optional, Protocol, cast
 from urllib.parse import urljoin
 
 from galileo.config import GalileoPythonConfig
@@ -20,10 +23,6 @@ INSTALL_ERR_MSG = (
 )
 
 
-class TracerProvider(Protocol):
-    def add_span_processor(self, span_processor: Any) -> None: ...
-
-
 try:
     from opentelemetry import context, trace
     from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
@@ -31,6 +30,7 @@ try:
     )
     from opentelemetry.sdk.trace import Span, SpanProcessor  # pyright: ignore[reportAssignmentType]
     from opentelemetry.sdk.trace.export import BatchSpanProcessor  # pyright: ignore[reportAssignmentType]
+    from opentelemetry.trace import Tracer
 
     OTEL_AVAILABLE = True
 except ImportError:
@@ -52,6 +52,23 @@ except ImportError:
             raise ImportError(INSTALL_ERR_MSG)
 
     OTEL_AVAILABLE = False
+
+
+class TracerProvider(Protocol):
+    def add_span_processor(self, span_processor: Any) -> None: ...
+
+    def get_tracer(
+        self,
+        instrumenting_module_name: str,
+        instrumenting_library_version: typing.Optional[str] = None,
+        schema_url: typing.Optional[str] = None,
+        attributes: typing.Optional[Any] = None,
+    ) -> "Tracer": ...
+
+
+_TRACE_PROVIDER_CONTEXT_VAR: ContextVar[Optional[TracerProvider]] = contextvars.ContextVar(
+    "galileo_trace_provider", default=None
+)
 
 
 class GalileoOTLPExporter(OTLPSpanExporter):
@@ -208,6 +225,7 @@ class GalileoSpanProcessor(SpanProcessor):
 def add_galileo_span_processor(tracer_provider: TracerProvider, processor: GalileoSpanProcessor) -> None:
     """Add the Galileo span processor to the tracer provider."""
     tracer_provider.add_span_processor(processor)
+    _TRACE_PROVIDER_CONTEXT_VAR.set(tracer_provider)
 
 
 def _set_retriever_span_attributes(span: trace.Span, galileo_span: RetrieverSpan) -> None:
@@ -228,7 +246,10 @@ def _set_retriever_span_attributes(span: trace.Span, galileo_span: RetrieverSpan
 
 @contextmanager
 def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, None]:
-    tracer_provider = trace.get_tracer_provider()
+    tracer_provider = _TRACE_PROVIDER_CONTEXT_VAR.get()
+    if tracer_provider is None:
+        tracer_provider = trace.get_tracer_provider()
+        _TRACE_PROVIDER_CONTEXT_VAR.set(cast(TracerProvider, tracer_provider))
     tracer = tracer_provider.get_tracer("galileo-tracer")
     with tracer.start_as_current_span(galileo_span.name) as span:
         yield span
