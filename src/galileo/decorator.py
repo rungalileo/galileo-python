@@ -675,6 +675,38 @@ class GalileoDecorator:
             return self._wrap_async_generator_result(span_type, span_params, result)
         return self._handle_call_result(span_type, span_params, result)
 
+    def _serialize_output(self, output: Any, span_type: Optional[SPAN_TYPE]) -> Any:
+        """
+        Serialize output value for logging.
+
+        Parameters
+        ----------
+        output
+            Output value to serialize
+        span_type
+            Type of span (determines serialization strategy)
+
+        Returns
+        -------
+        Serialized output (string or JSON-serializable dict/list)
+        """
+        if isinstance(output, str):
+            return output
+
+        # Check if this span type needs string serialization
+        if (
+            # an empty span_type means it's a workflow span
+            not span_type
+            # textual spans are spans with string-based input and output
+            or is_textual_span_type(span_type)
+            # llm spans don't accept list or tuple types as output
+            or (span_type == "llm" and isinstance(output, (list, tuple)))
+        ):
+            # Convert output to string if needed for workflow/tool/agent spans
+            return serialize_to_str(output)
+        # Serialize and deserialize to ensure proper JSON serialization
+        return json.loads(json.dumps(output, cls=EventSerializer))
+
     def _handle_call_result(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], result: Any) -> Any:
         """
         Handle the result of a function call for logging.
@@ -707,24 +739,10 @@ class GalileoDecorator:
         span_name = span_params.get("name", "unknown")
 
         try:
-            # Serialize output
-            if not isinstance(output, str) and (
-                # an empty span_type means it's a workflow span
-                not span_type
-                # textual spans are spans with string-based input and output
-                or is_textual_span_type(span_type)
-                # llm spans don't accept list or tuple types as output
-                or (span_type == "llm" and (isinstance(output, (list, tuple))))
-            ):
-                # Convert output to string if needed for workflow/tool/agent spans
-                output = serialize_to_str(output)
-            else:
-                # Serialize and deserialize to ensure proper JSON serialization.
-                output = json.loads(json.dumps(output, cls=EventSerializer))
-
-            # Serialize redacted_output if present
-            if redacted_output is not None and not isinstance(redacted_output, str):
-                redacted_output = serialize_to_str(redacted_output)
+            # Serialize output and redacted_output
+            output = self._serialize_output(output, span_type)
+            if redacted_output is not None:
+                redacted_output = self._serialize_output(redacted_output, span_type)
 
             stack = _get_or_init_list(_span_stack_context)
 
