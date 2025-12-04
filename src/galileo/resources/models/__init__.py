@@ -81,8 +81,7 @@ from .body_upload_file_projects_project_id_upload_file_post import BodyUploadFil
 from .body_upload_prompt_evaluation_dataset_projects_project_id_prompt_datasets_post import (
     BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
 )
-from .boolean_filter import BooleanFilter
-from .boolean_filter_operator import BooleanFilterOperator
+from .body_validate_code_scorer_scorers_code_validate_post import BodyValidateCodeScorerScorersCodeValidatePost
 from .bucketed_metric import BucketedMetric
 from .bucketed_metric_buckets import BucketedMetricBuckets
 from .bucketed_metrics import BucketedMetrics
@@ -90,6 +89,7 @@ from .bulk_delete_datasets_request import BulkDeleteDatasetsRequest
 from .bulk_delete_datasets_response import BulkDeleteDatasetsResponse
 from .bulk_delete_failure import BulkDeleteFailure
 from .bulk_delete_prompt_templates_request import BulkDeletePromptTemplatesRequest
+from .chain_aggregation_strategy import ChainAggregationStrategy
 from .chain_poll_template import ChainPollTemplate
 from .chain_poll_template_response_schema_type_0 import ChainPollTemplateResponseSchemaType0
 from .chunk_attribution_utilization_scorer import ChunkAttributionUtilizationScorer
@@ -101,8 +101,6 @@ from .chunk_attribution_utilization_template_response_schema_type_0 import (
 from .collaborator_role import CollaboratorRole
 from .collaborator_role_info import CollaboratorRoleInfo
 from .collaborator_update import CollaboratorUpdate
-from .collection_filter import CollectionFilter
-from .collection_filter_operator import CollectionFilterOperator
 from .column_category import ColumnCategory
 from .column_info import ColumnInfo
 from .column_mapping import ColumnMapping
@@ -126,14 +124,9 @@ from .create_scorer_request import CreateScorerRequest
 from .create_scorer_version_request import CreateScorerVersionRequest
 from .create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
 from .custom_authentication_type import CustomAuthenticationType
-from .custom_boolean_filter import CustomBooleanFilter
-from .custom_function_filter import CustomFunctionFilter
 from .custom_integration import CustomIntegration
 from .custom_integration_create import CustomIntegrationCreate
 from .custom_integration_extra_type_0 import CustomIntegrationExtraType0
-from .custom_number_filter import CustomNumberFilter
-from .custom_number_filter_operator import CustomNumberFilterOperator
-from .custom_uuid_filter import CustomUUIDFilter
 from .customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
 from .customized_agentic_session_success_gpt_scorer_aggregates_type_0 import (
     CustomizedAgenticSessionSuccessGPTScorerAggregatesType0,
@@ -352,8 +345,6 @@ from .dataset_updated_at_sort import DatasetUpdatedAtSort
 from .dataset_used_in_project_filter import DatasetUsedInProjectFilter
 from .dataset_version_db import DatasetVersionDB
 from .dataset_version_index_sort import DatasetVersionIndexSort
-from .date_filter import DateFilter
-from .date_filter_operator import DateFilterOperator
 from .delete_prompt_response import DeletePromptResponse
 from .delete_run_response import DeleteRunResponse
 from .delete_scorer_response import DeleteScorerResponse
@@ -363,8 +354,6 @@ from .edit_action import EditAction
 from .edit_override import EditOverride
 from .edit_override_edit_spans_type_0 import EditOverrideEditSpansType0
 from .edit_span import EditSpan
-from .enum_filter import EnumFilter
-from .enum_filter_operator import EnumFilterOperator
 from .execution_status import ExecutionStatus
 from .experiment_create_request import ExperimentCreateRequest
 from .experiment_dataset import ExperimentDataset
@@ -500,8 +489,6 @@ from .histogram import Histogram
 from .histogram_bucket import HistogramBucket
 from .histogram_strategy import HistogramStrategy
 from .http_validation_error import HTTPValidationError
-from .id_filter import IDFilter
-from .id_filter_operator import IDFilterOperator
 from .input_map import InputMap
 from .input_pii_scorer import InputPIIScorer
 from .input_sexist_scorer import InputSexistScorer
@@ -522,6 +509,7 @@ from .integration_action import IntegrationAction
 from .integration_db import IntegrationDB
 from .integration_models_response import IntegrationModelsResponse
 from .integration_name import IntegrationName
+from .invalid_result import InvalidResult
 from .invoke_response import InvokeResponse
 from .invoke_response_headers_type_0 import InvokeResponseHeadersType0
 from .invoke_response_metadata_type_0 import InvokeResponseMetadataType0
@@ -601,8 +589,6 @@ from .logging_method import LoggingMethod
 from .luna_input_type_enum import LunaInputTypeEnum
 from .luna_output_type_enum import LunaOutputTypeEnum
 from .manual_llm_validate_scorers_llm_validate_post_body import ManualLlmValidateScorersLlmValidatePostBody
-from .map_filter import MapFilter
-from .map_filter_operator import MapFilterOperator
 from .message import Message
 from .message_role import MessageRole
 from .messages_list_item import MessagesListItem
@@ -622,6 +608,8 @@ from .metric_failed import MetricFailed
 from .metric_not_applicable import MetricNotApplicable
 from .metric_not_computed import MetricNotComputed
 from .metric_pending import MetricPending
+from .metric_settings_request import MetricSettingsRequest
+from .metric_settings_response import MetricSettingsResponse
 from .metric_success import MetricSuccess
 from .metric_threshold import MetricThreshold
 from .metrics import Metrics
@@ -645,6 +633,7 @@ from .open_ai_integration import OpenAIIntegration
 from .open_ai_integration_create import OpenAIIntegrationCreate
 from .open_ai_integration_extra_type_0 import OpenAIIntegrationExtraType0
 from .open_ai_tool_choice import OpenAIToolChoice
+from .operator import Operator
 from .or_node import OrNode
 from .organization_action import OrganizationAction
 from .output_map import OutputMap
@@ -720,6 +709,7 @@ from .protect_request_headers_type_0 import ProtectRequestHeadersType0
 from .protect_request_metadata_type_0 import ProtectRequestMetadataType0
 from .protect_response import ProtectResponse
 from .query_dataset_params import QueryDatasetParams
+from .raw_filter import RawFilter
 from .recompute_log_records_metrics_request import RecomputeLogRecordsMetricsRequest
 from .recompute_settings_log_stream import RecomputeSettingsLogStream
 from .recompute_settings_observe import RecomputeSettingsObserve
@@ -727,12 +717,14 @@ from .recompute_settings_project import RecomputeSettingsProject
 from .recompute_settings_runs import RecomputeSettingsRuns
 from .registered_scorer import RegisteredScorer
 from .registered_scorer_action import RegisteredScorerAction
+from .registered_scorer_task_result_response import RegisteredScorerTaskResultResponse
 from .render_template_request import RenderTemplateRequest
 from .render_template_response import RenderTemplateResponse
 from .rendered_template import RenderedTemplate
 from .retriever_span import RetrieverSpan
 from .retriever_span_dataset_metadata import RetrieverSpanDatasetMetadata
 from .retriever_span_user_metadata import RetrieverSpanUserMetadata
+from .roll_up_strategy import RollUpStrategy
 from .rollback_request import RollbackRequest
 from .root_type import RootType
 from .rouge_scorer import RougeScorer
@@ -791,8 +783,6 @@ from .star_aggregate_counts import StarAggregateCounts
 from .star_rating import StarRating
 from .step_type import StepType
 from .string_data import StringData
-from .string_filter import StringFilter
-from .string_filter_operator import StringFilterOperator
 from .subscription_config import SubscriptionConfig
 from .synthetic_data_source_dataset import SyntheticDataSourceDataset
 from .synthetic_data_types import SyntheticDataTypes
@@ -804,8 +794,10 @@ from .tags_aggregate import TagsAggregate
 from .tags_aggregate_counts import TagsAggregateCounts
 from .tags_rating import TagsRating
 from .task_resource_limits import TaskResourceLimits
+from .task_result_status import TaskResultStatus
 from .task_type import TaskType
 from .template_stub_request import TemplateStubRequest
+from .test_score import TestScore
 from .text_rating import TextRating
 from .token import Token
 from .tool_call import ToolCall
@@ -840,8 +832,11 @@ from .user_collaborator_create import UserCollaboratorCreate
 from .user_db import UserDB
 from .user_info import UserInfo
 from .user_role import UserRole
+from .valid_result import ValidResult
+from .validate_code_scorer_response import ValidateCodeScorerResponse
 from .validate_llm_scorer_log_record_request import ValidateLLMScorerLogRecordRequest
 from .validate_llm_scorer_log_record_response import ValidateLLMScorerLogRecordResponse
+from .validate_registered_scorer_result import ValidateRegisteredScorerResult
 from .validation_error import ValidationError
 from .vegas_gateway_integration import VegasGatewayIntegration
 from .vegas_gateway_integration_create import VegasGatewayIntegrationCreate
@@ -930,8 +925,7 @@ __all__ = (
     "BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut",
     "BodyUploadFileProjectsProjectIdUploadFilePost",
     "BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost",
-    "BooleanFilter",
-    "BooleanFilterOperator",
+    "BodyValidateCodeScorerScorersCodeValidatePost",
     "BucketedMetric",
     "BucketedMetricBuckets",
     "BucketedMetrics",
@@ -939,6 +933,7 @@ __all__ = (
     "BulkDeleteDatasetsResponse",
     "BulkDeleteFailure",
     "BulkDeletePromptTemplatesRequest",
+    "ChainAggregationStrategy",
     "ChainPollTemplate",
     "ChainPollTemplateResponseSchemaType0",
     "ChunkAttributionUtilizationScorer",
@@ -948,8 +943,6 @@ __all__ = (
     "CollaboratorRole",
     "CollaboratorRoleInfo",
     "CollaboratorUpdate",
-    "CollectionFilter",
-    "CollectionFilterOperator",
     "ColumnCategory",
     "ColumnInfo",
     "ColumnMapping",
@@ -973,14 +966,9 @@ __all__ = (
     "CreateScorerVersionRequest",
     "CreateUpdateRegisteredScorerResponse",
     "CustomAuthenticationType",
-    "CustomBooleanFilter",
-    "CustomFunctionFilter",
     "CustomIntegration",
     "CustomIntegrationCreate",
     "CustomIntegrationExtraType0",
-    "CustomNumberFilter",
-    "CustomNumberFilterOperator",
-    "CustomUUIDFilter",
     "CustomizedAgenticSessionSuccessGPTScorer",
     "CustomizedAgenticSessionSuccessGPTScorerAggregatesType0",
     "CustomizedAgenticSessionSuccessGPTScorerClassNameToVocabIxType0",
@@ -1119,8 +1107,6 @@ __all__ = (
     "DatasetUsedInProjectFilter",
     "DatasetVersionDB",
     "DatasetVersionIndexSort",
-    "DateFilter",
-    "DateFilterOperator",
     "DeletePromptResponse",
     "DeleteRunResponse",
     "DeleteScorerResponse",
@@ -1130,8 +1116,6 @@ __all__ = (
     "EditOverride",
     "EditOverrideEditSpansType0",
     "EditSpan",
-    "EnumFilter",
-    "EnumFilterOperator",
     "ExecutionStatus",
     "ExperimentCreateRequest",
     "ExperimentDataset",
@@ -1243,8 +1227,6 @@ __all__ = (
     "Histogram",
     "HistogramBucket",
     "HistogramStrategy",
-    "IDFilter",
-    "IDFilterOperator",
     "InputMap",
     "InputPIIScorer",
     "InputSexistScorer",
@@ -1265,6 +1247,7 @@ __all__ = (
     "IntegrationDB",
     "IntegrationModelsResponse",
     "IntegrationName",
+    "InvalidResult",
     "InvokeResponse",
     "InvokeResponseHeadersType0",
     "InvokeResponseMetadataType0",
@@ -1344,8 +1327,6 @@ __all__ = (
     "LunaInputTypeEnum",
     "LunaOutputTypeEnum",
     "ManualLlmValidateScorersLlmValidatePostBody",
-    "MapFilter",
-    "MapFilterOperator",
     "Message",
     "MessageRole",
     "MessagesListItem",
@@ -1365,6 +1346,8 @@ __all__ = (
     "MetricNotApplicable",
     "MetricNotComputed",
     "MetricPending",
+    "MetricSettingsRequest",
+    "MetricSettingsResponse",
     "MetricSuccess",
     "MetricThreshold",
     "Metrics",
@@ -1388,6 +1371,7 @@ __all__ = (
     "OpenAIIntegrationCreate",
     "OpenAIIntegrationExtraType0",
     "OpenAIToolChoice",
+    "Operator",
     "OrNode",
     "OrganizationAction",
     "OutputMap",
@@ -1463,6 +1447,7 @@ __all__ = (
     "ProtectRequestMetadataType0",
     "ProtectResponse",
     "QueryDatasetParams",
+    "RawFilter",
     "RecomputeLogRecordsMetricsRequest",
     "RecomputeSettingsLogStream",
     "RecomputeSettingsObserve",
@@ -1470,12 +1455,14 @@ __all__ = (
     "RecomputeSettingsRuns",
     "RegisteredScorer",
     "RegisteredScorerAction",
+    "RegisteredScorerTaskResultResponse",
     "RenderTemplateRequest",
     "RenderTemplateResponse",
     "RenderedTemplate",
     "RetrieverSpan",
     "RetrieverSpanDatasetMetadata",
     "RetrieverSpanUserMetadata",
+    "RollUpStrategy",
     "RollbackRequest",
     "RootType",
     "RougeScorer",
@@ -1534,8 +1521,6 @@ __all__ = (
     "StarRating",
     "StepType",
     "StringData",
-    "StringFilter",
-    "StringFilterOperator",
     "SubscriptionConfig",
     "SyntheticDataSourceDataset",
     "SyntheticDataTypes",
@@ -1547,8 +1532,10 @@ __all__ = (
     "TagsAggregateCounts",
     "TagsRating",
     "TaskResourceLimits",
+    "TaskResultStatus",
     "TaskType",
     "TemplateStubRequest",
+    "TestScore",
     "TextRating",
     "Token",
     "ToolCall",
@@ -1583,8 +1570,11 @@ __all__ = (
     "UserDB",
     "UserInfo",
     "UserRole",
+    "ValidResult",
+    "ValidateCodeScorerResponse",
     "ValidateLLMScorerLogRecordRequest",
     "ValidateLLMScorerLogRecordResponse",
+    "ValidateRegisteredScorerResult",
     "ValidationError",
     "VegasGatewayIntegration",
     "VegasGatewayIntegrationCreate",

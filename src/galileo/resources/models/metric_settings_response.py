@@ -11,21 +11,19 @@ if TYPE_CHECKING:
     from ..models.segment_filter import SegmentFilter
 
 
-T = TypeVar("T", bound="RunScorerSettingsResponse")
+T = TypeVar("T", bound="MetricSettingsResponse")
 
 
 @_attrs_define
-class RunScorerSettingsResponse:
+class MetricSettingsResponse:
     """
     Attributes
     ----------
         scorers (list['ScorerConfig']):
-        run_id (str): ID of the run.
         segment_filters (Union[None, Unset, list['SegmentFilter']]): List of segment filters to apply to the run.
     """
 
     scorers: list["ScorerConfig"]
-    run_id: str
     segment_filters: Union[None, Unset, list["SegmentFilter"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -34,8 +32,6 @@ class RunScorerSettingsResponse:
         for scorers_item_data in self.scorers:
             scorers_item = scorers_item_data.to_dict()
             scorers.append(scorers_item)
-
-        run_id = self.run_id
 
         segment_filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.segment_filters, Unset):
@@ -51,7 +47,7 @@ class RunScorerSettingsResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"scorers": scorers, "run_id": run_id})
+        field_dict.update({"scorers": scorers})
         if segment_filters is not UNSET:
             field_dict["segment_filters"] = segment_filters
 
@@ -69,8 +65,6 @@ class RunScorerSettingsResponse:
             scorers_item = ScorerConfig.from_dict(scorers_item_data)
 
             scorers.append(scorers_item)
-
-        run_id = d.pop("run_id")
 
         def _parse_segment_filters(data: object) -> Union[None, Unset, list["SegmentFilter"]]:
             if data is None:
@@ -94,10 +88,10 @@ class RunScorerSettingsResponse:
 
         segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
 
-        run_scorer_settings_response = cls(scorers=scorers, run_id=run_id, segment_filters=segment_filters)
+        metric_settings_response = cls(scorers=scorers, segment_filters=segment_filters)
 
-        run_scorer_settings_response.additional_properties = d
-        return run_scorer_settings_response
+        metric_settings_response.additional_properties = d
+        return metric_settings_response
 
     @property
     def additional_keys(self) -> list[str]:

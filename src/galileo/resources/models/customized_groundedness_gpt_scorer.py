@@ -9,6 +9,7 @@ from ..models.luna_input_type_enum import LunaInputTypeEnum
 from ..models.luna_output_type_enum import LunaOutputTypeEnum
 from ..models.node_type import NodeType
 from ..models.output_type_enum import OutputTypeEnum
+from ..models.roll_up_strategy import RollUpStrategy
 from ..models.scorer_name import ScorerName
 from ..types import UNSET, Unset
 
@@ -61,6 +62,7 @@ class CustomizedGroundednessGPTScorer:
         output_type (Union[None, OutputTypeEnum, Unset]):
         input_type (Union[InputTypeEnum, None, Unset]):
         required_scorers (Union[None, Unset, list[str]]):
+        roll_up_strategy (Union[None, RollUpStrategy, Unset]):
         prompt (Union[None, Unset, str]):
         lora_task_id (Union[None, Unset, int]):
         luna_input_type (Union[LunaInputTypeEnum, None, Unset]):
@@ -93,6 +95,7 @@ class CustomizedGroundednessGPTScorer:
     output_type: Union[None, OutputTypeEnum, Unset] = UNSET
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
     required_scorers: Union[None, Unset, list[str]] = UNSET
+    roll_up_strategy: Union[None, RollUpStrategy, Unset] = UNSET
     prompt: Union[None, Unset, str] = UNSET
     lora_task_id: Union[None, Unset, int] = UNSET
     luna_input_type: Union[LunaInputTypeEnum, None, Unset] = UNSET
@@ -252,6 +255,14 @@ class CustomizedGroundednessGPTScorer:
         else:
             required_scorers = self.required_scorers
 
+        roll_up_strategy: Union[None, Unset, str]
+        if isinstance(self.roll_up_strategy, Unset):
+            roll_up_strategy = UNSET
+        elif isinstance(self.roll_up_strategy, RollUpStrategy):
+            roll_up_strategy = self.roll_up_strategy.value
+        else:
+            roll_up_strategy = self.roll_up_strategy
+
         prompt: Union[None, Unset, str]
         prompt = UNSET if isinstance(self.prompt, Unset) else self.prompt
 
@@ -339,6 +350,8 @@ class CustomizedGroundednessGPTScorer:
             field_dict["input_type"] = input_type
         if required_scorers is not UNSET:
             field_dict["required_scorers"] = required_scorers
+        if roll_up_strategy is not UNSET:
+            field_dict["roll_up_strategy"] = roll_up_strategy
         if prompt is not UNSET:
             field_dict["prompt"] = prompt
         if lora_task_id is not UNSET:
@@ -631,6 +644,22 @@ class CustomizedGroundednessGPTScorer:
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
+        def _parse_roll_up_strategy(data: object) -> Union[None, RollUpStrategy, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return RollUpStrategy(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, RollUpStrategy, Unset], data)
+
+        roll_up_strategy = _parse_roll_up_strategy(d.pop("roll_up_strategy", UNSET))
+
         def _parse_prompt(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -744,6 +773,7 @@ class CustomizedGroundednessGPTScorer:
             output_type=output_type,
             input_type=input_type,
             required_scorers=required_scorers,
+            roll_up_strategy=roll_up_strategy,
             prompt=prompt,
             lora_task_id=lora_task_id,
             luna_input_type=luna_input_type,

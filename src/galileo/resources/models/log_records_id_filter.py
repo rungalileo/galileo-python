@@ -31,7 +31,15 @@ class LogRecordsIDFilter:
         column_id = self.column_id
 
         value: Union[list[str], str]
-        value = self.value if isinstance(self.value, list) else self.value
+        if isinstance(self.value, list):
+            value = []
+            for value_type_1_item_data in self.value:
+                value_type_1_item: str
+                value_type_1_item = value_type_1_item_data
+                value.append(value_type_1_item)
+
+        else:
+            value = self.value
 
         operator: Union[Unset, str] = UNSET
         if not isinstance(self.operator, Unset):
@@ -58,8 +66,18 @@ class LogRecordsIDFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = []
+                _value_type_1 = data
+                for value_type_1_item_data in _value_type_1:
 
+                    def _parse_value_type_1_item(data: object) -> str:
+                        return cast(str, data)
+
+                    value_type_1_item = _parse_value_type_1_item(value_type_1_item_data)
+
+                    value_type_1.append(value_type_1_item)
+
+                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(Union[list[str], str], data)

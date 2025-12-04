@@ -15,43 +15,49 @@ class DatasetDraftFilter:
     """
     Attributes
     ----------
-        operator (DatasetDraftFilterOperator):
         value (bool):
         name (Union[Literal['draft'], Unset]):  Default: 'draft'.
+        operator (Union[Unset, DatasetDraftFilterOperator]):  Default: DatasetDraftFilterOperator.EQ.
     """
 
-    operator: DatasetDraftFilterOperator
     value: bool
     name: Union[Literal["draft"], Unset] = "draft"
+    operator: Union[Unset, DatasetDraftFilterOperator] = DatasetDraftFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        operator = self.operator.value
-
         value = self.value
 
         name = self.name
 
+        operator: Union[Unset, str] = UNSET
+        if not isinstance(self.operator, Unset):
+            operator = self.operator.value
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"operator": operator, "value": value})
+        field_dict.update({"value": value})
         if name is not UNSET:
             field_dict["name"] = name
+        if operator is not UNSET:
+            field_dict["operator"] = operator
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        operator = DatasetDraftFilterOperator(d.pop("operator"))
-
         value = d.pop("value")
 
         name = cast(Union[Literal["draft"], Unset], d.pop("name", UNSET))
         if name != "draft" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'draft', got '{name}'")
 
-        dataset_draft_filter = cls(operator=operator, value=value, name=name)
+        _operator = d.pop("operator", UNSET)
+        operator: Union[Unset, DatasetDraftFilterOperator]
+        operator = UNSET if isinstance(_operator, Unset) else DatasetDraftFilterOperator(_operator)
+
+        dataset_draft_filter = cls(value=value, name=name, operator=operator)
 
         dataset_draft_filter.additional_properties = d
         return dataset_draft_filter
