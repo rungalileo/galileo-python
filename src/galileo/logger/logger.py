@@ -11,7 +11,6 @@ from os import getenv
 from typing import Any, Callable, Literal, Optional, Union
 
 import backoff
-from pydantic import ValidationError
 
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
@@ -35,6 +34,7 @@ from galileo.traces import Traces
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
+from galileo.utils.retrievers import convert_to_documents
 from galileo.utils.serialization import serialize_to_str
 from galileo_core.helpers.execution import async_run
 from galileo_core.schemas.logging.agent import AgentType
@@ -53,7 +53,6 @@ from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType, St
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response
-from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 STREAMING_MAX_RETRIES = 3
@@ -909,40 +908,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         RetrieverSpan
             The created span.
         """
-
-        def _convert_to_documents(data: RetrieverSpanAllowedOutputType, field_name: str) -> list[Document]:
-            """Convert various input types to a list of Document objects."""
-            if data is None:
-                return [Document(content="", metadata={})]
-
-            if isinstance(data, list):
-                if all(isinstance(doc, Document) for doc in data):
-                    return data
-                if all(isinstance(doc, str) for doc in data):
-                    return [Document(content=doc, metadata={}) for doc in data]
-                if all(isinstance(doc, dict) for doc in data):
-                    try:
-                        return [Document.model_validate(doc) for doc in data]
-                    except ValidationError:
-                        return [Document(content=json.dumps(doc), metadata={}) for doc in data]
-                else:
-                    raise ValueError(
-                        f"Invalid type for {field_name}. Expected list of strings, list of dicts, or a Document, but got {type(data)}"
-                    )
-            elif isinstance(data, Document):
-                return [data]
-            elif isinstance(data, str):
-                return [Document(content=data, metadata={})]
-            elif isinstance(data, dict):
-                try:
-                    return [Document.model_validate(data)]
-                except ValidationError:
-                    return [Document(content=json.dumps(data), metadata={})]
-            else:
-                return [Document(content="", metadata={})]
-
-        documents = _convert_to_documents(output, "output")
-        redacted_documents = _convert_to_documents(redacted_output, "redacted_output")
+        documents = convert_to_documents(output, "output")
+        redacted_documents = convert_to_documents(redacted_output, "redacted_output")
 
         kwargs = {
             "input": input,

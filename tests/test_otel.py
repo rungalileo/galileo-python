@@ -53,7 +53,12 @@ class TestGalileoOTLPExporter:
 
         # Verify endpoint construction
         expected_endpoint = urljoin(base_url + "/", "/otel/traces")
-        expected_headers = {"Galileo-API-Key": api_key, "project": project, "logstream": logstream}
+        expected_headers = {
+            "Galileo-API-Key": api_key,
+            "project": project,
+            "logstream": logstream,
+            "X-Use-Otel-New": "false",
+        }
 
         mock_otlp_init.assert_called_once_with(endpoint=expected_endpoint, headers=expected_headers, timeout=30)
 
@@ -86,6 +91,7 @@ class TestGalileoOTLPExporter:
                     "Galileo-API-Key": "env-api-key",
                     "project": "env-project",
                     "logstream": "env-logstream",
+                    "X-Use-Otel-New": "false",
                 }
 
                 mock_otlp_init.assert_called_once_with(endpoint=expected_endpoint, headers=expected_headers)
@@ -116,6 +122,7 @@ class TestGalileoOTLPExporter:
                 "Galileo-API-Key": "env-key",
                 "project": "param-project",
                 "logstream": "param-logstream",
+                "X-Use-Otel-New": "false",
             }
 
             call_kwargs = mock_otlp_init.call_args[1]
@@ -213,7 +220,9 @@ class TestGalileoSpanProcessor:
         processor = GalileoSpanProcessor(project="test-project", logstream="test-logstream")
 
         # Verify exporter was created with correct parameters
-        mocks["mock_exporter_class"].assert_called_once_with(project="test-project", logstream="test-logstream")
+        mocks["mock_exporter_class"].assert_called_once_with(
+            project="test-project", logstream="test-logstream", use_new_otel=True
+        )
 
         # Verify BatchSpanProcessor was created with the exporter
         mocks["mock_processor_class"].assert_called_once_with(mocks["mock_exporter_instance"])
@@ -302,7 +311,9 @@ class TestGalileoSpanProcessor:
 
         GalileoSpanProcessor(project="test-project", logstream="test-logstream")
 
-        mocks["mock_exporter_class"].assert_called_once_with(project="test-project", logstream="test-logstream")
+        mocks["mock_exporter_class"].assert_called_once_with(
+            project="test-project", logstream="test-logstream", use_new_otel=True
+        )
 
 
 class TestOTelUnavailable:

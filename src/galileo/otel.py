@@ -1,10 +1,19 @@
+import contextvars
+import json
 import logging
 import os
+import typing
 import uuid
-from typing import Any, NoReturn, Optional, Protocol
+from _contextvars import ContextVar
+from collections.abc import Generator
+from contextlib import contextmanager
+from typing import Any, NoReturn, Optional, Protocol, cast
 from urllib.parse import urljoin
 
 from galileo.config import GalileoPythonConfig
+from galileo.utils.retrievers import document_adapter
+from galileo_core.schemas.logging.span import RetrieverSpan
+from galileo_core.schemas.logging.span import Span as GalileoSpan
 
 logger = logging.getLogger(__name__)
 
@@ -14,17 +23,14 @@ INSTALL_ERR_MSG = (
 )
 
 
-class TracerProvider(Protocol):
-    def add_span_processor(self, span_processor: Any) -> None: ...
-
-
 try:
-    from opentelemetry import context
+    from opentelemetry import context, trace
     from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
         OTLPSpanExporter,  # pyright: ignore[reportAssignmentType]
     )
     from opentelemetry.sdk.trace import Span, SpanProcessor  # pyright: ignore[reportAssignmentType]
     from opentelemetry.sdk.trace.export import BatchSpanProcessor  # pyright: ignore[reportAssignmentType]
+    from opentelemetry.trace import Tracer
 
     OTEL_AVAILABLE = True
 except ImportError:
@@ -46,6 +52,23 @@ except ImportError:
             raise ImportError(INSTALL_ERR_MSG)
 
     OTEL_AVAILABLE = False
+
+
+class TracerProvider(Protocol):
+    def add_span_processor(self, span_processor: Any) -> None: ...
+
+    def get_tracer(
+        self,
+        instrumenting_module_name: str,
+        instrumenting_library_version: typing.Optional[str] = None,
+        schema_url: typing.Optional[str] = None,
+        attributes: typing.Optional[Any] = None,
+    ) -> "Tracer": ...
+
+
+_TRACE_PROVIDER_CONTEXT_VAR: ContextVar[Optional[TracerProvider]] = contextvars.ContextVar(
+    "galileo_trace_provider", default=None
+)
 
 
 class GalileoOTLPExporter(OTLPSpanExporter):
@@ -102,10 +125,15 @@ class GalileoOTLPExporter(OTLPSpanExporter):
         if not self.logstream:
             self.logstream = "default"
 
+        use_new_otel = kwargs.pop("use_new_otel", False)
+
         exporter_headers = {
             "Galileo-API-Key": config.api_key.get_secret_value() if config.api_key else None,
             "project": self.project,
             "logstream": self.logstream,
+            "X-Use-Otel-New": str(
+                use_new_otel
+            ).lower(),  # TODO: remove this once we fully migrate to the new OTLP implementation
         }
 
         super().__init__(endpoint=endpoint, headers=exporter_headers, **kwargs)
@@ -128,7 +156,12 @@ class GalileoSpanProcessor(SpanProcessor):
     """
 
     def __init__(
-        self, project: Optional[str] = None, logstream: Optional[str] = None, SpanProcessor: Optional[type] = None
+        self,
+        project: Optional[str] = None,
+        logstream: Optional[str] = None,
+        SpanProcessor: Optional[type] = None,
+        *,
+        use_new_otel: bool = True,
     ) -> None:
         """
         Initialize the Galileo span processor with export configuration.
@@ -154,7 +187,7 @@ class GalileoSpanProcessor(SpanProcessor):
             )
 
         # Create the exporter using the config-based approach
-        self._exporter = GalileoOTLPExporter(project=project, logstream=logstream)
+        self._exporter = GalileoOTLPExporter(project=project, logstream=logstream, use_new_otel=use_new_otel)
 
         if SpanProcessor is None:
             SpanProcessor = BatchSpanProcessor
@@ -196,3 +229,34 @@ class GalileoSpanProcessor(SpanProcessor):
 def add_galileo_span_processor(tracer_provider: TracerProvider, processor: GalileoSpanProcessor) -> None:
     """Add the Galileo span processor to the tracer provider."""
     tracer_provider.add_span_processor(processor)
+    _TRACE_PROVIDER_CONTEXT_VAR.set(tracer_provider)
+
+
+def _set_retriever_span_attributes(span: trace.Span, galileo_span: RetrieverSpan) -> None:
+    span.set_attribute("db.operation", "search")
+    span.set_attribute("gen_ai.input.messages", json.dumps([{"role": "user", "content": galileo_span.input}]))
+    span.set_attribute(
+        "gen_ai.output.messages",
+        json.dumps(
+            [
+                {
+                    "role": "assistant",
+                    "content": {"documents": document_adapter.dump_python(galileo_span.output, mode="json")},
+                }
+            ]
+        ),
+    )
+
+
+@contextmanager
+def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, None]:
+    tracer_provider = _TRACE_PROVIDER_CONTEXT_VAR.get()
+    if tracer_provider is None:
+        tracer_provider = trace.get_tracer_provider()
+        _TRACE_PROVIDER_CONTEXT_VAR.set(cast(TracerProvider, tracer_provider))
+    tracer = tracer_provider.get_tracer("galileo-tracer")
+    with tracer.start_as_current_span(galileo_span.name) as span:
+        yield span
+        span.set_attribute("gen_ai.system", "galileo-otel")
+        if isinstance(galileo_span, RetrieverSpan):
+            _set_retriever_span_attributes(span, galileo_span)
