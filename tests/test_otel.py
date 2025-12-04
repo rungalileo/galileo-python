@@ -16,7 +16,7 @@ class TestGalileoOTLPExporter:
     @pytest.fixture
     def clear_env_vars(self):
         """Clear relevant environment variables for clean test state."""
-        env_vars = ["GALILEO_API_KEY", "GALILEO_CONSOLE_URL", "GALILEO_PROJECT", "GALILEO_LOGSTREAM"]
+        env_vars = ["GALILEO_API_KEY", "GALILEO_CONSOLE_URL", "GALILEO_PROJECT", "GALILEO_LOG_STREAM"]
         original_values = {}
 
         for var in env_vars:
@@ -78,7 +78,7 @@ class TestGalileoOTLPExporter:
 
         with patch.dict(
             os.environ,
-            {"GALILEO_API_KEY": "env-api-key", "GALILEO_PROJECT": "env-project", "GALILEO_LOGSTREAM": "env-logstream"},
+            {"GALILEO_API_KEY": "env-api-key", "GALILEO_PROJECT": "env-project", "GALILEO_LOG_STREAM": "env-logstream"},
         ):
             with patch("galileo.otel.uuid.uuid4") as mock_uuid:
                 exporter = GalileoOTLPExporter()
@@ -113,7 +113,7 @@ class TestGalileoOTLPExporter:
 
         with patch.dict(
             os.environ,
-            {"GALILEO_API_KEY": "env-key", "GALILEO_PROJECT": "env-project", "GALILEO_LOGSTREAM": "env-logstream"},
+            {"GALILEO_API_KEY": "env-key", "GALILEO_PROJECT": "env-project", "GALILEO_LOG_STREAM": "env-logstream"},
         ):
             GalileoOTLPExporter(project="param-project", logstream="param-logstream")
 

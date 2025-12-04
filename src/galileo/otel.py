@@ -117,7 +117,7 @@ class GalileoOTLPExporter(OTLPSpanExporter):
 
         # Resolve project and logstream from parameters or environment variables
         self.project = project or os.environ.get("GALILEO_PROJECT")
-        self.logstream = logstream or os.environ.get("GALILEO_LOGSTREAM")
+        self.logstream = logstream or os.environ.get("GALILEO_LOG_STREAM")
 
         if not self.project:
             self.project = f"project_{uuid.uuid4()}"
