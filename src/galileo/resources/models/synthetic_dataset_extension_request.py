@@ -28,6 +28,7 @@ class SyntheticDatasetExtensionRequest:
         source_dataset (Union['SyntheticDataSourceDataset', None, Unset]):
         data_types (Union[None, Unset, list[SyntheticDataTypes]]):
         count (Union[Unset, int]):  Default: 10.
+        project_id (Union[None, Unset, str]):
     """
 
     prompt_settings: Union[Unset, "PromptRunSettings"] = UNSET
@@ -37,6 +38,7 @@ class SyntheticDatasetExtensionRequest:
     source_dataset: Union["SyntheticDataSourceDataset", None, Unset] = UNSET
     data_types: Union[None, Unset, list[SyntheticDataTypes]] = UNSET
     count: Union[Unset, int] = 10
+    project_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -78,6 +80,9 @@ class SyntheticDatasetExtensionRequest:
 
         count = self.count
 
+        project_id: Union[None, Unset, str]
+        project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -95,6 +100,8 @@ class SyntheticDatasetExtensionRequest:
             field_dict["data_types"] = data_types
         if count is not UNSET:
             field_dict["count"] = count
+        if project_id is not UNSET:
+            field_dict["project_id"] = project_id
 
         return field_dict
 
@@ -171,6 +178,15 @@ class SyntheticDatasetExtensionRequest:
 
         count = d.pop("count", UNSET)
 
+        def _parse_project_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        project_id = _parse_project_id(d.pop("project_id", UNSET))
+
         synthetic_dataset_extension_request = cls(
             prompt_settings=prompt_settings,
             prompt=prompt,
@@ -179,6 +195,7 @@ class SyntheticDatasetExtensionRequest:
             source_dataset=source_dataset,
             data_types=data_types,
             count=count,
+            project_id=project_id,
         )
 
         synthetic_dataset_extension_request.additional_properties = d

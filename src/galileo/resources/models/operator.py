@@ -1,8 +1,14 @@
 from enum import Enum
 
 
-class MapFilterOperator(str, Enum):
+class Operator(str, Enum):
+    BETWEEN = "between"
+    CONTAINS = "contains"
     EQ = "eq"
+    GT = "gt"
+    GTE = "gte"
+    LT = "lt"
+    LTE = "lte"
     NE = "ne"
     NOT_IN = "not_in"
     ONE_OF = "one_of"

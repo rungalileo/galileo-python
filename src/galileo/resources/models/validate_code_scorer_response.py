@@ -1,48 +1,41 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="CustomFunctionFilter")
+T = TypeVar("T", bound="ValidateCodeScorerResponse")
 
 
 @_attrs_define
-class CustomFunctionFilter:
+class ValidateCodeScorerResponse:
     """
     Attributes
     ----------
-        name (Union[None, str]):
+        task_id (str):
     """
 
-    name: Union[None, str]
+    task_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name: Union[None, str]
-        name = self.name
+        task_id = self.task_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"name": name})
+        field_dict.update({"task_id": task_id})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        task_id = d.pop("task_id")
 
-        def _parse_name(data: object) -> Union[None, str]:
-            if data is None:
-                return data
-            return cast(Union[None, str], data)
+        validate_code_scorer_response = cls(task_id=task_id)
 
-        name = _parse_name(d.pop("name"))
-
-        custom_function_filter = cls(name=name)
-
-        custom_function_filter.additional_properties = d
-        return custom_function_filter
+        validate_code_scorer_response.additional_properties = d
+        return validate_code_scorer_response
 
     @property
     def additional_keys(self) -> list[str]:

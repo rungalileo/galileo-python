@@ -1,65 +1,60 @@
-import datetime
 from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.date_filter_operator import DateFilterOperator
+from ..models.node_type import NodeType
+from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="DateFilter")
+T = TypeVar("T", bound="TestScore")
 
 
 @_attrs_define
-class DateFilter:
-    """Filters on a datetime field.
-
+class TestScore:
+    """
     Attributes
     ----------
-        name (Union[None, str]):
-        operator (DateFilterOperator):
-        value (datetime.datetime):
+        node_type (NodeType):
+        score (Union[None, Unset, bool, float, int, str]):
     """
 
-    name: Union[None, str]
-    operator: DateFilterOperator
-    value: datetime.datetime
+    node_type: NodeType
+    score: Union[None, Unset, bool, float, int, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name: Union[None, str]
-        name = self.name
+        node_type = self.node_type.value
 
-        operator = self.operator.value
-
-        value = self.value.isoformat()
+        score: Union[None, Unset, bool, float, int, str]
+        score = UNSET if isinstance(self.score, Unset) else self.score
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"name": name, "operator": operator, "value": value})
+        field_dict.update({"node_type": node_type})
+        if score is not UNSET:
+            field_dict["score"] = score
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        node_type = NodeType(d.pop("node_type"))
 
-        def _parse_name(data: object) -> Union[None, str]:
+        def _parse_score(data: object) -> Union[None, Unset, bool, float, int, str]:
             if data is None:
                 return data
-            return cast(Union[None, str], data)
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool, float, int, str], data)
 
-        name = _parse_name(d.pop("name"))
+        score = _parse_score(d.pop("score", UNSET))
 
-        operator = DateFilterOperator(d.pop("operator"))
+        test_score = cls(node_type=node_type, score=score)
 
-        value = isoparse(d.pop("value"))
-
-        date_filter = cls(name=name, operator=operator, value=value)
-
-        date_filter.additional_properties = d
-        return date_filter
+        test_score.additional_properties = d
+        return test_score
 
     @property
     def additional_keys(self) -> list[str]:

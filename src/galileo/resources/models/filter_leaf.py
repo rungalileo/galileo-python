@@ -1,21 +1,11 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.boolean_filter import BooleanFilter
-    from ..models.collection_filter import CollectionFilter
-    from ..models.custom_boolean_filter import CustomBooleanFilter
-    from ..models.custom_function_filter import CustomFunctionFilter
-    from ..models.custom_number_filter import CustomNumberFilter
-    from ..models.custom_uuid_filter import CustomUUIDFilter
-    from ..models.date_filter import DateFilter
-    from ..models.enum_filter import EnumFilter
-    from ..models.id_filter import IDFilter
-    from ..models.map_filter import MapFilter
-    from ..models.string_filter import StringFilter
+    from ..models.raw_filter import RawFilter
 
 
 T = TypeVar("T", bound="FilterLeaf")
@@ -26,56 +16,15 @@ class FilterLeaf:
     """
     Attributes
     ----------
-        filter_ (Union['BooleanFilter', 'CollectionFilter', 'CustomBooleanFilter', 'CustomFunctionFilter',
-            'CustomNumberFilter', 'CustomUUIDFilter', 'DateFilter', 'EnumFilter', 'IDFilter', 'MapFilter', 'StringFilter']):
+        filter_ (RawFilter): Raw filter input. At least one of 'name' or 'column_id' is required.
+            'value' is required. 'operator' and 'case_sensitive' are optional.
     """
 
-    filter_: Union[
-        "BooleanFilter",
-        "CollectionFilter",
-        "CustomBooleanFilter",
-        "CustomFunctionFilter",
-        "CustomNumberFilter",
-        "CustomUUIDFilter",
-        "DateFilter",
-        "EnumFilter",
-        "IDFilter",
-        "MapFilter",
-        "StringFilter",
-    ]
+    filter_: "RawFilter"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.boolean_filter import BooleanFilter
-        from ..models.collection_filter import CollectionFilter
-        from ..models.custom_boolean_filter import CustomBooleanFilter
-        from ..models.custom_number_filter import CustomNumberFilter
-        from ..models.custom_uuid_filter import CustomUUIDFilter
-        from ..models.date_filter import DateFilter
-        from ..models.enum_filter import EnumFilter
-        from ..models.id_filter import IDFilter
-        from ..models.map_filter import MapFilter
-        from ..models.string_filter import StringFilter
-
-        filter_: dict[str, Any]
-        if isinstance(
-            self.filter_,
-            (
-                CollectionFilter,
-                StringFilter,
-                IDFilter,
-                CustomUUIDFilter,
-                DateFilter,
-                BooleanFilter,
-                CustomNumberFilter,
-                EnumFilter,
-                MapFilter,
-                CustomBooleanFilter,
-            ),
-        ):
-            filter_ = self.filter_.to_dict()
-        else:
-            filter_ = self.filter_.to_dict()
+        filter_ = self.filter_.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -85,110 +34,10 @@ class FilterLeaf:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.boolean_filter import BooleanFilter
-        from ..models.collection_filter import CollectionFilter
-        from ..models.custom_boolean_filter import CustomBooleanFilter
-        from ..models.custom_function_filter import CustomFunctionFilter
-        from ..models.custom_number_filter import CustomNumberFilter
-        from ..models.custom_uuid_filter import CustomUUIDFilter
-        from ..models.date_filter import DateFilter
-        from ..models.enum_filter import EnumFilter
-        from ..models.id_filter import IDFilter
-        from ..models.map_filter import MapFilter
-        from ..models.string_filter import StringFilter
+        from ..models.raw_filter import RawFilter
 
         d = dict(src_dict)
-
-        def _parse_filter_(
-            data: object,
-        ) -> Union[
-            "BooleanFilter",
-            "CollectionFilter",
-            "CustomBooleanFilter",
-            "CustomFunctionFilter",
-            "CustomNumberFilter",
-            "CustomUUIDFilter",
-            "DateFilter",
-            "EnumFilter",
-            "IDFilter",
-            "MapFilter",
-            "StringFilter",
-        ]:
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return CollectionFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return StringFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return IDFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return CustomUUIDFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return DateFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return BooleanFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return CustomNumberFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return EnumFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return MapFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return CustomBooleanFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            if not isinstance(data, dict):
-                raise TypeError()
-            return CustomFunctionFilter.from_dict(data)
-
-        filter_ = _parse_filter_(d.pop("filter"))
+        filter_ = RawFilter.from_dict(d.pop("filter"))
 
         filter_leaf = cls(filter_=filter_)
 

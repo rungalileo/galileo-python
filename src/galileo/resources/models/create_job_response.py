@@ -126,6 +126,7 @@ class CreateJobResponse:
         metric_critique_configuration (Union['MetricCritiqueJobConfiguration', None, Unset]):
         upload_data_in_separate_task (Union[Unset, bool]):  Default: True.
         log_metric_computing_records (Union[Unset, bool]):  Default: False.
+        stream_metrics (Union[Unset, bool]):  Default: False.
     """
 
     project_id: str
@@ -224,6 +225,7 @@ class CreateJobResponse:
     metric_critique_configuration: Union["MetricCritiqueJobConfiguration", None, Unset] = UNSET
     upload_data_in_separate_task: Union[Unset, bool] = True
     log_metric_computing_records: Union[Unset, bool] = False
+    stream_metrics: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -593,6 +595,8 @@ class CreateJobResponse:
 
         log_metric_computing_records = self.log_metric_computing_records
 
+        stream_metrics = self.stream_metrics
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"project_id": project_id, "run_id": run_id, "message": message, "link": link})
@@ -672,6 +676,8 @@ class CreateJobResponse:
             field_dict["upload_data_in_separate_task"] = upload_data_in_separate_task
         if log_metric_computing_records is not UNSET:
             field_dict["log_metric_computing_records"] = log_metric_computing_records
+        if stream_metrics is not UNSET:
+            field_dict["stream_metrics"] = stream_metrics
 
         return field_dict
 
@@ -1674,6 +1680,8 @@ class CreateJobResponse:
 
         log_metric_computing_records = d.pop("log_metric_computing_records", UNSET)
 
+        stream_metrics = d.pop("stream_metrics", UNSET)
+
         create_job_response = cls(
             project_id=project_id,
             run_id=run_id,
@@ -1717,6 +1725,7 @@ class CreateJobResponse:
             metric_critique_configuration=metric_critique_configuration,
             upload_data_in_separate_task=upload_data_in_separate_task,
             log_metric_computing_records=log_metric_computing_records,
+            stream_metrics=stream_metrics,
         )
 
         create_job_response.additional_properties = d

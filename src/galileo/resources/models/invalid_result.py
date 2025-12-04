@@ -1,54 +1,53 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="CustomBooleanFilter")
+from ..types import UNSET, Unset
+
+T = TypeVar("T", bound="InvalidResult")
 
 
 @_attrs_define
-class CustomBooleanFilter:
+class InvalidResult:
     """
     Attributes
     ----------
-        name (Union[None, str]):
-        value (bool):
+        error_message (str):
+        result_type (Union[Literal['invalid'], Unset]):  Default: 'invalid'.
     """
 
-    name: Union[None, str]
-    value: bool
+    error_message: str
+    result_type: Union[Literal["invalid"], Unset] = "invalid"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name: Union[None, str]
-        name = self.name
+        error_message = self.error_message
 
-        value = self.value
+        result_type = self.result_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"name": name, "value": value})
+        field_dict.update({"error_message": error_message})
+        if result_type is not UNSET:
+            field_dict["result_type"] = result_type
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        error_message = d.pop("error_message")
 
-        def _parse_name(data: object) -> Union[None, str]:
-            if data is None:
-                return data
-            return cast(Union[None, str], data)
+        result_type = cast(Union[Literal["invalid"], Unset], d.pop("result_type", UNSET))
+        if result_type != "invalid" and not isinstance(result_type, Unset):
+            raise ValueError(f"result_type must match const 'invalid', got '{result_type}'")
 
-        name = _parse_name(d.pop("name"))
+        invalid_result = cls(error_message=error_message, result_type=result_type)
 
-        value = d.pop("value")
-
-        custom_boolean_filter = cls(name=name, value=value)
-
-        custom_boolean_filter.additional_properties = d
-        return custom_boolean_filter
+        invalid_result.additional_properties = d
+        return invalid_result
 
     @property
     def additional_keys(self) -> list[str]:
