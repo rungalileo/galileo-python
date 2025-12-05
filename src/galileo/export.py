@@ -1,6 +1,7 @@
 import csv
 import json
 import logging
+import sys
 from collections.abc import Iterator
 from typing import Any, Optional
 
@@ -20,6 +21,7 @@ class ExportClient:
 
     def __init__(self) -> None:
         self.config = GalileoPythonConfig.get()
+        csv.field_size_limit(sys.maxsize)
 
     def records(
         self,
