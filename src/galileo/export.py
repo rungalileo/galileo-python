@@ -1,6 +1,7 @@
 import csv
 import json
 import logging
+import sys
 from collections.abc import Iterator
 from typing import Any, Optional
 
@@ -20,6 +21,7 @@ class ExportClient:
 
     def __init__(self) -> None:
         self.config = GalileoPythonConfig.get()
+        csv.field_size_limit(sys.maxsize)
 
     def records(
         self,
@@ -36,7 +38,7 @@ class ExportClient:
         if filters is None:
             filters = []
 
-        response = export_records_stream(
+        response_iterator = export_records_stream(
             client=self.config.api_client,
             project_id=project_id,
             body=LogRecordsExportRequest(
@@ -51,7 +53,7 @@ class ExportClient:
             ),
         )
 
-        line_iterator = (line.decode("utf-8") if isinstance(line, bytes) else line for line in response.iter_lines())
+        line_iterator = (line.decode("utf-8") if isinstance(line, bytes) else line for line in response_iterator)
 
         if export_format == LLMExportFormat.JSONL:
             for line in line_iterator:
