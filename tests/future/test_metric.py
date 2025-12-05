@@ -1189,6 +1189,7 @@ def score(trace):
         assert mock_sleep.call_count == 2
         assert metric.is_synced()
 
+    @patch("galileo.__future__.metric.time.time")
     @patch("galileo.__future__.metric.time.sleep")
     @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
@@ -1199,6 +1200,7 @@ def score(trace):
         mock_validate_post,
         mock_validate_get,
         mock_sleep,
+        mock_time,
         create_temp_code_file,
         mock_api_client,
         mock_validation_response,
@@ -1212,6 +1214,9 @@ def score(trace):
         mock_validate_post.sync.return_value = mock_validation_response()
         # Always return pending to simulate timeout
         mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.PENDING)
+
+        # Simulate time passing: first call is start_time=0, second call is elapsed=61 (past 60s timeout)
+        mock_time.side_effect = [0.0, 61.0]
 
         metric = CodeMetric(name="Test Timeout Metric", node_level=StepType.llm).load_code(str(code_file))
 
