@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import builtins
+import json
 import logging
 import os
+import time
 from abc import ABC
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Callable
@@ -18,13 +20,18 @@ from galileo.metrics import Metrics
 from galileo.resources.api.data import (
     create_code_scorer_version_scorers_scorer_id_version_code_post,
     create_scorers_post,
+    get_validate_code_scorer_task_result_scorers_code_validate_task_id_get,
+    validate_code_scorer_scorers_code_validate_post,
 )
 from galileo.resources.models import (
     BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost,
+    BodyValidateCodeScorerScorersCodeValidatePost,
     CreateScorerRequest,
     OutputTypeEnum,
     ScorerTypes,
+    TaskResultStatus,
 )
+from galileo.resources.models.invalid_result import InvalidResult
 from galileo.resources.types import File, Unset
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig
 from galileo.schema.metrics import Metric as LegacyMetric
@@ -35,6 +42,12 @@ from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.metric import MetricValueType
 
 logger = logging.getLogger(__name__)
+
+# Constants for code validation polling with exponential backoff
+CODE_VALIDATION_TIMEOUT = 60.0  # Total timeout in seconds
+CODE_VALIDATION_INITIAL_DELAY = 5.0  # Initial delay in seconds
+CODE_VALIDATION_MAX_DELAY = 30.0  # Maximum delay between attempts in seconds
+CODE_VALIDATION_BACKOFF_MULTIPLIER = 1.5  # Multiplier for exponential backoff
 
 
 class BuiltInScorers:
@@ -828,9 +841,107 @@ class CodeMetric(Metric):
 
         return self
 
+    def _validate_code(self, config: GalileoPythonConfig) -> str:
+        """
+        Validate the code by submitting it to the validation endpoint and polling for results.
+
+        Args:
+            config: The Galileo configuration with API client.
+
+        Returns
+        -------
+            str: The validation result as a JSON string to pass to create_code_scorer_version.
+
+        Raises
+        ------
+            ValidationError: If validation fails or the code is invalid.
+            ValueError: If the API returns an unexpected response.
+        """
+        assert self.code is not None
+        assert self.node_level is not None
+
+        # Step 1: Submit the code for validation
+        code_bytes = self.code.encode("utf-8")
+        code_file = File(payload=code_bytes, file_name="scorer.py")
+        validate_body = BodyValidateCodeScorerScorersCodeValidatePost(
+            file=code_file, scoreable_node_types=[self.node_level.value]
+        )
+
+        validate_response = validate_code_scorer_scorers_code_validate_post.sync(
+            client=config.api_client, body=validate_body
+        )
+
+        if validate_response is None:
+            logger.debug("CodeMetric._validate_code: No response from validate_code_scorer")
+            raise ValueError("Failed to validate code: No response from API")
+
+        task_id = validate_response.task_id
+        logger.debug(f"CodeMetric._validate_code: task_id='{task_id}' - validation started")
+
+        # Step 2: Poll for validation result with time-based timeout
+        start_time = time.time()
+        attempt = 0
+        while True:
+            elapsed = time.time() - start_time
+            if elapsed >= CODE_VALIDATION_TIMEOUT:
+                raise ValidationError(f"Code validation timed out after {CODE_VALIDATION_TIMEOUT:.0f} seconds")
+
+            task_result = get_validate_code_scorer_task_result_scorers_code_validate_task_id_get.sync(
+                task_id=task_id, client=config.api_client
+            )
+
+            if task_result is None:
+                logger.debug(f"CodeMetric._validate_code: No response for task_id='{task_id}'")
+                raise ValueError("Failed to get validation result: No response from API")
+
+            if task_result.status == TaskResultStatus.COMPLETED:
+                logger.debug(f"CodeMetric._validate_code: task_id='{task_id}' - validation completed")
+
+                # Extract and validate the result
+                result = task_result.result
+
+                # Handle string result (already serialized)
+                if isinstance(result, str):
+                    return result
+
+                # Handle ValidateRegisteredScorerResult or similar objects with to_dict
+                if hasattr(result, "to_dict"):
+                    # Check if it's an invalid result (has error_message in nested result)
+                    if hasattr(result, "result") and isinstance(result.result, InvalidResult):
+                        raise ValidationError(f"Code validation failed: {result.result.error_message}")
+                    # Return the result as JSON string
+                    return json.dumps(result.to_dict())
+
+                raise ValueError(f"Unexpected validation result type: {type(result)}")
+
+            if task_result.status == TaskResultStatus.FAILED:
+                error_msg = "Code validation failed"
+                if isinstance(task_result.result, str):
+                    error_msg = f"Code validation failed: {task_result.result}"
+                raise ValidationError(error_msg)
+
+            if task_result.status == TaskResultStatus.PENDING:
+                # Calculate delay with exponential backoff
+                delay = min(
+                    CODE_VALIDATION_INITIAL_DELAY * (CODE_VALIDATION_BACKOFF_MULTIPLIER**attempt),
+                    CODE_VALIDATION_MAX_DELAY,
+                )
+                logger.debug(
+                    f"CodeMetric._validate_code: task_id='{task_id}' - pending "
+                    f"(elapsed: {elapsed:.1f}s/{CODE_VALIDATION_TIMEOUT:.0f}s, next delay: {delay:.2f}s)"
+                )
+                time.sleep(delay)
+                attempt += 1
+            else:
+                raise ValueError(f"Unknown task status: {task_result.status}")
+
     def create(self) -> CodeMetric:
         r"""
         Persist this Code metric to the API.
+
+        This method validates the code first by submitting it to the validation
+        endpoint, polling for the result, and then creating the scorer with the
+        validated result.
 
         Returns
         -------
@@ -838,7 +949,7 @@ class CodeMetric(Metric):
 
         Raises
         ------
-            ValidationError: If code is not set or configuration is invalid.
+            ValidationError: If code is not set, validation fails, or configuration is invalid.
             Exception: If the API call fails.
 
         Examples
@@ -872,7 +983,12 @@ class CodeMetric(Metric):
             # Ensure node_level is set (should always be set in __init__, but checking for type safety)
             assert self.node_level is not None
 
-            # Step 1: Create the scorer
+            # Step 1: Validate the code and get validation result
+            logger.debug(f"CodeMetric.create: name='{self.name}' - validating code")
+            validation_result = self._validate_code(config)
+            logger.debug(f"CodeMetric.create: name='{self.name}' - code validated successfully")
+
+            # Step 2: Create the scorer
             scorer_request = CreateScorerRequest(
                 name=self.name,
                 scorer_type=ScorerTypes.CODE,
@@ -887,11 +1003,13 @@ class CodeMetric(Metric):
                 logger.debug("CodeMetric.create: No response from create_scorers_post")
                 raise ValueError("Failed to create code-based metric: No response from API")
 
-            # Step 2: Create the code scorer version with file upload
+            # Step 3: Create the code scorer version with file upload and validation result
             # Convert the code string to bytes for file upload
             code_bytes = self.code.encode("utf-8")
             code_file = File(payload=code_bytes, file_name="scorer.py")
-            version_body = BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost(file=code_file)
+            version_body = BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost(
+                file=code_file, validation_result=validation_result
+            )
 
             created_version = create_code_scorer_version_scorers_scorer_id_version_code_post.sync(
                 scorer_id=scorer_response.id, client=config.api_client, body=version_body
