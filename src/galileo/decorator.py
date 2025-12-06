@@ -63,7 +63,7 @@ from galileo.schema.trace import SPAN_TYPE
 from galileo.utils import _get_timestamp
 from galileo.utils.env_helpers import _get_mode_or_default
 from galileo.utils.logging import is_concludable_span_type, is_textual_span_type
-from galileo.utils.serialization import EventSerializer, serialize_to_str
+from galileo.utils.serialization import EventSerializer, convert_time_delta_to_ns, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
 from galileo_core.schemas.logging.span import WorkflowSpan
 from galileo_core.schemas.logging.trace import Trace
@@ -86,7 +86,7 @@ _log_stream_context: ContextVar[Optional[str]] = ContextVar("log_stream_context"
 _trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", default=None)
 _experiment_id_context: ContextVar[Optional[str]] = ContextVar("experiment_id_context", default=None)
 _span_stack_context: ContextVar[Optional[list[WorkflowSpan]]] = ContextVar("span_stack_context", default=None)
-_mode_context: ContextVar[LoggerModeType] = ContextVar("mode_context", default="batch")
+_mode_context: ContextVar[Optional[LoggerModeType]] = ContextVar("mode_context", default=None)
 
 # Distributed tracing context variables (for middleware)
 _trace_id_context: ContextVar[Optional[str]] = ContextVar("trace_id_context", default=None)
@@ -321,6 +321,15 @@ class GalileoDecorator:
 
         @wraps(func)
         async def async_wrapper(*args, **kwargs) -> Any:
+            # Copy the span stack to isolate parallel async tasks
+            # This prevents concurrent tasks from interfering with each other's span stacks
+            current_stack = _get_or_init_list(_span_stack_context)
+            _span_stack_context.set(current_stack.copy())
+
+            # TODO: Parallel nested workflows are not fully supported yet
+            # The logger's _parent_stack needs to use ContextVar for proper isolation
+            # Currently, parallel child workflows within a parent workflow will have corrupted trace structure
+
             span_params = self._prepare_input(
                 func=func,
                 name=name or func.__name__,
@@ -590,7 +599,14 @@ class GalileoDecorator:
         input_ = span_params.get("input_serialized", "")
         name = span_params.get("name", "")
 
-        if not _trace_context.get():
+        existing_trace = _trace_context.get()
+
+        # Check if existing trace is still valid (not concluded/flushed)
+        if existing_trace and client_instance.current_parent() is None:
+            existing_trace = None
+            _trace_context.set(None)
+
+        if not existing_trace:
             # If the singleton logger has an active trace, use it
             if client_instance.has_active_trace():
                 trace = client_instance.traces[-1]
@@ -755,16 +771,47 @@ class GalileoDecorator:
                 span_params["created_at"] = created_at
                 span_params["duration_ns"] = 0
 
-            # If the span type is a workflow or agent, conclude it
+            # Workflow and agent spans are "concludable" - they need to be concluded
+            # Default (no span_type) is treated as workflow
             if not span_type or is_concludable_span_type(span_type):
+                # Pop from stack and conclude the workflow/agent span
                 if stack:
                     stack.pop()
                     _span_stack_context.set(stack)
 
                 status_code = span_params.get("status_code")
                 logger.conclude(output=output, duration_ns=span_params["duration_ns"], status_code=status_code)
+
+                # In distributed mode, update parent trace output after concluding a top-level workflow
+                # This ensures the trace shows the latest workflow's output (last workflow wins)
+                # Skip stub traces (created from distributed tracing headers - they're managed by the client)
+                if logger.mode == "distributed" and not stack:
+                    current_parent = logger.current_parent()
+                    if current_parent is not None and isinstance(current_parent, Trace):
+                        from galileo.logger.logger import STUB_TRACE_NAME
+
+                        is_stub_trace = current_parent.name == STUB_TRACE_NAME
+
+                        if not is_stub_trace:
+                            current_parent.output = output
+                            if redacted_output is not None:
+                                current_parent.redacted_output = redacted_output
+
+                            # Update trace duration
+                            # Note: In distributed mode, trace.created_at may be set by the server
+                            # Using max() to ensure parent is never shorter than its children.
+                            if current_parent.created_at:
+                                elapsed_ns = convert_time_delta_to_ns(_get_timestamp() - current_parent.created_at)
+                                workflow_ns = span_params.get("duration_ns", 0)
+                                prev_ns = current_parent.metrics.duration_ns or 0
+                                current_parent.metrics.duration_ns = max(elapsed_ns, workflow_ns, prev_ns)
+
+                            if status_code is not None:
+                                current_parent.status_code = status_code
+
+                            logger._update_trace_streaming(current_parent, is_complete=False)
             else:
-                # If the span type is not a workflow or agent, add it to the current parent (trace or span)
+                # Non-concludable spans (llm, tool, retriever) are  added to the parent
                 span_methods = {"llm": "add_llm_span", "tool": "add_tool_span", "retriever": "add_retriever_span"}
 
                 if span_type in span_methods:
@@ -791,32 +838,6 @@ class GalileoDecorator:
                     method(**filtered_kwargs)
         except Exception as e:
             _logger.error(f"Failed to create trace for span '{span_name}' (type: {span_type}): {e}", exc_info=True)
-            # If serialization failed, set to None to avoid passing unconverted objects
-            output = None
-            redacted_output = None
-        finally:
-            # If all decorator spans are done, conclude the current parent with output and duration
-            # Re-fetch stack in finally block to ensure we have the current state
-            stack = _get_or_init_list(_span_stack_context)
-            if not stack:
-                current_parent = logger.current_parent()
-                if current_parent is not None:
-                    # Calculate duration from its creation time
-                    duration_ns = None
-                    if hasattr(current_parent, "created_at") and current_parent.created_at:
-                        end_time_ns = round(_get_timestamp().timestamp() * 1e9)
-                        start_ns = current_parent.created_at.timestamp() * 1e9
-                        duration_ns = round(end_time_ns - start_ns)
-
-                    logger.conclude(
-                        output=output,
-                        redacted_output=redacted_output,
-                        duration_ns=duration_ns,
-                        status_code=span_params.get("status_code"),
-                    )
-                    # Only clear trace context in distributed mode - in batch mode, trace should remain until flush
-                    if logger.mode == "distributed":
-                        _trace_context.set(None)
 
         return result
 
@@ -982,14 +1003,14 @@ class GalileoDecorator:
         """
         return _trace_context.get()
 
-    def get_current_mode(self) -> LoggerModeType:
+    def get_current_mode(self) -> Optional[LoggerModeType]:
         """
         Retrieve the current mode from context.
 
         Returns
         -------
-        LoggerModeType
-            The current mode context
+        Optional[LoggerModeType]
+            The current mode context, or None if not initialized
         """
         return _mode_context.get()
 
@@ -1161,3 +1182,4 @@ class GalileoDecorator:
 
 galileo_context = GalileoDecorator()
 log = galileo_context.log
+start_session = galileo_context.start_session

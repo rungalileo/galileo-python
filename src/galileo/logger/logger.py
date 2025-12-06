@@ -66,6 +66,7 @@ from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 STREAMING_MAX_RETRIES = 3
 DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 60  # Timeout for waiting on background trace/span update tasks
+STUB_TRACE_NAME = "stub_trace"  # Name for stub traces created from distributed tracing headers
 
 
 class GalileoLogger(TracesLogger, DecorateAllMethods):
@@ -200,6 +201,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         super().__init__()
         mode = _get_mode_or_default(mode)
         self.mode: LoggerModeType = mode
+        self._task_counter = 0
 
         self._ingestion_hook = ingestion_hook
         if self._ingestion_hook and self.mode == "distributed":
@@ -313,7 +315,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         stub_trace = Trace(
             input="",
-            name="stub_trace",
+            name=STUB_TRACE_NAME,
             created_at=datetime.now(),
             id=uuid.UUID(self.trace_id),
             metrics=Metrics(duration_ns=0),
@@ -454,7 +456,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 reliable=True,
             )
 
-            task_id = f"trace-update-{trace.id}"
+            # Use counter to make each update task unique (same trace can be updated multiple times)
+            self._task_counter += 1
+            task_id = f"trace-update-{trace.id}-{self._task_counter}"
 
             @backoff.on_exception(
                 backoff.expo,
@@ -494,7 +498,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             reliable=True,
         )
 
-        task_id = f"span-update-{span.id}"
+        # Use counter to make each update task unique (same span can be updated multiple times)
+        self._task_counter += 1
+        task_id = f"span-update-{span.id}-{self._task_counter}"
 
         @backoff.on_exception(
             backoff.expo,
@@ -1450,23 +1456,28 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Note: We assume at most one active trace at a time. add_trace() enforces this
         by raising an error if current_parent() is not None.
         """
+        # Only conclude if there are unconcluded items in the stack
+        # If stack is empty, the trace was already concluded and marked complete
         if not self._parent_stack:
-            # Nothing to conclude - all traces already concluded
             return
 
         if not self.traces:
             return
 
-        self._logger.info("Concluding unconcluded trace before flush...")
-
         # Use the last trace in self.traces (should be the only active trace)
         trace = self.traces[-1]
 
+        # Don't auto-conclude stub traces - they're owned by the upstream service
+        # Downstream services that receive distributed tracing headers create stubs
+        # but should not mark them as complete
+        if trace.name == STUB_TRACE_NAME:
+            return
+
+        self._logger.info("Concluding unconcluded spans before flush...")
         # Get output from last child span if trace has no explicit output
         output, redacted_output = GalileoLogger._get_last_output(trace)
-
-        # conclude() with conclude_all=True will conclude all unconcluded items in
-        # _parent_stack
+        # conclude() with conclude_all=True will conclude all unconcluded items in _parent_stack
+        # This will mark the trace as complete in distributed mode
         self.conclude(output=output, redacted_output=redacted_output, conclude_all=True)
 
     async def _flush_distributed(self) -> list[Trace]:
@@ -1504,6 +1515,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             await asyncio.sleep(0.1)
 
         self._logger.info("All distributed tracing requests are complete.")
+
+        self.traces = []
+        self._parent_stack = deque()
 
         return []
 
@@ -1549,25 +1563,33 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
 
-        if self.mode == "batch":
-            self._logger.info("Attempting to flush on interpreter exit...")
-            self.flush()
-        else:
-            self._logger.info("Checking if all requests are completed...")
-            timeout_seconds = 5
-            timeout_reached = False
+        # Don't use flush() which calls async_run() - this causes event loop conflicts during shutdown
+        # when the main program uses asyncio.run(). Instead, handle cleanup synchronously.
+
+        if self.mode == "distributed":
+            # Distributed mode: conclude traces and wait for background tasks
+            self._auto_conclude_trace()
+
+            # Wait for tasks synchronously using time.sleep() polling
             start_wait = time.time()
             while not self._task_handler.all_tasks_completed():
-                if time.time() - start_wait > timeout_seconds:
-                    timeout_reached = True
+                if time.time() - start_wait > DISTRIBUTED_FLUSH_TIMEOUT_SECONDS:
+                    self._logger.warning(
+                        f"Terminate timeout reached after {DISTRIBUTED_FLUSH_TIMEOUT_SECONDS}s. "
+                        "Some trace/span update requests may still be in progress."
+                    )
                     break
                 time.sleep(0.1)
 
-            if timeout_reached:
-                self._logger.warning("Terminate timeout reached. Some requests may not have completed.")
-            else:
-                self._logger.info("All requests are complete.")
-            self._task_handler.terminate()
+            self.traces = []
+            self._parent_stack = deque()
+        else:
+            # Batch mode: try flush() but don't fail if async_run has issues during shutdown
+            try:
+                self.flush()
+            except RuntimeError as e:
+                # Event loop might be closed during shutdown, log warning but don't crash
+                self._logger.warning(f"Could not flush during terminate due to event loop shutdown: {e}")
 
     async def _start_or_get_session_async(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
