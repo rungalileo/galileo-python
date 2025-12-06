@@ -155,11 +155,11 @@ def dataset_content_150_rows():
 @pytest.fixture
 def thread_pool_capture():
     """
-    Pytest fixture that provides a function to capture thread pool requests from streaming methods.
+    Pytest fixture that provides a function to capture thread pool requests from distributed tracing methods.
 
     Usage:
-        def test_streaming_method(thread_pool_capture):
-            logger = GalileoLogger(project="test", log_stream="test", experimental={"mode": "streaming"})
+        def test_distributed_method(thread_pool_capture):
+            logger = GalileoLogger(project="test", log_stream="test", mode="distributed")
             capture = thread_pool_capture(logger)
 
             logger._ingest_trace_streaming(trace)

@@ -1,5 +1,4 @@
 import builtins
-import os
 from typing import Optional, Union, overload
 
 from galileo.config import GalileoPythonConfig
@@ -14,6 +13,7 @@ from galileo.resources.models.log_stream_create_request import LogStreamCreateRe
 from galileo.resources.models.log_stream_response import LogStreamResponse
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo.utils.env_helpers import _get_log_stream_from_env, _get_project_from_env
 from galileo.utils.logging import get_logger
 from galileo.utils.metrics import create_metric_configs
 
@@ -494,8 +494,8 @@ class LogStreams(DecorateAllMethods):
         ```
         """
         # Apply environment variable fallbacks
-        project_name = project_name or os.getenv("GALILEO_PROJECT")
-        log_stream_name = log_stream_name or os.getenv("GALILEO_LOG_STREAM")
+        project_name = project_name or _get_project_from_env()
+        log_stream_name = log_stream_name or _get_log_stream_from_env()
 
         # Get project using environment fallbacks
         project_obj = Projects().get_with_env_fallbacks(name=project_name)
