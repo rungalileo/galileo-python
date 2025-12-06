@@ -5,7 +5,7 @@ from uuid import UUID
 import pytest
 from pydantic import BaseModel
 
-from galileo import Message, MessageRole, galileo_context, log
+from galileo import Message, MessageRole, galileo_context, log, start_session
 from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
 from galileo_core.schemas.shared.document import Document
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
@@ -640,6 +640,37 @@ def test_decorator_start_session(
 
     logger = galileo_context.get_logger_instance()
     assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+
+    galileo_context.flush()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+
+    assert payload.session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_standalone_start_session(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that the standalone start_session function works correctly."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log()
+    def foo() -> str:
+        return "response"
+
+    foo()
+    session_id = start_session(
+        name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
+    )
+
+    logger = galileo_context.get_logger_instance()
+    assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+    assert session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
 
     galileo_context.flush()
 
@@ -1290,3 +1321,58 @@ def test_get_logger_instance_with_explicit_mode(
     assert logger_batch is not logger_distributed
     assert logger_batch.mode == "batch"
     assert logger_distributed.mode == "distributed"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_multiple_workflow_calls_create_one_trace_with_multiple_spans(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """
+    Test that multiple workflow-level function calls are added as spans to a single trace in batch mode.
+    """
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    galileo_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
+
+    @log(span_type="workflow")
+    def process_query(query: str) -> str:
+        return f"Processed: {query}"
+
+    # Call the workflow function 3 times
+    result1 = process_query("query 1")
+    result2 = process_query("query 2")
+    result3 = process_query("query 3")
+
+    # Verify results
+    assert result1 == "Processed: query 1"
+    assert result2 == "Processed: query 2"
+    assert result3 == "Processed: query 3"
+
+    # Before flush, verify only 1 trace was created with 3 workflow spans
+    logger = galileo_context.get_logger_instance()
+    assert len(logger.traces) == 1, f"Expected 1 trace, got {len(logger.traces)}"
+
+    # Verify the single trace has 3 workflow spans
+    trace = logger.traces[0]
+    assert len(trace.spans) == 3, f"Expected 3 spans, got {len(trace.spans)}"
+
+    # Verify each span has the correct input
+    assert trace.spans[0].input == '{"query": "query 1"}'
+    assert trace.spans[1].input == '{"query": "query 2"}'
+    assert trace.spans[2].input == '{"query": "query 3"}'
+
+    # Flush the trace
+    galileo_context.flush()
+
+    # Verify ingest_traces was called with 1 trace containing 3 spans
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 3
+
+    # After flush, trace context should be cleared
+    assert galileo_context.get_current_trace() is None
+    assert len(logger.traces) == 0

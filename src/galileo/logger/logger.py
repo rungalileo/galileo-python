@@ -1450,23 +1450,22 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Note: We assume at most one active trace at a time. add_trace() enforces this
         by raising an error if current_parent() is not None.
         """
+        # Only conclude if there are unconcluded items in the stack
+        # If stack is empty, the trace was already concluded and marked complete
         if not self._parent_stack:
-            # Nothing to conclude - all traces already concluded
             return
 
         if not self.traces:
             return
 
-        self._logger.info("Concluding unconcluded trace before flush...")
-
         # Use the last trace in self.traces (should be the only active trace)
         trace = self.traces[-1]
 
+        self._logger.info("Concluding unconcluded spans before flush...")
         # Get output from last child span if trace has no explicit output
         output, redacted_output = GalileoLogger._get_last_output(trace)
-
-        # conclude() with conclude_all=True will conclude all unconcluded items in
-        # _parent_stack
+        # conclude() with conclude_all=True will conclude all unconcluded items in _parent_stack
+        # This will mark the trace as complete in distributed mode
         self.conclude(output=output, redacted_output=redacted_output, conclude_all=True)
 
     async def _flush_distributed(self) -> list[Trace]:
@@ -1504,6 +1503,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             await asyncio.sleep(0.1)
 
         self._logger.info("All distributed tracing requests are complete.")
+
+        self.traces = []
+        self._parent_stack = deque()
 
         return []
 
@@ -1548,26 +1550,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """Terminate the logger and flush all traces to Galileo."""
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
-
-        if self.mode == "batch":
-            self._logger.info("Attempting to flush on interpreter exit...")
-            self.flush()
-        else:
-            self._logger.info("Checking if all requests are completed...")
-            timeout_seconds = 5
-            timeout_reached = False
-            start_wait = time.time()
-            while not self._task_handler.all_tasks_completed():
-                if time.time() - start_wait > timeout_seconds:
-                    timeout_reached = True
-                    break
-                time.sleep(0.1)
-
-            if timeout_reached:
-                self._logger.warning("Terminate timeout reached. Some requests may not have completed.")
-            else:
-                self._logger.info("All requests are complete.")
-            self._task_handler.terminate()
+        self.flush()
 
     async def _start_or_get_session_async(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None

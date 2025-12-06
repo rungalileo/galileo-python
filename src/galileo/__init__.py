@@ -3,7 +3,7 @@
 # flake8: noqa: F401
 # ruff: noqa: F401
 
-from galileo.decorator import GalileoDecorator, galileo_context, log
+from galileo.decorator import GalileoDecorator, galileo_context, log, start_session
 from galileo.exceptions import GalileoLoggerException
 from galileo.logger import GalileoLogger
 from galileo.protect import ainvoke_protect, invoke_protect
