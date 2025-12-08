@@ -34,7 +34,7 @@ coverage = "^7.9.2"
 pytest-cov = "^6.0.0"
 pytest-xdist = "^3.7.0"
 pytest-socket = "^0.7"
-pytest-asyncio = "^1.0.0"
+pytest-asyncio = "^1.2.0"
 requests-mock = "^1.11.0"
 galileo-core = { extras = ["testing"], version = "^3.73.0" }
 
