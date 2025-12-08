@@ -779,6 +779,7 @@ class CodeMetric(Metric):
     # Type annotations for code-specific attributes
     node_level: StepType | None
     code: str | None
+    required_metrics: list[str] | None
 
     def __init__(
         self,
@@ -786,6 +787,7 @@ class CodeMetric(Metric):
         *,
         code: str | None = None,
         node_level: StepType | None = None,
+        required_metrics: list[str] | None = None,
         description: str = "",
         tags: list[str] | None = None,
         version: int | None = None,
@@ -797,6 +799,7 @@ class CodeMetric(Metric):
             name: The name of the metric.
             code: The Python code for the scorer (optional, can be set later or loaded from file).
             node_level: Node level for the metric. Defaults to StepType.llm.
+            required_metrics: List of metric names that this code metric depends on.
             description: Description of the metric.
             tags: Tags associated with the metric.
             version: Specific version to reference (for existing metrics).
@@ -805,6 +808,7 @@ class CodeMetric(Metric):
 
         self.code = code
         self.node_level = node_level or StepType.llm
+        self.required_metrics = required_metrics
         self.scorer_type = ScorerTypes.CODE
 
     def load_code(self, code_file_path: str) -> CodeMetric:
@@ -864,7 +868,7 @@ class CodeMetric(Metric):
         code_bytes = self.code.encode("utf-8")
         code_file = File(payload=code_bytes, file_name="scorer.py")
         validate_body = BodyValidateCodeScorerScorersCodeValidatePost(
-            file=code_file, scoreable_node_types=[self.node_level.value]
+            file=code_file, scoreable_node_types=[self.node_level.value], required_scorers=self.required_metrics
         )
 
         validate_response = validate_code_scorer_scorers_code_validate_post.sync(
@@ -926,6 +930,7 @@ class CodeMetric(Metric):
                     CODE_VALIDATION_INITIAL_DELAY * (CODE_VALIDATION_BACKOFF_MULTIPLIER**attempt),
                     CODE_VALIDATION_MAX_DELAY,
                 )
+
                 logger.debug(
                     f"CodeMetric._validate_code: task_id='{task_id}' - pending "
                     f"(elapsed: {elapsed:.1f}s/{CODE_VALIDATION_TIMEOUT:.0f}s, next delay: {delay:.2f}s)"
@@ -995,6 +1000,7 @@ class CodeMetric(Metric):
                 description=self.description,
                 tags=self.tags,
                 scoreable_node_types=[self.node_level.value],
+                required_scorers=self.required_metrics,
             )
 
             scorer_response = create_scorers_post.sync(client=config.api_client, body=scorer_request)
