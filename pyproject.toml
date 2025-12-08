@@ -18,7 +18,7 @@ pyjwt = "^2.8.0"
 wrapt = "^1.14"
 attrs = ">=22.2.0"
 python-dateutil = "^2.8.0"
-langchain-core = { version = "^0.3.68", optional = true }
+langchain-core = { version = "^0.3.80", optional = true }
 openai = { version = "<1.96.0", optional = true }
 openai-agents = { version = "<0.2.1", optional = true }
 galileo-core = "^3.73.0"
@@ -39,7 +39,7 @@ requests-mock = "^1.11.0"
 galileo-core = { extras = ["testing"], version = "^3.73.0" }
 
 pytest-env = "^1.1.5"
-langchain-core = "^0.3.68"
+langchain-core = "^0.3.80"
 pytest-sugar = "^1.0.0"
 vcrpy = "^7.0.0"
 time-machine = "^2.17.0"  # freezegun causes problems with pydantic model validations
