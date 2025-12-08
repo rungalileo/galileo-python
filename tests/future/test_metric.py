@@ -632,6 +632,16 @@ class TestCodeMetricInitialization:
         assert metric.description == "Test code metric description"
         assert metric.tags == ["test", "code"]
 
+    def test_init_with_required_metrics(self, reset_configuration: None) -> None:
+        """Test initializing a CodeMetric with required_metrics."""
+        metric = CodeMetric(
+            name="Test Code Metric", node_level=StepType.llm, required_metrics=["context_adherence", "completeness"]
+        )
+
+        assert metric.name == "Test Code Metric"
+        assert metric.required_metrics == ["context_adherence", "completeness"]
+        assert metric.node_level == StepType.llm
+
 
 class TestCodeMetricCreate:
     """Test suite for CodeMetric.create() method."""
@@ -861,6 +871,73 @@ class TestCodeMetricCreate:
             assert metric.is_synced()
             # Verify the node_level is set on the metric itself
             assert metric.node_level == node_level
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.__future__.metric.Scorers")
+    def test_create_with_required_metrics(
+        self,
+        mock_scorers_class: MagicMock,
+        mock_create_scorers: MagicMock,
+        mock_create_version: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_scorer_response,
+        mock_version_response,
+        mock_scorer_full,
+        mock_validation_response,
+        mock_validation_task_result,
+    ) -> None:
+        """Test create() passes required_metrics to validation and scorer creation APIs."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file()
+
+        # Mock the validation flow
+        task_id = str(uuid4())
+        mock_validate_post.sync.return_value = mock_validation_response(task_id)
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
+
+        # Mock the scorer creation response
+        scorer_id = str(uuid4())
+        mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, "Test Code Metric")
+
+        # Mock the version creation response
+        mock_create_version.sync.return_value = mock_version_response(scorer_id)
+
+        # Mock the scorer list response for refresh
+        mock_scorers_service = MagicMock()
+        mock_scorers_service.list.return_value = [mock_scorer_full(scorer_id, "Test Code Metric")]
+        mock_scorers_class.return_value = mock_scorers_service
+
+        required_metrics = ["context_adherence", "completeness"]
+
+        # Create the metric with required_metrics
+        metric = (
+            CodeMetric(name="Test Code Metric", node_level=StepType.llm, required_metrics=required_metrics)
+            .load_code(str(code_file))
+            .create()
+        )
+
+        # Verify the metric was created successfully
+        assert metric.is_synced()
+
+        # Verify required_scorers was passed to validation API
+        validate_call = mock_validate_post.sync.call_args
+        assert validate_call.kwargs["body"].required_scorers == required_metrics
+
+        # Verify required_scorers was passed to scorer creation API
+        create_scorer_call = mock_create_scorers.sync.call_args
+        assert create_scorer_call.kwargs["body"].required_scorers == required_metrics
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
     def test_create_reads_code_file_correctly(
