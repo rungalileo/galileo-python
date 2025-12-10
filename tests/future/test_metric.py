@@ -9,6 +9,8 @@ from galileo.__future__ import CodeMetric, LlmMetric, Metric
 from galileo.__future__.shared.base import SyncState
 from galileo.__future__.shared.exceptions import ValidationError
 from galileo.resources.models import OutputTypeEnum, ScorerTypes
+from galileo.resources.models.invalid_result import InvalidResult
+from galileo.resources.models.task_result_status import TaskResultStatus
 from galileo_core.schemas.logging.step import StepType
 
 # Test fixtures and helper functions
@@ -47,6 +49,53 @@ def mock_version_response():
         return mock_response
 
     return _create_version_response
+
+
+@pytest.fixture
+def mock_validation_response():
+    """Create a mock validation response factory for code scorer validation."""
+
+    def _create_validation_response(task_id: str | None = None):
+        if task_id is None:
+            task_id = str(uuid4())
+        mock_response = MagicMock()
+        mock_response.task_id = task_id
+        return mock_response
+
+    return _create_validation_response
+
+
+@pytest.fixture
+def mock_validation_task_result():
+    """Create a mock validation task result factory for polling."""
+
+    def _create_task_result(status: TaskResultStatus = TaskResultStatus.COMPLETED, result_dict: dict | None = None):
+        mock_response = MagicMock()
+        mock_response.status = status
+
+        if status == TaskResultStatus.COMPLETED:
+            # Create a mock ValidateRegisteredScorerResult with a ValidResult
+            mock_result = MagicMock()
+            mock_valid_result = MagicMock()
+            mock_valid_result.result_type = "valid"
+            mock_result.result = mock_valid_result
+            mock_result.to_dict.return_value = result_dict or {
+                "result": {
+                    "result_type": "valid",
+                    "score_type": "float",
+                    "scoreable_node_types": ["llm"],
+                    "test_scores": [],
+                }
+            }
+            mock_response.result = mock_result
+        elif status == TaskResultStatus.FAILED:
+            mock_response.result = "Validation failed"
+        else:
+            mock_response.result = None
+
+        return mock_response
+
+    return _create_task_result
 
 
 @pytest.fixture
@@ -583,11 +632,23 @@ class TestCodeMetricInitialization:
         assert metric.description == "Test code metric description"
         assert metric.tags == ["test", "code"]
 
+    def test_init_with_required_metrics(self, reset_configuration: None) -> None:
+        """Test initializing a CodeMetric with required_metrics."""
+        metric = CodeMetric(
+            name="Test Code Metric", node_level=StepType.llm, required_metrics=["context_adherence", "completeness"]
+        )
+
+        assert metric.name == "Test Code Metric"
+        assert metric.required_metrics == ["context_adherence", "completeness"]
+        assert metric.node_level == StepType.llm
+
 
 class TestCodeMetricCreate:
     """Test suite for CodeMetric.create() method."""
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
     @patch("galileo.__future__.metric.create_scorers_post")
     @patch("galileo.__future__.metric.Scorers")
@@ -596,6 +657,8 @@ class TestCodeMetricCreate:
         mock_scorers_class: MagicMock,
         mock_create_scorers: MagicMock,
         mock_create_version: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
         mock_config: MagicMock,
         reset_configuration: None,
         create_temp_code_file,
@@ -603,6 +666,8 @@ class TestCodeMetricCreate:
         mock_scorer_response,
         mock_version_response,
         mock_scorer_full,
+        mock_validation_response,
+        mock_validation_task_result,
     ) -> None:
         """Test create() persists the code metric to the API and updates attributes."""
         # Mock the config
@@ -610,6 +675,11 @@ class TestCodeMetricCreate:
 
         # Create a temporary Python file
         code_file = create_temp_code_file(content="def score(trace):\n    return 1.0")
+
+        # Mock the validation flow
+        task_id = str(uuid4())
+        mock_validate_post.sync.return_value = mock_validation_response(task_id)
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
 
         # Mock the scorer creation response
         scorer_id = str(uuid4())
@@ -632,6 +702,10 @@ class TestCodeMetricCreate:
             .create()
         )
 
+        # Verify validation was called
+        mock_validate_post.sync.assert_called_once()
+        mock_validate_get.sync.assert_called_once_with(task_id=task_id, client=mock_api_client)
+
         # Verify scorer creation was called
         mock_create_scorers.sync.assert_called_once()
         create_scorer_call = mock_create_scorers.sync.call_args
@@ -640,7 +714,7 @@ class TestCodeMetricCreate:
         assert create_scorer_call.kwargs["body"].description == "Test description"
         assert create_scorer_call.kwargs["body"].tags == ["test"]
 
-        # Verify version creation was called with code file
+        # Verify version creation was called with code file and validation result
         mock_create_version.sync.assert_called_once()
         version_call = mock_create_version.sync.call_args
         assert version_call.kwargs["scorer_id"] == scorer_id
@@ -648,20 +722,29 @@ class TestCodeMetricCreate:
         body = version_call.kwargs["body"]
         assert hasattr(body, "file")
         assert hasattr(body.file, "payload")
+        # Verify validation_result was passed
+        assert hasattr(body, "validation_result")
+        assert body.validation_result is not None
 
         # Verify metric was updated
         assert metric.id == scorer_id
         assert metric.is_synced()
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.__future__.metric.create_scorers_post")
     def test_create_handles_scorer_creation_failure(
         self,
         mock_create_scorers: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
         mock_config: MagicMock,
         reset_configuration: None,
         create_temp_code_file,
         mock_api_client,
+        mock_validation_response,
+        mock_validation_task_result,
     ) -> None:
         """Test create() handles scorer creation API failures."""
         # Mock the config
@@ -669,6 +752,10 @@ class TestCodeMetricCreate:
 
         # Create a temporary Python file
         code_file = create_temp_code_file()
+
+        # Mock the validation flow to succeed
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
 
         # Mock scorer creation to fail
         mock_create_scorers.sync.side_effect = Exception("Scorer creation failed")
@@ -681,17 +768,23 @@ class TestCodeMetricCreate:
         assert metric.sync_state == SyncState.FAILED_SYNC
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
     @patch("galileo.__future__.metric.create_scorers_post")
     def test_create_handles_version_creation_failure(
         self,
         mock_create_scorers: MagicMock,
         mock_create_version: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
         mock_config: MagicMock,
         reset_configuration: None,
         create_temp_code_file,
         mock_api_client,
         mock_scorer_response,
+        mock_validation_response,
+        mock_validation_task_result,
     ) -> None:
         """Test create() handles version creation API failures."""
         # Mock the config
@@ -699,6 +792,10 @@ class TestCodeMetricCreate:
 
         # Create a temporary Python file
         code_file = create_temp_code_file()
+
+        # Mock the validation flow to succeed
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
 
         # Mock scorer creation to succeed
         scorer_id = str(uuid4())
@@ -715,6 +812,8 @@ class TestCodeMetricCreate:
         assert metric.sync_state == SyncState.FAILED_SYNC
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
     @patch("galileo.__future__.metric.create_scorers_post")
     @patch("galileo.__future__.metric.Scorers")
@@ -723,6 +822,8 @@ class TestCodeMetricCreate:
         mock_scorers_class: MagicMock,
         mock_create_scorers: MagicMock,
         mock_create_version: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
         mock_config: MagicMock,
         reset_configuration: None,
         create_temp_code_file,
@@ -730,6 +831,8 @@ class TestCodeMetricCreate:
         mock_scorer_response,
         mock_version_response,
         mock_scorer_full,
+        mock_validation_response,
+        mock_validation_task_result,
     ) -> None:
         """Test create() works with different node_level values."""
         # Mock the config
@@ -739,6 +842,10 @@ class TestCodeMetricCreate:
         code_file = create_temp_code_file()
 
         for node_level in [StepType.llm, StepType.workflow, StepType.retriever, StepType.tool]:
+            # Mock the validation flow to succeed
+            mock_validate_post.sync.return_value = mock_validation_response()
+            mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
+
             # Mock the scorer creation response
             scorer_id = str(uuid4())
             mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, f"Test Code Metric {node_level}")
@@ -766,6 +873,73 @@ class TestCodeMetricCreate:
             assert metric.node_level == node_level
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.__future__.metric.Scorers")
+    def test_create_with_required_metrics(
+        self,
+        mock_scorers_class: MagicMock,
+        mock_create_scorers: MagicMock,
+        mock_create_version: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_scorer_response,
+        mock_version_response,
+        mock_scorer_full,
+        mock_validation_response,
+        mock_validation_task_result,
+    ) -> None:
+        """Test create() passes required_metrics to validation and scorer creation APIs."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file()
+
+        # Mock the validation flow
+        task_id = str(uuid4())
+        mock_validate_post.sync.return_value = mock_validation_response(task_id)
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
+
+        # Mock the scorer creation response
+        scorer_id = str(uuid4())
+        mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, "Test Code Metric")
+
+        # Mock the version creation response
+        mock_create_version.sync.return_value = mock_version_response(scorer_id)
+
+        # Mock the scorer list response for refresh
+        mock_scorers_service = MagicMock()
+        mock_scorers_service.list.return_value = [mock_scorer_full(scorer_id, "Test Code Metric")]
+        mock_scorers_class.return_value = mock_scorers_service
+
+        required_metrics = ["context_adherence", "completeness"]
+
+        # Create the metric with required_metrics
+        metric = (
+            CodeMetric(name="Test Code Metric", node_level=StepType.llm, required_metrics=required_metrics)
+            .load_code(str(code_file))
+            .create()
+        )
+
+        # Verify the metric was created successfully
+        assert metric.is_synced()
+
+        # Verify required_scorers was passed to validation API
+        validate_call = mock_validate_post.sync.call_args
+        assert validate_call.kwargs["body"].required_scorers == required_metrics
+
+        # Verify required_scorers was passed to scorer creation API
+        create_scorer_call = mock_create_scorers.sync.call_args
+        assert create_scorer_call.kwargs["body"].required_scorers == required_metrics
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
     def test_create_reads_code_file_correctly(
         self,
         mock_config: MagicMock,
@@ -774,6 +948,8 @@ class TestCodeMetricCreate:
         mock_api_client,
         mock_scorer_response,
         mock_scorer_full,
+        mock_validation_response,
+        mock_validation_task_result,
     ) -> None:
         """Test that create() correctly reads and sends the code file content."""
         # Mock the config
@@ -790,12 +966,20 @@ def score(trace):
         code_file = create_temp_code_file(filename="complex_scorer.py", content=expected_content)
 
         with (
+            patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post") as mock_validate_post,
+            patch(
+                "galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get"
+            ) as mock_validate_get,
             patch("galileo.__future__.metric.create_scorers_post") as mock_create_scorers,
             patch(
                 "galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post"
             ) as mock_create_version,
             patch("galileo.__future__.metric.Scorers") as mock_scorers_class,
         ):
+            # Mock validation flow
+            mock_validate_post.sync.return_value = mock_validation_response()
+            mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
+
             # Mock responses
             scorer_id = str(uuid4())
             mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, "Complex Scorer")
@@ -836,14 +1020,20 @@ def score(trace):
             metric.load_code("/nonexistent/file.py").create()
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.__future__.metric.create_scorers_post")
     def test_create_handles_none_scorer_response(
         self,
         mock_create_scorers: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
         mock_config: MagicMock,
         reset_configuration: None,
         create_temp_code_file,
         mock_api_client,
+        mock_validation_response,
+        mock_validation_task_result,
     ) -> None:
         """Test that create() raises ValueError when scorer creation returns None."""
         # Mock the config
@@ -851,6 +1041,10 @@ def score(trace):
 
         # Create a temporary Python file
         code_file = create_temp_code_file()
+
+        # Mock the validation flow to succeed
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
 
         # Mock scorer creation to return None
         mock_create_scorers.sync.return_value = None
@@ -863,17 +1057,23 @@ def score(trace):
         assert metric.sync_state == SyncState.FAILED_SYNC
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
     @patch("galileo.__future__.metric.create_scorers_post")
     def test_create_handles_none_version_response(
         self,
         mock_create_scorers: MagicMock,
         mock_create_version: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
         mock_config: MagicMock,
         reset_configuration: None,
         create_temp_code_file,
         mock_api_client,
         mock_scorer_response,
+        mock_validation_response,
+        mock_validation_task_result,
     ) -> None:
         """Test that create() raises ValueError when version creation returns None."""
         # Mock the config
@@ -881,6 +1081,10 @@ def score(trace):
 
         # Create a temporary Python file
         code_file = create_temp_code_file()
+
+        # Mock the validation flow to succeed
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
 
         # Mock scorer creation to succeed
         scorer_id = str(uuid4())
@@ -897,14 +1101,20 @@ def score(trace):
         assert metric.sync_state == SyncState.FAILED_SYNC
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.__future__.metric.create_scorers_post")
     def test_create_propagates_validation_error(
         self,
         mock_create_scorers: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
         mock_config: MagicMock,
         reset_configuration: None,
         create_temp_code_file,
         mock_api_client,
+        mock_validation_response,
+        mock_validation_task_result,
     ) -> None:
         """Test that create() propagates ValidationError without wrapping it."""
         # Mock the config
@@ -912,6 +1122,10 @@ def score(trace):
 
         # Create a temporary Python file
         code_file = create_temp_code_file()
+
+        # Mock the validation flow to succeed
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
 
         # Mock scorer creation to raise ValidationError
         validation_error = ValidationError("Invalid configuration")
@@ -924,14 +1138,20 @@ def score(trace):
             metric.load_code(str(code_file)).create()
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.__future__.metric.create_scorers_post")
     def test_create_sets_failed_sync_state_on_general_exception(
         self,
         mock_create_scorers: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
         mock_config: MagicMock,
         reset_configuration: None,
         create_temp_code_file,
         mock_api_client,
+        mock_validation_response,
+        mock_validation_task_result,
     ) -> None:
         """Test that create() sets FAILED_SYNC state and logs error on general exceptions."""
         # Mock the config
@@ -939,6 +1159,10 @@ def score(trace):
 
         # Create a temporary Python file
         code_file = create_temp_code_file()
+
+        # Mock the validation flow to succeed
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
 
         # Mock scorer creation to raise a general exception
         runtime_error = RuntimeError("Unexpected error")
@@ -952,3 +1176,346 @@ def score(trace):
         # Verify the state was set to FAILED_SYNC
         assert metric.sync_state == SyncState.FAILED_SYNC
         assert metric._last_error == runtime_error
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    def test_create_handles_validation_failure(
+        self,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+        mock_validation_task_result,
+    ) -> None:
+        """Test create() raises ValidationError when code validation fails."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file()
+
+        # Mock the validation flow to fail
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.FAILED)
+
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm)
+
+        with pytest.raises(ValidationError, match="Code validation failed"):
+            metric.load_code(str(code_file)).create()
+
+    @patch("galileo.__future__.metric.time.sleep")
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.__future__.metric.Scorers")
+    def test_create_polls_until_validation_complete(
+        self,
+        mock_scorers_class: MagicMock,
+        mock_create_scorers: MagicMock,
+        mock_create_version: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
+        mock_config: MagicMock,
+        mock_sleep: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_scorer_response,
+        mock_version_response,
+        mock_scorer_full,
+        mock_validation_response,
+        mock_validation_task_result,
+    ) -> None:
+        """Test create() polls until validation is complete."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file()
+
+        # Mock validation to return pending first, then completed
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_validate_get.sync.side_effect = [
+            mock_validation_task_result(TaskResultStatus.PENDING),
+            mock_validation_task_result(TaskResultStatus.PENDING),
+            mock_validation_task_result(TaskResultStatus.COMPLETED),
+        ]
+
+        # Mock the scorer creation response
+        scorer_id = str(uuid4())
+        mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, "Test Code Metric")
+        mock_create_version.sync.return_value = mock_version_response(scorer_id)
+
+        # Mock the scorer list response for refresh
+        mock_scorers_service = MagicMock()
+        mock_scorers_service.list.return_value = [mock_scorer_full(scorer_id, "Test Code Metric")]
+        mock_scorers_class.return_value = mock_scorers_service
+
+        # Create the metric
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm).load_code(str(code_file)).create()
+
+        # Verify polling was called 3 times (2 pending + 1 completed)
+        assert mock_validate_get.sync.call_count == 3
+        # Verify sleep was called for the pending attempts
+        assert mock_sleep.call_count == 2
+        assert metric.is_synced()
+
+    @patch("galileo.__future__.metric.time.time")
+    @patch("galileo.__future__.metric.time.sleep")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_create_validation_timeout(
+        self,
+        mock_config,
+        mock_validate_post,
+        mock_validate_get,
+        mock_sleep,
+        mock_time,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+        mock_validation_task_result,
+    ) -> None:
+        """Test create() raises error when validation times out."""
+        mock_config.return_value.api_client = mock_api_client
+
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = mock_validation_response()
+        # Always return pending to simulate timeout
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.PENDING)
+
+        # Simulate time passing: first call is start_time=0, second call is elapsed=61 (past 60s timeout)
+        mock_time.side_effect = [0.0, 61.0]
+
+        metric = CodeMetric(name="Test Timeout Metric", node_level=StepType.llm).load_code(str(code_file))
+
+        with pytest.raises(ValidationError, match="Code validation timed out"):
+            metric.create()
+
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_create_validation_post_returns_none(
+        self, mock_config, mock_validate_post, mock_validate_get, create_temp_code_file, mock_api_client
+    ) -> None:
+        """Test create() raises error when validation POST returns None."""
+        mock_config.return_value.api_client = mock_api_client
+
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = None
+
+        metric = CodeMetric(name="Test None Response Metric", node_level=StepType.llm).load_code(str(code_file))
+
+        with pytest.raises(ValueError, match="Failed to validate code: No response from API"):
+            metric.create()
+
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_create_validation_get_returns_none(
+        self,
+        mock_config,
+        mock_validate_post,
+        mock_validate_get,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+    ) -> None:
+        """Test create() raises error when validation GET returns None."""
+        mock_config.return_value.api_client = mock_api_client
+
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_validate_get.sync.return_value = None
+
+        metric = CodeMetric(name="Test None Get Response Metric", node_level=StepType.llm).load_code(str(code_file))
+
+        with pytest.raises(ValueError, match="Failed to get validation result: No response from API"):
+            metric.create()
+
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_create_validation_unknown_status(
+        self,
+        mock_config,
+        mock_validate_post,
+        mock_validate_get,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+    ) -> None:
+        """Test create() raises error when validation returns unknown status."""
+        mock_config.return_value.api_client = mock_api_client
+
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = mock_validation_response()
+        # Create a mock with an unknown status value
+        mock_result = MagicMock()
+        mock_result.status = "unknown_status"
+        mock_validate_get.sync.return_value = mock_result
+
+        metric = CodeMetric(name="Test Unknown Status Metric", node_level=StepType.llm).load_code(str(code_file))
+
+        with pytest.raises(ValueError, match="Unknown task status"):
+            metric.create()
+
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_create_validation_failed_status(
+        self,
+        mock_config,
+        mock_validate_post,
+        mock_validate_get,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+    ) -> None:
+        """Test create() raises error when validation returns FAILED status."""
+        mock_config.return_value.api_client = mock_api_client
+
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_result = MagicMock()
+        mock_result.status = TaskResultStatus.FAILED
+        mock_result.result = "Syntax error in code"
+        mock_validate_get.sync.return_value = mock_result
+
+        metric = CodeMetric(name="Test Failed Status Metric", node_level=StepType.llm).load_code(str(code_file))
+
+        with pytest.raises(ValidationError, match="Code validation failed: Syntax error in code"):
+            metric.create()
+
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_create_validation_failed_status_no_message(
+        self,
+        mock_config,
+        mock_validate_post,
+        mock_validate_get,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+    ) -> None:
+        """Test create() raises error when validation returns FAILED status without message."""
+        mock_config.return_value.api_client = mock_api_client
+
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_result = MagicMock()
+        mock_result.status = TaskResultStatus.FAILED
+        mock_result.result = None  # No error message
+        mock_validate_get.sync.return_value = mock_result
+
+        metric = CodeMetric(name="Test Failed No Message Metric", node_level=StepType.llm).load_code(str(code_file))
+
+        with pytest.raises(ValidationError, match="Code validation failed"):
+            metric.create()
+
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_create_validation_invalid_result(
+        self,
+        mock_config,
+        mock_validate_post,
+        mock_validate_get,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+    ) -> None:
+        """Test create() raises error when validation returns InvalidResult."""
+        mock_config.return_value.api_client = mock_api_client
+
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = mock_validation_response()
+
+        # Create a mock that simulates ValidateRegisteredScorerResult with InvalidResult
+        mock_invalid_result = MagicMock()
+        mock_invalid_result.error_message = "Missing required function: evaluate"
+
+        mock_result_inner = MagicMock(spec=InvalidResult)
+        # Make isinstance check work for InvalidResult
+        mock_result_inner.__class__ = InvalidResult
+        mock_result_inner.error_message = "Missing required function: evaluate"
+
+        mock_validate_result = MagicMock()
+        mock_validate_result.result = mock_result_inner
+        mock_validate_result.to_dict = MagicMock(
+            return_value={"result": {"error_message": "Missing required function: evaluate"}}
+        )
+
+        mock_task_result = MagicMock()
+        mock_task_result.status = TaskResultStatus.COMPLETED
+        mock_task_result.result = mock_validate_result
+        mock_validate_get.sync.return_value = mock_task_result
+
+        metric = CodeMetric(name="Test Invalid Result Metric", node_level=StepType.llm).load_code(str(code_file))
+
+        with pytest.raises(ValidationError, match="Code validation failed: Missing required function: evaluate"):
+            metric.create()
+
+    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_create_validation_result_as_string(
+        self,
+        mock_config,
+        mock_validate_post,
+        mock_validate_get,
+        mock_create_scorers,
+        mock_create_version,
+        mock_scorers_class,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+        mock_scorer_response,
+        mock_version_response,
+        mock_scorer_full,
+    ) -> None:
+        """Test create() handles validation result that's already a string."""
+        mock_config.return_value.api_client = mock_api_client
+
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = mock_validation_response()
+
+        # Create a mock that returns a string result directly
+        mock_task_result = MagicMock()
+        mock_task_result.status = TaskResultStatus.COMPLETED
+        mock_task_result.result = '{"is_valid": true}'  # String result
+        mock_validate_get.sync.return_value = mock_task_result
+
+        scorer_id = str(uuid4())
+        mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, "Test String Result Metric")
+        mock_create_version.sync.return_value = mock_version_response(scorer_id)
+
+        mock_scorers_service = MagicMock()
+        mock_scorers_service.list.return_value = [mock_scorer_full(scorer_id, "Test String Result Metric")]
+        mock_scorers_class.return_value = mock_scorers_service
+
+        metric = (
+            CodeMetric(name="Test String Result Metric", node_level=StepType.llm).load_code(str(code_file)).create()
+        )
+
+        assert metric.is_synced()
+        assert metric.id == scorer_id
