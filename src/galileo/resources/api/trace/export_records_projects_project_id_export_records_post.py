@@ -57,7 +57,7 @@ def stream_detailed(project_id: str, *, client: ApiClient, body: LogRecordsExpor
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     with client.stream_request(**kwargs) as response:
-        yield from response.iter_lines()
+        yield from response.iter_lines(decode_unicode=True)
 
 
 def sync_detailed(

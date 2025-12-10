@@ -21,7 +21,13 @@ class ExportClient:
 
     def __init__(self) -> None:
         self.config = GalileoPythonConfig.get()
-        csv.field_size_limit(sys.maxsize)
+
+        # Increase the field size limit to handle large fields.
+        try:
+            csv.field_size_limit(sys.maxsize)
+        except OverflowError:
+            # Handle OverflowError for platforms where C long is 32-bit
+            csv.field_size_limit(2**31 - 1)
 
     def records(
         self,
@@ -53,14 +59,12 @@ class ExportClient:
             ),
         )
 
-        line_iterator = (line.decode("utf-8") if isinstance(line, bytes) else line for line in response_iterator)
-
         if export_format == LLMExportFormat.JSONL:
-            for line in line_iterator:
+            for line in response_iterator:
                 if line:
                     yield json.loads(line)
         elif export_format == LLMExportFormat.CSV:
-            reader = csv.DictReader(line_iterator)
+            reader = csv.DictReader(response_iterator)
             yield from reader
 
 

@@ -112,7 +112,7 @@ def stream_detailed(
     )
 
     with client.stream_request(**kwargs) as response:
-        yield from response.iter_lines()
+        yield from response.iter_lines(decode_unicode=True)
 {% endif %}
 
 def sync_detailed(
