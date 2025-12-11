@@ -47,17 +47,40 @@ Example usage with Starlette:
 """
 
 import logging
-
-from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
-from starlette.requests import Request
-from starlette.responses import Response
-from starlette.types import ASGIApp
+from typing import Any, NoReturn
 
 from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
 from galileo.decorator import _parent_id_context, _trace_id_context
 from galileo.logger import GalileoLogger
 
 _logger = logging.getLogger(__name__)
+
+INSTALL_ERR_MSG = (
+    "Starlette is not installed. Install optional middleware dependencies with: pip install galileo[middleware]"
+)
+
+try:
+    from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+    from starlette.requests import Request
+    from starlette.responses import Response
+    from starlette.types import ASGIApp
+except ImportError:
+    # Create stub classes if Starlette is not available
+    class BaseHTTPMiddleware:  # type: ignore[no-redef]
+        def __init__(self, *args: Any, **kwargs: Any) -> NoReturn:
+            raise ImportError(INSTALL_ERR_MSG)
+
+    class Request:  # type: ignore[no-redef]
+        pass
+
+    class Response:  # type: ignore[no-redef]
+        pass
+
+    class RequestResponseEndpoint:  # type: ignore[no-redef]
+        pass
+
+    class ASGIApp:  # type: ignore[no-redef]
+        pass
 
 
 class TracingMiddleware(BaseHTTPMiddleware):

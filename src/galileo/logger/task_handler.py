@@ -85,7 +85,6 @@ class ThreadPoolTaskHandler:
 
         if dependent_on_prev:
             if not self._tasks:
-                # No previous tasks, submit immediately
                 _submit()
             else:
                 last_task_id = list(self._tasks.keys())[-1]
@@ -97,6 +96,34 @@ class ThreadPoolTaskHandler:
                     )
         else:
             _submit()
+
+    def submit_task_with_parent(
+        self, task_id: str, async_fn: Union[Callable[[], Awaitable[Any]], Coroutine], parent_task_id: str
+    ) -> None:
+        """
+        Submit a task that depends on a specific parent task.
+
+        Parameters
+        ----------
+        task_id: str
+            The ID of the task.
+        async_fn: Union[Callable[[], Awaitable[Any]], Coroutine]
+            The async function to submit to the thread pool.
+        parent_task_id: str
+            The ID of the parent task this depends on.
+        """
+
+        def _submit(*args) -> None:
+            future = self._pool.submit(async_fn, wait_for_result=False)
+            future.add_done_callback(lambda f: self._handle_task_completion(task_id))
+            self._add_or_update_task(task_id=task_id, future=future, start_time=time.time(), parent_task_id=None)
+
+        if parent_task_id not in self._tasks or self.get_status(parent_task_id) == "completed":
+            _submit()
+        else:
+            self._add_or_update_task(
+                task_id=task_id, future=None, start_time=None, parent_task_id=parent_task_id, callback=_submit
+            )
 
     def get_children(self, parent_task_id: str) -> list[dict]:
         """Get the children of a task."""

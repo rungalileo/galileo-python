@@ -57,6 +57,7 @@ from typing_extensions import ParamSpec
 
 from galileo.constants import LoggerModeType
 from galileo.logger import GalileoLogger
+from galileo.logger.logger import STUB_TRACE_NAME
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import SPAN_TYPE
@@ -788,8 +789,6 @@ class GalileoDecorator:
                 if logger.mode == "distributed" and not stack:
                     current_parent = logger.current_parent()
                     if current_parent is not None and isinstance(current_parent, Trace):
-                        from galileo.logger.logger import STUB_TRACE_NAME
-
                         is_stub_trace = current_parent.name == STUB_TRACE_NAME
 
                         if not is_stub_trace:

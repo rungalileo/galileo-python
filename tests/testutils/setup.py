@@ -158,6 +158,7 @@ def setup_thread_pool_request_capture(logger: GalileoLogger) -> ThreadPoolReques
     capture = ThreadPoolRequestCapture()
     mock_pool = Mock(side_effect=capture.capture_request)
     logger._task_handler.submit_task = mock_pool
+    logger._task_handler.submit_task_with_parent = mock_pool
     capture.mock_pool = mock_pool
     return capture
 

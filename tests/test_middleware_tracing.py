@@ -265,3 +265,24 @@ def test_mismatched_trace_and_span_ids(
     assert data["error"] is None
     assert data["trace_id"] == trace_id
     assert data["span_id"] == parent_id
+
+
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.LogStreams")
+def test_invalid_uuid_headers_raise_exception(
+    mock_logstreams_client: Mock, mock_projects_client: Mock, app: FastAPI, client: TestClient
+):
+    """Test that invalid UUID headers raise GalileoLoggerException."""
+    from galileo.exceptions import GalileoLoggerException
+
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    # Test with completely invalid trace_id - should raise exception
+    with pytest.raises(GalileoLoggerException, match="Invalid trace_id"):
+        client.get("/test", headers={TRACE_ID_HEADER: "not-a-valid-uuid"})
+
+    # Test with valid trace_id but invalid parent_id - should raise exception
+    valid_trace_id = "12345678-1234-4678-9abc-123456789abc"
+    with pytest.raises(GalileoLoggerException, match="Invalid span_id"):
+        client.get("/test", headers={TRACE_ID_HEADER: valid_trace_id, PARENT_ID_HEADER: "invalid-parent"})
