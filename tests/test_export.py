@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from unittest.mock import patch
 from uuid import uuid4
 
-import httpx
 import pytest
 
 from galileo.export import export_records
@@ -25,9 +24,7 @@ def test_export_records_basic(mock_export_records_stream):
         {"id": str(uuid4()), "input": "test input 1", "output": "test output 1"},
         {"id": str(uuid4()), "input": "test input 2", "output": "test output 2"},
     ]
-    raw_content = b"\n".join([json.dumps(d).encode("utf-8") for d in records_data])
-    mock_response = httpx.Response(200, content=raw_content)
-    mock_export_records_stream.return_value = mock_response
+    mock_export_records_stream.return_value = (json.dumps(d) for d in records_data)
 
     column_ids = ["id", "input", "output"]
     sort = LogRecordsSortClause(column_id="created_at", ascending=True)
@@ -55,8 +52,7 @@ def test_export_records_basic(mock_export_records_stream):
 def test_export_records_with_defaults(mock_export_records_stream):
     project_id = str(uuid4())
     log_stream_id = str(uuid4())
-    mock_response = httpx.Response(200, content=b"")
-    mock_export_records_stream.return_value = mock_response
+    mock_export_records_stream.return_value = iter([])
 
     list(export_records(project_id=project_id, log_stream_id=log_stream_id))
 
@@ -91,8 +87,7 @@ def test_export_records_default_log_stream(mock_export_records_stream, mock_log_
     # Return them in a non-sorted order
     mock_log_streams_list.return_value = [log_stream_1, log_stream_2, log_stream_3]
 
-    mock_response = httpx.Response(200, content=b"")
-    mock_export_records_stream.return_value = mock_response
+    mock_export_records_stream.return_value = iter([])
 
     list(export_records(project_id=project_id))
 
@@ -108,8 +103,7 @@ def test_export_records_default_log_stream(mock_export_records_stream, mock_log_
 def test_export_records_no_default_log_stream(mock_export_records_stream, mock_log_streams_list):
     project_id = str(uuid4())
     mock_log_streams_list.return_value = []
-    mock_response = httpx.Response(200, content=b"")
-    mock_export_records_stream.return_value = mock_response
+    mock_export_records_stream.return_value = iter([])
 
     with pytest.raises(ValueError, match="Exactly one of log_stream_id or experiment_id must be provided."):
         list(export_records(project_id=project_id))
@@ -123,8 +117,7 @@ def test_export_records_id_validation(mock_export_records_stream):
     project_id = str(uuid4())
     log_stream_id = str(uuid4())
     experiment_id = str(uuid4())
-    mock_response = httpx.Response(200, content=b"")
-    mock_export_records_stream.return_value = mock_response
+    mock_export_records_stream.return_value = iter([])
 
     # Test that ValueError is raised when both log_stream_id and experiment_id are provided
     with pytest.raises(ValueError, match="Exactly one of log_stream_id or experiment_id must be provided."):
@@ -144,8 +137,7 @@ def test_export_records_id_validation(mock_export_records_stream):
 def test_export_records_with_filters(mock_export_records_stream):
     project_id = str(uuid4())
     filters = [LogRecordsTextFilter(column_id="input", value="test", operator="eq")]
-    mock_response = httpx.Response(200, content=b"")
-    mock_export_records_stream.return_value = mock_response
+    mock_export_records_stream.return_value = iter([])
 
     list(
         export_records(
@@ -183,8 +175,7 @@ def test_export_records_api_failure(mock_export_records_stream):
 @patch("galileo.export.export_records_stream")
 def test_export_records_all_root_types(mock_export_records_stream, root_type):
     project_id = str(uuid4())
-    mock_response = httpx.Response(200, content=b"")
-    mock_export_records_stream.return_value = mock_response
+    mock_export_records_stream.return_value = iter([])
 
     list(
         export_records(
@@ -204,8 +195,7 @@ def test_export_records_all_root_types(mock_export_records_stream, root_type):
 @patch("galileo.export.export_records_stream")
 def test_export_records_empty_response(mock_export_records_stream):
     project_id = str(uuid4())
-    mock_response = httpx.Response(200, content=b"")
-    mock_export_records_stream.return_value = mock_response
+    mock_export_records_stream.return_value = iter([])
 
     result = list(
         export_records(
@@ -222,9 +212,8 @@ def test_export_records_empty_response(mock_export_records_stream):
 @patch("galileo.export.export_records_stream")
 def test_export_records_malformed_json(mock_export_records_stream):
     project_id = str(uuid4())
-    raw_content = b'{"id": "123", "input": "test"}\nthis is not json'
-    mock_response = httpx.Response(200, content=raw_content)
-    mock_export_records_stream.return_value = mock_response
+    lines = ['{"id": "123", "input": "test"}', "this is not json"]
+    mock_export_records_stream.return_value = iter(lines)
 
     with pytest.raises(json.JSONDecodeError):
         list(
@@ -241,9 +230,8 @@ def test_export_records_malformed_json(mock_export_records_stream):
 @patch("galileo.export.export_records_stream")
 def test_export_records_csv(mock_export_records_stream):
     project_id = str(uuid4())
-    csv_content = "id,input,output\n1,test1,out1\n2,test2,out2"
-    mock_response = httpx.Response(200, content=csv_content.encode("utf-8"))
-    mock_export_records_stream.return_value = mock_response
+    csv_lines = ["id,input,output", "1,test1,out1", "2,test2,out2"]
+    mock_export_records_stream.return_value = iter(csv_lines)
 
     result = list(
         export_records(
@@ -267,8 +255,7 @@ def test_export_records_csv(mock_export_records_stream):
 @patch("galileo.export.export_records_stream")
 def test_export_records_redact(mock_export_records_stream, redact_param):
     project_id = str(uuid4())
-    mock_response = httpx.Response(200, content=b"")
-    mock_export_records_stream.return_value = mock_response
+    mock_export_records_stream.return_value = iter([])
 
     list(
         export_records(

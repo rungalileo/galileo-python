@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Iterator, Optional, Union
 
 import httpx
 
@@ -53,10 +53,11 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def stream_detailed(project_id: str, *, client: ApiClient, body: LogRecordsExportRequest) -> httpx.Response:
+def stream_detailed(project_id: str, *, client: ApiClient, body: LogRecordsExportRequest) -> Iterator[str]:
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    return client.request(**kwargs)
+    with client.stream_request(**kwargs) as response:
+        yield from response.iter_lines(decode_unicode=True)
 
 
 def sync_detailed(

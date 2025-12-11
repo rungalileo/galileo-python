@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Iterator, Optional, Union, cast
 
 import httpx
 
@@ -106,16 +106,13 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 {% if "export_records" in endpoint.path %}
 def stream_detailed(
     {{ arguments(endpoint) | indent(4) }}
-) -> httpx.Response:
+) -> Iterator[str]:
     kwargs = _get_kwargs(
         {{ kwargs(endpoint, include_client=False) }}
     )
 
-    response = client.request(
-        **kwargs,
-    )
-
-    return response
+    with client.stream_request(**kwargs) as response:
+        yield from response.iter_lines(decode_unicode=True)
 {% endif %}
 
 def sync_detailed(
