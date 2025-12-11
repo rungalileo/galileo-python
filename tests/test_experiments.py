@@ -443,10 +443,6 @@ class TestExperiments:
     ) -> None:
         mock_create_job.return_value = MagicMock()
 
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         dataset_id = str(UUID(int=0))
         run_experiment(
             "test_experiment", project="awesome-new-project", dataset_id=dataset_id, prompt_template=prompt_template()
@@ -468,10 +464,6 @@ class TestExperiments:
         dataset_content: DatasetContent,
     ) -> None:
         mock_create_job.return_value = MagicMock()
-
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
         dataset_id = str(UUID(int=0))
         run_experiment(
@@ -498,10 +490,6 @@ class TestExperiments:
     ) -> None:
         mock_create_job.return_value = MagicMock()
 
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         dataset_id = str(UUID(int=0))
         with pytest.raises(ValueError) as exc_info:
             run_experiment(
@@ -527,10 +515,6 @@ class TestExperiments:
         dataset_content: DatasetContent,
     ) -> None:
         mock_create_job.return_value = MagicMock()
-
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
         dataset_id = str(UUID(int=0))
         with pytest.raises(ValueError) as exc_info:
@@ -560,10 +544,6 @@ class TestExperiments:
     ) -> None:
         mock_create_job.return_value = MagicMock()
 
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         dataset_id = str(UUID(int=0))
         result = run_experiment(
             "test_experiment", project="awesome-new-project", dataset_id=dataset_id, prompt_template=prompt_template()
@@ -579,7 +559,6 @@ class TestExperiments:
         mock_get_dataset.assert_called_once_with(
             id="00000000-0000-0000-0000-000000000000", name=None, project_id=None, project_name=None
         )
-        mock_get_dataset_instance.get_content.assert_called()
         mock_create_job.assert_called_once_with(
             name="playground_run",
             project_id="00000000-0000-0000-0000-000000000000",
@@ -686,8 +665,11 @@ class TestExperiments:
         setup_mock_logstreams_client(mock_logstreams_client)
 
         # mock dataset.get_content
+        # Return dataset_content on first call (starting_token=0), then None to signal end of pagination
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+        mock_get_dataset_instance.get_content = MagicMock(
+            side_effect=lambda starting_token=0, limit=1000: dataset_content if starting_token == 0 else None
+        )
 
         dataset_id = str(UUID(int=0, version=4))
 
@@ -771,10 +753,6 @@ class TestExperiments:
         mock_scorers_class.return_value.list.return_value = scorers()
         mock_scorer_settings_class.return_value.create.return_value = None
 
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         dataset_id = str(UUID(int=0))
         run_experiment(
             "test_experiment",
@@ -792,7 +770,6 @@ class TestExperiments:
         mock_get_dataset.assert_called_once_with(
             id="00000000-0000-0000-0000-000000000000", name=None, project_id=None, project_name=None
         )
-        mock_get_dataset_instance.get_content.assert_called()
         mock_scorers_class.return_value.list.assert_called_with()
         mock_scorer_settings_class.return_value.create.assert_called_with(
             project_id="00000000-0000-0000-0000-000000000000",
@@ -817,10 +794,6 @@ class TestExperiments:
     ) -> None:
         mock_create_job.return_value = MagicMock()
 
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         dataset_id = str(UUID(int=0))
         run_experiment(
             "test_experiment",
@@ -839,7 +812,6 @@ class TestExperiments:
         mock_get_dataset.assert_called_once_with(
             id="00000000-0000-0000-0000-000000000000", name=None, project_id=None, project_name=None
         )
-        mock_get_dataset_instance.get_content.assert_called()
         mock_create_job.assert_called_once_with(
             name="playground_run",
             project_id="00000000-0000-0000-0000-000000000000",
@@ -880,8 +852,13 @@ class TestExperiments:
         mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
+        # Return dataset_content on first call (starting_token=0), then None to signal end of pagination
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_with_question)
+        mock_get_dataset_instance.get_content = MagicMock(
+            side_effect=lambda starting_token=0, limit=1000: dataset_content_with_question
+            if starting_token == 0
+            else None
+        )
 
         def runner(input) -> str:
             # emulate using input
@@ -916,10 +893,6 @@ class TestExperiments:
     def test_run_experiment_with_prompt_template_and_function(
         self, mock_get_dataset: Mock, dataset_content: DatasetContent
     ) -> None:
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         with pytest.raises(ValueError) as exc_info:
             run_experiment(
                 "test_experiment",
@@ -933,7 +906,6 @@ class TestExperiments:
         mock_get_dataset.assert_called_once_with(
             id="00000000-0000-0000-0000-000000000001", name=None, project_id=None, project_name=None
         )
-        mock_get_dataset_instance.get_content.assert_called()
 
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_with_prompt_template_and_local_dataset(
@@ -1171,8 +1143,11 @@ class TestExperiments:
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
 
+        # Return dataset_content on first call (starting_token=0), then None to signal end of pagination
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_150_rows)
+        mock_get_dataset_instance.get_content = MagicMock(
+            side_effect=lambda starting_token=0, limit=1000: dataset_content_150_rows if starting_token == 0 else None
+        )
 
         run_experiment(
             "test_experiment",
@@ -1181,8 +1156,12 @@ class TestExperiments:
             function=lambda x: f"output: {x}",
         )
 
-        mock_get_dataset_instance.get_content.assert_called_with()
+        # Verify get_content was called with pagination parameters
+        assert mock_get_dataset_instance.get_content.call_count >= 1
 
-        # Verify that all 150 rows were processed by checking the traces
-        payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
-        assert len(payload.traces) == 150
+        # Verify that all 150 rows were processed by checking the traces across all flush calls
+        total_traces = 0
+        for call in mock_traces_client_instance.ingest_traces.call_args_list:
+            payload = call[0][0]
+            total_traces += len(payload.traces)
+        assert total_traces == 150

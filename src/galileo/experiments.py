@@ -1,6 +1,7 @@
 import builtins
 import datetime
 import logging
+from sys import getsizeof
 from typing import Any, Callable, Optional, Union
 
 from attrs import define as _attrs_define
@@ -8,7 +9,7 @@ from attrs import field as _attrs_field
 
 from galileo import galileo_context, log
 from galileo.config import GalileoPythonConfig
-from galileo.datasets import Dataset
+from galileo.datasets import Dataset, convert_dataset_row_to_record
 from galileo.experiment_tags import upsert_experiment_tag
 from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
@@ -20,13 +21,17 @@ from galileo.resources.api.experiment import (
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
-from galileo.utils.datasets import load_dataset_and_records
+from galileo.utils.datasets import create_rows_from_records, load_dataset
 from galileo.utils.logging import get_logger
 from galileo.utils.metrics import create_metric_configs
 
 _logger = get_logger(__name__)
 
 EXPERIMENT_TASK_TYPE: TaskType = 16
+
+MAX_REQUEST_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+MAX_INGEST_BATCH_SIZE = 128
+DATASET_CONTENT_PAGE_SIZE = 1000
 
 
 @_attrs_define
@@ -148,20 +153,42 @@ class Experiments:
         self,
         project_obj: Project,
         experiment_obj: ExperimentResponse,
-        records: builtins.list[DatasetRecord],
+        dataset_obj: Optional[Dataset],
+        records: Optional[builtins.list[DatasetRecord]],
         func: Callable,
         local_metrics: builtins.list[LocalMetricConfig],
     ) -> dict[str, Any]:
+        if dataset_obj is None and records is None:
+            raise ValueError("Either dataset_obj or records must be provided")
         results = []
         galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id, local_metrics=local_metrics)
 
         def logged_process_func(row: DatasetRecord) -> Callable:
             return log(name=experiment_obj.name, dataset_record=row)(func)
 
-        #  process each row in the dataset
-        for row in records:
-            results.append(process_row(row, logged_process_func(row)))
-            galileo_context.reset_trace_context()
+        starting_token = 0
+        while True:
+            if dataset_obj:
+                _logger.info(f"Loading dataset content starting at token {starting_token}")
+                content = dataset_obj.get_content(starting_token=starting_token, limit=DATASET_CONTENT_PAGE_SIZE)
+                if not content or not content.rows:
+                    _logger.info("No more dataset content to process")
+                    break
+                records = [convert_dataset_row_to_record(row) for row in content.rows]
+            if not records:
+                break
+            #  process each row in the dataset
+            _logger.info(f"Processing {len(records)} rows from dataset")
+            for row in records:
+                results.append(process_row(row, logged_process_func(row)))
+                galileo_context.reset_trace_context()
+                if getsizeof(results) > MAX_REQUEST_SIZE_BYTES or len(results) >= MAX_INGEST_BATCH_SIZE:
+                    _logger.info("Flushing logger due to size limit")
+                    galileo_context.flush()
+                    results = []
+            if not dataset_obj:
+                break
+            starting_token += len(records)
 
         # flush the logger
         galileo_context.flush()
@@ -247,19 +274,21 @@ def run_experiment(
         If required parameters are missing or invalid
     """
     # Load dataset and records
-    dataset_obj, records = load_dataset_and_records(dataset, dataset_id, dataset_name)
+    dataset_obj = load_dataset(dataset, dataset_id, dataset_name)
 
     # Validate experiment configuration
     if prompt_template and not dataset_obj:
         raise ValueError("A dataset record, id, or name of a dataset must be provided when a prompt_template is used")
 
-    if function and not records:
-        raise ValueError(
-            "A dataset record, id or name of a dataset, or list of records must be provided when a function is used"
-        )
-
     if function and prompt_template:
         raise ValueError("A function or prompt_template should be provided, but not both")
+
+    records = None
+    if not dataset_obj and isinstance(dataset, list):
+        records = create_rows_from_records(dataset)
+
+    if function and not dataset_obj and not records:
+        raise ValueError("A dataset record, id, name, or a list of records must be provided when a function is used")
 
     # Get the project from the name or Id
     project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project)
@@ -303,6 +332,7 @@ def run_experiment(
         return Experiments().run_with_function(
             project_obj=project_obj,
             experiment_obj=experiment_obj,
+            dataset_obj=dataset_obj,
             records=records,
             func=function,
             local_metrics=local_metrics,
