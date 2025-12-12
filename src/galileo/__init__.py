@@ -40,4 +40,7 @@ from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
 from galileo_core.schemas.protect.stage import StageType
 
+# Alias for GalileoScorers - can be used interchangeably
+GalileoMetrics = GalileoScorers
+
 __version__ = "1.37.0"
