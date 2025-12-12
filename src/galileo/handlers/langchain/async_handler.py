@@ -6,7 +6,7 @@ from uuid import UUID
 
 from galileo.handlers.base_async_handler import GalileoAsyncBaseHandler
 from galileo.handlers.langchain.handler import GalileoCallback
-from galileo.handlers.langchain.utils import get_agent_name, is_agent_node
+from galileo.handlers.langchain.utils import get_agent_name, is_agent_node, update_root_to_agent
 from galileo.logger import GalileoLogger
 from galileo.schema.handlers import NODE_TYPE
 from galileo.schema.trace import TracesIngestRequest
@@ -82,6 +82,10 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         if is_agent_node(node_name):
             node_type = "agent"
             node_name = get_agent_name(parent_run_id, "Agent", self._handler.get_nodes())
+
+        update_root_to_agent(
+            parent_run_id, kwargs.get("metadata", {}), self._handler.get_node(parent_run_id) if parent_run_id else None
+        )
 
         kwargs["name"] = node_name
         await self._handler.async_start_node(

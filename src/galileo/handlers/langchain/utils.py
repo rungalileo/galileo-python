@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from galileo.schema.handlers import Node
@@ -17,3 +17,20 @@ def get_agent_name(parent_run_id: Optional[UUID], node_name: str, nodes: dict[st
 
 def is_agent_node(node_name: str) -> bool:
     return node_name.lower() in ["langgraph", "agent"]
+
+
+def update_root_to_agent(parent_run_id: Optional[UUID], metadata: dict[str, Any], parent_node: Optional[Node]) -> None:
+    """Update the parent node to be an agent if it is a root-level chain and has LangGraph metadata in the children.
+
+    Parameters
+    ----------
+    parent_run_id : Optional[UUID]
+    metadata : dict[str, Any]
+    parent_node : Optional[Node]
+    """
+    # Check if this node has LangGraph metadata - if so, its parent might be an agent
+    # Only mark as agent if parent is a root-level chain (no grandparent)
+    if parent_run_id and metadata and any(key.startswith("langgraph_") for key in metadata):
+        # Only convert to agent if parent is a root-level chain (no parent of its own)
+        if parent_node and parent_node.node_type == "chain" and parent_node.parent_run_id is None:
+            parent_node.node_type = "agent"
