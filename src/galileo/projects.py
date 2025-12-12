@@ -1,6 +1,5 @@
 import builtins
 import datetime
-import os
 from typing import Optional, Union
 
 import httpx
@@ -30,6 +29,7 @@ from galileo.resources.models.user_collaborator import UserCollaborator
 from galileo.resources.models.user_collaborator_create import UserCollaboratorCreate
 from galileo.resources.types import UNSET, Unset
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo.utils.env_helpers import _get_project_from_env, _get_project_id_from_env
 from galileo.utils.exceptions import APIException
 from galileo.utils.logging import get_logger
 
@@ -185,8 +185,8 @@ class Projects(DecorateAllMethods):
             If the request takes longer than Client.timeout.
 
         """
-        id = id or (None if name else os.getenv("GALILEO_PROJECT_ID")) or None
-        name = name or (None if id else os.getenv("GALILEO_PROJECT")) or None
+        id = id or (None if name else _get_project_id_from_env()) or None
+        name = name or (None if id else _get_project_from_env()) or None
 
         return self.get(id=id, name=name)
 
