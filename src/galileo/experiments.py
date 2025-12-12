@@ -166,18 +166,8 @@ class Experiments:
         def logged_process_func(row: DatasetRecord) -> Callable:
             return log(name=experiment_obj.name, dataset_record=row)(func)
 
-        starting_token = 0
-        while True:
-            if dataset_obj:
-                _logger.info(f"Loading dataset content starting at token {starting_token}")
-                content = dataset_obj.get_content(starting_token=starting_token, limit=DATASET_CONTENT_PAGE_SIZE)
-                if not content or not content.rows:
-                    _logger.info("No more dataset content to process")
-                    break
-                records = [convert_dataset_row_to_record(row) for row in content.rows]
-            if not records:
-                break
-            #  process each row in the dataset
+        # For static records (list), process once
+        if records is not None:
             _logger.info(f"Processing {len(records)} rows from dataset")
             for row in records:
                 results.append(process_row(row, logged_process_func(row)))
@@ -186,9 +176,31 @@ class Experiments:
                     _logger.info("Flushing logger due to size limit")
                     galileo_context.flush()
                     results = []
-            if not dataset_obj:
-                break
-            starting_token += len(records)
+        # For dataset object, paginate through content
+        elif dataset_obj is not None:
+            starting_token = 0
+            has_more_data = True
+
+            while has_more_data:
+                _logger.info(f"Loading dataset content starting at token {starting_token}")
+                content = dataset_obj.get_content(starting_token=starting_token, limit=DATASET_CONTENT_PAGE_SIZE)
+
+                if not content or not content.rows:
+                    _logger.info("No more dataset content to process")
+                    has_more_data = False
+                else:
+                    batch_records = [convert_dataset_row_to_record(row) for row in content.rows]
+                    _logger.info(f"Processing {len(batch_records)} rows from dataset")
+
+                    for row in batch_records:
+                        results.append(process_row(row, logged_process_func(row)))
+                        galileo_context.reset_trace_context()
+                        if getsizeof(results) > MAX_REQUEST_SIZE_BYTES or len(results) >= MAX_INGEST_BATCH_SIZE:
+                            _logger.info("Flushing logger due to size limit")
+                            galileo_context.flush()
+                            results = []
+
+                    starting_token += len(batch_records)
 
         # flush the logger
         galileo_context.flush()

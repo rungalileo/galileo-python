@@ -30,7 +30,7 @@ def load_dataset(
     dataset_name: Optional[str],
 ) -> Optional["Dataset"]:
     """
-    Load dataset and records based on provided parameters.
+    Load dataset based on provided parameters.
 
     Parameters
     ----------
