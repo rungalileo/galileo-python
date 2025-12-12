@@ -55,13 +55,16 @@ from typing import Any, Callable, Optional, TypeVar, Union, cast, overload
 
 from typing_extensions import ParamSpec
 
+from galileo.constants import LoggerModeType
 from galileo.logger import GalileoLogger
+from galileo.logger.logger import STUB_TRACE_NAME
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import SPAN_TYPE
 from galileo.utils import _get_timestamp
+from galileo.utils.env_helpers import _get_mode_or_default
 from galileo.utils.logging import is_concludable_span_type, is_textual_span_type
-from galileo.utils.serialization import EventSerializer, serialize_to_str
+from galileo.utils.serialization import EventSerializer, convert_time_delta_to_ns, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
 from galileo_core.schemas.logging.span import WorkflowSpan
 from galileo_core.schemas.logging.trace import Trace
@@ -77,20 +80,25 @@ F = TypeVar("F", bound=Callable[..., Any])
 P = ParamSpec("P")
 R = TypeVar("R")
 
+# TODO: We should have the context variables store valid values not optional values.
 # Context variables for current values
 _project_context: ContextVar[Optional[str]] = ContextVar("project_context", default=None)
 _log_stream_context: ContextVar[Optional[str]] = ContextVar("log_stream_context", default=None)
 _trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", default=None)
 _experiment_id_context: ContextVar[Optional[str]] = ContextVar("experiment_id_context", default=None)
-_mode_context: ContextVar[Optional[str]] = ContextVar("mode_context", default="batch")
 _span_stack_context: ContextVar[Optional[list[WorkflowSpan]]] = ContextVar("span_stack_context", default=None)
+_mode_context: ContextVar[Optional[LoggerModeType]] = ContextVar("mode_context", default=None)
+
+# Distributed tracing context variables (for middleware)
+_trace_id_context: ContextVar[Optional[str]] = ContextVar("trace_id_context", default=None)
+_parent_id_context: ContextVar[Optional[str]] = ContextVar("parent_id_context", default=None)
 
 # Stack variables for storing previous values (for proper nesting)
 _project_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("project_stack", default=None)
 _log_stream_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("log_stream_stack", default=None)
 _trace_stack: ContextVar[Optional[list[Optional[Trace]]]] = ContextVar("trace_stack", default=None)
 _experiment_id_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("experiment_id_stack", default=None)
-_mode_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("mode_stack", default=None)
+_mode_stack: ContextVar[Optional[list[LoggerModeType]]] = ContextVar("mode_stack", default=None)
 _span_stack_stack: ContextVar[Optional[list[list[WorkflowSpan]]]] = ContextVar("span_stack_stack", default=None)
 
 
@@ -154,10 +162,16 @@ class GalileoDecorator:
         _log_stream_context.set(_get_or_init_list(_log_stream_stack).pop())
         _experiment_id_context.set(_get_or_init_list(_experiment_id_stack).pop())
         _trace_context.set(_get_or_init_list(_trace_stack).pop())
+        _mode_context.set(_get_or_init_list(_mode_stack).pop())
         _span_stack_context.set(_get_or_init_list(_span_stack_stack).pop())
 
     def __call__(
-        self, *, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        *,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        mode: Optional[str] = None,
     ) -> "GalileoDecorator":
         """
         Call method to use the decorator as a context manager.
@@ -176,6 +190,8 @@ class GalileoDecorator:
             The log stream name to use for this context
         experiment_id
             The experiment ID to use for this context
+        mode
+            The logger mode
 
         Returns
         -------
@@ -187,6 +203,7 @@ class GalileoDecorator:
         _get_or_init_list(_log_stream_stack).append(_log_stream_context.get())
         _get_or_init_list(_experiment_id_stack).append(_experiment_id_context.get())
         _get_or_init_list(_trace_stack).append(_trace_context.get())
+        _get_or_init_list(_mode_stack).append(_mode_context.get())
         _get_or_init_list(_span_stack_stack).append(_get_or_init_list(_span_stack_context).copy())
 
         # Reset trace context values
@@ -197,6 +214,7 @@ class GalileoDecorator:
         _project_context.set(None)
         _log_stream_context.set(None)
         _experiment_id_context.set(None)
+        _mode_context.set(_get_mode_or_default(None))
 
         # Override with explicitly provided values
         if project is not None:
@@ -205,6 +223,8 @@ class GalileoDecorator:
             _log_stream_context.set(log_stream)
         if experiment_id is not None:
             _experiment_id_context.set(experiment_id)
+        if mode is not None:
+            _mode_context.set(_get_mode_or_default(mode))
 
         return self
 
@@ -302,6 +322,15 @@ class GalileoDecorator:
 
         @wraps(func)
         async def async_wrapper(*args, **kwargs) -> Any:
+            # Copy the span stack to isolate parallel async tasks
+            # This prevents concurrent tasks from interfering with each other's span stacks
+            current_stack = _get_or_init_list(_span_stack_context)
+            _span_stack_context.set(current_stack.copy())
+
+            # TODO: Parallel nested workflows are not fully supported yet
+            # The logger's _parent_stack needs to use ContextVar for proper isolation
+            # Currently, parallel child workflows within a parent workflow will have corrupted trace structure
+
             span_params = self._prepare_input(
                 func=func,
                 name=name or func.__name__,
@@ -571,7 +600,14 @@ class GalileoDecorator:
         input_ = span_params.get("input_serialized", "")
         name = span_params.get("name", "")
 
-        if not _trace_context.get():
+        existing_trace = _trace_context.get()
+
+        # Check if existing trace is still valid (not concluded/flushed)
+        if existing_trace and client_instance.current_parent() is None:
+            existing_trace = None
+            _trace_context.set(None)
+
+        if not existing_trace:
             # If the singleton logger has an active trace, use it
             if client_instance.has_active_trace():
                 trace = client_instance.traces[-1]
@@ -656,6 +692,38 @@ class GalileoDecorator:
             return self._wrap_async_generator_result(span_type, span_params, result)
         return self._handle_call_result(span_type, span_params, result)
 
+    def _serialize_output(self, output: Any, span_type: Optional[SPAN_TYPE]) -> Any:
+        """
+        Serialize output value for logging.
+
+        Parameters
+        ----------
+        output
+            Output value to serialize
+        span_type
+            Type of span (determines serialization strategy)
+
+        Returns
+        -------
+        Serialized output (string or JSON-serializable dict/list)
+        """
+        if isinstance(output, str):
+            return output
+
+        # Check if this span type needs string serialization
+        if (
+            # an empty span_type means it's a workflow span
+            not span_type
+            # textual spans are spans with string-based input and output
+            or is_textual_span_type(span_type)
+            # llm spans don't accept list or tuple types as output
+            or (span_type == "llm" and isinstance(output, (list, tuple)))
+        ):
+            # Convert output to string if needed for workflow/tool/agent spans
+            return serialize_to_str(output)
+        # Serialize and deserialize to ensure proper JSON serialization
+        return json.loads(json.dumps(output, cls=EventSerializer))
+
     def _handle_call_result(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], result: Any) -> Any:
         """
         Handle the result of a function call for logging.
@@ -676,25 +744,22 @@ class GalileoDecorator:
         -------
         The original result
         """
+        # Initialize logger before try block
+        logger = self.get_logger_instance()
+
+        # Serialize output and redacted_output - set to None if serialization fails
+        output = span_params.get("output")
+        if output is None:
+            output = result if result is not None else ""
+
+        redacted_output = span_params.get("redacted_output")
+        span_name = span_params.get("name", "unknown")
+
         try:
-            output = span_params.get("output")
-
-            if output is None:
-                output = result if result is not None else ""
-
-            if not isinstance(output, str) and (
-                # an empty span_type means it's a workflow span
-                not span_type
-                # textual spans are spans with string-based input and output
-                or is_textual_span_type(span_type)
-                # llm spans don't accept list or tuple types as output
-                or (span_type == "llm" and (isinstance(output, (list, tuple))))
-            ):
-                # Convert output to string if needed for workflow/tool/agent spans
-                output = serialize_to_str(output)
-            else:
-                # Serialize and deserialize to ensure proper JSON serialization.
-                output = json.loads(json.dumps(output, cls=EventSerializer))
+            # Serialize output and redacted_output
+            output = self._serialize_output(output, span_type)
+            if redacted_output is not None:
+                redacted_output = self._serialize_output(redacted_output, span_type)
 
             stack = _get_or_init_list(_span_stack_context)
 
@@ -707,20 +772,45 @@ class GalileoDecorator:
                 span_params["created_at"] = created_at
                 span_params["duration_ns"] = 0
 
-            logger = self.get_logger_instance()
-
-            # If the span type is a workflow or agent, conclude it
-            _logger.debug(f"{span_type=} {stack=} {span_params=}")
+            # Workflow and agent spans are "concludable" - they need to be concluded
+            # Default (no span_type) is treated as workflow
             if not span_type or is_concludable_span_type(span_type):
+                # Pop from stack and conclude the workflow/agent span
                 if stack:
                     stack.pop()
                     _span_stack_context.set(stack)
 
                 status_code = span_params.get("status_code")
-                _logger.debug(f"conclude {output=} {status_code=}")
                 logger.conclude(output=output, duration_ns=span_params["duration_ns"], status_code=status_code)
+
+                # In distributed mode, update parent trace output after concluding a top-level workflow
+                # This ensures the trace shows the latest workflow's output (last workflow wins)
+                # Skip stub traces (created from distributed tracing headers - they're managed by the client)
+                if logger.mode == "distributed" and not stack:
+                    current_parent = logger.current_parent()
+                    if current_parent is not None and isinstance(current_parent, Trace):
+                        is_stub_trace = current_parent.name == STUB_TRACE_NAME
+
+                        if not is_stub_trace:
+                            current_parent.output = output
+                            if redacted_output is not None:
+                                current_parent.redacted_output = redacted_output
+
+                            # Update trace duration
+                            # Note: In distributed mode, trace.created_at may be set by the server
+                            # Using max() to ensure parent is never shorter than its children.
+                            if current_parent.created_at:
+                                elapsed_ns = convert_time_delta_to_ns(_get_timestamp() - current_parent.created_at)
+                                workflow_ns = span_params.get("duration_ns", 0)
+                                prev_ns = current_parent.metrics.duration_ns or 0
+                                current_parent.metrics.duration_ns = max(elapsed_ns, workflow_ns, prev_ns)
+
+                            if status_code is not None:
+                                current_parent.status_code = status_code
+
+                            logger._update_trace_streaming(current_parent, is_complete=False)
             else:
-                # If the span type is not a workflow or agent, add it to the current parent (trace or span)
+                # Non-concludable spans (llm, tool, retriever) are  added to the parent
                 span_methods = {"llm": "add_llm_span", "tool": "add_tool_span", "retriever": "add_retriever_span"}
 
                 if span_type in span_methods:
@@ -746,7 +836,7 @@ class GalileoDecorator:
 
                     method(**filtered_kwargs)
         except Exception as e:
-            _logger.error(f"Failed to create trace: {e}", exc_info=True)
+            _logger.error(f"Failed to create trace for span '{span_name}' (type: {span_type}): {e}", exc_info=True)
 
         return result
 
@@ -829,7 +919,11 @@ class GalileoDecorator:
             self._handle_call_result(span_type, span_params, output)
 
     def get_logger_instance(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        mode: Optional[str] = None,
     ) -> GalileoLogger:
         """
         Get the Galileo Logger instance for the current decorator context.
@@ -840,16 +934,29 @@ class GalileoDecorator:
             Optional project name to use
         log_stream
             Optional log stream name to use
+        experiment_id
+            Optional experiment ID to use
+        mode
+            Optional logger mode to use
 
         Returns
         -------
         GalileoLogger instance configured with the specified project and log stream
         """
-        return GalileoLoggerSingleton().get(
-            project=project or _project_context.get(),
-            log_stream=log_stream or _log_stream_context.get(),
-            experiment_id=experiment_id or _experiment_id_context.get(),
-        )
+        kwargs = {
+            "project": project or _project_context.get(),
+            "log_stream": log_stream or _log_stream_context.get(),
+            "experiment_id": experiment_id or _experiment_id_context.get(),
+            "mode": _get_mode_or_default(mode) if mode is not None else _mode_context.get(),
+        }
+        trace_id_from_context = _trace_id_context.get()
+        span_id_from_context = _parent_id_context.get()
+        if trace_id_from_context:
+            kwargs["trace_id"] = trace_id_from_context
+        if span_id_from_context:
+            kwargs["span_id"] = span_id_from_context
+
+        return GalileoLoggerSingleton().get(**kwargs)
 
     def get_current_project(self) -> Optional[str]:
         """
@@ -895,18 +1002,23 @@ class GalileoDecorator:
         """
         return _trace_context.get()
 
-    def get_current_mode(self) -> Optional[str]:
+    def get_current_mode(self) -> Optional[LoggerModeType]:
         """
         Retrieve the current mode from context.
 
         Returns
         -------
-        str
+        Optional[LoggerModeType]
+            The current mode context, or None if not initialized
         """
         return _mode_context.get()
 
     def flush(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        mode: Optional[str] = None,
     ) -> None:
         """
         Upload all captured traces under a project and log stream context to Galileo.
@@ -919,11 +1031,24 @@ class GalileoDecorator:
             The project name. Defaults to None.
         log_stream
             The log stream name. Defaults to None.
+        experiment_id
+            The experiment ID. Defaults to None.
+        mode
+            The logger mode. Defaults to None.
         """
-        self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id).flush()
+        self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id, mode=mode).flush()
 
-        if (project == _project_context.get() and log_stream == _log_stream_context.get()) or (
-            project == _project_context.get() and experiment_id == _experiment_id_context.get()
+        # Reset trace state if we're flushing the current context
+        current_mode = _get_mode_or_default(mode) if mode is not None else _mode_context.get()
+        resolved_project = project if project is not None else _project_context.get()
+        resolved_log_stream = log_stream if log_stream is not None else _log_stream_context.get()
+        resolved_experiment_id = experiment_id if experiment_id is not None else _experiment_id_context.get()
+
+        if (
+            current_mode == _mode_context.get()
+            and resolved_project == _project_context.get()
+            and resolved_log_stream == _log_stream_context.get()
+            and resolved_experiment_id == _experiment_id_context.get()
         ):
             _span_stack_context.set([])
             _trace_context.set(None)
@@ -953,9 +1078,13 @@ class GalileoDecorator:
         _project_context.set(None)
         _log_stream_context.set(None)
         _experiment_id_context.set(None)
-        _mode_context.set(None)
+        _mode_context.set(_get_mode_or_default(None))
         _span_stack_context.set([])
         _trace_context.set(None)
+
+        # Reset distributed tracing context
+        _trace_id_context.set(None)
+        _parent_id_context.set(None)
 
         # Clear all stacks
         _get_or_init_list(_project_stack).clear()
@@ -976,6 +1105,7 @@ class GalileoDecorator:
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
+        mode: Optional[str] = None,
     ) -> None:
         """
         Initialize the context with a project and log stream. Optionally, it can also be used
@@ -994,15 +1124,18 @@ class GalileoDecorator:
             The experiment id. Defaults to None.
         local_metrics
             Local metrics configs to run on the traces/spans before submitting them for ingestion.  Defaults to None.
+        mode
+            The logger mode.
         """
         GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
         GalileoLoggerSingleton().get(
-            project=project, log_stream=log_stream, experiment_id=experiment_id, local_metrics=local_metrics
+            project=project, log_stream=log_stream, experiment_id=experiment_id, local_metrics=local_metrics, mode=mode
         )
 
         _project_context.set(project)
         _log_stream_context.set(log_stream)
         _experiment_id_context.set(experiment_id)
+        _mode_context.set(_get_mode_or_default(mode))
         _span_stack_context.set([])
         _trace_context.set(None)
 
@@ -1048,3 +1181,4 @@ class GalileoDecorator:
 
 galileo_context = GalileoDecorator()
 log = galileo_context.log
+start_session = galileo_context.start_session

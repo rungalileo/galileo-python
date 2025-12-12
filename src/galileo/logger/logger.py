@@ -1,3 +1,4 @@
+import asyncio
 import atexit
 import copy
 import inspect
@@ -7,12 +8,13 @@ import time
 import uuid
 from collections import deque
 from datetime import datetime
-from os import getenv
-from typing import Any, Callable, Literal, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 import backoff
 
-from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
+from galileo.constants import LoggerModeType
+from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
+from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.logger.utils import handle_galileo_http_exceptions_for_retry
@@ -32,6 +34,13 @@ from galileo.schema.trace import (
 )
 from galileo.traces import Traces
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo.utils.env_helpers import (
+    _get_log_stream_id_from_env,
+    _get_log_stream_or_default,
+    _get_mode_or_default,
+    _get_project_id_from_env,
+    _get_project_or_default,
+)
 from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.retrievers import convert_to_documents
@@ -49,20 +58,16 @@ from galileo_core.schemas.logging.span import (
     ToolSpan,
     WorkflowSpan,
 )
-from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType, StepType
+from galileo_core.schemas.logging.step import BaseStep, Metrics, StepAllowedInputType, StepType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
-STREAMING_MAX_RETRIES = 3
-
-
-class GalileoLoggerException(Exception):
-    pass
-
-
-LoggerModeType = Literal["batch", "streaming"]
+STREAMING_MAX_RETRIES = 5
+STREAMING_MAX_TIME_SECONDS = 70  # Maximum time to spend retrying a single request
+DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 90  # Timeout for waiting on background trace/span update tasks
+STUB_TRACE_NAME = "stub_trace"  # Name for stub traces created from distributed tracing headers
 
 
 class GalileoLogger(TracesLogger, DecorateAllMethods):
@@ -140,6 +145,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
     _logger = logging.getLogger("galileo.logger")
     _task_handler: ThreadPoolTaskHandler
+    _trace_completion_submitted: bool
 
     def __init__(
         self,
@@ -151,7 +157,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         trace_id: Optional[str] = None,
         span_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
-        experimental: Optional[dict[str, str]] = None,
+        mode: Optional[str] = None,
         ingestion_hook: Optional[Callable[[TracesIngestRequest], None]] = None,
     ) -> None:
         """
@@ -170,11 +176,23 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         experiment_id: Optional[str]
             Experiment ID. Used by the experiment runner.
         trace_id: Optional[str]
-            Trace ID. Used to initialize the logger with an existing trace. Note: This can only be used in "streaming" mode.
+            Trace ID for distributed tracing. This can only be used in "distributed" mode.
+
+            When provided, creates a local stub trace without fetching from the backend.
+            This allows downstream services to continue a distributed trace without waiting
+            for backend ingestion.
         span_id: Optional[str]
-            Span ID. Used to initialize the logger with an existing workflow or agent span. Note: This can only be used in "streaming" mode.
+            Parent span ID for distributed tracing. This can only be used in "distributed" mode.
+
+            When provided, creates a local stub span without fetching from the backend.
+            This allows downstream services to continue a distributed trace without waiting
+            for backend ingestion.
         local_metrics: Optional[list[LocalMetricConfig]]
             Local metrics
+        mode: Optional[str]
+            Logger mode: "batch" or "distributed". Defaults to GALILEO_MODE env var, or "batch" if not set.
+            - "batch": Batches traces and sends on flush() (default)
+            - "distributed": Enables distributed tracing with immediate updates to backend
         ingestion_hook: Optional[Callable[[TracesIngestRequest], None]]
                 A callable that intercepts trace data before ingestion.
                 This hook is called when the logger is flushed and can be a
@@ -183,23 +201,42 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 Galileo via the `ingest_traces` method.
         """
         super().__init__()
-        experimental = experimental or {}
-        mode_str = experimental.get("mode", "batch")
-        self.mode: LoggerModeType = mode_str
+        mode = _get_mode_or_default(mode)
+        self.mode: LoggerModeType = mode
+        self._task_counter = 0
 
         self._ingestion_hook = ingestion_hook
-        if self._ingestion_hook and self.mode != "batch":
+        if self._ingestion_hook and self.mode == "distributed":
             raise GalileoLoggerException("ingestion_hook can only be used in batch mode")
 
-        project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
-        log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
+        project_name_from_env = _get_project_or_default(None)
+        log_stream_name_from_env = _get_log_stream_or_default(None)
 
-        project_id_from_env = getenv("GALILEO_PROJECT_ID")
-        log_stream_id_from_env = getenv("GALILEO_LOG_STREAM_ID")
+        project_id_from_env = _get_project_id_from_env()
+        log_stream_id_from_env = _get_log_stream_id_from_env()
 
         if trace_id or span_id:
-            if self.mode != "streaming":
-                raise GalileoLoggerException("trace_id or span_id can only be used in streaming mode")
+            if self.mode != "distributed":
+                raise GalileoLoggerException("trace_id or span_id can only be used in distributed mode")
+            if span_id and not trace_id:
+                raise GalileoLoggerException(
+                    "trace_id is required when span_id is provided. "
+                    "In distributed tracing, both trace_id and span_id must be propagated together."
+                )
+
+            # Validate UUIDs to prevent crashes from malformed input
+            if trace_id:
+                try:
+                    uuid.UUID(trace_id)
+                except (ValueError, AttributeError, TypeError) as e:
+                    raise GalileoLoggerException(f"Invalid trace_id: '{trace_id}' is not a valid UUID. Error: {e}")
+
+            if span_id:
+                try:
+                    uuid.UUID(span_id)
+                except (ValueError, AttributeError, TypeError) as e:
+                    raise GalileoLoggerException(f"Invalid span_id: '{span_id}' is not a valid UUID. Error: {e}")
+
             self.trace_id = trace_id
             self.span_id = span_id
 
@@ -226,9 +263,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if local_metrics:
             self.local_metrics = local_metrics
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._max_retries = STREAMING_MAX_RETRIES
+            self._max_time = STREAMING_MAX_TIME_SECONDS
             self._task_handler = ThreadPoolTaskHandler()
+            self._trace_completion_submitted = False
 
         if not self.project_id:
             self._init_project()
@@ -241,10 +280,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         elif self.experiment_id:
             self._traces_client = Traces(project_id=self.project_id, experiment_id=self.experiment_id)
 
+        # If continuing an existing distributed trace, create local stubs instead of
+        # fetching from the backend to avoid race conditions with eventual consistency.
+        # Note: trace_id/span_id can ONLY be provided in distributed mode for distributed tracing
         if self.trace_id:
-            self._init_trace()
-        if self.span_id:
-            self._init_span()
+            self._init_distributed_trace_stubs()
 
         # cleans up when the python interpreter closes
         atexit.register(self.terminate)
@@ -278,45 +318,44 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         else:
             self.log_stream_id = log_stream_obj.id
 
-    @nop_sync
-    def _init_trace(self, add_to_parent_stack: bool = True) -> None:
-        """Initializes the trace."""
-        trace_obj = async_run(self._traces_client.get_trace(trace_id=self.trace_id))
-        if trace_obj is None:
-            raise GalileoLoggerException(f"Trace {self.trace_id} not found")
+    def _init_distributed_trace_stubs(self) -> None:
+        """
+        Initialize local stub objects for distributed tracing. To only be used in distributed mode.
 
-        trace = Trace(**trace_obj)
-        trace.spans = []
-        self.traces.append(trace)
-        if add_to_parent_stack:
-            self._parent_stack.append(trace)
+        When a downstream service receives trace_id/span_id via headers, we create
+        local stub objects instead of fetching from the backend. This avoids race
+        conditions as the parent trace/span may not have been ingested yet when the downstream service starts.
 
-    @nop_sync
-    def _init_span(self) -> None:
-        """Initializes the span."""
-        span_obj = async_run(self._traces_client.get_span(span_id=self.span_id))
-        if span_obj is None:
-            raise GalileoLoggerException(f"Span {self.span_id} not found")
+        The stubs are placeholders that allow:
+        1. Adding new spans to the distributed trace
+        2. Proper parent-child relationships in _parent_stack
+        3. Correct trace_id in ingestion requests
 
-        trace_id = span_obj["trace_id"]
-        if self.trace_id is not None and trace_id != self.trace_id:
-            raise GalileoLoggerException(f"Span {self.span_id} does not belong to trace {self.trace_id}")
+        Note: trace_id and span_id are already validated as UUIDs in __init__
+        """
+        stub_trace = Trace(
+            input="",
+            name=STUB_TRACE_NAME,
+            created_at=datetime.now(),
+            id=uuid.UUID(self.trace_id),
+            metrics=Metrics(duration_ns=0),
+        )
+        self.traces.append(stub_trace)
 
-        span_type = span_obj["type"]
-        if span_type == "workflow":
-            span = WorkflowSpan(**span_obj)
-        elif span_type == "agent":
-            span = AgentSpan(**span_obj)
-        else:
-            raise GalileoLoggerException(f"Only 'workflow' and 'agent' span types can be initialized, got {span_type}")
+        # Always add trace to parent stack (it's the root of the hierarchy)
+        self._parent_stack.append(stub_trace)
 
-        # if the trace hasn't been set yet, set it
-        if len(self.traces) == 0:
-            self.trace_id = trace_id
-            # skip adding the trace to parent stack to prevent modifications to it
-            self._init_trace(add_to_parent_stack=False)
-
-        self._parent_stack.append(span)
+        if self.span_id:
+            # If span_id is provided, also add the span (it's the immediate parent)
+            # This matches normal flow where add_workflow_span() appends to _parent_stack
+            stub_span = WorkflowSpan(
+                input="",
+                name="stub_parent_span",
+                created_at=datetime.now(),
+                id=uuid.UUID(self.span_id),
+                metrics=Metrics(duration_ns=0),
+            )
+            self._parent_stack.append(stub_span)
 
     @staticmethod
     @nop_sync
@@ -357,6 +396,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             backoff.expo,
             Exception,
             max_tries=self._max_retries,
+            max_time=self._max_time,
+            base=2,
             logger=None,
             on_backoff=lambda details: (
                 self._task_handler.increment_retry(task_id),
@@ -368,7 +409,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         @handle_galileo_http_exceptions_for_retry
         async def ingest_traces_with_backoff(request: Any) -> None:
-            await self._traces_client.ingest_traces(request)
+            return await self._traces_client.ingest_traces(request)
 
         self._task_handler.submit_task(
             task_id, lambda: ingest_traces_with_backoff(traces_ingest_request), dependent_on_prev=False
@@ -390,8 +431,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if parent_step is None:
             raise ValueError("A trace needs to be created in order to add a span.")
 
+        # Use IDs from the current trace and parent step
+        trace_id = self.traces[0].id
+        parent_id = parent_step.id
+
         spans_ingest_request = SpansIngestRequest(
-            spans=[copy.deepcopy(span)], trace_id=self.traces[0].id, parent_id=parent_step.id, reliable=True
+            spans=[copy.deepcopy(span)], trace_id=trace_id, parent_id=parent_id, reliable=True
         )
 
         task_id = f"span-ingest-{span.id}"
@@ -400,6 +445,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             backoff.expo,
             Exception,
             max_tries=self._max_retries,
+            max_time=self._max_time,
+            base=2,
             logger=None,
             on_backoff=lambda details: (
                 self._task_handler.increment_retry(task_id),
@@ -411,7 +458,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         @handle_galileo_http_exceptions_for_retry
         async def ingest_spans_with_backoff(request: Any) -> None:
-            await self._traces_client.ingest_spans(request)
+            return await self._traces_client.ingest_spans(request)
 
         self._task_handler.submit_task(
             task_id, lambda: ingest_spans_with_backoff(spans_ingest_request), dependent_on_prev=False
@@ -423,37 +470,68 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         try:
             trace_update_request = TraceUpdateRequest(
                 trace_id=trace.id,
-                session_id=self.session_id,
+                log_stream_id=self.log_stream_id,
+                experiment_id=self.experiment_id,
                 output=trace.output,
                 status_code=trace.status_code,
                 tags=trace.tags,
                 is_complete=is_complete,
+                duration_ns=trace.metrics.duration_ns,
                 reliable=True,
             )
 
-            task_id = f"trace-update-{trace.id}"
+            # Use counter to make each update task unique (same trace can be updated multiple times)
+            self._task_counter += 1
+            task_id = f"trace-update-{trace.id}-{self._task_counter}"
+
+            # Find the most recent trace update task for this specific trace (if any)
+            # This ensures trace updates for the same trace happen in order
+            prev_trace_update_task = None
+            for existing_task_id in reversed(list(self._task_handler._tasks.keys())):
+                if existing_task_id.startswith(f"trace-update-{trace.id}-"):
+                    prev_trace_update_task = existing_task_id
+                    break
 
             @backoff.on_exception(
                 backoff.expo,
                 Exception,
                 max_tries=self._max_retries,
+                max_time=self._max_time,
+                base=2,
                 logger=None,
                 on_backoff=lambda details: (
                     self._task_handler.increment_retry(task_id),
-                    self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
+                    self._logger.info(
+                        f"Retry #{self._task_handler.get_retry_count(task_id)} for trace update {task_id}"
+                    ),
                 ),
-                on_giveup=lambda details: self._logger.error(
-                    f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}",
-                    exc_info=False,
+                on_giveup=lambda details: (
+                    self._logger.error(
+                        f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}",
+                        exc_info=False,
+                    ),
                 ),
             )
             @handle_galileo_http_exceptions_for_retry
             async def update_trace_with_backoff(request: Any) -> None:
-                await self._traces_client.update_trace(request)
+                return await self._traces_client.update_trace(request)
 
-            self._task_handler.submit_task(
-                task_id, lambda: update_trace_with_backoff(trace_update_request), dependent_on_prev=True
-            )
+            # Submit with dependency on the previous trace update for this trace
+            if prev_trace_update_task:
+                self._task_handler.submit_task_with_parent(
+                    task_id,
+                    lambda: update_trace_with_backoff(trace_update_request),
+                    parent_task_id=prev_trace_update_task,
+                )
+            else:
+                self._task_handler.submit_task(
+                    task_id, lambda: update_trace_with_backoff(trace_update_request), dependent_on_prev=True
+                )
+
+            # Mark that we've submitted the trace completion update to prevent duplicates
+            if is_complete:
+                self._trace_completion_submitted = True
+
             self._logger.info("updated trace %s.", trace.id)
         except Exception as e:
             self._logger.error("Failed to update trace %s: %s", trace.id, e, exc_info=True)
@@ -462,23 +540,43 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     def _update_span_streaming(self, span: Span) -> None:
         span_update_request = SpanUpdateRequest(
             span_id=span.id,
-            session_id=self.session_id,
+            log_stream_id=self.log_stream_id,
+            experiment_id=self.experiment_id,
             output=span.output,
             status_code=span.status_code,
             tags=span.tags,
+            duration_ns=span.metrics.duration_ns,
             reliable=True,
         )
 
-        task_id = f"span-update-{span.id}"
+        # Use counter to make each update task unique (same span can be updated multiple times)
+        self._task_counter += 1
+        task_id = f"span-update-{span.id}-{self._task_counter}"
+
+        # Find the most recent update/ingest task for this specific span
+        # This ensures span updates happen in order
+        parent_task_id = None
+        for existing_task_id in reversed(list(self._task_handler._tasks.keys())):
+            if existing_task_id.startswith(f"span-update-{span.id}-") or existing_task_id == f"span-ingest-{span.id}":
+                parent_task_id = existing_task_id
+                break
+
+        # If no previous task found, depend on the span ingest
+        if not parent_task_id:
+            parent_task_id = f"span-ingest-{span.id}"
 
         @backoff.on_exception(
             backoff.expo,
             Exception,
             max_tries=self._max_retries,
+            max_time=self._max_time,
+            base=2,
             logger=None,
             on_backoff=lambda details: (
                 self._task_handler.increment_retry(task_id),
-                self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
+                self._logger.info(
+                    f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}, waiting {details['wait']:.1f}s"
+                ),
             ),
             on_giveup=lambda details: self._logger.error(
                 f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}", exc_info=False
@@ -486,10 +584,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         @handle_galileo_http_exceptions_for_retry
         async def update_span_with_backoff(request: Any) -> None:
-            await self._traces_client.update_span(request)
+            return await self._traces_client.update_span(request)
 
-        self._task_handler.submit_task(
-            task_id, lambda: update_span_with_backoff(span_update_request), dependent_on_prev=True
+        self._task_handler.submit_task_with_parent(
+            task_id, lambda: update_span_with_backoff(span_update_request), parent_task_id=parent_task_id
         )
         self._logger.info("updated span %s.", span.id)
 
@@ -513,10 +611,75 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
     @nop_sync
     def has_active_trace(self) -> bool:
-        if self.mode == "streaming" and (self.trace_id or self.span_id):
+        if self.mode == "distributed" and (self.trace_id or self.span_id):
             return True
         current_parent = self.current_parent()
         return current_parent is not None
+
+    def get_tracing_headers(self) -> dict[str, str]:
+        """
+        Get tracing headers for distributed tracing.
+        Returns headers that can be passed to downstream services to continue the distributed trace.
+
+        Returns
+        -------
+        dict[str, str]
+            Dictionary with the following headers:
+            - X-Galileo-Trace-ID: The root trace ID
+            - X-Galileo-Parent-ID: The ID of the current parent (trace or span) that downstream
+              spans should attach to
+
+        Raises
+        ------
+        GalileoLoggerException
+            If not in distributed mode or if no trace has been started.
+
+        Examples
+        --------
+        ```python
+        logger = GalileoLogger(mode="distributed")
+        logger.start_trace(input="question")
+        headers = logger.get_tracing_headers()
+        # headers = {
+        #     "X-Galileo-Trace-ID": "...",
+        #     "X-Galileo-Parent-ID": "...",  # trace ID as parent
+        # }
+
+        logger.add_workflow_span(input="workflow", name="orchestrator")
+        headers = logger.get_tracing_headers()
+        # headers = {
+        #     "X-Galileo-Trace-ID": "...",
+        #     "X-Galileo-Parent-ID": "...",  # workflow span ID as parent
+        # }
+
+        # Pass headers to HTTP request
+        response = httpx.post(url, headers=headers)
+        ```
+
+        Note: Project and log_stream are configured per service (via env vars or logger initialization),
+        not propagated via headers, following standard distributed tracing patterns.
+        """
+        if self.mode != "distributed":
+            raise GalileoLoggerException(
+                "get_tracing_headers is only supported in distributed mode for distributed tracing."
+            )
+
+        if len(self.traces) == 0:
+            raise GalileoLoggerException("Start trace before getting tracing headers.")
+
+        headers: dict[str, str] = {}
+
+        root_trace = self.traces[-1]
+        headers[TRACE_ID_HEADER] = str(root_trace.id)
+
+        current_parent = self.current_parent()
+
+        if not current_parent:
+            raise GalileoLoggerException("No parent trace or span found.")
+
+        headers[PARENT_ID_HEADER] = str(current_parent.id)
+
+        return headers
 
     @nop_sync
     def start_trace(
@@ -593,9 +756,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         trace = self.add_trace(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self.traces = [trace]
             self._parent_stack = deque([trace])
+            self._trace_completion_submitted = False
             self._ingest_step_streaming(trace)
 
         return trace
@@ -732,9 +896,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             span_id=uuid.uuid4(),
         )
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self.traces = [trace]
-            self._ingest_step_streaming(trace, is_complete=True)
+            self._ingest_step_streaming(trace, is_complete=False)
 
         return trace
 
@@ -857,7 +1021,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         span = super().add_llm_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -927,7 +1091,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         span = super().add_retriever_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -1011,7 +1175,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         span = super().add_tool_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -1085,7 +1249,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         span = super().add_tool_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -1161,7 +1325,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         span = super().add_workflow_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -1241,7 +1405,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         span = super().add_agent_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -1257,9 +1421,18 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if current_parent is None:
             raise ValueError("No existing workflow to conclude.")
 
-        current_parent.output = output or current_parent.output
-        current_parent.redacted_output = redacted_output or current_parent.redacted_output
-        current_parent.status_code = status_code
+        # If no output provided, get the last child span's output
+        # This ensures parent traces/spans inherit their last child's output if not explicitly set
+        if output is None and redacted_output is None:
+            output, redacted_output = GalileoLogger._get_last_output(current_parent)
+
+        # Explicitly set output if provided (even if empty string), otherwise keep existing
+        if output is not None:
+            current_parent.output = output
+        if redacted_output is not None:
+            current_parent.redacted_output = redacted_output
+        if status_code is not None:
+            current_parent.status_code = status_code
         if duration_ns is not None:
             current_parent.metrics.duration_ns = duration_ns
 
@@ -1301,15 +1474,23 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             finished_step, current_parent = self._conclude(
                 output=output, redacted_output=redacted_output, duration_ns=duration_ns, status_code=status_code
             )
-            if self.mode == "streaming":
+            if self.mode == "distributed":
+                # In distributed mode, conclude() marks the trace as complete immediately
+                # Batch mode keeps traces in memory and sends them all during flush()
                 self._update_step_streaming(finished_step, is_complete=True)
         else:
+            # In distributed mode, wait for all span ingests to complete before concluding
+            # This prevents "Trace is marked as complete" errors for slow span ingests
+            if self.mode == "distributed":
+                self._wait_for_pending_span_ingests(timeout_seconds=DISTRIBUTED_FLUSH_TIMEOUT_SECONDS)
+
             current_parent = None
             while self.current_parent() is not None:
                 finished_step, current_parent = self._conclude(
                     output=output, redacted_output=redacted_output, duration_ns=duration_ns, status_code=status_code
                 )
-                if self.mode == "streaming":
+                if self.mode == "distributed":
+                    # Mark each concluded trace/span as complete
                     self._update_step_streaming(finished_step, is_complete=True)
 
         return current_parent
@@ -1324,6 +1505,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         List[Trace]
             The list of uploaded traces.
         """
+        if self.mode == "distributed":
+            return async_run(self._flush_distributed())
         return async_run(self._flush_batch())
 
     @nop_async
@@ -1336,22 +1519,142 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         List[Trace]
             The list of uploaded workflows.
         """
+        if self.mode == "distributed":
+            return await self._flush_distributed()
         return await self._flush_batch()
 
-    async def _flush_batch(self) -> list[Trace]:
-        if self.mode != "batch":
-            self._logger.warning("Flushing in streaming mode is not supported.")
-            return []
+    async def _wait_for_all_tasks_async(self, timeout_seconds: int) -> None:
+        """Wait for all background tasks to complete (async polling).
 
+        Parameters
+        ----------
+        timeout_seconds: int
+            Maximum time to wait for tasks to complete
+        """
+        start_wait = time.time()
+        while not self._task_handler.all_tasks_completed():
+            if time.time() - start_wait > timeout_seconds:
+                raise TimeoutError(
+                    f"Flush timeout reached after {timeout_seconds}s. "
+                    "Some trace/span update requests may still be in progress."
+                )
+            await asyncio.sleep(0.1)
+
+    def _wait_for_all_tasks_sync(self, timeout_seconds: int) -> None:
+        """Wait for all background tasks to complete (synchronous polling).
+
+        Parameters
+        ----------
+        timeout_seconds: int
+            Maximum time to wait for tasks to complete
+        """
+        start_wait = time.time()
+        while not self._task_handler.all_tasks_completed():
+            if time.time() - start_wait > timeout_seconds:
+                self._logger.warning(
+                    f"Terminate timeout reached after {timeout_seconds}s. "
+                    "Some trace/span update requests may still be in progress."
+                )
+                break
+            time.sleep(0.1)
+
+    def _wait_for_pending_span_ingests(self, timeout_seconds: int) -> None:
+        """Wait for all pending span ingest tasks to complete.
+
+        Note: Uses time.sleep() for polling even though callers may have @nop_sync.
+        This briefly blocks but is acceptable since we're just polling task status.
+
+        Parameters
+        ----------
+        timeout_seconds: int
+            Maximum time to wait for span ingests to complete
+        """
+        pending_span_tasks = [
+            task_id
+            for task_id in self._task_handler._tasks
+            if task_id.startswith("span-ingest-") and self._task_handler.get_status(task_id) in ["pending", "running"]
+        ]
+
+        if pending_span_tasks:
+            start_wait = time.time()
+            while pending_span_tasks and (time.time() - start_wait) < timeout_seconds:
+                pending_span_tasks = [
+                    task_id
+                    for task_id in pending_span_tasks
+                    if self._task_handler.get_status(task_id) in ["pending", "running"]
+                ]
+                if pending_span_tasks:
+                    time.sleep(0.1)
+
+    @nop_sync
+    def _auto_conclude_trace(self) -> None:
+        """Helper to auto-conclude any unconcluded trace/spans before flushing.
+
+        Note: We assume at most one active trace at a time. add_trace() enforces this
+        by raising an error if current_parent() is not None.
+        """
+        if not self.traces:
+            return
+
+        # Use the last trace in self.traces (should be the only active trace)
+        trace = self.traces[-1]
+
+        # Don't auto-conclude stub traces - they're owned by the upstream service
+        # Downstream services that receive distributed tracing headers create stubs
+        # but should not mark them as complete
+        if trace.name == STUB_TRACE_NAME:
+            return
+
+        # If there are unconcluded items in the stack, conclude them
+        if self._parent_stack:
+            self._logger.info("Concluding unconcluded spans before flush...")
+            # Get output from last child span if trace has no explicit output
+            output, redacted_output = GalileoLogger._get_last_output(trace)
+            # conclude() with conclude_all=True will conclude all unconcluded items in _parent_stack
+            # This will mark the trace as complete in distributed mode
+            self.conclude(output=output, redacted_output=redacted_output, conclude_all=True)
+        elif self.mode == "distributed":
+            if not self._trace_completion_submitted:
+                # Wait for all span ingests to complete before marking trace complete
+                self._wait_for_pending_span_ingests(timeout_seconds=DISTRIBUTED_FLUSH_TIMEOUT_SECONDS)
+                self._update_trace_streaming(trace, is_complete=True)
+
+    async def _flush_distributed(self) -> list[Trace]:
+        """Flush in distributed mode: conclude traces and wait for pending tasks.
+
+        In distributed mode, traces/spans are sent immediately via conclude(). This method:
+        1. Concludes any unconcluded traces
+        2. Waits for all pending async HTTP requests to complete
+
+        Note: When using the decorator, traces are already concluded in the finally block,
+        so step 1 is typically a no-op. It only matters for direct logger usage.
+
+        What we're waiting for:
+        - Background ThreadPoolExecutor tasks that send trace/span updates to the backend
+        - These were submitted during conclude() calls throughout execution
+        - We poll (with timeout) because ThreadPoolExecutor doesn't support async await
+
+        Returns empty list since traces were already sent.
+        """
+        self._auto_conclude_trace()
+
+        # Wait for all pending trace/span update requests to complete
+        self._logger.info("Waiting for all distributed tracing tasks to complete...")
+        await self._wait_for_all_tasks_async(timeout_seconds=DISTRIBUTED_FLUSH_TIMEOUT_SECONDS)
+        self._logger.info("All distributed tracing requests are complete.")
+
+        self.traces = []
+        self._parent_stack = deque()
+
+        return []
+
+    async def _flush_batch(self) -> list[Trace]:
+        """Flush in batch mode: conclude unconcluded traces and send all traces to backend."""
         if not self.traces:
             self._logger.info("No traces to flush.")
             return []
 
-        current_parent = self.current_parent()
-        if current_parent is not None:
-            self._logger.info("Concluding the active trace...")
-            output, redacted_output = GalileoLogger._get_last_output(current_parent)
-            self.conclude(output=output, redacted_output=redacted_output, conclude_all=True)
+        self._auto_conclude_trace()
 
         if self.local_metrics:
             self._logger.info("Computing metrics for local scorers...")
@@ -1387,25 +1690,21 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
 
-        if self.mode == "batch":
-            self._logger.info("Attempting to flush on interpreter exit...")
-            self.flush()
+        if self.mode == "distributed":
+            # Don't use flush() which calls async_run() - this causes event loop conflicts during shutdown
+            # when the main program uses asyncio.run(). Instead, handle cleanup synchronously.
+            self._auto_conclude_trace()
+            # TODO: Use shorter timeout for terminate() to avoid long program hangs at exit
+            self._wait_for_all_tasks_sync(timeout_seconds=DISTRIBUTED_FLUSH_TIMEOUT_SECONDS)
+            self.traces = []
+            self._parent_stack = deque()
         else:
-            self._logger.info("Checking if all requests are completed...")
-            timeout_seconds = 5
-            timeout_reached = False
-            start_wait = time.time()
-            while not self._task_handler.all_tasks_completed():
-                if time.time() - start_wait > timeout_seconds:
-                    timeout_reached = True
-                    break
-                time.sleep(0.1)
-
-            if timeout_reached:
-                self._logger.warning("Terminate timeout reached. Some requests may not have completed.")
-            else:
-                self._logger.info("All requests are complete.")
-            self._task_handler.terminate()
+            # Batch mode: try flush() but don't fail if async_run has issues during shutdown
+            try:
+                self.flush()
+            except RuntimeError as e:
+                # Event loop might be closed during shutdown, log warning but don't crash
+                self._logger.warning(f"Could not flush during terminate due to event loop shutdown: {e}")
 
     async def _start_or_get_session_async(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None

@@ -26,7 +26,8 @@ def get_last_output(node: Union[BaseStep, None]) -> Optional[str]:
 
 
 def handle_galileo_http_exceptions_for_retry(func: Callable) -> Callable:
-    """Decorator that catches and re-raises GalileoHTTPExceptions if the status code is 404, 408, 429, or >= 500.
+    """Decorator that catches and re-raises GalileoHTTPExceptions if the status code is 404, 408, 422, 429, or >= 500.
+    Note: The decorator doesn't handle 401 (unauthorized) errors or (403) (forbidden) errors.
 
     This decorator will re-raise the exception so it can be handled by the
     `backoff` decorator.
@@ -42,6 +43,9 @@ def handle_galileo_http_exceptions_for_retry(func: Callable) -> Callable:
                 raise e
             if e.status_code == 408:
                 _logger.info("Request timed out, retrying...")
+                raise e
+            if e.status_code == 422:
+                _logger.info("Parent record not found, retrying...")
                 raise e
             if e.status_code == 429:
                 _logger.info("Rate limited, retrying...")
