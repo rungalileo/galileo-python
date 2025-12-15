@@ -38,6 +38,43 @@ class _GalileoScorersProxy:
     def __dir__(self) -> list[str]:
         return [m.name for m in GalileoMetrics]
 
+    def __call__(self, value: Any) -> _ScorerName:
+        """Allow value-based instantiation like the original Enum (e.g., GalileoScorers('correctness'))."""
+        warnings.warn(
+            "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return GalileoMetrics(value)
+
+    def __getitem__(self, name: str) -> _ScorerName:
+        """Support lookup by name like the original Enum (e.g., GalileoScorers['correctness'])."""
+        warnings.warn(
+            "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return getattr(GalileoMetrics, name)
+
+    def __contains__(self, item: Any) -> bool:
+        warnings.warn(
+            "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        try:
+            # allow either enum member or name/value
+            if isinstance(item, _ScorerName):
+                return item in GalileoMetrics
+            if isinstance(item, str):
+                return item in (m.name for m in GalileoMetrics) or item in (m.value for m in GalileoMetrics)
+            return False
+        except Exception:
+            return False
+
+    def __repr__(self) -> str:  # pragma: no cover - trivial
+        return "<deprecated GalileoScorers proxy - use GalileoMetrics>"
+
 
 # Backwards-compatible deprecated proxy instance
 GalileoScorers = _GalileoScorersProxy()

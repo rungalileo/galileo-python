@@ -28,3 +28,19 @@ def test_top_level_imported_galileo_scorers_emits_deprecation_on_access():
         from galileo import GalileoScorers
 
         _ = GalileoScorers.correctness
+
+
+def test_galileo_scorers_callable_and_lookup_delegate():
+    """GalileoScorers('correctness') and GalileoScorers['correctness'] should work and warn."""
+    from galileo.schema.metrics import GalileoMetrics, GalileoScorers
+
+    with pytest.warns(DeprecationWarning, match="GalileoScorers is deprecated"):
+        member = GalileoScorers("correctness")
+        assert member is GalileoMetrics.correctness
+
+    with pytest.warns(DeprecationWarning, match="GalileoScorers is deprecated"):
+        member2 = GalileoScorers["correctness"]
+        assert member2 is GalileoMetrics.correctness
+
+    with pytest.warns(DeprecationWarning, match="GalileoScorers is deprecated"):
+        assert "correctness" in GalileoScorers
