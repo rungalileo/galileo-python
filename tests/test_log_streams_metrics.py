@@ -8,7 +8,7 @@ from galileo.log_streams import LogStream, LogStreams, enable_metrics
 from galileo.projects import Project
 from galileo.resources.models import ProjectCreateResponse, ScorerResponse, ScorerTypes
 from galileo.resources.models.log_stream_response import LogStreamResponse
-from galileo.schema.metrics import GalileoScorers, LocalMetricConfig
+from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 
 
 @pytest.fixture(autouse=True)
@@ -83,7 +83,7 @@ class TestLogStreamMetrics:
         from galileo.utils.metrics import create_metric_configs
 
         scorers, local_metrics = create_metric_configs(
-            "project-123", "logstream-456", [GalileoScorers.correctness, "completeness"]
+            "project-123", "logstream-456", [GalileoMetrics.correctness, "completeness"]
         )
 
         # Verify scorers list was called
@@ -142,7 +142,7 @@ class TestLogStreamMetrics:
         from galileo.utils.metrics import create_metric_configs
 
         scorers, local_metrics = create_metric_configs(
-            "project-123", "logstream-456", [GalileoScorers.correctness, local_metric]
+            "project-123", "logstream-456", [GalileoMetrics.correctness, local_metric]
         )
 
         # Verify local metrics

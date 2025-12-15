@@ -2,7 +2,7 @@ import builtins
 from typing import Optional, Union
 
 from galileo.resources.models.scorer_config import ScorerConfig
-from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
+from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.scorers import Scorers, ScorerSettings
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.logging.trace import Trace
@@ -36,7 +36,7 @@ def _populate_local_metric(
 def create_metric_configs(
     project_id: str,
     run_id: str,  # Can be experiment_id or log_stream_id
-    metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]],
+    metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]],
 ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
     """
     Process metrics and create scorer configurations for experiments or log streams.
@@ -50,7 +50,7 @@ def create_metric_configs(
         The ID of the project
     run_id : str
         The ID of the run (can be experiment ID or log stream ID)
-    metrics : builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]
+    metrics : builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]
         List of metrics to configure
 
     Returns
@@ -70,7 +70,7 @@ def create_metric_configs(
 
     # Categorize metrics by type
     for metric in metrics:
-        if isinstance(metric, GalileoScorers):
+        if isinstance(metric, GalileoMetrics):
             scorer_name_versions.append((metric.value, None))
         elif isinstance(metric, Metric):
             scorer_name_versions.append((metric.name, metric.version))

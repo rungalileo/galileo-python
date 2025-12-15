@@ -23,7 +23,7 @@ from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_records_available_columns_request import LogRecordsAvailableColumnsRequest
 from galileo.resources.models.log_records_available_columns_response import LogRecordsAvailableColumnsResponse
 from galileo.schema.filters import FilterType
-from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
+from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 from galileo.utils.validations import require_exactly_one
 
@@ -74,10 +74,10 @@ class LogStream(StateManagementMixin):
         log_stream = project.create_log_stream(name="Production Logs")
 
         # Enable metrics on the log stream
-        from galileo.schema.metrics import GalileoScorers
+        from galileo.schema.metrics import GalileoMetrics
         local_metrics = log_stream.enable_metrics([
-            GalileoScorers.correctness,
-            GalileoScorers.completeness,
+            GalileoMetrics.correctness,
+            GalileoMetrics.completeness,
             "context_relevance"
         ])
 
@@ -393,7 +393,7 @@ class LogStream(StateManagementMixin):
         return metric_names
 
     def set_metrics(
-        self, metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str]
+        self, metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str]
     ) -> builtins.list[LocalMetricConfig]:
         """
         Set (replace) the metrics on this log stream.
@@ -403,7 +403,7 @@ class LogStream(StateManagementMixin):
 
         Args:
             metrics: List of metrics to set. Supports:
-                - GalileoScorers enum values (e.g., GalileoScorers.correctness)
+                - GalileoMetrics enum values (e.g., GalileoMetrics.correctness)
                 - Metric objects (including from Metric.get(id="..."))
                 - LocalMetricConfig objects for custom scoring functions
                 - String names of built-in metrics
@@ -425,8 +425,8 @@ class LogStream(StateManagementMixin):
 
             # Set metrics (replaces existing)
             log_stream.set_metrics([
-                Metric.scorers.correctness,
-                Metric.scorers.completeness,
+                Metric.metrics.correctness,
+                Metric.metrics.completeness,
                 Metric.get(id="metric-from-console-uuid"),  # From console
             ])
         """

@@ -33,7 +33,7 @@ from galileo.resources.models import (
 )
 from galileo.resources.models.invalid_result import InvalidResult
 from galileo.resources.types import File, Unset
-from galileo.schema.metrics import GalileoScorers, LocalMetricConfig
+from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 from galileo.schema.metrics import Metric as LegacyMetric
 from galileo.scorers import Scorers
 from galileo_core.schemas.logging.span import Span
@@ -50,31 +50,35 @@ CODE_VALIDATION_MAX_DELAY = 30.0  # Maximum delay between attempts in seconds
 CODE_VALIDATION_BACKOFF_MULTIPLIER = 1.5  # Multiplier for exponential backoff
 
 
-class BuiltInScorers:
+class BuiltInMetrics:
     """
-    Provides convenient access to built-in Galileo scorers.
+    Provides convenient access to built-in Galileo metrics (formerly "scorers").
 
     Examples
     --------
         from galileo.__future__ import Metric
 
-        # Access built-in scorers
-        Metric.scorers.correctness
-        Metric.scorers.completeness
-        Metric.scorers.toxicity
+        # Access built-in metrics
+        Metric.metrics.correctness
+        Metric.metrics.completeness
+        Metric.metrics.toxicity
     """
 
-    def __getattr__(self, name: str) -> GalileoScorers:
-        """Allow attribute-style access to built-in scorers."""
-        # Try to find the scorer by name (enum names match UI-visible names)
-        for scorer in GalileoScorers:
+    def __getattr__(self, name: str) -> GalileoMetrics:
+        """Allow attribute-style access to built-in metrics."""
+        # Try to find the metric by name (enum names match UI-visible names)
+        for scorer in GalileoMetrics:
             if scorer.name == name:
                 return scorer
-        raise AttributeError(f"Built-in scorer '{name}' not found. Available: {[s.name for s in GalileoScorers]}")
+        raise AttributeError(f"Built-in metric '{name}' not found. Available: {[s.name for s in GalileoMetrics]}")
 
     def __dir__(self) -> list[str]:
-        """Return list of available scorer names for autocomplete."""
-        return [scorer.name for scorer in GalileoScorers]
+        """Return list of available metric names for autocomplete."""
+        return [scorer.name for scorer in GalileoMetrics]
+
+
+# Backwards-compatible alias
+BuiltInScorers = BuiltInMetrics
 
 
 class Metric(StateManagementMixin, ABC):
@@ -102,7 +106,7 @@ class Metric(StateManagementMixin, ABC):
 
     Class Attributes
     ----------------
-        scorers (BuiltInScorers): Access built-in Galileo scorers.
+        metrics (BuiltInMetrics): Access built-in Galileo metrics.
 
     Examples
     --------
@@ -111,8 +115,8 @@ class Metric(StateManagementMixin, ABC):
 
         log_stream = LogStream.get(name="my-stream", project_name="my-project")
         log_stream.set_metrics([
-            Metric.scorers.correctness,
-            Metric.scorers.completeness,
+            Metric.metrics.correctness,
+            Metric.metrics.completeness,
         ])
 
         # 2. Create custom LLM metric
@@ -133,8 +137,11 @@ class Metric(StateManagementMixin, ABC):
         )
     """
 
-    # Class attribute for built-in scorers
-    scorers = BuiltInScorers()
+    # Class attribute for built-in metrics (preferred name)
+    metrics = BuiltInMetrics()
+
+    # Backwards-compatible property for legacy name
+    scorers = metrics
 
     # Type annotations for common instance attributes
     id: str | None
@@ -1054,7 +1061,7 @@ class GalileoMetric(Metric):
     Built-in Galileo scorer metric.
 
     This metric type represents Galileo's built-in scorers like correctness,
-    completeness, toxicity, etc. Access these via `Metric.scorers`.
+    completeness, toxicity, etc. Access these via `Metric.metrics`.
 
     Examples
     --------
@@ -1063,9 +1070,9 @@ class GalileoMetric(Metric):
 
         log_stream = LogStream.get(name="my-stream", project_name="my-project")
         log_stream.set_metrics([
-            Metric.scorers.correctness,
-            Metric.scorers.completeness,
-            Metric.scorers.toxicity,
+            Metric.metrics.correctness,
+            Metric.metrics.completeness,
+            Metric.metrics.toxicity,
         ])
 
         # Or get by name

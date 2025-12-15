@@ -8,7 +8,7 @@ from galileo.exceptions import GalileoLoggerException
 from galileo.logger import GalileoLogger
 from galileo.protect import ainvoke_protect, invoke_protect
 from galileo.schema.message import Message
-from galileo.schema.metrics import GalileoScorers
+from galileo.schema.metrics import GalileoMetrics, GalileoScorers
 from galileo.stages import (
     create_protect_stage,
     get_protect_stage,
@@ -39,8 +39,5 @@ from galileo_core.schemas.protect.request import Request
 from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
 from galileo_core.schemas.protect.stage import StageType
-
-# Alias for GalileoScorers - can be used interchangeably
-GalileoMetrics = GalileoScorers
 
 __version__ = "1.37.0"

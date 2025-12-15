@@ -33,7 +33,7 @@ from galileo.resources.models import (
     TaskType,
 )
 from galileo.schema.datasets import DatasetRecord
-from galileo.schema.metrics import GalileoScorers, LocalMetricConfig
+from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 from galileo.utils.datasets import load_dataset_and_records
 from galileo_core.exceptions.http import GalileoHTTPException
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
@@ -761,7 +761,7 @@ class TestExperiments:
             project="awesome-new-project",
             dataset_id=dataset_id,
             prompt_template=prompt_template(),
-            metrics=[GalileoScorers.correctness],
+            metrics=[GalileoMetrics.correctness],
         )
 
         mock_get_project.assert_called_once_with(id=None, name="awesome-new-project")
