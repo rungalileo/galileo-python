@@ -98,7 +98,13 @@ class EventSerializer(JSONEncoder):
                     return self.default(obj.generations[0])
                 if isinstance(obj, (AIMessageChunk, AIMessage)):
                     # Map the `type` to `role`.
-                    dumped = obj.model_dump(mode="json", include={"content", "type", "additional_kwargs", "tool_calls"})
+                    if hasattr(obj, "model_dump"):
+                        dumped = obj.model_dump(
+                            mode="json", include={"content", "type", "additional_kwargs", "tool_calls"}
+                        )
+                    else:
+                        # Fallback to using the dict method if model_dump is not available i.e pydantic v1
+                        dumped = obj.dict(include={"content", "type", "additional_kwargs", "tool_calls"})
                     content = dumped.get("content")
                     if isinstance(content, list):
                         # Responses API returns content as a list of dicts
@@ -145,17 +151,28 @@ class EventSerializer(JSONEncoder):
                     return dumped
                 if isinstance(obj, ToolMessage):
                     # Map the `type` to `role`.
-                    dumped = obj.model_dump(mode="json", include={"content", "type", "status", "tool_call_id"})
+                    if hasattr(obj, "model_dump"):
+                        dumped = obj.model_dump(mode="json", include={"content", "type", "status", "tool_call_id"})
+                    else:
+                        # Fallback to using the dict method if model_dump is not available i.e pydantic v1
+                        dumped = obj.dict(include={"content", "type", "status", "tool_call_id"})
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     return dumped
                 if isinstance(obj, BaseMessage):
                     # Map the `type` to `role`.
-                    dumped = obj.model_dump(mode="json", include={"content", "type"})
+                    if hasattr(obj, "model_dump"):
+                        dumped = obj.model_dump(mode="json", include={"content", "type"})
+                    else:
+                        # Fallback to using the dict method if model_dump is not available i.e pydantic v1
+                        dumped = obj.dict(include={"content", "type"})
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     return dumped
 
                 if isinstance(obj, LangchainDocument):
-                    return self.default(obj.model_dump(mode="json", include={"page_content", "metadata"}))
+                    if hasattr(obj, "model_dump"):
+                        return self.default(obj.model_dump(mode="json", include={"page_content", "metadata"}))
+                    # Fallback to using the dict method if model_dump is not available i.e pydantic v1
+                    return self.default(obj.dict(include={"page_content", "metadata"}))
 
                 if isinstance(obj, Serializable):
                     serialized = obj.to_json()
@@ -179,9 +196,12 @@ class EventSerializer(JSONEncoder):
                 return f"<{obj.__name__}>"
 
             if isinstance(obj, BaseModel):
-                return self.default(
-                    obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
-                )
+                if hasattr(obj, "model_dump"):
+                    return self.default(
+                        obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
+                    )
+                # Fallback to using the dict method if model_dump is not available i.e pydantic v1
+                return self.default(obj.dict(exclude_none=True, exclude_unset=True, exclude_defaults=True))
 
             # 64-bit integers might overflow the JavaScript safe integer range.
             if isinstance(obj, int):
