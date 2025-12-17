@@ -6,7 +6,6 @@ import json
 import logging
 import time
 import uuid
-from collections import deque
 from datetime import datetime
 from typing import Any, Callable, Optional, Union
 
@@ -331,7 +330,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         The stubs are placeholders that allow:
         1. Adding new spans to the distributed trace
-        2. Proper parent-child relationships in _parent_stack
+        2. Proper parent-child relationships via _parent pointers
         3. Correct trace_id in ingestion requests
 
         Note: trace_id and span_id are already validated as UUIDs in __init__
@@ -345,12 +344,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         self.traces.append(stub_trace)
 
-        # Always add trace to parent stack (it's the root of the hierarchy)
-        self._parent_stack.append(stub_trace)
+        # Set trace as current parent using parent pointers
+        stub_trace._parent = None  # Root trace has no parent
+        self._set_current_parent(stub_trace)
 
         if self.span_id:
             # If span_id is provided, also add the span (it's the immediate parent)
-            # This matches normal flow where add_workflow_span() appends to _parent_stack
             stub_span = WorkflowSpan(
                 input="",
                 name="stub_parent_span",
@@ -358,7 +357,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 id=uuid.UUID(self.span_id),
                 metrics=Metrics(duration_ns=0),
             )
-            self._parent_stack.append(stub_span)
+            # Set parent pointer and update current parent
+            stub_span._parent = stub_trace
+            self._set_current_parent(stub_span)
 
     @staticmethod
     def _convert_metadata_value(v: Any) -> str:
@@ -635,7 +636,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if self.mode == "distributed" and (self.trace_id or self.span_id):
             return True
         current_parent = self.current_parent()
-        return current_parent is not None
+        # Also check that we have traces - the ContextVar is global and might
+        # contain a parent from a different logger instance
+        return current_parent is not None and len(self.traces) > 0
 
     def get_tracing_headers(self) -> dict[str, str]:
         """
@@ -796,7 +799,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         if self.mode == "distributed":
             self.traces = [trace]
-            self._parent_stack = deque([trace])
+            # Reset parent tracking to just this trace (for distributed mode isolation)
+            trace._parent = None
+            self._set_current_parent(trace)
             self._trace_completion_submitted = False
             self._ingest_step_streaming(trace)
 
@@ -1474,7 +1479,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if duration_ns is not None:
             current_parent.metrics.duration_ns = duration_ns
 
-        finished_step = self._parent_stack.pop()
+        # Navigate up to parent via _parent pointer
+        finished_step = current_parent
+        self._set_current_parent(current_parent._parent)
         return (finished_step, self.current_parent())
 
     @nop_sync
@@ -1543,9 +1550,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         List[Trace]
             The list of uploaded traces.
         """
-        if self.mode == "distributed":
-            return async_run(self._flush_distributed())
-        return async_run(self._flush_batch())
+        try:
+            if self.mode == "distributed":
+                return async_run(self._flush_distributed())
+            return async_run(self._flush_batch())
+        finally:
+            # Reset parent tracking in the main thread (async_run uses thread pool).
+            # Using finally ensures cleanup even if ingestion fails.
+            self._set_current_parent(None)
 
     @nop_async
     async def async_flush(self) -> list[Trace]:
@@ -1555,11 +1567,15 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Returns
         -------
         List[Trace]
-            The list of uploaded workflows.
+            The list of uploaded traces.
         """
-        if self.mode == "distributed":
-            return await self._flush_distributed()
-        return await self._flush_batch()
+        try:
+            if self.mode == "distributed":
+                return await self._flush_distributed()
+            return await self._flush_batch()
+        finally:
+            # Reset parent tracking. Using finally ensures cleanup even if ingestion fails.
+            self._set_current_parent(None)
 
     async def _wait_for_all_tasks_async(self, timeout_seconds: int) -> None:
         """Wait for all background tasks to complete (async polling).
@@ -1682,7 +1698,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._logger.info("All distributed tracing requests are complete.")
 
         self.traces = []
-        self._parent_stack = deque()
+        self._set_current_parent(None)
 
         return []
 
@@ -1719,7 +1735,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._logger.info(f"Successfully flushed {trace_count} {'trace' if trace_count == 1 else 'traces'}.")
 
         self.traces = []
-        self._parent_stack = deque()
+        self._set_current_parent(None)  # Reset parent tracking
         return logged_traces
 
     @nop_sync
@@ -1735,7 +1751,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             # TODO: Use shorter timeout for terminate() to avoid long program hangs at exit
             self._wait_for_all_tasks_sync(timeout_seconds=DISTRIBUTED_FLUSH_TIMEOUT_SECONDS)
             self.traces = []
-            self._parent_stack = deque()
+            self._set_current_parent(None)
         else:
             # Batch mode: try flush() but don't fail if async_run has issues during shutdown
             try:
