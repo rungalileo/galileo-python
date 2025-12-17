@@ -12,7 +12,9 @@ from langchain_core.outputs import ChatGeneration, LLMResult
 
 from galileo import Message, MessageRole, galileo_context
 from galileo.handlers.langchain import GalileoCallback
+from galileo.handlers.langchain.utils import update_root_to_agent
 from galileo.logger.logger import GalileoLogger
+from galileo.schema.handlers import Node
 from galileo.utils.uuid_utils import uuid7_to_uuid4
 from galileo_core.schemas.shared.document import Document as GalileoDocument
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
@@ -1041,3 +1043,118 @@ class TestGalileoCallbackWithIngestionHook:
         callback.on_chain_start(serialized={"name": "TestChain"}, inputs='{"query": "test question"}', run_id=run_id)
         callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
         mock_hook.assert_called_once()
+
+
+class TestUpdateRootToAgent:
+    """Tests for the update_root_to_agent utility function."""
+
+    def test_updates_root_chain_to_agent_with_langgraph_metadata(self) -> None:
+        """Test that a root-level chain is converted to agent when child has langgraph metadata."""
+        parent_run_id = uuid.uuid4()
+        parent_node = Node(
+            node_type="chain",
+            span_params={"name": "RootChain", "input": "test"},
+            run_id=parent_run_id,
+            parent_run_id=None,  # Root-level node (no grandparent)
+        )
+        metadata = {"langgraph_step": "1", "langgraph_node": "agent_node"}
+
+        update_root_to_agent(parent_run_id, metadata, parent_node)
+
+        assert parent_node.node_type == "agent"
+
+    def test_does_not_update_when_parent_has_grandparent(self) -> None:
+        """Test that a non-root chain is NOT converted to agent even with langgraph metadata."""
+        grandparent_run_id = uuid.uuid4()
+        parent_run_id = uuid.uuid4()
+        parent_node = Node(
+            node_type="chain",
+            span_params={"name": "NestedChain", "input": "test"},
+            run_id=parent_run_id,
+            parent_run_id=grandparent_run_id,  # Has a grandparent, not root-level
+        )
+        metadata = {"langgraph_step": "1"}
+
+        update_root_to_agent(parent_run_id, metadata, parent_node)
+
+        # Should remain as chain since it's not root-level
+        assert parent_node.node_type == "chain"
+
+    def test_does_not_update_when_no_langgraph_metadata(self) -> None:
+        """Test that a root chain is NOT converted when metadata has no langgraph keys."""
+        parent_run_id = uuid.uuid4()
+        parent_node = Node(
+            node_type="chain",
+            span_params={"name": "RootChain", "input": "test"},
+            run_id=parent_run_id,
+            parent_run_id=None,
+        )
+        metadata = {"some_other_key": "value", "another_key": "123"}
+
+        update_root_to_agent(parent_run_id, metadata, parent_node)
+
+        assert parent_node.node_type == "chain"
+
+    def test_does_not_update_when_parent_run_id_is_none(self) -> None:
+        """Test that nothing happens when parent_run_id is None."""
+        parent_node = Node(
+            node_type="chain",
+            span_params={"name": "RootChain", "input": "test"},
+            run_id=uuid.uuid4(),
+            parent_run_id=None,
+        )
+        metadata = {"langgraph_step": "1"}
+
+        update_root_to_agent(None, metadata, parent_node)
+
+        assert parent_node.node_type == "chain"
+
+    def test_does_not_update_when_parent_node_is_none(self) -> None:
+        """Test that nothing happens when parent_node is None."""
+        parent_run_id = uuid.uuid4()
+        metadata = {"langgraph_step": "1"}
+
+        # Should not raise an error
+        update_root_to_agent(parent_run_id, metadata, None)
+
+    def test_does_not_update_when_metadata_is_empty(self) -> None:
+        """Test that a root chain is NOT converted when metadata is empty."""
+        parent_run_id = uuid.uuid4()
+        parent_node = Node(
+            node_type="chain",
+            span_params={"name": "RootChain", "input": "test"},
+            run_id=parent_run_id,
+            parent_run_id=None,
+        )
+
+        update_root_to_agent(parent_run_id, {}, parent_node)
+
+        assert parent_node.node_type == "chain"
+
+    def test_does_not_update_non_chain_node_type(self) -> None:
+        """Test that non-chain node types are NOT converted even with langgraph metadata."""
+        parent_run_id = uuid.uuid4()
+        parent_node = Node(
+            node_type="llm", span_params={"name": "LLMNode", "input": "test"}, run_id=parent_run_id, parent_run_id=None
+        )
+        metadata = {"langgraph_step": "1"}
+
+        update_root_to_agent(parent_run_id, metadata, parent_node)
+
+        # Should remain as llm since it's not a chain
+        assert parent_node.node_type == "llm"
+
+    def test_updates_with_single_langgraph_key(self) -> None:
+        """Test that a single langgraph_ prefixed key triggers the update."""
+        parent_run_id = uuid.uuid4()
+        parent_node = Node(
+            node_type="chain",
+            span_params={"name": "RootChain", "input": "test"},
+            run_id=parent_run_id,
+            parent_run_id=None,
+        )
+        metadata = {"langgraph_checkpoint_ns": "some_namespace"}
+
+        update_root_to_agent(parent_run_id, metadata, parent_node)
+
+        assert parent_node.node_type == "agent"
