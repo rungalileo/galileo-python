@@ -37,7 +37,7 @@ def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog) -
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
 
     with caplog.at_level(logging.WARNING):
-        logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+        logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
         capture = setup_thread_pool_request_capture(logger)
 
@@ -74,7 +74,7 @@ def test_start_trace(mock_traces_client: Mock, mock_projects_client: Mock, mock_
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -107,7 +107,7 @@ def test_add_llm_span(mock_traces_client: Mock, mock_projects_client: Mock, mock
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -176,7 +176,7 @@ def test_add_protect_tool_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -279,7 +279,7 @@ def test_conclude_trace(mock_traces_client: Mock, mock_projects_client: Mock, mo
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -320,6 +320,7 @@ def test_conclude_trace(mock_traces_client: Mock, mock_projects_client: Mock, mo
     assert request.output == "response"
     assert request.status_code == 200
     assert request.is_complete
+    assert request.duration_ns == 1_000_000
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -334,7 +335,7 @@ def test_conclude_trace_with_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -421,7 +422,7 @@ def test_conclude_trace_and_start_new_trace(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -540,7 +541,7 @@ def test_conclude_trace_with_nested_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -645,6 +646,7 @@ def test_conclude_trace_with_nested_span(
     assert request.span_id == workflow_span_id
     assert request.output == "response1"
     assert request.status_code == 200
+    assert request.duration_ns == 1_000_000
 
     captured_task = captured_tasks[4]
     assert captured_task.function_name == "update_trace_with_backoff"
@@ -672,7 +674,7 @@ def test_conclude_all_with_nested_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -795,7 +797,7 @@ def test_conclude_trace_with_agent_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -931,7 +933,7 @@ def test_trace_with_multiple_nested_spans(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1200,7 +1202,7 @@ def test_trace_with_nested_span_and_sibling(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1358,15 +1360,17 @@ def test_add_llm_span_and_conclude_existing_trace(
         project="my_project",
         log_stream="my_log_stream",
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
-        experimental={"mode": "streaming"},
+        mode="distributed",
     )
 
-    mock_traces_client_instance.get_trace.assert_called_once()
+    # With stubs, get_trace is not called (to avoid race conditions in distributed tracing)
+    mock_traces_client_instance.get_trace.assert_not_called()
 
+    # Verify stub trace was created
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
     assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
-    assert logger._parent_stack[0].name == "test-trace"
+    assert logger._parent_stack[0].name == "stub_trace"
     assert logger._parent_stack[0].type == "trace"
     assert len(logger._parent_stack[0].spans) == 0
 
@@ -1433,16 +1437,18 @@ def test_add_nested_span_and_conclude_existing_trace(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        experimental={"mode": "streaming"},
+        mode="distributed",
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
     )
 
-    mock_traces_client_instance.get_trace.assert_called_once()
+    # With stubs, get_trace is not called (to avoid race conditions in distributed tracing)
+    mock_traces_client_instance.get_trace.assert_not_called()
 
+    # Verify stub trace was created
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
     assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
-    assert logger._parent_stack[0].name == "test-trace"
+    assert logger._parent_stack[0].name == "stub_trace"
     assert logger._parent_stack[0].type == "trace"
     assert len(logger._parent_stack[0].spans) == 0
 
@@ -1555,18 +1561,23 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        experimental={"mode": "streaming"},
+        mode="distributed",
+        trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
 
-    mock_traces_client_instance.get_span.assert_called_once()
+    # With stubs, get_span is not called (to avoid race conditions in distributed tracing)
+    mock_traces_client_instance.get_span.assert_not_called()
 
+    # Verify stub trace and span were created
     assert len(logger.traces) == 1
-    assert len(logger._parent_stack) == 1
-    assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
-    assert logger._parent_stack[0].name == "test-workflow-span"
-    assert logger._parent_stack[0].type == "workflow"
-    assert len(logger._parent_stack[0].spans) == 0
+    assert len(logger._parent_stack) == 2  # Trace (root) and span (immediate parent)
+    assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
+    assert logger._parent_stack[0].type == "trace"
+    assert logger._parent_stack[1].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
+    assert logger._parent_stack[1].name == "stub_parent_span"
+    assert logger._parent_stack[1].type == "workflow"
+    assert len(logger._parent_stack[1].spans) == 0
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1591,6 +1602,7 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
     asyncio.run(captured_task.task_func())
     mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
+    # Verify trace_id from stub is used in the request
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
     assert request.spans[0].input == [Message(role="user", content="prompt")]
@@ -1630,18 +1642,23 @@ def test_add_nested_span_and_conclude_existing_span(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        experimental={"mode": "streaming"},
+        mode="distributed",
+        trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
 
-    mock_traces_client_instance.get_span.assert_called_once()
+    # With stubs, get_span is not called (to avoid race conditions in distributed tracing)
+    mock_traces_client_instance.get_span.assert_not_called()
 
+    # Verify stub trace and span were created
     assert len(logger.traces) == 1
-    assert len(logger._parent_stack) == 1
-    assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
-    assert logger._parent_stack[0].name == "test-workflow-span"
-    assert logger._parent_stack[0].type == "workflow"
-    assert len(logger._parent_stack[0].spans) == 0
+    assert len(logger._parent_stack) == 2  # Trace (root) and span (immediate parent)
+    assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
+    assert logger._parent_stack[0].type == "trace"
+    assert logger._parent_stack[1].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
+    assert logger._parent_stack[1].name == "stub_parent_span"
+    assert logger._parent_stack[1].type == "workflow"
+    assert len(logger._parent_stack[1].spans) == 0
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1681,6 +1698,7 @@ def test_add_nested_span_and_conclude_existing_span(
     asyncio.run(captured_task.task_func())
     mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
+    # Verify trace_id from stub is used in the request
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
     assert request.spans[0].type == "workflow"
@@ -1700,6 +1718,7 @@ def test_add_nested_span_and_conclude_existing_span(
     asyncio.run(captured_task.task_func())
     mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
+    # Verify trace_id from stub is used in the request
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == workflow_span_id
     assert request.spans[0].type == "llm"
@@ -1758,17 +1777,808 @@ def test_catch_error_trace_span_ids_in_batch_mode(
 def test_catch_error_mismatched_trace_span_ids(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, caplog, enable_galileo_logging
 ) -> None:
+    """Test that stubs are created without validation (to avoid race conditions in distributed tracing)."""
+
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    # With stubs, no validation is performed - stubs are created as-is
+    # This is intentional to avoid race conditions where parent trace/span may not be ingested yet
+    # Using different trace_id and span_id to simulate potentially mismatched IDs (which would fail with fetch-based approach)
+    logger = GalileoLogger(
+        project="my_project",
+        log_stream="my_log_stream",
+        mode="distributed",
+        trace_id="7c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",  # Different trace
+        span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",  # Different span
+    )
+
+    # Verify no fetch calls were made
+    mock_traces_client_instance.get_trace.assert_not_called()
+    mock_traces_client_instance.get_span.assert_not_called()
+
+    # Verify stubs were created even with potentially mismatched IDs
+    assert len(logger.traces) == 1
+    assert logger.traces[0].id == UUID("7c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
+    assert len(logger._parent_stack) == 2  # Trace (root) and span (immediate parent)
+    assert logger._parent_stack[0].id == UUID("7c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
+    assert logger._parent_stack[1].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_get_tracing_headers_with_workflow_span(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test get_tracing_headers when a workflow span exists."""
     setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    with caplog.at_level(logging.WARNING):
-        GalileoLogger(
-            project="my_project",
-            log_stream="my_log_stream",
-            experimental={"mode": "streaming"},
-            trace_id="00000000-0000-0000-0000-000000000000",
-            span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
-        )
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+    setup_thread_pool_request_capture(logger)
 
-    assert "does not belong to trace" in caplog.text
+    logger.start_trace(input="test input", name="test-trace")
+    workflow_span = logger.add_workflow_span(input="workflow input", name="orchestrator")
+
+    headers = logger.get_tracing_headers()
+
+    assert "X-Galileo-Trace-ID" in headers
+    assert headers["X-Galileo-Trace-ID"] == str(logger.traces[0].id)
+    assert "X-Galileo-Parent-ID" in headers
+    assert headers["X-Galileo-Parent-ID"] == str(workflow_span.id)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_get_tracing_headers_with_agent_span(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test get_tracing_headers when an agent span exists."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+    setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="test input", name="test-trace")
+    agent_span = logger.add_agent_span(input="agent input", name="agent")
+
+    headers = logger.get_tracing_headers()
+
+    assert "X-Galileo-Trace-ID" in headers
+    assert headers["X-Galileo-Trace-ID"] == str(logger.traces[0].id)
+    assert "X-Galileo-Parent-ID" in headers
+    assert headers["X-Galileo-Parent-ID"] == str(agent_span.id)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_get_tracing_headers_batch_mode_error(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test get_tracing_headers raises error in batch mode."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="batch")
+    logger.start_trace(input="test input")
+
+    with pytest.raises(GalileoLoggerException) as exc_info:
+        logger.get_tracing_headers()
+
+    assert "only supported in distributed mode" in str(exc_info.value)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_get_tracing_headers_no_trace_error(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test get_tracing_headers raises error when no trace exists."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    with pytest.raises(GalileoLoggerException) as exc_info:
+        logger.get_tracing_headers()
+
+    assert "Start trace before getting tracing headers" in str(exc_info.value)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_update_trace_output_and_duration_streaming(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test updating trace output and duration in distributed mode."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+
+    # Update trace with output and duration
+    logger.conclude(output="initial output", duration_ns=5_000_000, status_code=200)
+
+    assert len(logger._parent_stack) == 0
+
+    captured_tasks = capture.get_all_tasks()
+    assert len(captured_tasks) == 2
+
+    # Verify trace was ingested
+    captured_task = captured_tasks[0]
+    assert captured_task.function_name == "ingest_traces_with_backoff"
+    request = captured_task.request
+    assert isinstance(request, TracesIngestRequest)
+    trace_id = request.traces[0].id
+
+    # Verify trace was updated with output and duration
+    captured_task = captured_tasks[1]
+    assert captured_task.function_name == "update_trace_with_backoff"
+    request = captured_task.request
+    assert isinstance(request, TraceUpdateRequest)
+
+    asyncio.run(captured_task.task_func())
+    mock_traces_client_instance.update_trace.assert_called_with(request)
+
+    assert request.trace_id == trace_id
+    assert request.output == "initial output"
+    assert request.duration_ns == 5_000_000
+    assert request.status_code == 200
+    assert request.is_complete
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_update_span_output_and_duration_streaming(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test updating span output and duration in distributed mode."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+
+    # Add a workflow span
+    logger.add_workflow_span(input="workflow input", name="test-workflow-span", created_at=created_at)
+
+    # Update span with output and duration
+    logger.conclude(output="workflow output", duration_ns=3_000_000, status_code=200)
+
+    assert len(logger._parent_stack) == 1  # Trace still active
+
+    captured_tasks = capture.get_all_tasks()
+    assert len(captured_tasks) == 3
+
+    # Verify span was ingested
+    captured_task = captured_tasks[1]
+    assert captured_task.function_name == "ingest_spans_with_backoff"
+    request = captured_task.request
+    assert isinstance(request, SpansIngestRequest)
+    workflow_span_id = request.spans[0].id
+
+    # Verify span was updated with output and duration
+    captured_task = captured_tasks[2]
+    assert captured_task.function_name == "update_span_with_backoff"
+    request = captured_task.request
+    assert isinstance(request, SpanUpdateRequest)
+
+    asyncio.run(captured_task.task_func())
+    mock_traces_client_instance.update_span.assert_called_with(request)
+
+    assert request.span_id == workflow_span_id
+    assert request.output == "workflow output"
+    assert request.duration_ns == 3_000_000
+    assert request.status_code == 200
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_update_trace_with_none_duration(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test updating trace with None duration in distributed mode."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+
+    # Update trace without duration (None)
+    logger.conclude(output="output", status_code=200)
+
+    captured_tasks = capture.get_all_tasks()
+    assert len(captured_tasks) == 2
+
+    captured_task = captured_tasks[1]
+    assert captured_task.function_name == "update_trace_with_backoff"
+    request = captured_task.request
+    assert isinstance(request, TraceUpdateRequest)
+
+    asyncio.run(captured_task.task_func())
+    mock_traces_client_instance.update_trace.assert_called_with(request)
+
+    assert request.output == "output"
+    assert request.status_code == 200
+    assert request.is_complete
+    # duration_ns should be None when not provided
+    assert request.duration_ns is None
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_update_span_with_none_duration(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test updating span with None duration in distributed mode."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+
+    # Add a workflow span
+    logger.add_workflow_span(input="workflow input", name="test-workflow-span", created_at=created_at)
+
+    # Update span without duration (None)
+    logger.conclude(output="workflow output", status_code=200)
+
+    captured_tasks = capture.get_all_tasks()
+    assert len(captured_tasks) == 3
+
+    captured_task = captured_tasks[2]
+    assert captured_task.function_name == "update_span_with_backoff"
+    request = captured_task.request
+    assert isinstance(request, SpanUpdateRequest)
+
+    asyncio.run(captured_task.task_func())
+    mock_traces_client_instance.update_span.assert_called_with(request)
+
+    assert request.output == "workflow output"
+    assert request.status_code == 200
+    # duration_ns should be None when not provided
+    assert request.duration_ns is None
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_update_trace_and_span_with_duration_in_nested_structure(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test updating both trace and span with duration in a nested structure."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+
+    # Add nested spans
+    logger.add_workflow_span(input="workflow input", name="workflow", created_at=created_at)
+    logger.add_llm_span(
+        input="prompt", output="response", model="gpt4o", name="llm-span", duration_ns=1_000_000, created_at=created_at
+    )
+
+    # Update workflow span with duration
+    logger.conclude(output="workflow output", duration_ns=5_000_000, status_code=200)
+
+    # Update trace with duration
+    logger.conclude(output="trace output", duration_ns=10_000_000, status_code=200)
+
+    captured_tasks = capture.get_all_tasks()
+    assert len(captured_tasks) == 5  # 1 trace ingest + 2 span ingests + 1 span update + 1 trace update
+
+    # Verify span update with duration
+    captured_task = captured_tasks[3]
+    assert captured_task.function_name == "update_span_with_backoff"
+    request = captured_task.request
+    assert isinstance(request, SpanUpdateRequest)
+    assert request.duration_ns == 5_000_000
+    assert request.output == "workflow output"
+    assert request.status_code == 200
+
+    # Verify trace update with duration
+    captured_task = captured_tasks[4]
+    assert captured_task.function_name == "update_trace_with_backoff"
+    request = captured_task.request
+    assert isinstance(request, TraceUpdateRequest)
+    assert request.duration_ns == 10_000_000
+    assert request.output == "trace output"
+    assert request.status_code == 200
+    assert request.is_complete
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_conclude_trace_inherits_last_llm_child_output(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that concluding a trace without explicit output uses the last LLM child span's output.
+
+    This matches batch mode behavior where _get_last_output() is used during flush.
+    """
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="What is the capital of France?", name="test-trace", created_at=created_at)
+
+    # Add an LLM span directly under the trace (no workflow/agent wrapper)
+    logger.add_llm_span(
+        input="What is the capital of France?",
+        output="The capital of France is Paris.",
+        model="gpt-4",
+        name="test-llm-span",
+        duration_ns=1_000_000,
+        created_at=created_at,
+    )
+
+    # Conclude trace WITHOUT providing explicit output
+    # It should inherit the LLM span's output
+    logger.conclude(duration_ns=2_000_000, status_code=200)
+
+    assert len(logger._parent_stack) == 0
+
+    captured_task = capture.get_task_by_function_name("update_trace_with_backoff")
+    request = captured_task.request
+    assert isinstance(request, TraceUpdateRequest)
+
+    asyncio.run(captured_task.task_func())
+    mock_traces_client_instance.update_trace.assert_called_with(request)
+
+    # Verify trace inherited the LLM span's output (serialized to string)
+    assert request.output == '{"content": "The capital of France is Paris.", "role": "assistant"}'
+    assert request.status_code == 200
+    assert request.duration_ns == 2_000_000
+    assert request.is_complete
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_conclude_trace_with_multiple_llm_children_inherits_last(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that a trace with multiple direct LLM child spans inherits the LAST span's output."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+
+    # Add first LLM span
+    logger.add_llm_span(
+        input="What is 2+2?", output="4", model="gpt-4", name="math-span", duration_ns=500_000, created_at=created_at
+    )
+
+    # Add second LLM span
+    logger.add_llm_span(
+        input="What is the capital of France?",
+        output="Paris",
+        model="gpt-4",
+        name="geography-span",
+        duration_ns=600_000,
+        created_at=created_at,
+    )
+
+    # Conclude trace WITHOUT providing explicit output
+    # It should inherit the LAST LLM span's output (Paris)
+    logger.conclude(duration_ns=2_000_000, status_code=200)
+
+    assert len(logger._parent_stack) == 0
+
+    captured_task = capture.get_task_by_function_name("update_trace_with_backoff")
+    request = captured_task.request
+    assert isinstance(request, TraceUpdateRequest)
+
+    asyncio.run(captured_task.task_func())
+    mock_traces_client_instance.update_trace.assert_called_with(request)
+
+    # Verify trace inherited the LAST LLM span's output (serialized to string)
+    assert request.output == '{"content": "Paris", "role": "assistant"}'
+    assert request.status_code == 200
+    assert request.duration_ns == 2_000_000
+    assert request.is_complete
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_conclude_trace_inherits_last_workflow_span_output(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, enable_galileo_logging
+) -> None:
+    """Test that concluding a trace without explicit output uses the last child workflow span's output.
+
+    This matches batch mode behavior where _get_last_output() is used during flush.
+    """
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+
+    # Add a workflow span
+    logger.add_workflow_span(input="workflow input", name="test-workflow", created_at=created_at)
+
+    # Add an LLM span inside the workflow
+    logger.add_llm_span(
+        input="prompt",
+        output="llm output",
+        model="gpt4o",
+        name="test-llm-span",
+        duration_ns=1_000_000,
+        created_at=created_at,
+    )
+
+    # Conclude workflow span with explicit output
+    logger.conclude(output="workflow output", duration_ns=2_000_000, status_code=200)
+
+    # Conclude trace WITHOUT providing explicit output
+    # It should inherit the workflow span's output
+    logger.conclude(duration_ns=3_000_000, status_code=200)
+
+    assert len(logger._parent_stack) == 0
+
+    captured_task = capture.get_task_by_function_name("update_trace_with_backoff")
+    request = captured_task.request
+    assert isinstance(request, TraceUpdateRequest)
+
+    asyncio.run(captured_task.task_func())
+    mock_traces_client_instance.update_trace.assert_called_with(request)
+
+    # Verify trace inherited the workflow span's output
+    assert request.output == "workflow output"
+    assert request.status_code == 200
+    assert request.duration_ns == 3_000_000
+    assert request.is_complete
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_conclude_trace_explicit_output_overrides_child(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, enable_galileo_logging
+) -> None:
+    """Test that explicit output in conclude() overrides child span output."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+
+    # Add workflow span with output
+    logger.add_workflow_span(
+        input="workflow input",
+        output="workflow output",
+        name="test-workflow",
+        duration_ns=1_000_000,
+        created_at=created_at,
+    )
+
+    logger.conclude(duration_ns=1_000_000, status_code=200)
+
+    # Conclude trace WITH explicit output - should NOT use workflow's output
+    logger.conclude(output="explicit trace output", duration_ns=2_000_000, status_code=200)
+
+    captured_task = capture.get_task_by_function_name("update_trace_with_backoff")
+    request = captured_task.request
+    assert isinstance(request, TraceUpdateRequest)
+
+    asyncio.run(captured_task.task_func())
+    mock_traces_client_instance.update_trace.assert_called_with(request)
+
+    # Verify explicit output was used, not child's
+    assert request.output == "explicit trace output"
+    assert request.is_complete
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_conclude_workflow_span_inherits_last_child_output(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, enable_galileo_logging
+) -> None:
+    """Test that concluding a workflow span without explicit output uses the last child's output."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+    logger.add_workflow_span(input="workflow input", name="test-workflow", created_at=created_at)
+
+    # Add two child spans - workflow should inherit the LAST one's output
+    logger.add_llm_span(
+        input="prompt1",
+        output="first child output",
+        model="gpt4o",
+        name="span-1",
+        duration_ns=1_000_000,
+        created_at=created_at,
+    )
+
+    logger.add_llm_span(
+        input="prompt2",
+        output="second child output",
+        model="gpt4o",
+        name="span-2",
+        duration_ns=1_000_000,
+        created_at=created_at,
+    )
+
+    # Conclude workflow WITHOUT providing explicit output
+    logger.conclude(duration_ns=3_000_000, status_code=200)
+
+    from galileo.schema.trace import SpanUpdateRequest
+
+    captured_task = capture.get_task_by_function_name("update_span_with_backoff")
+    request = captured_task.request
+    assert isinstance(request, SpanUpdateRequest)
+
+    asyncio.run(captured_task.task_func())
+    mock_traces_client_instance.update_span.assert_called_with(request)
+
+    # Verify workflow inherited the LAST child span's output (serialized to string)
+    assert request.output == '{"content": "second child output", "role": "assistant"}'
+    assert request.duration_ns == 3_000_000
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_distributed_flush_concludes_unconcluded_trace(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, enable_galileo_logging
+) -> None:
+    """Test that flush() in distributed mode concludes any unconcluded traces.
+
+    This acts as a safety net if user forgot to call conclude().
+    """
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+
+    # Add a workflow span
+    logger.add_workflow_span(
+        input="workflow input",
+        output="workflow output",
+        name="test-workflow",
+        duration_ns=1_000_000,
+        created_at=created_at,
+    )
+
+    logger.conclude(duration_ns=1_000_000, status_code=200)
+
+    # User forgot to conclude the trace! But flush should handle it
+    assert len(logger._parent_stack) == 1  # Trace still active
+
+    # Flush should conclude the trace
+    logger.flush()
+
+    # Trace should be concluded now
+    assert len(logger._parent_stack) == 0
+
+    # Verify trace was updated and marked complete
+    # Should inherit the workflow's output since no explicit output was provided
+    all_tasks = capture.get_all_tasks()
+    update_trace_tasks = [t for t in all_tasks if t.function_name == "update_trace_with_backoff"]
+
+    # Should have exactly one update_trace task (from flush())
+    assert len(update_trace_tasks) == 1
+
+    request = update_trace_tasks[0].request
+    assert isinstance(request, TraceUpdateRequest)
+
+    asyncio.run(update_trace_tasks[0].task_func())
+    mock_traces_client_instance.update_trace.assert_called_with(request)
+
+    assert request.output == "workflow output"
+    assert request.is_complete
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_distributed_flush_no_op_if_already_concluded(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, enable_galileo_logging
+) -> None:
+    """Test that flush() in distributed mode is a no-op if trace is already concluded.
+
+    This verifies that we don't send duplicate updates when trace is already complete.
+    """
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+
+    logger.add_llm_span(
+        input="prompt",
+        output="span output",
+        model="gpt4o",
+        name="test-span",
+        duration_ns=1_000_000,
+        created_at=created_at,
+    )
+
+    # User properly concludes the trace
+    logger.conclude(output="trace output", duration_ns=2_000_000, status_code=200)
+
+    assert len(logger._parent_stack) == 0
+
+    # Get count of update calls before flush
+    all_tasks_before = capture.get_all_tasks()
+    update_tasks_before = [t for t in all_tasks_before if t.function_name == "update_trace_with_backoff"]
+    assert len(update_tasks_before) == 1  # One update from conclude()
+
+    # Now flush - should NOT send another update since trace is already concluded
+    logger.flush()
+
+    # Verify no additional update was sent
+    all_tasks_after = capture.get_all_tasks()
+    update_tasks_after = [t for t in all_tasks_after if t.function_name == "update_trace_with_backoff"]
+    assert len(update_tasks_after) == 1  # Still only one update
+
+    # Verify the original update had is_complete=True
+    request = update_tasks_before[0].request
+    assert isinstance(request, TraceUpdateRequest)
+    asyncio.run(update_tasks_before[0].task_func())
+    mock_traces_client_instance.update_trace.assert_called_with(request)
+    assert request.is_complete
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_distributed_flush_waits_for_tasks(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, enable_galileo_logging
+) -> None:
+    """Test that flush() in distributed mode waits for all pending tasks to complete."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+    logger.add_llm_span(
+        input="prompt", output="output", model="gpt4o", name="test-span", duration_ns=1_000_000, created_at=created_at
+    )
+    logger.conclude(output="trace output", duration_ns=2_000_000, status_code=200)
+
+    # Execute all tasks to simulate them completing
+    for task in capture.get_all_tasks():
+        asyncio.run(task.task_func())
+
+    # Flush should return successfully - in distributed mode it returns empty list (traces already sent)
+    result = logger.flush()
+    assert result == []
+
+    # Verify all tasks completed successfully
+    assert logger._task_handler.all_tasks_completed()
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_batch_mode_flush_still_uses_get_last_output(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, enable_galileo_logging
+) -> None:
+    """Test that batch mode flush still uses _get_last_output() as before.
+
+    This ensures we didn't break existing batch mode behavior.
+    """
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    # Note: mode="batch" is the default
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="batch")
+
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+    logger.add_llm_span(
+        input="prompt",
+        output="child output",
+        model="gpt4o",
+        name="test-span",
+        duration_ns=1_000_000,
+        created_at=created_at,
+    )
+
+    # In batch mode, don't call conclude - flush should handle it
+    assert len(logger._parent_stack) == 1
+
+    # Flush in batch mode should conclude with last child's output
+    traces = logger.flush()
+
+    assert len(traces) == 1
+    # Output is serialized to string
+    assert traces[0].output == '{"content": "child output", "role": "assistant"}'
+    assert len(logger._parent_stack) == 0
+
+    # Verify trace was sent with correct output
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    call_args = mock_traces_client_instance.ingest_traces.call_args
+    request = call_args[0][0]
+    assert isinstance(request, TracesIngestRequest)
+    assert request.traces[0].output == '{"content": "child output", "role": "assistant"}'

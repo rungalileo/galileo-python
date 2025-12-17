@@ -63,7 +63,7 @@ class Dataset(DecorateAllMethods):
         self.dataset = dataset_db
         self.config = GalileoPythonConfig.get()
 
-    def get_content(self) -> Union[None, DatasetContent]:
+    def get_content(self, starting_token: int = 0, limit: int = MAX_DATASET_ROWS) -> Union[None, DatasetContent]:
         """
         Gets and returns the content of the dataset.
         Also refreshes the content of the local dataset instance.
@@ -85,7 +85,7 @@ class Dataset(DecorateAllMethods):
             return None
 
         content: DatasetContent = get_dataset_content_datasets_dataset_id_content_get.sync(
-            client=self.config.api_client, dataset_id=self.dataset.id, limit=MAX_DATASET_ROWS
+            client=self.config.api_client, dataset_id=self.dataset.id, limit=limit, starting_token=starting_token
         )
 
         self.content = content

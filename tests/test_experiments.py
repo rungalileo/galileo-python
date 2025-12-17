@@ -21,6 +21,8 @@ from galileo.resources.models import (
     BasePromptTemplateResponse,
     BasePromptTemplateVersionResponse,
     DatasetContent,
+    DatasetRow,
+    DatasetRowValuesDict,
     ExperimentResponse,
     ProjectCreateResponse,
     ProjectType,
@@ -443,10 +445,6 @@ class TestExperiments:
     ) -> None:
         mock_create_job.return_value = MagicMock()
 
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         dataset_id = str(UUID(int=0))
         run_experiment(
             "test_experiment", project="awesome-new-project", dataset_id=dataset_id, prompt_template=prompt_template()
@@ -468,10 +466,6 @@ class TestExperiments:
         dataset_content: DatasetContent,
     ) -> None:
         mock_create_job.return_value = MagicMock()
-
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
         dataset_id = str(UUID(int=0))
         run_experiment(
@@ -498,10 +492,6 @@ class TestExperiments:
     ) -> None:
         mock_create_job.return_value = MagicMock()
 
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         dataset_id = str(UUID(int=0))
         with pytest.raises(ValueError) as exc_info:
             run_experiment(
@@ -527,10 +517,6 @@ class TestExperiments:
         dataset_content: DatasetContent,
     ) -> None:
         mock_create_job.return_value = MagicMock()
-
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
         dataset_id = str(UUID(int=0))
         with pytest.raises(ValueError) as exc_info:
@@ -560,10 +546,6 @@ class TestExperiments:
     ) -> None:
         mock_create_job.return_value = MagicMock()
 
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         dataset_id = str(UUID(int=0))
         result = run_experiment(
             "test_experiment", project="awesome-new-project", dataset_id=dataset_id, prompt_template=prompt_template()
@@ -579,7 +561,6 @@ class TestExperiments:
         mock_get_dataset.assert_called_once_with(
             id="00000000-0000-0000-0000-000000000000", name=None, project_id=None, project_name=None
         )
-        mock_get_dataset_instance.get_content.assert_called()
         mock_create_job.assert_called_once_with(
             name="playground_run",
             project_id="00000000-0000-0000-0000-000000000000",
@@ -686,8 +667,11 @@ class TestExperiments:
         setup_mock_logstreams_client(mock_logstreams_client)
 
         # mock dataset.get_content
+        # Return dataset_content on first call (starting_token=0), then None to signal end of pagination
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+        mock_get_dataset_instance.get_content = MagicMock(
+            side_effect=lambda starting_token=0, limit=1000: dataset_content if starting_token == 0 else None
+        )
 
         dataset_id = str(UUID(int=0, version=4))
 
@@ -771,10 +755,6 @@ class TestExperiments:
         mock_scorers_class.return_value.list.return_value = scorers()
         mock_scorer_settings_class.return_value.create.return_value = None
 
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         dataset_id = str(UUID(int=0))
         run_experiment(
             "test_experiment",
@@ -792,7 +772,6 @@ class TestExperiments:
         mock_get_dataset.assert_called_once_with(
             id="00000000-0000-0000-0000-000000000000", name=None, project_id=None, project_name=None
         )
-        mock_get_dataset_instance.get_content.assert_called()
         mock_scorers_class.return_value.list.assert_called_with()
         mock_scorer_settings_class.return_value.create.assert_called_with(
             project_id="00000000-0000-0000-0000-000000000000",
@@ -817,10 +796,6 @@ class TestExperiments:
     ) -> None:
         mock_create_job.return_value = MagicMock()
 
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         dataset_id = str(UUID(int=0))
         run_experiment(
             "test_experiment",
@@ -839,7 +814,6 @@ class TestExperiments:
         mock_get_dataset.assert_called_once_with(
             id="00000000-0000-0000-0000-000000000000", name=None, project_id=None, project_name=None
         )
-        mock_get_dataset_instance.get_content.assert_called()
         mock_create_job.assert_called_once_with(
             name="playground_run",
             project_id="00000000-0000-0000-0000-000000000000",
@@ -880,8 +854,13 @@ class TestExperiments:
         mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
+        # Return dataset_content on first call (starting_token=0), then None to signal end of pagination
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_with_question)
+        mock_get_dataset_instance.get_content = MagicMock(
+            side_effect=lambda starting_token=0, limit=1000: dataset_content_with_question
+            if starting_token == 0
+            else None
+        )
 
         def runner(input) -> str:
             # emulate using input
@@ -916,10 +895,6 @@ class TestExperiments:
     def test_run_experiment_with_prompt_template_and_function(
         self, mock_get_dataset: Mock, dataset_content: DatasetContent
     ) -> None:
-        # mock dataset.get_content
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
-
         with pytest.raises(ValueError) as exc_info:
             run_experiment(
                 "test_experiment",
@@ -933,7 +908,6 @@ class TestExperiments:
         mock_get_dataset.assert_called_once_with(
             id="00000000-0000-0000-0000-000000000001", name=None, project_id=None, project_name=None
         )
-        mock_get_dataset_instance.get_content.assert_called()
 
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_with_prompt_template_and_local_dataset(
@@ -1171,8 +1145,11 @@ class TestExperiments:
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
 
+        # Return dataset_content on first call (starting_token=0), then None to signal end of pagination
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_150_rows)
+        mock_get_dataset_instance.get_content = MagicMock(
+            side_effect=lambda starting_token=0, limit=1000: dataset_content_150_rows if starting_token == 0 else None
+        )
 
         run_experiment(
             "test_experiment",
@@ -1181,8 +1158,158 @@ class TestExperiments:
             function=lambda x: f"output: {x}",
         )
 
-        mock_get_dataset_instance.get_content.assert_called_with()
+        # Verify get_content was called with pagination parameters
+        assert mock_get_dataset_instance.get_content.call_count >= 1
 
-        # Verify that all 150 rows were processed by checking the traces
-        payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
-        assert len(payload.traces) == 150
+        # Verify that all 150 rows were processed by checking the traces across all flush calls
+        total_traces = 0
+        for call in mock_traces_client_instance.ingest_traces.call_args_list:
+            payload = call[0][0]
+            total_traces += len(payload.traces)
+        assert total_traces == 150
+
+    @patch("galileo.logger.logger.LogStreams")
+    @patch("galileo.logger.logger.Projects")
+    @patch("galileo.logger.logger.Traces")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_with_function_and_list_dataset(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_traces_client: Mock,
+        mock_projects_client: Mock,
+        mock_logstreams_client: Mock,
+        local_dataset: list[dict[str, str]],
+        reset_context,
+    ) -> None:
+        """Test running experiment with a function and inline list dataset (static records path)."""
+        mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+        setup_mock_projects_client(mock_projects_client)
+        setup_mock_logstreams_client(mock_logstreams_client)
+
+        def simple_function(input: dict) -> str:
+            return f"Processed: {input['input']}"
+
+        result = run_experiment(
+            experiment_name="test_experiment",
+            project="awesome-new-project",
+            dataset=local_dataset,
+            function=simple_function,
+        )
+
+        assert result is not None
+        assert result["experiment"] is not None
+        assert f"/project/{project().id}/experiments/{experiment_response().id}" in result["link"]
+
+        # Verify experiment was created without dataset_obj (since we used a list)
+        mock_create_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", ANY, None)
+
+        # Verify all rows from the list were processed
+        # The traces are batched together, so we need to count all traces across all calls
+        all_traces = []
+        for call in mock_traces_client_instance.ingest_traces.call_args_list:
+            payload = call[0][0]
+            all_traces.extend(payload.traces)
+
+        # Each record creates a trace, and they're all sent in one batch
+        assert len(all_traces) >= 1  # At least one trace object
+
+        # Count the actual workflow spans (each represents a processed record)
+        total_spans = sum(len(trace.spans) for trace in all_traces)
+        assert total_spans == len(local_dataset)
+
+        # Verify both records were processed (checking the input data in the spans)
+        first_trace = all_traces[0]
+        assert len(first_trace.spans) == 2
+        # Check that we have inputs for both Spain and Japan questions
+        span_inputs = [span.input for span in first_trace.spans]
+        assert '{"input": "Which continent is Spain in?"}' in span_inputs[0]
+        assert '{"input": "Which continent is Japan in?"}' in span_inputs[1]
+
+    @patch("galileo.logger.logger.LogStreams")
+    @patch("galileo.logger.logger.Projects")
+    @patch("galileo.logger.logger.Traces")
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_with_multi_page_pagination(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_get_dataset: Mock,
+        mock_traces_client: Mock,
+        mock_projects_client: Mock,
+        mock_logstreams_client: Mock,
+        reset_context,
+    ) -> None:
+        """Test that pagination works correctly across multiple pages."""
+        mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+        setup_mock_projects_client(mock_projects_client)
+        setup_mock_logstreams_client(mock_logstreams_client)
+
+        # Create three pages: 1000 rows, 500 rows, then None
+        page1_rows = [
+            DatasetRow(
+                index=i,
+                row_id=f"row{i}",
+                values=[f"Question {i}", f"Answer {i}", None],
+                values_dict=DatasetRowValuesDict.from_dict(
+                    {"input": f"Question {i}", "output": f"Answer {i}", "metadata": None}
+                ),
+                metadata=None,
+            )
+            for i in range(1000)
+        ]
+        page2_rows = [
+            DatasetRow(
+                index=i,
+                row_id=f"row{i}",
+                values=[f"Question {i}", f"Answer {i}", None],
+                values_dict=DatasetRowValuesDict.from_dict(
+                    {"input": f"Question {i}", "output": f"Answer {i}", "metadata": None}
+                ),
+                metadata=None,
+            )
+            for i in range(1000, 1500)
+        ]
+
+        page1_content = DatasetContent(rows=page1_rows)
+        page2_content = DatasetContent(rows=page2_rows)
+
+        # Mock get_content to return pages based on starting_token
+        def mock_get_content_paginated(starting_token=0, limit=1000):
+            if starting_token == 0:
+                return page1_content
+            elif starting_token == 1000:
+                return page2_content
+            else:
+                return None
+
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(side_effect=mock_get_content_paginated)
+
+        run_experiment(
+            experiment_name="test_experiment",
+            project="awesome-new-project",
+            dataset_id=str(UUID(int=0)),
+            function=lambda x: f"output: {x}",
+        )
+
+        # Verify get_content was called with correct pagination tokens
+        assert mock_get_dataset_instance.get_content.call_count == 3
+        call_args_list = [call[1] for call in mock_get_dataset_instance.get_content.call_args_list]
+        assert {"starting_token": 0, "limit": 1000} in call_args_list
+        assert {"starting_token": 1000, "limit": 1000} in call_args_list
+        assert {"starting_token": 1500, "limit": 1000} in call_args_list
+
+        # Verify all 1500 rows were processed
+        total_traces = 0
+        for call in mock_traces_client_instance.ingest_traces.call_args_list:
+            payload = call[0][0]
+            total_traces += len(payload.traces)
+        assert total_traces == 1500

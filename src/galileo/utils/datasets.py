@@ -24,6 +24,48 @@ def validate_dataset_in_project(
         raise ValueError(f"Dataset '{dataset_identifier}' is not used in project '{project_identifier}'")
 
 
+def load_dataset(
+    dataset: Union["Dataset", list[Union[dict[str, Any], str]], str, None],
+    dataset_id: Optional[str],
+    dataset_name: Optional[str],
+) -> Optional["Dataset"]:
+    """
+    Load dataset based on provided parameters.
+
+    Parameters
+    ----------
+    dataset:
+        Dataset object, list of records, or dataset name
+    dataset_id:
+        ID of the dataset
+    dataset_name:
+        Name of the dataset
+
+    Returns
+    -------
+    Dataset object or None
+
+    Raises
+    ------
+    ValueError
+            If no dataset information is provided or dataset doesn't exist
+    """
+    from galileo.datasets import get_dataset
+
+    if dataset_id:
+        return get_dataset(id=dataset_id)
+    if dataset_name:
+        return get_dataset(name=dataset_name)
+    if dataset and isinstance(dataset, str):
+        return get_dataset(name=dataset)
+    if dataset and not isinstance(dataset, (str, list)):
+        # Must be a Dataset object
+        return dataset
+    if dataset and isinstance(dataset, list):
+        return None
+    raise ValueError("To load dataset records, dataset, dataset_name, or dataset_id must be provided")
+
+
 def load_dataset_and_records(
     dataset: Union["Dataset", list[Union[dict[str, Any], str]], str, None],
     dataset_id: Optional[str],

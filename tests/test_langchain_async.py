@@ -86,7 +86,7 @@ class TestGalileoAsyncCallback:
     async def test_on_chain_start_end_with_input_update(
         self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
     ) -> None:
-        """Test chain start and end callbacks with input update (streaming mode)"""
+        """Test chain start and end callbacks with input update"""
         run_id = uuid.uuid4()
 
         # Start chain
