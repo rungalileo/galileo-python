@@ -5,7 +5,7 @@ from typing import Any, Callable, Optional
 from uuid import UUID
 
 from galileo.handlers.base_handler import GalileoBaseHandler
-from galileo.handlers.langchain.utils import get_agent_name, is_agent_node
+from galileo.handlers.langchain.utils import get_agent_name, is_agent_node, update_root_to_agent
 from galileo.logger import GalileoLogger
 from galileo.schema.handlers import LANGCHAIN_NODE_TYPE, NODE_TYPE
 from galileo.schema.trace import TracesIngestRequest
@@ -110,6 +110,10 @@ class GalileoCallback(BaseCallbackHandler):
         if is_agent_node(node_name):
             node_type = "agent"
             node_name = get_agent_name(parent_run_id, "Agent", self._handler.get_nodes())
+
+        update_root_to_agent(
+            parent_run_id, kwargs.get("metadata", {}), self._handler.get_node(parent_run_id) if parent_run_id else None
+        )
         kwargs["name"] = node_name
         self._handler.start_node(node_type, parent_run_id, run_id, input=serialize_to_str(inputs), tags=tags, **kwargs)
 
