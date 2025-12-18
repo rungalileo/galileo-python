@@ -15,10 +15,14 @@ from galileo_core.schemas.shared.scorers.scorer_name import ScorerName as _Score
 GalileoMetrics = _ScorerName
 
 
-class _GalileoScorersProxy:
-    """Proxy object that forwards to `GalileoMetrics` but emits a deprecation warning on use."""
+class _GalileoScorersProxyMeta(type):
+    """Metaclass that makes _GalileoScorersProxy behave like an enum type for isinstance/issubclass checks."""
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattribute__(cls, name: str) -> Any:
+        # Allow access to special methods and class metadata without warnings
+        if name.startswith("_") or name in ("__class__", "__mro__", "__dict__", "__bases__"):
+            return type.__getattribute__(cls, name)
+
         warnings.warn(
             "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
             DeprecationWarning,
@@ -26,28 +30,7 @@ class _GalileoScorersProxy:
         )
         return getattr(GalileoMetrics, name)
 
-    def __iter__(self) -> Iterator[_ScorerName]:
-        # Allow iteration over the enum members
-        warnings.warn(
-            "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return iter(GalileoMetrics)
-
-    def __dir__(self) -> list[str]:
-        return [m.name for m in GalileoMetrics]
-
-    def __call__(self, value: Any) -> _ScorerName:
-        """Allow value-based instantiation like the original Enum (e.g., GalileoScorers('correctness'))."""
-        warnings.warn(
-            "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return GalileoMetrics(value)
-
-    def __getitem__(self, name: str) -> _ScorerName:
+    def __getitem__(cls, name: str) -> _ScorerName:
         """Support lookup by name like the original Enum (e.g., GalileoScorers['correctness'])."""
         warnings.warn(
             "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
@@ -56,7 +39,31 @@ class _GalileoScorersProxy:
         )
         return getattr(GalileoMetrics, name)
 
-    def __contains__(self, item: Any) -> bool:
+    def __instancecheck__(cls, instance: Any) -> bool:
+        warnings.warn(
+            "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return isinstance(instance, _ScorerName)
+
+    def __subclasscheck__(cls, subclass: type) -> bool:
+        warnings.warn(
+            "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return issubclass(subclass, _ScorerName)
+
+    def __iter__(cls) -> Iterator[_ScorerName]:
+        warnings.warn(
+            "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return iter(GalileoMetrics)
+
+    def __contains__(cls, item: Any) -> bool:
         warnings.warn(
             "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
             DeprecationWarning,
@@ -72,12 +79,28 @@ class _GalileoScorersProxy:
         except Exception:
             return False
 
-    def __repr__(self) -> str:  # pragma: no cover - trivial
+    def __dir__(cls) -> list[str]:
+        return [m.name for m in GalileoMetrics]
+
+    def __repr__(cls) -> str:  # pragma: no cover - trivial
         return "<deprecated GalileoScorers proxy - use GalileoMetrics>"
 
 
-# Backwards-compatible deprecated proxy instance
-GalileoScorers = _GalileoScorersProxy()
+class _GalileoScorersProxy(metaclass=_GalileoScorersProxyMeta):
+    """Proxy class that forwards to `GalileoMetrics` but emits a deprecation warning on use."""
+
+    def __new__(cls, value: Any) -> _ScorerName:
+        """Allow value-based instantiation like the original Enum (e.g., GalileoScorers('correctness'))."""
+        warnings.warn(
+            "GalileoScorers is deprecated and will be removed in a future release. Please use GalileoMetrics instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return GalileoMetrics(value)
+
+
+# Backwards-compatible deprecated proxy - now a class instead of an instance
+GalileoScorers = _GalileoScorersProxy
 
 MetricType = TypeVar("MetricType", bound=MetricValueType)
 

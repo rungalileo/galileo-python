@@ -44,3 +44,24 @@ def test_galileo_scorers_callable_and_lookup_delegate():
 
     with pytest.warns(DeprecationWarning, match="GalileoScorers is deprecated"):
         assert "correctness" in GalileoScorers
+
+
+def test_galileo_scorers_isinstance_check():
+    """isinstance checks with GalileoScorers should work and emit a deprecation warning."""
+    from galileo.schema.metrics import GalileoMetrics, GalileoScorers
+
+    with pytest.warns(DeprecationWarning, match="GalileoScorers is deprecated"):
+        assert isinstance(GalileoMetrics.correctness, GalileoScorers)
+
+    with pytest.warns(DeprecationWarning, match="GalileoScorers is deprecated"):
+        # Non-member shouldn't be an instance
+        assert not isinstance("not a scorer", GalileoScorers)
+
+
+def test_galileo_scorers_issubclass_check():
+    """issubclass checks with GalileoScorers should work and emit a deprecation warning."""
+    from galileo.schema.metrics import GalileoMetrics, GalileoScorers
+
+    with pytest.warns(DeprecationWarning, match="GalileoScorers is deprecated"):
+        # The underlying enum type should be considered a subclass
+        assert issubclass(type(GalileoMetrics.correctness), GalileoScorers)
