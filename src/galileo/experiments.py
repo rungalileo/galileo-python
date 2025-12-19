@@ -20,7 +20,7 @@ from galileo.resources.api.experiment import (
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
 from galileo.schema.datasets import DatasetRecord
-from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
+from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.utils.datasets import create_rows_from_records, load_dataset
 from galileo.utils.logging import get_logger
 from galileo.utils.metrics import create_metric_configs
@@ -236,7 +236,7 @@ def run_experiment(
     dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
-    metrics: Optional[list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]] = None,
+    metrics: Optional[list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]] = None,
     function: Optional[Callable] = None,
     experiment_tags: Optional[dict[str, str]] = None,
 ) -> Any:

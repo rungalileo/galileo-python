@@ -242,10 +242,12 @@ class TestMetricBase:
         assert hasattr(Metric, "scorers")
 
     def test_metric_scorers_is_builtin_scorers(self):
-        """Test that Metric.scorers is a BuiltInScorers instance."""
-        from galileo.__future__.metric import BuiltInScorers
+        """Test that Metric.metrics is a BuiltInMetrics instance and legacy 'scorers' still exists."""
+        from galileo.__future__.metric import BuiltInMetrics
 
-        assert isinstance(Metric.scorers, BuiltInScorers)
+        assert isinstance(Metric.metrics, BuiltInMetrics)
+        # Legacy alias should still exist and point to the same instance
+        assert Metric.scorers is Metric.metrics
 
     def test_metric_common_attributes(self, tmp_path):
         """Test that all metric types have common attributes."""

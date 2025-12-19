@@ -11,7 +11,7 @@ from galileo.__future__.shared.exceptions import ValidationError
 from galileo.__future__.shared.experiment_result import ExperimentRunResult, ExperimentStatusInfo
 from galileo.__future__.shared.query_result import QueryResult
 from galileo.resources.models import ExperimentResponse
-from galileo.schema.metrics import GalileoScorers
+from galileo.schema.metrics import GalileoMetrics
 from galileo.search import RecordType
 
 
@@ -98,7 +98,7 @@ class TestExperimentInitialization:
 
     def test_init_with_metrics(self, reset_configuration: None) -> None:
         """Test initializing an experiment with metrics."""
-        metrics = [GalileoScorers.correctness, "completeness"]
+        metrics = [GalileoMetrics.correctness, "completeness"]
         experiment = Experiment(
             name="Test Experiment",
             dataset_name="test-dataset",

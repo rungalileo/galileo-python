@@ -39,7 +39,7 @@ from galileo.resources.types import Unset
 # TODO: DatasetRecord needed for function-based experiments
 # from galileo.schema.datasets import DatasetRecord
 from galileo.schema.filters import FilterType
-from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
+from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 
 # TODO: get_records_for_dataset needed for function-based experiments
@@ -158,7 +158,7 @@ class Experiment(StateManagementMixin):
     prompt_name: str | None
     created_at: datetime.datetime | None
     updated_at: datetime.datetime | None
-    metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str] | None
+    metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str] | None
     # TODO: Function-based experiments temporarily disabled - need to validate implementation
     # function: Callable | None
     model_alias: str | None
@@ -194,7 +194,7 @@ class Experiment(StateManagementMixin):
         prompt: Prompt | PromptTemplate | str | None = None,
         prompt_name: str | None = None,
         model: Model | str | None = None,
-        metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str] | None = None,
+        metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str] | None = None,
         project_id: str | None = None,
         project_name: str | None = None,
         # TODO: Function-based experiments are temporarily disabled. Need to validate implementation and fix decorator logic.
