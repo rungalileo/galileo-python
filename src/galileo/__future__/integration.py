@@ -18,7 +18,14 @@ from galileo.resources.types import Unset
 from galileo.utils.exceptions import APIException
 
 if TYPE_CHECKING:
-    from galileo.__future__.provider import AnthropicProvider, AzureProvider, BedrockProvider, OpenAIProvider, Provider
+    from galileo.__future__.provider import (
+        AnthropicProvider,
+        AzureProvider,
+        BedrockProvider,
+        OpenAIProvider,
+        Provider,
+        UnconfiguredProvider,
+    )
 
 logger = logging.getLogger(__name__)
 
@@ -355,7 +362,7 @@ class Integration(StateManagementMixin):
     # Convenience properties for accessing configured integrations by type
 
     @classmethod
-    def _get_integration_by_name(cls, integration_name: str) -> Provider | None:
+    def _get_integration_by_name(cls, integration_name: str) -> Provider | UnconfiguredProvider:
         """
         Get a configured integration by name.
 
@@ -364,7 +371,8 @@ class Integration(StateManagementMixin):
 
         Returns
         -------
-            Provider | None: The provider if found, None otherwise.
+            Provider | UnconfiguredProvider: The provider if found, or an UnconfiguredProvider
+                            that raises helpful errors when accessed.
                             If multiple integrations of the same type exist,
                             returns the selected one, or the first one if none selected.
         """
@@ -372,18 +380,15 @@ class Integration(StateManagementMixin):
             providers_list = cls.list()
             # Type narrowing: list() without all=True returns list[Provider]
             if providers_list and isinstance(providers_list[0], str):
-                return None
+                return UnconfiguredProvider(integration_name)
 
             # Cast is safe because we checked for strings above
             providers = cast(list[Provider], providers_list)
             matching = [p for p in providers if p.name == integration_name]
 
             if not matching:
-                logger.warning(
-                    f"Integration.{integration_name}: No '{integration_name}' integration configured. "
-                    f"Create one using Integration.create_{integration_name.replace('aws_', '')}()"
-                )
-                return None
+                logger.debug(f"Integration.{integration_name}: No '{integration_name}' integration configured.")
+                return UnconfiguredProvider(integration_name)
 
             # If multiple matches, prefer the selected one
             selected = [p for p in matching if p.is_selected]
@@ -394,16 +399,17 @@ class Integration(StateManagementMixin):
             return matching[0]
         except Exception as e:
             logger.error(f"Integration._get_integration_by_name: failed to get {integration_name}: {e}")
-            return None
+            return UnconfiguredProvider(integration_name)
 
     @classproperty
-    def openai(cls) -> Provider | None:
+    def openai(cls) -> Provider | UnconfiguredProvider:
         """
         Get the configured OpenAI integration.
 
         Returns
         -------
-            OpenAIProvider | None: The OpenAI provider if configured, None otherwise.
+            OpenAIProvider | UnconfiguredProvider: The OpenAI provider if configured,
+                or UnconfiguredProvider that raises helpful errors when accessed.
 
         Examples
         --------
@@ -414,13 +420,14 @@ class Integration(StateManagementMixin):
         return cls._get_integration_by_name("openai")
 
     @classproperty
-    def azure(cls) -> Provider | None:
+    def azure(cls) -> Provider | UnconfiguredProvider:
         """
         Get the configured Azure OpenAI integration.
 
         Returns
         -------
-            AzureProvider | None: The Azure provider if configured, None otherwise.
+            AzureProvider | UnconfiguredProvider: The Azure provider if configured,
+                or UnconfiguredProvider that raises helpful errors when accessed.
 
         Examples
         --------
@@ -431,13 +438,14 @@ class Integration(StateManagementMixin):
         return cls._get_integration_by_name("azure")
 
     @classproperty
-    def bedrock(cls) -> Provider | None:
+    def bedrock(cls) -> Provider | UnconfiguredProvider:
         """
         Get the configured AWS Bedrock integration.
 
         Returns
         -------
-            BedrockProvider | None: The Bedrock provider if configured, None otherwise.
+            BedrockProvider | UnconfiguredProvider: The Bedrock provider if configured,
+                or UnconfiguredProvider that raises helpful errors when accessed.
 
         Examples
         --------
@@ -448,13 +456,14 @@ class Integration(StateManagementMixin):
         return cls._get_integration_by_name("aws_bedrock")
 
     @classproperty
-    def anthropic(cls) -> Provider | None:
+    def anthropic(cls) -> Provider | UnconfiguredProvider:
         """
         Get the configured Anthropic (Claude) integration.
 
         Returns
         -------
-            AnthropicProvider | None: The Anthropic provider if configured, None otherwise.
+            AnthropicProvider | UnconfiguredProvider: The Anthropic provider if configured,
+                or UnconfiguredProvider that raises helpful errors when accessed.
 
         Examples
         --------
@@ -465,13 +474,14 @@ class Integration(StateManagementMixin):
         return cls._get_integration_by_name("anthropic")
 
     @classproperty
-    def vertex_ai(cls) -> Provider | None:
+    def vertex_ai(cls) -> Provider | UnconfiguredProvider:
         """
         Get the configured Google Vertex AI integration.
 
         Returns
         -------
-            Provider | None: The Vertex AI provider if configured, None otherwise.
+            Provider | UnconfiguredProvider: The Vertex AI provider if configured,
+                or UnconfiguredProvider that raises helpful errors when accessed.
 
         Examples
         --------
@@ -482,13 +492,14 @@ class Integration(StateManagementMixin):
         return cls._get_integration_by_name("vertex_ai")
 
     @classproperty
-    def mistral(cls) -> Provider | None:
+    def mistral(cls) -> Provider | UnconfiguredProvider:
         """
         Get the configured Mistral AI integration.
 
         Returns
         -------
-            Provider | None: The Mistral provider if configured, None otherwise.
+            Provider | UnconfiguredProvider: The Mistral provider if configured,
+                or UnconfiguredProvider that raises helpful errors when accessed.
 
         Examples
         --------
@@ -633,4 +644,5 @@ from galileo.__future__.provider import (  # noqa: E402
     GenericProvider,
     OpenAIProvider,
     Provider,
+    UnconfiguredProvider,
 )

@@ -5,8 +5,15 @@ from uuid import uuid4
 import pytest
 
 from galileo.__future__ import Integration
-from galileo.__future__.provider import AnthropicProvider, AzureProvider, BedrockProvider, OpenAIProvider, Provider
-from galileo.__future__.shared.exceptions import ValidationError
+from galileo.__future__.provider import (
+    AnthropicProvider,
+    AzureProvider,
+    BedrockProvider,
+    OpenAIProvider,
+    Provider,
+    UnconfiguredProvider,
+)
+from galileo.__future__.shared.exceptions import IntegrationNotConfiguredError, ValidationError
 from galileo.resources.models.available_integrations import AvailableIntegrations
 from galileo.resources.models.integration_db import IntegrationDB
 from galileo.resources.models.integration_name import IntegrationName
@@ -150,13 +157,13 @@ class TestIntegrationConvenienceProperties:
 
     @patch("galileo.__future__.integration.GalileoPythonConfig.get")
     @patch("galileo.__future__.integration.list_integrations_integrations_get")
-    def test_property_returns_none_when_not_configured(self, mock_list, mock_config):
-        """Integration.azure returns None if not configured."""
+    def test_property_returns_unconfigured_provider_when_not_configured(self, mock_list, mock_config):
+        """Integration.azure returns UnconfiguredProvider if not configured."""
         mock_list.sync.return_value = []
 
         result = Integration.azure
 
-        assert result is None
+        assert isinstance(result, UnconfiguredProvider)
 
     @patch("galileo.__future__.integration.GalileoPythonConfig.get")
     @patch("galileo.__future__.integration.list_integrations_integrations_get")
@@ -248,6 +255,102 @@ class TestIntegrationToProvider:
         assert isinstance(provider, Provider)
         assert provider.name == "mistral"
         assert provider.is_synced()
+
+
+class TestUnconfiguredProvider:
+    """Test UnconfiguredProvider behavior."""
+
+    def test_unconfigured_provider_raises_error_on_attribute_access(self):
+        """Accessing any attribute raises IntegrationNotConfiguredError."""
+        provider = UnconfiguredProvider("openai")
+
+        with pytest.raises(IntegrationNotConfiguredError) as exc_info:
+            _ = provider.models
+
+        assert "openai" in str(exc_info.value)
+
+    def test_unconfigured_provider_raises_error_on_method_call(self):
+        """Calling any method raises IntegrationNotConfiguredError."""
+        provider = UnconfiguredProvider("azure")
+
+        with pytest.raises(IntegrationNotConfiguredError) as exc_info:
+            _ = provider.delete()
+
+        assert "azure" in str(exc_info.value)
+
+    @pytest.mark.parametrize(
+        "integration_name,expected_create_method",
+        [
+            ("openai", "Integration.create_openai()"),
+            ("azure", "Integration.create_azure()"),
+            ("aws_bedrock", "Integration.create_bedrock()"),
+            ("anthropic", "Integration.create_anthropic()"),
+        ],
+    )
+    def test_error_message_includes_create_method_for_supported_providers(
+        self, integration_name, expected_create_method
+    ):
+        """Error message includes create method for supported providers."""
+        provider = UnconfiguredProvider(integration_name)
+
+        with pytest.raises(IntegrationNotConfiguredError) as exc_info:
+            _ = provider.models
+
+        error_message = str(exc_info.value)
+        assert integration_name in error_message
+        assert expected_create_method in error_message
+
+    @pytest.mark.parametrize("integration_name", ["vertex_ai", "mistral", "nvidia"])
+    def test_error_message_no_create_method_for_unsupported_provider(self, integration_name):
+        """Error message does not include create method for unsupported providers."""
+        provider = UnconfiguredProvider(integration_name)
+
+        with pytest.raises(IntegrationNotConfiguredError) as exc_info:
+            _ = provider.models
+
+        error_message = str(exc_info.value)
+        assert integration_name in error_message
+        assert "Integration.create_" not in error_message
+        assert "Galileo console" in error_message
+
+    @pytest.mark.parametrize("integration_name", ["openai", "azure", "aws_bedrock"])
+    def test_repr_and_str_show_integration_name(self, integration_name):
+        """repr and str show the integration name."""
+        provider = UnconfiguredProvider(integration_name)
+
+        assert integration_name in repr(provider)
+        assert "UnconfiguredProvider" in repr(provider)
+        assert integration_name in str(provider)
+
+    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
+    @patch("galileo.__future__.integration.list_integrations_integrations_get")
+    def test_integration_property_returns_unconfigured_provider(self, mock_list, mock_config):
+        """Integration properties return UnconfiguredProvider when not configured."""
+        mock_list.sync.return_value = []
+
+        # All properties should return UnconfiguredProvider
+        assert isinstance(Integration.openai, UnconfiguredProvider)
+        assert isinstance(Integration.azure, UnconfiguredProvider)
+        assert isinstance(Integration.bedrock, UnconfiguredProvider)
+        assert isinstance(Integration.anthropic, UnconfiguredProvider)
+
+    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
+    @patch("galileo.__future__.integration.list_integrations_integrations_get")
+    def test_unconfigured_provider_works_with_if_statement(self, mock_list, mock_config):
+        """UnconfiguredProvider works correctly in if statements."""
+        mock_list.sync.return_value = []
+
+        # Should not enter the if block
+        if Integration.azure:
+            pytest.fail("Should not enter if block for unconfigured provider")
+
+        # Should enter the else block
+        entered_else = False
+        if Integration.openai:
+            pytest.fail("Should not enter if block")
+        else:
+            entered_else = True
+        assert entered_else
 
 
 class TestProviderModels:

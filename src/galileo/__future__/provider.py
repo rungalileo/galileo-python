@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any
 
 from galileo.__future__.shared.base import StateManagementMixin, SyncState
-from galileo.__future__.shared.exceptions import APIError, ValidationError
+from galileo.__future__.shared.exceptions import APIError, IntegrationNotConfiguredError, ValidationError
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.integrations import (
     create_or_update_integration_integrations_anthropic_put,
@@ -835,6 +835,55 @@ class GenericProvider(Provider):
 
     def _get_integration_name(self) -> IntegrationName:
         return self._integration_name
+
+
+class UnconfiguredProvider:
+    """
+    Placeholder for integrations that are not configured.
+
+    This class implements the Null Object Pattern to provide helpful error messages
+    when users attempt to access an integration that doesn't exist. Instead of
+    returning None (which leads to cryptic AttributeError messages), this class
+    raises IntegrationNotConfiguredError with guidance on how to fix the issue.
+
+    Examples
+    --------
+        # When Azure is not configured:
+        >>> Integration.azure.models
+        IntegrationNotConfiguredError: No 'azure' integration configured.
+        Create one using Integration.create_azure() or configure it in the Galileo console.
+
+        # Truthiness check still works:
+        >>> if Integration.azure:
+        ...     print("configured")
+        ... else:
+        ...     print("not configured")
+        not configured
+    """
+
+    _integration_name: str
+
+    def __init__(self, integration_name: str) -> None:
+        # Use object.__setattr__ to bypass our custom __setattr__
+        object.__setattr__(self, "_integration_name", integration_name)
+
+    def __bool__(self) -> bool:
+        """Allow truthiness checks: 'if Integration.azure:' returns False."""
+        return False
+
+    def __getattr__(self, name: str) -> None:
+        """Raise helpful error when any attribute is accessed."""
+        raise IntegrationNotConfiguredError(self._integration_name)
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """Raise helpful error when any attribute is set."""
+        raise IntegrationNotConfiguredError(self._integration_name)
+
+    def __repr__(self) -> str:
+        return f"UnconfiguredProvider('{self._integration_name}')"
+
+    def __str__(self) -> str:
+        return f"UnconfiguredProvider('{self._integration_name}')"
 
 
 # Import Model here to avoid circular imports
