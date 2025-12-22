@@ -1046,6 +1046,7 @@ def test_get_last_output() -> None:
         input="input",
         output="llm output",
         name="test-span",
+        model="test-model",
         created_at=datetime.datetime.now(),
         duration_ns=1_000_000,
         status_code=200,
@@ -1280,7 +1281,7 @@ def test_set_session_id(mock_traces_client: Mock, mock_projects_client: Mock, mo
 
     # Log a trace
     logger.start_trace(input="input", name="test-trace", created_at=datetime.datetime.now())
-    logger.add_llm_span(input="input", output="output")
+    logger.add_llm_span(input="input", output="output", model="test-model")
     logger.conclude("output", status_code=200)
     logger.flush()
 
@@ -1352,7 +1353,7 @@ def test_start_session_with_external_id(
 
     # Log a trace
     logger.start_trace(input="input", name="test-trace", created_at=datetime.datetime.now())
-    logger.add_llm_span(input="input", output="output")
+    logger.add_llm_span(input="input", output="output", model="test-model")
     logger.conclude("output", status_code=200)
     logger.flush()
 

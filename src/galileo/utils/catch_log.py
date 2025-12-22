@@ -1,22 +1,31 @@
 import asyncio
 import functools
 import logging
+import warnings
 from logging import Logger
 from typing import Any, Callable
 
 
 def warn_catch_exception(logger: Logger = logging.getLogger(__name__), exception: type[Exception] = Exception) -> Any:
     """
-    A function wrapper that catches exceptions and logs them to the logger.
+    A function wrapper that catches exceptions, logs them, and emits visible warnings.
+
+    This decorator ensures that observability code doesn't crash the user's application
+    while still providing visible feedback when errors occur.
+
+    Errors are:
+    1. Logged via standard Python logging (integrates with logging/tracing platforms)
+    2. Emitted as warnings (visible by default without any logging configuration)
 
     Parameters
     ----------
-    exception
-    logger
+    exception : type[Exception]
+        The base exception type to catch. Defaults to Exception.
 
     Returns
     -------
     Callable
+        The decorated function.
     """
 
     def wrapper(f: Callable) -> Callable:
@@ -25,7 +34,10 @@ def warn_catch_exception(logger: Logger = logging.getLogger(__name__), exception
             try:
                 result = f(*args, **kwargs)
             except exception as err:
+                # Standard logging for integration with logging/tracing platforms
                 logger.warning(f"Error occurred during execution: {f.__name__}: {err}")
+                # Warning for immediate visibility without config
+                warnings.warn(f"Galileo: {f.__name__} failed: {err}", RuntimeWarning, stacklevel=2)
             else:
                 return result
 
@@ -38,16 +50,26 @@ def async_warn_catch_exception(
     logger: Logger = logging.getLogger(__name__), exception: type[Exception] = Exception
 ) -> Any:
     """
-    A function wrapper that catches exceptions and logs them to the logger.
+    An async function wrapper that catches exceptions, logs them, and emits visible warnings.
+
+    This decorator ensures that observability code doesn't crash the user's application
+    while still providing visible feedback when errors occur.
+
+    Errors are:
+    1. Logged via standard Python logging (integrates with logging/tracing platforms)
+    2. Emitted as warnings (visible by default without any logging configuration)
 
     Parameters
     ----------
-    exception
-    logger
+    logger : Logger
+        The logger to use for logging errors. Defaults to the module logger.
+    exception : type[Exception]
+        The base exception type to catch. Defaults to Exception.
 
     Returns
     -------
     Callable
+        The decorated function.
     """
 
     def wrapper(f: Callable) -> Callable:
@@ -56,7 +78,10 @@ def async_warn_catch_exception(
             try:
                 result = await f(*args, **kwargs)
             except exception as err:
+                # Standard logging for integration with logging/tracing platforms
                 logger.warning(f"Error occurred during execution: {f.__name__}: {err}")
+                # Warning for immediate visibility without config
+                warnings.warn(f"Galileo: {f.__name__} failed: {err}", RuntimeWarning, stacklevel=2)
             else:
                 return result
 
