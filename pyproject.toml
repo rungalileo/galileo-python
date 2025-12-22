@@ -4,7 +4,7 @@ version = "1.39.0"
 description = "Client library for the Galileo platform."
 authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
-requires-python = ">=3.9,<3.14"
+requires-python = ">=3.9,<3.15"
 dynamic = ["dependencies"]
 license = "Apache-2.0"
 
@@ -12,8 +12,8 @@ license = "Apache-2.0"
 Repository = "https://github.com/rungalileo/galileo-python"
 
 [tool.poetry.dependencies]
-python = "^3.9,<3.14"
-pydantic = "^2.11.7"
+python = "^3.9,<3.15"
+pydantic = "^2.12.0"
 pyjwt = "^2.8.0"
 wrapt = "^1.14"
 attrs = ">=22.2.0"
@@ -321,10 +321,10 @@ formatter-cmds = ["ruff check --exit-zero --fix $file", "ruff format $file"]
 [project.optional-dependencies]
 langchain = ["langchain-core"]
 openai = ["openai", "packaging (>=24.2,<25.0)", "openai-agents"]
-crewai = ["crewai (>=0.152.0,<=0.201.1)"]
+crewai = ["crewai (>=0.152.0,<=0.201.1); python_version < '3.14'"]
 middleware = ["starlette"]
 otel = ["opentelemetry-sdk (>=1.38.0,<2.0.0)", "opentelemetry-api (>=1.38.0,<2.0.0)", "opentelemetry-exporter-otlp (>=1.38.0,<2.0.0)"]
-all = ["langchain-core", "openai", "packaging (>=24.2,<25.0)", "openai-agents", "opentelemetry-sdk (>=1.38.0,<2.0.0)", "opentelemetry-api (>=1.38.0,<2.0.0)", "opentelemetry-exporter-otlp (>=1.38.0,<2.0.0)", "crewai (>=0.152.0,<=0.201.1)", "starlette"]
+all = ["langchain-core", "openai", "packaging (>=24.2,<25.0)", "openai-agents", "opentelemetry-sdk (>=1.38.0,<2.0.0)", "opentelemetry-api (>=1.38.0,<2.0.0)", "opentelemetry-exporter-otlp (>=1.38.0,<2.0.0)", "crewai (>=0.152.0,<=0.201.1); python_version < '3.14'", "starlette"]
 
 
 [build-system]
