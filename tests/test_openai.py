@@ -13,6 +13,12 @@ from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_proje
 from tests.testutils.streaming import EventStream
 
 
+@pytest.fixture(autouse=True)
+def ensure_openai_api_key(monkeypatch):
+    """Ensure OPENAI_API_KEY is set for OpenAI tests."""
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+
+
 def openai_incorrect_api_key_error() -> bytes:
     return b"{'error': {'message': 'Incorrect API key provided: sk-galil********. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}"
 

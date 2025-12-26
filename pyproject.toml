@@ -59,11 +59,14 @@ pyyaml = "^6.0.2"
 
 [tool.pytest.ini_options]
 pythonpath = ["./src/"]
+# Note: Some env vars are also set in conftest.py for pytest-xdist compatibility
+# on Python 3.14+. This section remains for documentation and older Python support.
 env = [
     "GALILEO_CONSOLE_URL=http://localtest:8088",
     "GALILEO_API_KEY=api-1234567890",
     "GALILEO_PROJECT=test-project",
     "GALILEO_LOG_STREAM=test-log-stream",
+    "OPENAI_API_KEY=sk-test",
 ]
 addopts = [
     # Run tests in parallel.

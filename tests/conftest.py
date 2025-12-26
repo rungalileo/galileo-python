@@ -1,17 +1,31 @@
-import datetime
-import logging
-import sys
-from collections.abc import Generator
-from typing import Callable
-from unittest.mock import MagicMock, patch
-from uuid import uuid4
+# fmt: off
+# CRITICAL: Set test environment variables BEFORE any other imports.
+# This MUST be at the absolute top of conftest.py before any import statements.
+# Required for pytest-xdist compatibility on Python 3.14+.
+import os as _os
 
-import pytest
-from openai.types import CompletionUsage
-from openai.types.chat import ChatCompletionMessage
-from openai.types.chat.chat_completion import ChatCompletion, Choice
+_os.environ.setdefault("GALILEO_CONSOLE_URL", "http://localtest:8088")
+_os.environ.setdefault("GALILEO_API_KEY", "api-1234567890")
+_os.environ.setdefault("GALILEO_PROJECT", "test-project")
+_os.environ.setdefault("GALILEO_LOG_STREAM", "test-log-stream")
+_os.environ.setdefault("OPENAI_API_KEY", "sk-test")
+del _os  # Clean up temporary import
+# fmt: on
 
-from galileo.config import GalileoPythonConfig
+import datetime  # noqa: E402
+import logging  # noqa: E402
+import sys  # noqa: E402
+from collections.abc import Generator  # noqa: E402
+from typing import Callable  # noqa: E402
+from unittest.mock import MagicMock, patch  # noqa: E402
+from uuid import uuid4  # noqa: E402
+
+import pytest  # noqa: E402
+from openai.types import CompletionUsage  # noqa: E402
+from openai.types.chat import ChatCompletionMessage  # noqa: E402
+from openai.types.chat.chat_completion import ChatCompletion, Choice  # noqa: E402
+
+from galileo.config import GalileoPythonConfig  # noqa: E402
 
 # Skip test modules that use pydantic.v1 on Python 3.14+ (pydantic.v1 is incompatible)
 # This must be done via collect_ignore because the module import itself fails
@@ -69,7 +83,13 @@ def set_validated_config(
     mock_healthcheck: None, mock_login_api_key: None, mock_get_current_user: None, mock_decode_jwt: MagicMock
 ) -> Generator[None, None, None]:
     """Automatically set up validated config for tests."""
-    config = GalileoPythonConfig.get()
+    # Reset any existing config to ensure fresh initialization
+    # This is needed for pytest-xdist compatibility on Python 3.14+
+    if GalileoPythonConfig._instance is not None:
+        GalileoPythonConfig._instance.reset()
+    # Initialize config with EXPLICIT values to avoid env var timing issues with pytest-xdist
+    # This ensures correct config even if env vars weren't set before module imports
+    config = GalileoPythonConfig.get(console_url="http://localtest:8088", api_key="api-1234567890")
     yield
     config.reset()
 
