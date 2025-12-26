@@ -12,7 +12,11 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+        exclude:
+          # lxml doesn't have pre-built wheels for Python 3.14 on Windows yet
+          - os: windows-latest
+            python-version: "3.14"
 
     runs-on: ${{ matrix.os }}
 
@@ -32,6 +36,14 @@ jobs:
 
       - name: Install invoke
         run: pipx install invoke
+
+      - name: Install lxml build dependencies (Linux)
+        if: matrix.python-version == '3.14' && runner.os == 'Linux'
+        run: sudo apt-get install -y libxml2-dev libxslt-dev
+
+      - name: Install lxml build dependencies (macOS)
+        if: matrix.python-version == '3.14' && runner.os == 'macOS'
+        run: brew install libxml2 libxslt
 
       - name: Install Dependencies
         run: invoke install

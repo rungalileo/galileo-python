@@ -4,7 +4,6 @@ from typing import Optional
 from langchain_core.runnables.base import Runnable
 from langchain_core.tools import BaseTool
 from pydantic import UUID4, BaseModel, ConfigDict, Field
-from pydantic.v1 import BaseModel as BaseModelV1
 
 from galileo.constants.protect import TIMEOUT_SECS
 from galileo.protect import ainvoke_protect, invoke_protect
@@ -17,7 +16,9 @@ from galileo_core.schemas.protect.ruleset import Ruleset
 logger = get_logger(__name__)
 
 
-class ProtectToolInputSchema(BaseModelV1):
+class ProtectToolInputSchema(BaseModel):
+    """Input schema for the ProtectTool."""
+
     input: Optional[str] = None
     output: Optional[str] = None
 
@@ -58,8 +59,7 @@ class ProtectTool(BaseTool):
         "The tool can be used on the input text or output text, and can be configured "
         "with a set of rulesets to evaluate on."
     )
-    # langchain requires pydantic v1
-    args_schema: type[BaseModelV1] = ProtectToolInputSchema
+    args_schema: type[BaseModel] = ProtectToolInputSchema
 
     prioritized_rulesets: Optional[Sequence[Ruleset]] = None
     project_id: Optional[UUID4] = None

@@ -1,24 +1,43 @@
-import datetime
-import logging
-from collections.abc import Generator
-from typing import Callable
-from unittest.mock import MagicMock, patch
-from uuid import uuid4
+# fmt: off
+# CRITICAL: Set test environment variables BEFORE any other imports.
+# This MUST be at the absolute top of conftest.py before any import statements.
+# Required for pytest-xdist compatibility on Python 3.14+.
+#
+# NOTE: We unconditionally override these vars (not setdefault) to ensure:
+# 1. Tests never accidentally use real credentials from developer's environment
+# 2. Test isolation - all tests see the same predictable values
+# 3. Security - prevents real API keys from leaking into test logs
+import os as _os
 
-import pytest
-from openai.types import CompletionUsage
-from openai.types.chat import ChatCompletionMessage
-from openai.types.chat.chat_completion import ChatCompletion, Choice
+_os.environ["GALILEO_CONSOLE_URL"] = "http://localtest:8088"
+_os.environ["GALILEO_API_KEY"] = "api-1234567890"
+_os.environ["GALILEO_PROJECT"] = "test-project"
+_os.environ["GALILEO_LOG_STREAM"] = "test-log-stream"
+_os.environ["OPENAI_API_KEY"] = "sk-test"
+del _os  # Clean up temporary import
+# fmt: on
 
-from galileo.config import GalileoPythonConfig
-from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict
-from galileo_core.constants.request_method import RequestMethod
-from galileo_core.constants.routes import Routes as CoreRoutes
-from galileo_core.schemas.core.user import User
-from galileo_core.schemas.core.user_role import UserRole
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-from galileo_core.schemas.protect.ruleset import Ruleset
-from tests.testutils.setup import setup_thread_pool_request_capture
+import datetime  # noqa: E402
+import logging  # noqa: E402
+from collections.abc import Generator  # noqa: E402
+from typing import Callable  # noqa: E402
+from unittest.mock import MagicMock, patch  # noqa: E402
+from uuid import uuid4  # noqa: E402
+
+import pytest  # noqa: E402
+from openai.types import CompletionUsage  # noqa: E402
+from openai.types.chat import ChatCompletionMessage  # noqa: E402
+from openai.types.chat.chat_completion import ChatCompletion, Choice  # noqa: E402
+
+from galileo.config import GalileoPythonConfig  # noqa: E402
+from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict  # noqa: E402
+from galileo_core.constants.request_method import RequestMethod  # noqa: E402
+from galileo_core.constants.routes import Routes as CoreRoutes  # noqa: E402
+from galileo_core.schemas.core.user import User  # noqa: E402
+from galileo_core.schemas.core.user_role import UserRole  # noqa: E402
+from galileo_core.schemas.protect.rule import Rule, RuleOperator  # noqa: E402
+from galileo_core.schemas.protect.ruleset import Ruleset  # noqa: E402
+from tests.testutils.setup import setup_thread_pool_request_capture  # noqa: E402
 
 # Note: The mock_request fixture is automatically provided by galileo_core[testing] extras
 
@@ -62,7 +81,13 @@ def set_validated_config(
     mock_healthcheck: None, mock_login_api_key: None, mock_get_current_user: None, mock_decode_jwt: MagicMock
 ) -> Generator[None, None, None]:
     """Automatically set up validated config for tests."""
-    config = GalileoPythonConfig.get()
+    # Reset any existing config to ensure fresh initialization
+    # This is needed for pytest-xdist compatibility on Python 3.14+
+    if GalileoPythonConfig._instance is not None:
+        GalileoPythonConfig._instance.reset()
+    # Initialize config with EXPLICIT values to avoid env var timing issues with pytest-xdist
+    # This ensures correct config even if env vars weren't set before module imports
+    config = GalileoPythonConfig.get(console_url="http://localtest:8088", api_key="api-1234567890")
     yield
     config.reset()
 

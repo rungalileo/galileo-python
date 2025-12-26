@@ -1,3 +1,4 @@
+import sys
 import uuid
 from datetime import datetime
 from typing import Any
@@ -5,9 +6,16 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from galileo.handlers.crewai.handler import CrewAIEventListener
-from galileo.schema.handlers import NodeType
-from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
+# Skip all tests in this module on Python 3.14+ (crewai doesn't support it yet)
+pytestmark = pytest.mark.skipif(sys.version_info >= (3, 14), reason="crewai does not support Python 3.14+")
+
+from galileo.handlers.crewai.handler import CrewAIEventListener  # noqa: E402
+from galileo.schema.handlers import NodeType  # noqa: E402
+from tests.testutils.setup import (  # noqa: E402
+    setup_mock_logstreams_client,
+    setup_mock_projects_client,
+    setup_mock_traces_client,
+)
 
 
 class MockEvent:

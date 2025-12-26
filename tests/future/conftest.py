@@ -5,6 +5,10 @@ This file provides fixtures for Configuration tests with proper mocking
 to prevent interactive prompts and properly isolate Configuration tests.
 
 These tests are completely isolated from the parent conftest.py fixtures.
+
+NOTE: Unlike the main tests/conftest.py, we do NOT set default env vars here
+because future tests need to test "missing env var" scenarios (e.g.,
+test_connect_fails_without_console_url, test_connect_fails_without_api_key).
 """
 
 import logging
@@ -36,18 +40,25 @@ def set_validated_config() -> Generator[None, None, None]:
     """
     yield
     # Clean up any config that might have been created
-    try:
-        config = GalileoPythonConfig.get()
-        config.reset()
-    except Exception:
-        pass
+    # Only reset if already initialized to avoid triggering config initialization
+    # with potentially wrong values (no mocks available during teardown)
+    if GalileoPythonConfig._instance is not None:
+        GalileoPythonConfig._instance.reset()
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def clean_env(monkeypatch: pytest.MonkeyPatch) -> Generator[None, None, None]:
-    """Clean environment fixture that removes all Galileo-related env vars."""
+    """Clean environment fixture that removes all Galileo-related env vars.
+
+    This is autouse=True to ensure future tests start with a clean environment,
+    especially important because the parent tests/conftest.py sets env vars at
+    import time for pytest-xdist compatibility. Future tests need to test
+    scenarios like "missing console URL" which require these vars to be absent.
+    """
     for key in _CONFIGURATION_KEYS:
         monkeypatch.delenv(key.env_var, raising=False)
+    # Also clear OPENAI_API_KEY which parent conftest sets
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     yield
 
 
