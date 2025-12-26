@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import ClassVar, Optional
 
 
 class GalileoFutureError(Exception):
@@ -68,3 +68,31 @@ class SyncError(GalileoFutureError):
         super().__init__(message)
         self.sync_state = sync_state
         self.original_error = original_error
+
+
+class IntegrationNotConfiguredError(GalileoFutureError):
+    """
+    Raised when attempting to use an integration that is not configured.
+
+    This error provides guidance on how to create or configure the integration.
+    """
+
+    # Integrations that have SDK create methods
+    _SUPPORTED_CREATE_METHODS: ClassVar[dict[str, str]] = {
+        "openai": "Integration.create_openai()",
+        "azure": "Integration.create_azure()",
+        "aws_bedrock": "Integration.create_bedrock()",
+        "anthropic": "Integration.create_anthropic()",
+    }
+
+    def __init__(self, integration_name: str):
+        create_method = self._SUPPORTED_CREATE_METHODS.get(integration_name)
+        if create_method:
+            message = (
+                f"No '{integration_name}' integration configured.\n"
+                f"Create one using {create_method} or configure it in the Galileo console."
+            )
+        else:
+            message = f"No '{integration_name}' integration configured.\nConfigure it in the Galileo console."
+        super().__init__(message)
+        self.integration_name = integration_name
