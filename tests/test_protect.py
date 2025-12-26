@@ -1,22 +1,27 @@
+import sys
 from typing import Optional
 from unittest.mock import ANY, AsyncMock, Mock, patch
 from uuid import uuid4
 
+import pytest
 from pytest import mark
 
-from galileo.handlers.langchain.tool import ProtectTool
-from galileo.protect import Protect, ainvoke_protect, invoke_protect
-from galileo.resources.models.execution_status import ExecutionStatus as APIExecutionStatus
-from galileo.resources.models.http_validation_error import HTTPValidationError
-from galileo.resources.models.protect_request import ProtectRequest as APIRequest
-from galileo.resources.models.protect_response import ProtectResponse as APIResponse
-from galileo.resources.models.validation_error import ValidationError
-from galileo_core.schemas.protect.execution_status import ExecutionStatus
-from galileo_core.schemas.protect.payload import Payload
-from galileo_core.schemas.protect.request import Request
-from galileo_core.schemas.protect.response import Response
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-from galileo_core.schemas.protect.ruleset import Ruleset
+# Skip all tests in this module on Python 3.14+ (pydantic.v1 doesn't support it)
+pytestmark = pytest.mark.skipif(sys.version_info >= (3, 14), reason="pydantic.v1 does not support Python 3.14+")
+
+from galileo.handlers.langchain.tool import ProtectTool  # noqa: E402
+from galileo.protect import Protect, ainvoke_protect, invoke_protect  # noqa: E402
+from galileo.resources.models.execution_status import ExecutionStatus as APIExecutionStatus  # noqa: E402
+from galileo.resources.models.http_validation_error import HTTPValidationError  # noqa: E402
+from galileo.resources.models.protect_request import ProtectRequest as APIRequest  # noqa: E402
+from galileo.resources.models.protect_response import ProtectResponse as APIResponse  # noqa: E402
+from galileo.resources.models.validation_error import ValidationError  # noqa: E402
+from galileo_core.schemas.protect.execution_status import ExecutionStatus  # noqa: E402
+from galileo_core.schemas.protect.payload import Payload  # noqa: E402
+from galileo_core.schemas.protect.request import Request  # noqa: E402
+from galileo_core.schemas.protect.response import Response  # noqa: E402
+from galileo_core.schemas.protect.rule import Rule, RuleOperator  # noqa: E402
+from galileo_core.schemas.protect.ruleset import Ruleset  # noqa: E402
 
 A_PROJECT_NAME = "project_name"
 A_STAGE_NAME = "stage_name"

@@ -1,5 +1,6 @@
 import datetime
 import logging
+import sys
 from collections.abc import Generator
 from typing import Callable
 from unittest.mock import MagicMock, patch
@@ -11,14 +12,20 @@ from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 
 from galileo.config import GalileoPythonConfig
-from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict
-from galileo_core.constants.request_method import RequestMethod
-from galileo_core.constants.routes import Routes as CoreRoutes
-from galileo_core.schemas.core.user import User
-from galileo_core.schemas.core.user_role import UserRole
-from galileo_core.schemas.protect.rule import Rule, RuleOperator
-from galileo_core.schemas.protect.ruleset import Ruleset
-from tests.testutils.setup import setup_thread_pool_request_capture
+
+# Skip test modules that use pydantic.v1 on Python 3.14+ (pydantic.v1 is incompatible)
+# This must be done via collect_ignore because the module import itself fails
+collect_ignore = []
+if sys.version_info >= (3, 14):
+    collect_ignore.extend(["test_protect.py", "test_protect_parser.py"])
+from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict  # noqa: E402
+from galileo_core.constants.request_method import RequestMethod  # noqa: E402
+from galileo_core.constants.routes import Routes as CoreRoutes  # noqa: E402
+from galileo_core.schemas.core.user import User  # noqa: E402
+from galileo_core.schemas.core.user_role import UserRole  # noqa: E402
+from galileo_core.schemas.protect.rule import Rule, RuleOperator  # noqa: E402
+from galileo_core.schemas.protect.ruleset import Ruleset  # noqa: E402
+from tests.testutils.setup import setup_thread_pool_request_capture  # noqa: E402
 
 # Note: The mock_request fixture is automatically provided by galileo_core[testing] extras
 
