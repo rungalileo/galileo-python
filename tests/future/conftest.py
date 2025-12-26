@@ -5,38 +5,28 @@ This file provides fixtures for Configuration tests with proper mocking
 to prevent interactive prompts and properly isolate Configuration tests.
 
 These tests are completely isolated from the parent conftest.py fixtures.
+
+NOTE: Unlike the main tests/conftest.py, we do NOT set default env vars here
+because future tests need to test "missing env var" scenarios (e.g.,
+test_connect_fails_without_console_url, test_connect_fails_without_api_key).
 """
 
-# fmt: off
-# CRITICAL: Set test environment variables BEFORE any other imports.
-# This MUST be at the absolute top of conftest.py before any import statements.
-# Required for pytest-xdist compatibility on Python 3.14+.
-import os as _os
+import logging
+from collections.abc import Generator
+from io import StringIO
+from pathlib import Path
+from unittest.mock import AsyncMock, MagicMock, patch
+from uuid import uuid4
 
-_os.environ.setdefault("GALILEO_CONSOLE_URL", "http://localtest:8088")
-_os.environ.setdefault("GALILEO_API_KEY", "api-1234567890")
-_os.environ.setdefault("GALILEO_PROJECT", "test-project")
-_os.environ.setdefault("GALILEO_LOG_STREAM", "test-log-stream")
-_os.environ.setdefault("OPENAI_API_KEY", "sk-test")
-del _os  # Clean up temporary import
-# fmt: on
+import pytest
+from httpx import Request, Response
 
-import logging  # noqa: E402
-from collections.abc import Generator  # noqa: E402
-from io import StringIO  # noqa: E402
-from pathlib import Path  # noqa: E402
-from unittest.mock import AsyncMock, MagicMock, patch  # noqa: E402
-from uuid import uuid4  # noqa: E402
-
-import pytest  # noqa: E402
-from httpx import Request, Response  # noqa: E402
-
-from galileo.__future__ import Configuration  # noqa: E402
-from galileo.__future__.configuration import _CONFIGURATION_KEYS  # noqa: E402
-from galileo.config import GalileoPythonConfig  # noqa: E402
-from galileo.resources.models.messages_list_item import MessagesListItem  # noqa: E402
-from galileo_core.schemas.core.user import User  # noqa: E402
-from galileo_core.schemas.core.user_role import UserRole  # noqa: E402
+from galileo.__future__ import Configuration
+from galileo.__future__.configuration import _CONFIGURATION_KEYS
+from galileo.config import GalileoPythonConfig
+from galileo.resources.models.messages_list_item import MessagesListItem
+from galileo_core.schemas.core.user import User
+from galileo_core.schemas.core.user_role import UserRole
 
 
 # Override parent autouse fixture to prevent it from running for future tests
@@ -56,11 +46,19 @@ def set_validated_config() -> Generator[None, None, None]:
         GalileoPythonConfig._instance.reset()
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def clean_env(monkeypatch: pytest.MonkeyPatch) -> Generator[None, None, None]:
-    """Clean environment fixture that removes all Galileo-related env vars."""
+    """Clean environment fixture that removes all Galileo-related env vars.
+
+    This is autouse=True to ensure future tests start with a clean environment,
+    especially important because the parent tests/conftest.py sets env vars at
+    import time for pytest-xdist compatibility. Future tests need to test
+    scenarios like "missing console URL" which require these vars to be absent.
+    """
     for key in _CONFIGURATION_KEYS:
         monkeypatch.delenv(key.env_var, raising=False)
+    # Also clear OPENAI_API_KEY which parent conftest sets
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     yield
 
 
