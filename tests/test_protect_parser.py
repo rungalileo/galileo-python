@@ -1,18 +1,13 @@
 import logging
-import sys
 from json import dumps
 from typing import Any, Optional
 from unittest.mock import patch
 
-import pytest
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.language_models.llms import LLM
 from pytest import LogCaptureFixture, mark
 
-# Skip all tests in this module on Python 3.14+ (pydantic.v1 doesn't support it)
-pytestmark = pytest.mark.skipif(sys.version_info >= (3, 14), reason="pydantic.v1 does not support Python 3.14+")
-
-from galileo.handlers.langchain.tool import ProtectParser  # noqa: E402
+from galileo.handlers.langchain.tool import ProtectParser
 
 A_TRACE_METADATA_DICT = {
     "trace_metadata": {

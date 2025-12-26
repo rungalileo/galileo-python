@@ -14,7 +14,6 @@ del _os  # Clean up temporary import
 
 import datetime  # noqa: E402
 import logging  # noqa: E402
-import sys  # noqa: E402
 from collections.abc import Generator  # noqa: E402
 from typing import Callable  # noqa: E402
 from unittest.mock import MagicMock, patch  # noqa: E402
@@ -26,12 +25,6 @@ from openai.types.chat import ChatCompletionMessage  # noqa: E402
 from openai.types.chat.chat_completion import ChatCompletion, Choice  # noqa: E402
 
 from galileo.config import GalileoPythonConfig  # noqa: E402
-
-# Skip test modules that use pydantic.v1 on Python 3.14+ (pydantic.v1 is incompatible)
-# This must be done via collect_ignore because the module import itself fails
-collect_ignore = []
-if sys.version_info >= (3, 14):
-    collect_ignore.extend(["test_protect.py", "test_protect_parser.py"])
 from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict  # noqa: E402
 from galileo_core.constants.request_method import RequestMethod  # noqa: E402
 from galileo_core.constants.routes import Routes as CoreRoutes  # noqa: E402
