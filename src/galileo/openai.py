@@ -39,9 +39,9 @@ with galileo_context(project="my-project", log_stream="my-log-stream"):
 ```
 """
 
+import json
 import logging
 import types
-import json
 from collections import defaultdict
 from collections.abc import Generator, Iterable
 from dataclasses import dataclass
@@ -60,9 +60,19 @@ from galileo.utils.serialization import serialize_to_str
 
 try:
     import openai
-    import openai.resources
     from openai._types import NotGiven
+    from openai.types import Reasoning
     from openai.types.chat import ChatCompletionMessageToolCall
+    from openai.types.responses import (
+        ResponseCodeInterpreterToolCall,
+        ResponseComputerToolCall,
+        ResponseFileSearchToolCall,
+        ResponseFunctionToolCall,
+        ResponseFunctionWebSearch,
+        ResponseOutputMessage,
+        ResponseReasoningItem,
+    )
+    from openai.types.responses.response_output_item import ImageGenerationCall, LocalShellCall, McpCall, McpListTools
 
     # it's used only for version check of OpenAI
     from packaging.version import Version
@@ -170,10 +180,7 @@ def _convert_to_galileo_message(data: Any, default_role: str = "user") -> Messag
 
     if isinstance(data, dict) and data.get("type") == "function_call_output":
         output = data.get("output", "")
-        if isinstance(output, dict):
-            content = json.dumps(output)
-        else:
-            content = str(output)
+        content = json.dumps(output) if isinstance(output, dict) else str(output)
 
         return Message(content=content, role=MessageRole.tool, tool_call_id=data.get("call_id", ""))
 
@@ -322,10 +329,25 @@ def _extract_input_data_from_kwargs(
     parsed_tool_choice = kwargs.get("tool_choice") if not isinstance(kwargs.get("tool_choice"), NotGiven) else None
 
     # Extract reasoning parameters for Responses API
-    reasoning = kwargs.get("reasoning") if resource.type == "response" else None
-    parsed_reasoning_effort = reasoning.get("effort") if reasoning else None
-    parsed_reasoning_verbosity = reasoning.get("summary") if reasoning else None
-    parsed_reasoning_generate_summary = reasoning.get("generate_summary") if reasoning else None
+    reasoning: Optional[Union[Reasoning, dict]] = kwargs.get("reasoning") if resource.type == "response" else None
+    if reasoning:
+        # Handle both Reasoning object and dict types
+        if isinstance(reasoning, Reasoning):
+            parsed_reasoning_effort = reasoning.effort
+            parsed_reasoning_verbosity = reasoning.summary
+            parsed_reasoning_generate_summary = reasoning.generate_summary
+        elif isinstance(reasoning, dict):
+            parsed_reasoning_effort = reasoning.get("effort")
+            parsed_reasoning_verbosity = reasoning.get("summary")
+            parsed_reasoning_generate_summary = reasoning.get("generate_summary")
+        else:
+            parsed_reasoning_effort = getattr(reasoning, "effort", None)
+            parsed_reasoning_verbosity = getattr(reasoning, "summary", None)
+            parsed_reasoning_generate_summary = getattr(reasoning, "generate_summary", None)
+    else:
+        parsed_reasoning_effort = None
+        parsed_reasoning_verbosity = None
+        parsed_reasoning_generate_summary = None
     # handle deprecated aliases (functions for tools, function_call for tool_choice)
     if parsed_tools is None and kwargs.get("functions") is not None:
         parsed_tools = kwargs["functions"]
@@ -377,16 +399,16 @@ def _parse_usage(usage: Optional[dict] = None) -> Optional[dict]:
 
     # Handle Responses API field names (input_tokens/output_tokens) vs Chat Completions (prompt_tokens/completion_tokens)
     if "input_tokens" in usage_dict:
-        usage_dict["prompt_tokens"] = usage_dict.pop("input_tokens")
+        usage_dict["input_tokens"] = usage_dict.pop("input_tokens")
     if "output_tokens" in usage_dict:
-        usage_dict["completion_tokens"] = usage_dict.pop("output_tokens")
+        usage_dict["output_tokens"] = usage_dict.pop("output_tokens")
 
     if "input_tokens_details" in usage_dict:
-        usage_dict["prompt_tokens_details"] = usage_dict.pop("input_tokens_details")
+        usage_dict["input_tokens_details"] = usage_dict.pop("input_tokens_details")
     if "output_tokens_details" in usage_dict:
-        usage_dict["completion_tokens_details"] = usage_dict.pop("output_tokens_details")
+        usage_dict["output_tokens_details"] = usage_dict.pop("output_tokens_details")
 
-    for tokens_details in ["prompt_tokens_details", "completion_tokens_details"]:
+    for tokens_details in ["input_tokens_details", "output_tokens_details"]:
         if tokens_details in usage_dict and usage_dict[tokens_details] is not None:
             tokens_details_dict = (
                 usage_dict[tokens_details]
@@ -398,10 +420,10 @@ def _parse_usage(usage: Optional[dict] = None) -> Optional[dict]:
     return usage_dict
 
 
-def _extract_reasoning_content(item) -> str:
+def _extract_reasoning_content(item: ResponseReasoningItem) -> str:
     """Extract reasoning content from a reasoning item. Combines multiple summary items into a single string."""
-    summary = getattr(item, "summary", [])
-    if isinstance(summary, list) and summary:
+    summary = item.summary or []
+    if summary:
         reasoning_texts = []
         for summary_item in summary:
             if hasattr(summary_item, "text"):
@@ -411,9 +433,10 @@ def _extract_reasoning_content(item) -> str:
         return "\n\n".join(reasoning_texts)
     return ""
 
-def _extract_message_content(item) -> str:
+
+def _extract_message_content(item: ResponseOutputMessage) -> str:
     """Extract message content from a message item."""
-    content = getattr(item, "content", [])
+    content = item.content or []
     if isinstance(content, list):
         text_parts = []
         for content_item in content:
@@ -424,26 +447,240 @@ def _extract_message_content(item) -> str:
         return "".join(text_parts)
     return str(content) if content else ""
 
-def _process_output_items(output_items: list, galileo_logger, model: str = None, original_input: list = None, model_parameters: dict = None) -> list:
+
+def _extract_web_search_tool_data(item: ResponseFunctionWebSearch) -> tuple[str, str]:
+    """Extract input/output data from a web_search_call item."""
+    tool_status = item.status or ""
+    action = item.action
+    if action:
+        input_data: dict[str, Any] = {"type": getattr(action, "type", "")}
+        if hasattr(action, "query"):
+            input_data["query"] = getattr(action, "query", "")
+        if hasattr(action, "url"):
+            input_data["url"] = getattr(action, "url", "")
+        if hasattr(action, "pattern"):
+            input_data["pattern"] = getattr(action, "pattern", "")
+        tool_input = json.dumps(input_data, indent=2)
+
+        output_data: dict[str, Any] = {}
+        if hasattr(action, "sources") and action.sources:
+            sources = getattr(action, "sources", [])
+            output_data["sources"] = [
+                source.__dict__ if hasattr(source, "__dict__") else str(source) for source in sources
+            ]
+        if not output_data:
+            output_data = {"status": tool_status}
+        tool_output = json.dumps(output_data, indent=2)
+    else:
+        tool_input = json.dumps({}, indent=2)
+        tool_output = f"Status: {tool_status}"
+    return tool_input, tool_output
+
+
+def _extract_mcp_call_tool_data(item: McpCall) -> tuple[str, str]:
+    """Extract input/output data from an mcp_call item."""
+    tool_input = json.dumps(
+        {"name": item.name or "", "server_label": item.server_label or "", "arguments": item.arguments or ""}, indent=2
+    )
+    tool_output = json.dumps({"output": item.output or ""}, indent=2)
+    return tool_input, tool_output
+
+
+def _extract_mcp_list_tools_data(item: McpListTools) -> tuple[str, str]:
+    """Extract input/output data from an mcp_list_tools item."""
+    tool_input = item.server_label or ""
+    tools = item.tools or []
+    tool_output = json.dumps([tool.__dict__ if hasattr(tool, "__dict__") else tool for tool in tools], indent=2)
+    return tool_input, tool_output
+
+
+def _extract_file_search_tool_data(item: ResponseFileSearchToolCall) -> tuple[str, str]:
+    """Extract input/output data from a file_search_call item."""
+    tool_status = item.status or ""
+    tool_input = json.dumps(
+        {
+            "queries": item.queries or [],
+            "results": [result.__dict__ if hasattr(result, "__dict__") else result for result in (item.results or [])],
+        },
+        indent=2,
+    )
+    tool_output = f"Status: {tool_status}"
+    return tool_input, tool_output
+
+
+def _extract_computer_call_tool_data(item: ResponseComputerToolCall) -> tuple[str, str]:
+    """Extract input/output data from a computer_call item."""
+    tool_status = item.status or ""
+    action = item.action
+    tool_input = json.dumps(action.__dict__ if action else {}, indent=2)
+    tool_output = f"Status: {tool_status}"
+    return tool_input, tool_output
+
+
+def _extract_image_generation_tool_data(item: ImageGenerationCall) -> tuple[str, str]:
+    """Extract input/output data from an image_generation_call item."""
+    tool_input = json.dumps({"id": item.id or "", "status": item.status or ""}, indent=2)
+    tool_output = item.result or ""
+    return tool_input, tool_output
+
+
+def _extract_code_interpreter_tool_data(item: ResponseCodeInterpreterToolCall) -> tuple[str, str]:
+    """Extract input/output data from a code_interpreter_call item."""
+    tool_input = json.dumps(
+        {
+            "id": item.id or "",
+            "code": item.code or "",
+            "container_id": item.container_id or "",
+            "status": item.status or "",
+        },
+        indent=2,
+    )
+    outputs = item.outputs or []
+    tool_output = json.dumps([o.__dict__ if hasattr(o, "__dict__") else o for o in outputs], indent=2)
+    return tool_input, tool_output
+
+
+def _extract_local_shell_tool_data(item: LocalShellCall) -> tuple[str, str]:
+    """Extract input/output data from a local_shell_call item."""
+    tool_status = item.status or ""
+    action = item.action
+    tool_input = json.dumps(
+        {
+            "id": item.id or "",
+            "call_id": item.call_id or "",
+            "status": item.status or "",
+            "action": action.__dict__ if action else {},
+        },
+        indent=2,
+    )
+    tool_output = f"Status: {tool_status}"
+    return tool_input, tool_output
+
+
+def _extract_custom_tool_data(item: ResponseFunctionToolCall) -> tuple[str, str]:
+    """Extract input/output data from a custom_tool_call (function tool call) item."""
+    tool_status = item.status or ""
+    tool_input = json.dumps({"name": item.name or "", "arguments": item.arguments or ""}, indent=2)
+    tool_output = f"Status: {tool_status}"
+    return tool_input, tool_output
+
+
+def _extract_function_call_data(item: Any) -> tuple[str, str]:
+    """Extract input/output data from a function_call item (model requesting to call a function)."""
+    tool_input = json.dumps(
+        {
+            "name": getattr(item, "name", ""),
+            "arguments": getattr(item, "arguments", ""),
+            "call_id": getattr(item, "call_id", "") or getattr(item, "id", ""),
+        },
+        indent=2,
+    )
+    tool_output = json.dumps({"status": getattr(item, "status", "pending")}, indent=2)
+    return tool_input, tool_output
+
+
+def _extract_generic_tool_data(item: Any) -> tuple[str, str]:
+    """Extract input/output data from an unknown tool type."""
+    tool_status = getattr(item, "status", "")
+    tool_input = json.dumps({"name": getattr(item, "name", ""), "arguments": getattr(item, "arguments", "")}, indent=2)
+    tool_output = f"Status: {tool_status}\nOutput: {getattr(item, 'output', '')}"
+    return tool_input, tool_output
+
+
+# Mapping of tool types to their extraction functions
+_TOOL_EXTRACTORS: dict[str, Callable[[Any], tuple[str, str]]] = {
+    "web_search_call": _extract_web_search_tool_data,
+    "mcp_call": _extract_mcp_call_tool_data,
+    "mcp_list_tools": _extract_mcp_list_tools_data,
+    "file_search_call": _extract_file_search_tool_data,
+    "computer_call": _extract_computer_call_tool_data,
+    "image_generation_call": _extract_image_generation_tool_data,
+    "code_interpreter_call": _extract_code_interpreter_tool_data,
+    "local_shell_call": _extract_local_shell_tool_data,
+    "custom_tool_call": _extract_custom_tool_data,
+    # Note: "function_call" is handled separately - it's joined with function_call_output
+    # in _process_function_call_outputs to create a single combined tool span
+}
+
+# Tool call types that should create separate tool spans
+# function_call is excluded because it's combined with function_call_output
+TOOL_SPAN_TYPES = frozenset(_TOOL_EXTRACTORS.keys())
+
+
+def _process_function_call_outputs(input_items: list, galileo_logger: GalileoLogger) -> None:
+    """
+    Process function_call and function_call_output items from the input and create combined tool spans.
+    This joins the function call (model's request to call a tool) with the function output (tool result)
+    into a single tool span, representing the complete tool execution.
+    """
+    # First, collect all function_call items by call_id (handle both object and dict forms)
+    function_calls: dict[str, dict] = {}
+    for item in input_items:
+        # Check for object form (from SDK response objects)
+        if hasattr(item, "type") and item.type == "function_call":
+            call_id = getattr(item, "call_id", "") or getattr(item, "id", "")
+            function_calls[call_id] = {
+                "name": getattr(item, "name", ""),
+                "arguments": getattr(item, "arguments", ""),
+                "call_id": call_id,
+            }
+        # Check for dict form (when passed as dict in input)
+        elif isinstance(item, dict) and item.get("type") == "function_call":
+            call_id = item.get("call_id", "") or item.get("id", "")
+            function_calls[call_id] = {
+                "name": item.get("name", ""),
+                "arguments": item.get("arguments", ""),
+                "call_id": call_id,
+            }
+
+    # Then, process function_call_output items and match with function_calls
+    for item in input_items:
+        if isinstance(item, dict) and item.get("type") == "function_call_output":
+            call_id = item.get("call_id", "")
+            output = item.get("output", "")
+
+            # Get matching function_call if available
+            function_call = function_calls.get(call_id, {})
+
+            # Create tool span with function call info as input and result as output
+            tool_input = json.dumps(
+                {
+                    "name": function_call.get("name", ""),
+                    "arguments": function_call.get("arguments", ""),
+                    "call_id": call_id,
+                },
+                indent=2,
+            )
+            tool_output = json.dumps(output) if isinstance(output, dict) else str(output)
+
+            galileo_logger.add_tool_span(
+                input=tool_input,
+                output=tool_output,
+                name=function_call.get("name") or "function_call",
+                metadata={"tool_id": call_id, "tool_type": "function_call"},
+            )
+
+
+def _process_output_items(
+    output_items: list,
+    galileo_logger: GalileoLogger,
+    model: str | None = None,
+    original_input: list | None = None,
+    model_parameters: dict | None = None,
+    status_code: int = 200,
+    tools: list | None = None,
+) -> list:
     """
     The responses API returns an array of output items. This function processes output items sequentially,
     consolidating reasoning into the main response content and creating tool spans for specific tool call types.
     """
     conversation_context = original_input.copy() if original_input else []
-    
+
     # Collect all reasoning content to include in the final response
     all_reasoning_content = []
     final_message_content = ""
     final_tool_calls = []
-    
-    # Tool call types that should create separate tool spans
-    # https://platform.openai.com/docs/guides/tools 
-    tool_span_types = {
-        "mcp_call", "mcp_list_tools", "web_search_call", "file_search_call", 
-        "computer_call", "image_generation_call", "code_interpreter_call", 
-        "local_shell_call", "custom_tool_call"
-    }
-    
+
     # loop through output items to construct tool calls, messages, and reasoning
     for item in output_items:
         if hasattr(item, "type") and item.type == "reasoning":
@@ -451,12 +688,12 @@ def _process_output_items(output_items: list, galileo_logger, model: str = None,
             reasoning_content = _extract_reasoning_content(item)
             if reasoning_content:
                 all_reasoning_content.append(reasoning_content)
-            
+
         elif hasattr(item, "type") and item.type == "message":
             # Extract message content
             message_content = _extract_message_content(item)
             final_message_content = message_content
-            
+
         elif hasattr(item, "type") and item.type == "function_call":
             # Collect regular function calls (not tool spans)
             tool_call = {
@@ -465,207 +702,103 @@ def _process_output_items(output_items: list, galileo_logger, model: str = None,
                 "type": "function",
             }
             final_tool_calls.append(tool_call)
-    
+
     # Create consolidated output with reasoning as separate Messages
     consolidated_output_messages = []
-    
+
     # Add reasoning as special reasoning objects (not Message objects)
     if all_reasoning_content:
-        for i, reasoning_text in enumerate(all_reasoning_content):
+        for _i, reasoning_text in enumerate(all_reasoning_content):
             # Create a special reasoning object instead of a Message
-            reasoning_obj = {
-                    "type": "reasoning",
-                "content": reasoning_text,
-            }
+            reasoning_obj = {"type": "reasoning", "content": reasoning_text}
             consolidated_output_messages.append(reasoning_obj)
-    
+
     # Add the final response message
     if final_message_content:
         response_message = _convert_to_galileo_message(final_message_content, "assistant")
         consolidated_output_messages.append(response_message)
-    
+
     # Create the final consolidated output for the LLM span with content and reasoning
     if consolidated_output_messages or final_tool_calls:
-        # WORKAROUND: Serialize the array of Messages and reasoning objects into a string since LLM span output 
-        # doesn't support lis of Messages. This is a temporary solution until better responses support is added.
-        serialized_items = []
-        for item in consolidated_output_messages:
-            if isinstance(item, dict) and item.get("type") == "reasoning":
-                # Keep reasoning objects as-is
-                serialized_items.append(item)
-            else:
-                # Convert Message objects to dict
-                serialized_items.append(item.model_dump(exclude_none=True))
-        
-        messages_serialized = json.dumps(serialized_items, indent=2)
-        
-        # Create a single Message with the serialized array as content
-        consolidated_output = _convert_to_galileo_message(messages_serialized, "assistant")
-        
+        # If there's no reasoning content, use the message content directly
+        # Otherwise, serialize the array of Messages and reasoning objects into a string
+        if not all_reasoning_content and final_message_content:
+            # Simple case: just a message with no reasoning
+            consolidated_output = _convert_to_galileo_message(final_message_content, "assistant")
+        else:
+            # Complex case: serialize the array of Messages and reasoning objects
+            # WORKAROUND: Serialize into a string since LLM span output
+            # doesn't support list of Messages. This is a temporary solution until better responses support is added.
+            serialized_items = []
+            for item in consolidated_output_messages:
+                if isinstance(item, dict) and item.get("type") == "reasoning":
+                    # Keep reasoning objects as-is
+                    serialized_items.append(item)
+                elif isinstance(item, Message):
+                    serialized_items.append(item.model_dump(exclude_none=True))
+                else:
+                    # Convert to JSON string as fallback
+                    serialized_items.append(json.dumps(item))
+
+            messages_serialized = json.dumps(serialized_items, indent=2)
+
+            # Create a single Message with the serialized array as content
+            consolidated_output = _convert_to_galileo_message(messages_serialized, "assistant")
+
         # Add tool calls if present
         if final_tool_calls:
             consolidated_output.tool_calls = [
                 ToolCall(
                     id=tc["id"],
-                    function=ToolCallFunction(name=tc["function"]["name"], arguments=tc["function"]["arguments"])
-                ) for tc in final_tool_calls
+                    function=ToolCallFunction(name=tc["function"]["name"], arguments=tc["function"]["arguments"]),
+                )
+                for tc in final_tool_calls
             ]
-        
+
         # Create single consolidated span with serialized messages
         galileo_logger.add_llm_span(
             input=conversation_context,
             output=consolidated_output,
             model=model,
             name="response",
+            tools=tools,
+            status_code=status_code,
             metadata={
-            "type": "consolidated_response",
-            "includes_reasoning": str(bool(all_reasoning_content)),
-            "reasoning_count": str(len(all_reasoning_content)),
-            "serialized_messages": "true",  # Flag to indicate this contains serialized messages
-                **{str(k): str(v) for k, v in (model_parameters or {}).items()}
-            }
+                "type": "consolidated_response",
+                "includes_reasoning": str(bool(all_reasoning_content)),
+                "reasoning_count": str(len(all_reasoning_content)),
+                "serialized_messages": "true",  # Flag to indicate this contains serialized messages
+                **{str(k): str(v) for k, v in (model_parameters or {}).items()},
+            },
         )
-        
+
         # Update conversation context with only Message objects (not reasoning objects)
         for item in consolidated_output_messages:
             if not (isinstance(item, dict) and item.get("type") == "reasoning"):
                 conversation_context.append(item)
-    
-    # Process tool calls that should create separate tool spans
-    # TODO: These should be child tool call spans once the child span functionality is fixed
+
     for item in output_items:
-        if hasattr(item, "type") and item.type in tool_span_types:
-            # Extract tool call data based on type
+        if hasattr(item, "type") and item.type in TOOL_SPAN_TYPES:
             tool_id = getattr(item, "id", "")
             tool_status = getattr(item, "status", "")
-            
-            # Extract type-specific data
-            if item.type == "web_search_call":
-                # https://platform.openai.com/docs/api-reference/responses/object#responses/object-output-web-search-tool-call
-                # Extract web search action details - query/type as input, sources as output
-                action = getattr(item, "action", None)
-                if action:
-                    # Input: grab relevant keys if they exist
-                    input_data = {"type": getattr(action, "type", "")}
-                    if hasattr(action, "query"):
-                        input_data["query"] = getattr(action, "query", "")
-                    if hasattr(action, "url"):
-                        input_data["url"] = getattr(action, "url", "")
-                    if hasattr(action, "pattern"):
-                        input_data["pattern"] = getattr(action, "pattern", "")
-                    tool_input = json.dumps(input_data, indent=2)
-                    
-                    # Output: grab relevant keys if they exist
-                    output_data = {}
-                    if hasattr(action, "sources") and getattr(action, "sources"):
-                        sources = getattr(action, "sources", [])
-                        output_data["sources"] = [
-                            source.__dict__ if hasattr(source, '__dict__') else str(source) 
-                            for source in sources
-                        ]
-                    if not output_data:
-                        output_data = {"status": tool_status}
-                    tool_output = json.dumps(output_data, indent=2)
-                else:
-                    tool_input = json.dumps({}, indent=2)
-                    tool_output = f"Status: {tool_status}"
-                
-            elif item.type == "mcp_call":
-                # Extract MCP call details - send raw JSON
-                tool_input = json.dumps({
-                    "name": getattr(item, "name", ""),
-                    "server_label": getattr(item, "server_label", ""),
-                    "arguments": getattr(item, "arguments", ""),
-                }, indent=2)
-                tool_output = json.dumps({
-                    "status": tool_status,
-                    "output": getattr(item, 'output', '')
-                }, indent=2)
-                
-            elif item.type == "mcp_list_tools":
-                # Extract listed tools - server as input, tools as output
-                tool_input = getattr(item, "server_label", "")
-                tool_output = json.dumps([tool.__dict__ if hasattr(tool, "__dict__") else tool for tool in getattr(item, "tools", [])], indent=2)
-                
-            elif item.type == "file_search_call":
-                # https://platform.openai.com/docs/api-reference/responses/object#responses/object-output-file-search-tool-call
-                # Extract file search details - send raw JSON
-                tool_input = json.dumps({
-                    "queries": getattr(item, "queries", []),
-                    "results": [result.__dict__ if hasattr(result, "__dict__") else result for result in getattr(item, "results", [])]
-                }, indent=2)
-                tool_output = f"Status: {tool_status}"
-                
-            elif item.type == "computer_call":
-                # https://platform.openai.com/docs/api-reference/responses/object#responses/object-output-computer-tool-call
-                # Extract computer call action details - send raw JSON
-                action = getattr(item, "action", None)
-                tool_input = json.dumps(action.__dict__ if action else {}, indent=2)
-                tool_output = f"Status: {tool_status}"
-                
-            elif item.type == "image_generation_call":
-                # https://platform.openai.com/docs/api-reference/responses/object#responses/object-output-image-generation-call
-                # Extract image generation details - send raw JSON
-                tool_input = json.dumps({
-                    "id": getattr(item, "id", ""),
-                    "status": getattr(item, "status", ""),
-                }, indent=2)
-                tool_output = getattr(item, 'result', '')
-                
-            elif item.type == "code_interpreter_call":
-                # https://platform.openai.com/docs/api-reference/responses/object#responses/object-output-code-interpreter-tool-call
-                # Extract code interpreter details - send raw JSON
-                tool_input = json.dumps({
-                    "id": getattr(item, "id", ""),
-                    "code": getattr(item, "code", ""),
-                    "container_id": getattr(item, "container_id", ""),
-                    "status": getattr(item, "status", ""),
-                }, indent=2)
-                tool_output = json.dumps(getattr(item, "outputs", []), indent=2)
-                
-            elif item.type == "local_shell_call":
-                # https://platform.openai.com/docs/api-reference/responses/object#responses/object-output-local-shell-call
-                # Extract local shell call details - send raw JSON
-                action = getattr(item, "action", None)
-                tool_input = json.dumps({
-                    "id": getattr(item, "id", ""),
-                    "call_id": getattr(item, "call_id", ""),
-                    "status": getattr(item, "status", ""),
-                    "action": action.__dict__ if action else {},
-                }, indent=2)
-                tool_output = f"Status: {tool_status}"
-                
-            elif item.type == "custom_tool_call":
-                # Extract custom tool details - send raw JSON
-                tool_input = json.dumps({
-                    "name": getattr(item, "name", ""),
-                    "arguments": getattr(item, "arguments", ""),
-                }, indent=2)
-                tool_output = json.dumps({
-                    "status": tool_status,
-                    "output": getattr(item, 'output', '')
-                }, indent=2)                
-            else:
-                # Fallback for unknown tool types - send raw JSON
-                tool_input = json.dumps({
-                    "name": getattr(item, "name", ""),
-                    "arguments": getattr(item, "arguments", ""),
-                }, indent=2)
-                tool_output = f"Status: {tool_status}\nOutput: {getattr(item, 'output', '')}"
-            
+
+            # Use the appropriate extractor function for this tool type
+            extractor = _TOOL_EXTRACTORS.get(item.type, _extract_generic_tool_data)
+            tool_input, tool_output = extractor(item)
+
             # Create tool span with the tool type as the name
             galileo_logger.add_tool_span(
                 input=tool_input,
                 output=tool_output,
-                name=item.type,  # Use the tool type as the span name
+                name=item.type,
                 metadata={
                     "tool_id": tool_id,
                     "tool_type": item.type,
                     "tool_status": tool_status,
-                    **{str(k): str(v) for k, v in (model_parameters or {}).items()}
-                }
+                    **{str(k): str(v) for k, v in (model_parameters or {}).items()},
+                },
             )
-    
+
     return conversation_context
 
 
@@ -707,11 +840,41 @@ def _extract_responses_output(output_items: list) -> dict:
     return {"role": "assistant", "content": ""}
 
 
-def _extract_data_from_default_response(resource: OpenAiModuleDefinition, response: dict[str, Any]) -> Any:
+def _has_pending_function_calls(output_items: list) -> bool:
+    """
+    Check if the response has pending function calls that require tool execution.
+    Returns True if there are function_call items but no final message content.
+    This indicates the model is waiting for tool results before producing a final response.
+    """
+    has_function_call = False
+    has_final_message = False
+
+    for item in output_items:
+        if hasattr(item, "type"):
+            if item.type == "function_call":
+                has_function_call = True
+            elif item.type == "message":
+                # Check if there's actual content in the message
+                content = getattr(item, "content", [])
+                if isinstance(content, list) and content:
+                    for content_item in content:
+                        if (hasattr(content_item, "text") and content_item.text) or (
+                            isinstance(content_item, dict) and content_item.get("text")
+                        ):
+                            has_final_message = True
+                            break
+                elif content:
+                    has_final_message = True
+
+    # Pending function calls = has function_call but no final message
+    return has_function_call and not has_final_message
+
+
+def _extract_data_from_default_response(resource: OpenAiModuleDefinition, response: dict[str, Any] | None) -> Any:
     if response is None:
         return None, "<NoneType response returned from OpenAI>", None
 
-    model = response.get("model") or None
+    model = response.get("model", None)
 
     completion = None
     if resource.type == "completion":
@@ -748,7 +911,7 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
 
 
 def _extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: Iterable) -> Any:
-    completion = defaultdict(str) if resource.type == "chat" else ""
+    completion: Any = defaultdict(lambda: None) if resource.type == "chat" else ""
     model, usage = None, None
 
     # For Responses API, we just need to find the final completed event
@@ -836,7 +999,7 @@ def _extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: 
             if resource.type == "completion":
                 completion += choice.get("text", None)
 
-    def get_response_for_chat() -> Any:
+    def get_response_for_chat(completion: dict) -> Any:
         return (
             completion["content"]
             or (completion["function_call"] and {"role": "assistant", "function_call": completion["function_call"]})
@@ -848,7 +1011,7 @@ def _extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: 
         )
 
     if resource.type == "chat":
-        return model, get_response_for_chat(), usage
+        return model, get_response_for_chat(completion), usage
     if resource.type == "response":
         if final_response:
             output_items = getattr(final_response, "output", [])
@@ -859,7 +1022,7 @@ def _extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: 
                 "role": "assistant",
                 "content": response_message.get("content", ""),
                 "tool_calls": response_message.get("tool_calls"),
-                "output": output_items  # Include output items for processing
+                "output": output_items,  # Include output items for processing
             }
             return model, full_response, usage
         return model, {"role": "assistant", "content": ""}, usage
@@ -923,7 +1086,7 @@ def _wrap(
                 status_code=status_code,
             )
         model, completion, usage = _extract_data_from_default_response(
-            open_ai_resource, ((openai_response and openai_response.__dict__) if _is_openai_v1() else openai_response)
+            open_ai_resource, (openai_response.__dict__ if openai_response and _is_openai_v1() else openai_response)
         )
 
         if usage is None:
@@ -941,17 +1104,25 @@ def _wrap(
 
         # Process Responses API output items sequentially if present
         final_conversation_context = span_input.copy()
+        output_items: list = []
         if open_ai_resource.type == "response" and openai_response:
+            # First, process any function_call_output items in the input to create tool spans
+            # This represents tool executions that happened before this API call
+            if isinstance(input_data.input, list):
+                _process_function_call_outputs(input_data.input, galileo_logger)
+
             response_dict = openai_response.__dict__ if _is_openai_v1() else openai_response
             output_items = response_dict.get("output", [])
-            
+
             # Process all output items sequentially and get the final context
             final_conversation_context = _process_output_items(
-                output_items, 
-                galileo_logger, 
-                model, 
-                span_input, 
-                input_data.model_parameters
+                output_items,
+                galileo_logger,
+                model,
+                span_input,
+                input_data.model_parameters,
+                status_code=status_code,
+                tools=input_data.tools,
             )
         else:
             # For non-Responses API (chat or completion), create the main span as before
@@ -966,8 +1137,8 @@ def _wrap(
                 model=model,
                 temperature=input_data.temperature,
                 duration_ns=duration_ns,
-                num_input_tokens=usage.get("prompt_tokens", 0),
-                num_output_tokens=usage.get("completion_tokens", 0),
+                num_input_tokens=usage.get("input_tokens", 0),
+                num_output_tokens=usage.get("output_tokens", 0),
                 total_tokens=usage.get("total_tokens", 0),
                 metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
                 # openai client library doesn't return http_status code, so we only can hardcode it here
@@ -976,7 +1147,12 @@ def _wrap(
             )
 
         # Conclude the trace if this is the top-level call
-        if should_complete_trace:
+        # For Responses API: don't conclude if there are pending function calls (model waiting for tool results)
+        has_pending_calls = (
+            open_ai_resource.type == "response" and output_items and _has_pending_function_calls(output_items)
+        )
+
+        if should_complete_trace and not has_pending_calls:
             if open_ai_resource.type == "response":
                 # For Responses API, use the final conversation context from processing
                 full_conversation = final_conversation_context
@@ -1086,7 +1262,9 @@ class ResponseGeneratorSync:
 
         end_time = _get_timestamp()
         # TODO: make sure completion_start_time what we want
-        duration_ns = round((end_time - self.completion_start_time).total_seconds() * 1e9)
+        duration_ns = (
+            round((end_time - self.completion_start_time).total_seconds() * 1e9) if self.completion_start_time else 0
+        )
 
         if isinstance(self.input_data.input, list):
             span_input = [_convert_to_galileo_message(msg) for msg in self.input_data.input]
@@ -1096,19 +1274,27 @@ class ResponseGeneratorSync:
         # probably can create a shared function for handling both streaming and non-streaming
         # Process Responses API output items sequentially if present (same as non-streaming)
         final_conversation_context = span_input.copy()
+        output_items: list = []
         if self.resource.type == "response" and completion:
+            # First, process any function_call_output items in the input to create tool spans
+            # This represents tool executions that happened before this API call
+            if isinstance(self.input_data.input, list):
+                _process_function_call_outputs(self.input_data.input, self.logger)
+
             # For streaming Responses API, we need to extract output items from the completion
             # The completion should contain the final response with output items
             if isinstance(completion, dict) and "output" in completion:
                 output_items = completion.get("output", [])
-                
+
                 # Process all output items sequentially and get the final context
                 final_conversation_context = _process_output_items(
-                    output_items, 
-                    self.logger, 
-                    model, 
-                    span_input, 
-                    self.input_data.model_parameters
+                    output_items,
+                    self.logger,
+                    model,
+                    span_input,
+                    self.input_data.model_parameters,
+                    status_code=self.status_code,
+                    tools=self.input_data.tools,
                 )
             else:
                 # Fallback: create basic span if no output items
@@ -1121,8 +1307,8 @@ class ResponseGeneratorSync:
                     model=model,
                     temperature=self.input_data.temperature,
                     duration_ns=duration_ns,
-                    num_input_tokens=usage.get("prompt_tokens", 0),
-                    num_output_tokens=usage.get("completion_tokens", 0),
+                    num_input_tokens=usage.get("input_tokens", 0),
+                    num_output_tokens=usage.get("output_tokens", 0),
                     total_tokens=usage.get("total_tokens", 0),
                     metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
                     status_code=self.status_code,
@@ -1140,15 +1326,20 @@ class ResponseGeneratorSync:
                 model=model,
                 temperature=self.input_data.temperature,
                 duration_ns=duration_ns,
-                num_input_tokens=usage.get("prompt_tokens", 0),
-                num_output_tokens=usage.get("completion_tokens", 0),
+                num_input_tokens=usage.get("input_tokens", 0),
+                num_output_tokens=usage.get("output_tokens", 0),
                 total_tokens=usage.get("total_tokens", 0),
                 metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
                 status_code=self.status_code,
             )
 
         # Conclude the trace if this is the top-level call
-        if self.should_complete_trace:
+        # For Responses API: don't conclude if there are pending function calls (model waiting for tool results)
+        has_pending_calls = (
+            self.resource.type == "response" and output_items and _has_pending_function_calls(output_items)
+        )
+
+        if self.should_complete_trace and not has_pending_calls:
             if self.resource.type == "response":
                 # For Responses API, use the final conversation context from processing
                 full_conversation = final_conversation_context
