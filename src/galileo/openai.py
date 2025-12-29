@@ -404,18 +404,9 @@ def _parse_usage(usage: Optional[dict] = None) -> Optional[dict]:
         usage_dict["output_tokens"] = usage_dict.pop("output_tokens")
 
     if "input_tokens_details" in usage_dict:
-        usage_dict["input_tokens_details"] = usage_dict.pop("input_tokens_details")
+        usage_dict.update(usage_dict.pop("input_tokens_details"))
     if "output_tokens_details" in usage_dict:
-        usage_dict["output_tokens_details"] = usage_dict.pop("output_tokens_details")
-
-    for tokens_details in ["input_tokens_details", "output_tokens_details"]:
-        if tokens_details in usage_dict and usage_dict[tokens_details] is not None:
-            tokens_details_dict = (
-                usage_dict[tokens_details]
-                if isinstance(usage_dict[tokens_details], dict)
-                else usage_dict[tokens_details].__dict__
-            )
-            usage_dict[tokens_details] = {k: v for k, v in tokens_details_dict.items() if v is not None}
+        usage_dict.update(usage_dict.pop("output_tokens_details"))
 
     return usage_dict
 
@@ -669,6 +660,7 @@ def _process_output_items(
     model_parameters: dict | None = None,
     status_code: int = 200,
     tools: list | None = None,
+    usage: dict | None = None,
 ) -> list:
     """
     The responses API returns an array of output items. This function processes output items sequentially,
@@ -756,13 +748,16 @@ def _process_output_items(
             ]
 
         # Create single consolidated span with serialized messages
-        galileo_logger.add_llm_span(
+        span = galileo_logger.add_llm_span(
             input=conversation_context,
             output=consolidated_output,
             model=model,
             name="response",
             tools=tools,
             status_code=status_code,
+            num_input_tokens=usage.get("input_tokens", 0) if usage else 0,
+            num_output_tokens=usage.get("output_tokens", 0) if usage else 0,
+            total_tokens=usage.get("total_tokens", 0) if usage else 0,
             metadata={
                 "type": "consolidated_response",
                 "includes_reasoning": str(bool(all_reasoning_content)),
@@ -771,6 +766,8 @@ def _process_output_items(
                 **{str(k): str(v) for k, v in (model_parameters or {}).items()},
             },
         )
+        span.metrics.num_reasoning_tokens = usage.get("reasoning_tokens", 0) if usage else 0
+        span.metrics.num_cached_input_tokens = usage.get("cached_tokens", 0) if usage else 0
 
         # Update conversation context with only Message objects (not reasoning objects)
         for item in consolidated_output_messages:
@@ -1123,13 +1120,14 @@ def _wrap(
                 input_data.model_parameters,
                 status_code=status_code,
                 tools=input_data.tools,
+                usage=usage,
             )
         else:
             # For non-Responses API (chat or completion), create the main span as before
             span_output = _convert_to_galileo_message(completion, "assistant")
 
             # Add a span to the current trace or span (if this is a nested trace)
-            galileo_logger.add_llm_span(
+            span = galileo_logger.add_llm_span(
                 input=span_input,
                 output=span_output,
                 tools=input_data.tools,
@@ -1145,6 +1143,8 @@ def _wrap(
                 # because we if we parsed and extracted data from response it means we get it and it's 200OK
                 status_code=status_code,
             )
+            span.metrics.num_reasoning_tokens = usage.get("reasoning_tokens", 0) if usage else 0
+            span.metrics.num_cached_input_tokens = usage.get("cached_tokens", 0) if usage else 0
 
         # Conclude the trace if this is the top-level call
         # For Responses API: don't conclude if there are pending function calls (model waiting for tool results)
@@ -1295,11 +1295,12 @@ class ResponseGeneratorSync:
                     self.input_data.model_parameters,
                     status_code=self.status_code,
                     tools=self.input_data.tools,
+                    usage=usage,
                 )
             else:
                 # Fallback: create basic span if no output items
                 span_output = _convert_to_galileo_message(completion, "assistant")
-                self.logger.add_llm_span(
+                span = self.logger.add_llm_span(
                     input=span_input,
                     output=span_output,
                     tools=self.input_data.tools,
@@ -1313,12 +1314,14 @@ class ResponseGeneratorSync:
                     metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
                     status_code=self.status_code,
                 )
+                span.metrics.num_reasoning_tokens = usage.get("reasoning_tokens", 0) if usage else 0
+                span.metrics.num_cached_input_tokens = usage.get("cached_tokens", 0) if usage else 0
         else:
             # For non-Responses API (chat or completion), create the main span as before
             span_output = _convert_to_galileo_message(completion, "assistant")
 
             # Add a span to the current trace or span (if this is a nested trace)
-            self.logger.add_llm_span(
+            span = self.logger.add_llm_span(
                 input=span_input,
                 output=span_output,
                 tools=self.input_data.tools,
@@ -1332,6 +1335,8 @@ class ResponseGeneratorSync:
                 metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
                 status_code=self.status_code,
             )
+            span.metrics.num_reasoning_tokens = usage.get("reasoning_tokens", 0) if usage else 0
+            span.metrics.num_cached_input_tokens = usage.get("cached_tokens", 0) if usage else 0
 
         # Conclude the trace if this is the top-level call
         # For Responses API: don't conclude if there are pending function calls (model waiting for tool results)
