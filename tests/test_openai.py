@@ -520,7 +520,10 @@ def test_responses_api_with_tools(
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
-    assert payload.traces[0].status_code == 200
+    # Trace is not concluded when there are pending function calls (model waiting for tool results)
+    # This enables multi-turn tool conversations to be in a single trace
+    assert payload.traces[0].status_code is None
+    # Creates 1 LlmSpan for the model response (ToolSpan is created when function_call_output is provided)
     assert len(payload.traces[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0], LlmSpan)
     assert payload.traces[0].spans[0].tools == [
@@ -532,6 +535,7 @@ def test_responses_api_with_tools(
         }
     ]
 
+    # LlmSpan has tool_calls in output (the model's request to call a function)
     assert payload.traces[0].spans[0].output.tool_calls is not None
     assert len(payload.traces[0].spans[0].output.tool_calls) == 1
     assert payload.traces[0].spans[0].output.tool_calls[0].function.name == "get_weather"
