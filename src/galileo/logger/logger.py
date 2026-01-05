@@ -704,9 +704,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         ----------
         input: StepAllowedInputType
             Input to the node.
-            Expected format: String or sequence of Message objects.
+            Expected format: String, dict (auto-converted to JSON), or sequence of Message objects.
             Examples -
                 - String: "User query: What is the weather today?"
+                - Dict: `{"query": "hello", "context": "world"}` (auto-converted to JSON string)
                 - Messages: `[Message(content="Hello", role=MessageRole.user)]`
         redacted_input: Optional[StepAllowedInputType]
             Input that removes any sensitive information (redacted input).
@@ -721,6 +722,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         metadata: Optional[dict[str, str]]
             Metadata associated with this trace.
             Expected format: `{"key1": "value1", "key2": "value2"}`
+            Note: Non-string values (bool, int, float) are auto-converted to strings.
         tags: Optional[list[str]]
             Tags associated with this trace.
             Expected format: `["tag1", "tag2", "tag3"]`
@@ -740,6 +742,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Trace
             The created trace.
         """
+        # Auto-convert dict input to JSON string (addresses common user mistake)
+        if isinstance(input, dict):
+            input = json.dumps(input)
+        if isinstance(redacted_input, dict):
+            redacted_input = json.dumps(redacted_input)
+
+        # Auto-convert non-string metadata values to strings
+        if metadata:
+            metadata = {k: v if isinstance(v, str) else str(v) for k, v in metadata.items() if v is not None}
+
         kwargs = {
             "input": input,
             "redacted_input": redacted_input,

@@ -1668,3 +1668,57 @@ def test_get_last_output_with_redacted_output() -> None:
     output, redacted_output = GalileoLogger._get_last_output(trace)
     assert output == '{"content": "llm output", "role": "assistant"}'
     assert redacted_output == '{"content": "redacted llm output", "role": "assistant"}'
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_start_trace_with_dict_input(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that dict input is auto-converted to JSON string."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingestion_hook = Mock()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=ingestion_hook)
+    trace = logger.start_trace(input={"query": "hello", "context": "world"}, name="test-trace")
+    logger.conclude(output="output")
+    logger.flush()
+
+    # Verify trace was created with JSON-serialized input
+    assert trace is not None
+    assert trace.input == '{"query": "hello", "context": "world"}'
+
+    ingestion_hook.assert_called_once()
+    payload = ingestion_hook.call_args.args[0]
+    assert payload.traces[0].input == '{"query": "hello", "context": "world"}'
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_start_trace_with_non_string_metadata_values(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that non-string metadata values are auto-converted to strings."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingestion_hook = Mock()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=ingestion_hook)
+    trace = logger.start_trace(
+        input="input", name="test-trace", metadata={"enabled": True, "count": 42, "ratio": 3.14, "name": "test"}
+    )
+    logger.conclude(output="output")
+    logger.flush()
+
+    # Verify trace was created with string-converted metadata
+    assert trace is not None
+    assert trace.user_metadata == {"enabled": "True", "count": "42", "ratio": "3.14", "name": "test"}
+
+    ingestion_hook.assert_called_once()
+    payload = ingestion_hook.call_args.args[0]
+    assert payload.traces[0].user_metadata == {"enabled": "True", "count": "42", "ratio": "3.14", "name": "test"}
