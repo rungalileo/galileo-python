@@ -1483,33 +1483,29 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "galileo-core"
-version = "3.79.1"
+version = "3.79.2"
 description = "Shared schemas and configuration for Galileo's Python packages."
 optional = false
-python-versions = "^3.10.0"
+python-versions = ">=3.10.0"
 groups = ["main", "test"]
 markers = "platform_python_implementation == \"PyPy\""
-files = []
-develop = false
+files = [
+    {file = "galileo_core-3.79.2-py3-none-any.whl", hash = "sha256:899da3278f731d27e64494d5c7a4614bddf3c7b7e5fa2cd77867a9ea2d37eec9"},
+    {file = "galileo_core-3.79.2.tar.gz", hash = "sha256:2e01626b4614fc10910d98b3dfbd76b1a0d20ba9786838a76c278f8fefff12fc"},
+]
 
 [package.dependencies]
 httpx = ">=0.27.0,<0.29.0"
-pydantic = "^2.6.0"
-pydantic-settings = "^2.2.1"
-pyjwt = "^2.8.0"
-pytest = {version = "^8.2.1", optional = true}
-respx = {version = "^0.22.0", optional = true}
-typing-extensions = "^4.12.2"
-uvloop = {version = "^0.21.0", markers = "sys_platform != \"win32\""}
+pydantic = ">=2.6.0,<3.0.0"
+pydantic-settings = ">=2.2.1,<3.0.0"
+pyjwt = ">=2.8.0,<3.0.0"
+pytest = {version = ">=8.2.1,<9.0.0", optional = true, markers = "extra == \"testing\""}
+respx = {version = ">=0.22.0,<0.23.0", optional = true, markers = "extra == \"testing\""}
+typing-extensions = ">=4.12.2,<5.0.0"
+uvloop = {version = ">=0.21.0,<0.22.0", markers = "sys_platform != \"win32\""}
 
 [package.extras]
 testing = ["pytest (>=8.2.1,<9.0.0)", "respx (>=0.22.0,<0.23.0)"]
-
-[package.source]
-type = "git"
-url = "https://github.com/rungalileo/galileo-core.git"
-reference = "chore/remove-py-3.8-3.9"
-resolved_reference = "633ff2b4b93e643e81219d3658d46c3839b62242"
 
 [[package]]
 name = "gitdb"
@@ -7329,4 +7325,4 @@ otel = ["opentelemetry-api", "opentelemetry-exporter-otlp", "opentelemetry-sdk"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10,<3.15"
-content-hash = "81309f4a63cfdc53d540a406941a60c465d2477b4c562b5948c0ef4493a0579d"
+content-hash = "7405f419f16d201faac815481e189b726c7a4c84ea52dde710585f3ee233a8ae"
