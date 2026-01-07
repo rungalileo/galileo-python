@@ -68,7 +68,6 @@ from galileo.utils.serialization import EventSerializer, convert_time_delta_to_n
 from galileo.utils.singleton import GalileoLoggerSingleton
 from galileo_core.schemas.logging.span import WorkflowSpan
 from galileo_core.schemas.logging.trace import Trace
-from galileo_core.schemas.shared.traces_logger import _current_parent_var
 
 _logger = logging.getLogger(__name__)
 
@@ -1128,14 +1127,13 @@ class GalileoDecorator:
         mode
             The logger mode.
         """
-        # Reset TracesLogger's parent tracking first (before any calls that might raise)
-        # This ensures the ContextVar is always cleared even if initialization fails
-        _current_parent_var.set(None)
-
         GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
-        GalileoLoggerSingleton().get(
+        logger_instance = GalileoLoggerSingleton().get(
             project=project, log_stream=log_stream, experiment_id=experiment_id, local_metrics=local_metrics, mode=mode
         )
+        # Reset the logger's parent tracking to ensure clean state
+        # Each logger has its own ContextVar, so this resets only this instance
+        logger_instance.reset_parent_tracking()
 
         _project_context.set(project)
         _log_stream_context.set(log_stream)

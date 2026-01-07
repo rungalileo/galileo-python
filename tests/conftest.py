@@ -37,21 +37,9 @@ from galileo_core.schemas.core.user import User  # noqa: E402
 from galileo_core.schemas.core.user_role import UserRole  # noqa: E402
 from galileo_core.schemas.protect.rule import Rule, RuleOperator  # noqa: E402
 from galileo_core.schemas.protect.ruleset import Ruleset  # noqa: E402
-from galileo_core.schemas.shared.traces_logger import _current_parent_var  # noqa: E402
 from tests.testutils.setup import setup_thread_pool_request_capture  # noqa: E402
 
 # Note: The mock_request fixture is automatically provided by galileo_core[testing] extras
-
-
-@pytest.fixture(autouse=True)
-def reset_traces_logger_state() -> Generator[None, None, None]:
-    """Reset TracesLogger ContextVar state before and after each test.
-
-    This ensures tests don't leak state via the module-level ContextVar.
-    """
-    _current_parent_var.set(None)
-    yield
-    _current_parent_var.set(None)
 
 
 @pytest.fixture
