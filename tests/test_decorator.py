@@ -6,6 +6,7 @@ import pytest
 from pydantic import BaseModel
 
 from galileo import Message, MessageRole, galileo_context, log, start_session
+from galileo.decorator import _session_id_context
 from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
 from galileo_core.schemas.shared.document import Document
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
@@ -1376,3 +1377,107 @@ def test_multiple_workflow_calls_create_one_trace_with_multiple_spans(
     # After flush, trace context should be cleared
     assert galileo_context.get_current_trace() is None
     assert len(logger.traces) == 0
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_session_id_context_manager(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that session_id can be set via context manager and is included in payload."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    test_session_id = "1c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"
+
+    @log()
+    def foo() -> str:
+        return "response"
+
+    galileo_context.init(project="test-project", log_stream="test-stream")
+    with galileo_context(session_id=test_session_id):
+        assert galileo_context.get_logger_instance().session_id == test_session_id
+        foo()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    assert payload.session_id == UUID(test_session_id)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_session_id_nested_context_stacking(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that session_id is properly stacked and restored in nested contexts."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    session_1 = "2c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"
+    session_2 = "3c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"
+
+    # No session initially
+    assert galileo_context.get_logger_instance().session_id is None
+
+    with galileo_context(project="p1", log_stream="s1", session_id=session_1):
+        assert galileo_context.get_logger_instance().session_id == session_1
+
+        with galileo_context(project="p2", log_stream="s2", session_id=session_2):
+            assert galileo_context.get_logger_instance().session_id == session_2
+
+        # Restored after nested context exits
+        assert galileo_context.get_logger_instance().session_id == session_1
+
+    # Cleared after all contexts exit
+    assert galileo_context.get_logger_instance().session_id is None
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_session_id_cleared_on_reset_and_init(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that session_id is cleared when context is reset or re-initialized."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    galileo_context.start_session(name="test-session")
+    assert galileo_context.get_logger_instance().session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+
+    # Reset clears session
+    galileo_context.reset()
+    assert galileo_context.get_logger_instance().session_id is None
+
+    # Re-init also clears session
+    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    galileo_context.start_session(name="test-session")
+    galileo_context.init(project="project-Y", log_stream="log-stream-Y")
+    assert galileo_context.get_logger_instance().session_id is None
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_start_session_overrides_context_session(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that start_session overrides context manager session and updates context var."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    context_session = "6d4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"
+
+    with galileo_context(project="test-project", log_stream="test-stream", session_id=context_session):
+        assert galileo_context.get_logger_instance().session_id == context_session
+
+        # start_session overrides context session
+        new_session_id = galileo_context.start_session(name="new-session")
+        assert galileo_context.get_logger_instance().session_id == new_session_id
+        assert _session_id_context.get() == new_session_id
