@@ -1,8 +1,11 @@
+import logging
 import ssl
 from typing import Any, Optional, Union
 
 import httpx
 from attrs import define, evolve, field
+
+logger = logging.getLogger("galileo")
 
 
 @define
@@ -81,6 +84,31 @@ class Client:
     def get_httpx_client(self) -> httpx.Client:
         """Get the underlying httpx.Client, constructing a new one if not previously set."""
         if self._client is None:
+            logger.debug(
+                f"[GALILEO_PYTHON_DEBUG] Creating httpx.Client for galileo-python\n"
+                f"[GALILEO_PYTHON_DEBUG] Base URL: {self._base_url}\n"
+                f"[GALILEO_PYTHON_DEBUG] Verify SSL: {self._verify_ssl}\n"
+                f"[GALILEO_PYTHON_DEBUG] Timeout: {self._timeout}"
+            )
+            
+            def log_request(request: httpx.Request) -> None:
+                logger.debug(
+                    f"[GALILEO_PYTHON_DEBUG] >>> Outgoing HTTP Request\n"
+                    f"[GALILEO_PYTHON_DEBUG] Method: {request.method}\n"
+                    f"[GALILEO_PYTHON_DEBUG] URL: {request.url}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Headers: {list(request.headers.keys())}"
+                )
+            
+            def log_response(response: httpx.Response) -> None:
+                request = response.request
+                logger.debug(
+                    f"[GALILEO_PYTHON_DEBUG] <<< Received HTTP Response\n"
+                    f"[GALILEO_PYTHON_DEBUG] Method: {request.method}\n"
+                    f"[GALILEO_PYTHON_DEBUG] URL: {request.url}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Status Code: {response.status_code}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Response Size: {len(response.content)} bytes"
+                )
+            
             self._client = httpx.Client(
                 base_url=self._base_url,
                 cookies=self._cookies,
@@ -88,6 +116,7 @@ class Client:
                 timeout=self._timeout,
                 verify=self._verify_ssl,
                 follow_redirects=self._follow_redirects,
+                event_hooks={"request": [log_request], "response": [log_response]},
                 **self._httpx_args,
             )
         return self._client
@@ -112,6 +141,31 @@ class Client:
     def get_async_httpx_client(self) -> httpx.AsyncClient:
         """Get the underlying httpx.AsyncClient, constructing a new one if not previously set."""
         if self._async_client is None:
+            logger.debug(
+                f"[GALILEO_PYTHON_DEBUG] Creating httpx.AsyncClient for galileo-python\n"
+                f"[GALILEO_PYTHON_DEBUG] Base URL: {self._base_url}\n"
+                f"[GALILEO_PYTHON_DEBUG] Verify SSL: {self._verify_ssl}\n"
+                f"[GALILEO_PYTHON_DEBUG] Timeout: {self._timeout}"
+            )
+            
+            def log_request(request: httpx.Request) -> None:
+                logger.debug(
+                    f"[GALILEO_PYTHON_DEBUG] >>> Outgoing HTTP Request (Async)\n"
+                    f"[GALILEO_PYTHON_DEBUG] Method: {request.method}\n"
+                    f"[GALILEO_PYTHON_DEBUG] URL: {request.url}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Headers: {list(request.headers.keys())}"
+                )
+            
+            def log_response(response: httpx.Response) -> None:
+                request = response.request
+                logger.debug(
+                    f"[GALILEO_PYTHON_DEBUG] <<< Received HTTP Response (Async)\n"
+                    f"[GALILEO_PYTHON_DEBUG] Method: {request.method}\n"
+                    f"[GALILEO_PYTHON_DEBUG] URL: {request.url}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Status Code: {response.status_code}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Response Size: {len(response.content)} bytes"
+                )
+            
             self._async_client = httpx.AsyncClient(
                 base_url=self._base_url,
                 cookies=self._cookies,
@@ -119,6 +173,7 @@ class Client:
                 timeout=self._timeout,
                 verify=self._verify_ssl,
                 follow_redirects=self._follow_redirects,
+                event_hooks={"request": [log_request], "response": [log_response]},
                 **self._httpx_args,
             )
         return self._async_client
@@ -217,6 +272,35 @@ class AuthenticatedClient:
         """Get the underlying httpx.Client, constructing a new one if not previously set."""
         if self._client is None:
             self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
+            
+            logger.debug(
+                f"[GALILEO_PYTHON_DEBUG] Creating Authenticated httpx.Client for galileo-python\n"
+                f"[GALILEO_PYTHON_DEBUG] Base URL: {self._base_url}\n"
+                f"[GALILEO_PYTHON_DEBUG] Auth Header: {self.auth_header_name}\n"
+                f"[GALILEO_PYTHON_DEBUG] Token Prefix: {self.prefix}\n"
+                f"[GALILEO_PYTHON_DEBUG] Token: {self.token[:20] if self.token else 'None'}...\n"
+                f"[GALILEO_PYTHON_DEBUG] Verify SSL: {self._verify_ssl}\n"
+                f"[GALILEO_PYTHON_DEBUG] Timeout: {self._timeout}"
+            )
+            
+            def log_request(request: httpx.Request) -> None:
+                logger.debug(
+                    f"[GALILEO_PYTHON_DEBUG] >>> Outgoing Authenticated HTTP Request\n"
+                    f"[GALILEO_PYTHON_DEBUG] Method: {request.method}\n"
+                    f"[GALILEO_PYTHON_DEBUG] URL: {request.url}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Headers: {list(request.headers.keys())}"
+                )
+            
+            def log_response(response: httpx.Response) -> None:
+                request = response.request
+                logger.debug(
+                    f"[GALILEO_PYTHON_DEBUG] <<< Received HTTP Response (Authenticated)\n"
+                    f"[GALILEO_PYTHON_DEBUG] Method: {request.method}\n"
+                    f"[GALILEO_PYTHON_DEBUG] URL: {request.url}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Status Code: {response.status_code}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Response Size: {len(response.content)} bytes"
+                )
+            
             self._client = httpx.Client(
                 base_url=self._base_url,
                 cookies=self._cookies,
@@ -224,6 +308,7 @@ class AuthenticatedClient:
                 timeout=self._timeout,
                 verify=self._verify_ssl,
                 follow_redirects=self._follow_redirects,
+                event_hooks={"request": [log_request], "response": [log_response]},
                 **self._httpx_args,
             )
         return self._client
@@ -249,6 +334,35 @@ class AuthenticatedClient:
         """Get the underlying httpx.AsyncClient, constructing a new one if not previously set."""
         if self._async_client is None:
             self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
+            
+            logger.debug(
+                f"[GALILEO_PYTHON_DEBUG] Creating Authenticated httpx.AsyncClient for galileo-python\n"
+                f"[GALILEO_PYTHON_DEBUG] Base URL: {self._base_url}\n"
+                f"[GALILEO_PYTHON_DEBUG] Auth Header: {self.auth_header_name}\n"
+                f"[GALILEO_PYTHON_DEBUG] Token Prefix: {self.prefix}\n"
+                f"[GALILEO_PYTHON_DEBUG] Token: {self.token[:20] if self.token else 'None'}...\n"
+                f"[GALILEO_PYTHON_DEBUG] Verify SSL: {self._verify_ssl}\n"
+                f"[GALILEO_PYTHON_DEBUG] Timeout: {self._timeout}"
+            )
+            
+            def log_request(request: httpx.Request) -> None:
+                logger.debug(
+                    f"[GALILEO_PYTHON_DEBUG] >>> Outgoing Authenticated HTTP Request (Async)\n"
+                    f"[GALILEO_PYTHON_DEBUG] Method: {request.method}\n"
+                    f"[GALILEO_PYTHON_DEBUG] URL: {request.url}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Headers: {list(request.headers.keys())}"
+                )
+            
+            def log_response(response: httpx.Response) -> None:
+                request = response.request
+                logger.debug(
+                    f"[GALILEO_PYTHON_DEBUG] <<< Received HTTP Response (Authenticated Async)\n"
+                    f"[GALILEO_PYTHON_DEBUG] Method: {request.method}\n"
+                    f"[GALILEO_PYTHON_DEBUG] URL: {request.url}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Status Code: {response.status_code}\n"
+                    f"[GALILEO_PYTHON_DEBUG] Response Size: {len(response.content)} bytes"
+                )
+            
             self._async_client = httpx.AsyncClient(
                 base_url=self._base_url,
                 cookies=self._cookies,
@@ -256,6 +370,7 @@ class AuthenticatedClient:
                 timeout=self._timeout,
                 verify=self._verify_ssl,
                 follow_redirects=self._follow_redirects,
+                event_hooks={"request": [log_request], "response": [log_response]},
                 **self._httpx_args,
             )
         return self._async_client
