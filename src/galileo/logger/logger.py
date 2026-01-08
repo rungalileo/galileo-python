@@ -358,6 +358,24 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self._parent_stack.append(stub_span)
 
     @staticmethod
+    def _convert_metadata_value(v: Any) -> str:
+        """Convert a metadata value to string.
+
+        Supported types (matching API behavior):
+        - None -> "None"
+        - str -> unchanged
+        - bool, int, float -> str()
+
+        Unsupported types (dict, list, etc.) are converted via str() but may not
+        be queryable as structured data. The API only supports flat string values.
+        """
+        if v is None:
+            return "None"
+        if isinstance(v, str):
+            return v
+        return str(v)
+
+    @staticmethod
     @nop_sync
     def _get_last_output(node: Union[BaseStep, None]) -> tuple[Optional[str], Optional[str]]:
         """Get the last output of a node or its child spans recursively."""
@@ -684,8 +702,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     @nop_sync
     def start_trace(
         self,
-        input: StepAllowedInputType,
-        redacted_input: Optional[StepAllowedInputType] = None,
+        input: StepAllowedInputType | dict,
+        redacted_input: Optional[StepAllowedInputType | dict] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -702,14 +720,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         Parameters
         ----------
-        input: StepAllowedInputType
+        input: StepAllowedInputType | dict
             Input to the node.
             Expected format: String, dict (auto-converted to JSON), or sequence of Message objects.
             Examples -
                 - String: "User query: What is the weather today?"
                 - Dict: `{"query": "hello", "context": "world"}` (auto-converted to JSON string)
                 - Messages: `[Message(content="Hello", role=MessageRole.user)]`
-        redacted_input: Optional[StepAllowedInputType]
+        redacted_input: Optional[StepAllowedInputType | dict]
             Input that removes any sensitive information (redacted input).
             Same format as input parameter.
         name: Optional[str]
@@ -720,9 +738,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         created_at: Optional[datetime]
             Timestamp of the trace's creation.
         metadata: Optional[dict[str, str]]
-            Metadata associated with this trace.
+            Metadata associated with this trace. Values must be strings or primitives.
             Expected format: `{"key1": "value1", "key2": "value2"}`
-            Note: Non-string values (bool, int, float) are auto-converted to strings.
+            Note: Non-string primitives (bool, int, float) are auto-converted to strings.
+            Note: None values are converted to the string "None".
+            Note: Nested structures (dict, list) are NOT supported by the API and will
+            be converted via str(), resulting in Python repr format (not JSON).
         tags: Optional[list[str]]
             Tags associated with this trace.
             Expected format: `["tag1", "tag2", "tag3"]`
@@ -731,8 +752,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         dataset_output: Optional[str]
             Expected output from the associated dataset.
         dataset_metadata: Optional[dict[str, str]]
-            Metadata from the associated dataset.
+            Metadata from the associated dataset. Values must be strings or primitives.
             Expected format: `{"key1": "value1", "key2": "value2"}`
+            Note: Same conversion rules as metadata apply.
         external_id: Optional[str]
             External ID for this trace to connect to external systems.
             Expected format: Unique identifier string.
@@ -749,8 +771,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             redacted_input = json.dumps(redacted_input)
 
         # Auto-convert non-string metadata values to strings
+        # Note: Must use class name, not self, because DecorateAllMethods removes @staticmethod
         if metadata:
-            metadata = {k: v if isinstance(v, str) else str(v) for k, v in metadata.items() if v is not None}
+            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+        if dataset_metadata:
+            dataset_metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in dataset_metadata.items()}
 
         kwargs = {
             "input": input,
