@@ -10,6 +10,8 @@ from contextlib import contextmanager
 from typing import Any, NoReturn, Optional, Protocol, cast
 from urllib.parse import urljoin
 
+from requests import Session
+
 from galileo.config import GalileoPythonConfig
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
 from galileo.utils.retrievers import document_adapter
@@ -87,6 +89,8 @@ class GalileoOTLPExporter(OTLPSpanExporter):
     configuration and authentication. For most applications, consider using
     GalileoSpanProcessor instead, which provides a complete tracing solution.
     """
+
+    _session: Session
 
     def __init__(self, project: Optional[str] = None, logstream: Optional[str] = None, **kwargs: Any) -> None:
         """
@@ -177,6 +181,16 @@ class GalileoOTLPExporter(OTLPSpanExporter):
                 new_resource = span.resource.merge(Resource(resource_attrs))
                 # Mutate the internal _resource (ReadableSpan stores it there)
                 span._resource = new_resource
+
+        # for the last span update the headers
+        if spans:
+            last_span = spans[-1]
+            self._session.headers.update(
+                {
+                    "project": last_span.attributes.get("galileo.project.name"),
+                    "logstream": last_span.attributes.get("galileo.logstream.name"),
+                }
+            )
 
         return super().export(spans)
 
