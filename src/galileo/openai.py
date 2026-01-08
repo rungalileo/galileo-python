@@ -655,12 +655,12 @@ def _process_function_call_outputs(input_items: list, galileo_logger: GalileoLog
 def _process_output_items(
     output_items: list,
     galileo_logger: GalileoLogger,
-    model: str | None = None,
-    original_input: list | None = None,
-    model_parameters: dict | None = None,
+    model: Optional[str] = None,
+    original_input: Optional[list] = None,
+    model_parameters: Optional[dict] = None,
     status_code: int = 200,
-    tools: list | None = None,
-    usage: dict | None = None,
+    tools: Optional[list] = None,
+    usage: Optional[dict] = None,
 ) -> list:
     """
     The responses API returns an array of output items. This function processes output items sequentially,
@@ -867,7 +867,7 @@ def _has_pending_function_calls(output_items: list) -> bool:
     return has_function_call and not has_final_message
 
 
-def _extract_data_from_default_response(resource: OpenAiModuleDefinition, response: dict[str, Any] | None) -> Any:
+def _extract_data_from_default_response(resource: OpenAiModuleDefinition, response: Optional[dict[str, Any]]) -> Any:
     if response is None:
         return None, "<NoneType response returned from OpenAI>", None
 
