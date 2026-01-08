@@ -88,6 +88,7 @@ _trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", defaul
 _experiment_id_context: ContextVar[Optional[str]] = ContextVar("experiment_id_context", default=None)
 _span_stack_context: ContextVar[Optional[list[WorkflowSpan]]] = ContextVar("span_stack_context", default=None)
 _mode_context: ContextVar[Optional[LoggerModeType]] = ContextVar("mode_context", default=None)
+_session_id_context: ContextVar[Optional[str]] = ContextVar("session_id_context", default=None)
 
 # Distributed tracing context variables (for middleware)
 _trace_id_context: ContextVar[Optional[str]] = ContextVar("trace_id_context", default=None)
@@ -98,6 +99,7 @@ _project_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("project_
 _log_stream_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("log_stream_stack", default=None)
 _trace_stack: ContextVar[Optional[list[Optional[Trace]]]] = ContextVar("trace_stack", default=None)
 _experiment_id_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("experiment_id_stack", default=None)
+_session_id_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("session_id_stack", default=None)
 _mode_stack: ContextVar[Optional[list[LoggerModeType]]] = ContextVar("mode_stack", default=None)
 _span_stack_stack: ContextVar[Optional[list[list[WorkflowSpan]]]] = ContextVar("span_stack_stack", default=None)
 
@@ -157,6 +159,8 @@ class GalileoDecorator:
             experiment_id=_experiment_id_context.get(),
         ).flush()
 
+        _session_id_context.set(None)
+
         # Pop values from the stacks and restore the previous context
         _project_context.set(_get_or_init_list(_project_stack).pop())
         _log_stream_context.set(_get_or_init_list(_log_stream_stack).pop())
@@ -164,6 +168,7 @@ class GalileoDecorator:
         _trace_context.set(_get_or_init_list(_trace_stack).pop())
         _mode_context.set(_get_or_init_list(_mode_stack).pop())
         _span_stack_context.set(_get_or_init_list(_span_stack_stack).pop())
+        _session_id_context.set(_get_or_init_list(_session_id_stack).pop())
 
     def __call__(
         self,
@@ -172,6 +177,7 @@ class GalileoDecorator:
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
         mode: Optional[str] = None,
+        session_id: Optional[str] = None,
     ) -> "GalileoDecorator":
         """
         Call method to use the decorator as a context manager.
@@ -192,6 +198,8 @@ class GalileoDecorator:
             The experiment ID to use for this context
         mode
             The logger mode
+        session_id
+            The session ID to use for this context
 
         Returns
         -------
@@ -205,6 +213,7 @@ class GalileoDecorator:
         _get_or_init_list(_trace_stack).append(_trace_context.get())
         _get_or_init_list(_mode_stack).append(_mode_context.get())
         _get_or_init_list(_span_stack_stack).append(_get_or_init_list(_span_stack_context).copy())
+        _get_or_init_list(_session_id_stack).append(_session_id_context.get())
 
         # Reset trace context values
         _span_stack_context.set([])
@@ -215,6 +224,7 @@ class GalileoDecorator:
         _log_stream_context.set(None)
         _experiment_id_context.set(None)
         _mode_context.set(_get_mode_or_default(None))
+        _session_id_context.set(None)
 
         # Override with explicitly provided values
         if project is not None:
@@ -225,6 +235,9 @@ class GalileoDecorator:
             _experiment_id_context.set(experiment_id)
         if mode is not None:
             _mode_context.set(_get_mode_or_default(mode))
+        if session_id is not None:
+            _session_id_context.set(session_id)
+            self.set_session(session_id)
 
         return self
 
@@ -1081,7 +1094,7 @@ class GalileoDecorator:
         _mode_context.set(_get_mode_or_default(None))
         _span_stack_context.set([])
         _trace_context.set(None)
-
+        _session_id_context.set(None)
         # Reset distributed tracing context
         _trace_id_context.set(None)
         _parent_id_context.set(None)
@@ -1093,6 +1106,7 @@ class GalileoDecorator:
         _get_or_init_list(_experiment_id_stack).clear()
         _get_or_init_list(_mode_stack).clear()
         _get_or_init_list(_span_stack_stack).clear()
+        _get_or_init_list(_session_id_stack).clear()
 
     def reset_trace_context(self) -> None:
         """Reset the trace context inside the decorator."""
@@ -1138,6 +1152,7 @@ class GalileoDecorator:
         _mode_context.set(_get_mode_or_default(mode))
         _span_stack_context.set([])
         _trace_context.set(None)
+        _session_id_context.set(None)
 
     def start_session(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
@@ -1159,9 +1174,12 @@ class GalileoDecorator:
         str
             The id of the newly created session.
         """
-        return self.get_logger_instance().start_session(
+        session_id = self.get_logger_instance().start_session(
             name=name, previous_session_id=previous_session_id, external_id=external_id
         )
+
+        _session_id_context.set(session_id)
+        return session_id
 
     def clear_session(self) -> None:
         """Clear the session in the active context logger instance."""

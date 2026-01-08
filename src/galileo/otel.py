@@ -10,7 +10,10 @@ from contextlib import contextmanager
 from typing import Any, NoReturn, Optional, Protocol, cast
 from urllib.parse import urljoin
 
+from requests import Session
+
 from galileo.config import GalileoPythonConfig
+from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
 from galileo.utils.retrievers import document_adapter
 from galileo_core.schemas.logging.span import RetrieverSpan
 from galileo_core.schemas.logging.span import Span as GalileoSpan
@@ -28,9 +31,10 @@ try:
     from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
         OTLPSpanExporter,  # pyright: ignore[reportAssignmentType]
     )
+    from opentelemetry.sdk.resources import Resource  # pyright: ignore[reportAssignmentType]
     from opentelemetry.sdk.trace import Span, SpanProcessor  # pyright: ignore[reportAssignmentType]
     from opentelemetry.sdk.trace.export import BatchSpanProcessor  # pyright: ignore[reportAssignmentType]
-    from opentelemetry.trace import Tracer
+    from opentelemetry.trace import Tracer  # pyright: ignore[reportAssignmentType]
 
     OTEL_AVAILABLE = True
 except ImportError:
@@ -39,15 +43,21 @@ except ImportError:
         def __init__(self, *args, **kwargs) -> NoReturn:  # type: ignore[no-untyped-def]
             raise ImportError(INSTALL_ERR_MSG)
 
-    class BatchSpanProcessor:  # type: ignore[no-redef]
-        def __init__(self, *args, **kwargs) -> NoReturn:  # type: ignore[no-untyped-def]
+        def export(self, spans: typing.Sequence[Any]) -> "Any":
             raise ImportError(INSTALL_ERR_MSG)
 
     class Span:  # type: ignore[no-redef]
         def __init__(self, *args, **kwargs) -> NoReturn:  # type: ignore[no-untyped-def]
             raise ImportError(INSTALL_ERR_MSG)
 
+        def set_attribute(self, *args, **kwargs) -> NoReturn:  # type: ignore[no-untyped-def]
+            raise ImportError(INSTALL_ERR_MSG)
+
     class SpanProcessor:  # type: ignore[no-redef]
+        def __init__(self, *args, **kwargs) -> NoReturn:  # type: ignore[no-untyped-def]
+            raise ImportError(INSTALL_ERR_MSG)
+
+    class Resource:  # type: ignore[no-redef]
         def __init__(self, *args, **kwargs) -> NoReturn:  # type: ignore[no-untyped-def]
             raise ImportError(INSTALL_ERR_MSG)
 
@@ -80,6 +90,8 @@ class GalileoOTLPExporter(OTLPSpanExporter):
     GalileoSpanProcessor instead, which provides a complete tracing solution.
     """
 
+    _session: Session
+
     def __init__(self, project: Optional[str] = None, logstream: Optional[str] = None, **kwargs: Any) -> None:
         """
         Initialize the Galileo OTLP exporter with authentication and endpoint configuration.
@@ -111,32 +123,76 @@ class GalileoOTLPExporter(OTLPSpanExporter):
         if not base_url.endswith("/"):
             base_url += "/"
         endpoint: str = urljoin(base_url, "otel/traces")
+        api_key = config.api_key.get_secret_value() if config.api_key else None
 
-        if not config.api_key:
+        if not api_key:
             raise ValueError("API key is required.")
 
-        # Resolve project and logstream from parameters or environment variables
-        self.project = project or os.environ.get("GALILEO_PROJECT")
-        self.logstream = logstream or os.environ.get("GALILEO_LOG_STREAM")
+        if project is not None:
+            _project_context.set(project)
+        if logstream is not None:
+            _log_stream_context.set(logstream)
 
-        if not self.project:
+        # Resolve project and logstream from parameters, context, or environment variables
+        # Check context first, then environment, then generate/use defaults
+        ctx_project = _project_context.get(None)
+        ctx_logstream = _log_stream_context.get(None)
+
+        if ctx_project is not None:
+            self.project = ctx_project
+        elif "GALILEO_PROJECT" in os.environ:
+            self.project = os.environ["GALILEO_PROJECT"]
+        else:
             self.project = f"project_{uuid.uuid4()}"
 
-        if not self.logstream:
+        if ctx_logstream is not None:
+            self.logstream = ctx_logstream
+        elif "GALILEO_LOG_STREAM" in os.environ:
+            self.logstream = os.environ["GALILEO_LOG_STREAM"]
+        else:
             self.logstream = "default"
 
-        use_new_otel = kwargs.pop("use_new_otel", False)
-
-        exporter_headers = {
-            "Galileo-API-Key": config.api_key.get_secret_value() if config.api_key else None,
-            "project": self.project,
-            "logstream": self.logstream,
-            "X-Use-Otel-New": str(
-                use_new_otel
-            ).lower(),  # TODO: remove this once we fully migrate to the new OTLP implementation
-        }
+        exporter_headers = {"Galileo-API-Key": api_key, "project": self.project, "logstream": self.logstream}
 
         super().__init__(endpoint=endpoint, headers=exporter_headers, **kwargs)
+
+    def export(self, spans: typing.Sequence[Any]) -> "Any":
+        """Override export to set resource attributes from span attributes before serialization."""
+        for span in spans:
+            # Read from span attributes (set during on_start when context was available)
+            project = span.attributes.get("galileo.project.name")
+            logstream = span.attributes.get("galileo.logstream.name")
+            session_id = span.attributes.get("galileo.session.id")
+            experiment_id = span.attributes.get("galileo.experiment.id")
+
+            # Build resource attributes dict, filtering out None values
+            resource_attrs = {}
+            if project:
+                resource_attrs["galileo.project.name"] = project
+            if logstream:
+                resource_attrs["galileo.logstream.name"] = logstream
+            if session_id:
+                resource_attrs["galileo.session.id"] = session_id
+            if experiment_id:
+                resource_attrs["galileo.experiment.id"] = experiment_id
+
+            if resource_attrs:
+                # Merge new attributes into span's resource
+                new_resource = span.resource.merge(Resource(resource_attrs))
+                # Mutate the internal _resource (ReadableSpan stores it there)
+                span._resource = new_resource
+
+        # for the last span update the headers
+        if spans:
+            last_span = spans[-1]
+            self._session.headers.update(
+                {
+                    "project": last_span.attributes.get("galileo.project.name"),
+                    "logstream": last_span.attributes.get("galileo.logstream.name"),
+                }
+            )
+
+        return super().export(spans)
 
 
 class GalileoSpanProcessor(SpanProcessor):
@@ -160,8 +216,7 @@ class GalileoSpanProcessor(SpanProcessor):
         project: Optional[str] = None,
         logstream: Optional[str] = None,
         SpanProcessor: Optional[type] = None,
-        *,
-        use_new_otel: bool = True,
+        **kwargs: Any,
     ) -> None:
         """
         Initialize the Galileo span processor with export configuration.
@@ -185,9 +240,16 @@ class GalileoSpanProcessor(SpanProcessor):
                 "OpenTelemetry packages are not installed. "
                 "Install optional OpenTelemetry dependencies with: pip install galileo[otel]"
             )
+        if project is not None:
+            _project_context.set(project)
+        if logstream is not None:
+            _log_stream_context.set(logstream)
+
+        self._project = _project_context.get()
+        self._logstream = _log_stream_context.get()
 
         # Create the exporter using the config-based approach
-        self._exporter = GalileoOTLPExporter(project=project, logstream=logstream, use_new_otel=use_new_otel)
+        self._exporter = GalileoOTLPExporter(**kwargs)
 
         if SpanProcessor is None:
             SpanProcessor = BatchSpanProcessor
@@ -196,6 +258,21 @@ class GalileoSpanProcessor(SpanProcessor):
 
     def on_start(self, span: Span, parent_context: Optional[context.Context] = None) -> None:
         """Handle span start events by delegating to the underlying processor."""
+        # Set Galileo context attributes on the span
+        project = _project_context.get(self._project)
+        log_stream = _log_stream_context.get(self._logstream)
+        experiment_id = _experiment_id_context.get(None)
+        session_id = _session_id_context.get(None)
+
+        if project:
+            span.set_attribute("galileo.project.name", project)
+        if log_stream:
+            span.set_attribute("galileo.logstream.name", log_stream)
+        if experiment_id:
+            span.set_attribute("galileo.experiment.id", experiment_id)
+        if session_id:
+            span.set_attribute("galileo.session.id", session_id)
+
         self._processor.on_start(span, parent_context)
 
     def on_end(self, span: Span) -> None:
