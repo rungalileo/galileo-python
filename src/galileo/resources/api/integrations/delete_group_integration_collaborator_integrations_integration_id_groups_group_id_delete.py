@@ -53,7 +53,7 @@ def sync_detailed(
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Group Integration Collaborator.
 
-     Remove a group's access to a integration.
+     Remove a group's access to an integration.
 
     Args:
         integration_id (str):
@@ -78,7 +78,7 @@ def sync_detailed(
 def sync(integration_id: str, group_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Group Integration Collaborator.
 
-     Remove a group's access to a integration.
+     Remove a group's access to an integration.
 
     Args:
         integration_id (str):
@@ -101,7 +101,7 @@ async def asyncio_detailed(
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Group Integration Collaborator.
 
-     Remove a group's access to a integration.
+     Remove a group's access to an integration.
 
     Args:
         integration_id (str):
@@ -128,7 +128,7 @@ async def asyncio(
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Group Integration Collaborator.
 
-     Remove a group's access to a integration.
+     Remove a group's access to an integration.
 
     Args:
         integration_id (str):

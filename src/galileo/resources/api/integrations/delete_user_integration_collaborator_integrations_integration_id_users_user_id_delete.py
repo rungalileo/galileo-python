@@ -51,7 +51,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(integration_id: str, user_id: str, *, client: ApiClient) -> Response[Union[Any, HTTPValidationError]]:
     """Delete User Integration Collaborator.
 
-     Remove a user's access to a integration.
+     Remove a user's access to an integration.
 
     Args:
         integration_id (str):
@@ -76,7 +76,7 @@ def sync_detailed(integration_id: str, user_id: str, *, client: ApiClient) -> Re
 def sync(integration_id: str, user_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete User Integration Collaborator.
 
-     Remove a user's access to a integration.
+     Remove a user's access to an integration.
 
     Args:
         integration_id (str):
@@ -99,7 +99,7 @@ async def asyncio_detailed(
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Delete User Integration Collaborator.
 
-     Remove a user's access to a integration.
+     Remove a user's access to an integration.
 
     Args:
         integration_id (str):
@@ -124,7 +124,7 @@ async def asyncio_detailed(
 async def asyncio(integration_id: str, user_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete User Integration Collaborator.
 
-     Remove a user's access to a integration.
+     Remove a user's access to an integration.
 
     Args:
         integration_id (str):

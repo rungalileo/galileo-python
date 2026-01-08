@@ -1,5 +1,6 @@
+from collections.abc import Iterator
 from http import HTTPStatus
-from typing import Any, Iterator, Optional, Union
+from typing import Any, Optional, Union
 
 import httpx
 

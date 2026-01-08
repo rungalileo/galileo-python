@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     from ..models.score_aggregate import ScoreAggregate
     from ..models.star_aggregate import StarAggregate
     from ..models.tags_aggregate import TagsAggregate
+    from ..models.text_aggregate import TextAggregate
 
 
 T = TypeVar("T", bound="FeedbackAggregate")
@@ -19,19 +20,20 @@ class FeedbackAggregate:
     """
     Attributes
     ----------
-        aggregate (Union['LikeDislikeAggregate', 'ScoreAggregate', 'StarAggregate', 'TagsAggregate']):
+        aggregate (Union['LikeDislikeAggregate', 'ScoreAggregate', 'StarAggregate', 'TagsAggregate', 'TextAggregate']):
     """
 
-    aggregate: Union["LikeDislikeAggregate", "ScoreAggregate", "StarAggregate", "TagsAggregate"]
+    aggregate: Union["LikeDislikeAggregate", "ScoreAggregate", "StarAggregate", "TagsAggregate", "TextAggregate"]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.like_dislike_aggregate import LikeDislikeAggregate
         from ..models.score_aggregate import ScoreAggregate
         from ..models.star_aggregate import StarAggregate
+        from ..models.tags_aggregate import TagsAggregate
 
         aggregate: dict[str, Any]
-        if isinstance(self.aggregate, (LikeDislikeAggregate, StarAggregate, ScoreAggregate)):
+        if isinstance(self.aggregate, (LikeDislikeAggregate, StarAggregate, ScoreAggregate, TagsAggregate)):
             aggregate = self.aggregate.to_dict()
         else:
             aggregate = self.aggregate.to_dict()
@@ -48,12 +50,13 @@ class FeedbackAggregate:
         from ..models.score_aggregate import ScoreAggregate
         from ..models.star_aggregate import StarAggregate
         from ..models.tags_aggregate import TagsAggregate
+        from ..models.text_aggregate import TextAggregate
 
         d = dict(src_dict)
 
         def _parse_aggregate(
             data: object,
-        ) -> Union["LikeDislikeAggregate", "ScoreAggregate", "StarAggregate", "TagsAggregate"]:
+        ) -> Union["LikeDislikeAggregate", "ScoreAggregate", "StarAggregate", "TagsAggregate", "TextAggregate"]:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
@@ -75,9 +78,16 @@ class FeedbackAggregate:
 
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return TagsAggregate.from_dict(data)
+
+            except:  # noqa: E722
+                pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return TagsAggregate.from_dict(data)
+            return TextAggregate.from_dict(data)
 
         aggregate = _parse_aggregate(d.pop("aggregate"))
 

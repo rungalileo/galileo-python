@@ -59,7 +59,7 @@ def sync_detailed(
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
     """Create Or Update Integration.
 
-     Create or update an Nvidia integration for this user from Galileo.
+     Create or update an NVIDIA integration for this user from Galileo.
 
     Args:
         body (NvidiaIntegrationCreate):
@@ -83,7 +83,7 @@ def sync_detailed(
 def sync(*, client: ApiClient, body: NvidiaIntegrationCreate) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
     """Create Or Update Integration.
 
-     Create or update an Nvidia integration for this user from Galileo.
+     Create or update an NVIDIA integration for this user from Galileo.
 
     Args:
         body (NvidiaIntegrationCreate):
@@ -105,7 +105,7 @@ async def asyncio_detailed(
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
     """Create Or Update Integration.
 
-     Create or update an Nvidia integration for this user from Galileo.
+     Create or update an NVIDIA integration for this user from Galileo.
 
     Args:
         body (NvidiaIntegrationCreate):
@@ -131,7 +131,7 @@ async def asyncio(
 ) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
     """Create Or Update Integration.
 
-     Create or update an Nvidia integration for this user from Galileo.
+     Create or update an NVIDIA integration for this user from Galileo.
 
     Args:
         body (NvidiaIntegrationCreate):

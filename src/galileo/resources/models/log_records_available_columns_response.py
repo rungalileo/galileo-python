@@ -7,7 +7,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.column_info import ColumnInfo
+    from ..models.log_records_column_info import LogRecordsColumnInfo
 
 
 T = TypeVar("T", bound="LogRecordsAvailableColumnsResponse")
@@ -18,10 +18,10 @@ class LogRecordsAvailableColumnsResponse:
     """
     Attributes
     ----------
-        columns (Union[Unset, list['ColumnInfo']]):
+        columns (Union[Unset, list['LogRecordsColumnInfo']]):
     """
 
-    columns: Union[Unset, list["ColumnInfo"]] = UNSET
+    columns: Union[Unset, list["LogRecordsColumnInfo"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,13 +42,13 @@ class LogRecordsAvailableColumnsResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.column_info import ColumnInfo
+        from ..models.log_records_column_info import LogRecordsColumnInfo
 
         d = dict(src_dict)
         columns = []
         _columns = d.pop("columns", UNSET)
         for columns_item_data in _columns or []:
-            columns_item = ColumnInfo.from_dict(columns_item_data)
+            columns_item = LogRecordsColumnInfo.from_dict(columns_item_data)
 
             columns.append(columns_item)
 

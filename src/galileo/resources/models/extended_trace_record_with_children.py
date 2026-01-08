@@ -65,11 +65,12 @@ class ExtendedTraceRecordWithChildren:
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
+        feedback_rating_info (Union[Unset, ExtendedTraceRecordWithChildrenFeedbackRatingInfo]): Feedback information
+            related to the record
         metric_info (Union['ExtendedTraceRecordWithChildrenMetricInfoType0', None, Unset]): Detailed information about
             the metrics associated with this trace or span
         is_complete (Union[Unset, bool]): Whether the trace is complete or not Default: True.
-        feedback_rating_info (Union[Unset, ExtendedTraceRecordWithChildrenFeedbackRatingInfo]): Feedback information
-            related to the trace.
+        num_spans (Union[None, Unset, int]):
     """
 
     id: str
@@ -108,9 +109,10 @@ class ExtendedTraceRecordWithChildren:
     has_children: Union[None, Unset, bool] = UNSET
     metrics_batch_id: Union[None, Unset, str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
+    feedback_rating_info: Union[Unset, "ExtendedTraceRecordWithChildrenFeedbackRatingInfo"] = UNSET
     metric_info: Union["ExtendedTraceRecordWithChildrenMetricInfoType0", None, Unset] = UNSET
     is_complete: Union[Unset, bool] = True
-    feedback_rating_info: Union[Unset, "ExtendedTraceRecordWithChildrenFeedbackRatingInfo"] = UNSET
+    num_spans: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -216,6 +218,10 @@ class ExtendedTraceRecordWithChildren:
         session_batch_id: Union[None, Unset, str]
         session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
+        feedback_rating_info: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.feedback_rating_info, Unset):
+            feedback_rating_info = self.feedback_rating_info.to_dict()
+
         metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
@@ -226,9 +232,8 @@ class ExtendedTraceRecordWithChildren:
 
         is_complete = self.is_complete
 
-        feedback_rating_info: Union[Unset, dict[str, Any]] = UNSET
-        if not isinstance(self.feedback_rating_info, Unset):
-            feedback_rating_info = self.feedback_rating_info.to_dict()
+        num_spans: Union[None, Unset, int]
+        num_spans = UNSET if isinstance(self.num_spans, Unset) else self.num_spans
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -275,12 +280,14 @@ class ExtendedTraceRecordWithChildren:
             field_dict["metrics_batch_id"] = metrics_batch_id
         if session_batch_id is not UNSET:
             field_dict["session_batch_id"] = session_batch_id
+        if feedback_rating_info is not UNSET:
+            field_dict["feedback_rating_info"] = feedback_rating_info
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
         if is_complete is not UNSET:
             field_dict["is_complete"] = is_complete
-        if feedback_rating_info is not UNSET:
-            field_dict["feedback_rating_info"] = feedback_rating_info
+        if num_spans is not UNSET:
+            field_dict["num_spans"] = num_spans
 
         return field_dict
 
@@ -565,6 +572,13 @@ class ExtendedTraceRecordWithChildren:
 
         session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
+        _feedback_rating_info = d.pop("feedback_rating_info", UNSET)
+        feedback_rating_info: Union[Unset, ExtendedTraceRecordWithChildrenFeedbackRatingInfo]
+        if isinstance(_feedback_rating_info, Unset):
+            feedback_rating_info = UNSET
+        else:
+            feedback_rating_info = ExtendedTraceRecordWithChildrenFeedbackRatingInfo.from_dict(_feedback_rating_info)
+
         def _parse_metric_info(data: object) -> Union["ExtendedTraceRecordWithChildrenMetricInfoType0", None, Unset]:
             if data is None:
                 return data
@@ -639,12 +653,14 @@ class ExtendedTraceRecordWithChildren:
 
         is_complete = d.pop("is_complete", UNSET)
 
-        _feedback_rating_info = d.pop("feedback_rating_info", UNSET)
-        feedback_rating_info: Union[Unset, ExtendedTraceRecordWithChildrenFeedbackRatingInfo]
-        if isinstance(_feedback_rating_info, Unset):
-            feedback_rating_info = UNSET
-        else:
-            feedback_rating_info = ExtendedTraceRecordWithChildrenFeedbackRatingInfo.from_dict(_feedback_rating_info)
+        def _parse_num_spans(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        num_spans = _parse_num_spans(d.pop("num_spans", UNSET))
 
         extended_trace_record_with_children = cls(
             id=id,
@@ -672,9 +688,10 @@ class ExtendedTraceRecordWithChildren:
             has_children=has_children,
             metrics_batch_id=metrics_batch_id,
             session_batch_id=session_batch_id,
+            feedback_rating_info=feedback_rating_info,
             metric_info=metric_info,
             is_complete=is_complete,
-            feedback_rating_info=feedback_rating_info,
+            num_spans=num_spans,
         )
 
         extended_trace_record_with_children.additional_properties = d

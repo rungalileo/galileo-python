@@ -1,48 +1,31 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-if TYPE_CHECKING:
-    from ..models.raw_filter import RawFilter
-
-
-T = TypeVar("T", bound="FilterLeaf")
+T = TypeVar("T", bound="ImageGenerationEventMetadataType0")
 
 
 @_attrs_define
-class FilterLeaf:
-    """
-    Attributes
-    ----------
-        filter_ (RawFilter): Raw filter input. At least one of 'name' or 'column_id' is required.
-            'value' is required. 'operator' and 'case_sensitive' are optional.
-    """
+class ImageGenerationEventMetadataType0:
+    """ """
 
-    filter_: "RawFilter"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        filter_ = self.filter_.to_dict()
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"filter": filter_})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.raw_filter import RawFilter
-
         d = dict(src_dict)
-        filter_ = RawFilter.from_dict(d.pop("filter"))
+        image_generation_event_metadata_type_0 = cls()
 
-        filter_leaf = cls(filter_=filter_)
-
-        filter_leaf.additional_properties = d
-        return filter_leaf
+        image_generation_event_metadata_type_0.additional_properties = d
+        return image_generation_event_metadata_type_0
 
     @property
     def additional_keys(self) -> list[str]:

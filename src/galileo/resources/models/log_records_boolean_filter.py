@@ -4,6 +4,7 @@ from typing import Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.log_records_boolean_filter_operator import LogRecordsBooleanFilterOperator
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="LogRecordsBooleanFilter")
@@ -16,11 +17,13 @@ class LogRecordsBooleanFilter:
     ----------
         column_id (str): ID of the column to filter.
         value (bool):
+        operator (Union[Unset, LogRecordsBooleanFilterOperator]):  Default: LogRecordsBooleanFilterOperator.EQ.
         type_ (Union[Literal['boolean'], Unset]):  Default: 'boolean'.
     """
 
     column_id: str
     value: bool
+    operator: Union[Unset, LogRecordsBooleanFilterOperator] = LogRecordsBooleanFilterOperator.EQ
     type_: Union[Literal["boolean"], Unset] = "boolean"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -29,11 +32,17 @@ class LogRecordsBooleanFilter:
 
         value = self.value
 
+        operator: Union[Unset, str] = UNSET
+        if not isinstance(self.operator, Unset):
+            operator = self.operator.value
+
         type_ = self.type_
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"column_id": column_id, "value": value})
+        if operator is not UNSET:
+            field_dict["operator"] = operator
         if type_ is not UNSET:
             field_dict["type"] = type_
 
@@ -46,11 +55,15 @@ class LogRecordsBooleanFilter:
 
         value = d.pop("value")
 
+        _operator = d.pop("operator", UNSET)
+        operator: Union[Unset, LogRecordsBooleanFilterOperator]
+        operator = UNSET if isinstance(_operator, Unset) else LogRecordsBooleanFilterOperator(_operator)
+
         type_ = cast(Union[Literal["boolean"], Unset], d.pop("type", UNSET))
         if type_ != "boolean" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'boolean', got '{type_}'")
 
-        log_records_boolean_filter = cls(column_id=column_id, value=value, type_=type_)
+        log_records_boolean_filter = cls(column_id=column_id, value=value, operator=operator, type_=type_)
 
         log_records_boolean_filter.additional_properties = d
         return log_records_boolean_filter
