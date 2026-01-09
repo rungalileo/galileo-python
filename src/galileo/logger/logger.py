@@ -636,8 +636,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if self.mode == "distributed" and (self.trace_id or self.span_id):
             return True
         current_parent = self.current_parent()
-        # Also check that we have traces - the ContextVar is global and might
-        # contain a parent from a different logger instance
+        # Each logger has its own per-instance ContextVar for parent tracking.
+        # The traces check is a sanity check to ensure consistency.
         return current_parent is not None and len(self.traces) > 0
 
     def get_tracing_headers(self) -> dict[str, str]:

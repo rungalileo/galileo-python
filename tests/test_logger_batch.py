@@ -1729,3 +1729,97 @@ def test_start_trace_auto_conversion(
     payload_trace = ingestion_hook.call_args.args[0].traces[0]
     for attr, expected_value in expected.items():
         assert getattr(payload_trace, attr) == expected_value, f"payload.{attr} mismatch"
+
+
+class TestMultipleLoggerInstanceIsolation:
+    """Test that multiple GalileoLogger instances have fully isolated state.
+
+    Each logger maintains its own per-instance ContextVar, ensuring operations
+    on one logger do not affect another logger's state or trace hierarchy.
+    """
+
+    @patch("galileo.logger.logger.LogStreams")
+    @patch("galileo.logger.logger.Projects")
+    @patch("galileo.logger.logger.Traces")
+    def test_loggers_have_isolated_state(
+        self, mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    ) -> None:
+        """Multiple loggers maintain independent state, hierarchies, and operations."""
+        setup_mock_traces_client(mock_traces_client)
+        setup_mock_projects_client(mock_projects_client)
+        setup_mock_logstreams_client(mock_logstreams_client)
+
+        logger_a = GalileoLogger(project="project_a", log_stream="stream_a")
+        logger_b = GalileoLogger(project="project_b", log_stream="stream_b")
+
+        # Initially, neither has an active trace
+        assert logger_a.has_active_trace() is False
+        assert logger_b.has_active_trace() is False
+
+        # Both loggers build concurrent hierarchies
+        logger_a.start_trace(input="Trace A", name="trace_a")
+        logger_a.add_workflow_span(input="Workflow A", name="workflow_a")
+        assert logger_a.has_active_trace() is True
+        assert logger_b.has_active_trace() is False
+
+        logger_b.start_trace(input="Trace B", name="trace_b")
+        logger_b.add_workflow_span(input="Workflow B", name="workflow_b")
+
+        # Each logger sees its own current parent
+        parent_a = logger_a.current_parent()
+        parent_b = logger_b.current_parent()
+        assert parent_a is not None and parent_a.name == "workflow_a"
+        assert parent_b is not None and parent_b.name == "workflow_b"
+
+        # Spans go to correct logger
+        logger_a.add_llm_span(input="Q", output="A", model="gpt-4", name="llm_a")
+        logger_b.add_tool_span(input="Tool B", output="Result B", name="tool_b")
+
+        # Concluding one logger doesn't affect the other
+        logger_b.conclude(output="Workflow B done")
+        logger_b.conclude(output="Trace B done")
+        assert logger_b.current_parent() is None
+        assert logger_b.has_active_trace() is False
+        parent_a_after = logger_a.current_parent()
+        assert parent_a_after is not None and parent_a_after.name == "workflow_a"
+        assert logger_a.has_active_trace() is True
+
+        # Flushing one logger doesn't affect the other
+        logger_b.flush()
+        assert logger_b.traces == []
+        assert len(logger_a.traces) == 1
+
+        # Verify final structure of logger_a
+        workflow_a = logger_a.traces[0].spans[0]
+        assert isinstance(workflow_a, WorkflowSpan) and len(workflow_a.spans) == 1
+        assert workflow_a.spans[0].name == "llm_a"
+
+    @patch("galileo.logger.logger.LogStreams")
+    @patch("galileo.logger.logger.Projects")
+    @patch("galileo.logger.logger.Traces")
+    def test_reset_only_affects_own_logger(
+        self, mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    ) -> None:
+        """reset_parent_tracking() and flush() only affect the calling logger."""
+        setup_mock_traces_client(mock_traces_client)
+        setup_mock_projects_client(mock_projects_client)
+        setup_mock_logstreams_client(mock_logstreams_client)
+
+        logger_a = GalileoLogger(project="project_a", log_stream="stream_a")
+        logger_b = GalileoLogger(project="project_b", log_stream="stream_b")
+
+        logger_a.start_trace(input="Trace A", name="trace_a")
+        logger_b.start_trace(input="Trace B", name="trace_b")
+        logger_b.add_workflow_span(input="Workflow B", name="workflow_b")
+
+        # Reset logger_a's parent tracking - logger_b unaffected
+        logger_a.reset_parent_tracking()
+        assert logger_a.current_parent() is None
+        parent_b = logger_b.current_parent()
+        assert parent_b is not None and parent_b.name == "workflow_b"
+
+        # Flush logger_a - logger_b unaffected
+        logger_a.flush()
+        assert logger_a.traces == []
+        assert len(logger_b.traces) == 1
+        assert logger_b.current_parent() is not None
