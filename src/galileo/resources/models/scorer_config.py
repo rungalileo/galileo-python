@@ -44,6 +44,7 @@ class ScorerConfig:
             to plus
         scorer_version (Union['BaseScorerVersionDB', None, Unset]): ScorerVersion to use for this scorer. If not
             provided, the latest version will be used.
+        roll_up_method (Union[None, Unset, str]):
     """
 
     id: str
@@ -58,6 +59,7 @@ class ScorerConfig:
     name: Union[None, Unset, str] = UNSET
     model_type: Union[ModelType, None, Unset] = UNSET
     scorer_version: Union["BaseScorerVersionDB", None, Unset] = UNSET
+    roll_up_method: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -138,6 +140,9 @@ class ScorerConfig:
         else:
             scorer_version = self.scorer_version
 
+        roll_up_method: Union[None, Unset, str]
+        roll_up_method = UNSET if isinstance(self.roll_up_method, Unset) else self.roll_up_method
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"id": id, "scorer_type": scorer_type})
@@ -161,6 +166,8 @@ class ScorerConfig:
             field_dict["model_type"] = model_type
         if scorer_version is not UNSET:
             field_dict["scorer_version"] = scorer_version
+        if roll_up_method is not UNSET:
+            field_dict["roll_up_method"] = roll_up_method
 
         return field_dict
 
@@ -326,6 +333,15 @@ class ScorerConfig:
 
         scorer_version = _parse_scorer_version(d.pop("scorer_version", UNSET))
 
+        def _parse_roll_up_method(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
+
         scorer_config = cls(
             id=id,
             scorer_type=scorer_type,
@@ -339,6 +355,7 @@ class ScorerConfig:
             name=name,
             model_type=model_type,
             scorer_version=scorer_version,
+            roll_up_method=roll_up_method,
         )
 
         scorer_config.additional_properties = d

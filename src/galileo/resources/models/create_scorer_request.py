@@ -27,6 +27,7 @@ class CreateScorerRequest:
         description (Union[Unset, str]):  Default: ''.
         tags (Union[Unset, list[str]]):
         defaults (Union['ScorerDefaults', None, Unset]):
+        deprecated (Union[None, Unset, bool]):
         model_type (Union[ModelType, None, Unset]):
         ground_truth (Union[None, Unset, bool]):
         default_version_id (Union[None, Unset, str]):
@@ -42,6 +43,7 @@ class CreateScorerRequest:
     description: Union[Unset, str] = ""
     tags: Union[Unset, list[str]] = UNSET
     defaults: Union["ScorerDefaults", None, Unset] = UNSET
+    deprecated: Union[None, Unset, bool] = UNSET
     model_type: Union[ModelType, None, Unset] = UNSET
     ground_truth: Union[None, Unset, bool] = UNSET
     default_version_id: Union[None, Unset, str] = UNSET
@@ -72,6 +74,9 @@ class CreateScorerRequest:
             defaults = self.defaults.to_dict()
         else:
             defaults = self.defaults
+
+        deprecated: Union[None, Unset, bool]
+        deprecated = UNSET if isinstance(self.deprecated, Unset) else self.deprecated
 
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
@@ -133,6 +138,8 @@ class CreateScorerRequest:
             field_dict["tags"] = tags
         if defaults is not UNSET:
             field_dict["defaults"] = defaults
+        if deprecated is not UNSET:
+            field_dict["deprecated"] = deprecated
         if model_type is not UNSET:
             field_dict["model_type"] = model_type
         if ground_truth is not UNSET:
@@ -180,6 +187,15 @@ class CreateScorerRequest:
             return cast(Union["ScorerDefaults", None, Unset], data)
 
         defaults = _parse_defaults(d.pop("defaults", UNSET))
+
+        def _parse_deprecated(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        deprecated = _parse_deprecated(d.pop("deprecated", UNSET))
 
         def _parse_model_type(data: object) -> Union[ModelType, None, Unset]:
             if data is None:
@@ -294,6 +310,7 @@ class CreateScorerRequest:
             description=description,
             tags=tags,
             defaults=defaults,
+            deprecated=deprecated,
             model_type=model_type,
             ground_truth=ground_truth,
             default_version_id=default_version_id,

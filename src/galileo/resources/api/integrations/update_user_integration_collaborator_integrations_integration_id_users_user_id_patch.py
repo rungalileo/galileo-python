@@ -63,7 +63,7 @@ def sync_detailed(
 ) -> Response[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Integration Collaborator.
 
-     Update the sharing permissions of a user on a integration.
+     Update the sharing permissions of a user on an integration.
 
     Args:
         integration_id (str):
@@ -91,7 +91,7 @@ def sync(
 ) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Integration Collaborator.
 
-     Update the sharing permissions of a user on a integration.
+     Update the sharing permissions of a user on an integration.
 
     Args:
         integration_id (str):
@@ -115,7 +115,7 @@ async def asyncio_detailed(
 ) -> Response[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Integration Collaborator.
 
-     Update the sharing permissions of a user on a integration.
+     Update the sharing permissions of a user on an integration.
 
     Args:
         integration_id (str):
@@ -143,7 +143,7 @@ async def asyncio(
 ) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Integration Collaborator.
 
-     Update the sharing permissions of a user on a integration.
+     Update the sharing permissions of a user on an integration.
 
     Args:
         integration_id (str):

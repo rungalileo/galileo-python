@@ -29,7 +29,7 @@ class PromptRunSettings:
         reasoning_effort (Union[Unset, str]):  Default: 'medium'.
         verbosity (Union[Unset, str]):  Default: 'medium'.
         deployment_name (Union[None, Unset, str]):
-        model_alias (Union[Unset, str]):  Default: 'GPT-4o'.
+        model_alias (Union[Unset, str]):  Default: 'gpt-5.1'.
         temperature (Union[Unset, float]):  Default: 1.0.
         max_tokens (Union[Unset, int]):  Default: 4096.
         stop_sequences (Union[None, Unset, list[str]]):
@@ -50,7 +50,7 @@ class PromptRunSettings:
     reasoning_effort: Union[Unset, str] = "medium"
     verbosity: Union[Unset, str] = "medium"
     deployment_name: Union[None, Unset, str] = UNSET
-    model_alias: Union[Unset, str] = "GPT-4o"
+    model_alias: Union[Unset, str] = "gpt-5.1"
     temperature: Union[Unset, float] = 1.0
     max_tokens: Union[Unset, int] = 4096
     stop_sequences: Union[None, Unset, list[str]] = UNSET

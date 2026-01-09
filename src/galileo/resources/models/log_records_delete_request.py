@@ -7,16 +7,16 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.and_node import AndNode
-    from ..models.filter_leaf import FilterLeaf
+    from ..models.and_node_log_records_filter import AndNodeLogRecordsFilter
+    from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
     from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
     from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_text_filter import LogRecordsTextFilter
-    from ..models.not_node import NotNode
-    from ..models.or_node import OrNode
+    from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
+    from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
 
 T = TypeVar("T", bound="LogRecordsDeleteRequest")
@@ -36,7 +36,8 @@ class LogRecordsDeleteRequest:
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
         filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
             'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
-        filter_tree (Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode', None, Unset]):
+        filter_tree (Union['AndNodeLogRecordsFilter', 'FilterLeafLogRecordsFilter', 'NotNodeLogRecordsFilter',
+            'OrNodeLogRecordsFilter', None, Unset]):
     """
 
     log_stream_id: Union[None, Unset, str] = UNSET
@@ -55,19 +56,26 @@ class LogRecordsDeleteRequest:
             ]
         ],
     ] = UNSET
-    filter_tree: Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset] = UNSET
+    filter_tree: Union[
+        "AndNodeLogRecordsFilter",
+        "FilterLeafLogRecordsFilter",
+        "NotNodeLogRecordsFilter",
+        "OrNodeLogRecordsFilter",
+        None,
+        Unset,
+    ] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.and_node import AndNode
-        from ..models.filter_leaf import FilterLeaf
+        from ..models.and_node_log_records_filter import AndNodeLogRecordsFilter
+        from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
-        from ..models.not_node import NotNode
-        from ..models.or_node import OrNode
+        from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
+        from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
         log_stream_id: Union[None, Unset, str]
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
@@ -102,7 +110,10 @@ class LogRecordsDeleteRequest:
         filter_tree: Union[None, Unset, dict[str, Any]]
         if isinstance(self.filter_tree, Unset):
             filter_tree = UNSET
-        elif isinstance(self.filter_tree, (FilterLeaf, AndNode, OrNode, NotNode)):
+        elif isinstance(
+            self.filter_tree,
+            (FilterLeafLogRecordsFilter, AndNodeLogRecordsFilter, OrNodeLogRecordsFilter, NotNodeLogRecordsFilter),
+        ):
             filter_tree = self.filter_tree.to_dict()
         else:
             filter_tree = self.filter_tree
@@ -125,16 +136,16 @@ class LogRecordsDeleteRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.and_node import AndNode
-        from ..models.filter_leaf import FilterLeaf
+        from ..models.and_node_log_records_filter import AndNodeLogRecordsFilter
+        from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_text_filter import LogRecordsTextFilter
-        from ..models.not_node import NotNode
-        from ..models.or_node import OrNode
+        from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
+        from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
         d = dict(src_dict)
 
@@ -222,7 +233,16 @@ class LogRecordsDeleteRequest:
 
             filters.append(filters_item)
 
-        def _parse_filter_tree(data: object) -> Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset]:
+        def _parse_filter_tree(
+            data: object,
+        ) -> Union[
+            "AndNodeLogRecordsFilter",
+            "FilterLeafLogRecordsFilter",
+            "NotNodeLogRecordsFilter",
+            "OrNodeLogRecordsFilter",
+            None,
+            Unset,
+        ]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -230,32 +250,42 @@ class LogRecordsDeleteRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return FilterLeaf.from_dict(data)
+                return FilterLeafLogRecordsFilter.from_dict(data)
 
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AndNode.from_dict(data)
+                return AndNodeLogRecordsFilter.from_dict(data)
 
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return OrNode.from_dict(data)
+                return OrNodeLogRecordsFilter.from_dict(data)
 
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return NotNode.from_dict(data)
+                return NotNodeLogRecordsFilter.from_dict(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset], data)
+            return cast(
+                Union[
+                    "AndNodeLogRecordsFilter",
+                    "FilterLeafLogRecordsFilter",
+                    "NotNodeLogRecordsFilter",
+                    "OrNodeLogRecordsFilter",
+                    None,
+                    Unset,
+                ],
+                data,
+            )
 
         filter_tree = _parse_filter_tree(d.pop("filter_tree", UNSET))
 

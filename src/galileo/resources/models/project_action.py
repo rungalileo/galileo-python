@@ -4,9 +4,11 @@ from enum import Enum
 class ProjectAction(str, Enum):
     CONFIGURE_CROWN_LOGIC = "configure_crown_logic"
     CONFIGURE_HUMAN_FEEDBACK = "configure_human_feedback"
+    CREATE_ANNOTATION_QUEUE = "create_annotation_queue"
     CREATE_RUN = "create_run"
     CREATE_STAGE = "create_stage"
     DELETE = "delete"
+    DELETE_ANNOTATION_QUEUE = "delete_annotation_queue"
     DELETE_DATA = "delete_data"
     DELETE_RUN = "delete_run"
     DISMISS_ALERT = "dismiss_alert"
@@ -25,6 +27,7 @@ class ProjectAction(str, Enum):
     SHARE = "share"
     TOGGLE_METRIC = "toggle_metric"
     UPDATE = "update"
+    UPDATE_ANNOTATION_QUEUE = "update_annotation_queue"
 
     def __str__(self) -> str:
         return str(self.value)

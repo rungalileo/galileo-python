@@ -34,10 +34,12 @@ class LogRecordsExportRequest:
         filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
             'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]): Filters to
             apply on the export
-        sort (Union[Unset, LogRecordsSortClause]):
+        sort (Union['LogRecordsSortClause', None, Unset]): Sort clause for the export.  Defaults to native sort
+            (created_at, id descending).
         column_ids (Union[None, Unset, list[str]]): Column IDs to include in export
         export_format (Union[Unset, LLMExportFormat]):
         redact (Union[Unset, bool]): Redact sensitive data Default: True.
+        file_name (Union[None, Unset, str]): Optional filename for the exported file
     """
 
     root_type: RootType
@@ -57,10 +59,11 @@ class LogRecordsExportRequest:
             ]
         ],
     ] = UNSET
-    sort: Union[Unset, "LogRecordsSortClause"] = UNSET
+    sort: Union["LogRecordsSortClause", None, Unset] = UNSET
     column_ids: Union[None, Unset, list[str]] = UNSET
     export_format: Union[Unset, LLMExportFormat] = UNSET
     redact: Union[Unset, bool] = True
+    file_name: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -69,6 +72,7 @@ class LogRecordsExportRequest:
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
+        from ..models.log_records_sort_clause import LogRecordsSortClause
 
         root_type = self.root_type.value
 
@@ -102,9 +106,13 @@ class LogRecordsExportRequest:
 
                 filters.append(filters_item)
 
-        sort: Union[Unset, dict[str, Any]] = UNSET
-        if not isinstance(self.sort, Unset):
+        sort: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.sort, Unset):
+            sort = UNSET
+        elif isinstance(self.sort, LogRecordsSortClause):
             sort = self.sort.to_dict()
+        else:
+            sort = self.sort
 
         column_ids: Union[None, Unset, list[str]]
         if isinstance(self.column_ids, Unset):
@@ -120,6 +128,9 @@ class LogRecordsExportRequest:
             export_format = self.export_format.value
 
         redact = self.redact
+
+        file_name: Union[None, Unset, str]
+        file_name = UNSET if isinstance(self.file_name, Unset) else self.file_name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -140,6 +151,8 @@ class LogRecordsExportRequest:
             field_dict["export_format"] = export_format
         if redact is not UNSET:
             field_dict["redact"] = redact
+        if file_name is not UNSET:
+            field_dict["file_name"] = file_name
 
         return field_dict
 
@@ -240,9 +253,21 @@ class LogRecordsExportRequest:
 
             filters.append(filters_item)
 
-        _sort = d.pop("sort", UNSET)
-        sort: Union[Unset, LogRecordsSortClause]
-        sort = UNSET if isinstance(_sort, Unset) else LogRecordsSortClause.from_dict(_sort)
+        def _parse_sort(data: object) -> Union["LogRecordsSortClause", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return LogRecordsSortClause.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["LogRecordsSortClause", None, Unset], data)
+
+        sort = _parse_sort(d.pop("sort", UNSET))
 
         def _parse_column_ids(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
@@ -266,6 +291,15 @@ class LogRecordsExportRequest:
 
         redact = d.pop("redact", UNSET)
 
+        def _parse_file_name(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        file_name = _parse_file_name(d.pop("file_name", UNSET))
+
         log_records_export_request = cls(
             root_type=root_type,
             log_stream_id=log_stream_id,
@@ -276,6 +310,7 @@ class LogRecordsExportRequest:
             column_ids=column_ids,
             export_format=export_format,
             redact=redact,
+            file_name=file_name,
         )
 
         log_records_export_request.additional_properties = d

@@ -17,6 +17,9 @@ if TYPE_CHECKING:
     from ..models.extended_workflow_span_record_with_children_dataset_metadata import (
         ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata,
     )
+    from ..models.extended_workflow_span_record_with_children_feedback_rating_info import (
+        ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo,
+    )
     from ..models.extended_workflow_span_record_with_children_metric_info_type_0 import (
         ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0,
     )
@@ -67,6 +70,8 @@ class ExtendedWorkflowSpanRecordWithChildren:
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
+        feedback_rating_info (Union[Unset, ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo]): Feedback
+            information related to the record
         metric_info (Union['ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0', None, Unset]): Detailed information
             about the metrics associated with this trace or span
         is_complete (Union[Unset, bool]): Whether the parent trace is complete or not Default: True.
@@ -110,6 +115,7 @@ class ExtendedWorkflowSpanRecordWithChildren:
     has_children: Union[None, Unset, bool] = UNSET
     metrics_batch_id: Union[None, Unset, str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
+    feedback_rating_info: Union[Unset, "ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo"] = UNSET
     metric_info: Union["ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0", None, Unset] = UNSET
     is_complete: Union[Unset, bool] = True
     step_number: Union[None, Unset, int] = UNSET
@@ -262,6 +268,10 @@ class ExtendedWorkflowSpanRecordWithChildren:
         session_batch_id: Union[None, Unset, str]
         session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
+        feedback_rating_info: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.feedback_rating_info, Unset):
+            feedback_rating_info = self.feedback_rating_info.to_dict()
+
         metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
@@ -322,6 +332,8 @@ class ExtendedWorkflowSpanRecordWithChildren:
             field_dict["metrics_batch_id"] = metrics_batch_id
         if session_batch_id is not UNSET:
             field_dict["session_batch_id"] = session_batch_id
+        if feedback_rating_info is not UNSET:
+            field_dict["feedback_rating_info"] = feedback_rating_info
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
         if is_complete is not UNSET:
@@ -339,6 +351,9 @@ class ExtendedWorkflowSpanRecordWithChildren:
         from ..models.extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
         from ..models.extended_workflow_span_record_with_children_dataset_metadata import (
             ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata,
+        )
+        from ..models.extended_workflow_span_record_with_children_feedback_rating_info import (
+            ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo,
         )
         from ..models.extended_workflow_span_record_with_children_metric_info_type_0 import (
             ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0,
@@ -690,6 +705,15 @@ class ExtendedWorkflowSpanRecordWithChildren:
 
         session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
+        _feedback_rating_info = d.pop("feedback_rating_info", UNSET)
+        feedback_rating_info: Union[Unset, ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo]
+        if isinstance(_feedback_rating_info, Unset):
+            feedback_rating_info = UNSET
+        else:
+            feedback_rating_info = ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo.from_dict(
+                _feedback_rating_info
+            )
+
         def _parse_metric_info(
             data: object,
         ) -> Union["ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0", None, Unset]:
@@ -746,6 +770,7 @@ class ExtendedWorkflowSpanRecordWithChildren:
             has_children=has_children,
             metrics_batch_id=metrics_batch_id,
             session_batch_id=session_batch_id,
+            feedback_rating_info=feedback_rating_info,
             metric_info=metric_info,
             is_complete=is_complete,
             step_number=step_number,

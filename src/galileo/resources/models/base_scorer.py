@@ -45,6 +45,7 @@ class BaseScorer:
         chainpoll_template (Union['ChainPollTemplate', None, Unset]):
         model_alias (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
+        default_model_alias (Union[None, Unset, str]):
         ground_truth (Union[None, Unset, bool]):
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
@@ -78,6 +79,7 @@ class BaseScorer:
     chainpoll_template: Union["ChainPollTemplate", None, Unset] = UNSET
     model_alias: Union[None, Unset, str] = UNSET
     num_judges: Union[None, Unset, int] = UNSET
+    default_model_alias: Union[None, Unset, str] = UNSET
     ground_truth: Union[None, Unset, bool] = UNSET
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
@@ -196,6 +198,9 @@ class BaseScorer:
 
         num_judges: Union[None, Unset, int]
         num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
+
+        default_model_alias: Union[None, Unset, str]
+        default_model_alias = UNSET if isinstance(self.default_model_alias, Unset) else self.default_model_alias
 
         ground_truth: Union[None, Unset, bool]
         ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
@@ -322,6 +327,8 @@ class BaseScorer:
             field_dict["model_alias"] = model_alias
         if num_judges is not UNSET:
             field_dict["num_judges"] = num_judges
+        if default_model_alias is not UNSET:
+            field_dict["default_model_alias"] = default_model_alias
         if ground_truth is not UNSET:
             field_dict["ground_truth"] = ground_truth
         if regex_field is not UNSET:
@@ -545,6 +552,15 @@ class BaseScorer:
             return cast(Union[None, Unset, int], data)
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
+
+        def _parse_default_model_alias(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        default_model_alias = _parse_default_model_alias(d.pop("default_model_alias", UNSET))
 
         def _parse_ground_truth(data: object) -> Union[None, Unset, bool]:
             if data is None:
@@ -771,6 +787,7 @@ class BaseScorer:
             chainpoll_template=chainpoll_template,
             model_alias=model_alias,
             num_judges=num_judges,
+            default_model_alias=default_model_alias,
             ground_truth=ground_truth,
             regex_field=regex_field,
             registered_scorer_id=registered_scorer_id,

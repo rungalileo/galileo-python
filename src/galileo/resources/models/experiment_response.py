@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from ..models.experiment_prompt import ExperimentPrompt
     from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
     from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
+    from ..models.experiment_response_rating_aggregates import ExperimentResponseRatingAggregates
     from ..models.experiment_response_tags import ExperimentResponseTags
     from ..models.experiment_status import ExperimentStatus
     from ..models.prompt_run_settings import PromptRunSettings
@@ -44,7 +45,9 @@ class ExperimentResponse:
         dataset (Union['ExperimentDataset', None, Unset]):
         aggregate_metrics (Union[Unset, ExperimentResponseAggregateMetrics]):
         aggregate_feedback (Union[Unset, ExperimentResponseAggregateFeedback]): Aggregate feedback information related
-            to the experiment
+            to the experiment (traces only)
+        rating_aggregates (Union[Unset, ExperimentResponseRatingAggregates]): Annotation aggregates keyed by template ID
+            and root type
         ranking_score (Union[None, Unset, float]):
         rank (Union[None, Unset, int]):
         winner (Union[None, Unset, bool]):
@@ -70,6 +73,7 @@ class ExperimentResponse:
     dataset: Union["ExperimentDataset", None, Unset] = UNSET
     aggregate_metrics: Union[Unset, "ExperimentResponseAggregateMetrics"] = UNSET
     aggregate_feedback: Union[Unset, "ExperimentResponseAggregateFeedback"] = UNSET
+    rating_aggregates: Union[Unset, "ExperimentResponseRatingAggregates"] = UNSET
     ranking_score: Union[None, Unset, float] = UNSET
     rank: Union[None, Unset, int] = UNSET
     winner: Union[None, Unset, bool] = UNSET
@@ -142,6 +146,10 @@ class ExperimentResponse:
         if not isinstance(self.aggregate_feedback, Unset):
             aggregate_feedback = self.aggregate_feedback.to_dict()
 
+        rating_aggregates: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.rating_aggregates, Unset):
+            rating_aggregates = self.rating_aggregates.to_dict()
+
         ranking_score: Union[None, Unset, float]
         ranking_score = UNSET if isinstance(self.ranking_score, Unset) else self.ranking_score
 
@@ -212,6 +220,8 @@ class ExperimentResponse:
             field_dict["aggregate_metrics"] = aggregate_metrics
         if aggregate_feedback is not UNSET:
             field_dict["aggregate_feedback"] = aggregate_feedback
+        if rating_aggregates is not UNSET:
+            field_dict["rating_aggregates"] = rating_aggregates
         if ranking_score is not UNSET:
             field_dict["ranking_score"] = ranking_score
         if rank is not UNSET:
@@ -242,6 +252,7 @@ class ExperimentResponse:
         from ..models.experiment_prompt import ExperimentPrompt
         from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
         from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
+        from ..models.experiment_response_rating_aggregates import ExperimentResponseRatingAggregates
         from ..models.experiment_response_tags import ExperimentResponseTags
         from ..models.experiment_status import ExperimentStatus
         from ..models.prompt_run_settings import PromptRunSettings
@@ -348,6 +359,13 @@ class ExperimentResponse:
             aggregate_feedback = UNSET
         else:
             aggregate_feedback = ExperimentResponseAggregateFeedback.from_dict(_aggregate_feedback)
+
+        _rating_aggregates = d.pop("rating_aggregates", UNSET)
+        rating_aggregates: Union[Unset, ExperimentResponseRatingAggregates]
+        if isinstance(_rating_aggregates, Unset):
+            rating_aggregates = UNSET
+        else:
+            rating_aggregates = ExperimentResponseRatingAggregates.from_dict(_rating_aggregates)
 
         def _parse_ranking_score(data: object) -> Union[None, Unset, float]:
             if data is None:
@@ -464,6 +482,7 @@ class ExperimentResponse:
             dataset=dataset,
             aggregate_metrics=aggregate_metrics,
             aggregate_feedback=aggregate_feedback,
+            rating_aggregates=rating_aggregates,
             ranking_score=ranking_score,
             rank=rank,
             winner=winner,
