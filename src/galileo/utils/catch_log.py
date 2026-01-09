@@ -25,7 +25,7 @@ def warn_catch_exception(logger: Logger = logging.getLogger(__name__), exception
             try:
                 result = f(*args, **kwargs)
             except exception as err:
-                logger.warning(f"Error occurred during execution: {f.__name__}: {err}")
+                logger.warning(f"Error occurred during execution: {f.__name__}: {type(err).__name__}: {err}")
             else:
                 return result
 
@@ -56,7 +56,7 @@ def async_warn_catch_exception(
             try:
                 result = await f(*args, **kwargs)
             except exception as err:
-                logger.warning(f"Error occurred during execution: {f.__name__}: {err}")
+                logger.warning(f"Error occurred during execution: {f.__name__}: {type(err).__name__}: {err}")
             else:
                 return result
 
@@ -68,8 +68,7 @@ def async_warn_catch_exception(
 class DecorateAllMethods:
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
-        # Methods to exclude from decoration (should raise exceptions)
-        excluded_methods = {"__init__", "get_tracing_headers"}
+        excluded_methods = {"__init__", "get_tracing_headers", "flush", "_flush_batch"}
         for attr, f in cls.__dict__.items():
             if attr in excluded_methods:
                 continue

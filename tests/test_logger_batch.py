@@ -20,6 +20,8 @@ from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response, TraceMetadata
 from galileo_core.schemas.shared.document import Document
+from galileo_core.exceptions.http import GalileoHTTPException
+from galileo.utils.catch_log import DecorateAllMethods
 from tests.testutils.setup import (
     setup_mock_experiments_client,
     setup_mock_logstreams_client,
@@ -1668,3 +1670,60 @@ def test_get_last_output_with_redacted_output() -> None:
     output, redacted_output = GalileoLogger._get_last_output(trace)
     assert output == '{"content": "llm output", "role": "assistant"}'
     assert redacted_output == '{"content": "redacted llm output", "role": "assistant"}'
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_raises_exception_on_failure(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that flush() raises exceptions instead of swallowing them (SC-48019)."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    mock_traces_client_instance.ingest_traces.side_effect = GalileoHTTPException(
+        "Galileo API returned HTTP status code 502. Error was: Bad Gateway",
+        502,
+        "Bad Gateway"
+    )
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="test input")
+    logger.add_llm_span(input="prompt", output="response", model="gpt4o")
+    logger.conclude(output="test output")
+
+    with pytest.raises(GalileoHTTPException) as exc_info:
+        logger.flush()
+
+    assert exc_info.value.status_code == 502
+    assert "Bad Gateway" in str(exc_info.value)
+
+
+def test_decorate_all_methods_exclusion() -> None:
+    """Verify DecorateAllMethods excludes flush/_flush_batch but wraps other methods."""
+
+    class TestClass(DecorateAllMethods):
+        def __init__(self):
+            pass
+
+        def flush(self):
+            raise RuntimeError("flush error")
+
+        def _flush_batch(self):
+            raise RuntimeError("_flush_batch error")
+
+        def other_method(self):
+            raise RuntimeError("other error")
+
+    obj = TestClass()
+
+    with pytest.raises(RuntimeError, match="flush error"):
+        obj.flush()
+
+    with pytest.raises(RuntimeError, match="_flush_batch error"):
+        obj._flush_batch()
+
+    result = obj.other_method()
+    assert result is None
