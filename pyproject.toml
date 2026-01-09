@@ -21,7 +21,7 @@ python-dateutil = "^2.8.0"
 langchain-core = { version = "^0.3.68", optional = true }
 openai = { version = "<1.96.0", optional = true }
 openai-agents = { version = "<0.2.1", optional = true }
-galileo-core = "^3.79.2"
+galileo-core = "^3.82.1"
 starlette = { version = ">=0.27.0", optional = true }
 backoff = "^2.2.1"
 crewai = { version = ">=0.152.0,<=0.201.1", optional = true, python = ">=3.10,<3.14" }
@@ -37,7 +37,7 @@ pytest-xdist = "^3.7.0"
 pytest-socket = "^0.7"
 pytest-asyncio = "^1.0.0"
 requests-mock = "^1.11.0"
-galileo-core = { extras = ["testing"], version = "^3.79.2" }
+galileo-core = { extras = ["testing"], version = "^3.82.1" }
 
 pytest-env = "^1.1.5"
 langchain-core = "^0.3.68"
