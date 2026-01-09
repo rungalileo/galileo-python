@@ -1483,20 +1483,21 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "galileo-core"
-version = "3.79.2"
+version = "3.82.1"
 description = "Shared schemas and configuration for Galileo's Python packages."
 optional = false
 python-versions = ">=3.10.0"
 groups = ["main", "test"]
 markers = "platform_python_implementation == \"PyPy\""
 files = [
-    {file = "galileo_core-3.79.2-py3-none-any.whl", hash = "sha256:899da3278f731d27e64494d5c7a4614bddf3c7b7e5fa2cd77867a9ea2d37eec9"},
-    {file = "galileo_core-3.79.2.tar.gz", hash = "sha256:2e01626b4614fc10910d98b3dfbd76b1a0d20ba9786838a76c278f8fefff12fc"},
+    {file = "galileo_core-3.82.1-py3-none-any.whl", hash = "sha256:3008c3318ab3a5e0c6fc0358befaf56f834388b98ecf918c384a67bafe62098e"},
+    {file = "galileo_core-3.82.1.tar.gz", hash = "sha256:7aac99faa78f258a198b455c1c3f9e02e0434711237b5916ade117dc7931c03f"},
 ]
 
 [package.dependencies]
 httpx = ">=0.27.0,<0.29.0"
 pydantic = ">=2.6.0,<3.0.0"
+pydantic-partial = ">=0.10.1,<0.11.0"
 pydantic-settings = ">=2.2.1,<3.0.0"
 pyjwt = ">=2.8.0,<3.0.0"
 pytest = {version = ">=8.2.1,<9.0.0", optional = true, markers = "extra == \"testing\""}
@@ -4749,6 +4750,22 @@ files = [
 typing-extensions = ">=4.14.1"
 
 [[package]]
+name = "pydantic-partial"
+version = "0.10.1"
+description = "Create partial models from your pydantic models. Partial models may allow None for certain or all fields."
+optional = false
+python-versions = ">=3.10"
+groups = ["main", "test"]
+markers = "platform_python_implementation == \"PyPy\""
+files = [
+    {file = "pydantic_partial-0.10.1-py3-none-any.whl", hash = "sha256:6481350a7d5526a11e3825d65caed723a0cca85a0fe5f105ae1aec6fde4d5771"},
+    {file = "pydantic_partial-0.10.1.tar.gz", hash = "sha256:32cd8e2df06793375d17603c33a6cce17a94419ba04313de57d6a31c2e9501e1"},
+]
+
+[package.dependencies]
+pydantic = ">=2.0.0,<3.0.0"
+
+[[package]]
 name = "pydantic-settings"
 version = "2.10.1"
 description = "Settings management using Pydantic"
@@ -7325,4 +7342,4 @@ otel = ["opentelemetry-api", "opentelemetry-exporter-otlp", "opentelemetry-sdk"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10,<3.15"
-content-hash = "7405f419f16d201faac815481e189b726c7a4c84ea52dde710585f3ee233a8ae"
+content-hash = "6bdd32bbf8a59f6707e21d9e96e3ddf8ed235ad80ab99860953d793aa8ba1275"
