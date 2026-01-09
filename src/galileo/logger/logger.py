@@ -64,6 +64,9 @@ from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
+# Type alias for metadata values that can be auto-converted to strings
+MetadataValue = str | bool | int | float | None
+
 STREAMING_MAX_RETRIES = 5
 STREAMING_MAX_TIME_SECONDS = 70  # Maximum time to spend retrying a single request
 DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 90  # Timeout for waiting on background trace/span update tasks
@@ -356,6 +359,24 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 metrics=Metrics(duration_ns=0),
             )
             self._parent_stack.append(stub_span)
+
+    @staticmethod
+    def _convert_metadata_value(v: Any) -> str:
+        """Convert a metadata value to string.
+
+        Supported types (matching API behavior):
+        - None -> "None"
+        - str -> unchanged
+        - bool, int, float -> str()
+
+        Unsupported types (dict, list, etc.) are converted via str() but may not
+        be queryable as structured data. The API only supports flat string values.
+        """
+        if v is None:
+            return "None"
+        if isinstance(v, str):
+            return v
+        return str(v)
 
     @staticmethod
     @nop_sync
@@ -684,16 +705,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     @nop_sync
     def start_trace(
         self,
-        input: StepAllowedInputType,
-        redacted_input: Optional[StepAllowedInputType] = None,
+        input: StepAllowedInputType | dict,
+        redacted_input: Optional[StepAllowedInputType | dict] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
-        metadata: Optional[dict[str, str]] = None,
+        metadata: Optional[dict[str, MetadataValue]] = None,
         tags: Optional[list[str]] = None,
         dataset_input: Optional[str] = None,
         dataset_output: Optional[str] = None,
-        dataset_metadata: Optional[dict[str, str]] = None,
+        dataset_metadata: Optional[dict[str, MetadataValue]] = None,
         external_id: Optional[str] = None,
     ) -> Trace:
         """
@@ -702,13 +723,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         Parameters
         ----------
-        input: StepAllowedInputType
+        input: StepAllowedInputType | dict
             Input to the node.
-            Expected format: String or sequence of Message objects.
+            Expected format: String, dict (auto-converted to JSON), or sequence of Message objects.
             Examples -
                 - String: "User query: What is the weather today?"
+                - Dict: `{"query": "hello", "context": "world"}` (auto-converted to JSON string)
                 - Messages: `[Message(content="Hello", role=MessageRole.user)]`
-        redacted_input: Optional[StepAllowedInputType]
+        redacted_input: Optional[StepAllowedInputType | dict]
             Input that removes any sensitive information (redacted input).
             Same format as input parameter.
         name: Optional[str]
@@ -718,9 +740,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Duration of the trace in nanoseconds.
         created_at: Optional[datetime]
             Timestamp of the trace's creation.
-        metadata: Optional[dict[str, str]]
+        metadata: Optional[dict[str, MetadataValue]]
             Metadata associated with this trace.
-            Expected format: `{"key1": "value1", "key2": "value2"}`
+            Expected format: `{"key1": "value1", "enabled": True, "count": 42}`
+            Accepted value types: str, bool, int, float, None (auto-converted to strings).
+            Note: Nested structures (dict, list) are NOT supported by the API.
         tags: Optional[list[str]]
             Tags associated with this trace.
             Expected format: `["tag1", "tag2", "tag3"]`
@@ -728,9 +752,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Input from the associated dataset.
         dataset_output: Optional[str]
             Expected output from the associated dataset.
-        dataset_metadata: Optional[dict[str, str]]
+        dataset_metadata: Optional[dict[str, MetadataValue]]
             Metadata from the associated dataset.
-            Expected format: `{"key1": "value1", "key2": "value2"}`
+            Expected format: `{"key1": "value1", "enabled": True, "count": 42}`
+            Accepted value types: str, bool, int, float, None (auto-converted to strings).
         external_id: Optional[str]
             External ID for this trace to connect to external systems.
             Expected format: Unique identifier string.
@@ -740,6 +765,19 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Trace
             The created trace.
         """
+        # Auto-convert dict input to JSON string (addresses common user mistake)
+        if isinstance(input, dict):
+            input = json.dumps(input)
+        if isinstance(redacted_input, dict):
+            redacted_input = json.dumps(redacted_input)
+
+        # Auto-convert non-string metadata values to strings
+        # Note: Must use class name, not self, because DecorateAllMethods removes @staticmethod
+        if metadata:
+            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+        if dataset_metadata:
+            dataset_metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in dataset_metadata.items()}
+
         kwargs = {
             "input": input,
             "redacted_input": redacted_input,

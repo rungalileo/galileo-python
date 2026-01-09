@@ -1668,3 +1668,64 @@ def test_get_last_output_with_redacted_output() -> None:
     output, redacted_output = GalileoLogger._get_last_output(trace)
     assert output == '{"content": "llm output", "role": "assistant"}'
     assert redacted_output == '{"content": "redacted llm output", "role": "assistant"}'
+
+
+@pytest.mark.parametrize(
+    "trace_kwargs,expected",
+    [
+        pytest.param(
+            {"input": {"query": "hello", "context": "world"}},
+            {"input": '{"query": "hello", "context": "world"}'},
+            id="dict_input",
+        ),
+        pytest.param(
+            {"input": "original", "redacted_input": {"query": "redacted", "context": "sanitized"}},
+            {"input": "original", "redacted_input": '{"query": "redacted", "context": "sanitized"}'},
+            id="dict_redacted_input",
+        ),
+        pytest.param(
+            {"input": "test", "metadata": {"enabled": True, "count": 42, "ratio": 3.14, "name": "test"}},
+            {"input": "test", "user_metadata": {"enabled": "True", "count": "42", "ratio": "3.14", "name": "test"}},
+            id="metadata_primitives",
+        ),
+        pytest.param(
+            {"input": "test", "metadata": {"enabled": True, "missing": None, "name": "test"}},
+            {"input": "test", "user_metadata": {"enabled": "True", "missing": "None", "name": "test"}},
+            id="metadata_with_none",
+        ),
+        pytest.param(
+            {"input": "test", "dataset_metadata": {"enabled": True, "count": 42, "ratio": 3.14}},
+            {"input": "test", "dataset_metadata": {"enabled": "True", "count": "42", "ratio": "3.14"}},
+            id="dataset_metadata",
+        ),
+    ],
+)
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_start_trace_auto_conversion(
+    mock_traces_client: Mock,
+    mock_projects_client: Mock,
+    mock_logstreams_client: Mock,
+    trace_kwargs: dict,
+    expected: dict,
+) -> None:
+    """Test that start_trace auto-converts dict inputs and non-string metadata values."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingestion_hook = Mock()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=ingestion_hook)
+    trace = logger.start_trace(name="test-trace", **trace_kwargs)
+    logger.conclude(output="output")
+    logger.flush()
+
+    assert trace is not None
+    for attr, expected_value in expected.items():
+        assert getattr(trace, attr) == expected_value, f"trace.{attr} mismatch"
+
+    ingestion_hook.assert_called_once()
+    payload_trace = ingestion_hook.call_args.args[0].traces[0]
+    for attr, expected_value in expected.items():
+        assert getattr(payload_trace, attr) == expected_value, f"payload.{attr} mismatch"
