@@ -64,6 +64,9 @@ from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
+# Type alias for metadata values that can be auto-converted to strings
+MetadataValue = str | bool | int | float | None
+
 STREAMING_MAX_RETRIES = 5
 STREAMING_MAX_TIME_SECONDS = 70  # Maximum time to spend retrying a single request
 DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 90  # Timeout for waiting on background trace/span update tasks
@@ -707,11 +710,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
-        metadata: Optional[dict[str, str]] = None,
+        metadata: Optional[dict[str, MetadataValue]] = None,
         tags: Optional[list[str]] = None,
         dataset_input: Optional[str] = None,
         dataset_output: Optional[str] = None,
-        dataset_metadata: Optional[dict[str, str]] = None,
+        dataset_metadata: Optional[dict[str, MetadataValue]] = None,
         external_id: Optional[str] = None,
     ) -> Trace:
         """
@@ -737,13 +740,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Duration of the trace in nanoseconds.
         created_at: Optional[datetime]
             Timestamp of the trace's creation.
-        metadata: Optional[dict[str, str]]
-            Metadata associated with this trace. Values must be strings or primitives.
-            Expected format: `{"key1": "value1", "key2": "value2"}`
-            Note: Non-string primitives (bool, int, float) are auto-converted to strings.
-            Note: None values are converted to the string "None".
-            Note: Nested structures (dict, list) are NOT supported by the API and will
-            be converted via str(), resulting in Python repr format (not JSON).
+        metadata: Optional[dict[str, MetadataValue]]
+            Metadata associated with this trace.
+            Expected format: `{"key1": "value1", "enabled": True, "count": 42}`
+            Accepted value types: str, bool, int, float, None (auto-converted to strings).
+            Note: Nested structures (dict, list) are NOT supported by the API.
         tags: Optional[list[str]]
             Tags associated with this trace.
             Expected format: `["tag1", "tag2", "tag3"]`
@@ -751,10 +752,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Input from the associated dataset.
         dataset_output: Optional[str]
             Expected output from the associated dataset.
-        dataset_metadata: Optional[dict[str, str]]
-            Metadata from the associated dataset. Values must be strings or primitives.
-            Expected format: `{"key1": "value1", "key2": "value2"}`
-            Note: Same conversion rules as metadata apply.
+        dataset_metadata: Optional[dict[str, MetadataValue]]
+            Metadata from the associated dataset.
+            Expected format: `{"key1": "value1", "enabled": True, "count": 42}`
+            Accepted value types: str, bool, int, float, None (auto-converted to strings).
         external_id: Optional[str]
             External ID for this trace to connect to external systems.
             Expected format: Unique identifier string.
