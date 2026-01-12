@@ -73,7 +73,7 @@ def sync_detailed(
 ) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
     """Create Group Integration Collaborators.
 
-     Share a integration with groups.
+     Share an integration with groups.
 
     Args:
         integration_id (str):
@@ -100,7 +100,7 @@ def sync(
 ) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
     """Create Group Integration Collaborators.
 
-     Share a integration with groups.
+     Share an integration with groups.
 
     Args:
         integration_id (str):
@@ -123,7 +123,7 @@ async def asyncio_detailed(
 ) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
     """Create Group Integration Collaborators.
 
-     Share a integration with groups.
+     Share an integration with groups.
 
     Args:
         integration_id (str):
@@ -150,7 +150,7 @@ async def asyncio(
 ) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
     """Create Group Integration Collaborators.
 
-     Share a integration with groups.
+     Share an integration with groups.
 
     Args:
         integration_id (str):

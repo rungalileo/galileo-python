@@ -9,6 +9,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.aws_bedrock_integration_extra_type_0 import AwsBedrockIntegrationExtraType0
+    from ..models.aws_bedrock_integration_inference_profiles import AwsBedrockIntegrationInferenceProfiles
 
 
 T = TypeVar("T", bound="AwsBedrockIntegration")
@@ -21,6 +22,8 @@ class AwsBedrockIntegration:
     ----------
         credential_type (Union[Unset, AwsCredentialType]):
         region (Union[Unset, str]):  Default: 'us-west-2'.
+        inference_profiles (Union[Unset, AwsBedrockIntegrationInferenceProfiles]): Mapping from model name (Foundation
+            model ID) to inference profile ARN or ID
         id (Union[None, Unset, str]):
         name (Union[Literal['aws_bedrock'], Unset]):  Default: 'aws_bedrock'.
         extra (Union['AwsBedrockIntegrationExtraType0', None, Unset]):
@@ -28,6 +31,7 @@ class AwsBedrockIntegration:
 
     credential_type: Union[Unset, AwsCredentialType] = UNSET
     region: Union[Unset, str] = "us-west-2"
+    inference_profiles: Union[Unset, "AwsBedrockIntegrationInferenceProfiles"] = UNSET
     id: Union[None, Unset, str] = UNSET
     name: Union[Literal["aws_bedrock"], Unset] = "aws_bedrock"
     extra: Union["AwsBedrockIntegrationExtraType0", None, Unset] = UNSET
@@ -41,6 +45,10 @@ class AwsBedrockIntegration:
             credential_type = self.credential_type.value
 
         region = self.region
+
+        inference_profiles: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.inference_profiles, Unset):
+            inference_profiles = self.inference_profiles.to_dict()
 
         id: Union[None, Unset, str]
         id = UNSET if isinstance(self.id, Unset) else self.id
@@ -62,6 +70,8 @@ class AwsBedrockIntegration:
             field_dict["credential_type"] = credential_type
         if region is not UNSET:
             field_dict["region"] = region
+        if inference_profiles is not UNSET:
+            field_dict["inference_profiles"] = inference_profiles
         if id is not UNSET:
             field_dict["id"] = id
         if name is not UNSET:
@@ -74,6 +84,7 @@ class AwsBedrockIntegration:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.aws_bedrock_integration_extra_type_0 import AwsBedrockIntegrationExtraType0
+        from ..models.aws_bedrock_integration_inference_profiles import AwsBedrockIntegrationInferenceProfiles
 
         d = dict(src_dict)
         _credential_type = d.pop("credential_type", UNSET)
@@ -81,6 +92,13 @@ class AwsBedrockIntegration:
         credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
 
         region = d.pop("region", UNSET)
+
+        _inference_profiles = d.pop("inference_profiles", UNSET)
+        inference_profiles: Union[Unset, AwsBedrockIntegrationInferenceProfiles]
+        if isinstance(_inference_profiles, Unset):
+            inference_profiles = UNSET
+        else:
+            inference_profiles = AwsBedrockIntegrationInferenceProfiles.from_dict(_inference_profiles)
 
         def _parse_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -111,7 +129,14 @@ class AwsBedrockIntegration:
 
         extra = _parse_extra(d.pop("extra", UNSET))
 
-        aws_bedrock_integration = cls(credential_type=credential_type, region=region, id=id, name=name, extra=extra)
+        aws_bedrock_integration = cls(
+            credential_type=credential_type,
+            region=region,
+            inference_profiles=inference_profiles,
+            id=id,
+            name=name,
+            extra=extra,
+        )
 
         aws_bedrock_integration.additional_properties = d
         return aws_bedrock_integration

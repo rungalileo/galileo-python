@@ -9,11 +9,18 @@ from dateutil.parser import isoparse
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.image_generation_event import ImageGenerationEvent
+    from ..models.internal_tool_call import InternalToolCall
     from ..models.llm_metrics import LlmMetrics
     from ..models.llm_span_dataset_metadata import LlmSpanDatasetMetadata
     from ..models.llm_span_tools_type_0_item import LlmSpanToolsType0Item
     from ..models.llm_span_user_metadata import LlmSpanUserMetadata
+    from ..models.mcp_approval_request_event import MCPApprovalRequestEvent
+    from ..models.mcp_call_event import MCPCallEvent
+    from ..models.mcp_list_tools_event import MCPListToolsEvent
     from ..models.message import Message
+    from ..models.message_event import MessageEvent
+    from ..models.reasoning_event import ReasoningEvent
 
 
 T = TypeVar("T", bound="LlmSpan")
@@ -48,6 +55,9 @@ class LlmSpan:
         parent_id (Union[None, Unset, str]): Galileo ID of the parent of this span
         tools (Union[None, Unset, list['LlmSpanToolsType0Item']]): List of available tools passed to the LLM on
             invocation.
+        events (Union[None, Unset, list[Union['ImageGenerationEvent', 'InternalToolCall', 'MCPApprovalRequestEvent',
+            'MCPCallEvent', 'MCPListToolsEvent', 'MessageEvent', 'ReasoningEvent']]]): List of reasoning, internal tool
+            call, or MCP events that occurred during the LLM span.
         model (Union[None, Unset, str]): Model used for this span.
         temperature (Union[None, Unset, float]): Temperature used for generation.
         finish_reason (Union[None, Unset, str]): Reason for finishing.
@@ -74,13 +84,34 @@ class LlmSpan:
     step_number: Union[None, Unset, int] = UNSET
     parent_id: Union[None, Unset, str] = UNSET
     tools: Union[None, Unset, list["LlmSpanToolsType0Item"]] = UNSET
+    events: Union[
+        None,
+        Unset,
+        list[
+            Union[
+                "ImageGenerationEvent",
+                "InternalToolCall",
+                "MCPApprovalRequestEvent",
+                "MCPCallEvent",
+                "MCPListToolsEvent",
+                "MessageEvent",
+                "ReasoningEvent",
+            ]
+        ],
+    ] = UNSET
     model: Union[None, Unset, str] = UNSET
     temperature: Union[None, Unset, float] = UNSET
     finish_reason: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.image_generation_event import ImageGenerationEvent
+        from ..models.internal_tool_call import InternalToolCall
+        from ..models.mcp_call_event import MCPCallEvent
+        from ..models.mcp_list_tools_event import MCPListToolsEvent
         from ..models.message import Message
+        from ..models.message_event import MessageEvent
+        from ..models.reasoning_event import ReasoningEvent
 
         type_ = self.type_
 
@@ -176,6 +207,33 @@ class LlmSpan:
         else:
             tools = self.tools
 
+        events: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.events, Unset):
+            events = UNSET
+        elif isinstance(self.events, list):
+            events = []
+            for events_type_0_item_data in self.events:
+                events_type_0_item: dict[str, Any]
+                if isinstance(
+                    events_type_0_item_data,
+                    (
+                        MessageEvent,
+                        ReasoningEvent,
+                        InternalToolCall,
+                        ImageGenerationEvent,
+                        MCPCallEvent,
+                        MCPListToolsEvent,
+                    ),
+                ):
+                    events_type_0_item = events_type_0_item_data.to_dict()
+                else:
+                    events_type_0_item = events_type_0_item_data.to_dict()
+
+                events.append(events_type_0_item)
+
+        else:
+            events = self.events
+
         model: Union[None, Unset, str]
         model = UNSET if isinstance(self.model, Unset) else self.model
 
@@ -230,6 +288,8 @@ class LlmSpan:
             field_dict["parent_id"] = parent_id
         if tools is not UNSET:
             field_dict["tools"] = tools
+        if events is not UNSET:
+            field_dict["events"] = events
         if model is not UNSET:
             field_dict["model"] = model
         if temperature is not UNSET:
@@ -241,11 +301,18 @@ class LlmSpan:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.image_generation_event import ImageGenerationEvent
+        from ..models.internal_tool_call import InternalToolCall
         from ..models.llm_metrics import LlmMetrics
         from ..models.llm_span_dataset_metadata import LlmSpanDatasetMetadata
         from ..models.llm_span_tools_type_0_item import LlmSpanToolsType0Item
         from ..models.llm_span_user_metadata import LlmSpanUserMetadata
+        from ..models.mcp_approval_request_event import MCPApprovalRequestEvent
+        from ..models.mcp_call_event import MCPCallEvent
+        from ..models.mcp_list_tools_event import MCPListToolsEvent
         from ..models.message import Message
+        from ..models.message_event import MessageEvent
+        from ..models.reasoning_event import ReasoningEvent
 
         d = dict(src_dict)
         type_ = cast(Union[Literal["llm"], Unset], d.pop("type", UNSET))
@@ -427,6 +494,119 @@ class LlmSpan:
 
         tools = _parse_tools(d.pop("tools", UNSET))
 
+        def _parse_events(
+            data: object,
+        ) -> Union[
+            None,
+            Unset,
+            list[
+                Union[
+                    "ImageGenerationEvent",
+                    "InternalToolCall",
+                    "MCPApprovalRequestEvent",
+                    "MCPCallEvent",
+                    "MCPListToolsEvent",
+                    "MessageEvent",
+                    "ReasoningEvent",
+                ]
+            ],
+        ]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                events_type_0 = []
+                _events_type_0 = data
+                for events_type_0_item_data in _events_type_0:
+
+                    def _parse_events_type_0_item(
+                        data: object,
+                    ) -> Union[
+                        "ImageGenerationEvent",
+                        "InternalToolCall",
+                        "MCPApprovalRequestEvent",
+                        "MCPCallEvent",
+                        "MCPListToolsEvent",
+                        "MessageEvent",
+                        "ReasoningEvent",
+                    ]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return MessageEvent.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return ReasoningEvent.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return InternalToolCall.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return ImageGenerationEvent.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return MCPCallEvent.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return MCPListToolsEvent.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return MCPApprovalRequestEvent.from_dict(data)
+
+                    events_type_0_item = _parse_events_type_0_item(events_type_0_item_data)
+
+                    events_type_0.append(events_type_0_item)
+
+                return events_type_0
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union[
+                    None,
+                    Unset,
+                    list[
+                        Union[
+                            "ImageGenerationEvent",
+                            "InternalToolCall",
+                            "MCPApprovalRequestEvent",
+                            "MCPCallEvent",
+                            "MCPListToolsEvent",
+                            "MessageEvent",
+                            "ReasoningEvent",
+                        ]
+                    ],
+                ],
+                data,
+            )
+
+        events = _parse_events(d.pop("events", UNSET))
+
         def _parse_model(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -476,6 +656,7 @@ class LlmSpan:
             step_number=step_number,
             parent_id=parent_id,
             tools=tools,
+            events=events,
             model=model,
             temperature=temperature,
             finish_reason=finish_reason,

@@ -388,10 +388,25 @@ class TestOTelContextIntegration:
         mock_span2.set_attribute.assert_called_with("galileo.project.name", "test-project")
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    @patch("galileo.otel.Resource")
     @patch("galileo.otel.OTLPSpanExporter.export")
-    def test_exporter_export_merges_resource_attributes(self, mock_parent_export, mock_resource_class, mock_exporter):
+    @patch("galileo.otel.Resource")
+    def test_exporter_export_merges_resource_attributes(self, mock_resource_class, mock_parent_export):
         """Test export merges Galileo attributes into resource, handles partial/no attributes."""
+        # Create a real exporter with mocked dependencies
+        with (
+            patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None),
+            patch("galileo.otel.GalileoPythonConfig.get") as mock_config_get,
+        ):
+            config = Mock()
+            config.api_url = "https://api.galileo.ai"
+            config.api_key = SecretStr("test-key")
+            mock_config_get.return_value = config
+
+            exporter = GalileoOTLPExporter(project="test-project", logstream="test-logstream")
+            # Mock the _session attribute that export() uses
+            exporter._session = Mock()
+            exporter._session.headers = {}
+
         # Test with all Galileo attributes
         mock_span = Mock()
         mock_span.attributes = {
@@ -401,17 +416,29 @@ class TestOTelContextIntegration:
             "galileo.experiment.id": "span-experiment",
             "other.attribute": "value",
         }
+        mock_merged_resource = Mock()
         mock_span.resource = Mock()
-        mock_span.resource.merge.return_value = Mock()
-        mock_resource_class.return_value = Mock()
+        mock_span.resource.merge.return_value = mock_merged_resource
+        mock_new_resource = Mock()
+        mock_resource_class.return_value = mock_new_resource
 
-        mock_exporter.export([mock_span])
+        exporter.export([mock_span])
 
-        # Only Galileo attributes should be in the resource
+        # Verify Resource was created with only Galileo attributes
         call_args = mock_resource_class.call_args[0][0]
         assert "galileo.project.name" in call_args
+        assert call_args["galileo.project.name"] == "span-project"
+        assert "galileo.logstream.name" in call_args
+        assert "galileo.session.id" in call_args
+        assert "galileo.experiment.id" in call_args
         assert "other.attribute" not in call_args
-        mock_parent_export.assert_called_once()
+
+        # Verify resource was merged and span._resource was updated
+        mock_span.resource.merge.assert_called_once_with(mock_new_resource)
+        assert mock_span._resource == mock_merged_resource
+
+        # Verify parent export was called
+        mock_parent_export.assert_called_once_with([mock_span])
 
         # Test with no Galileo attributes
         mock_parent_export.reset_mock()
@@ -420,7 +447,9 @@ class TestOTelContextIntegration:
         mock_span2.attributes = {"other.attribute": "value"}
         mock_span2.resource = Mock()
 
-        mock_exporter.export([mock_span2])
+        exporter.export([mock_span2])
 
-        mock_resource_class.assert_not_called()  # No resource created for empty attrs
-        mock_parent_export.assert_called_once()
+        # No resource should be created when there are no Galileo attributes
+        mock_resource_class.assert_not_called()
+        mock_span2.resource.merge.assert_not_called()
+        mock_parent_export.assert_called_once_with([mock_span2])

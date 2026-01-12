@@ -6,6 +6,7 @@ from attrs import field as _attrs_field
 
 from ..models.input_type_enum import InputTypeEnum
 from ..models.model_type import ModelType
+from ..models.numeric_roll_up_method import NumericRollUpMethod
 from ..models.output_type_enum import OutputTypeEnum
 from ..types import UNSET, Unset
 
@@ -33,6 +34,7 @@ class UpdateScorerRequest:
         output_type (Union[None, OutputTypeEnum, Unset]):
         input_type (Union[InputTypeEnum, None, Unset]):
         required_scorers (Union[None, Unset, list[str]]):
+        roll_up_method (Union[None, NumericRollUpMethod, Unset]):
     """
 
     name: Union[None, Unset, str] = UNSET
@@ -47,6 +49,7 @@ class UpdateScorerRequest:
     output_type: Union[None, OutputTypeEnum, Unset] = UNSET
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
     required_scorers: Union[None, Unset, list[str]] = UNSET
+    roll_up_method: Union[None, NumericRollUpMethod, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -126,6 +129,14 @@ class UpdateScorerRequest:
         else:
             required_scorers = self.required_scorers
 
+        roll_up_method: Union[None, Unset, str]
+        if isinstance(self.roll_up_method, Unset):
+            roll_up_method = UNSET
+        elif isinstance(self.roll_up_method, NumericRollUpMethod):
+            roll_up_method = self.roll_up_method.value
+        else:
+            roll_up_method = self.roll_up_method
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -153,6 +164,8 @@ class UpdateScorerRequest:
             field_dict["input_type"] = input_type
         if required_scorers is not UNSET:
             field_dict["required_scorers"] = required_scorers
+        if roll_up_method is not UNSET:
+            field_dict["roll_up_method"] = roll_up_method
 
         return field_dict
 
@@ -319,6 +332,22 @@ class UpdateScorerRequest:
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
+        def _parse_roll_up_method(data: object) -> Union[None, NumericRollUpMethod, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return NumericRollUpMethod(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, NumericRollUpMethod, Unset], data)
+
+        roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
+
         update_scorer_request = cls(
             name=name,
             description=description,
@@ -332,6 +361,7 @@ class UpdateScorerRequest:
             output_type=output_type,
             input_type=input_type,
             required_scorers=required_scorers,
+            roll_up_method=roll_up_method,
         )
 
         update_scorer_request.additional_properties = d

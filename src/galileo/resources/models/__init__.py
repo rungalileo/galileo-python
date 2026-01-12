@@ -20,7 +20,7 @@ from .aggregated_trace_view_node import AggregatedTraceViewNode
 from .aggregated_trace_view_node_metrics import AggregatedTraceViewNodeMetrics
 from .aggregated_trace_view_request import AggregatedTraceViewRequest
 from .aggregated_trace_view_response import AggregatedTraceViewResponse
-from .and_node import AndNode
+from .and_node_log_records_filter import AndNodeLogRecordsFilter
 from .anthropic_authentication_type import AnthropicAuthenticationType
 from .anthropic_integration import AnthropicIntegration
 from .anthropic_integration_create import AnthropicIntegrationCreate
@@ -35,9 +35,11 @@ from .auth_method import AuthMethod
 from .available_integrations import AvailableIntegrations
 from .aws_bedrock_integration import AwsBedrockIntegration
 from .aws_bedrock_integration_extra_type_0 import AwsBedrockIntegrationExtraType0
+from .aws_bedrock_integration_inference_profiles import AwsBedrockIntegrationInferenceProfiles
 from .aws_credential_type import AwsCredentialType
 from .aws_sage_maker_integration import AwsSageMakerIntegration
 from .aws_sage_maker_integration_create import AwsSageMakerIntegrationCreate
+from .aws_sage_maker_integration_create_inference_profiles import AwsSageMakerIntegrationCreateInferenceProfiles
 from .aws_sage_maker_integration_create_token import AwsSageMakerIntegrationCreateToken
 from .aws_sage_maker_integration_extra_type_0 import AwsSageMakerIntegrationExtraType0
 from .azure_authentication_type import AzureAuthenticationType
@@ -52,6 +54,7 @@ from .azure_integration_deployments import AzureIntegrationDeployments
 from .azure_integration_extra_type_0 import AzureIntegrationExtraType0
 from .azure_model_deployment import AzureModelDeployment
 from .base_aws_integration_create import BaseAwsIntegrationCreate
+from .base_aws_integration_create_inference_profiles import BaseAwsIntegrationCreateInferenceProfiles
 from .base_aws_integration_create_token import BaseAwsIntegrationCreateToken
 from .base_finetuned_scorer_db import BaseFinetunedScorerDB
 from .base_finetuned_scorer_db_class_name_to_vocab_ix_type_0 import BaseFinetunedScorerDBClassNameToVocabIxType0
@@ -354,6 +357,7 @@ from .edit_action import EditAction
 from .edit_override import EditOverride
 from .edit_override_edit_spans_type_0 import EditOverrideEditSpansType0
 from .edit_span import EditSpan
+from .event_status import EventStatus
 from .execution_status import ExecutionStatus
 from .experiment_create_request import ExperimentCreateRequest
 from .experiment_dataset import ExperimentDataset
@@ -366,17 +370,25 @@ from .experiment_prompt import ExperimentPrompt
 from .experiment_response import ExperimentResponse
 from .experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
 from .experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
+from .experiment_response_rating_aggregates import ExperimentResponseRatingAggregates
+from .experiment_response_rating_aggregates_additional_property import (
+    ExperimentResponseRatingAggregatesAdditionalProperty,
+)
 from .experiment_response_tags import ExperimentResponseTags
 from .experiment_status import ExperimentStatus
 from .experiment_update_request import ExperimentUpdateRequest
 from .experiments_available_columns_response import ExperimentsAvailableColumnsResponse
 from .extended_agent_span_record import ExtendedAgentSpanRecord
 from .extended_agent_span_record_dataset_metadata import ExtendedAgentSpanRecordDatasetMetadata
+from .extended_agent_span_record_feedback_rating_info import ExtendedAgentSpanRecordFeedbackRatingInfo
 from .extended_agent_span_record_metric_info_type_0 import ExtendedAgentSpanRecordMetricInfoType0
 from .extended_agent_span_record_user_metadata import ExtendedAgentSpanRecordUserMetadata
 from .extended_agent_span_record_with_children import ExtendedAgentSpanRecordWithChildren
 from .extended_agent_span_record_with_children_dataset_metadata import (
     ExtendedAgentSpanRecordWithChildrenDatasetMetadata,
+)
+from .extended_agent_span_record_with_children_feedback_rating_info import (
+    ExtendedAgentSpanRecordWithChildrenFeedbackRatingInfo,
 )
 from .extended_agent_span_record_with_children_metric_info_type_0 import (
     ExtendedAgentSpanRecordWithChildrenMetricInfoType0,
@@ -384,16 +396,21 @@ from .extended_agent_span_record_with_children_metric_info_type_0 import (
 from .extended_agent_span_record_with_children_user_metadata import ExtendedAgentSpanRecordWithChildrenUserMetadata
 from .extended_llm_span_record import ExtendedLlmSpanRecord
 from .extended_llm_span_record_dataset_metadata import ExtendedLlmSpanRecordDatasetMetadata
+from .extended_llm_span_record_feedback_rating_info import ExtendedLlmSpanRecordFeedbackRatingInfo
 from .extended_llm_span_record_metric_info_type_0 import ExtendedLlmSpanRecordMetricInfoType0
 from .extended_llm_span_record_tools_type_0_item import ExtendedLlmSpanRecordToolsType0Item
 from .extended_llm_span_record_user_metadata import ExtendedLlmSpanRecordUserMetadata
 from .extended_retriever_span_record import ExtendedRetrieverSpanRecord
 from .extended_retriever_span_record_dataset_metadata import ExtendedRetrieverSpanRecordDatasetMetadata
+from .extended_retriever_span_record_feedback_rating_info import ExtendedRetrieverSpanRecordFeedbackRatingInfo
 from .extended_retriever_span_record_metric_info_type_0 import ExtendedRetrieverSpanRecordMetricInfoType0
 from .extended_retriever_span_record_user_metadata import ExtendedRetrieverSpanRecordUserMetadata
 from .extended_retriever_span_record_with_children import ExtendedRetrieverSpanRecordWithChildren
 from .extended_retriever_span_record_with_children_dataset_metadata import (
     ExtendedRetrieverSpanRecordWithChildrenDatasetMetadata,
+)
+from .extended_retriever_span_record_with_children_feedback_rating_info import (
+    ExtendedRetrieverSpanRecordWithChildrenFeedbackRatingInfo,
 )
 from .extended_retriever_span_record_with_children_metric_info_type_0 import (
     ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0,
@@ -403,18 +420,26 @@ from .extended_retriever_span_record_with_children_user_metadata import (
 )
 from .extended_session_record import ExtendedSessionRecord
 from .extended_session_record_dataset_metadata import ExtendedSessionRecordDatasetMetadata
+from .extended_session_record_feedback_rating_info import ExtendedSessionRecordFeedbackRatingInfo
 from .extended_session_record_metric_info_type_0 import ExtendedSessionRecordMetricInfoType0
 from .extended_session_record_user_metadata import ExtendedSessionRecordUserMetadata
 from .extended_session_record_with_children import ExtendedSessionRecordWithChildren
 from .extended_session_record_with_children_dataset_metadata import ExtendedSessionRecordWithChildrenDatasetMetadata
+from .extended_session_record_with_children_feedback_rating_info import (
+    ExtendedSessionRecordWithChildrenFeedbackRatingInfo,
+)
 from .extended_session_record_with_children_metric_info_type_0 import ExtendedSessionRecordWithChildrenMetricInfoType0
 from .extended_session_record_with_children_user_metadata import ExtendedSessionRecordWithChildrenUserMetadata
 from .extended_tool_span_record import ExtendedToolSpanRecord
 from .extended_tool_span_record_dataset_metadata import ExtendedToolSpanRecordDatasetMetadata
+from .extended_tool_span_record_feedback_rating_info import ExtendedToolSpanRecordFeedbackRatingInfo
 from .extended_tool_span_record_metric_info_type_0 import ExtendedToolSpanRecordMetricInfoType0
 from .extended_tool_span_record_user_metadata import ExtendedToolSpanRecordUserMetadata
 from .extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
 from .extended_tool_span_record_with_children_dataset_metadata import ExtendedToolSpanRecordWithChildrenDatasetMetadata
+from .extended_tool_span_record_with_children_feedback_rating_info import (
+    ExtendedToolSpanRecordWithChildrenFeedbackRatingInfo,
+)
 from .extended_tool_span_record_with_children_metric_info_type_0 import (
     ExtendedToolSpanRecordWithChildrenMetricInfoType0,
 )
@@ -431,11 +456,15 @@ from .extended_trace_record_with_children_metric_info_type_0 import ExtendedTrac
 from .extended_trace_record_with_children_user_metadata import ExtendedTraceRecordWithChildrenUserMetadata
 from .extended_workflow_span_record import ExtendedWorkflowSpanRecord
 from .extended_workflow_span_record_dataset_metadata import ExtendedWorkflowSpanRecordDatasetMetadata
+from .extended_workflow_span_record_feedback_rating_info import ExtendedWorkflowSpanRecordFeedbackRatingInfo
 from .extended_workflow_span_record_metric_info_type_0 import ExtendedWorkflowSpanRecordMetricInfoType0
 from .extended_workflow_span_record_user_metadata import ExtendedWorkflowSpanRecordUserMetadata
 from .extended_workflow_span_record_with_children import ExtendedWorkflowSpanRecordWithChildren
 from .extended_workflow_span_record_with_children_dataset_metadata import (
     ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata,
+)
+from .extended_workflow_span_record_with_children_feedback_rating_info import (
+    ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo,
 )
 from .extended_workflow_span_record_with_children_metric_info_type_0 import (
     ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0,
@@ -451,7 +480,7 @@ from .feedback_rating_info import FeedbackRatingInfo
 from .feedback_type import FeedbackType
 from .few_shot_example import FewShotExample
 from .file_type import FileType
-from .filter_leaf import FilterLeaf
+from .filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
 from .filter_params import FilterParams
 from .fine_tuned_scorer import FineTunedScorer
 from .fine_tuned_scorer_action import FineTunedScorerAction
@@ -489,6 +518,9 @@ from .histogram import Histogram
 from .histogram_bucket import HistogramBucket
 from .histogram_strategy import HistogramStrategy
 from .http_validation_error import HTTPValidationError
+from .image_generation_event import ImageGenerationEvent
+from .image_generation_event_images_type_0_item import ImageGenerationEventImagesType0Item
+from .image_generation_event_metadata_type_0 import ImageGenerationEventMetadataType0
 from .input_map import InputMap
 from .input_pii_scorer import InputPIIScorer
 from .input_sexist_scorer import InputSexistScorer
@@ -509,6 +541,10 @@ from .integration_action import IntegrationAction
 from .integration_db import IntegrationDB
 from .integration_models_response import IntegrationModelsResponse
 from .integration_name import IntegrationName
+from .internal_tool_call import InternalToolCall
+from .internal_tool_call_input_type_0 import InternalToolCallInputType0
+from .internal_tool_call_metadata_type_0 import InternalToolCallMetadataType0
+from .internal_tool_call_output_type_0 import InternalToolCallOutputType0
 from .invalid_result import InvalidResult
 from .invoke_response import InvokeResponse
 from .invoke_response_headers_type_0 import InvokeResponseHeadersType0
@@ -552,13 +588,16 @@ from .llm_span_user_metadata import LlmSpanUserMetadata
 from .log_records_available_columns_request import LogRecordsAvailableColumnsRequest
 from .log_records_available_columns_response import LogRecordsAvailableColumnsResponse
 from .log_records_boolean_filter import LogRecordsBooleanFilter
+from .log_records_boolean_filter_operator import LogRecordsBooleanFilterOperator
 from .log_records_collection_filter import LogRecordsCollectionFilter
 from .log_records_collection_filter_operator import LogRecordsCollectionFilterOperator
+from .log_records_column_info import LogRecordsColumnInfo
 from .log_records_date_filter import LogRecordsDateFilter
 from .log_records_date_filter_operator import LogRecordsDateFilterOperator
 from .log_records_delete_request import LogRecordsDeleteRequest
 from .log_records_delete_response import LogRecordsDeleteResponse
 from .log_records_export_request import LogRecordsExportRequest
+from .log_records_filter_type import LogRecordsFilterType
 from .log_records_id_filter import LogRecordsIDFilter
 from .log_records_id_filter_operator import LogRecordsIDFilterOperator
 from .log_records_metrics_query_request import LogRecordsMetricsQueryRequest
@@ -589,7 +628,20 @@ from .logging_method import LoggingMethod
 from .luna_input_type_enum import LunaInputTypeEnum
 from .luna_output_type_enum import LunaOutputTypeEnum
 from .manual_llm_validate_scorers_llm_validate_post_body import ManualLlmValidateScorersLlmValidatePostBody
+from .mcp_approval_request_event import MCPApprovalRequestEvent
+from .mcp_approval_request_event_metadata_type_0 import MCPApprovalRequestEventMetadataType0
+from .mcp_approval_request_event_tool_invocation_type_0 import MCPApprovalRequestEventToolInvocationType0
+from .mcp_call_event import MCPCallEvent
+from .mcp_call_event_arguments_type_0 import MCPCallEventArgumentsType0
+from .mcp_call_event_metadata_type_0 import MCPCallEventMetadataType0
+from .mcp_call_event_result_type_0 import MCPCallEventResultType0
+from .mcp_list_tools_event import MCPListToolsEvent
+from .mcp_list_tools_event_metadata_type_0 import MCPListToolsEventMetadataType0
+from .mcp_list_tools_event_tools_type_0_item import MCPListToolsEventToolsType0Item
 from .message import Message
+from .message_event import MessageEvent
+from .message_event_content_parts_type_0_item import MessageEventContentPartsType0Item
+from .message_event_metadata_type_0 import MessageEventMetadataType0
 from .message_role import MessageRole
 from .messages_list_item import MessagesListItem
 from .messages_list_item_role import MessagesListItemRole
@@ -624,7 +676,8 @@ from .name import Name
 from .node_name_filter import NodeNameFilter
 from .node_name_filter_operator import NodeNameFilterOperator
 from .node_type import NodeType
-from .not_node import NotNode
+from .not_node_log_records_filter import NotNodeLogRecordsFilter
+from .numeric_roll_up_method import NumericRollUpMethod
 from .nvidia_integration import NvidiaIntegration
 from .nvidia_integration_create import NvidiaIntegrationCreate
 from .nvidia_integration_extra_type_0 import NvidiaIntegrationExtraType0
@@ -633,8 +686,7 @@ from .open_ai_integration import OpenAIIntegration
 from .open_ai_integration_create import OpenAIIntegrationCreate
 from .open_ai_integration_extra_type_0 import OpenAIIntegrationExtraType0
 from .open_ai_tool_choice import OpenAIToolChoice
-from .operator import Operator
-from .or_node import OrNode
+from .or_node_log_records_filter import OrNodeLogRecordsFilter
 from .organization_action import OrganizationAction
 from .output_map import OutputMap
 from .output_pii_scorer import OutputPIIScorer
@@ -709,7 +761,8 @@ from .protect_request_headers_type_0 import ProtectRequestHeadersType0
 from .protect_request_metadata_type_0 import ProtectRequestMetadataType0
 from .protect_response import ProtectResponse
 from .query_dataset_params import QueryDatasetParams
-from .raw_filter import RawFilter
+from .reasoning_event import ReasoningEvent
+from .reasoning_event_metadata_type_0 import ReasoningEventMetadataType0
 from .recompute_log_records_metrics_request import RecomputeLogRecordsMetricsRequest
 from .recompute_settings_log_stream import RecomputeSettingsLogStream
 from .recompute_settings_observe import RecomputeSettingsObserve
@@ -734,13 +787,26 @@ from .rule_result import RuleResult
 from .ruleset import Ruleset
 from .ruleset_result import RulesetResult
 from .rulesets_mixin import RulesetsMixin
+from .run_created_at_filter import RunCreatedAtFilter
+from .run_created_at_filter_operator import RunCreatedAtFilterOperator
+from .run_created_at_sort import RunCreatedAtSort
+from .run_created_by_filter import RunCreatedByFilter
+from .run_created_by_filter_operator import RunCreatedByFilterOperator
 from .run_db import RunDB
 from .run_db_thin import RunDBThin
+from .run_id_filter import RunIDFilter
+from .run_id_filter_operator import RunIDFilterOperator
+from .run_name_filter import RunNameFilter
+from .run_name_filter_operator import RunNameFilterOperator
+from .run_name_sort import RunNameSort
 from .run_params_map import RunParamsMap
 from .run_scorer_settings_patch_request import RunScorerSettingsPatchRequest
 from .run_scorer_settings_response import RunScorerSettingsResponse
 from .run_tag_create_request import RunTagCreateRequest
 from .run_tag_db import RunTagDB
+from .run_updated_at_filter import RunUpdatedAtFilter
+from .run_updated_at_filter_operator import RunUpdatedAtFilterOperator
+from .run_updated_at_sort import RunUpdatedAtSort
 from .score_aggregate import ScoreAggregate
 from .score_rating import ScoreRating
 from .scorer_config import ScorerConfig
@@ -798,6 +864,7 @@ from .task_result_status import TaskResultStatus
 from .task_type import TaskType
 from .template_stub_request import TemplateStubRequest
 from .test_score import TestScore
+from .text_aggregate import TextAggregate
 from .text_rating import TextRating
 from .token import Token
 from .tool_call import ToolCall
@@ -872,7 +939,7 @@ __all__ = (
     "AggregatedTraceViewNodeMetrics",
     "AggregatedTraceViewRequest",
     "AggregatedTraceViewResponse",
-    "AndNode",
+    "AndNodeLogRecordsFilter",
     "AnthropicAuthenticationType",
     "AnthropicIntegration",
     "AnthropicIntegrationCreate",
@@ -885,9 +952,11 @@ __all__ = (
     "AvailableIntegrations",
     "AwsBedrockIntegration",
     "AwsBedrockIntegrationExtraType0",
+    "AwsBedrockIntegrationInferenceProfiles",
     "AwsCredentialType",
     "AwsSageMakerIntegration",
     "AwsSageMakerIntegrationCreate",
+    "AwsSageMakerIntegrationCreateInferenceProfiles",
     "AwsSageMakerIntegrationCreateToken",
     "AwsSageMakerIntegrationExtraType0",
     "AzureAuthenticationType",
@@ -902,6 +971,7 @@ __all__ = (
     "AzureIntegrationExtraType0",
     "AzureModelDeployment",
     "BaseAwsIntegrationCreate",
+    "BaseAwsIntegrationCreateInferenceProfiles",
     "BaseAwsIntegrationCreateToken",
     "BaseFinetunedScorerDB",
     "BaseFinetunedScorerDBClassNameToVocabIxType0",
@@ -1116,6 +1186,7 @@ __all__ = (
     "EditOverride",
     "EditOverrideEditSpansType0",
     "EditSpan",
+    "EventStatus",
     "ExecutionStatus",
     "ExperimentCreateRequest",
     "ExperimentDataset",
@@ -1128,45 +1199,56 @@ __all__ = (
     "ExperimentResponse",
     "ExperimentResponseAggregateFeedback",
     "ExperimentResponseAggregateMetrics",
+    "ExperimentResponseRatingAggregates",
+    "ExperimentResponseRatingAggregatesAdditionalProperty",
     "ExperimentResponseTags",
     "ExperimentStatus",
     "ExperimentUpdateRequest",
     "ExperimentsAvailableColumnsResponse",
     "ExtendedAgentSpanRecord",
     "ExtendedAgentSpanRecordDatasetMetadata",
+    "ExtendedAgentSpanRecordFeedbackRatingInfo",
     "ExtendedAgentSpanRecordMetricInfoType0",
     "ExtendedAgentSpanRecordUserMetadata",
     "ExtendedAgentSpanRecordWithChildren",
     "ExtendedAgentSpanRecordWithChildrenDatasetMetadata",
+    "ExtendedAgentSpanRecordWithChildrenFeedbackRatingInfo",
     "ExtendedAgentSpanRecordWithChildrenMetricInfoType0",
     "ExtendedAgentSpanRecordWithChildrenUserMetadata",
     "ExtendedLlmSpanRecord",
     "ExtendedLlmSpanRecordDatasetMetadata",
+    "ExtendedLlmSpanRecordFeedbackRatingInfo",
     "ExtendedLlmSpanRecordMetricInfoType0",
     "ExtendedLlmSpanRecordToolsType0Item",
     "ExtendedLlmSpanRecordUserMetadata",
     "ExtendedRetrieverSpanRecord",
     "ExtendedRetrieverSpanRecordDatasetMetadata",
+    "ExtendedRetrieverSpanRecordFeedbackRatingInfo",
     "ExtendedRetrieverSpanRecordMetricInfoType0",
     "ExtendedRetrieverSpanRecordUserMetadata",
     "ExtendedRetrieverSpanRecordWithChildren",
     "ExtendedRetrieverSpanRecordWithChildrenDatasetMetadata",
+    "ExtendedRetrieverSpanRecordWithChildrenFeedbackRatingInfo",
     "ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0",
     "ExtendedRetrieverSpanRecordWithChildrenUserMetadata",
     "ExtendedSessionRecord",
     "ExtendedSessionRecordDatasetMetadata",
+    "ExtendedSessionRecordFeedbackRatingInfo",
     "ExtendedSessionRecordMetricInfoType0",
     "ExtendedSessionRecordUserMetadata",
     "ExtendedSessionRecordWithChildren",
     "ExtendedSessionRecordWithChildrenDatasetMetadata",
+    "ExtendedSessionRecordWithChildrenFeedbackRatingInfo",
     "ExtendedSessionRecordWithChildrenMetricInfoType0",
     "ExtendedSessionRecordWithChildrenUserMetadata",
     "ExtendedToolSpanRecord",
     "ExtendedToolSpanRecordDatasetMetadata",
+    "ExtendedToolSpanRecordFeedbackRatingInfo",
     "ExtendedToolSpanRecordMetricInfoType0",
     "ExtendedToolSpanRecordUserMetadata",
     "ExtendedToolSpanRecordWithChildren",
     "ExtendedToolSpanRecordWithChildrenDatasetMetadata",
+    "ExtendedToolSpanRecordWithChildrenFeedbackRatingInfo",
     "ExtendedToolSpanRecordWithChildrenMetricInfoType0",
     "ExtendedToolSpanRecordWithChildrenUserMetadata",
     "ExtendedTraceRecord",
@@ -1181,10 +1263,12 @@ __all__ = (
     "ExtendedTraceRecordWithChildrenUserMetadata",
     "ExtendedWorkflowSpanRecord",
     "ExtendedWorkflowSpanRecordDatasetMetadata",
+    "ExtendedWorkflowSpanRecordFeedbackRatingInfo",
     "ExtendedWorkflowSpanRecordMetricInfoType0",
     "ExtendedWorkflowSpanRecordUserMetadata",
     "ExtendedWorkflowSpanRecordWithChildren",
     "ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata",
+    "ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo",
     "ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0",
     "ExtendedWorkflowSpanRecordWithChildrenUserMetadata",
     "FactualityTemplate",
@@ -1195,7 +1279,7 @@ __all__ = (
     "FeedbackType",
     "FewShotExample",
     "FileType",
-    "FilterLeaf",
+    "FilterLeafLogRecordsFilter",
     "FilterParams",
     "FineTunedScorer",
     "FineTunedScorerAction",
@@ -1227,6 +1311,9 @@ __all__ = (
     "Histogram",
     "HistogramBucket",
     "HistogramStrategy",
+    "ImageGenerationEvent",
+    "ImageGenerationEventImagesType0Item",
+    "ImageGenerationEventMetadataType0",
     "InputMap",
     "InputPIIScorer",
     "InputSexistScorer",
@@ -1247,6 +1334,10 @@ __all__ = (
     "IntegrationDB",
     "IntegrationModelsResponse",
     "IntegrationName",
+    "InternalToolCall",
+    "InternalToolCallInputType0",
+    "InternalToolCallMetadataType0",
+    "InternalToolCallOutputType0",
     "InvalidResult",
     "InvokeResponse",
     "InvokeResponseHeadersType0",
@@ -1290,13 +1381,16 @@ __all__ = (
     "LogRecordsAvailableColumnsRequest",
     "LogRecordsAvailableColumnsResponse",
     "LogRecordsBooleanFilter",
+    "LogRecordsBooleanFilterOperator",
     "LogRecordsCollectionFilter",
     "LogRecordsCollectionFilterOperator",
+    "LogRecordsColumnInfo",
     "LogRecordsDateFilter",
     "LogRecordsDateFilterOperator",
     "LogRecordsDeleteRequest",
     "LogRecordsDeleteResponse",
     "LogRecordsExportRequest",
+    "LogRecordsFilterType",
     "LogRecordsIDFilter",
     "LogRecordsIDFilterOperator",
     "LogRecordsMetricsQueryRequest",
@@ -1326,8 +1420,21 @@ __all__ = (
     "LoggingMethod",
     "LunaInputTypeEnum",
     "LunaOutputTypeEnum",
+    "MCPApprovalRequestEvent",
+    "MCPApprovalRequestEventMetadataType0",
+    "MCPApprovalRequestEventToolInvocationType0",
+    "MCPCallEvent",
+    "MCPCallEventArgumentsType0",
+    "MCPCallEventMetadataType0",
+    "MCPCallEventResultType0",
+    "MCPListToolsEvent",
+    "MCPListToolsEventMetadataType0",
+    "MCPListToolsEventToolsType0Item",
     "ManualLlmValidateScorersLlmValidatePostBody",
     "Message",
+    "MessageEvent",
+    "MessageEventContentPartsType0Item",
+    "MessageEventMetadataType0",
     "MessageRole",
     "MessagesListItem",
     "MessagesListItemRole",
@@ -1362,7 +1469,8 @@ __all__ = (
     "NodeNameFilter",
     "NodeNameFilterOperator",
     "NodeType",
-    "NotNode",
+    "NotNodeLogRecordsFilter",
+    "NumericRollUpMethod",
     "NvidiaIntegration",
     "NvidiaIntegrationCreate",
     "NvidiaIntegrationExtraType0",
@@ -1371,8 +1479,7 @@ __all__ = (
     "OpenAIIntegrationCreate",
     "OpenAIIntegrationExtraType0",
     "OpenAIToolChoice",
-    "Operator",
-    "OrNode",
+    "OrNodeLogRecordsFilter",
     "OrganizationAction",
     "OutputMap",
     "OutputPIIScorer",
@@ -1447,7 +1554,8 @@ __all__ = (
     "ProtectRequestMetadataType0",
     "ProtectResponse",
     "QueryDatasetParams",
-    "RawFilter",
+    "ReasoningEvent",
+    "ReasoningEventMetadataType0",
     "RecomputeLogRecordsMetricsRequest",
     "RecomputeSettingsLogStream",
     "RecomputeSettingsObserve",
@@ -1472,13 +1580,26 @@ __all__ = (
     "Ruleset",
     "RulesetResult",
     "RulesetsMixin",
+    "RunCreatedAtFilter",
+    "RunCreatedAtFilterOperator",
+    "RunCreatedAtSort",
+    "RunCreatedByFilter",
+    "RunCreatedByFilterOperator",
     "RunDB",
     "RunDBThin",
+    "RunIDFilter",
+    "RunIDFilterOperator",
+    "RunNameFilter",
+    "RunNameFilterOperator",
+    "RunNameSort",
     "RunParamsMap",
     "RunScorerSettingsPatchRequest",
     "RunScorerSettingsResponse",
     "RunTagCreateRequest",
     "RunTagDB",
+    "RunUpdatedAtFilter",
+    "RunUpdatedAtFilterOperator",
+    "RunUpdatedAtSort",
     "ScoreAggregate",
     "ScoreRating",
     "ScorerConfig",
@@ -1536,6 +1657,7 @@ __all__ = (
     "TaskType",
     "TemplateStubRequest",
     "TestScore",
+    "TextAggregate",
     "TextRating",
     "Token",
     "ToolCall",

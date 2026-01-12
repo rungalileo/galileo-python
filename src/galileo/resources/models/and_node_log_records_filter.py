@@ -5,33 +5,38 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.filter_leaf import FilterLeaf
-    from ..models.not_node import NotNode
-    from ..models.or_node import OrNode
+    from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
+    from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
+    from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
 
-T = TypeVar("T", bound="AndNode")
+T = TypeVar("T", bound="AndNodeLogRecordsFilter")
 
 
 @_attrs_define
-class AndNode:
+class AndNodeLogRecordsFilter:
     """
     Attributes
     ----------
-        and_ (list[Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode']]):
+        and_ (list[Union['AndNodeLogRecordsFilter', 'FilterLeafLogRecordsFilter', 'NotNodeLogRecordsFilter',
+            'OrNodeLogRecordsFilter']]):
     """
 
-    and_: list[Union["AndNode", "FilterLeaf", "NotNode", "OrNode"]]
+    and_: list[
+        Union[
+            "AndNodeLogRecordsFilter", "FilterLeafLogRecordsFilter", "NotNodeLogRecordsFilter", "OrNodeLogRecordsFilter"
+        ]
+    ]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.filter_leaf import FilterLeaf
-        from ..models.or_node import OrNode
+        from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
+        from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
         and_ = []
         for and_item_data in self.and_:
             and_item: dict[str, Any]
-            if isinstance(and_item_data, (FilterLeaf, AndNode, OrNode)):
+            if isinstance(and_item_data, (FilterLeafLogRecordsFilter, AndNodeLogRecordsFilter, OrNodeLogRecordsFilter)):
                 and_item = and_item_data.to_dict()
             else:
                 and_item = and_item_data.to_dict()
@@ -46,49 +51,56 @@ class AndNode:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.filter_leaf import FilterLeaf
-        from ..models.not_node import NotNode
-        from ..models.or_node import OrNode
+        from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
+        from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
+        from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
         d = dict(src_dict)
         and_ = []
         _and_ = d.pop("and")
         for and_item_data in _and_:
 
-            def _parse_and_item(data: object) -> Union["AndNode", "FilterLeaf", "NotNode", "OrNode"]:
+            def _parse_and_item(
+                data: object,
+            ) -> Union[
+                "AndNodeLogRecordsFilter",
+                "FilterLeafLogRecordsFilter",
+                "NotNodeLogRecordsFilter",
+                "OrNodeLogRecordsFilter",
+            ]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return FilterLeaf.from_dict(data)
+                    return FilterLeafLogRecordsFilter.from_dict(data)
 
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return AndNode.from_dict(data)
+                    return AndNodeLogRecordsFilter.from_dict(data)
 
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return OrNode.from_dict(data)
+                    return OrNodeLogRecordsFilter.from_dict(data)
 
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return NotNode.from_dict(data)
+                return NotNodeLogRecordsFilter.from_dict(data)
 
             and_item = _parse_and_item(and_item_data)
 
             and_.append(and_item)
 
-        and_node = cls(and_=and_)
+        and_node_log_records_filter = cls(and_=and_)
 
-        and_node.additional_properties = d
-        return and_node
+        and_node_log_records_filter.additional_properties = d
+        return and_node_log_records_filter
 
     @property
     def additional_keys(self) -> list[str]:

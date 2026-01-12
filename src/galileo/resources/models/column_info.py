@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -7,14 +7,8 @@ from attrs import field as _attrs_field
 from ..models.column_category import ColumnCategory
 from ..models.data_type import DataType
 from ..models.data_unit import DataUnit
-from ..models.insight_type import InsightType
 from ..models.step_type import StepType
 from ..types import UNSET, Unset
-
-if TYPE_CHECKING:
-    from ..models.metric_threshold import MetricThreshold
-    from ..models.scorer_config import ScorerConfig
-
 
 T = TypeVar("T", bound="ColumnInfo")
 
@@ -26,20 +20,14 @@ class ColumnInfo:
     ----------
         id (str): Column id.  Must be universally unique.
         category (ColumnCategory):
-        scorer_config (Union['ScorerConfig', None, Unset]): For metric columns only: Scorer config that produced the
-            metric.
-        scorer_id (Union[None, Unset, str]): For metric columns only: Scorer id that produced the metric. This is
-            deprecated and will be removed in future versions.
+        data_type (Union[DataType, None]): Data type of the column. This is used to determine how to format the data on
+            the UI.
         label (Union[None, Unset, str]): Display label of the column in the UI.
         description (Union[None, Unset, str]): Description of the column.
         group_label (Union[None, Unset, str]): Display label of the column group.
-        insight_type (Union[InsightType, None, Unset]): Insight type.
-        data_type (Union[DataType, None, Unset]): Data type of the column. This is used to determine how to format the
-            data on the UI.
         data_unit (Union[DataUnit, None, Unset]): Data unit of the column (optional).
         multi_valued (Union[Unset, bool]): Whether the column is multi-valued. Default: False.
         allowed_values (Union[None, Unset, list[Any]]): Allowed values for this column.
-        threshold (Union['MetricThreshold', None, Unset]): Thresholds for the column, if this is a metrics column.
         sortable (Union[Unset, bool]): Whether the column is sortable.
         filterable (Union[Unset, bool]): Whether the column is filterable.
         is_empty (Union[Unset, bool]): Indicates whether the column is empty and should be hidden. Default: False.
@@ -51,17 +39,13 @@ class ColumnInfo:
 
     id: str
     category: ColumnCategory
-    scorer_config: Union["ScorerConfig", None, Unset] = UNSET
-    scorer_id: Union[None, Unset, str] = UNSET
+    data_type: Union[DataType, None]
     label: Union[None, Unset, str] = UNSET
     description: Union[None, Unset, str] = UNSET
     group_label: Union[None, Unset, str] = UNSET
-    insight_type: Union[InsightType, None, Unset] = UNSET
-    data_type: Union[DataType, None, Unset] = UNSET
     data_unit: Union[DataUnit, None, Unset] = UNSET
     multi_valued: Union[Unset, bool] = False
     allowed_values: Union[None, Unset, list[Any]] = UNSET
-    threshold: Union["MetricThreshold", None, Unset] = UNSET
     sortable: Union[Unset, bool] = UNSET
     filterable: Union[Unset, bool] = UNSET
     is_empty: Union[Unset, bool] = False
@@ -71,23 +55,12 @@ class ColumnInfo:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.metric_threshold import MetricThreshold
-        from ..models.scorer_config import ScorerConfig
-
         id = self.id
 
         category = self.category.value
 
-        scorer_config: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.scorer_config, Unset):
-            scorer_config = UNSET
-        elif isinstance(self.scorer_config, ScorerConfig):
-            scorer_config = self.scorer_config.to_dict()
-        else:
-            scorer_config = self.scorer_config
-
-        scorer_id: Union[None, Unset, str]
-        scorer_id = UNSET if isinstance(self.scorer_id, Unset) else self.scorer_id
+        data_type: Union[None, str]
+        data_type = self.data_type.value if isinstance(self.data_type, DataType) else self.data_type
 
         label: Union[None, Unset, str]
         label = UNSET if isinstance(self.label, Unset) else self.label
@@ -97,22 +70,6 @@ class ColumnInfo:
 
         group_label: Union[None, Unset, str]
         group_label = UNSET if isinstance(self.group_label, Unset) else self.group_label
-
-        insight_type: Union[None, Unset, str]
-        if isinstance(self.insight_type, Unset):
-            insight_type = UNSET
-        elif isinstance(self.insight_type, InsightType):
-            insight_type = self.insight_type.value
-        else:
-            insight_type = self.insight_type
-
-        data_type: Union[None, Unset, str]
-        if isinstance(self.data_type, Unset):
-            data_type = UNSET
-        elif isinstance(self.data_type, DataType):
-            data_type = self.data_type.value
-        else:
-            data_type = self.data_type
 
         data_unit: Union[None, Unset, str]
         if isinstance(self.data_unit, Unset):
@@ -133,14 +90,6 @@ class ColumnInfo:
         else:
             allowed_values = self.allowed_values
 
-        threshold: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.threshold, Unset):
-            threshold = UNSET
-        elif isinstance(self.threshold, MetricThreshold):
-            threshold = self.threshold.to_dict()
-        else:
-            threshold = self.threshold
-
         sortable = self.sortable
 
         filterable = self.filterable
@@ -160,29 +109,19 @@ class ColumnInfo:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"id": id, "category": category})
-        if scorer_config is not UNSET:
-            field_dict["scorer_config"] = scorer_config
-        if scorer_id is not UNSET:
-            field_dict["scorer_id"] = scorer_id
+        field_dict.update({"id": id, "category": category, "data_type": data_type})
         if label is not UNSET:
             field_dict["label"] = label
         if description is not UNSET:
             field_dict["description"] = description
         if group_label is not UNSET:
             field_dict["group_label"] = group_label
-        if insight_type is not UNSET:
-            field_dict["insight_type"] = insight_type
-        if data_type is not UNSET:
-            field_dict["data_type"] = data_type
         if data_unit is not UNSET:
             field_dict["data_unit"] = data_unit
         if multi_valued is not UNSET:
             field_dict["multi_valued"] = multi_valued
         if allowed_values is not UNSET:
             field_dict["allowed_values"] = allowed_values
-        if threshold is not UNSET:
-            field_dict["threshold"] = threshold
         if sortable is not UNSET:
             field_dict["sortable"] = sortable
         if filterable is not UNSET:
@@ -200,38 +139,24 @@ class ColumnInfo:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.metric_threshold import MetricThreshold
-        from ..models.scorer_config import ScorerConfig
-
         d = dict(src_dict)
         id = d.pop("id")
 
         category = ColumnCategory(d.pop("category"))
 
-        def _parse_scorer_config(data: object) -> Union["ScorerConfig", None, Unset]:
+        def _parse_data_type(data: object) -> Union[DataType, None]:
             if data is None:
                 return data
-            if isinstance(data, Unset):
-                return data
             try:
-                if not isinstance(data, dict):
+                if not isinstance(data, str):
                     raise TypeError()
-                return ScorerConfig.from_dict(data)
+                return DataType(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union["ScorerConfig", None, Unset], data)
+            return cast(Union[DataType, None], data)
 
-        scorer_config = _parse_scorer_config(d.pop("scorer_config", UNSET))
-
-        def _parse_scorer_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        scorer_id = _parse_scorer_id(d.pop("scorer_id", UNSET))
+        data_type = _parse_data_type(d.pop("data_type"))
 
         def _parse_label(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -259,38 +184,6 @@ class ColumnInfo:
             return cast(Union[None, Unset, str], data)
 
         group_label = _parse_group_label(d.pop("group_label", UNSET))
-
-        def _parse_insight_type(data: object) -> Union[InsightType, None, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                return InsightType(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union[InsightType, None, Unset], data)
-
-        insight_type = _parse_insight_type(d.pop("insight_type", UNSET))
-
-        def _parse_data_type(data: object) -> Union[DataType, None, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                return DataType(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union[DataType, None, Unset], data)
-
-        data_type = _parse_data_type(d.pop("data_type", UNSET))
 
         def _parse_data_unit(data: object) -> Union[DataUnit, None, Unset]:
             if data is None:
@@ -326,22 +219,6 @@ class ColumnInfo:
 
         allowed_values = _parse_allowed_values(d.pop("allowed_values", UNSET))
 
-        def _parse_threshold(data: object) -> Union["MetricThreshold", None, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return MetricThreshold.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union["MetricThreshold", None, Unset], data)
-
-        threshold = _parse_threshold(d.pop("threshold", UNSET))
-
         sortable = d.pop("sortable", UNSET)
 
         filterable = d.pop("filterable", UNSET)
@@ -362,17 +239,13 @@ class ColumnInfo:
         column_info = cls(
             id=id,
             category=category,
-            scorer_config=scorer_config,
-            scorer_id=scorer_id,
+            data_type=data_type,
             label=label,
             description=description,
             group_label=group_label,
-            insight_type=insight_type,
-            data_type=data_type,
             data_unit=data_unit,
             multi_valued=multi_valued,
             allowed_values=allowed_values,
-            threshold=threshold,
             sortable=sortable,
             filterable=filterable,
             is_empty=is_empty,

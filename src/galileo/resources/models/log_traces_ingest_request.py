@@ -31,6 +31,8 @@ class LogTracesIngestRequest:
             returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or
             return an error message if there is an ingestion failure. Default: True.
         session_id (Union[None, Unset, str]): Session id associated with the traces.
+        session_external_id (Union[None, Unset, str]): External id of the session (e.g., OTEL session.id from span
+            attributes).
         is_complete (Union[Unset, bool]): Whether or not the records in this request are complete. Default: True.
         include_trace_ids (Union[Unset, bool]): If True, include the list of ingested trace IDs in the response.
             Default: False.
@@ -44,6 +46,7 @@ class LogTracesIngestRequest:
     client_version: Union[None, Unset, str] = UNSET
     reliable: Union[Unset, bool] = True
     session_id: Union[None, Unset, str] = UNSET
+    session_external_id: Union[None, Unset, str] = UNSET
     is_complete: Union[Unset, bool] = True
     include_trace_ids: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -75,6 +78,9 @@ class LogTracesIngestRequest:
         session_id: Union[None, Unset, str]
         session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
 
+        session_external_id: Union[None, Unset, str]
+        session_external_id = UNSET if isinstance(self.session_external_id, Unset) else self.session_external_id
+
         is_complete = self.is_complete
 
         include_trace_ids = self.include_trace_ids
@@ -96,6 +102,8 @@ class LogTracesIngestRequest:
             field_dict["reliable"] = reliable
         if session_id is not UNSET:
             field_dict["session_id"] = session_id
+        if session_external_id is not UNSET:
+            field_dict["session_external_id"] = session_external_id
         if is_complete is not UNSET:
             field_dict["is_complete"] = is_complete
         if include_trace_ids is not UNSET:
@@ -166,6 +174,15 @@ class LogTracesIngestRequest:
 
         session_id = _parse_session_id(d.pop("session_id", UNSET))
 
+        def _parse_session_external_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_external_id = _parse_session_external_id(d.pop("session_external_id", UNSET))
+
         is_complete = d.pop("is_complete", UNSET)
 
         include_trace_ids = d.pop("include_trace_ids", UNSET)
@@ -179,6 +196,7 @@ class LogTracesIngestRequest:
             client_version=client_version,
             reliable=reliable,
             session_id=session_id,
+            session_external_id=session_external_id,
             is_complete=is_complete,
             include_trace_ids=include_trace_ids,
         )

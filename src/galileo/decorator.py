@@ -1142,9 +1142,12 @@ class GalileoDecorator:
             The logger mode.
         """
         GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
-        GalileoLoggerSingleton().get(
+        logger_instance = GalileoLoggerSingleton().get(
             project=project, log_stream=log_stream, experiment_id=experiment_id, local_metrics=local_metrics, mode=mode
         )
+        # Reset the logger's parent tracking to ensure clean state
+        # Each logger has its own ContextVar, so this resets only this instance
+        logger_instance.reset_parent_tracking()
 
         _project_context.set(project)
         _log_stream_context.set(log_stream)

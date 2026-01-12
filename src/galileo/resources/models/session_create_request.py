@@ -4,6 +4,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.logging_method import LoggingMethod
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="SessionCreateRequest")
@@ -17,6 +18,12 @@ class SessionCreateRequest:
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
+        logging_method (Union[Unset, LoggingMethod]):
+        client_version (Union[None, Unset, str]):
+        reliable (Union[Unset, bool]): Whether or not to use reliable logging.  If set to False, the method will respond
+            immediately before verifying that the traces have been successfully ingested, and no error message will be
+            returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or
+            return an error message if there is an ingestion failure. Default: True.
         name (Union[None, Unset, str]): Name of the session.
         previous_session_id (Union[None, Unset, str]): Id of the previous session.
         external_id (Union[None, Unset, str]): External id of the session.
@@ -25,6 +32,9 @@ class SessionCreateRequest:
     log_stream_id: Union[None, Unset, str] = UNSET
     experiment_id: Union[None, Unset, str] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
+    logging_method: Union[Unset, LoggingMethod] = UNSET
+    client_version: Union[None, Unset, str] = UNSET
+    reliable: Union[Unset, bool] = True
     name: Union[None, Unset, str] = UNSET
     previous_session_id: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
@@ -39,6 +49,15 @@ class SessionCreateRequest:
 
         metrics_testing_id: Union[None, Unset, str]
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
+
+        logging_method: Union[Unset, str] = UNSET
+        if not isinstance(self.logging_method, Unset):
+            logging_method = self.logging_method.value
+
+        client_version: Union[None, Unset, str]
+        client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
+
+        reliable = self.reliable
 
         name: Union[None, Unset, str]
         name = UNSET if isinstance(self.name, Unset) else self.name
@@ -58,6 +77,12 @@ class SessionCreateRequest:
             field_dict["experiment_id"] = experiment_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
+        if logging_method is not UNSET:
+            field_dict["logging_method"] = logging_method
+        if client_version is not UNSET:
+            field_dict["client_version"] = client_version
+        if reliable is not UNSET:
+            field_dict["reliable"] = reliable
         if name is not UNSET:
             field_dict["name"] = name
         if previous_session_id is not UNSET:
@@ -98,6 +123,21 @@ class SessionCreateRequest:
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
+        _logging_method = d.pop("logging_method", UNSET)
+        logging_method: Union[Unset, LoggingMethod]
+        logging_method = UNSET if isinstance(_logging_method, Unset) else LoggingMethod(_logging_method)
+
+        def _parse_client_version(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        client_version = _parse_client_version(d.pop("client_version", UNSET))
+
+        reliable = d.pop("reliable", UNSET)
+
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -129,6 +169,9 @@ class SessionCreateRequest:
             log_stream_id=log_stream_id,
             experiment_id=experiment_id,
             metrics_testing_id=metrics_testing_id,
+            logging_method=logging_method,
+            client_version=client_version,
+            reliable=reliable,
             name=name,
             previous_session_id=previous_session_id,
             external_id=external_id,

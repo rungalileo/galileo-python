@@ -39,7 +39,7 @@ jobs:
 
       - name: Install lxml build dependencies (Linux)
         if: matrix.python-version == '3.14' && runner.os == 'Linux'
-        run: sudo apt-get install -y libxml2-dev libxslt-dev
+        run: sudo apt-get update && sudo apt-get install -y libxml2-dev libxslt-dev
 
       - name: Install lxml build dependencies (macOS)
         if: matrix.python-version == '3.14' && runner.os == 'macOS'

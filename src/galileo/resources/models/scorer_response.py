@@ -8,6 +8,7 @@ from dateutil.parser import isoparse
 
 from ..models.input_type_enum import InputTypeEnum
 from ..models.model_type import ModelType
+from ..models.numeric_roll_up_method import NumericRollUpMethod
 from ..models.output_type_enum import OutputTypeEnum
 from ..models.scorer_types import ScorerTypes
 from ..types import UNSET, Unset
@@ -40,6 +41,7 @@ class ScorerResponse:
         output_type (Union[None, OutputTypeEnum, Unset]):
         input_type (Union[InputTypeEnum, None, Unset]):
         required_scorers (Union[None, Unset, list[str]]):
+        deprecated (Union[None, Unset, bool]):
         label (Union[None, Unset, str]):  Default: ''.
         included_fields (Union[Unset, list[str]]): Fields that can be used in the scorer to configure it. i.e. model,
             num_judges, etc. This enables the ui to know which fields a user can configure when they're setting a scorer
@@ -47,6 +49,7 @@ class ScorerResponse:
         created_by (Union[None, Unset, str]):
         created_at (Union[None, Unset, datetime.datetime]):
         updated_at (Union[None, Unset, datetime.datetime]):
+        roll_up_method (Union[None, NumericRollUpMethod, Unset]):
     """
 
     id: str
@@ -64,12 +67,14 @@ class ScorerResponse:
     output_type: Union[None, OutputTypeEnum, Unset] = UNSET
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
     required_scorers: Union[None, Unset, list[str]] = UNSET
+    deprecated: Union[None, Unset, bool] = UNSET
     label: Union[None, Unset, str] = ""
     included_fields: Union[Unset, list[str]] = UNSET
     description: Union[None, Unset, str] = UNSET
     created_by: Union[None, Unset, str] = UNSET
     created_at: Union[None, Unset, datetime.datetime] = UNSET
     updated_at: Union[None, Unset, datetime.datetime] = UNSET
+    roll_up_method: Union[None, NumericRollUpMethod, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -159,6 +164,9 @@ class ScorerResponse:
         else:
             required_scorers = self.required_scorers
 
+        deprecated: Union[None, Unset, bool]
+        deprecated = UNSET if isinstance(self.deprecated, Unset) else self.deprecated
+
         label: Union[None, Unset, str]
         label = UNSET if isinstance(self.label, Unset) else self.label
 
@@ -188,6 +196,14 @@ class ScorerResponse:
         else:
             updated_at = self.updated_at
 
+        roll_up_method: Union[None, Unset, str]
+        if isinstance(self.roll_up_method, Unset):
+            roll_up_method = UNSET
+        elif isinstance(self.roll_up_method, NumericRollUpMethod):
+            roll_up_method = self.roll_up_method.value
+        else:
+            roll_up_method = self.roll_up_method
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"id": id, "name": name, "scorer_type": scorer_type, "tags": tags})
@@ -213,6 +229,8 @@ class ScorerResponse:
             field_dict["input_type"] = input_type
         if required_scorers is not UNSET:
             field_dict["required_scorers"] = required_scorers
+        if deprecated is not UNSET:
+            field_dict["deprecated"] = deprecated
         if label is not UNSET:
             field_dict["label"] = label
         if included_fields is not UNSET:
@@ -225,6 +243,8 @@ class ScorerResponse:
             field_dict["created_at"] = created_at
         if updated_at is not UNSET:
             field_dict["updated_at"] = updated_at
+        if roll_up_method is not UNSET:
+            field_dict["roll_up_method"] = roll_up_method
 
         return field_dict
 
@@ -397,6 +417,15 @@ class ScorerResponse:
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
+        def _parse_deprecated(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        deprecated = _parse_deprecated(d.pop("deprecated", UNSET))
+
         def _parse_label(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -458,6 +487,22 @@ class ScorerResponse:
 
         updated_at = _parse_updated_at(d.pop("updated_at", UNSET))
 
+        def _parse_roll_up_method(data: object) -> Union[None, NumericRollUpMethod, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return NumericRollUpMethod(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, NumericRollUpMethod, Unset], data)
+
+        roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
+
         scorer_response = cls(
             id=id,
             name=name,
@@ -474,12 +519,14 @@ class ScorerResponse:
             output_type=output_type,
             input_type=input_type,
             required_scorers=required_scorers,
+            deprecated=deprecated,
             label=label,
             included_fields=included_fields,
             description=description,
             created_by=created_by,
             created_at=created_at,
             updated_at=updated_at,
+            roll_up_method=roll_up_method,
         )
 
         scorer_response.additional_properties = d

@@ -49,6 +49,7 @@ class CustomizedFactualityGPTScorer:
         metric_name (Union[None, Unset, str]):
         description (Union[None, Unset, str]):
         chainpoll_template (Union[Unset, FactualityTemplate]):
+        default_model_alias (Union[None, Unset, str]):
         ground_truth (Union[None, Unset, bool]):
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
@@ -83,6 +84,7 @@ class CustomizedFactualityGPTScorer:
     metric_name: Union[None, Unset, str] = UNSET
     description: Union[None, Unset, str] = UNSET
     chainpoll_template: Union[Unset, "FactualityTemplate"] = UNSET
+    default_model_alias: Union[None, Unset, str] = UNSET
     ground_truth: Union[None, Unset, bool] = UNSET
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
@@ -199,6 +201,9 @@ class CustomizedFactualityGPTScorer:
         chainpoll_template: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.chainpoll_template, Unset):
             chainpoll_template = self.chainpoll_template.to_dict()
+
+        default_model_alias: Union[None, Unset, str]
+        default_model_alias = UNSET if isinstance(self.default_model_alias, Unset) else self.default_model_alias
 
         ground_truth: Union[None, Unset, bool]
         ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
@@ -331,6 +336,8 @@ class CustomizedFactualityGPTScorer:
             field_dict["description"] = description
         if chainpoll_template is not UNSET:
             field_dict["chainpoll_template"] = chainpoll_template
+        if default_model_alias is not UNSET:
+            field_dict["default_model_alias"] = default_model_alias
         if ground_truth is not UNSET:
             field_dict["ground_truth"] = ground_truth
         if regex_field is not UNSET:
@@ -529,6 +536,15 @@ class CustomizedFactualityGPTScorer:
             chainpoll_template = UNSET
         else:
             chainpoll_template = FactualityTemplate.from_dict(_chainpoll_template)
+
+        def _parse_default_model_alias(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        default_model_alias = _parse_default_model_alias(d.pop("default_model_alias", UNSET))
 
         def _parse_ground_truth(data: object) -> Union[None, Unset, bool]:
             if data is None:
@@ -768,6 +784,7 @@ class CustomizedFactualityGPTScorer:
             metric_name=metric_name,
             description=description,
             chainpoll_template=chainpoll_template,
+            default_model_alias=default_model_alias,
             ground_truth=ground_truth,
             regex_field=regex_field,
             registered_scorer_id=registered_scorer_id,

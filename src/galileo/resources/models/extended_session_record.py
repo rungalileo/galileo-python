@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.document import Document
     from ..models.extended_session_record_dataset_metadata import ExtendedSessionRecordDatasetMetadata
+    from ..models.extended_session_record_feedback_rating_info import ExtendedSessionRecordFeedbackRatingInfo
     from ..models.extended_session_record_metric_info_type_0 import ExtendedSessionRecordMetricInfoType0
     from ..models.extended_session_record_user_metadata import ExtendedSessionRecordUserMetadata
     from ..models.message import Message
@@ -52,9 +53,12 @@ class ExtendedSessionRecord:
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
+        feedback_rating_info (Union[Unset, ExtendedSessionRecordFeedbackRatingInfo]): Feedback information related to
+            the record
         metric_info (Union['ExtendedSessionRecordMetricInfoType0', None, Unset]): Detailed information about the metrics
             associated with this trace or span
         previous_session_id (Union[None, Unset, str]):
+        num_traces (Union[None, Unset, int]):
     """
 
     id: str
@@ -81,8 +85,10 @@ class ExtendedSessionRecord:
     has_children: Union[None, Unset, bool] = UNSET
     metrics_batch_id: Union[None, Unset, str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
+    feedback_rating_info: Union[Unset, "ExtendedSessionRecordFeedbackRatingInfo"] = UNSET
     metric_info: Union["ExtendedSessionRecordMetricInfoType0", None, Unset] = UNSET
     previous_session_id: Union[None, Unset, str] = UNSET
+    num_traces: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -206,6 +212,10 @@ class ExtendedSessionRecord:
         session_batch_id: Union[None, Unset, str]
         session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
+        feedback_rating_info: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.feedback_rating_info, Unset):
+            feedback_rating_info = self.feedback_rating_info.to_dict()
+
         metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
@@ -216,6 +226,9 @@ class ExtendedSessionRecord:
 
         previous_session_id: Union[None, Unset, str]
         previous_session_id = UNSET if isinstance(self.previous_session_id, Unset) else self.previous_session_id
+
+        num_traces: Union[None, Unset, int]
+        num_traces = UNSET if isinstance(self.num_traces, Unset) else self.num_traces
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -262,10 +275,14 @@ class ExtendedSessionRecord:
             field_dict["metrics_batch_id"] = metrics_batch_id
         if session_batch_id is not UNSET:
             field_dict["session_batch_id"] = session_batch_id
+        if feedback_rating_info is not UNSET:
+            field_dict["feedback_rating_info"] = feedback_rating_info
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
         if previous_session_id is not UNSET:
             field_dict["previous_session_id"] = previous_session_id
+        if num_traces is not UNSET:
+            field_dict["num_traces"] = num_traces
 
         return field_dict
 
@@ -273,6 +290,7 @@ class ExtendedSessionRecord:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.document import Document
         from ..models.extended_session_record_dataset_metadata import ExtendedSessionRecordDatasetMetadata
+        from ..models.extended_session_record_feedback_rating_info import ExtendedSessionRecordFeedbackRatingInfo
         from ..models.extended_session_record_metric_info_type_0 import ExtendedSessionRecordMetricInfoType0
         from ..models.extended_session_record_user_metadata import ExtendedSessionRecordUserMetadata
         from ..models.message import Message
@@ -512,6 +530,13 @@ class ExtendedSessionRecord:
 
         session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
+        _feedback_rating_info = d.pop("feedback_rating_info", UNSET)
+        feedback_rating_info: Union[Unset, ExtendedSessionRecordFeedbackRatingInfo]
+        if isinstance(_feedback_rating_info, Unset):
+            feedback_rating_info = UNSET
+        else:
+            feedback_rating_info = ExtendedSessionRecordFeedbackRatingInfo.from_dict(_feedback_rating_info)
+
         def _parse_metric_info(data: object) -> Union["ExtendedSessionRecordMetricInfoType0", None, Unset]:
             if data is None:
                 return data
@@ -536,6 +561,15 @@ class ExtendedSessionRecord:
             return cast(Union[None, Unset, str], data)
 
         previous_session_id = _parse_previous_session_id(d.pop("previous_session_id", UNSET))
+
+        def _parse_num_traces(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        num_traces = _parse_num_traces(d.pop("num_traces", UNSET))
 
         extended_session_record = cls(
             id=id,
@@ -562,8 +596,10 @@ class ExtendedSessionRecord:
             has_children=has_children,
             metrics_batch_id=metrics_batch_id,
             session_batch_id=session_batch_id,
+            feedback_rating_info=feedback_rating_info,
             metric_info=metric_info,
             previous_session_id=previous_session_id,
+            num_traces=num_traces,
         )
 
         extended_session_record.additional_properties = d

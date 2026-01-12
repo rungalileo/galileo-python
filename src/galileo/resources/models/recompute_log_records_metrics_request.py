@@ -7,8 +7,8 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.and_node import AndNode
-    from ..models.filter_leaf import FilterLeaf
+    from ..models.and_node_log_records_filter import AndNodeLogRecordsFilter
+    from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
     from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
@@ -16,8 +16,8 @@ if TYPE_CHECKING:
     from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_sort_clause import LogRecordsSortClause
     from ..models.log_records_text_filter import LogRecordsTextFilter
-    from ..models.not_node import NotNode
-    from ..models.or_node import OrNode
+    from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
+    from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
 
 T = TypeVar("T", bound="RecomputeLogRecordsMetricsRequest")
@@ -39,9 +39,13 @@ class RecomputeLogRecordsMetricsRequest:
             metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
             filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
                 'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
-            filter_tree (Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode', None, Unset]):
-            sort (Union[Unset, LogRecordsSortClause]):
+            filter_tree (Union['AndNodeLogRecordsFilter', 'FilterLeafLogRecordsFilter', 'NotNodeLogRecordsFilter',
+                'OrNodeLogRecordsFilter', None, Unset]):
+            sort (Union['LogRecordsSortClause', None, Unset]): Sort for the query.  Defaults to native sort (created_at, id
+                descending).
             truncate_fields (Union[Unset, bool]):  Default: False.
+            include_counts (Union[Unset, bool]): If True, include computed child counts (e.g., num_traces for sessions,
+                num_spans for traces). Default: False.
     """
 
     scorer_ids: list[str]
@@ -64,21 +68,30 @@ class RecomputeLogRecordsMetricsRequest:
             ]
         ],
     ] = UNSET
-    filter_tree: Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset] = UNSET
-    sort: Union[Unset, "LogRecordsSortClause"] = UNSET
+    filter_tree: Union[
+        "AndNodeLogRecordsFilter",
+        "FilterLeafLogRecordsFilter",
+        "NotNodeLogRecordsFilter",
+        "OrNodeLogRecordsFilter",
+        None,
+        Unset,
+    ] = UNSET
+    sort: Union["LogRecordsSortClause", None, Unset] = UNSET
     truncate_fields: Union[Unset, bool] = False
+    include_counts: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.and_node import AndNode
-        from ..models.filter_leaf import FilterLeaf
+        from ..models.and_node_log_records_filter import AndNodeLogRecordsFilter
+        from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
-        from ..models.not_node import NotNode
-        from ..models.or_node import OrNode
+        from ..models.log_records_sort_clause import LogRecordsSortClause
+        from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
+        from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
         scorer_ids = self.scorer_ids
 
@@ -122,16 +135,25 @@ class RecomputeLogRecordsMetricsRequest:
         filter_tree: Union[None, Unset, dict[str, Any]]
         if isinstance(self.filter_tree, Unset):
             filter_tree = UNSET
-        elif isinstance(self.filter_tree, (FilterLeaf, AndNode, OrNode, NotNode)):
+        elif isinstance(
+            self.filter_tree,
+            (FilterLeafLogRecordsFilter, AndNodeLogRecordsFilter, OrNodeLogRecordsFilter, NotNodeLogRecordsFilter),
+        ):
             filter_tree = self.filter_tree.to_dict()
         else:
             filter_tree = self.filter_tree
 
-        sort: Union[Unset, dict[str, Any]] = UNSET
-        if not isinstance(self.sort, Unset):
+        sort: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.sort, Unset):
+            sort = UNSET
+        elif isinstance(self.sort, LogRecordsSortClause):
             sort = self.sort.to_dict()
+        else:
+            sort = self.sort
 
         truncate_fields = self.truncate_fields
+
+        include_counts = self.include_counts
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -156,13 +178,15 @@ class RecomputeLogRecordsMetricsRequest:
             field_dict["sort"] = sort
         if truncate_fields is not UNSET:
             field_dict["truncate_fields"] = truncate_fields
+        if include_counts is not UNSET:
+            field_dict["include_counts"] = include_counts
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.and_node import AndNode
-        from ..models.filter_leaf import FilterLeaf
+        from ..models.and_node_log_records_filter import AndNodeLogRecordsFilter
+        from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
@@ -170,8 +194,8 @@ class RecomputeLogRecordsMetricsRequest:
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_sort_clause import LogRecordsSortClause
         from ..models.log_records_text_filter import LogRecordsTextFilter
-        from ..models.not_node import NotNode
-        from ..models.or_node import OrNode
+        from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
+        from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
         d = dict(src_dict)
         scorer_ids = cast(list[str], d.pop("scorer_ids"))
@@ -273,7 +297,16 @@ class RecomputeLogRecordsMetricsRequest:
 
             filters.append(filters_item)
 
-        def _parse_filter_tree(data: object) -> Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset]:
+        def _parse_filter_tree(
+            data: object,
+        ) -> Union[
+            "AndNodeLogRecordsFilter",
+            "FilterLeafLogRecordsFilter",
+            "NotNodeLogRecordsFilter",
+            "OrNodeLogRecordsFilter",
+            None,
+            Unset,
+        ]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -281,40 +314,64 @@ class RecomputeLogRecordsMetricsRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return FilterLeaf.from_dict(data)
+                return FilterLeafLogRecordsFilter.from_dict(data)
 
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AndNode.from_dict(data)
+                return AndNodeLogRecordsFilter.from_dict(data)
 
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return OrNode.from_dict(data)
+                return OrNodeLogRecordsFilter.from_dict(data)
 
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return NotNode.from_dict(data)
+                return NotNodeLogRecordsFilter.from_dict(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset], data)
+            return cast(
+                Union[
+                    "AndNodeLogRecordsFilter",
+                    "FilterLeafLogRecordsFilter",
+                    "NotNodeLogRecordsFilter",
+                    "OrNodeLogRecordsFilter",
+                    None,
+                    Unset,
+                ],
+                data,
+            )
 
         filter_tree = _parse_filter_tree(d.pop("filter_tree", UNSET))
 
-        _sort = d.pop("sort", UNSET)
-        sort: Union[Unset, LogRecordsSortClause]
-        sort = UNSET if isinstance(_sort, Unset) else LogRecordsSortClause.from_dict(_sort)
+        def _parse_sort(data: object) -> Union["LogRecordsSortClause", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return LogRecordsSortClause.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["LogRecordsSortClause", None, Unset], data)
+
+        sort = _parse_sort(d.pop("sort", UNSET))
 
         truncate_fields = d.pop("truncate_fields", UNSET)
+
+        include_counts = d.pop("include_counts", UNSET)
 
         recompute_log_records_metrics_request = cls(
             scorer_ids=scorer_ids,
@@ -328,6 +385,7 @@ class RecomputeLogRecordsMetricsRequest:
             filter_tree=filter_tree,
             sort=sort,
             truncate_fields=truncate_fields,
+            include_counts=include_counts,
         )
 
         recompute_log_records_metrics_request.additional_properties = d
