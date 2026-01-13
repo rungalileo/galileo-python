@@ -46,6 +46,7 @@ from galileo.utils.retrievers import convert_to_documents
 from galileo.utils.serialization import serialize_to_str
 from galileo_core.helpers.execution import async_run
 from galileo_core.schemas.logging.agent import AgentType
+from galileo_core.schemas.logging.llm import Event
 from galileo_core.schemas.logging.span import (
     AgentSpan,
     LlmSpan,
@@ -966,6 +967,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         status_code: Optional[int] = None,
         time_to_first_token_ns: Optional[int] = None,
         step_number: Optional[int] = None,
+        events: Optional[list[Event]] = None,
     ) -> LlmSpan:
         """
         Add a new llm span to the current parent.
@@ -1060,6 +1062,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             "time_to_first_token_ns": time_to_first_token_ns,
             "step_number": step_number,
             "id": uuid.uuid4(),
+            "events": events,
         }
 
         span = super().add_llm_span(**kwargs)

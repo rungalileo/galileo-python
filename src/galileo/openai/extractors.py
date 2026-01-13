@@ -11,8 +11,9 @@ from openai.types.responses import ResponseOutputMessage, ResponseReasoningItem
 from packaging.version import Version
 from pydantic import BaseModel
 
-from galileo import GalileoLogger, Message, MessageRole, ToolCall, ToolCallFunction
+from galileo.logger import GalileoLogger
 from galileo.openai.models import OpenAiInputData, OpenAiModuleDefinition
+from galileo_core.schemas.logging.llm import Event, Message, MessageRole, ReasoningEvent, ToolCall, ToolCallFunction
 
 try:
     import openai
@@ -456,7 +457,7 @@ def _parse_usage(usage: Optional[dict] = None) -> Optional[dict]:
     return usage_dict
 
 
-def _extract_reasoning_content(item: ResponseReasoningItem) -> str:
+def _extract_reasoning_content(item: ResponseReasoningItem) -> list[str]:
     """Extract reasoning content from a reasoning item. Combines multiple summary items into a single string."""
     summary = item.summary or []
     if summary:
@@ -466,8 +467,8 @@ def _extract_reasoning_content(item: ResponseReasoningItem) -> str:
                 reasoning_texts.append(summary_item.text)
             elif isinstance(summary_item, dict) and "text" in summary_item:
                 reasoning_texts.append(summary_item["text"])
-        return "\n\n".join(reasoning_texts)
-    return ""
+        return reasoning_texts
+    return []
 
 
 def _extract_message_content(item: ResponseOutputMessage) -> str:
@@ -555,17 +556,19 @@ def process_output_items(
     conversation_context = original_input.copy() if original_input else []
 
     # Collect all reasoning content to include in the final response
-    all_reasoning_content = []
-    final_message_content = ""
     final_tool_calls = []
+    final_reasoning_content = []
+    events: list[Event] = []
+    final_message_content = ""
 
     # loop through output items to construct tool calls, messages, and reasoning
     for item in output_items:
         if hasattr(item, "type") and item.type == "reasoning":
             # Extract reasoning content but don't create separate spans
             reasoning_content = _extract_reasoning_content(item)
-            if reasoning_content:
-                all_reasoning_content.append(reasoning_content)
+            for reasoning_text in reasoning_content:
+                events.append(ReasoningEvent(content=reasoning_text))
+                final_reasoning_content.append(reasoning_text)
 
         elif hasattr(item, "type") and item.type == "message":
             # Extract message content
@@ -584,13 +587,6 @@ def process_output_items(
     # Create consolidated output with reasoning as separate Messages
     consolidated_output_messages = []
 
-    # Add reasoning as special reasoning objects (not Message objects)
-    if all_reasoning_content:
-        for _i, reasoning_text in enumerate(all_reasoning_content):
-            # Create a special reasoning object instead of a Message
-            reasoning_obj = {"type": "reasoning", "content": reasoning_text}
-            consolidated_output_messages.append(reasoning_obj)
-
     # Add the final response message
     if final_message_content:
         response_message = convert_to_galileo_message(final_message_content, "assistant")
@@ -600,7 +596,7 @@ def process_output_items(
     if consolidated_output_messages or final_tool_calls:
         # If there's no reasoning content, use the message content directly
         # Otherwise, serialize the array of Messages and reasoning objects into a string
-        if not all_reasoning_content and final_message_content:
+        if final_message_content:
             # Simple case: just a message with no reasoning
             consolidated_output = convert_to_galileo_message(final_message_content, "assistant")
         else:
@@ -646,11 +642,12 @@ def process_output_items(
             total_tokens=usage.get("total_tokens", 0) if usage else 0,
             metadata={
                 "type": "consolidated_response",
-                "includes_reasoning": str(bool(all_reasoning_content)),
-                "reasoning_count": str(len(all_reasoning_content)),
+                "includes_reasoning": str(bool(final_reasoning_content)),
+                "reasoning_count": str(len(final_reasoning_content)),
                 "serialized_messages": "true",  # Flag to indicate this contains serialized messages
                 **{str(k): str(v) for k, v in (model_parameters or {}).items()},
             },
+            events=events,
         )
         span.metrics.num_reasoning_tokens = usage.get("reasoning_tokens", 0) if usage else 0
         span.metrics.num_cached_input_tokens = usage.get("cached_tokens", 0) if usage else 0
