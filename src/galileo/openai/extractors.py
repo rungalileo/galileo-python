@@ -1,62 +1,18 @@
-"""
-Galileo wrapper for OpenAI that automatically logs prompts and responses.
-
-This module provides a drop-in replacement for the OpenAI library that automatically
-logs all prompts, responses, and related metadata to Galileo. It works by intercepting
-calls to the OpenAI API and logging them using the Galileo logging system.
-
-Note that the original OpenAI package is still required as a project dependency to use this wrapper.
-
-Examples
---------
-```python
-# Import the wrapped OpenAI client instead of the original
-from galileo.openai import openai
-
-# Use it exactly as you would use the regular OpenAI client
-response = openai.chat.completions.create(
-    model="gpt-4o",
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Tell me about the solar system."}
-    ]
-)
-
-# All prompts and responses are automatically logged to Galileo
-print(response.choices[0].message.content)
-
-# You can also use it with the galileo_context for more control
-from galileo import galileo_context
-
-with galileo_context(project="my-project", log_stream="my-log-stream"):
-    response = openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": "Tell me about the solar system."}
-        ]
-    )
-```
-"""
-
 import json
 import logging
 import types
 from collections import defaultdict
-from collections.abc import Generator, Iterable
-from dataclasses import dataclass
+from collections.abc import Iterable
 from datetime import datetime
 from inspect import isclass
 from typing import Any, Callable, Optional, Union
 
-import httpx
+from openai.types.responses import ResponseOutputMessage, ResponseReasoningItem
+from packaging.version import Version
 from pydantic import BaseModel
-from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
 
 from galileo import GalileoLogger, Message, MessageRole, ToolCall, ToolCallFunction
-from galileo.decorator import galileo_context
-from galileo.utils import _get_timestamp
-from galileo.utils.serialization import serialize_to_str
+from galileo.openai.models import OpenAiInputData, OpenAiModuleDefinition
 
 try:
     import openai
@@ -69,59 +25,158 @@ try:
         ResponseFileSearchToolCall,
         ResponseFunctionToolCall,
         ResponseFunctionWebSearch,
-        ResponseOutputMessage,
-        ResponseReasoningItem,
     )
     from openai.types.responses.response_output_item import ImageGenerationCall, LocalShellCall, McpCall, McpListTools
 
-    # it's used only for version check of OpenAI
-    from packaging.version import Version
 except ImportError:
     raise ModuleNotFoundError("Please install OpenAI to use this feature: 'pip install openai'")
-
-try:
-    from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, NoneType, OpenAI  # noqa: F401
-except ImportError:
-    AsyncAzureOpenAI = None  # type: ignore[assignment]
-    AsyncOpenAI = None  # type: ignore[assignment]
-    AzureOpenAI = None  # type: ignore[assignment]
-    OpenAI = None  # type: ignore[assignment]
-
-
-@dataclass
-class OpenAiModuleDefinition:
-    module: str
-    object: str
-    method: str
-    type: str
-    sync: bool
-    min_version: Optional[str] = None
-
-
-@dataclass
-class OpenAiInputData:
-    name: str
-    metadata: dict
-    start_time: datetime
-    input: str
-    model_parameters: dict
-    model: Optional[str]
-    temperature: float
-    tools: Optional[list[dict]]
-
 
 _logger = logging.getLogger(__name__)
 
 
-OPENAI_CLIENT_METHODS = [
-    OpenAiModuleDefinition(
-        module="openai.resources.chat.completions", object="Completions", method="create", type="chat", sync=True
-    ),
-    OpenAiModuleDefinition(
-        module="openai.resources.responses", object="Responses", method="create", type="response", sync=True
-    ),
-    # Eventually add more OpenAI client library methods here
-]
+def _extract_web_search_tool_data(item: ResponseFunctionWebSearch) -> tuple[str, str]:
+    """Extract input/output data from a web_search_call item."""
+    tool_status = item.status or ""
+    action = item.action
+    if action:
+        input_data: dict[str, Any] = {"type": getattr(action, "type", "")}
+        if hasattr(action, "query"):
+            input_data["query"] = getattr(action, "query", "")
+        if hasattr(action, "url"):
+            input_data["url"] = getattr(action, "url", "")
+        if hasattr(action, "pattern"):
+            input_data["pattern"] = getattr(action, "pattern", "")
+        tool_input = json.dumps(input_data, indent=2)
+
+        output_data: dict[str, Any] = {}
+        if hasattr(action, "sources"):
+            sources = getattr(action, "sources", [])
+            output_data["sources"] = [
+                source.__dict__ if hasattr(source, "__dict__") else str(source) for source in sources
+            ]
+        if not output_data:
+            output_data = {"status": tool_status}
+        tool_output = json.dumps(output_data, indent=2)
+    else:
+        tool_input = json.dumps({}, indent=2)
+        tool_output = f"Status: {tool_status}"
+    return tool_input, tool_output
+
+
+def _extract_mcp_call_tool_data(item: McpCall) -> tuple[str, str]:
+    """Extract input/output data from an mcp_call item."""
+    tool_input = json.dumps(
+        {"name": item.name or "", "server_label": item.server_label or "", "arguments": item.arguments or ""}, indent=2
+    )
+    tool_output = json.dumps({"output": item.output or ""}, indent=2)
+    return tool_input, tool_output
+
+
+def _extract_mcp_list_tools_data(item: McpListTools) -> tuple[str, str]:
+    """Extract input/output data from an mcp_list_tools item."""
+    tool_input = item.server_label or ""
+    tools = item.tools or []
+    tool_output = json.dumps([tool.__dict__ if hasattr(tool, "__dict__") else tool for tool in tools], indent=2)
+    return tool_input, tool_output
+
+
+def _extract_file_search_tool_data(item: ResponseFileSearchToolCall) -> tuple[str, str]:
+    """Extract input/output data from a file_search_call item."""
+    tool_status = item.status or ""
+    tool_input = json.dumps(
+        {
+            "queries": item.queries or [],
+            "results": [result.__dict__ if hasattr(result, "__dict__") else result for result in (item.results or [])],
+        },
+        indent=2,
+    )
+    tool_output = f"Status: {tool_status}"
+    return tool_input, tool_output
+
+
+def _extract_computer_call_tool_data(item: ResponseComputerToolCall) -> tuple[str, str]:
+    """Extract input/output data from a computer_call item."""
+    tool_status = item.status or ""
+    action = item.action
+    tool_input = json.dumps(action.__dict__ if action else {}, indent=2)
+    tool_output = f"Status: {tool_status}"
+    return tool_input, tool_output
+
+
+def _extract_image_generation_tool_data(item: ImageGenerationCall) -> tuple[str, str]:
+    """Extract input/output data from an image_generation_call item."""
+    tool_input = json.dumps({"id": item.id or "", "status": item.status or ""}, indent=2)
+    tool_output = item.result or ""
+    return tool_input, tool_output
+
+
+def _extract_code_interpreter_tool_data(item: ResponseCodeInterpreterToolCall) -> tuple[str, str]:
+    """Extract input/output data from a code_interpreter_call item."""
+    tool_input = json.dumps(
+        {
+            "id": item.id or "",
+            "code": item.code or "",
+            "container_id": item.container_id or "",
+            "status": item.status or "",
+        },
+        indent=2,
+    )
+    outputs = item.outputs or []
+    tool_output = json.dumps([o.__dict__ if hasattr(o, "__dict__") else o for o in outputs], indent=2)
+    return tool_input, tool_output
+
+
+def _extract_local_shell_tool_data(item: LocalShellCall) -> tuple[str, str]:
+    """Extract input/output data from a local_shell_call item."""
+    tool_status = item.status or ""
+    action = item.action
+    tool_input = json.dumps(
+        {
+            "id": item.id or "",
+            "call_id": item.call_id or "",
+            "status": item.status or "",
+            "action": action.__dict__ if action else {},
+        },
+        indent=2,
+    )
+    tool_output = f"Status: {tool_status}"
+    return tool_input, tool_output
+
+
+def _extract_custom_tool_data(item: ResponseFunctionToolCall) -> tuple[str, str]:
+    """Extract input/output data from a custom_tool_call (function tool call) item."""
+    tool_status = item.status or ""
+    tool_input = json.dumps({"name": item.name or "", "arguments": item.arguments or ""}, indent=2)
+    tool_output = f"Status: {tool_status}"
+    return tool_input, tool_output
+
+
+def _extract_generic_tool_data(item: Any) -> tuple[str, str]:
+    """Extract input/output data from an unknown tool type."""
+    tool_status = getattr(item, "status", "")
+    tool_input = json.dumps({"name": getattr(item, "name", ""), "arguments": getattr(item, "arguments", "")}, indent=2)
+    tool_output = f"Status: {tool_status}\nOutput: {getattr(item, 'output', '')}"
+    return tool_input, tool_output
+
+
+# Mapping of tool types to their extraction functions
+TOOL_EXTRACTORS: dict[str, Callable[[Any], tuple[str, str]]] = {
+    "web_search_call": _extract_web_search_tool_data,
+    "mcp_call": _extract_mcp_call_tool_data,
+    "mcp_list_tools": _extract_mcp_list_tools_data,
+    "file_search_call": _extract_file_search_tool_data,
+    "computer_call": _extract_computer_call_tool_data,
+    "image_generation_call": _extract_image_generation_tool_data,
+    "code_interpreter_call": _extract_code_interpreter_tool_data,
+    "local_shell_call": _extract_local_shell_tool_data,
+    "custom_tool_call": _extract_custom_tool_data,
+    # Note: "function_call" is handled separately - it's joined with function_call_output
+    # in _process_function_call_outputs to create a single combined tool span
+}
+
+# Tool call types that should create separate tool spans
+# function_call is excluded because it's combined with function_call_output
+TOOL_SPAN_TYPES = frozenset(TOOL_EXTRACTORS.keys())
 
 
 class OpenAiArgsExtractor:
@@ -159,17 +214,7 @@ class OpenAiArgsExtractor:
         return self.kwargs
 
 
-def _galileo_wrapper(func: Callable) -> Callable:
-    def _with_galileo(open_ai_definitions: OpenAiModuleDefinition, initialize: Callable) -> Callable:
-        def wrapper(wrapped: Callable, instance: Any, args: dict, kwargs: dict) -> Any:
-            return func(open_ai_definitions, initialize, wrapped, args, kwargs)
-
-        return wrapper
-
-    return _with_galileo
-
-
-def _convert_to_galileo_message(data: Any, default_role: str = "user") -> Message:
+def convert_to_galileo_message(data: Any, default_role: str = "user") -> Message:
     """Convert OpenAI response data to a Galileo Message object."""
     if hasattr(data, "type") and data.type == "function_call":
         tool_call = ToolCall(
@@ -274,7 +319,7 @@ def _extract_chat_response(kwargs: dict) -> dict:
     return response
 
 
-def _extract_input_data_from_kwargs(
+def extract_input_data_from_kwargs(
     resource: OpenAiModuleDefinition, start_time: datetime, kwargs: dict[str, Any]
 ) -> OpenAiInputData:
     name: str = kwargs.get("name", "openai-client-generation")
@@ -432,173 +477,14 @@ def _extract_message_content(item: ResponseOutputMessage) -> str:
         text_parts = []
         for content_item in content:
             if hasattr(content_item, "text"):
-                text_parts.append(content_item.text)
+                text_parts.append(getattr(content_item, "text", ""))
             elif isinstance(content_item, dict) and "text" in content_item:
                 text_parts.append(content_item["text"])
         return "".join(text_parts)
     return str(content) if content else ""
 
 
-def _extract_web_search_tool_data(item: ResponseFunctionWebSearch) -> tuple[str, str]:
-    """Extract input/output data from a web_search_call item."""
-    tool_status = item.status or ""
-    action = item.action
-    if action:
-        input_data: dict[str, Any] = {"type": getattr(action, "type", "")}
-        if hasattr(action, "query"):
-            input_data["query"] = getattr(action, "query", "")
-        if hasattr(action, "url"):
-            input_data["url"] = getattr(action, "url", "")
-        if hasattr(action, "pattern"):
-            input_data["pattern"] = getattr(action, "pattern", "")
-        tool_input = json.dumps(input_data, indent=2)
-
-        output_data: dict[str, Any] = {}
-        if hasattr(action, "sources") and action.sources:
-            sources = getattr(action, "sources", [])
-            output_data["sources"] = [
-                source.__dict__ if hasattr(source, "__dict__") else str(source) for source in sources
-            ]
-        if not output_data:
-            output_data = {"status": tool_status}
-        tool_output = json.dumps(output_data, indent=2)
-    else:
-        tool_input = json.dumps({}, indent=2)
-        tool_output = f"Status: {tool_status}"
-    return tool_input, tool_output
-
-
-def _extract_mcp_call_tool_data(item: McpCall) -> tuple[str, str]:
-    """Extract input/output data from an mcp_call item."""
-    tool_input = json.dumps(
-        {"name": item.name or "", "server_label": item.server_label or "", "arguments": item.arguments or ""}, indent=2
-    )
-    tool_output = json.dumps({"output": item.output or ""}, indent=2)
-    return tool_input, tool_output
-
-
-def _extract_mcp_list_tools_data(item: McpListTools) -> tuple[str, str]:
-    """Extract input/output data from an mcp_list_tools item."""
-    tool_input = item.server_label or ""
-    tools = item.tools or []
-    tool_output = json.dumps([tool.__dict__ if hasattr(tool, "__dict__") else tool for tool in tools], indent=2)
-    return tool_input, tool_output
-
-
-def _extract_file_search_tool_data(item: ResponseFileSearchToolCall) -> tuple[str, str]:
-    """Extract input/output data from a file_search_call item."""
-    tool_status = item.status or ""
-    tool_input = json.dumps(
-        {
-            "queries": item.queries or [],
-            "results": [result.__dict__ if hasattr(result, "__dict__") else result for result in (item.results or [])],
-        },
-        indent=2,
-    )
-    tool_output = f"Status: {tool_status}"
-    return tool_input, tool_output
-
-
-def _extract_computer_call_tool_data(item: ResponseComputerToolCall) -> tuple[str, str]:
-    """Extract input/output data from a computer_call item."""
-    tool_status = item.status or ""
-    action = item.action
-    tool_input = json.dumps(action.__dict__ if action else {}, indent=2)
-    tool_output = f"Status: {tool_status}"
-    return tool_input, tool_output
-
-
-def _extract_image_generation_tool_data(item: ImageGenerationCall) -> tuple[str, str]:
-    """Extract input/output data from an image_generation_call item."""
-    tool_input = json.dumps({"id": item.id or "", "status": item.status or ""}, indent=2)
-    tool_output = item.result or ""
-    return tool_input, tool_output
-
-
-def _extract_code_interpreter_tool_data(item: ResponseCodeInterpreterToolCall) -> tuple[str, str]:
-    """Extract input/output data from a code_interpreter_call item."""
-    tool_input = json.dumps(
-        {
-            "id": item.id or "",
-            "code": item.code or "",
-            "container_id": item.container_id or "",
-            "status": item.status or "",
-        },
-        indent=2,
-    )
-    outputs = item.outputs or []
-    tool_output = json.dumps([o.__dict__ if hasattr(o, "__dict__") else o for o in outputs], indent=2)
-    return tool_input, tool_output
-
-
-def _extract_local_shell_tool_data(item: LocalShellCall) -> tuple[str, str]:
-    """Extract input/output data from a local_shell_call item."""
-    tool_status = item.status or ""
-    action = item.action
-    tool_input = json.dumps(
-        {
-            "id": item.id or "",
-            "call_id": item.call_id or "",
-            "status": item.status or "",
-            "action": action.__dict__ if action else {},
-        },
-        indent=2,
-    )
-    tool_output = f"Status: {tool_status}"
-    return tool_input, tool_output
-
-
-def _extract_custom_tool_data(item: ResponseFunctionToolCall) -> tuple[str, str]:
-    """Extract input/output data from a custom_tool_call (function tool call) item."""
-    tool_status = item.status or ""
-    tool_input = json.dumps({"name": item.name or "", "arguments": item.arguments or ""}, indent=2)
-    tool_output = f"Status: {tool_status}"
-    return tool_input, tool_output
-
-
-def _extract_function_call_data(item: Any) -> tuple[str, str]:
-    """Extract input/output data from a function_call item (model requesting to call a function)."""
-    tool_input = json.dumps(
-        {
-            "name": getattr(item, "name", ""),
-            "arguments": getattr(item, "arguments", ""),
-            "call_id": getattr(item, "call_id", "") or getattr(item, "id", ""),
-        },
-        indent=2,
-    )
-    tool_output = json.dumps({"status": getattr(item, "status", "pending")}, indent=2)
-    return tool_input, tool_output
-
-
-def _extract_generic_tool_data(item: Any) -> tuple[str, str]:
-    """Extract input/output data from an unknown tool type."""
-    tool_status = getattr(item, "status", "")
-    tool_input = json.dumps({"name": getattr(item, "name", ""), "arguments": getattr(item, "arguments", "")}, indent=2)
-    tool_output = f"Status: {tool_status}\nOutput: {getattr(item, 'output', '')}"
-    return tool_input, tool_output
-
-
-# Mapping of tool types to their extraction functions
-_TOOL_EXTRACTORS: dict[str, Callable[[Any], tuple[str, str]]] = {
-    "web_search_call": _extract_web_search_tool_data,
-    "mcp_call": _extract_mcp_call_tool_data,
-    "mcp_list_tools": _extract_mcp_list_tools_data,
-    "file_search_call": _extract_file_search_tool_data,
-    "computer_call": _extract_computer_call_tool_data,
-    "image_generation_call": _extract_image_generation_tool_data,
-    "code_interpreter_call": _extract_code_interpreter_tool_data,
-    "local_shell_call": _extract_local_shell_tool_data,
-    "custom_tool_call": _extract_custom_tool_data,
-    # Note: "function_call" is handled separately - it's joined with function_call_output
-    # in _process_function_call_outputs to create a single combined tool span
-}
-
-# Tool call types that should create separate tool spans
-# function_call is excluded because it's combined with function_call_output
-TOOL_SPAN_TYPES = frozenset(_TOOL_EXTRACTORS.keys())
-
-
-def _process_function_call_outputs(input_items: list, galileo_logger: GalileoLogger) -> None:
+def process_function_call_outputs(input_items: list, galileo_logger: GalileoLogger) -> None:
     """
     Process function_call and function_call_output items from the input and create combined tool spans.
     This joins the function call (model's request to call a tool) with the function output (tool result)
@@ -652,7 +538,7 @@ def _process_function_call_outputs(input_items: list, galileo_logger: GalileoLog
             )
 
 
-def _process_output_items(
+def process_output_items(
     output_items: list,
     galileo_logger: GalileoLogger,
     model: Optional[str] = None,
@@ -707,7 +593,7 @@ def _process_output_items(
 
     # Add the final response message
     if final_message_content:
-        response_message = _convert_to_galileo_message(final_message_content, "assistant")
+        response_message = convert_to_galileo_message(final_message_content, "assistant")
         consolidated_output_messages.append(response_message)
 
     # Create the final consolidated output for the LLM span with content and reasoning
@@ -716,7 +602,7 @@ def _process_output_items(
         # Otherwise, serialize the array of Messages and reasoning objects into a string
         if not all_reasoning_content and final_message_content:
             # Simple case: just a message with no reasoning
-            consolidated_output = _convert_to_galileo_message(final_message_content, "assistant")
+            consolidated_output = convert_to_galileo_message(final_message_content, "assistant")
         else:
             # Complex case: serialize the array of Messages and reasoning objects
             # WORKAROUND: Serialize into a string since LLM span output
@@ -735,7 +621,7 @@ def _process_output_items(
             messages_serialized = json.dumps(serialized_items, indent=2)
 
             # Create a single Message with the serialized array as content
-            consolidated_output = _convert_to_galileo_message(messages_serialized, "assistant")
+            consolidated_output = convert_to_galileo_message(messages_serialized, "assistant")
 
         # Add tool calls if present
         if final_tool_calls:
@@ -780,7 +666,7 @@ def _process_output_items(
             tool_status = getattr(item, "status", "")
 
             # Use the appropriate extractor function for this tool type
-            extractor = _TOOL_EXTRACTORS.get(item.type, _extract_generic_tool_data)
+            extractor = TOOL_EXTRACTORS.get(item.type, _extract_generic_tool_data)
             tool_input, tool_output = extractor(item)
 
             # Create tool span with the tool type as the name
@@ -837,7 +723,7 @@ def _extract_responses_output(output_items: list) -> dict:
     return {"role": "assistant", "content": ""}
 
 
-def _has_pending_function_calls(output_items: list) -> bool:
+def has_pending_function_calls(output_items: list) -> bool:
     """
     Check if the response has pending function calls that require tool execution.
     Returns True if there are function_call items but no final message content.
@@ -867,7 +753,7 @@ def _has_pending_function_calls(output_items: list) -> bool:
     return has_function_call and not has_final_message
 
 
-def _extract_data_from_default_response(resource: OpenAiModuleDefinition, response: Optional[dict[str, Any]]) -> Any:
+def extract_data_from_default_response(resource: OpenAiModuleDefinition, response: Optional[dict[str, Any]]) -> Any:
     if response is None:
         return None, "<NoneType response returned from OpenAI>", None
 
@@ -879,23 +765,19 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
         if len(choices) > 0:
             choice = choices[-1]
 
-            completion = choice.text if _is_openai_v1() else choice.get("text", None)
+            completion = choice.text if is_openai_v1() else choice.get("text", None)
     elif resource.type == "chat":
         choices = response.get("choices", [])
         if len(choices):
             if len(choices) > 1:
                 completion = [
-                    (
-                        _extract_chat_response(choice.message.__dict__)
-                        if _is_openai_v1()
-                        else choice.get("message", None)
-                    )
+                    (_extract_chat_response(choice.message.__dict__) if is_openai_v1() else choice.get("message", None))
                     for choice in choices
                 ]
             else:
                 choice = choices[0]
                 completion = (
-                    _extract_chat_response(choice.message.__dict__) if _is_openai_v1() else choice.get("message", None)
+                    _extract_chat_response(choice.message.__dict__) if is_openai_v1() else choice.get("message", None)
                 )
     elif resource.type == "response":
         # Handle Responses API structure
@@ -907,7 +789,7 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
     return model, completion, usage
 
 
-def _extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: Iterable) -> Any:
+def extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: Iterable) -> Any:
     completion: Any = defaultdict(lambda: None) if resource.type == "chat" else ""
     model, usage = None, None
 
@@ -916,7 +798,7 @@ def _extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: 
         final_response = None
 
     for chunk in chunks:
-        if _is_openai_v1():
+        if is_openai_v1():
             chunk = chunk.__dict__
 
         if resource.type == "response":
@@ -938,12 +820,12 @@ def _extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: 
         choices = chunk.get("choices", [])
 
         for choice in choices:
-            if _is_openai_v1():
+            if is_openai_v1():
                 choice = choice.__dict__
             if resource.type == "chat":
                 delta = choice.get("delta", None)
 
-                if _is_openai_v1():
+                if is_openai_v1():
                     delta = delta.__dict__
 
                 if delta.get("role", None) is not None:
@@ -1026,393 +908,9 @@ def _extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: 
     return model, completion, usage
 
 
-def _is_openai_v1() -> bool:
+def is_openai_v1() -> bool:
     return Version(openai.__version__) >= Version("1.0.0")
 
 
-def _is_streaming_response(response: Any) -> bool:
-    return isinstance(response, types.GeneratorType) or (_is_openai_v1() and isinstance(response, openai.Stream))
-
-
-@_galileo_wrapper
-def _wrap(
-    open_ai_resource: OpenAiModuleDefinition, initialize: Callable, wrapped: Callable, args: dict, kwargs: dict
-) -> Any:
-    start_time = _get_timestamp()
-    arg_extractor = OpenAiArgsExtractor(*args, **kwargs)
-
-    input_data = _extract_input_data_from_kwargs(open_ai_resource, start_time, arg_extractor.get_galileo_args())
-
-    galileo_logger: GalileoLogger = initialize()
-
-    should_complete_trace = False
-    if galileo_logger.current_parent():
-        pass
-    else:
-        # If we don't have an active trace, start a new trace
-        # We will conclude it at the end
-        # convert to list of galileo messages since we can't send list of messages to span and want consistency
-        if isinstance(input_data.input, list):
-            trace_input_messages = [_convert_to_galileo_message(msg) for msg in input_data.input]
-        else:
-            trace_input_messages = [_convert_to_galileo_message(input_data.input)]
-
-        # Serialize with "messages" wrapper for UI compatibility
-        trace_input = {"messages": [msg.model_dump(exclude_none=True) for msg in trace_input_messages]}
-        galileo_logger.start_trace(input=serialize_to_str(trace_input), name=input_data.name)
-        should_complete_trace = True
-
-    try:
-        openai_response = None
-        exc_info = None
-        status_code = httpx.codes.OK
-        try:
-            openai_response = wrapped(**arg_extractor.get_openai_args())
-        except openai.APIStatusError as exc:
-            status_code = exc.status_code
-            exc_info = exc
-
-        if _is_streaming_response(openai_response):
-            # extract data from streaming response
-            return ResponseGeneratorSync(
-                resource=open_ai_resource,
-                response=openai_response,
-                input_data=input_data,
-                logger=galileo_logger,
-                should_complete_trace=should_complete_trace,
-                status_code=status_code,
-            )
-        model, completion, usage = _extract_data_from_default_response(
-            open_ai_resource, (openai_response.__dict__ if openai_response and _is_openai_v1() else openai_response)
-        )
-
-        if usage is None:
-            usage = {}
-
-        end_time = _get_timestamp()
-
-        duration_ns = round((end_time - start_time).total_seconds() * 1e9)
-
-        # convert to list of galileo messages since we can't send a regular list to span input
-        if isinstance(input_data.input, list):
-            span_input = [_convert_to_galileo_message(msg) for msg in input_data.input]
-        else:
-            span_input = [_convert_to_galileo_message(input_data.input)]
-
-        # Process Responses API output items sequentially if present
-        final_conversation_context = span_input.copy()
-        output_items: list = []
-        if open_ai_resource.type == "response" and openai_response:
-            # First, process any function_call_output items in the input to create tool spans
-            # This represents tool executions that happened before this API call
-            if isinstance(input_data.input, list):
-                _process_function_call_outputs(input_data.input, galileo_logger)
-
-            response_dict = openai_response.__dict__ if _is_openai_v1() else openai_response
-            output_items = response_dict.get("output", [])
-
-            # Process all output items sequentially and get the final context
-            final_conversation_context = _process_output_items(
-                output_items,
-                galileo_logger,
-                model,
-                span_input,
-                input_data.model_parameters,
-                status_code=status_code,
-                tools=input_data.tools,
-                usage=usage,
-            )
-        else:
-            # For non-Responses API (chat or completion), create the main span as before
-            span_output = _convert_to_galileo_message(completion, "assistant")
-
-            # Add a span to the current trace or span (if this is a nested trace)
-            span = galileo_logger.add_llm_span(
-                input=span_input,
-                output=span_output,
-                tools=input_data.tools,
-                name=input_data.name,
-                model=model,
-                temperature=input_data.temperature,
-                duration_ns=duration_ns,
-                num_input_tokens=usage.get("input_tokens", 0),
-                num_output_tokens=usage.get("output_tokens", 0),
-                total_tokens=usage.get("total_tokens", 0),
-                metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
-                # openai client library doesn't return http_status code, so we only can hardcode it here
-                # because we if we parsed and extracted data from response it means we get it and it's 200OK
-                status_code=status_code,
-            )
-            span.metrics.num_reasoning_tokens = usage.get("reasoning_tokens", 0) if usage else 0
-            span.metrics.num_cached_input_tokens = usage.get("cached_tokens", 0) if usage else 0
-
-        # Conclude the trace if this is the top-level call
-        # For Responses API: don't conclude if there are pending function calls (model waiting for tool results)
-        has_pending_calls = (
-            open_ai_resource.type == "response" and output_items and _has_pending_function_calls(output_items)
-        )
-
-        if should_complete_trace and not has_pending_calls:
-            if open_ai_resource.type == "response":
-                # For Responses API, use the final conversation context from processing
-                full_conversation = final_conversation_context
-            else:
-                # For other APIs, add the final span output
-                full_conversation = []
-                if isinstance(input_data.input, list):
-                    full_conversation.extend([_convert_to_galileo_message(msg) for msg in input_data.input])
-                else:
-                    full_conversation.append(_convert_to_galileo_message(input_data.input))
-                full_conversation.append(span_output)
-
-            # Serialize with "messages" wrapper for UI compatibility
-            trace_output = {"messages": [msg.model_dump(exclude_none=True) for msg in full_conversation]}
-            galileo_logger.conclude(
-                output=serialize_to_str(trace_output), duration_ns=duration_ns, status_code=status_code
-            )
-
-        # we want to re-raise exception after we process openai_response
-        if exc_info:
-            raise exc_info
-        return openai_response
-    except Exception as ex:
-        _logger.error(f"Error while processing OpenAI request: {ex}")
-        raise RuntimeError("Failed to process the OpenAI Request") from ex
-
-
-class ResponseGeneratorSync:
-    """
-    A wrapper for OpenAI streaming responses that logs the response to Galileo.
-
-    This class wraps the OpenAI streaming response generator and logs the response
-    to Galileo when the generator is exhausted. It implements the iterator protocol
-    to allow for streaming responses.
-
-    Attributes
-    ----------
-    resource : OpenAiModuleDefinition
-        The OpenAI resource definition.
-    response : Generator or openai.Stream
-        The OpenAI streaming response.
-    input_data : OpenAiInputData
-        The input data for the OpenAI request.
-    logger : GalileoLogger
-        The Galileo logger instance.
-    should_complete_trace : bool
-        Whether to complete the trace when the generator is exhausted.
-    """
-
-    def __init__(
-        self,
-        *,
-        resource: OpenAiModuleDefinition,
-        response: Union[Generator, openai.Stream],
-        input_data: OpenAiInputData,
-        logger: GalileoLogger,
-        should_complete_trace: bool,
-        status_code: int = 200,
-    ):
-        self.items: list[Any] = []
-        self.resource = resource
-        self.response = response
-        self.input_data = input_data
-        self.logger = logger
-        self.should_complete_trace = should_complete_trace
-        self.completion_start_time: Optional[datetime] = None
-        self.status_code = status_code
-
-    def __iter__(self):
-        try:
-            for i in self.response:
-                self.items.append(i)
-
-                if self.completion_start_time is None:
-                    self.completion_start_time = _get_timestamp()
-
-                yield i
-        finally:
-            self._finalize()
-
-    def __next__(self):
-        try:
-            item = self.response.__next__()
-            self.items.append(item)
-
-            if self.completion_start_time is None:
-                self.completion_start_time = _get_timestamp()
-
-            return item
-
-        except StopIteration:
-            self._finalize()
-
-            raise
-
-    def __enter__(self):
-        return self.__iter__()
-
-    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
-        pass
-
-    def _finalize(self) -> None:
-        model, completion, usage = _extract_streamed_openai_response(self.resource, self.items)
-
-        if usage is None:
-            usage = {}
-
-        end_time = _get_timestamp()
-        # TODO: make sure completion_start_time what we want
-        duration_ns = (
-            round((end_time - self.completion_start_time).total_seconds() * 1e9) if self.completion_start_time else 0
-        )
-
-        if isinstance(self.input_data.input, list):
-            span_input = [_convert_to_galileo_message(msg) for msg in self.input_data.input]
-        else:
-            span_input = [_convert_to_galileo_message(self.input_data.input)]
-
-        # probably can create a shared function for handling both streaming and non-streaming
-        # Process Responses API output items sequentially if present (same as non-streaming)
-        final_conversation_context = span_input.copy()
-        output_items: list = []
-        if self.resource.type == "response" and completion:
-            # First, process any function_call_output items in the input to create tool spans
-            # This represents tool executions that happened before this API call
-            if isinstance(self.input_data.input, list):
-                _process_function_call_outputs(self.input_data.input, self.logger)
-
-            # For streaming Responses API, we need to extract output items from the completion
-            # The completion should contain the final response with output items
-            if isinstance(completion, dict) and "output" in completion:
-                output_items = completion.get("output", [])
-
-                # Process all output items sequentially and get the final context
-                final_conversation_context = _process_output_items(
-                    output_items,
-                    self.logger,
-                    model,
-                    span_input,
-                    self.input_data.model_parameters,
-                    status_code=self.status_code,
-                    tools=self.input_data.tools,
-                    usage=usage,
-                )
-            else:
-                # Fallback: create basic span if no output items
-                span_output = _convert_to_galileo_message(completion, "assistant")
-                span = self.logger.add_llm_span(
-                    input=span_input,
-                    output=span_output,
-                    tools=self.input_data.tools,
-                    name=self.input_data.name,
-                    model=model,
-                    temperature=self.input_data.temperature,
-                    duration_ns=duration_ns,
-                    num_input_tokens=usage.get("input_tokens", 0),
-                    num_output_tokens=usage.get("output_tokens", 0),
-                    total_tokens=usage.get("total_tokens", 0),
-                    metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
-                    status_code=self.status_code,
-                )
-                span.metrics.num_reasoning_tokens = usage.get("reasoning_tokens", 0) if usage else 0
-                span.metrics.num_cached_input_tokens = usage.get("cached_tokens", 0) if usage else 0
-        else:
-            # For non-Responses API (chat or completion), create the main span as before
-            span_output = _convert_to_galileo_message(completion, "assistant")
-
-            # Add a span to the current trace or span (if this is a nested trace)
-            span = self.logger.add_llm_span(
-                input=span_input,
-                output=span_output,
-                tools=self.input_data.tools,
-                name=self.input_data.name,
-                model=model,
-                temperature=self.input_data.temperature,
-                duration_ns=duration_ns,
-                num_input_tokens=usage.get("input_tokens", 0),
-                num_output_tokens=usage.get("output_tokens", 0),
-                total_tokens=usage.get("total_tokens", 0),
-                metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
-                status_code=self.status_code,
-            )
-            span.metrics.num_reasoning_tokens = usage.get("reasoning_tokens", 0) if usage else 0
-            span.metrics.num_cached_input_tokens = usage.get("cached_tokens", 0) if usage else 0
-
-        # Conclude the trace if this is the top-level call
-        # For Responses API: don't conclude if there are pending function calls (model waiting for tool results)
-        has_pending_calls = (
-            self.resource.type == "response" and output_items and _has_pending_function_calls(output_items)
-        )
-
-        if self.should_complete_trace and not has_pending_calls:
-            if self.resource.type == "response":
-                # For Responses API, use the final conversation context from processing
-                full_conversation = final_conversation_context
-            else:
-                # For other APIs, add the final span output
-                full_conversation = []
-                if isinstance(self.input_data.input, list):
-                    full_conversation.extend([_convert_to_galileo_message(msg) for msg in self.input_data.input])
-                else:
-                    full_conversation.append(_convert_to_galileo_message(self.input_data.input))
-                full_conversation.append(_convert_to_galileo_message(completion, "assistant"))
-
-            # Serialize with "messages" wrapper for UI compatibility
-            trace_output = {"messages": [msg.model_dump(exclude_none=True) for msg in full_conversation]}
-            self.logger.conclude(
-                output=serialize_to_str(trace_output), duration_ns=duration_ns, status_code=self.status_code
-            )
-
-
-class OpenAIGalileo:
-    """
-    This class is responsible for logging OpenAI API calls and logging them to Galileo.
-    It wraps the OpenAI client methods to add logging functionality without changing
-    the original API behavior.
-
-    Attributes
-    ----------
-    _galileo_logger : Optional[GalileoLogger]
-        The Galileo logger instance used for logging OpenAI API calls.
-    """
-
-    _galileo_logger: Optional[GalileoLogger] = None
-
-    def initialize(self) -> Optional[GalileoLogger]:
-        """
-        Initialize a Galileo logger.
-
-        Parameters
-        ----------
-        project : Optional[str]
-            The project to log to. If None, uses the default project.
-        log_stream : Optional[str]
-            The log stream to log to. If None, uses the default log stream.
-
-        Returns
-        -------
-        Optional[GalileoLogger]
-            The initialized Galileo logger instance.
-        """
-        self._galileo_logger = galileo_context.get_logger_instance()
-
-        return self._galileo_logger
-
-    def register_tracing(self) -> None:
-        """
-        This method wraps the OpenAI client methods to intercept calls and log them to Galileo.
-        It is called automatically when the module is imported.
-
-        The wrapped methods include:
-        - openai.resources.chat.completions.Completions.create
-
-        Additional methods can be added to the OPENAI_CLIENT_METHODS list.
-        """
-        for resource in OPENAI_CLIENT_METHODS:
-            wrap_function_wrapper(
-                resource.module, f"{resource.object}.{resource.method}", (_wrap(resource, self.initialize))
-            )
-
-
-modifier = OpenAIGalileo()
-modifier.register_tracing()
+def is_streaming_response(response: Any) -> bool:
+    return isinstance(response, types.GeneratorType) or (is_openai_v1() and isinstance(response, openai.Stream))
