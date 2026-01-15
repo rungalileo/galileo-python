@@ -427,9 +427,7 @@ def extract_input_data_from_kwargs(
         name=name,
         metadata=metadata,
         start_time=start_time,
-        # TODO: galileo/openai.py:229: error:
-        # Argument "input" to "OpenAiInputData" has incompatible type "Any | None"; expected "str"  [arg-type]
-        input=prompt,  # type: ignore[arg-type]
+        input=prompt or "",
         model_parameters=model_parameters,
         model=model or None,
         temperature=parsed_temperature,

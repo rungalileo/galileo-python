@@ -172,8 +172,18 @@ def _wrap(
             if isinstance(input_data.input, list):
                 process_function_call_outputs(input_data.input, galileo_logger)
 
-            response_dict = openai_response.__dict__ if is_openai_v1() else openai_response
-            output_items = response_dict.get("output", [])
+            # Get output_items safely for Responses API
+            # First try direct attribute access (works for Pydantic models)
+            output_attr = getattr(openai_response, "output", None)
+            if output_attr is not None:
+                output_items = output_attr
+            elif is_openai_v1() or hasattr(openai_response, "model_dump"):
+                # Use model_dump() for Pydantic models
+                response_mapping = openai_response.model_dump()
+                output_items = response_mapping.get("output", [])
+            else:
+                # Fall back to __dict__ for dict-like responses
+                output_items = openai_response.__dict__.get("output", [])
 
             # Process all output items sequentially and get the final context
             final_conversation_context = process_output_items(
