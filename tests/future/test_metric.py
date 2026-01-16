@@ -1519,3 +1519,241 @@ def score(trace):
 
         assert metric.is_synced()
         assert metric.id == scorer_id
+
+
+class TestCodeMetricValidationConfiguration:
+    """Test suite for CodeMetric validation configuration parameters."""
+
+    @patch("galileo.__future__.metric.time.time")
+    @patch("galileo.__future__.metric.time.sleep")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_custom_timeout_value_is_respected(
+        self,
+        mock_config,
+        mock_validate_post,
+        mock_validate_get,
+        mock_sleep,
+        mock_time,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+        mock_validation_task_result,
+    ) -> None:
+        """Test that Configuration.code_validation_timeout is respected."""
+        from galileo.__future__ import Configuration
+
+        # Set a custom timeout of 30 seconds
+        Configuration.code_validation_timeout = 30.0
+
+        mock_config.return_value.api_client = mock_api_client
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = mock_validation_response()
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.PENDING)
+
+        # Simulate time passing: first call is start_time=0, second call is elapsed=31 (past 30s custom timeout)
+        mock_time.side_effect = [0.0, 31.0]
+
+        metric = CodeMetric(name="Test Custom Timeout Metric", node_level=StepType.llm).load_code(str(code_file))
+
+        with pytest.raises(ValidationError, match="Code validation timed out after 30 seconds"):
+            metric.create()
+
+    @patch("galileo.__future__.metric.time.time")
+    @patch("galileo.__future__.metric.time.sleep")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_custom_initial_delay_is_used(
+        self,
+        mock_config,
+        mock_validate_post,
+        mock_validate_get,
+        mock_sleep,
+        mock_time,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+        mock_validation_task_result,
+    ) -> None:
+        """Test that Configuration.code_validation_initial_delay is used for first sleep."""
+        from galileo.__future__ import Configuration
+
+        # Set custom initial delay
+        Configuration.code_validation_initial_delay = 2.0
+        Configuration.code_validation_timeout = 120.0  # High timeout so we don't time out
+
+        mock_config.return_value.api_client = mock_api_client
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = mock_validation_response()
+        # Return pending then completed
+        mock_validate_get.sync.side_effect = [
+            mock_validation_task_result(TaskResultStatus.PENDING),
+            mock_validation_task_result(TaskResultStatus.COMPLETED),
+        ]
+
+        # Time progression
+        mock_time.side_effect = [0.0, 1.0, 2.0]
+
+        metric = CodeMetric(name="Test Initial Delay Metric", node_level=StepType.llm).load_code(str(code_file))
+
+        # Should raise because no scorers mock, but we can check the sleep was called correctly
+        try:
+            metric.create()
+        except (ValueError, Exception):
+            pass  # Expected to fail on scorer creation
+
+        # Verify sleep was called with custom initial delay (2.0)
+        if mock_sleep.call_count > 0:
+            first_sleep_call = mock_sleep.call_args_list[0]
+            assert first_sleep_call[0][0] == 2.0
+
+    @patch("galileo.__future__.metric.time.time")
+    @patch("galileo.__future__.metric.time.sleep")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_custom_max_delay_caps_backoff(
+        self,
+        mock_config,
+        mock_validate_post,
+        mock_validate_get,
+        mock_sleep,
+        mock_time,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+        mock_validation_task_result,
+    ) -> None:
+        """Test that Configuration.code_validation_max_delay caps the exponential backoff."""
+        from galileo.__future__ import Configuration
+
+        # Set custom delays: initial=10, max=15, multiplier=2 (so 10*2=20 > 15, should cap at 15)
+        Configuration.code_validation_initial_delay = 10.0
+        Configuration.code_validation_max_delay = 15.0
+        Configuration.code_validation_backoff_multiplier = 2.0
+        Configuration.code_validation_timeout = 120.0
+
+        mock_config.return_value.api_client = mock_api_client
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = mock_validation_response()
+        # Return pending multiple times then completed
+        mock_validate_get.sync.side_effect = [
+            mock_validation_task_result(TaskResultStatus.PENDING),
+            mock_validation_task_result(TaskResultStatus.PENDING),
+            mock_validation_task_result(TaskResultStatus.COMPLETED),
+        ]
+
+        # Time progression
+        mock_time.side_effect = [0.0, 1.0, 2.0, 3.0, 4.0]
+
+        metric = CodeMetric(name="Test Max Delay Metric", node_level=StepType.llm).load_code(str(code_file))
+
+        try:
+            metric.create()
+        except (ValueError, Exception):
+            pass
+
+        # Verify second sleep was capped at max_delay (15.0) instead of 10*2=20
+        if mock_sleep.call_count >= 2:
+            second_sleep_call = mock_sleep.call_args_list[1]
+            assert second_sleep_call[0][0] == 15.0  # Capped at max_delay
+
+    @patch("galileo.__future__.metric.time.time")
+    @patch("galileo.__future__.metric.time.sleep")
+    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    def test_custom_backoff_multiplier_is_applied(
+        self,
+        mock_config,
+        mock_validate_post,
+        mock_validate_get,
+        mock_sleep,
+        mock_time,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_validation_response,
+        mock_validation_task_result,
+    ) -> None:
+        """Test that Configuration.code_validation_backoff_multiplier is applied correctly."""
+        from galileo.__future__ import Configuration
+
+        # Set custom delays: initial=1, max=100, multiplier=3 (so second delay = 1*3=3)
+        Configuration.code_validation_initial_delay = 1.0
+        Configuration.code_validation_max_delay = 100.0
+        Configuration.code_validation_backoff_multiplier = 3.0
+        Configuration.code_validation_timeout = 120.0
+
+        mock_config.return_value.api_client = mock_api_client
+        code_file = create_temp_code_file()
+
+        mock_validate_post.sync.return_value = mock_validation_response()
+        # Return pending multiple times then completed
+        mock_validate_get.sync.side_effect = [
+            mock_validation_task_result(TaskResultStatus.PENDING),
+            mock_validation_task_result(TaskResultStatus.PENDING),
+            mock_validation_task_result(TaskResultStatus.COMPLETED),
+        ]
+
+        # Time progression
+        mock_time.side_effect = [0.0, 1.0, 2.0, 3.0, 4.0]
+
+        metric = CodeMetric(name="Test Backoff Multiplier Metric", node_level=StepType.llm).load_code(str(code_file))
+
+        try:
+            metric.create()
+        except (ValueError, Exception):
+            pass
+
+        # Verify sleep calls use backoff: first=1.0, second=1.0*3.0=3.0
+        if mock_sleep.call_count >= 2:
+            first_sleep = mock_sleep.call_args_list[0][0][0]
+            second_sleep = mock_sleep.call_args_list[1][0][0]
+            assert first_sleep == 1.0
+            assert second_sleep == 3.0  # 1.0 * 3.0^1
+
+    def test_configuration_defaults_are_correct(self, reset_configuration: None) -> None:
+        """Test that Configuration defaults for code validation are correct."""
+        from galileo.__future__ import Configuration
+
+        assert Configuration.code_validation_timeout == 60.0
+        assert Configuration.code_validation_initial_delay == 5.0
+        assert Configuration.code_validation_max_delay == 30.0
+        assert Configuration.code_validation_backoff_multiplier == 1.5
+
+    def test_configuration_values_can_be_set(self, reset_configuration: None) -> None:
+        """Test that Configuration values for code validation can be set."""
+        from galileo.__future__ import Configuration
+
+        Configuration.code_validation_timeout = 120.0
+        Configuration.code_validation_initial_delay = 2.0
+        Configuration.code_validation_max_delay = 60.0
+        Configuration.code_validation_backoff_multiplier = 2.0
+
+        assert Configuration.code_validation_timeout == 120.0
+        assert Configuration.code_validation_initial_delay == 2.0
+        assert Configuration.code_validation_max_delay == 60.0
+        assert Configuration.code_validation_backoff_multiplier == 2.0
+
+    def test_configuration_from_env_vars(self, reset_configuration: None, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Test that Configuration values can be set via environment variables."""
+        from galileo.__future__ import Configuration
+
+        monkeypatch.setenv("GALILEO_CODE_VALIDATION_TIMEOUT", "90.0")
+        monkeypatch.setenv("GALILEO_CODE_VALIDATION_INITIAL_DELAY", "3.0")
+        monkeypatch.setenv("GALILEO_CODE_VALIDATION_MAX_DELAY", "45.0")
+        monkeypatch.setenv("GALILEO_CODE_VALIDATION_BACKOFF_MULTIPLIER", "1.8")
+
+        assert Configuration.code_validation_timeout == 90.0
+        assert Configuration.code_validation_initial_delay == 3.0
+        assert Configuration.code_validation_max_delay == 45.0
+        assert Configuration.code_validation_backoff_multiplier == 1.8

@@ -97,6 +97,38 @@ _CONFIGURATION_KEYS = [
         value_type=bool,
         parser=lambda v: v.lower() in ("true", "1", "t", "yes"),
     ),
+    ConfigKey(
+        name="code_validation_timeout",
+        env_var="GALILEO_CODE_VALIDATION_TIMEOUT",
+        description="Timeout in seconds for code scorer validation",
+        default=60.0,
+        value_type=float,
+        parser=float,
+    ),
+    ConfigKey(
+        name="code_validation_initial_delay",
+        env_var="GALILEO_CODE_VALIDATION_INITIAL_DELAY",
+        description="Initial delay in seconds between validation polling attempts",
+        default=5.0,
+        value_type=float,
+        parser=float,
+    ),
+    ConfigKey(
+        name="code_validation_max_delay",
+        env_var="GALILEO_CODE_VALIDATION_MAX_DELAY",
+        description="Maximum delay in seconds between validation polling attempts",
+        default=30.0,
+        value_type=float,
+        parser=float,
+    ),
+    ConfigKey(
+        name="code_validation_backoff_multiplier",
+        env_var="GALILEO_CODE_VALIDATION_BACKOFF_MULTIPLIER",
+        description="Multiplier for exponential backoff between validation polling attempts",
+        default=1.5,
+        value_type=float,
+        parser=float,
+    ),
 ]
 
 _KEYS_BY_NAME = {key.name: key for key in _CONFIGURATION_KEYS}
