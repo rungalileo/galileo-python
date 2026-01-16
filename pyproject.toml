@@ -58,6 +58,7 @@ pyyaml = "^6.0.2"
 
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 pythonpath = ["./src/"]
 # Note: Some env vars are also set in conftest.py for pytest-xdist compatibility
 # on Python 3.14+. This section remains for documentation and older Python support.
