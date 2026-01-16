@@ -43,11 +43,11 @@ from galileo_core.schemas.shared.metric import MetricValueType
 
 logger = logging.getLogger(__name__)
 
-# Constants for code validation polling with exponential backoff
-CODE_VALIDATION_TIMEOUT = 60.0  # Total timeout in seconds
-CODE_VALIDATION_INITIAL_DELAY = 5.0  # Initial delay in seconds
-CODE_VALIDATION_MAX_DELAY = 30.0  # Maximum delay between attempts in seconds
-CODE_VALIDATION_BACKOFF_MULTIPLIER = 1.5  # Multiplier for exponential backoff
+# Code validation polling parameters are configurable via Configuration:
+#   - Configuration.code_validation_timeout (env: GALILEO_CODE_VALIDATION_TIMEOUT) - default: 60.0s
+#   - Configuration.code_validation_initial_delay (env: GALILEO_CODE_VALIDATION_INITIAL_DELAY) - default: 5.0s
+#   - Configuration.code_validation_max_delay (env: GALILEO_CODE_VALIDATION_MAX_DELAY) - default: 30.0s
+#   - Configuration.code_validation_backoff_multiplier (env: GALILEO_CODE_VALIDATION_BACKOFF_MULTIPLIER) - default: 1.5
 
 
 class BuiltInMetrics:
@@ -894,8 +894,9 @@ class CodeMetric(Metric):
         attempt = 0
         while True:
             elapsed = time.time() - start_time
-            if elapsed >= CODE_VALIDATION_TIMEOUT:
-                raise ValidationError(f"Code validation timed out after {CODE_VALIDATION_TIMEOUT:.0f} seconds")
+            timeout = Configuration.code_validation_timeout
+            if elapsed >= timeout:
+                raise ValidationError(f"Code validation timed out after {timeout:.0f} seconds")
 
             task_result = get_validate_code_scorer_task_result_scorers_code_validate_task_id_get.sync(
                 task_id=task_id, client=config.api_client
@@ -934,13 +935,14 @@ class CodeMetric(Metric):
             if task_result.status == TaskResultStatus.PENDING:
                 # Calculate delay with exponential backoff
                 delay = min(
-                    CODE_VALIDATION_INITIAL_DELAY * (CODE_VALIDATION_BACKOFF_MULTIPLIER**attempt),
-                    CODE_VALIDATION_MAX_DELAY,
+                    Configuration.code_validation_initial_delay
+                    * (Configuration.code_validation_backoff_multiplier**attempt),
+                    Configuration.code_validation_max_delay,
                 )
 
                 logger.debug(
                     f"CodeMetric._validate_code: task_id='{task_id}' - pending "
-                    f"(elapsed: {elapsed:.1f}s/{CODE_VALIDATION_TIMEOUT:.0f}s, next delay: {delay:.2f}s)"
+                    f"(elapsed: {elapsed:.1f}s/{timeout:.0f}s, next delay: {delay:.2f}s)"
                 )
                 time.sleep(delay)
                 attempt += 1
