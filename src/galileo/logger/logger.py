@@ -1308,6 +1308,7 @@ class GalileoLogger(TracesLogger):
         metadata: Optional[dict[str, str]] = None,
         tags: Optional[list[str]] = None,
         step_number: Optional[int] = None,
+        status_code: Optional[int] = None,
     ) -> WorkflowSpan:
         """
         Add a workflow span to the current parent. This is useful when you want to create a nested workflow span
@@ -1345,6 +1346,8 @@ class GalileoLogger(TracesLogger):
             Expected format: `["tag1", "tag2", "tag3"]`
         step_number: Optional[int]
             Step number of the span.
+        status_code: Optional[int]
+            Status code of the span execution (e.g., 200 for success, 500 for error).
 
         Returns
         -------
@@ -1366,6 +1369,9 @@ class GalileoLogger(TracesLogger):
         }
         span = super().add_workflow_span(**kwargs)
 
+        if span is not None and status_code is not None:
+            span.status_code = status_code
+
         if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
@@ -1385,6 +1391,7 @@ class GalileoLogger(TracesLogger):
         tags: Optional[list[str]] = None,
         agent_type: Optional[AgentType] = None,
         step_number: Optional[int] = None,
+        status_code: Optional[int] = None,
     ) -> AgentSpan:
         """
         Add an agent type span to the current parent.
@@ -1424,6 +1431,8 @@ class GalileoLogger(TracesLogger):
             AgentType.REFLECTION, AgentType.ROUTER, AgentType.SUPERVISOR, AgentType.JUDGE, AgentType.DEFAULT
         step_number: Optional[int]
             Step number of the span.
+        status_code: Optional[int]
+            Status code of the span execution (e.g., 200 for success, 500 for error).
 
         Returns
         -------
@@ -1445,6 +1454,9 @@ class GalileoLogger(TracesLogger):
             "id": uuid.uuid4(),
         }
         span = super().add_agent_span(**kwargs)
+
+        if span is not None and status_code is not None:
+            span.status_code = status_code
 
         if self.mode == "distributed":
             self._ingest_step_streaming(span)
