@@ -13,7 +13,6 @@ from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.serialization import serialize_to_str
 from galileo_adk.data_converters import (
-    convert_adk_content_to_galileo_message,
     convert_adk_content_to_galileo_messages,
     convert_adk_tools_to_galileo_format,
     extract_text_from_adk_content,
@@ -49,9 +48,14 @@ class GalileoObserver:
         start_new_trace: bool = True,
         flush_on_completion: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
+        external_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         if galileo_logger is None:
             galileo_logger = galileo_context.get_logger_instance(project=project, log_stream=log_stream)
+
+        if external_id:
+            galileo_logger.start_session(name=external_id, external_id=external_id)
 
         self._handler = GalileoBaseHandler(
             galileo_logger=galileo_logger,
@@ -61,23 +65,27 @@ class GalileoObserver:
             ingestion_hook=ingestion_hook,
         )
         self._span_manager = SpanManager(self._handler)
+        self._global_metadata = metadata or {}
 
     @property
     def handler(self) -> GalileoBaseHandler:
         """Access the underlying handler."""
         return self._handler
 
-    def on_run_start(self, invocation_context: Any, user_message: Any) -> UUID:
+    def on_run_start(self, invocation_context: Any, user_message: Any, parent_run_id: UUID | None = None) -> UUID:
         """Handle run start."""
         run_id = uuid.uuid4()
         input_text = extract_text_from_adk_content(user_message)
         metadata = self._extract_invocation_metadata(invocation_context)
-        self._span_manager.start_run(run_id=run_id, input_data=input_text, metadata=metadata)
+        agent_name = getattr(invocation_context, "agent_name", None) or "agent"
+        self._span_manager.start_run(
+            run_id=run_id, input_data=input_text, metadata=metadata, agent_name=agent_name, parent_run_id=parent_run_id
+        )
         return run_id
 
-    def on_run_end(self, run_id: UUID, output: str) -> None:
+    def on_run_end(self, run_id: UUID, output: str, status_code: int = 200) -> None:
         """Handle run end."""
-        self._span_manager.end_run(run_id=run_id, output=output)
+        self._span_manager.end_run(run_id=run_id, output=output, status_code=status_code)
 
     def on_event(self, run_id: UUID, event: Any) -> None:
         """Handle streaming event."""
@@ -105,10 +113,10 @@ class GalileoObserver:
         )
         return run_id
 
-    def on_agent_end(self, run_id: UUID, callback_context: Any) -> None:
+    def on_agent_end(self, run_id: UUID, callback_context: Any, status_code: int = 200) -> None:
         """Handle agent end."""
         output = self._extract_agent_output(callback_context)
-        self._span_manager.end_agent(run_id=run_id, output=output)
+        self._span_manager.end_agent(run_id=run_id, output=output, status_code=status_code)
 
     def on_llm_start(self, callback_context: Any, llm_request: Any, parent_run_id: UUID | None) -> UUID:
         """Handle LLM call start."""
@@ -127,16 +135,17 @@ class GalileoObserver:
         )
         return run_id
 
-    def on_llm_end(self, run_id: UUID, llm_response: Any) -> None:
+    def on_llm_end(self, run_id: UUID, llm_response: Any, status_code: int = 200) -> None:
         """Handle LLM call end."""
-        output = self._extract_llm_output(llm_response)
+        output = self._extract_llm_output(llm_response)  # Returns list of Messages
         usage = self._extract_usage_metadata(llm_response)
         self._span_manager.end_llm(
             run_id=run_id,
-            output=output,
+            output=output,  # Pass list directly to preserve all parts including tool_calls
             num_input_tokens=usage.get("prompt_tokens"),
             num_output_tokens=usage.get("completion_tokens"),
             total_tokens=usage.get("total_tokens"),
+            status_code=status_code,
         )
 
     def on_tool_start(
@@ -150,12 +159,12 @@ class GalileoObserver:
         )
         return run_id
 
-    def on_tool_end(self, run_id: UUID, result: Any) -> None:
+    def on_tool_end(self, run_id: UUID, result: Any, status_code: int = 200) -> None:
         """Handle tool call end."""
-        self._span_manager.end_tool(run_id=run_id, output=serialize_to_str(result))
+        self._span_manager.end_tool(run_id=run_id, output=serialize_to_str(result), status_code=status_code)
 
     def _extract_invocation_metadata(self, invocation_context: Any) -> dict[str, Any]:
-        metadata = {}
+        metadata = {**self._global_metadata}
         if hasattr(invocation_context, "invocation_id"):
             metadata["invocation_id"] = str(invocation_context.invocation_id)
         if hasattr(invocation_context, "session"):
@@ -182,6 +191,7 @@ class GalileoObserver:
 
     def _extract_agent_metadata(self, callback_context: Any) -> dict[str, Any]:
         return {
+            **self._global_metadata,
             "agent_name": getattr(callback_context, "agent_name", None),
             "session_id": str(getattr(callback_context, "session_id", "")) or None,
             "user_id": str(getattr(callback_context, "user_id", "")) or None,
@@ -195,10 +205,11 @@ class GalileoObserver:
             messages.extend(convert_adk_content_to_galileo_messages(content))
         return messages
 
-    def _extract_llm_output(self, llm_response: Any) -> Any:
+    def _extract_llm_output(self, llm_response: Any) -> list[Any]:
+        """Extract LLM output as list of Messages to preserve all parts including tool_calls."""
         if llm_response and hasattr(llm_response, "content"):
-            return convert_adk_content_to_galileo_message(llm_response.content)
-        return None
+            return convert_adk_content_to_galileo_messages(llm_response.content)
+        return []
 
     def _extract_model_name(self, llm_request: Any) -> str | None:
         return str(llm_request.model) if hasattr(llm_request, "model") else None

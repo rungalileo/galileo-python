@@ -3,31 +3,74 @@
 import base64
 import json
 import logging
+import uuid
 from typing import Any
 
-from galileo_core.schemas.logging.span import Message, MessageRole
+from galileo_core.schemas.logging.llm import Message, MessageRole, ToolCall, ToolCallFunction
 
 _logger = logging.getLogger(__name__)
 
 
+def generate_tool_call_id(name: str, index: int = 0) -> str:
+    """Generate a unique tool call ID for linking function calls and responses."""
+    return f"call_{name}_{index}_{uuid.uuid4().hex[:8]}"
+
+
 def convert_adk_content_to_galileo_messages(content: Any) -> list[Message]:
-    """Convert ADK Content to list of Galileo Messages, preserving part order."""
+    """Convert ADK Content to list of Galileo Messages, preserving part order.
+
+    Tracks call IDs for function calls and links them to their responses.
+    """
     messages: list[Message] = []
     if not hasattr(content, "parts") or not content.parts:
         return messages
 
     base_role = _map_adk_role_to_galileo(getattr(content, "role", "user"))
 
-    for part in content.parts:
-        message = _convert_part_to_message(part, base_role)
+    # Track call IDs for linking function calls to their responses
+    call_id_map: dict[str, str] = {}  # function_name -> call_id
+
+    for i, part in enumerate(content.parts):
+        message = _convert_part_to_message_with_call_id(part, base_role, i, call_id_map)
         if message:
             messages.append(message)
 
     return messages
 
 
+def _convert_part_to_message_with_call_id(
+    part: Any, base_role: MessageRole, index: int, call_id_map: dict[str, str]
+) -> Message | None:
+    """Convert a single ADK part to a Galileo Message with call ID tracking."""
+    if hasattr(part, "text") and part.text:
+        return Message(content=part.text, role=base_role)
+
+    if hasattr(part, "inline_data") and part.inline_data:
+        return _convert_inline_data(part.inline_data, base_role)
+
+    if hasattr(part, "file_data") and part.file_data:
+        return _convert_file_data(part.file_data, base_role)
+
+    if hasattr(part, "function_call") and part.function_call:
+        name = getattr(part.function_call, "name", "unknown")
+        call_id = generate_tool_call_id(name, index)
+        call_id_map[name] = call_id  # Store for response linking
+        return _convert_function_call(part.function_call, call_id)
+
+    if hasattr(part, "function_response") and part.function_response:
+        name = getattr(part.function_response, "name", "unknown")
+        call_id = call_id_map.get(name)  # Look up matching call
+        return _convert_function_response(part.function_response, call_id)
+
+    return None
+
+
 def _convert_part_to_message(part: Any, base_role: MessageRole) -> Message | None:
-    """Convert a single ADK part to a Galileo Message."""
+    """Convert a single ADK part to a Galileo Message.
+
+    Note: For function calls/responses with call ID tracking,
+    use _convert_part_to_message_with_call_id instead.
+    """
     if hasattr(part, "text") and part.text:
         return Message(content=part.text, role=base_role)
 
@@ -65,29 +108,55 @@ def _convert_file_data(file_data: Any, base_role: MessageRole) -> Message:
     return Message(content=json.dumps(payload), role=base_role)
 
 
-def _convert_function_call(function_call: Any) -> Message:
-    """Convert function call to a Message with tool role."""
+def _convert_function_call(function_call: Any, call_id: str | None = None) -> Message:
+    """Convert function call to a Message with structured tool_calls.
+
+    Args:
+        function_call: ADK function_call object with name and args
+        call_id: Optional unique ID for linking to function response
+
+    Returns:
+        Message with role=assistant and tool_calls list
+    """
     name = getattr(function_call, "name", "unknown")
     args = getattr(function_call, "args", {})
     if hasattr(args, "model_dump"):
         args = args.model_dump()
     elif not isinstance(args, dict):
         args = {"raw": str(args)}
-    return Message(content=json.dumps({"type": "function_call", "name": name, "args": args}), role=MessageRole.tool)
+
+    if call_id is None:
+        call_id = generate_tool_call_id(name)
+
+    tool_call = ToolCall(
+        id=call_id,
+        function=ToolCallFunction(
+            name=name,
+            arguments=json.dumps(args) if isinstance(args, dict) else str(args),
+        ),
+    )
+    return Message(content="", role=MessageRole.assistant, tool_calls=[tool_call])
 
 
-def _convert_function_response(function_response: Any) -> Message:
-    """Convert function response to a Message with tool role."""
-    name = getattr(function_response, "name", "unknown")
+def _convert_function_response(function_response: Any, call_id: str | None = None) -> Message:
+    """Convert function response to a Message with tool role and call_id linking.
+
+    Args:
+        function_response: ADK function_response object with name and response
+        call_id: Optional ID linking to the original function call
+
+    Returns:
+        Message with role=tool and tool_call_id for linking
+    """
+    getattr(function_response, "name", "unknown")
     response = getattr(function_response, "response", {})
     if hasattr(response, "model_dump"):
         response = response.model_dump()
     elif not isinstance(response, dict | list | str | int | float | bool | type(None)):
         response = {"raw": str(response)}
-    return Message(
-        content=json.dumps({"type": "function_response", "name": name, "response": response}),
-        role=MessageRole.tool,
-    )
+
+    content = json.dumps(response) if not isinstance(response, str) else response
+    return Message(content=content, role=MessageRole.tool, tool_call_id=call_id)
 
 
 def convert_adk_content_to_galileo_message(content: Any) -> Message:

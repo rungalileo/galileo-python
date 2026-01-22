@@ -35,6 +35,8 @@ class GalileoADKCallback:
         start_new_trace: bool = True,
         flush_on_agent_end: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
+        external_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         self._observer = GalileoObserver(
             project=project,
@@ -43,6 +45,8 @@ class GalileoADKCallback:
             start_new_trace=start_new_trace,
             flush_on_completion=flush_on_agent_end,
             ingestion_hook=ingestion_hook,
+            external_id=external_id,
+            metadata=metadata,
         )
         self._agent_run_ids: dict[str, UUID] = {}
         self._llm_run_ids: dict[str, UUID] = {}
