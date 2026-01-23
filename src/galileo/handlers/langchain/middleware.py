@@ -138,6 +138,10 @@ class GalileoMiddleware(AgentMiddleware):
             messages = [system_message, *messages]
 
         tools = getattr(request, "tools", None)
+        if tools is None:
+            state = getattr(request, "state", {}) or {}
+            if isinstance(state, dict):
+                tools = state.get("tools")
         return {
             "name": self._get_model_display_name(request, model_name),
             "input": self._serialize_messages(messages),
@@ -189,7 +193,7 @@ class GalileoMiddleware(AgentMiddleware):
         if self._root_run_id is None:
             return None
         messages = self._serialize_state(state)
-        if messages is not None and len(messages) > 0:
+        if isinstance(messages, list) and len(messages) > 0:
             messages = messages[-1]
         self._handler.end_node(self._root_run_id, output=messages)
         self._root_run_id = None
@@ -214,10 +218,15 @@ class GalileoMiddleware(AgentMiddleware):
 
         response = handler(request)
         messages = self._serialize_response(response)
-        if messages is not None and len(messages) > 0:
+        if isinstance(messages, list) and len(messages) > 0:
             message = messages[-1]
         else:
-            message = Message(content="", role=MessageRole.assistant)
+            message = messages if messages else Message(content="", role=MessageRole.assistant)
+
+        # Ensure message is a Message instance
+        if not isinstance(message, Message):
+            message = Message(content=str(message), role=MessageRole.assistant)
+
         self._handler.end_node(run_id, output=message)
         return response
 
@@ -231,10 +240,15 @@ class GalileoMiddleware(AgentMiddleware):
         response = await handler(request)
 
         messages = self._serialize_response(response)
-        if messages is not None and len(messages) > 0:
+        if isinstance(messages, list) and len(messages) > 0:
             message = messages[-1]
         else:
-            message = Message(content="", role=MessageRole.assistant)
+            message = messages if messages else Message(content="", role=MessageRole.assistant)
+
+        # Ensure message is a Message instance
+        if not isinstance(message, Message):
+            message = Message(content=str(message), role=MessageRole.assistant)
+
         await self._async_handler.async_end_node(run_id, output=message)
         return response
 
