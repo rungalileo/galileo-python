@@ -6,6 +6,7 @@ import pytest
 from langchain.agents.middleware import AgentState
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langgraph.runtime import Runtime
+from pydantic import BaseModel
 
 from galileo import galileo_context
 from galileo.handlers.langchain.middleware import GalileoMiddleware
@@ -77,6 +78,13 @@ class MockArgsSchema:
     @staticmethod
     def model_json_schema():
         return {"type": "object", "properties": {"x": {"type": "number"}}}
+
+
+class RealArgsSchema(BaseModel):
+    """Real Pydantic BaseModel args schema for testing."""
+
+    x: int
+    y: str = "default"
 
 
 @pytest.fixture
@@ -182,13 +190,34 @@ class TestSerializationHelpers:
         assert isinstance(middleware._serialize_response({"custom": "response"}), str)
 
     def test_serialize_tools(self, middleware: GalileoMiddleware) -> None:
-        """Test _serialize_tools serialization."""
+        """Test _serialize_tools serialization with various schema types."""
+        # Test with mock schema (non-BaseModel with model_json_schema method)
         tool = MockStructuredTool(name="calculator", args_schema=MockArgsSchema())
         result = middleware._serialize_tools([tool])
 
         assert isinstance(result, list) and len(result) == 1
         assert result[0]["function"]["name"] == "calculator"
         assert middleware._serialize_tools(None) is None
+
+        # Test with BaseModel class (not instance)
+        tool_with_class = MockStructuredTool(name="pydantic_tool", args_schema=RealArgsSchema)
+        result_class = middleware._serialize_tools([tool_with_class])
+
+        assert isinstance(result_class, list) and len(result_class) == 1
+        assert result_class[0]["function"]["name"] == "pydantic_tool"
+        # Verify the schema was properly serialized
+        args_json = json.loads(result_class[0]["function"]["arguments"])
+        assert "properties" in args_json
+        assert "x" in args_json["properties"]
+
+        # Test with BaseModel instance
+        tool_with_instance = MockStructuredTool(name="pydantic_instance_tool", args_schema=RealArgsSchema(x=5))
+        result_instance = middleware._serialize_tools([tool_with_instance])
+
+        assert isinstance(result_instance, list) and len(result_instance) == 1
+        assert result_instance[0]["function"]["name"] == "pydantic_instance_tool"
+        args_json_instance = json.loads(result_instance[0]["function"]["arguments"])
+        assert "properties" in args_json_instance
 
     def test_serialize_tool_response(self, middleware: GalileoMiddleware) -> None:
         """Test _serialize_tool_response with different response types."""

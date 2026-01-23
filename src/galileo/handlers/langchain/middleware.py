@@ -114,19 +114,22 @@ class GalileoMiddleware(AgentMiddleware):
             return None
         tools_list = []
         for tool in tools:
-            tools_list.append(
-                {
-                    "function": {
-                        "name": tool.name,
-                        "arguments": json.dumps(
-                            tool.args_schema.model_json_schema()
-                            if isinstance(tool.args_schema, BaseModel)
-                            else tool.args_schema,
-                            cls=EventSerializer,
-                        ),
-                    }
-                }
-            )
+            # Handle both BaseModel instances and BaseModel subclasses
+            if isinstance(tool.args_schema, BaseModel):
+                schema = tool.args_schema.model_json_schema()
+            elif isinstance(tool.args_schema, type):
+                try:
+                    if issubclass(tool.args_schema, BaseModel):
+                        schema = tool.args_schema.model_json_schema()
+                    else:
+                        schema = tool.args_schema
+                except TypeError:
+                    # issubclass raises TypeError if first arg is not a class
+                    schema = tool.args_schema
+            else:
+                schema = tool.args_schema
+
+            tools_list.append({"function": {"name": tool.name, "arguments": json.dumps(schema, cls=EventSerializer)}})
         return tools_list
 
     def _prepare_model_call_params(self, request: "AgentState") -> dict[str, Any]:
