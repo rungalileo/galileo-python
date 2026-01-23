@@ -209,6 +209,9 @@ class GalileoMiddleware(AgentMiddleware):
     async def aafter_agent(self, state: "AgentState", runtime: "Runtime") -> Optional[dict[str, Any]]:
         if self._root_run_id is None:
             return None
+        messages = self._serialize_state(state)
+        if isinstance(messages, list) and len(messages) > 0:
+            messages = messages[-1]
         await self._async_handler.async_end_node(self._root_run_id, output=self._serialize_state(state))
         self._root_run_id = None
         return None
