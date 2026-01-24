@@ -10,6 +10,7 @@ class DatasetRecord(BaseModel):
     input: str
     output: Optional[str] = None
     metadata: Optional[dict[str, str]] = None
+    generated_output: Optional[str] = None
 
     @field_validator("input", mode="before")
     @classmethod
@@ -44,6 +45,15 @@ class DatasetRecord(BaseModel):
                 raise ValueError("Dataset metadata field dictionary values must be strings")
         return value
 
+    @field_validator("generated_output", mode="before")
+    @classmethod
+    def validate_generated_output(cls, value: Any) -> Optional[str]:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            value = json.dumps(value)
+        return value
+
     @cached_property
     def deserialized_input(self) -> Any:
         try:
@@ -59,3 +69,12 @@ class DatasetRecord(BaseModel):
             return json.loads(self.output)
         except json.decoder.JSONDecodeError:
             return self.output
+
+    @cached_property
+    def deserialized_generated_output(self) -> Optional[Any]:
+        if self.generated_output is None:
+            return None
+        try:
+            return json.loads(self.generated_output)
+        except json.decoder.JSONDecodeError:
+            return self.generated_output

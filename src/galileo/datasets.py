@@ -1016,4 +1016,5 @@ def convert_dataset_row_to_record(dataset_row: DatasetRow) -> DatasetRecord:
         input=values_dict["input"],
         output=values_dict.get("output", None),
         metadata=values_dict.get("metadata", None),
+        generated_output=values_dict.get("generated_output", None),
     )
