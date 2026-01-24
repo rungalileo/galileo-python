@@ -54,7 +54,6 @@ class DatasetRecord(BaseModel):
             value = json.dumps(value)
         return value
 
-
     @cached_property
     def deserialized_input(self) -> Any:
         try:
