@@ -54,14 +54,6 @@ class DatasetRecord(BaseModel):
             value = json.dumps(value)
         return value
 
-    @field_validator("generated_output", mode="before")
-    @classmethod
-    def validate_generated_output(cls, value: Any) -> Optional[str]:
-        if value is None:
-            return None
-        if not isinstance(value, str):
-            value = json.dumps(value)
-        return value
 
     @cached_property
     def deserialized_input(self) -> Any:
