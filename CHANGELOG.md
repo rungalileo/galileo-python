@@ -1,6 +1,13 @@
 # CHANGELOG
 
 
+## Unreleased
+
+### Features
+
+- Add `generated_output` field to `DatasetRecord` for storing model-generated outputs separately from ground truth (`output`). Note: In the UI, `output` is displayed as "Ground Truth" and `generated_output` as "Generated Output".
+
+
 ## v0.10.0 (2025-05-29)
 
 ### Bug Fixes

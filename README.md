@@ -254,6 +254,8 @@ from galileo.datasets import list_datasets
 datasets = list_datasets()
 ```
 
+> **Note:** Dataset records have `output` (shown as "Ground Truth" in UI) and `generated_output` (shown as "Generated Output" in UI) fields. See `DatasetRecord` for details.
+
 #### Experiments
 
 Run an experiment with a prompt template:

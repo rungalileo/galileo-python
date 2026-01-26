@@ -6,6 +6,28 @@ from pydantic import BaseModel, field_validator
 
 
 class DatasetRecord(BaseModel):
+    """
+    A single record in a Galileo dataset.
+
+    Attributes
+    ----------
+    id : Optional[str]
+        Unique identifier for the record.
+    input : str
+        The input data (string or JSON-serializable object).
+    output : Optional[str]
+        The expected output / ground truth. Note: Displayed as "Ground Truth" in the Galileo UI.
+    generated_output : Optional[str]
+        The model-generated output. Note: Displayed as "Generated Output" in the Galileo UI.
+    metadata : Optional[dict[str, str]]
+        Key-value metadata for the record.
+
+    Note
+    ----
+    UI Terminology: The ``output`` field is shown as "Ground Truth" in the UI,
+    while ``generated_output`` is shown as "Generated Output".
+    """
+
     id: Optional[str] = None
     input: str
     output: Optional[str] = None
