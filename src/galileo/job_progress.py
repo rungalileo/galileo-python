@@ -11,7 +11,7 @@ from galileo.resources.api.jobs import (
     get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get,
 )
 from galileo.resources.models import HTTPValidationError, JobDB
-from galileo.utils.logging import get_logger
+from galileo.utils.log_config import get_logger
 from galileo_core.constants.job import JobName, JobStatus
 from galileo_core.constants.scorers import Scorers
 

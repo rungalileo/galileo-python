@@ -9,7 +9,6 @@ from galileo.resources.api.protect import invoke_protect_invoke_post
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.protect_request import ProtectRequest as APIRequest
 from galileo.resources.models.protect_response import ProtectResponse as APIResponse
-from galileo.utils.catch_log import DecorateAllMethods
 from galileo_core.helpers.execution import async_run
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.request import Request
@@ -17,7 +16,7 @@ from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
 
 
-class Protect(DecorateAllMethods):
+class Protect:
     config: GalileoPythonConfig
 
     def __init__(self) -> None:

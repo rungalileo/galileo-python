@@ -40,10 +40,9 @@ from galileo.resources.models.synthetic_dataset_extension_response import Synthe
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
 from galileo.resources.types import UNSET, File, Unset
 from galileo.schema.datasets import DatasetRecord
-from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.datasets import validate_dataset_in_project
 from galileo.utils.exceptions import APIException
-from galileo.utils.logging import get_logger
+from galileo.utils.log_config import get_logger
 from galileo.utils.projects import resolve_project_id
 from galileo_core.utils.dataset import DatasetType, parse_dataset
 
@@ -55,7 +54,7 @@ class DatasetAPIException(APIException):
     pass
 
 
-class Dataset(DecorateAllMethods):
+class Dataset:
     content: Optional[DatasetContent] = None
     config: GalileoPythonConfig
 

@@ -24,7 +24,7 @@ from galileo.__future__.shared.exceptions import (
 )
 from galileo.schema.message import Message
 from galileo.search import RecordType
-from galileo.utils.logging import enable_console_logging
+from galileo.utils.log_config import enable_console_logging
 from galileo_core.schemas.logging.llm import MessageRole
 from galileo_core.schemas.logging.step import StepType
 

@@ -1,4 +1,5 @@
 import contextlib
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -6,7 +7,8 @@ from typing import Any, Callable, Optional
 
 from galileo.__future__.shared.exceptions import ConfigurationError
 from galileo.config import GalileoPythonConfig
-from galileo.utils.logging import get_logger
+from galileo.utils.log_config import enable_console_logging as _enable_console_logging
+from galileo.utils.log_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -92,10 +94,17 @@ _CONFIGURATION_KEYS = [
     ConfigKey(
         name="logging_disabled",
         env_var="GALILEO_LOGGING_DISABLED",
-        description="Disable all logging to Galileo",
+        description="Disable all telemetry logging to Galileo",
         default=False,
         value_type=bool,
         parser=lambda v: v.lower() in ("true", "1", "t", "yes"),
+    ),
+    ConfigKey(
+        name="log_level",
+        env_var="GALILEO_LOG_LEVEL",
+        description="Python logging level for SDK output (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
+        default=None,
+        value_type=str,
     ),
     ConfigKey(
         name="code_validation_timeout",
@@ -183,6 +192,8 @@ class ConfigurationMeta(type):
             "get_configuration",
             "get_key_info",
             "get_keys_by_category",
+            "enable_console_logging",
+            "disable_console_logging",
         ):
             return super().__getattribute__(name)
 
@@ -265,7 +276,8 @@ class Configuration(metaclass=ConfigurationMeta):
         default_project_id (str): Default project ID
         default_logstream_name (str): Default log stream name
         default_logstream_id (str): Default log stream ID
-        logging_disabled (bool): Disable all logging to Galileo
+        logging_disabled (bool): Disable all telemetry logging to Galileo
+        log_level (str): Python logging level for SDK console output
 
     Examples
     --------
@@ -302,6 +314,16 @@ class Configuration(metaclass=ConfigurationMeta):
     ```python
     # Clear all configuration values and environment variables
     Configuration.reset()
+    ```
+
+    Configuring console logging:
+    ```python
+    # Enable console logging for debugging
+    Configuration.enable_console_logging()  # INFO level by default
+    Configuration.enable_console_logging("DEBUG")  # Verbose output
+
+    # Disable console logging
+    Configuration.disable_console_logging()
     ```
 
     Notes
@@ -412,3 +434,68 @@ class Configuration(metaclass=ConfigurationMeta):
         result["is_configured"] = cls.is_configured()
         result["env_file_loaded"] = cls._env_loaded
         return result
+
+    @classmethod
+    def enable_console_logging(cls, level: Optional[str] = None) -> None:
+        """
+        Enable console logging for SDK output.
+
+        This is useful for debugging and interactive use (REPL, Jupyter, etc.)
+        to see SDK progress and diagnostic information.
+
+        Parameters
+        ----------
+        level : Optional[str]
+            Logging level as string: "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL".
+            If not provided, uses Configuration.log_level or defaults to "INFO".
+
+        Examples
+        --------
+        ```python
+        # Enable with default INFO level
+        Configuration.enable_console_logging()
+
+        # Enable with DEBUG level for verbose output
+        Configuration.enable_console_logging("DEBUG")
+
+        # Or set via configuration and enable
+        Configuration.log_level = "DEBUG"
+        Configuration.enable_console_logging()
+        ```
+        """
+        # Resolve level from parameter, config, or default
+        level_str = level or cls.log_level or "INFO"
+        level_int = getattr(logging, level_str.upper(), logging.INFO)
+
+        _enable_console_logging(level=level_int)
+
+        # Store the level in configuration for consistency
+        cls.log_level = level_str.upper()
+
+    @classmethod
+    def disable_console_logging(cls) -> None:
+        """
+        Disable console logging for SDK output.
+
+        This restores the SDK to its default silent behavior where no
+        log messages are printed to the console.
+
+        Examples
+        --------
+        ```python
+        Configuration.disable_console_logging()
+        ```
+        """
+        galileo_logger = logging.getLogger("galileo")
+
+        # Remove all stream handlers
+        for handler in galileo_logger.handlers[:]:
+            if isinstance(handler, logging.StreamHandler):
+                galileo_logger.removeHandler(handler)
+
+        # Set level to suppress all output
+        galileo_logger.setLevel(logging.CRITICAL + 1)
+        galileo_logger.propagate = False
+
+        # Clear the stored log level
+        cls.log_level = None
