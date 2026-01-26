@@ -114,7 +114,7 @@ class TestDatasetRecordGroundTruthSupport:
     def test_dataset_record_both_output_and_ground_truth_output_takes_precedence(self) -> None:
         """
         Test that when both output and ground_truth are provided, output takes precedence.
-        
+
         This ensures backward compatibility - existing code that passes both should not break.
         """
         # Both provided - output should win (backward compatibility)
@@ -129,15 +129,11 @@ class TestDatasetRecordGroundTruthSupport:
     def test_dataset_record_only_output_provided_backward_compatible(self) -> None:
         """
         Test that providing only output works as before (backward compatibility).
-        
+
         Also verifies that generated_output (separate field) is unaffected.
         """
         # Only output (existing usage)
-        record = DatasetRecord(
-            input="What is 2+2?",
-            output="4",
-            generated_output="The answer is 4",
-        )
+        record = DatasetRecord(input="What is 2+2?", output="4", generated_output="The answer is 4")
         assert record.output == "4"
         assert record.ground_truth == "4"  # Property accessor works
         assert record.generated_output == "The answer is 4"  # Separate field unaffected
@@ -147,12 +143,8 @@ class TestDatasetRecordGroundTruthSupport:
         Test that providing only ground_truth normalizes to output internally.
         """
         # Only ground_truth (new usage)
-        record = DatasetRecord(
-            input="What is 2+2?",
-            ground_truth="4",
-        )
+        record = DatasetRecord(input="What is 2+2?", ground_truth="4")
         assert record.output == "4"  # Normalized internally
         assert record.ground_truth == "4"  # Property accessor works
         # Verify ground_truth is not a field (only a property)
         assert "ground_truth" not in record.model_fields
-    

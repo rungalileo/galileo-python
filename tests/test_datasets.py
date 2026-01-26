@@ -418,13 +418,7 @@ def test_convert_dataset_row_to_record() -> None:
     values_dict["input"] = "What is 2+2?"
     values_dict["output"] = "4"
     values_dict["ground_truth"] = "5"  # Should be ignored, output takes precedence
-    row = DatasetRow(
-        index=0,
-        values=["What is 2+2?", "4"],
-        metadata=None,
-        row_id="row8",
-        values_dict=values_dict,
-    )
+    row = DatasetRow(index=0, values=["What is 2+2?", "4"], metadata=None, row_id="row8", values_dict=values_dict)
     record = convert_dataset_row_to_record(row)
     assert record.output == "4"  # output value used (not ground_truth)
     assert record.ground_truth == "4"  # Property reflects output value

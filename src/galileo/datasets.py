@@ -990,7 +990,7 @@ def list_dataset_projects(
 def convert_dataset_row_to_record(dataset_row: DatasetRow) -> DatasetRecord:
     """
     Converts a DatasetRow to a DatasetRecord.
-    
+
     Supports both 'output' and 'ground_truth' field names for backward compatibility.
 
     Parameters

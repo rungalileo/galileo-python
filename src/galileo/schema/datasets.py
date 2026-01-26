@@ -16,7 +16,7 @@ class DatasetRecord(BaseModel):
     input : str
         The input data (string or JSON-serializable object).
     output : Optional[str]
-        The expected output / ground truth. 
+        The expected output / ground truth.
         **Note:** This field can also be provided as `ground_truth` when creating records.
         Displayed as "Ground Truth" in the Galileo UI.
     generated_output : Optional[str]
@@ -28,15 +28,15 @@ class DatasetRecord(BaseModel):
     ----
     UI Terminology: The ``output`` field is shown as "Ground Truth" in the UI,
     while ``generated_output`` is shown as "Generated Output".
-    
+
     Migration: You can use either ``output`` or ``ground_truth`` when creating records.
     Both will be stored as ``output`` internally. We recommend using ``output`` for consistency.
-    
+
     Examples
     --------
     >>> # Using 'output' (also supported)
     >>> record1 = DatasetRecord(input="What is 2+2?", output="4")
-    >>> 
+    >>>
     >>> # Using 'ground_truth' (recommended)
     >>> record2 = DatasetRecord(input="What is 2+2?", ground_truth="4")
     >>> assert record2.output == "4"  # Normalized to 'output'
@@ -54,7 +54,7 @@ class DatasetRecord(BaseModel):
     def normalize_ground_truth(cls, data: Any) -> dict[str, Any]:
         """
         Normalize ground_truth to output for backward compatibility.
-        
+
         Accepts 'ground_truth' as input and maps it to 'output' internally.
         If both are provided, 'output' takes precedence (backward compatibility).
         """
@@ -138,10 +138,10 @@ class DatasetRecord(BaseModel):
     def ground_truth(self) -> Optional[str]:
         """
         Get ground truth value (alias for output).
-        
+
         This property provides read-only access to the 'output' field using
         the 'ground_truth' name for clarity.
-        
+
         Returns
         -------
         Optional[str]
