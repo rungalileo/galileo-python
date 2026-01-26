@@ -1,43 +1,11 @@
+"""
+Python logging configuration utilities for the Galileo SDK.
+
+This module provides utilities to configure Python's logging module for the SDK,
+including silent-by-default behavior and console output helpers.
+"""
+
 import logging
-
-from galileo.schema.trace import SPAN_TYPE
-
-
-def is_textual_span_type(span_type: SPAN_TYPE) -> bool:
-    """
-    Check if the span type has a string-based input and output.
-
-    Parameters
-    ----------
-    span_type:
-        The type of span
-
-    Returns
-    -------
-    bool:
-        True if the span type has a string-based input and output, False otherwise
-    """
-    return span_type in ["tool", "workflow", "agent"]
-
-
-def is_concludable_span_type(span_type: SPAN_TYPE) -> bool:
-    """
-    Check if the span type requires conclusion (via `conclude()`).
-
-    Parameters
-    ----------
-    span_type:
-        The type of span
-
-    Returns
-    -------
-    bool:
-        True if the span type requires conclusion, False otherwise
-    """
-    return span_type in ["workflow", "agent"]
-
-
-## TODO: Move the functionality below to the proper utils file.
 
 
 def _is_logger_configured(logger: logging.Logger) -> bool:

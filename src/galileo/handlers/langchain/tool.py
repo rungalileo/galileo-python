@@ -7,7 +7,7 @@ from pydantic import UUID4, BaseModel, ConfigDict, Field
 
 from galileo.constants.protect import TIMEOUT_SECS
 from galileo.protect import ainvoke_protect, invoke_protect
-from galileo.utils.logging import get_logger
+from galileo.utils.log_config import get_logger
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload as CorePayload
 from galileo_core.schemas.protect.response import Response

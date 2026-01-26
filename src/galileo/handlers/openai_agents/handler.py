@@ -9,7 +9,6 @@ from agents.tracing import ResponseSpanData, get_current_span, get_trace_provide
 from galileo import GalileoLogger, galileo_context
 from galileo.schema.handlers import Node
 from galileo.utils import _get_timestamp
-from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.openai_agents import (
     GalileoCustomSpan,
     _extract_llm_data,
@@ -25,7 +24,7 @@ from galileo_core.schemas.logging.span import Span as GalileoSpan
 _logger = logging.getLogger(__name__)
 
 
-class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
+class GalileoTracingProcessor(TracingProcessor):
     """
     OpenAI Agents TracingProcessor for logging traces to Galileo.
 
@@ -83,9 +82,8 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
 
         node.span_params["duration_ns"] = convert_time_delta_to_ns(_get_timestamp() - node.span_params["start_time"])
 
-        # Log the trace to Galileo
+        # Log the trace to Galileo (this includes concluding the trace)
         self._commit_trace(trace)
-        self._galileo_logger.conclude(output=self._last_output, status_code=self._last_status_code)
         self._nodes = {}
 
         self._last_output = None

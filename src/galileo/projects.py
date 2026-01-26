@@ -28,10 +28,9 @@ from galileo.resources.models.project_type import ProjectType
 from galileo.resources.models.user_collaborator import UserCollaborator
 from galileo.resources.models.user_collaborator_create import UserCollaboratorCreate
 from galileo.resources.types import UNSET, Unset
-from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.env_helpers import _get_project_from_env, _get_project_id_from_env
 from galileo.utils.exceptions import APIException
-from galileo.utils.logging import get_logger
+from galileo.utils.log_config import get_logger
 
 _logger = get_logger(__name__)
 
@@ -127,7 +126,7 @@ class Project:
             self.permissions = project.permissions
 
 
-class Projects(DecorateAllMethods):
+class Projects:
     config: GalileoPythonConfig
 
     def __init__(self) -> None:

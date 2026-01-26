@@ -12,6 +12,7 @@ from galileo.schema.trace import (
     TracesIngestRequest,
     TraceUpdateRequest,
 )
+from galileo.utils.decorators import async_warn_catch_exception
 from galileo.utils.headers_data import get_sdk_header
 from galileo_core.constants.http_headers import HttpHeaders
 from galileo_core.constants.request_method import RequestMethod
@@ -68,6 +69,7 @@ class Traces:
             params=params,
         )
 
+    @async_warn_catch_exception(logger=_logger)
     async def ingest_traces(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
         if self.experiment_id:
             traces_ingest_request.experiment_id = UUID(self.experiment_id)
@@ -80,6 +82,7 @@ class Traces:
             RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
         )
 
+    @async_warn_catch_exception(logger=_logger)
     async def ingest_spans(self, spans_ingest_request: SpansIngestRequest) -> dict[str, str]:
         if self.experiment_id:
             spans_ingest_request.experiment_id = UUID(self.experiment_id)
@@ -92,6 +95,7 @@ class Traces:
             RequestMethod.POST, endpoint=Routes.spans.format(project_id=self.project_id), json=json
         )
 
+    @async_warn_catch_exception(logger=_logger)
     async def update_trace(self, trace_update_request: TraceUpdateRequest) -> dict[str, str]:
         if self.experiment_id:
             trace_update_request.experiment_id = UUID(self.experiment_id)
@@ -106,6 +110,7 @@ class Traces:
             json=json,
         )
 
+    @async_warn_catch_exception(logger=_logger)
     async def update_span(self, span_update_request: SpanUpdateRequest) -> dict[str, str]:
         if self.experiment_id:
             span_update_request.experiment_id = UUID(self.experiment_id)
@@ -120,6 +125,7 @@ class Traces:
             json=json,
         )
 
+    @async_warn_catch_exception(logger=_logger)
     async def create_session(self, session_create_request: SessionCreateRequest) -> dict[str, str]:
         if self.experiment_id:
             session_create_request.experiment_id = UUID(self.experiment_id)
