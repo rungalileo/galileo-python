@@ -5,7 +5,13 @@ from unittest.mock import patch
 
 import pytest
 
-from galileo.experiment_tags import ExperimentTags, delete_experiment_tag, get_experiment_tags, upsert_experiment_tag
+from galileo.experiment_tags import (
+    ExperimentTags,
+    ExperimentTagsAPIException,
+    delete_experiment_tag,
+    get_experiment_tags,
+    upsert_experiment_tag,
+)
 from galileo.resources.models.delete_run_response import DeleteRunResponse
 from galileo.resources.models.run_tag_db import RunTagDB
 
@@ -108,12 +114,13 @@ def test_delete_experiment_tag_success(mock_delete_tag) -> None:
     "galileo.resources.api.experiment_tags.delete_experiment_tag_projects_project_id_experiments_experiment_id_tags_tag_id_delete.sync"
 )
 def test_delete_experiment_tag_not_found(mock_delete_tag) -> None:
-    """Test deleting a tag that doesn't exist."""
+    """Test deleting a tag that doesn't exist raises ExperimentTagsAPIException."""
     mock_delete_tag.return_value = None
 
-    result = delete_experiment_tag("project_1", "experiment_1", "nonexistent_tag")
-    assert result is None
+    with pytest.raises(ExperimentTagsAPIException) as exc_info:
+        delete_experiment_tag("project_1", "experiment_1", "nonexistent_tag")
 
+    assert "No response received from API" in str(exc_info.value)
     mock_delete_tag.assert_called_once()
 
 
