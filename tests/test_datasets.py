@@ -394,6 +394,41 @@ def test_convert_dataset_row_to_record() -> None:
     with pytest.raises(ValueError, match="Dataset row must have input field"):
         convert_dataset_row_to_record(row)
 
+    # Case 7: With ground_truth in values_dict (should be converted to output)
+    values_dict = DatasetRowValuesDict()
+    values_dict["input"] = "What is 2+2?"
+    values_dict["ground_truth"] = "4"  # API might return this instead of output
+    values_dict["generated_output"] = "The answer is 4"
+    row = DatasetRow(
+        index=0,
+        values=["What is 2+2?", "4", None, "The answer is 4"],
+        metadata=None,
+        row_id="row7",
+        values_dict=values_dict,
+    )
+    record = convert_dataset_row_to_record(row)
+    assert record.id == "row7"
+    assert record.input == "What is 2+2?"
+    assert record.output == "4"  # Converted from ground_truth
+    assert record.ground_truth == "4"  # Property accessor works
+    assert record.generated_output == "The answer is 4"  # Separate field preserved
+
+    # Case 8: With both output and ground_truth in values_dict (output takes precedence)
+    values_dict = DatasetRowValuesDict()
+    values_dict["input"] = "What is 2+2?"
+    values_dict["output"] = "4"
+    values_dict["ground_truth"] = "5"  # Should be ignored, output takes precedence
+    row = DatasetRow(
+        index=0,
+        values=["What is 2+2?", "4"],
+        metadata=None,
+        row_id="row8",
+        values_dict=values_dict,
+    )
+    record = convert_dataset_row_to_record(row)
+    assert record.output == "4"  # output value used (not ground_truth)
+    assert record.ground_truth == "4"  # Property reflects output value
+
 
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 def test__get_etag(get_dataset_content_by_id_patch: Mock) -> None:
