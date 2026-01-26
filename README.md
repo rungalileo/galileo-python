@@ -254,7 +254,36 @@ from galileo.datasets import list_datasets
 datasets = list_datasets()
 ```
 
-> **Note:** Dataset records have `output` (shown as "Ground Truth" in UI) and `generated_output` (shown as "Generated Output" in UI) fields. See `DatasetRecord` for details.
+> **Dataset Record Fields:**
+> 
+> - **`generated_output`**: New field for storing model-generated outputs separately from ground truth. This allows you to track both the expected output (ground truth) and the actual model output in the same dataset record. In the UI, this field is displayed as "Generated Output".
+> 
+>   Example:
+>   ```python
+>   from galileo.schema.datasets import DatasetRecord
+> 
+>   record = DatasetRecord(
+>       input="What is 2+2?",
+>       output="4",  # Ground truth
+>       generated_output="The answer is 4"  # Model-generated output
+>   )
+>   ```
+> 
+> - **`output` / `ground_truth`**: The existing `output` field is now displayed as "Ground Truth" in the Galileo UI for better clarity. The SDK supports both `output` and `ground_truth` field names when creating records - both are normalized to `output` internally, ensuring full backward compatibility. You can use either field name, and access the value via the `ground_truth` property.
+> 
+>   Example:
+>   ```python
+>   from galileo.schema.datasets import DatasetRecord
+> 
+>   # Using 'output' (backward compatible)
+>   record1 = DatasetRecord(input="What is 2+2?", output="4")
+>   assert record1.ground_truth == "4"  # Property accessor
+> 
+>   # Using 'ground_truth' (new recommended way)
+>   record2 = DatasetRecord(input="What is 2+2?", ground_truth="4")
+>   assert record2.output == "4"  # Normalized internally
+>   assert record2.ground_truth == "4"  # Property accessor
+>   ```
 
 #### Experiments
 
