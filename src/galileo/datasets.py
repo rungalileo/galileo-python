@@ -991,6 +991,8 @@ def convert_dataset_row_to_record(dataset_row: DatasetRow) -> DatasetRecord:
     """
     Converts a DatasetRow to a DatasetRecord.
 
+    Supports both 'output' and 'ground_truth' field names for backward compatibility.
+
     Parameters
     ----------
     dataset_row : DatasetRow
@@ -1011,9 +1013,18 @@ def convert_dataset_row_to_record(dataset_row: DatasetRow) -> DatasetRecord:
     if "input" not in values_dict or not values_dict["input"]:
         raise ValueError("Dataset row must have input field")
 
+    # Support both 'output' and 'ground_truth' field names
+    # Prefer 'output' if both are present (matches API response structure)
+    output_value = values_dict.get("output")
+    if output_value is None:
+        # Fallback to 'ground_truth' if 'output' is not present
+        # This handles edge cases where API might return 'ground_truth' instead
+        output_value = values_dict.get("ground_truth")
+
     return DatasetRecord(
         id=dataset_row.row_id,
         input=values_dict["input"],
-        output=values_dict.get("output", None),
+        output=output_value,
         metadata=values_dict.get("metadata", None),
+        generated_output=values_dict.get("generated_output", None),
     )
