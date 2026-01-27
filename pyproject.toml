@@ -1,6 +1,6 @@
 [project]
 name = "galileo"
-version = "1.42.0"
+version = "1.43.0"
 description = "Client library for the Galileo platform."
 authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
@@ -18,7 +18,8 @@ pyjwt = "^2.8.0"
 wrapt = "^1.14"
 attrs = ">=22.2.0"
 python-dateutil = "^2.8.0"
-langchain-core = { version = "^0.3.68", optional = true }
+langchain-core = { version = ">=0.3.68", optional = true }
+langchain = { version = ">=0.0.0,<2.0.0", optional = true }
 openai = { version = "<1.96.0", optional = true }
 openai-agents = { version = "<0.2.1", optional = true }
 galileo-core = "^3.82.1"
@@ -40,7 +41,7 @@ requests-mock = "^1.11.0"
 galileo-core = { extras = ["testing"], version = "^3.82.1" }
 
 pytest-env = "^1.1.5"
-langchain-core = "^0.3.68"
+langchain-core = ">=0.3.68"
 pytest-sugar = "^1.0.0"
 vcrpy = "^7.0.0"
 time-machine = "^2.17.0"  # freezegun causes problems with pydantic model validations
@@ -310,12 +311,12 @@ omit = [
 ]
 
 [project.optional-dependencies]
-langchain = ["langchain-core"]
+langchain = ["langchain-core", "langchain"]
 openai = ["openai", "packaging (>=24.2,<25.0)", "openai-agents"]
 crewai = ["crewai (>=0.152.0,<=0.201.1); python_version < '3.14'"]
 middleware = ["starlette"]
 otel = ["opentelemetry-sdk (>=1.38.0,<2.0.0)", "opentelemetry-api (>=1.38.0,<2.0.0)", "opentelemetry-exporter-otlp (>=1.38.0,<2.0.0)"]
-all = ["langchain-core", "openai", "packaging (>=24.2,<25.0)", "openai-agents", "opentelemetry-sdk (>=1.38.0,<2.0.0)", "opentelemetry-api (>=1.38.0,<2.0.0)", "opentelemetry-exporter-otlp (>=1.38.0,<2.0.0)", "crewai (>=0.152.0,<=0.201.1); python_version < '3.14'", "starlette"]
+all = ["langchain-core", "langchain",  "openai", "packaging (>=24.2,<25.0)", "openai-agents", "opentelemetry-sdk (>=1.38.0,<2.0.0)", "opentelemetry-api (>=1.38.0,<2.0.0)", "opentelemetry-exporter-otlp (>=1.38.0,<2.0.0)", "crewai (>=0.152.0,<=0.201.1); python_version < '3.14'", "starlette"]
 
 
 [build-system]
