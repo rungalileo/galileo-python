@@ -4,6 +4,7 @@ Galileo Future API.
 This package provides the next-generation object-centric API for Galileo.
 """
 
+from galileo.__future__.collaborator import Collaborator, CollaboratorRole
 from galileo.__future__.configuration import Configuration
 from galileo.__future__.dataset import Dataset
 from galileo.__future__.experiment import Experiment
@@ -30,6 +31,8 @@ from galileo_core.schemas.logging.step import StepType
 __all__ = [
     "APIError",
     "CodeMetric",
+    "Collaborator",
+    "CollaboratorRole",
     "Configuration",
     "ConfigurationError",
     "Dataset",

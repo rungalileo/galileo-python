@@ -22,6 +22,7 @@ import pytest
 from httpx import Request, Response
 
 from galileo.__future__ import Configuration
+from galileo.__future__.collaborator import CollaboratorRole
 from galileo.__future__.configuration import _CONFIGURATION_KEYS
 from galileo.config import GalileoPythonConfig
 from galileo.resources.models.messages_list_item import MessagesListItem
@@ -223,3 +224,18 @@ def mock_integration() -> MagicMock:
     mock_int.is_selected = True
     mock_int.permissions = ["read", "update"]
     return mock_int
+
+
+@pytest.fixture
+def mock_collaborator() -> MagicMock:
+    """Create a mock collaborator object for testing."""
+    mock_collab = MagicMock()
+    mock_collab.id = str(uuid4())
+    mock_collab.user_id = str(uuid4())
+    mock_collab.role = CollaboratorRole.VIEWER
+    mock_collab.created_at = None
+    mock_collab.email = "collaborator@test.com"
+    mock_collab.first_name = "Test"
+    mock_collab.last_name = "Collaborator"
+    mock_collab.permissions = []
+    return mock_collab
