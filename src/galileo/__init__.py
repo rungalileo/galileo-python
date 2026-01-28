@@ -40,4 +40,4 @@ from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
 from galileo_core.schemas.protect.stage import StageType
 
-__version__ = "1.43.0"
+__version__ = "1.44.0"
