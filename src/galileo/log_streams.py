@@ -12,9 +12,8 @@ from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
 from galileo.resources.models.log_stream_response import LogStreamResponse
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
-from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.env_helpers import _get_log_stream_from_env, _get_project_from_env
-from galileo.utils.logging import get_logger
+from galileo.utils.log_config import get_logger
 from galileo.utils.metrics import create_metric_configs
 
 logger = get_logger(__name__)
@@ -227,7 +226,7 @@ class LogStream(LogStreamResponse):
         return local_metrics
 
 
-class LogStreams(DecorateAllMethods):
+class LogStreams:
     config: GalileoPythonConfig
 
     def __init__(self) -> None:
