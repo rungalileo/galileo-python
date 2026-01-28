@@ -325,7 +325,11 @@ class GalileoCallback(BaseCallbackHandler):
             end_node_kwargs["output"] = tool_message.content
             end_node_kwargs["tool_call_id"] = tool_message.tool_call_id
         else:
-            end_node_kwargs["output"] = output
+            # Handle tools with response_format="content_and_artifact" returning (content, artifact)
+            if isinstance(output, tuple) and len(output) >= 1:
+                end_node_kwargs["output"] = output[0]  # Extract content only
+            else:
+                end_node_kwargs["output"] = output
         # This will pass-through strings like 'blah' without encoding them
         # into '"blah"', but will turn everything else into a JSON string.
         end_node_kwargs["output"] = (
