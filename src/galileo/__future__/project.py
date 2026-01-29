@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import builtins
 import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+from galileo.__future__.collaborator import Collaborator, CollaboratorRole
 from galileo.__future__.shared.base import StateManagementMixin, SyncState
 from galileo.__future__.shared.exceptions import APIError, ValidationError
 from galileo.projects import Projects
@@ -69,6 +71,19 @@ class Project(StateManagementMixin):
         # Or use the explicit list methods
         datasets = project.list_datasets()
         prompts = project.list_prompts()
+
+        # Manage collaborators
+        for collab in project.collaborators:
+            print(f"{collab.email}: {collab.role}")
+
+        # Add a collaborator
+        project.add_collaborator(user_id="user-123", role=CollaboratorRole.EDITOR)
+
+        # Update a collaborator's role
+        project.update_collaborator(user_id="user-123", role=CollaboratorRole.VIEWER)
+
+        # Remove a collaborator
+        project.remove_collaborator(user_id="user-123")
 
         # Delete a project (WARNING: cannot be undone!)
         old_project = Project.get(name="Old Project")
@@ -238,7 +253,7 @@ class Project(StateManagementMixin):
             raise APIError("Failed to retrieve project: %s", original_error=e) from e
 
     @classmethod
-    def list(cls) -> list[Project]:
+    def list(cls) -> builtins.list[Project]:
         """
         List all available projects.
 
@@ -280,7 +295,7 @@ class Project(StateManagementMixin):
         # Use the LogStream pattern to avoid duplication
         return LogStream(name=name, project_id=self.id).create()
 
-    def list_log_streams(self) -> list[LogStream]:  # type: ignore[valid-type]
+    def list_log_streams(self) -> builtins.list[LogStream]:
         """
         List all log streams for this project.
 
@@ -302,7 +317,7 @@ class Project(StateManagementMixin):
         # Use the LogStream pattern to avoid duplication
         return LogStream.list(project_id=self.id)
 
-    def list_experiments(self) -> list[Experiment]:  # type: ignore[valid-type]
+    def list_experiments(self) -> builtins.list[Experiment]:
         """
         List all experiments for this project.
 
@@ -324,7 +339,7 @@ class Project(StateManagementMixin):
         # Use the Experiment pattern to avoid duplication
         return Experiment.list(project_id=self.id)
 
-    def list_datasets(self) -> list[Dataset]:  # type: ignore[valid-type]
+    def list_datasets(self) -> builtins.list[Dataset]:
         """
         List all datasets used in this project.
 
@@ -346,7 +361,7 @@ class Project(StateManagementMixin):
         # Use the Dataset pattern to avoid duplication
         return Dataset.list(project_id=self.id)
 
-    def list_prompts(self) -> list[Prompt]:  # type: ignore[valid-type]
+    def list_prompts(self) -> builtins.list[Prompt]:
         """
         List all prompts used in this project.
 
@@ -369,7 +384,7 @@ class Project(StateManagementMixin):
         return Prompt.list(project_id=self.id)
 
     @property
-    def logstreams(self) -> list[LogStream]:  # type: ignore[valid-type]
+    def logstreams(self) -> builtins.list[LogStream]:
         """
         Property to access log streams for this project.
 
@@ -389,7 +404,7 @@ class Project(StateManagementMixin):
         return self.list_log_streams()
 
     @property
-    def experiments(self) -> list[Experiment]:  # type: ignore[valid-type]
+    def experiments(self) -> builtins.list[Experiment]:
         """
         Property to access experiments for this project.
 
@@ -408,7 +423,7 @@ class Project(StateManagementMixin):
         return self.list_experiments()
 
     @property
-    def datasets(self) -> list[Dataset]:  # type: ignore[valid-type]
+    def datasets(self) -> builtins.list[Dataset]:
         """
         Property to access datasets used in this project.
 
@@ -427,7 +442,7 @@ class Project(StateManagementMixin):
         return self.list_datasets()
 
     @property
-    def prompts(self) -> list[Prompt]:  # type: ignore[valid-type]
+    def prompts(self) -> builtins.list[Prompt]:
         """
         Property to access prompts used in this project.
 
@@ -444,6 +459,214 @@ class Project(StateManagementMixin):
                 print(prompt.name)
         """
         return self.list_prompts()
+
+    # -------------------------------------------------------------------------
+    # Collaborator Management
+    # -------------------------------------------------------------------------
+
+    def list_collaborators(self) -> builtins.list[Collaborator]:
+        """
+        List all collaborators for this project.
+
+        Returns a list of Collaborator objects representing users who have
+        access to this project, along with their roles and permissions.
+
+        Returns
+        -------
+            list[Collaborator]: A list of collaborators for this project.
+
+        Raises
+        ------
+            ValueError: If the project ID is not set.
+
+        Examples
+        --------
+            project = Project.get(name="My AI Project")
+            collaborators = project.list_collaborators()
+            for collab in collaborators:
+                print(f"{collab.email}: {collab.role}")
+        """
+        if self.id is None:
+            raise ValueError("Project ID is not set. Cannot list collaborators for a local-only project.")
+
+        logger.info(f"Project.list_collaborators: project_id='{self.id}' - started")
+
+        projects_service = Projects()
+        api_collaborators = projects_service.list_user_project_collaborators(project_id=self.id)
+
+        collaborators = [Collaborator._from_api_response(c, project_id=self.id) for c in api_collaborators]
+
+        logger.info(f"Project.list_collaborators: project_id='{self.id}' - found {len(collaborators)} collaborator(s)")
+        return collaborators
+
+    @property
+    def collaborators(self) -> builtins.list[Collaborator]:
+        """
+        Property to access collaborators for this project.
+
+        Returns users who have access to this project. Each Collaborator object
+        has update() and remove() methods for modifying access. You can also
+        use add_collaborator() on the project to add new collaborators.
+
+        .. note::
+            **This property makes an API call on every access and is not cached.**
+
+        Returns
+        -------
+            list[Collaborator]: A list of collaborators for this project.
+
+        Examples
+        --------
+            project = Project.get(name="My AI Project")
+            for collab in project.collaborators:
+                print(f"{collab.email}: {collab.role}")
+
+            # Filter by role
+            editors = [c for c in project.collaborators if c.role == CollaboratorRole.EDITOR]
+
+            # Update or remove directly on the collaborator object
+            collab.update(role=CollaboratorRole.EDITOR)
+            collab.remove()
+        """
+        return self.list_collaborators()
+
+    def add_collaborator(self, user_id: str, role: CollaboratorRole = CollaboratorRole.VIEWER) -> Collaborator:
+        """
+        Add a collaborator to this project.
+
+        Shares the project with a user, granting them access with the specified role.
+
+        Args:
+            user_id: The ID of the user to add as a collaborator.
+            role: The role to assign. One of CollaboratorRole.OWNER, EDITOR, VIEWER, or ANNOTATOR.
+                  Defaults to VIEWER.
+
+        Returns
+        -------
+            Collaborator: The created collaborator object.
+
+        Raises
+        ------
+            ValueError: If the project ID is not set.
+            APIError: If the user is already a collaborator or the API call fails.
+
+        Examples
+        --------
+            project = Project.get(name="My AI Project")
+
+            # Add a viewer (default role)
+            collab = project.add_collaborator(user_id="user-123")
+
+            # Add an editor
+            collab = project.add_collaborator(
+                user_id="user-456",
+                role=CollaboratorRole.EDITOR
+            )
+        """
+        if self.id is None:
+            raise ValueError("Project ID is not set. Cannot add collaborator to a local-only project.")
+
+        logger.info(f"Project.add_collaborator: project_id='{self.id}', user_id='{user_id}', role='{role}' - started")
+
+        try:
+            projects_service = Projects()
+            api_collaborator = projects_service.share_project_with_user(project_id=self.id, user_id=user_id, role=role)
+
+            collaborator = Collaborator._from_api_response(api_collaborator, project_id=self.id)
+            logger.info(f"Project.add_collaborator: project_id='{self.id}', user_id='{user_id}' - completed")
+            return collaborator
+
+        except Exception as e:
+            logger.error(f"Project.add_collaborator: project_id='{self.id}', user_id='{user_id}' - failed: {e}")
+            raise APIError(f"Failed to add collaborator: {e}") from e
+
+    def update_collaborator(self, user_id: str, role: CollaboratorRole) -> Collaborator:
+        """
+        Update a collaborator's role on this project.
+
+        Changes the role of an existing collaborator. The user must already
+        have access to the project.
+
+        Args:
+            user_id: The ID of the user whose role to update.
+            role: The new role to assign. One of CollaboratorRole.OWNER, EDITOR, VIEWER, or ANNOTATOR.
+
+        Returns
+        -------
+            Collaborator: The updated collaborator object.
+
+        Raises
+        ------
+            ValueError: If the project ID is not set.
+            APIError: If the user is not a collaborator or the API call fails.
+
+        Examples
+        --------
+            project = Project.get(name="My AI Project")
+
+            # Promote a viewer to editor
+            updated = project.update_collaborator(
+                user_id="user-123",
+                role=CollaboratorRole.EDITOR
+            )
+            print(f"Updated role: {updated.role}")
+        """
+        if self.id is None:
+            raise ValueError("Project ID is not set. Cannot update collaborator on a local-only project.")
+
+        logger.info(
+            f"Project.update_collaborator: project_id='{self.id}', user_id='{user_id}', role='{role}' - started"
+        )
+
+        try:
+            projects_service = Projects()
+            api_collaborator = projects_service.update_user_project_collaborator(
+                project_id=self.id, user_id=user_id, role=role
+            )
+
+            collaborator = Collaborator._from_api_response(api_collaborator, project_id=self.id)
+            logger.info(f"Project.update_collaborator: project_id='{self.id}', user_id='{user_id}' - completed")
+            return collaborator
+
+        except Exception as e:
+            logger.error(f"Project.update_collaborator: project_id='{self.id}', user_id='{user_id}' - failed: {e}")
+            raise APIError(f"Failed to update collaborator: {e}") from e
+
+    def remove_collaborator(self, user_id: str) -> None:
+        """
+        Remove a collaborator from this project.
+
+        Revokes a user's access to this project. The user will no longer be able
+        to view or interact with the project.
+
+        Args:
+            user_id: The ID of the user to remove.
+
+        Raises
+        ------
+            ValueError: If the project ID is not set.
+            APIError: If the user is not a collaborator or the API call fails.
+
+        Examples
+        --------
+            project = Project.get(name="My AI Project")
+
+            # Remove a user's access
+            project.remove_collaborator(user_id="user-123")
+        """
+        if self.id is None:
+            raise ValueError("Project ID is not set. Cannot remove collaborator from a local-only project.")
+
+        logger.info(f"Project.remove_collaborator: project_id='{self.id}', user_id='{user_id}' - started")
+
+        try:
+            projects_service = Projects()
+            projects_service.unshare_project_with_user(project_id=self.id, user_id=user_id)
+            logger.info(f"Project.remove_collaborator: project_id='{self.id}', user_id='{user_id}' - completed")
+
+        except Exception as e:
+            logger.error(f"Project.remove_collaborator: project_id='{self.id}', user_id='{user_id}' - failed: {e}")
+            raise APIError(f"Failed to remove collaborator: {e}") from e
 
     def refresh(self) -> None:
         """
