@@ -142,15 +142,18 @@ class TestProjectLogStreams:
     """Test suite for project log stream management."""
 
     @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.__future__.log_stream.Projects")
     @patch("galileo.__future__.project.Projects")
     def test_create_log_stream(
         self,
         mock_projects_class: MagicMock,
+        mock_log_stream_projects_class: MagicMock,
         mock_logstreams_class: MagicMock,
         reset_configuration: None,
         mock_project: MagicMock,
         mock_logstream: MagicMock,
     ) -> None:
+        mock_log_stream_projects_class.return_value.get_with_env_fallbacks.return_value = mock_project
         """Test create_log_stream() creates a log stream and returns it."""
         mock_project_service = MagicMock()
         mock_projects_class.return_value = mock_project_service
@@ -177,15 +180,18 @@ class TestProjectLogStreams:
         with pytest.raises(ValueError, match="Project ID is not set"):
             project.create_log_stream(name="Test Stream")
 
+    @patch("galileo.__future__.log_stream.Projects")
     @patch("galileo.__future__.log_stream.LogStreams")
     @patch("galileo.__future__.project.Projects")
     def test_list_log_streams(
         self,
         mock_projects_class: MagicMock,
         mock_logstreams_class: MagicMock,
+        mock_log_stream_projects_class: MagicMock,
         reset_configuration: None,
         mock_project: MagicMock,
     ) -> None:
+        mock_log_stream_projects_class.return_value.get_with_env_fallbacks.return_value = mock_project
         """Test list_log_streams() returns all log streams for the project."""
         mock_project_service = MagicMock()
         mock_projects_class.return_value = mock_project_service
