@@ -185,7 +185,7 @@ class Projects:
 
         """
         id = id or (None if name else _get_project_id_from_env()) or None
-        name = name or (None if id else _get_project_from_env()) or None
+        name = None if id else (name or _get_project_from_env() or None)
 
         return self.get(id=id, name=name)
 
