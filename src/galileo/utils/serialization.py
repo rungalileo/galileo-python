@@ -13,7 +13,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from galileo.utils.dependencies import is_langchain_available
+from galileo.utils.dependencies import is_langchain_available, is_langgraph_available
 
 _logger = logging.getLogger(__name__)
 
@@ -181,6 +181,22 @@ class EventSerializer(JSONEncoder):
                         kwargs.pop("type", None)
                         return kwargs
                     return serialized
+
+            # Handle langgraph types before the generic dataclass check
+            # Command is a dataclass with __slots__, so generic dataclass handling fails
+            if is_langgraph_available:
+                from langgraph.types import Command, Send
+
+                if isinstance(obj, Command):
+                    result = {}
+                    for slot in ("graph", "update", "resume", "goto"):
+                        value = getattr(obj, slot, None)
+                        if value is not None:
+                            result[slot] = self.default(value)
+                    return result
+
+                if isinstance(obj, Send):
+                    return {"node": self.default(obj.node), "arg": self.default(obj.arg)}
 
             if is_dataclass(obj):
                 return {self.default(k): self.default(v) for k, v in obj.__dict__.items()}
