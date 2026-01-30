@@ -1,4 +1,4 @@
-from galileo.utils.nop_logger import galileo_logging_enabled
+from galileo.utils.decorators import galileo_logging_enabled
 
 
 def test_galileo_logging_enabled(monkeypatch) -> None:

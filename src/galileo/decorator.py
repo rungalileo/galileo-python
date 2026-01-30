@@ -63,9 +63,9 @@ from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import SPAN_TYPE
 from galileo.utils import _get_timestamp
 from galileo.utils.env_helpers import _get_mode_or_default
-from galileo.utils.logging import is_concludable_span_type, is_textual_span_type
 from galileo.utils.serialization import EventSerializer, convert_time_delta_to_ns, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
+from galileo.utils.span_utils import is_concludable_span_type, is_textual_span_type
 from galileo_core.schemas.logging.span import WorkflowSpan
 from galileo_core.schemas.logging.trace import Trace
 
@@ -353,16 +353,18 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params, dataset_record)
-            result = None
 
+            logging_enabled = self._safe_prepare_call(span_type, span_params, dataset_record)
+
+            result = None
             try:
                 result = await func(*args, **kwargs)
             except Exception as e:
                 _logger.error(f"Error while executing function in async_wrapper: {e}", exc_info=True)
                 raise
             finally:
-                result = self._finalize_call(span_type, span_params, result)
+                if logging_enabled:
+                    result = self._finalize_call(span_type, span_params, result)
 
             return result
 
@@ -407,16 +409,18 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params, dataset_record)
-            result = None
 
+            logging_enabled = self._safe_prepare_call(span_type, span_params, dataset_record)
+
+            result = None
             try:
                 result = func(*args, **kwargs)
             except Exception as exc:
                 _logger.warning(f"Error while executing function in sync_wrapper: {exc}", exc_info=True)
                 raise exc
             finally:
-                self._finalize_call(span_type, span_params, result)
+                if logging_enabled:
+                    self._finalize_call(span_type, span_params, result)
             return result
 
         return cast(F, sync_wrapper)
@@ -593,6 +597,38 @@ class GalileoDecorator:
             "agent": [*common_params, "agent_type"],
         }
         return span_params.get(span_type, common_params)
+
+    def _safe_prepare_call(
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], dataset_record: Optional[DatasetRecord]
+    ) -> bool:
+        """
+        Safely prepare telemetry, returning False if initialization fails.
+
+        This method wraps _prepare_call with exception handling to ensure that
+        telemetry initialization errors do not crash user code. Any exception
+        during preparation is logged as a warning and the method returns False,
+        allowing the caller to skip finalization.
+
+        Parameters
+        ----------
+        span_type
+            Type of span to create
+        span_params
+            Parameters for the span
+        dataset_record
+            Optional dataset record for experiment context
+
+        Returns
+        -------
+        bool
+            True if preparation succeeded, False if it failed
+        """
+        try:
+            self._prepare_call(span_type, span_params, dataset_record)
+            return True
+        except Exception as e:
+            _logger.warning(f"Galileo logging initialization failed, continuing without logging: {e}")
+            return False
 
     def _prepare_call(
         self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], dataset_record: Optional[DatasetRecord]
@@ -1049,7 +1085,13 @@ class GalileoDecorator:
         mode
             The logger mode. Defaults to None.
         """
-        self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id, mode=mode).flush()
+        # Telemetry initialization errors should not crash user code
+        try:
+            self.get_logger_instance(
+                project=project, log_stream=log_stream, experiment_id=experiment_id, mode=mode
+            ).flush()
+        except Exception as e:
+            _logger.warning(f"Galileo flush failed, continuing without flushing: {e}")
 
         # Reset trace state if we're flushing the current context
         current_mode = _get_mode_or_default(mode) if mode is not None else _mode_context.get()

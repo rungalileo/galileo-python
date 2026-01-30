@@ -12,7 +12,6 @@ from galileo.resources.api.experiment_tags import (
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.run_tag_create_request import RunTagCreateRequest
 from galileo.resources.models.run_tag_db import RunTagDB
-from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.exceptions import APIException
 
 _logger = logging.getLogger(__name__)
@@ -50,7 +49,7 @@ class ExperimentTag(RunTagDB):
             self.additional_properties = experiment_tag.additional_properties.copy()
 
 
-class ExperimentTags(DecorateAllMethods):
+class ExperimentTags:
     config: GalileoPythonConfig
 
     def __init__(self) -> None:

@@ -16,7 +16,6 @@ from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
 from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
-from galileo.logger.utils import handle_galileo_http_exceptions_for_retry
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import (
@@ -32,7 +31,7 @@ from galileo.schema.trace import (
     TraceUpdateRequest,
 )
 from galileo.traces import Traces
-from galileo.utils.catch_log import DecorateAllMethods
+from galileo.utils.decorators import nop_async, nop_sync, retry_on_transient_http_error, warn_catch_exception
 from galileo.utils.env_helpers import (
     _get_log_stream_id_from_env,
     _get_log_stream_or_default,
@@ -41,7 +40,6 @@ from galileo.utils.env_helpers import (
     _get_project_or_default,
 )
 from galileo.utils.metrics import populate_local_metrics
-from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.retrievers import convert_to_documents
 from galileo.utils.serialization import serialize_to_str
 from galileo_core.helpers.execution import async_run
@@ -73,7 +71,7 @@ DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 90  # Timeout for waiting on background trac
 STUB_TRACE_NAME = "stub_trace"  # Name for stub traces created from distributed tracing headers
 
 
-class GalileoLogger(TracesLogger, DecorateAllMethods):
+class GalileoLogger(TracesLogger):
     """
     This class can be used to upload traces to Galileo.
     First initialize a new GalileoLogger object with an existing project and log stream.
@@ -408,6 +406,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         return None, None
 
     @nop_sync
+    @warn_catch_exception()
     def _ingest_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
         traces_ingest_request = TracesIngestRequest(
             traces=[copy.deepcopy(trace)], session_id=self.session_id, is_complete=is_complete, reliable=True
@@ -430,7 +429,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}", exc_info=False
             ),
         )
-        @handle_galileo_http_exceptions_for_retry
+        @retry_on_transient_http_error
         async def ingest_traces_with_backoff(request: Any) -> None:
             return await self._traces_client.ingest_traces(request)
 
@@ -440,6 +439,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._logger.info("ingested trace %s.", trace.id)
 
     @nop_sync
+    @warn_catch_exception()
     def _ingest_span_streaming(self, span: Span) -> None:
         parent_step: Optional[StepWithChildSpans] = (
             self.current_parent()
@@ -479,7 +479,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}", exc_info=False
             ),
         )
-        @handle_galileo_http_exceptions_for_retry
+        @retry_on_transient_http_error
         async def ingest_spans_with_backoff(request: Any) -> None:
             return await self._traces_client.ingest_spans(request)
 
@@ -489,77 +489,72 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._logger.info("ingested span %s.", span.id)
 
     @nop_sync
+    @warn_catch_exception()
     def _update_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
-        try:
-            trace_update_request = TraceUpdateRequest(
-                trace_id=trace.id,
-                log_stream_id=self.log_stream_id,
-                experiment_id=self.experiment_id,
-                output=trace.output,
-                status_code=trace.status_code,
-                tags=trace.tags,
-                is_complete=is_complete,
-                duration_ns=trace.metrics.duration_ns,
-                reliable=True,
+        trace_update_request = TraceUpdateRequest(
+            trace_id=trace.id,
+            log_stream_id=self.log_stream_id,
+            experiment_id=self.experiment_id,
+            output=trace.output,
+            status_code=trace.status_code,
+            tags=trace.tags,
+            is_complete=is_complete,
+            duration_ns=trace.metrics.duration_ns,
+            reliable=True,
+        )
+
+        # Use counter to make each update task unique (same trace can be updated multiple times)
+        self._task_counter += 1
+        task_id = f"trace-update-{trace.id}-{self._task_counter}"
+
+        # Find the most recent trace update task for this specific trace (if any)
+        # This ensures trace updates for the same trace happen in order
+        prev_trace_update_task = None
+        for existing_task_id in reversed(list(self._task_handler._tasks.keys())):
+            if existing_task_id.startswith(f"trace-update-{trace.id}-"):
+                prev_trace_update_task = existing_task_id
+                break
+
+        @backoff.on_exception(
+            backoff.expo,
+            Exception,
+            max_tries=self._max_retries,
+            max_time=self._max_time,
+            base=2,
+            logger=None,
+            on_backoff=lambda details: (
+                self._task_handler.increment_retry(task_id),
+                self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for trace update {task_id}"),
+            ),
+            on_giveup=lambda details: (
+                self._logger.error(
+                    f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}",
+                    exc_info=False,
+                ),
+            ),
+        )
+        @retry_on_transient_http_error
+        async def update_trace_with_backoff(request: Any) -> None:
+            return await self._traces_client.update_trace(request)
+
+        # Submit with dependency on the previous trace update for this trace
+        if prev_trace_update_task:
+            self._task_handler.submit_task_with_parent(
+                task_id, lambda: update_trace_with_backoff(trace_update_request), parent_task_id=prev_trace_update_task
+            )
+        else:
+            self._task_handler.submit_task(
+                task_id, lambda: update_trace_with_backoff(trace_update_request), dependent_on_prev=True
             )
 
-            # Use counter to make each update task unique (same trace can be updated multiple times)
-            self._task_counter += 1
-            task_id = f"trace-update-{trace.id}-{self._task_counter}"
+        # Mark that we've submitted the trace completion update to prevent duplicates
+        if is_complete:
+            self._trace_completion_submitted = True
 
-            # Find the most recent trace update task for this specific trace (if any)
-            # This ensures trace updates for the same trace happen in order
-            prev_trace_update_task = None
-            for existing_task_id in reversed(list(self._task_handler._tasks.keys())):
-                if existing_task_id.startswith(f"trace-update-{trace.id}-"):
-                    prev_trace_update_task = existing_task_id
-                    break
-
-            @backoff.on_exception(
-                backoff.expo,
-                Exception,
-                max_tries=self._max_retries,
-                max_time=self._max_time,
-                base=2,
-                logger=None,
-                on_backoff=lambda details: (
-                    self._task_handler.increment_retry(task_id),
-                    self._logger.info(
-                        f"Retry #{self._task_handler.get_retry_count(task_id)} for trace update {task_id}"
-                    ),
-                ),
-                on_giveup=lambda details: (
-                    self._logger.error(
-                        f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}",
-                        exc_info=False,
-                    ),
-                ),
-            )
-            @handle_galileo_http_exceptions_for_retry
-            async def update_trace_with_backoff(request: Any) -> None:
-                return await self._traces_client.update_trace(request)
-
-            # Submit with dependency on the previous trace update for this trace
-            if prev_trace_update_task:
-                self._task_handler.submit_task_with_parent(
-                    task_id,
-                    lambda: update_trace_with_backoff(trace_update_request),
-                    parent_task_id=prev_trace_update_task,
-                )
-            else:
-                self._task_handler.submit_task(
-                    task_id, lambda: update_trace_with_backoff(trace_update_request), dependent_on_prev=True
-                )
-
-            # Mark that we've submitted the trace completion update to prevent duplicates
-            if is_complete:
-                self._trace_completion_submitted = True
-
-            self._logger.info("updated trace %s.", trace.id)
-        except Exception as e:
-            self._logger.error("Failed to update trace %s: %s", trace.id, e, exc_info=True)
+        self._logger.info("updated trace %s.", trace.id)
 
     @nop_sync
+    @warn_catch_exception()
     def _update_span_streaming(self, span: Span) -> None:
         span_update_request = SpanUpdateRequest(
             span_id=span.id,
@@ -605,7 +600,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}", exc_info=False
             ),
         )
-        @handle_galileo_http_exceptions_for_retry
+        @retry_on_transient_http_error
         async def update_span_with_backoff(request: Any) -> None:
             return await self._traces_client.update_span(request)
 

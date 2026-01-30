@@ -999,24 +999,21 @@ def test_flush_with_conclude_all_spans(
 @patch("galileo.projects.create_project_projects_post")
 @patch("galileo.logger.logger.Traces")
 def test_galileo_logger_failed_creating_project(
-    mock_traces_client: Mock,
-    galileo_resources_api_projects: Mock,
-    mock_projects_get: Mock,
-    caplog,
-    enable_galileo_logging,
+    mock_traces_client: Mock, galileo_resources_api_projects: Mock, mock_projects_get: Mock
 ) -> None:
+    """Test that GalileoLogger raises ValueError when project creation fails."""
     mock_instance = mock_traces_client.return_value
 
     mock_instance.get_project_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
     mock_instance.get_log_stream_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
 
-    # galileo_resources_api_projects.= MagicMock()
     galileo_resources_api_projects.sync_detailed = Mock(side_effect=ValueError("Unable to create project"))
     mock_projects_get.return_value = None
 
-    with caplog.at_level(logging.WARNING):
+    with pytest.raises(ValueError) as exc_info:
         GalileoLogger()
-        assert "Unable to create project" in caplog.text
+
+    assert "Unable to create project" in str(exc_info.value)
 
 
 def test_get_last_output() -> None:
@@ -1280,7 +1277,7 @@ def test_set_session_id(mock_traces_client: Mock, mock_projects_client: Mock, mo
 
     # Log a trace
     logger.start_trace(input="input", name="test-trace", created_at=datetime.datetime.now())
-    logger.add_llm_span(input="input", output="output")
+    logger.add_llm_span(input="input", output="output", model="gpt-4")
     logger.conclude("output", status_code=200)
     logger.flush()
 
@@ -1352,7 +1349,7 @@ def test_start_session_with_external_id(
 
     # Log a trace
     logger.start_trace(input="input", name="test-trace", created_at=datetime.datetime.now())
-    logger.add_llm_span(input="input", output="output")
+    logger.add_llm_span(input="input", output="output", model="gpt-4")
     logger.conclude("output", status_code=200)
     logger.flush()
 

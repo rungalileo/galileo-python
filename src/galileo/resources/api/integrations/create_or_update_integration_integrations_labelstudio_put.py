@@ -3,6 +3,15 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo.exceptions import (
+    AuthenticationError,
+    BadRequestError,
+    ConflictError,
+    ForbiddenError,
+    NotFoundError,
+    RateLimitError,
+    ServerError,
+)
 from galileo.utils.headers_data import get_sdk_header
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
@@ -33,18 +42,29 @@ def _get_kwargs(*, body: LabelStudioIntegrationCreate) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, IntegrationDB]:
     if response.status_code == 200:
         return IntegrationDB.from_dict(response.json())
 
     if response.status_code == 422:
         return HTTPValidationError.from_dict(response.json())
 
-    if client.raise_on_unexpected_status:
-        raise errors.UnexpectedStatus(response.status_code, response.content)
-    return None
+    # Handle common HTTP errors with actionable messages
+    if response.status_code == 400:
+        raise BadRequestError(response.status_code, response.content)
+    if response.status_code == 401:
+        raise AuthenticationError(response.status_code, response.content)
+    if response.status_code == 403:
+        raise ForbiddenError(response.status_code, response.content)
+    if response.status_code == 404:
+        raise NotFoundError(response.status_code, response.content)
+    if response.status_code == 409:
+        raise ConflictError(response.status_code, response.content)
+    if response.status_code == 429:
+        raise RateLimitError(response.status_code, response.content)
+    if response.status_code >= 500:
+        raise ServerError(response.status_code, response.content)
+    raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
 def _build_response(

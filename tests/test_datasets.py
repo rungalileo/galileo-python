@@ -474,14 +474,15 @@ def test_dataset_add_rows_success(
 def test_dataset_add_rows_failure(
     update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock
 ) -> None:
+    """Test that add_rows raises DatasetAPIException when API returns an error."""
     update_dataset_patch.sync.return_value = HTTPValidationError()
 
     dataset = Dataset(dataset_db=dataset_db())
 
-    # NOTE: This method raises an exception. The reason we don't see one here is we catch all
-    # exceptions and log them as errors in error log.
-    dataset.add_rows([{"input": "b"}, {"input": "c"}])
+    with pytest.raises(DatasetAPIException) as exc_info:
+        dataset.add_rows([{"input": "b"}, {"input": "c"}])
 
+    assert "Request to add new rows to dataset failed" in str(exc_info.value)
     update_dataset_patch.sync.assert_called_once()
     etag_patch.assert_called_once()
     get_dataset_content_patch.sync.assert_not_called()
