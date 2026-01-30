@@ -13,6 +13,7 @@ from galileo.__future__.shared.query_result import QueryResult
 from galileo.config import GalileoPythonConfig
 from galileo.export import ExportClient
 from galileo.log_streams import LogStreams
+from galileo.projects import Projects
 from galileo.resources.api.trace import (
     sessions_available_columns_projects_project_id_sessions_available_columns_post,
     spans_available_columns_projects_project_id_spans_available_columns_post,
@@ -25,7 +26,6 @@ from galileo.resources.models.log_records_available_columns_response import LogR
 from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
-from galileo.utils.validations import require_exactly_one
 
 if TYPE_CHECKING:
     from galileo.__future__.shared.column import ColumnCollection
@@ -102,7 +102,6 @@ class LogStream(StateManagementMixin):
         """Detailed string representation of the log stream."""
         return f"LogStream(name='{self.name}', id='{self.id}', project_id='{self.project_id}', created_at='{self.created_at}')"
 
-    @require_exactly_one("project_id", "project_name")
     def __init__(self, name: str, *, project_id: str | None = None, project_name: str | None = None) -> None:
         """
         Initialize a LogStream instance locally.
@@ -112,12 +111,15 @@ class LogStream(StateManagementMixin):
 
         Args:
             name (str): The name of the log stream to create.
-            project_id (Optional[str]): The project ID. Exactly one of project_id or project_name must be provided.
-            project_name (Optional[str]): The project name. Exactly one of project_id or project_name must be provided.
+            project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
+                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+            project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
+                         falls back to GALILEO_PROJECT environment variable.
 
         Raises
         ------
-            ValidationError: If name is not provided, or if neither/both project_id and project_name are provided.
+            ValidationError: If name is not provided.
+            ValueError: If project cannot be resolved at create() time (no explicit param and no env fallback).
 
         Examples
         --------
@@ -126,6 +128,9 @@ class LogStream(StateManagementMixin):
 
             # Create by project name
             log_stream = LogStream(name="Production Logs", project_name="My AI Project")
+
+            # Create using GALILEO_PROJECT environment variable
+            log_stream = LogStream(name="Production Logs")
         """
         super().__init__()
 
@@ -166,16 +171,27 @@ class LogStream(StateManagementMixin):
         if not self.name:
             raise ValueError("Log stream name is not set. Cannot create log stream without a name.")
 
-        if not self.project_id and not self.project_name:
-            raise ValueError(
-                "Project information is not set. Cannot create log stream without project_id or project_name."
-            )
+        # Note: project_id and project_name can both be None here - resolution happens below
+        # via Projects().get_with_env_fallbacks() which reads from env vars
 
         try:
             logger.info(f"LogStream.create: name='{self.name}' project_id='{self.project_id}' - started")
+
+            # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
+            project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
+            if not project_obj:
+                raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
+
+            # Update project info from resolved project
+            self.project_id = project_obj.id
+            if self.project_name is None:
+                self.project_name = project_obj.name
+
             log_streams_service = LogStreams()
             created_log_stream = log_streams_service.create(
-                name=self.name, project_id=self.project_id, project_name=self.project_name
+                name=self.name,
+                project_id=self.project_id,
+                project_name=None,  # Use resolved project_id
             )
 
             # Update attributes from response
@@ -230,15 +246,16 @@ class LogStream(StateManagementMixin):
         return instance
 
     @classmethod
-    @require_exactly_one("project_id", "project_name")
     def get(cls, *, name: str, project_id: str | None = None, project_name: str | None = None) -> LogStream | None:
         """
         Get an existing log stream by name.
 
         Args:
             name (str): The log stream name.
-            project_id (Optional[str]): The project ID.
-            project_name (Optional[str]): The project name.
+            project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
+                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+            project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
+                         falls back to GALILEO_PROJECT environment variable.
 
         Returns
         -------
@@ -246,7 +263,7 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ValidationError: If neither or both project_id and project_name are provided.
+            ValueError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------
@@ -261,27 +278,35 @@ class LogStream(StateManagementMixin):
                 name="Production Logs",
                 project_id="project-123"
             )
+
+            # Get using GALILEO_PROJECT environment variable
+            log_stream = LogStream.get(name="Production Logs")
         """
+        # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
+        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+        if not project_obj:
+            raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
+
         log_streams_service = LogStreams()
-        retrieved_log_stream = log_streams_service.get(name=name, project_id=project_id, project_name=project_name)
+        retrieved_log_stream = log_streams_service.get(name=name, project_id=project_obj.id)
         if retrieved_log_stream is None:
             return None
 
         instance = cls._from_api_response(retrieved_log_stream)
-        # Preserve project_name if it was provided
-        if project_name is not None:
-            instance.project_name = project_name
+        # Set project_name from resolved project
+        instance.project_name = project_obj.name
         return instance
 
     @classmethod
-    @require_exactly_one("project_id", "project_name")
     def list(cls, *, project_id: str | None = None, project_name: str | None = None) -> list[LogStream]:
         """
         List all log streams for a project.
 
         Args:
-            project_id (Optional[str]): The project ID.
-            project_name (Optional[str]): The project name.
+            project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
+                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+            project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
+                         falls back to GALILEO_PROJECT environment variable.
 
         Returns
         -------
@@ -289,7 +314,7 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ValidationError: If neither or both project_id and project_name are provided.
+            ValueError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------
@@ -298,15 +323,22 @@ class LogStream(StateManagementMixin):
 
             # List by project ID
             log_streams = LogStream.list(project_id="project-123")
+
+            # List using GALILEO_PROJECT environment variable
+            log_streams = LogStream.list()
         """
+        # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
+        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+        if not project_obj:
+            raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
+
         log_streams_service = LogStreams()
-        retrieved_log_streams = log_streams_service.list(project_id=project_id, project_name=project_name)
+        retrieved_log_streams = log_streams_service.list(project_id=project_obj.id)
 
         instances = [cls._from_api_response(retrieved_log_stream) for retrieved_log_stream in retrieved_log_streams]
-        # Preserve project_name if it was provided
-        if project_name is not None:
-            for instance in instances:
-                instance.project_name = project_name
+        # Set project_name from resolved project for all instances
+        for instance in instances:
+            instance.project_name = project_obj.name
         return instances
 
     def refresh(self) -> None:

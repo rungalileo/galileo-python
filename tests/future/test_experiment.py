@@ -114,21 +114,166 @@ class TestExperimentInitialization:
         with pytest.raises(ValidationError, match="'name' must be provided"):
             Experiment(name="", dataset_name="test-dataset", prompt_name="test-prompt", project_id="test-project-id")
 
-    def test_init_without_project_raises_validation_error(self, reset_configuration: None) -> None:
-        """Test initializing an experiment without project info raises ValidationError."""
-        with pytest.raises(ValidationError):
-            Experiment(name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt")
+    def test_init_without_project_succeeds(self, reset_configuration: None) -> None:
+        """Test initializing an experiment without project info succeeds (validated at create time)."""
+        # Given: no project_id or project_name provided
+        # When: creating an experiment
+        experiment = Experiment(name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt")
 
-    def test_init_with_both_project_id_and_name_raises_validation_error(self, reset_configuration: None) -> None:
-        """Test initializing an experiment with both project_id and project_name raises ValidationError."""
-        with pytest.raises(ValidationError):
-            Experiment(
-                name="Test Experiment",
-                dataset_name="test-dataset",
-                prompt_name="test-prompt",
-                project_id="test-id",
-                project_name="Test Project",
-            )
+        # Then: experiment is created with LOCAL_ONLY state, project info is None
+        assert experiment.project_id is None
+        assert experiment.project_name is None
+        assert experiment.sync_state == SyncState.LOCAL_ONLY
+
+    def test_init_with_both_project_id_and_name_succeeds(self, reset_configuration: None) -> None:
+        """Test initializing an experiment with both project_id and project_name succeeds (prefer id)."""
+        # Given: both project_id and project_name provided
+        # When: creating an experiment
+        experiment = Experiment(
+            name="Test Experiment",
+            dataset_name="test-dataset",
+            prompt_name="test-prompt",
+            project_id="test-id",
+            project_name="Test Project",
+        )
+
+        # Then: experiment is created with both values stored
+        assert experiment.project_id == "test-id"
+        assert experiment.project_name == "Test Project"
+
+
+class TestExperimentEnvFallback:
+    """Test suite for Experiment environment variable fallback behavior."""
+
+    @patch("galileo.__future__.experiment.load_dataset_and_records")
+    @patch("galileo.__future__.experiment.Projects")
+    @patch("galileo.__future__.experiment.ExperimentsService")
+    def test_create_uses_env_fallback_when_no_project_specified(
+        self,
+        mock_experiments_class: MagicMock,
+        mock_projects_class: MagicMock,
+        mock_load_dataset: MagicMock,
+        reset_configuration: None,
+        mock_experiment_response: MagicMock,
+        mock_project: MagicMock,
+    ) -> None:
+        """Test create() uses Projects().get_with_env_fallbacks() when no project is specified."""
+        # Given: env fallback resolves to a project
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
+
+        mock_dataset = MagicMock()
+        mock_load_dataset.return_value = (mock_dataset, [])
+
+        mock_experiments_service = MagicMock()
+        mock_experiments_class.return_value = mock_experiments_service
+        mock_experiments_service.get.return_value = None
+        mock_experiments_service.create.return_value = mock_experiment_response
+
+        # When: creating experiment without project params
+        experiment = Experiment(name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt").create()
+
+        # Then: project is resolved from env fallbacks
+        mock_projects_service.get_with_env_fallbacks.assert_called_once()
+        assert experiment.project_id == mock_project.id
+        assert experiment.is_synced()
+
+    @patch("galileo.__future__.experiment.Projects")
+    def test_create_raises_error_when_no_project_and_no_env_fallback(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        """Test create() raises ValueError when no project and no env fallback."""
+        # Given: env fallback returns None (no project found)
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = None
+
+        # When/Then: creating experiment raises ValueError with helpful message
+        experiment = Experiment(name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt")
+        with pytest.raises(ValueError, match="Project not found"):
+            experiment.create()
+
+    @patch("galileo.__future__.experiment.Projects")
+    @patch("galileo.__future__.experiment.ExperimentsService")
+    def test_get_uses_env_fallback_when_no_project_specified(
+        self,
+        mock_experiments_class: MagicMock,
+        mock_projects_class: MagicMock,
+        reset_configuration: None,
+        mock_experiment_response: MagicMock,
+        mock_project: MagicMock,
+    ) -> None:
+        """Test get() uses Projects().get_with_env_fallbacks() when no project is specified."""
+        # Given: env fallback resolves to a project
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
+
+        mock_experiments_service = MagicMock()
+        mock_experiments_class.return_value = mock_experiments_service
+        mock_experiments_service.get.return_value = mock_experiment_response
+
+        # When: calling get() without project params
+        experiment = Experiment.get(name="Test Experiment")
+
+        # Then: project is resolved from env fallbacks
+        mock_projects_service.get_with_env_fallbacks.assert_called_once()
+        assert experiment.project_id == mock_project.id
+
+    @patch("galileo.__future__.experiment.Projects")
+    def test_get_raises_error_when_no_project_and_no_env_fallback(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        """Test get() raises ValueError when no project and no env fallback."""
+        # Given: env fallback returns None (no project found)
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = None
+
+        # When/Then: calling get() raises ValueError with helpful message
+        with pytest.raises(ValueError, match="Project not found"):
+            Experiment.get(name="Test Experiment")
+
+    @patch("galileo.__future__.experiment.Projects")
+    @patch("galileo.__future__.experiment.ExperimentsService")
+    def test_list_uses_env_fallback_when_no_project_specified(
+        self,
+        mock_experiments_class: MagicMock,
+        mock_projects_class: MagicMock,
+        reset_configuration: None,
+        mock_project: MagicMock,
+    ) -> None:
+        """Test list() uses Projects().get_with_env_fallbacks() when no project is specified."""
+        # Given: env fallback resolves to a project
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
+
+        mock_experiments_service = MagicMock()
+        mock_experiments_class.return_value = mock_experiments_service
+        mock_experiments_service.list.return_value = []
+
+        # When: calling list() without project params
+        experiments = Experiment.list()
+
+        # Then: project is resolved from env fallbacks
+        mock_projects_service.get_with_env_fallbacks.assert_called_once()
+        assert experiments == []
+
+    @patch("galileo.__future__.experiment.Projects")
+    def test_list_raises_error_when_no_project_and_no_env_fallback(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        """Test list() raises ValueError when no project and no env fallback."""
+        # Given: env fallback returns None (no project found)
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = None
+
+        # When/Then: calling list() raises ValueError with helpful message
+        with pytest.raises(ValueError, match="Project not found"):
+            Experiment.list()
 
 
 class TestExperimentCreate:
