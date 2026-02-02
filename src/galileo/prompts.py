@@ -184,10 +184,14 @@ class GlobalPromptTemplates:
             return PromptTemplate(prompt_template=template)
 
         if name:
-            templates = self.list(name_filter=name, limit=1)
-            for template in templates:
-                if template.name == name:
-                    return template
+            # Use EQ filter for exact name match instead of CONTAINS
+            params = ListPromptTemplateParams()
+            params.filters = [PromptTemplateNameFilter(operator=PromptTemplateNameFilterOperator.EQ, value=name)]
+            response = query_templates_templates_query_post.sync(
+                client=self.config.api_client, body=params, limit=1, starting_token=0
+            )
+            if response and hasattr(response, "templates") and response.templates:
+                return PromptTemplate(prompt_template=response.templates[0])
             return None
 
         return None
