@@ -184,6 +184,7 @@ class EventSerializer(JSONEncoder):
 
             # Handle langgraph types before the generic dataclass check
             # Command is a dataclass with __slots__, so generic dataclass handling fails
+            # Local import to avoid hard dependency on optional `langgraph`
             if is_langgraph_available:
                 from langgraph.types import Command, Send
 
