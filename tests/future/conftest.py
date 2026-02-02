@@ -184,10 +184,12 @@ def mock_dataset() -> MagicMock:
 @pytest.fixture
 def mock_prompt() -> MagicMock:
     """Create a mock prompt object for testing."""
+    version_id = str(uuid4())
 
     mock_version = MagicMock()
     mock_version.template = [MessagesListItem(role="user", content="{{input}}")]
     mock_version.version = 1
+    mock_version.id = version_id
 
     mock_pmt = MagicMock()
     mock_pmt.id = str(uuid4())
@@ -195,7 +197,24 @@ def mock_prompt() -> MagicMock:
     mock_pmt.created_at = MagicMock()
     mock_pmt.updated_at = MagicMock()
     mock_pmt.selected_version = mock_version
+    mock_pmt.selected_version_id = version_id
+    mock_pmt.total_versions = 1
+    mock_pmt.all_available_versions = [1]
+    mock_pmt.max_version = 1
     return mock_pmt
+
+
+@pytest.fixture
+def mock_prompt_version() -> MagicMock:
+    """Create a mock prompt version object for testing."""
+    mock_version = MagicMock()
+    mock_version.id = str(uuid4())
+    mock_version.version = 1
+    mock_version.template = [MessagesListItem(role="user", content="{{input}}")]
+    mock_version.settings = MagicMock()
+    mock_version.created_at = MagicMock()
+    mock_version.updated_at = MagicMock()
+    return mock_version
 
 
 @pytest.fixture
