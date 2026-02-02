@@ -1,4 +1,5 @@
 from unittest.mock import MagicMock, patch
+from uuid import uuid4
 
 import pytest
 
@@ -33,7 +34,7 @@ class TestGalileoADKCallback:
             mock_logger = MagicMock()
             mock_context.get_logger_instance.return_value = mock_logger
 
-            callback = GalileoADKCallback()
+            callback = GalileoADKCallback(project="test")
 
             assert callback._handler._start_new_trace is True
             assert callback._handler._flush_on_chain_end is True
@@ -43,8 +44,7 @@ class TestGalileoADKCallback:
         result = callback.before_agent_callback(adk_callback_context)
 
         assert result is None
-        assert hasattr(adk_callback_context, "_galileo_run_id")
-        assert adk_callback_context._galileo_run_id is not None
+        assert callback._tracker.agent_count == 1
         assert len(callback._handler._nodes) == 1
 
     def test_after_agent_callback(self, callback: GalileoADKCallback, adk_callback_context: MagicMock) -> None:
@@ -66,8 +66,7 @@ class TestGalileoADKCallback:
         result = callback.before_model_callback(adk_callback_context, adk_llm_request)
 
         assert result is None
-        assert hasattr(adk_callback_context, "_galileo_llm_run_id")
-        assert adk_callback_context._galileo_llm_run_id is not None
+        assert callback._tracker.llm_count == 1
         assert len(callback._handler._nodes) == 2
 
     def test_after_model_callback(
@@ -80,7 +79,7 @@ class TestGalileoADKCallback:
         callback.before_agent_callback(adk_callback_context)
         callback.before_model_callback(adk_callback_context, adk_llm_request)
 
-        result = callback.after_model_callback(adk_callback_context, adk_llm_response, model_response_event=None)
+        result = callback.after_model_callback(adk_callback_context, adk_llm_response)
 
         assert result is None
         assert len(callback._handler._nodes) == 2
@@ -99,8 +98,7 @@ class TestGalileoADKCallback:
         result = callback.before_tool_callback(adk_tool, tool_args, adk_tool_context)
 
         assert result is None
-        assert hasattr(adk_tool_context, "_galileo_tool_run_id")
-        assert adk_tool_context._galileo_tool_run_id is not None
+        assert callback._tracker.tool_count == 1
         assert len(callback._handler._nodes) == 2
 
     def test_after_tool_callback(
@@ -209,3 +207,297 @@ class TestGalileoADKCallback:
         assert result["prompt_tokens"] == 10
         assert result["completion_tokens"] == 20
         assert result["total_tokens"] == 30
+
+
+class MockCallbackContext:
+    """Mock ADK CallbackContext for testing callback error handling."""
+
+    def __init__(
+        self,
+        agent_name: str = "test_agent",
+        session_id: str = "test_session",
+        user_id: str = "test_user",
+    ) -> None:
+        self.agent_name = agent_name
+        self.session_id = session_id
+        self.user_id = user_id
+        self.parent_context = MagicMock()
+        self.parent_context.new_message = MagicMock()
+
+
+class MockLlmRequest:
+    """Mock ADK LlmRequest for testing."""
+
+    def __init__(
+        self,
+        contents: list | None = None,
+        model: str = "gemini-pro",
+        request_id: str | None = None,
+    ) -> None:
+        self.contents = contents or []
+        self.config = MagicMock(spec_set=[])
+        self.model = model
+        self.request_id = request_id or str(uuid4())
+
+
+class MockLlmResponse:
+    """Mock ADK LlmResponse for testing."""
+
+    def __init__(
+        self,
+        content: object = None,
+        usage_metadata: object = None,
+        model_version: str = "gemini-pro-response",
+        request_id: str | None = None,
+    ) -> None:
+        self.content = content
+        self.usage_metadata = usage_metadata
+        self.model_version = model_version
+        self.request_id = request_id
+
+
+class MockContent:
+    """Mock ADK Content for testing."""
+
+    def __init__(self, parts: list | None = None, role: str = "user") -> None:
+        self.parts = parts or []
+        self.role = role
+
+
+class MockPart:
+    """Mock ADK Part for testing."""
+
+    def __init__(self, text: str | None = None) -> None:
+        self.text = text
+
+
+class MockToolContext:
+    """Mock ADK ToolContext for testing."""
+
+    def __init__(self, callback_context: MockCallbackContext | None = None) -> None:
+        self.callback_context = callback_context
+
+
+class TestCallbackErrorHandling:
+    """Consolidated error handling tests for GalileoADKCallback."""
+
+    @pytest.fixture
+    def callback(self, mock_galileo_logger: MagicMock) -> GalileoADKCallback:
+        return GalileoADKCallback(galileo_logger=mock_galileo_logger)
+
+    def test_callback_handles_all_exception_types_gracefully(
+        self,
+        callback: GalileoADKCallback,
+    ) -> None:
+        """Callbacks handle various exception types without propagating errors."""
+        # Given: a context that raises when accessing properties
+        broken_context = MagicMock()
+        broken_context.agent_name = property(lambda self: 1 / 0)
+
+        # When/Then: before_agent_callback handles error gracefully
+        result = callback.before_agent_callback(broken_context)
+        assert result is None
+
+        # When/Then: after_agent_callback with no run_id handles gracefully
+        normal_context = MockCallbackContext()
+        result = callback.after_agent_callback(normal_context)
+        assert result is None
+
+        # When/Then: after_model_callback without matching before_model handles gracefully
+        response = MockLlmResponse()
+        result = callback.after_model_callback(normal_context, response)
+        assert result is None
+
+        # When/Then: tool callbacks without parent agent handle gracefully
+        tool = MagicMock()
+        tool.name = "test_tool"
+        tool_context = MockToolContext()
+        result = callback.before_tool_callback(tool, {"arg": "value"}, tool_context)
+        assert result is None
+
+        result = callback.after_tool_callback(tool, {"arg": "value"}, tool_context, {"result": "ok"})
+        assert result is None
+
+    def test_all_callbacks_return_none_consistently(
+        self,
+        callback: GalileoADKCallback,
+    ) -> None:
+        """All callback methods consistently return None to allow callback chaining."""
+        context = MockCallbackContext()
+        request = MockLlmRequest()
+        # Use matching request_id for correlation
+        response = MockLlmResponse(request_id=request.request_id)
+        tool = MagicMock()
+        tool.name = "test_tool"
+        tool_context = MockToolContext(callback_context=context)
+
+        # Test agent callbacks
+        assert callback.before_agent_callback(context) is None
+        assert callback.after_agent_callback(context) is None
+
+        # Test model callbacks
+        callback.before_agent_callback(context)  # Need parent span
+        assert callback.before_model_callback(context, request) is None
+        assert callback.after_model_callback(context, response) is None
+        callback.after_agent_callback(context)
+
+        # Test tool callbacks
+        callback.before_agent_callback(context)
+        assert callback.before_tool_callback(tool, {"arg": "value"}, tool_context) is None
+        assert callback.after_tool_callback(tool, {"arg": "value"}, tool_context, {"result": "ok"}) is None
+
+
+class TestCallbackPluginCompatibility:
+    """Tests for multi-plugin compatibility - migrated from test_multi_plugin.py."""
+
+    @pytest.fixture
+    def callback(self, mock_galileo_logger: MagicMock) -> GalileoADKCallback:
+        return GalileoADKCallback(galileo_logger=mock_galileo_logger)
+
+    def test_callback_handles_data_modification_gracefully(
+        self,
+        callback: GalileoADKCallback,
+    ) -> None:
+        """Callback handles external data modification between before/after calls."""
+        context = MockCallbackContext()
+        request = MockLlmRequest(contents=[MockContent(parts=[MockPart(text="sensitive data")])])
+
+        callback.before_agent_callback(context)
+        callback.before_model_callback(context, request)
+
+        # External plugin modifies data
+        request.contents[0].parts[0].text = "[REDACTED]"
+
+        # Use matching request_id for correlation
+        response = MockLlmResponse(request_id=request.request_id)
+        result = callback.after_model_callback(context, response)
+        assert result is None
+        # LLM run_id tracked internally, cleaned up after after_model_callback
+        assert callback._tracker.llm_count == 0
+
+    def test_namespaced_attributes(self, callback: GalileoADKCallback) -> None:
+        """Callback tracks spans internally without polluting context."""
+        context = MockCallbackContext()
+        request = MockLlmRequest()
+
+        callback.before_agent_callback(context)
+        callback.before_model_callback(context, request)
+
+        # Spans tracked internally
+        assert callback._tracker.llm_count == 1
+        assert callback._tracker.agent_count == 1
+
+        # Other plugin attributes on context should not be affected
+        context._other_plugin_data = "test"  # type: ignore[attr-defined]
+        assert context._other_plugin_data == "test"  # type: ignore[attr-defined]
+
+    def test_read_only_operations(self, callback: GalileoADKCallback) -> None:
+        """Callback doesn't modify the original request data."""
+        context = MockCallbackContext()
+        original_text = "original message"
+        request = MockLlmRequest(contents=[MockContent(parts=[MockPart(text=original_text)])])
+
+        callback.before_model_callback(context, request)
+
+        # Original data should be unchanged
+        assert request.contents[0].parts[0].text == original_text
+
+    def test_compatibility_with_other_plugin_attributes(
+        self,
+        callback: GalileoADKCallback,
+    ) -> None:
+        """Callback is compatible with other plugins setting attributes on context."""
+        context = MockCallbackContext()
+        request = MockLlmRequest()
+
+        # Other plugins set custom attributes
+        context._redaction_processed = True  # type: ignore[attr-defined]
+        context._cache_key = "abc123"  # type: ignore[attr-defined]
+        context._validation_passed = True  # type: ignore[attr-defined]
+
+        callback.before_agent_callback(context)
+        callback.before_model_callback(context, request)
+
+        # Other plugin attributes preserved
+        assert context._redaction_processed is True  # type: ignore[attr-defined]
+        assert context._cache_key == "abc123"  # type: ignore[attr-defined]
+        assert context._validation_passed is True  # type: ignore[attr-defined]
+        # Internal tracking unaffected
+        assert callback._tracker.llm_count == 1
+
+        # Use matching request_id for correlation
+        response = MockLlmResponse(request_id=request.request_id)
+        callback.after_model_callback(context, response)
+
+        # Still preserved after after callback
+        assert context._redaction_processed is True  # type: ignore[attr-defined]
+        assert context._cache_key == "abc123"  # type: ignore[attr-defined]
+        assert context._validation_passed is True  # type: ignore[attr-defined]
+
+    def test_complex_agent_interaction_sequence(
+        self,
+        callback: GalileoADKCallback,
+    ) -> None:
+        """Tests multiple LLM calls and tool calls within a single agent lifecycle."""
+        context = MockCallbackContext()
+        tool = MagicMock()
+        tool.name = "test_tool"
+        tool_context = MockToolContext(callback_context=context)
+
+        callback.before_agent_callback(context)
+
+        # First LLM call
+        request1 = MockLlmRequest()
+        callback.before_model_callback(context, request1)
+        assert callback._tracker.llm_count == 1
+
+        # Use matching request_id for correlation
+        response1 = MockLlmResponse(request_id=request1.request_id)
+        callback.after_model_callback(context, response1)
+        assert callback._tracker.llm_count == 0
+
+        # Tool call between LLM calls
+        tool_args = {"action": "search"}
+        callback.before_tool_callback(tool, tool_args, tool_context)
+        callback.after_tool_callback(tool, tool_args, tool_context, {"result": "found"})
+
+        # Second LLM call
+        request2 = MockLlmRequest()
+        callback.before_model_callback(context, request2)
+        assert callback._tracker.llm_count == 1
+
+        # Use matching request_id for correlation
+        response2 = MockLlmResponse(request_id=request2.request_id)
+        callback.after_model_callback(context, response2)
+        assert callback._tracker.llm_count == 0
+
+        callback.after_agent_callback(context)
+
+        # All spans should be closed
+        assert len(callback._handler._nodes) == 0
+
+    def test_llm_correlation_without_request_id(
+        self,
+        callback: GalileoADKCallback,
+    ) -> None:
+        """LLM spans are properly correlated even when request_id is not available."""
+        context = MockCallbackContext()
+
+        callback.before_agent_callback(context)
+
+        # Create request WITHOUT request_id
+        request = MockLlmRequest(request_id=None)
+        # Clear the auto-generated request_id
+        request.request_id = None
+
+        callback.before_model_callback(context, request)
+        assert callback._tracker.llm_count == 1
+
+        # Create response WITHOUT request_id (simulates ADK not passing correlation)
+        response = MockLlmResponse(request_id=None)
+
+        # This should still work via tracker correlation
+        callback.after_model_callback(context, response)
+        assert callback._tracker.llm_count == 0
+
+        callback.after_agent_callback(context)

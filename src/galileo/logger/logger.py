@@ -143,6 +143,7 @@ class GalileoLogger(TracesLogger):
     span_id: Optional[str] = None
     local_metrics: Optional[list[LocalMetricConfig]] = None
     mode: Optional[LoggerModeType] = None
+    _session_external_id: Optional[str] = None
 
     _logger = logging.getLogger("galileo.logger")
     _task_handler: ThreadPoolTaskHandler
@@ -210,6 +211,17 @@ class GalileoLogger(TracesLogger):
         if self._ingestion_hook and self.mode == "distributed":
             raise GalileoLoggerException("ingestion_hook can only be used in batch mode")
 
+        # Ingestion hook mode: skip project/log_stream validation and backend initialization
+        # The user's hook handles all trace flushing, so no Galileo credentials are needed
+        if ingestion_hook:
+            self.project_name = project
+            self.log_stream_name = log_stream
+            if local_metrics:
+                self.local_metrics = local_metrics
+            atexit.register(self.terminate)
+            return
+
+        # Standard mode: validate credentials and connect to Galileo backend
         project_name_from_env = _get_project_or_default(None)
         log_stream_name_from_env = _get_log_stream_or_default(None)
 
@@ -1731,7 +1743,10 @@ class GalileoLogger(TracesLogger):
         self._logger.info(f"Flushing {trace_count} {'trace' if trace_count == 1 else 'traces'}...")
 
         traces_ingest_request = TracesIngestRequest(
-            traces=logged_traces, session_id=self.session_id, experiment_id=self.experiment_id
+            traces=logged_traces,
+            session_id=self.session_id,
+            session_external_id=self._session_external_id,
+            experiment_id=self.experiment_id,
         )
 
         if self._ingestion_hook:
@@ -1773,6 +1788,12 @@ class GalileoLogger(TracesLogger):
     async def _start_or_get_session_async(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
     ) -> str:
+        self._session_external_id = external_id
+        if self._ingestion_hook:
+            self.session_id = str(uuid.uuid4())
+            self._logger.info("Session started: session_id=%s, external_id=%s", self.session_id, external_id)
+            return self.session_id
+
         if external_id and external_id.strip() != "":
             self._logger.info(f"Searching for session with external ID: {external_id} ...")
             try:

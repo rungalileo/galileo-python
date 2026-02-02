@@ -35,6 +35,7 @@ class LogRecordsIngestRequest(BaseLogStreamOrExperimentModel):
 class TracesIngestRequest(LogRecordsIngestRequest):
     traces: list[Trace] = Field(..., description="List of traces to log.", min_length=1)
     session_id: Optional[UUID4] = Field(default=None, description="Session id associated with the traces.")
+    session_external_id: Optional[str] = Field(default=None, description="External id for session grouping.")
     is_complete: Optional[bool] = Field(default=True, description="Is complete.")
 
 

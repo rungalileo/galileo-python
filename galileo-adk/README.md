@@ -8,55 +8,84 @@ Galileo observability integration for Google ADK (Agent Development Kit).
 pip install galileo-adk
 ```
 
-## Two Interfaces
+## Architecture
 
-| Interface | Use Case |
-|-----------|----------|
-| `GalileoADKPlugin` | Runner-level observability |
-| `GalileoADKCallback` | Agent-level observability |
+```
+┌──────────────────────────────────────────────────────────────────────────┐
+│                           Google ADK                                     │
+│                                                                          │
+│  ┌─────────────────────────┐          ┌─────────────────────────┐        │
+│  │    GalileoADKPlugin     │          │   GalileoADKCallback    │        │
+│  │    (Runner plugins)     │          │   (Agent callbacks)     │        │
+│  │                         │          │                         │        │
+│  │  on_user_msg            │          │  before/after_agent     │        │
+│  │  before/after_agent     │          │  before/after_model     │        │
+│  │  before/after_model     │          │  before/after_tool      │        │
+│  │  before/after_tool      │          │                         │        │
+│  │  on_error               │          │                         │        │
+│  └───────────┬─────────────┘          └───────────┬─────────────┘        │
+│              │                                    │                      │
+│              └──────────────┬─────────────────────┘                      │
+│                             ▼                                            │
+│                  ┌────────────────────┐                                  │
+│                  │   SpanTracker      │  ← Run ID correlation            │
+│                  └─────────┬──────────┘                                  │
+│                            ▼                                             │
+│                  ┌────────────────────┐                                  │
+│                  │  GalileoObserver   │  ← Shared logic                  │
+│                  └─────────┬──────────┘                                  │
+│                            ▼                                             │
+│                  ┌────────────────────┐                                  │
+│                  │    SpanManager     │  ← Trace hierarchy               │
+│                  └─────────┬──────────┘                                  │
+│                            ▼                                             │
+│                  ┌────────────────────┐                                  │
+│                  │ GalileoBaseHandler │  ← From galileo lib              │
+│                  └─────────┬──────────┘                                  │
+└────────────────────────────┼─────────────────────────────────────────────┘
+                             ▼
+                ┌────────────────────────┐
+                │    Galileo Backend     │
+                │   (or ingestion_hook)  │
+                └────────────────────────┘
+
+Trace Hierarchy (Plugin mode):
+──────────────────────────────
+invocation [agent_name]           ← Run span (workflow wrapper)
+└── agent_run [agent_name]        ← Agent span
+    ├── call_llm                  ← LLM span (with tool_calls)
+    └── execute_tool [tool_name]  ← Tool span
+        └── (nested invocation)   ← Sub-agent if tool invokes agent
+```
 
 ## Quick Start
 
-### GalileoADKPlugin (Recommended)
+### Plugin (Recommended)
 
 ```python
 from galileo_adk import GalileoADKPlugin
 from google.adk.runners import Runner
 from google.adk.agents import LlmAgent
 
-agent = LlmAgent(
-    name="my_agent",
-    model="gemini-2.0-flash",
-    instruction="You are a helpful assistant."
-)
-
-plugin = GalileoADKPlugin(
-    project="my-project",
-    log_stream="production",
-)
-
+plugin = GalileoADKPlugin(project="my-project", log_stream="production")
+agent = LlmAgent(name="assistant", model="gemini-2.0-flash", instruction="...")
 runner = Runner(agent=agent, plugins=[plugin])
 
-async for event in runner.run_async(user_id="user", session_id="session", new_message=message):
+async for event in runner.run_async(user_id="user", session_id="sess", new_message=msg):
     if event.is_final_response():
         print(event.content.parts[0].text)
 ```
 
-### GalileoADKCallback
+### Callback
 
 ```python
 from galileo_adk import GalileoADKCallback
-from google.adk.agents import LlmAgent
 
-callback = GalileoADKCallback(
-    project="my-project",
-    log_stream="production",
-)
+callback = GalileoADKCallback(project="my-project", log_stream="production")
 
 agent = LlmAgent(
-    name="my_agent",
+    name="assistant",
     model="gemini-2.0-flash",
-    instruction="You are a helpful assistant.",
     before_agent_callback=callback.before_agent_callback,
     after_agent_callback=callback.after_agent_callback,
     before_model_callback=callback.before_model_callback,
@@ -68,65 +97,107 @@ agent = LlmAgent(
 
 ## Configuration
 
-Both interfaces accept the same parameters:
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `project` | `str` | Galileo project (or `GALILEO_PROJECT` env) |
+| `log_stream` | `str` | Log stream (or `GALILEO_LOG_STREAM` env) |
+| `ingestion_hook` | `Callable` | Custom trace handler (enables hook-only mode) |
+| `external_id` | `str` | Groups traces under same session |
+| `metadata` | `dict` |  Metadata for all spans |
 
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `project` | `str` | `None` | Galileo project (or `GALILEO_PROJECT` env var) |
-| `log_stream` | `str` | `None` | Log stream (or `GALILEO_LOG_STREAM` env var) |
-| `galileo_logger` | `GalileoLogger` | `None` | Existing logger instance |
-| `start_new_trace` | `bool` | `True` | Start new trace per run |
-| `flush_on_run_end` / `flush_on_agent_end` | `bool` | `True` | Auto-flush on completion |
-| `ingestion_hook` | `Callable` | `None` | Intercept traces (replaces default ingestion) |
+## Metadata
 
-### Ingestion Hook
-
-The `ingestion_hook` **replaces** default ingestion. To inspect AND send traces:
+### Static (same for all turns)
 
 ```python
-callback = GalileoADKCallback()
-logger = callback._handler._galileo_logger
-
-def my_hook(request):
-    print(f"Intercepted {len(request.traces)} traces")
-    logger.ingest_traces(request)  # Required to send to Galileo!
-
-logger._ingestion_hook = my_hook
+plugin = GalileoADKPlugin(
+    project="my-project",
+    metadata={"env": "prod", "version": "1.0"}
+)
 ```
 
-## Multi-Plugin Support
-
-Galileo plugin works with other ADK plugins. Order matters:
+### Per-Turn (updated before each turn)
 
 ```python
-# Galileo observes ORIGINAL data
-plugins=[galileo_plugin, redaction_plugin]
+plugin = GalileoADKPlugin(project="my-project")
+plugin.metadata = {"turn": 1, "user_id": "abc"}
+await runner.run_async(...)
 
-# Galileo observes REDACTED data
-plugins=[redaction_plugin, galileo_plugin]
+plugin.metadata = {"turn": 2, "user_id": "abc"}
+await runner.run_async(...)
+```
+
+## Advanced
+
+### Ingestion Hook Mode
+
+No credentials required at the time of plugin instantiation when using `ingestion_hook`:
+
+```python
+def my_handler(request):
+    for trace in request.traces:
+        pre_process(trace)
+        flush_trace_to_galileo(trace)
+
+plugin = GalileoADKPlugin(ingestion_hook=my_handler)
+```
+
+### Multi-Plugin Ordering
+
+```python
+# Galileo sees original data
+plugins = [galileo_plugin, redaction_plugin]
+
+# Galileo sees redacted data
+plugins = [redaction_plugin, galileo_plugin]
 ```
 
 ## Development
 
+### Project Structure
+
+```
+galileo-python/
+├── .venv/              ← Poetry (invoke setup) - for pre-commit hooks
+├── src/galileo/        ← Main SDK source (shared via editable install)
+└── galileo-adk/
+    ├── .venv/          ← UV (uv sync) - for ADK development
+    └── src/galileo_adk/
+```
+
 ### Setup
 
 ```bash
-cd galileo-python/galileo-adk
+cd galileo-adk
 uv sync
 ```
 
-### Tests
+This installs `galileo` in **editable mode** from `../src/galileo/`. Changes to either package are immediately available without reinstalling.
+
+### Testing
 
 ```bash
-uv run pytest -v
+source .venv/bin/activate
+pytest tests -v
+ruff check src/
 ```
 
-### Linting
+### Publishing
 
-```bash
-uv run ruff check .
-uv run ruff format .
-```
+The `[tool.uv].sources` override is **dev-only** and ignored when building wheels. Published packages use the standard `dependencies` from `pyproject.toml`.
+
+**Release sequence (when both packages change):**
+
+1. Merge changes to `galileo` (main SDK)
+2. Wait for `galileo` to publish to PyPI
+3. Update `galileo-adk/pyproject.toml` version constraint if needed:
+   ```toml
+   dependencies = [
+       "galileo>=1.40.0,<2.0.0",  # bump minimum version
+   ]
+   ```
+4. Merge and publish `galileo-adk`
+
 
 ## License
 

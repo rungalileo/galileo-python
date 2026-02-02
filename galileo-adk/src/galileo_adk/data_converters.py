@@ -27,8 +27,7 @@ def convert_adk_content_to_galileo_messages(content: Any) -> list[Message]:
 
     base_role = _map_adk_role_to_galileo(getattr(content, "role", "user"))
 
-    # Track call IDs for linking function calls to their responses
-    call_id_map: dict[str, str] = {}  # function_name -> call_id
+    call_id_map: dict[str, str] = {}
 
     for i, part in enumerate(content.parts):
         message = _convert_part_to_message_with_call_id(part, base_role, i, call_id_map)
@@ -53,38 +52,18 @@ def _convert_part_to_message_with_call_id(
 
     if hasattr(part, "function_call") and part.function_call:
         name = getattr(part.function_call, "name", "unknown")
+        adk_call_id = getattr(part.function_call, "id", None)
         call_id = generate_tool_call_id(name, index)
-        call_id_map[name] = call_id  # Store for response linking
+        map_key = adk_call_id if adk_call_id else f"{name}_{index}"
+        call_id_map[map_key] = call_id
         return _convert_function_call(part.function_call, call_id)
 
     if hasattr(part, "function_response") and part.function_response:
+        adk_response_id = getattr(part.function_response, "id", None)
         name = getattr(part.function_response, "name", "unknown")
-        call_id = call_id_map.get(name)  # Look up matching call
+        map_key = adk_response_id if adk_response_id else f"{name}_{index}"
+        call_id = call_id_map.get(map_key)
         return _convert_function_response(part.function_response, call_id)
-
-    return None
-
-
-def _convert_part_to_message(part: Any, base_role: MessageRole) -> Message | None:
-    """Convert a single ADK part to a Galileo Message.
-
-    Note: For function calls/responses with call ID tracking,
-    use _convert_part_to_message_with_call_id instead.
-    """
-    if hasattr(part, "text") and part.text:
-        return Message(content=part.text, role=base_role)
-
-    if hasattr(part, "inline_data") and part.inline_data:
-        return _convert_inline_data(part.inline_data, base_role)
-
-    if hasattr(part, "file_data") and part.file_data:
-        return _convert_file_data(part.file_data, base_role)
-
-    if hasattr(part, "function_call") and part.function_call:
-        return _convert_function_call(part.function_call)
-
-    if hasattr(part, "function_response") and part.function_response:
-        return _convert_function_response(part.function_response)
 
     return None
 
@@ -148,7 +127,6 @@ def _convert_function_response(function_response: Any, call_id: str | None = Non
     Returns:
         Message with role=tool and tool_call_id for linking
     """
-    getattr(function_response, "name", "unknown")
     response = getattr(function_response, "response", {})
     if hasattr(response, "model_dump"):
         response = response.model_dump()
