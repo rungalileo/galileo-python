@@ -714,11 +714,11 @@ class TestVersionManagement:
         # When: listing versions
         versions = prompt.list_versions()
 
-        # Then: returns list of PromptVersion objects
+        # Then: returns list of PromptVersion objects ordered by version descending
         assert len(versions) == 2
         assert all(isinstance(v, PromptVersion) for v in versions)
-        assert versions[0].version == 1
-        assert versions[1].version == 2
+        assert versions[0].version == 2
+        assert versions[1].version == 1
 
     def test_list_versions_raises_error_for_local_only(self, reset_configuration: None) -> None:
         """Test list_versions() raises ValueError for local-only prompt."""

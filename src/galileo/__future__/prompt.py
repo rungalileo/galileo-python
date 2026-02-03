@@ -173,8 +173,8 @@ class Prompt(StateManagementMixin):
         # Select a specific version
         prompt.select_version(2)
 
-        # Update a prompt
-        prompt.update(messages=[...])
+        # Update prompt name only (use create_version for content changes)
+        prompt.update(name="ml-expert-v2")
 
         # Delete a prompt
         prompt.delete()
@@ -277,33 +277,10 @@ class Prompt(StateManagementMixin):
             available for prompts created in the current session via create().
         """
         instance = cls._create_empty()
-        instance.id = retrieved_prompt.id
-        instance.name = retrieved_prompt.name
-
-        # Extract messages from the selected_version template using helper
-        instance.messages = _parse_template_to_messages(retrieved_prompt.selected_version.template)
-
-        # Version-related attributes
-        instance.selected_version_number = retrieved_prompt.selected_version.version
-        instance.selected_version_id = retrieved_prompt.selected_version_id
-        instance.total_versions = retrieved_prompt.total_versions
-        instance.all_available_versions = (
-            list(retrieved_prompt.all_available_versions) if retrieved_prompt.all_available_versions else None
-        )
-        instance.max_version = retrieved_prompt.max_version
-
-        # API Limitation: The GET /templates/{id} response does not include project
-        # association. The API only accepts project_id as a query param during creation
-        # (POST /templates?project_id=...) but does not return it in subsequent responses.
-        # To fix this, the API would need to include project info in BasePromptTemplateResponse.
+        instance._update_from_api_response(retrieved_prompt)
+        # API does not return project association; only set on create().
         instance.project_id = None
         instance.project_name = None
-
-        instance.created_at = retrieved_prompt.created_at
-        instance.updated_at = retrieved_prompt.updated_at
-
-        # Set state to synced since we just retrieved from API
-        instance._set_state(SyncState.SYNCED)
         return instance
 
     def _update_from_api_response(self, retrieved_prompt: Any) -> None:
@@ -347,6 +324,7 @@ class Prompt(StateManagementMixin):
 
         Raises
         ------
+            ValueError: If project_id or project_name was set but the project could not be resolved.
             Exception: If the API call fails.
 
         Examples
@@ -359,23 +337,23 @@ class Prompt(StateManagementMixin):
 
             # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
             resolved_project_id: str | None = None
-
-            # Only attempt project resolution if we have explicit params or env vars
+            has_explicit_project = self.project_id is not None or self.project_name is not None
             has_project_context = (
-                self.project_id is not None
-                or self.project_name is not None
-                or _get_project_id_from_env() is not None
-                or _get_project_from_env() is not None
+                has_explicit_project or _get_project_id_from_env() is not None or _get_project_from_env() is not None
             )
 
             if has_project_context:
                 project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
                 if project_obj:
                     resolved_project_id = project_obj.id
-                    # Store resolved project info on the instance
                     self.project_id = project_obj.id
                     self.project_name = project_obj.name
                     logger.debug(f"Prompt.create: resolved project_id='{resolved_project_id}'")
+                elif has_explicit_project:
+                    raise ValueError(
+                        "Project could not be resolved for the given project_id or project_name. "
+                        "Ensure the project exists and you have access to it."
+                    )
 
             prompt_service = GlobalPromptTemplates()
             created_prompt = prompt_service.create(
@@ -703,6 +681,7 @@ class Prompt(StateManagementMixin):
                 return []
 
             versions = [PromptVersion._from_api_response(v) for v in response.versions] if response.versions else []
+            versions.sort(key=lambda v: v.version, reverse=True)
             logger.debug(f"Prompt.list_versions: id='{self.id}' found {len(versions)} versions - completed")
             return versions
         except Exception as e:
@@ -768,8 +747,7 @@ class Prompt(StateManagementMixin):
         - SYNCED: No action needed, already saved
         - DELETED: Raises ValueError
 
-        For updating an existing prompt's messages, use update(messages=[...])
-        or create_version(messages=[...]) instead.
+        For updating an existing prompt's messages, use create_version(messages=[...]) instead.
 
         Returns
         -------
@@ -783,8 +761,7 @@ class Prompt(StateManagementMixin):
 
             # For existing prompts, use update() for changes
             prompt = Prompt.get(name="my-prompt")
-            prompt.update(new_name="renamed-prompt")
-            prompt.update(messages=[...])  # Creates new version
+            prompt.update(name="renamed-prompt")
         """
         if self.sync_state == SyncState.LOCAL_ONLY:
             # Prompt hasn't been created yet, create it
@@ -801,5 +778,5 @@ class Prompt(StateManagementMixin):
         # Users should use update() directly for changes
         raise NotImplementedError(
             "Saving modified prompts is not yet implemented. "
-            "Use update(new_name='...') to rename or update(messages=[...]) to create a new version."
+            "Use update(name='...') to rename or create_version(messages=[...]) to create a new version."
         )

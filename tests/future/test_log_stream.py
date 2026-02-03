@@ -487,8 +487,8 @@ class TestLogStreamRefresh:
         mock_logstream: MagicMock,
         mock_project: MagicMock,
     ) -> None:
-        mock_projects_class.return_value.get_with_env_fallbacks.return_value = mock_project
         """Test refresh() raises ValueError if log stream no longer exists."""
+        mock_projects_class.return_value.get_with_env_fallbacks.return_value = mock_project
         mock_service = MagicMock()
         mock_logstreams_class.return_value = mock_service
         mock_service.get.side_effect = [mock_logstream, None]
