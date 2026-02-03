@@ -6,6 +6,7 @@ class ColumnCategory(str, Enum):
     DATASET_METADATA = "dataset_metadata"
     FEEDBACK = "feedback"
     METRIC = "metric"
+    METRIC_STATUS = "metric_status"
     STANDARD = "standard"
     TAGS = "tags"
     USER_METADATA = "user_metadata"
