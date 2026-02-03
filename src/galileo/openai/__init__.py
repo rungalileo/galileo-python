@@ -77,6 +77,31 @@ except ImportError:
 _logger = logging.getLogger(__name__)
 
 
+def _safe_initialize_logger(initialize: Callable[[], Optional[GalileoLogger]]) -> Optional[GalileoLogger]:
+    """
+    Safely initialize the Galileo logger.
+
+    This function wraps the initialization callable with exception handling to ensure
+    that telemetry initialization errors do not crash user code. Any exception during
+    initialization is logged as a warning and None is returned.
+
+    Parameters
+    ----------
+    initialize
+        A callable that initializes and returns a GalileoLogger instance.
+
+    Returns
+    -------
+    Optional[GalileoLogger]
+        The initialized logger if successful, None if initialization fails or returns None.
+    """
+    try:
+        return initialize()
+    except Exception as e:
+        _logger.warning(f"Galileo logging initialization failed, continuing without logging: {e}")
+        return None
+
+
 OPENAI_CLIENT_METHODS = [
     OpenAiModuleDefinition(
         module="openai.resources.chat.completions", object="Completions", method="create", type="chat", sync=True
@@ -107,7 +132,9 @@ def _wrap(
 
     input_data = extract_input_data_from_kwargs(open_ai_resource, start_time, arg_extractor.get_galileo_args())
 
-    galileo_logger: GalileoLogger = initialize()
+    galileo_logger = _safe_initialize_logger(initialize)
+    if galileo_logger is None:
+        return wrapped(**arg_extractor.get_openai_args())
 
     should_complete_trace = False
     if galileo_logger.current_parent():

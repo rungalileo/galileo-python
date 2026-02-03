@@ -22,7 +22,7 @@ from galileo.resources.models import ExperimentResponse, HTTPValidationError, Pr
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.utils.datasets import create_rows_from_records, load_dataset
-from galileo.utils.logging import get_logger
+from galileo.utils.log_config import get_logger
 from galileo.utils.metrics import create_metric_configs
 
 _logger = get_logger(__name__)

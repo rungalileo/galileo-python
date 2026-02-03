@@ -263,37 +263,37 @@ class TestLogStreamMetrics:
 
     @patch("galileo.log_streams.Projects")
     def test_logstreams_enable_metrics_project_not_found(self, mock_projects_class) -> None:
-        """Test LogStreams.enable_metrics handles error when project not found."""
+        """Test LogStreams.enable_metrics raises ValueError when project not found."""
         # Setup mock to return None
         mock_projects_instance = mock_projects_class.return_value
         mock_projects_instance.get_with_env_fallbacks.return_value = None
 
-        # Test with non-existent project - expect None due to error decorator
+        # Test with non-existent project - expect ValueError
         log_streams = LogStreams()
-        result = log_streams.enable_metrics(
-            project_name="Nonexistent Project", log_stream_name="Test Log Stream", metrics=["correctness"]
-        )
+        with pytest.raises(ValueError) as exc_info:
+            log_streams.enable_metrics(
+                project_name="Nonexistent Project", log_stream_name="Test Log Stream", metrics=["correctness"]
+            )
 
-        # Verify None result due to error handling
-        assert result is None
+        assert "Project 'Nonexistent Project' not found" in str(exc_info.value)
 
     @patch("galileo.log_streams.Projects")
     @patch.object(LogStreams, "get")
     def test_logstreams_enable_metrics_logstream_not_found(self, mock_get, mock_projects_class, mock_project) -> None:
-        """Test LogStreams.enable_metrics handles error when log stream not found."""
+        """Test LogStreams.enable_metrics raises ValueError when log stream not found."""
         # Setup mocks
         mock_projects_instance = mock_projects_class.return_value
         mock_projects_instance.get_with_env_fallbacks.return_value = mock_project
         mock_get.return_value = None  # Log stream not found
 
-        # Test with non-existent log stream - expect None due to error decorator
+        # Test with non-existent log stream - expect ValueError
         log_streams = LogStreams()
-        result = log_streams.enable_metrics(
-            project_name="Test Project", log_stream_name="Nonexistent Stream", metrics=["correctness"]
-        )
+        with pytest.raises(ValueError) as exc_info:
+            log_streams.enable_metrics(
+                project_name="Test Project", log_stream_name="Nonexistent Stream", metrics=["correctness"]
+            )
 
-        # Verify None result due to error handling
-        assert result is None
+        assert "Log stream 'Nonexistent Stream' not found" in str(exc_info.value)
 
     @patch.object(LogStreams, "enable_metrics")
     def test_enable_metrics_convenience_function_explicit(self, mock_enable_metrics) -> None:
@@ -358,14 +358,15 @@ class TestLogStreamMetrics:
         assert local_metrics == []
 
     def test_enable_metrics_missing_env_vars(self) -> None:
-        """Test enable_metrics handles error when environment variables are missing."""
+        """Test enable_metrics raises ValueError when environment variables are missing."""
         # Don't set any environment variables
         with patch("galileo.log_streams.Projects") as mock_projects_class:
             mock_projects_instance = mock_projects_class.return_value
             mock_projects_instance.get_with_env_fallbacks.return_value = None
 
-            # Expect None due to error decorator
-            result = enable_metrics(metrics=["correctness"])
+            # Expect ValueError since project is not found
+            with pytest.raises(ValueError) as exc_info:
+                enable_metrics(metrics=["correctness"])
 
-            # Verify None result due to error handling
-            assert result is None
+            assert "Project" in str(exc_info.value)
+            assert "not found" in str(exc_info.value)

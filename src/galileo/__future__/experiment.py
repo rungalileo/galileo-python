@@ -45,7 +45,7 @@ from galileo.search import RecordType, Search
 # TODO: get_records_for_dataset needed for function-based experiments
 # from galileo.utils.datasets import get_records_for_dataset, load_dataset_and_records
 from galileo.utils.datasets import load_dataset_and_records
-from galileo.utils.logging import get_logger
+from galileo.utils.log_config import get_logger
 from galileo.utils.metrics import create_metric_configs
 from galileo.utils.validations import require_exactly_one
 

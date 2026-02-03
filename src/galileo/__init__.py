@@ -1,10 +1,17 @@
 """Galileo."""
 
-# flake8: noqa: F401
-# ruff: noqa: F401
-
 from galileo.decorator import GalileoDecorator, galileo_context, log, start_session
-from galileo.exceptions import GalileoLoggerException
+from galileo.exceptions import (
+    AuthenticationError,
+    BadRequestError,
+    ConflictError,
+    ForbiddenError,
+    GalileoAPIError,
+    GalileoLoggerException,
+    NotFoundError,
+    RateLimitError,
+    ServerError,
+)
 from galileo.logger import GalileoLogger
 from galileo.protect import ainvoke_protect, invoke_protect
 from galileo.schema.message import Message
@@ -17,7 +24,7 @@ from galileo.stages import (
     update_protect_stage,
 )
 from galileo.tracing import get_tracing_headers
-from galileo.utils.logging import enable_console_logging
+from galileo.utils.log_config import enable_console_logging
 from galileo_core.helpers.api_key import create_api_key, delete_api_key, list_api_keys
 from galileo_core.helpers.dependencies import is_dependency_available
 from galileo_core.schemas.logging.llm import MessageRole, ToolCall, ToolCallFunction
@@ -41,3 +48,55 @@ from galileo_core.schemas.protect.ruleset import Ruleset
 from galileo_core.schemas.protect.stage import StageType
 
 __version__ = "1.45.1"
+
+__all__ = [
+    "AgentSpan",
+    "AuthenticationError",
+    "BadRequestError",
+    "ConflictError",
+    "ExecutionStatus",
+    "ForbiddenError",
+    "GalileoAPIError",
+    "GalileoDecorator",
+    "GalileoLogger",
+    "GalileoLoggerException",
+    "GalileoMetrics",
+    "GalileoScorers",
+    "LlmSpan",
+    "Message",
+    "MessageRole",
+    "NotFoundError",
+    "Payload",
+    "RateLimitError",
+    "Request",
+    "Response",
+    "RetrieverSpan",
+    "Ruleset",
+    "ServerError",
+    "Session",
+    "Span",
+    "StageType",
+    "StepType",
+    "StepWithChildSpans",
+    "ToolCall",
+    "ToolCallFunction",
+    "ToolSpan",
+    "Trace",
+    "WorkflowSpan",
+    "ainvoke_protect",
+    "create_api_key",
+    "create_protect_stage",
+    "delete_api_key",
+    "enable_console_logging",
+    "galileo_context",
+    "get_protect_stage",
+    "get_tracing_headers",
+    "invoke_protect",
+    "is_dependency_available",
+    "list_api_keys",
+    "log",
+    "pause_protect_stage",
+    "resume_protect_stage",
+    "start_session",
+    "update_protect_stage",
+]

@@ -15,7 +15,6 @@ from galileo.resources.models.rulesets_mixin import RulesetsMixin as APIRulesets
 from galileo.resources.models.stage_db import StageDB as APIStageDB
 from galileo.resources.models.stage_with_rulesets import StageWithRulesets as APIStageWithRulesets
 from galileo.resources.types import UNSET
-from galileo.utils.catch_log import DecorateAllMethods
 from galileo_core.schemas.protect.ruleset import Ruleset, RulesetsMixin
 from galileo_core.schemas.protect.stage import StageDB, StageType, StageWithRulesets
 from galileo_core.utils.name import ts_name
@@ -54,7 +53,7 @@ def _get_stage_id(
     raise ValueError("Either stage_id or stage_name must be provided.")
 
 
-class Stages(DecorateAllMethods):
+class Stages:
     config: GalileoPythonConfig
 
     def __init__(self) -> None:
