@@ -212,7 +212,7 @@ class GalileoMiddleware(AgentMiddleware):
         messages = self._serialize_state(state)
         if isinstance(messages, list) and len(messages) > 0:
             messages = messages[-1]
-        await self._async_handler.async_end_node(self._root_run_id, output=self._serialize_state(state))
+        await self._async_handler.async_end_node(self._root_run_id, output=messages)
         self._root_run_id = None
         return None
 
