@@ -56,6 +56,17 @@ class ConfigKey:
     parser: Optional[Callable[[str], Any]] = None
 
 
+VALID_LOG_LEVELS = frozenset({"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"})
+
+
+def parse_log_level(value: str) -> str:
+    """Parse and validate a log level string; returns uppercase level name."""
+    level = value.upper()
+    if level not in VALID_LOG_LEVELS:
+        raise ValueError(f"Invalid log level '{value}'. Must be one of: {', '.join(sorted(VALID_LOG_LEVELS))}")
+    return level
+
+
 _CONFIGURATION_KEYS = [
     ConfigKey(
         name="galileo_api_key",
@@ -105,6 +116,7 @@ _CONFIGURATION_KEYS = [
         description="Python logging level for SDK output (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
         default=None,
         value_type=str,
+        parser=parse_log_level,
     ),
     ConfigKey(
         name="code_validation_timeout",

@@ -7,8 +7,61 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 from galileo.__future__ import Configuration, ConfigurationError
-from galileo.__future__.configuration import _CONFIGURATION_KEYS
+from galileo.__future__.configuration import _CONFIGURATION_KEYS, VALID_LOG_LEVELS, parse_log_level
 from galileo.config import GalileoPythonConfig
+
+
+class TestParseLogLevel:
+    """Test suite for parse_log_level()."""
+
+    @pytest.mark.parametrize("value", sorted(VALID_LOG_LEVELS))
+    def test_valid_level_returns_uppercase(self, value: str) -> None:
+        # Given: a valid log level string (any case)
+        # When: parsing the log level
+        result = parse_log_level(value)
+
+        # Then: the result is the uppercase level name
+        assert result == value
+
+    @pytest.mark.parametrize(
+        "value,expected",
+        [
+            ("debug", "DEBUG"),
+            ("info", "INFO"),
+            ("warning", "WARNING"),
+            ("error", "ERROR"),
+            ("critical", "CRITICAL"),
+            ("Debug", "DEBUG"),
+            ("INFO", "INFO"),
+        ],
+    )
+    def test_lowercase_or_mixed_returns_uppercase(self, value: str, expected: str) -> None:
+        # Given: a log level string in lowercase or mixed case
+        # When: parsing the log level
+        result = parse_log_level(value)
+
+        # Then: the result is the uppercase level name
+        assert result == expected
+
+    def test_invalid_level_raises_value_error(self) -> None:
+        # Given: an invalid log level string
+        value = "TRACE"
+
+        # When/Then: parsing raises ValueError with helpful message
+        with pytest.raises(ValueError) as exc_info:
+            parse_log_level(value)
+
+        assert "Invalid log level 'TRACE'" in str(exc_info.value)
+        assert "Must be one of:" in str(exc_info.value)
+        for level in sorted(VALID_LOG_LEVELS):
+            assert level in str(exc_info.value)
+
+    @pytest.mark.parametrize("value", ["", "notalevel", "WARN"])
+    def test_other_invalid_levels_raise(self, value: str) -> None:
+        # Given: an invalid or unsupported log level string
+        # When/Then: parsing raises ValueError
+        with pytest.raises(ValueError, match="Invalid log level"):
+            parse_log_level(value)
 
 
 class TestConfigurationProperties:
@@ -69,6 +122,9 @@ class TestConfigurationProperties:
             elif config_key.value_type is float:
                 env_value = "42.5"
                 expected_value = 42.5
+            elif config_key.name == "log_level":
+                env_value = "INFO"
+                expected_value = "INFO"
             else:
                 env_value = f"env-{config_key.name}"
                 expected_value = env_value

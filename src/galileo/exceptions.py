@@ -1,5 +1,17 @@
 """Galileo SDK exceptions."""
 
+__all__ = [
+    "AuthenticationError",
+    "BadRequestError",
+    "ConflictError",
+    "ForbiddenError",
+    "GalileoAPIError",
+    "GalileoLoggerException",
+    "NotFoundError",
+    "RateLimitError",
+    "ServerError",
+]
+
 
 class GalileoLoggerException(Exception):
     """Exception raised by GalileoLogger."""

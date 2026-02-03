@@ -359,8 +359,8 @@ class GalileoDecorator:
             result = None
             try:
                 result = await func(*args, **kwargs)
-            except Exception as e:
-                _logger.error(f"Error while executing function in async_wrapper: {e}", exc_info=True)
+            except Exception:
+                _logger.error("Error while executing function in async_wrapper", exc_info=True)
                 raise
             finally:
                 if logging_enabled:
@@ -415,9 +415,9 @@ class GalileoDecorator:
             result = None
             try:
                 result = func(*args, **kwargs)
-            except Exception as exc:
-                _logger.warning(f"Error while executing function in sync_wrapper: {exc}", exc_info=True)
-                raise exc
+            except Exception:
+                _logger.error("Error while executing function in sync_wrapper", exc_info=True)
+                raise
             finally:
                 if logging_enabled:
                     self._finalize_call(span_type, span_params, result)
@@ -627,7 +627,12 @@ class GalileoDecorator:
             self._prepare_call(span_type, span_params, dataset_record)
             return True
         except Exception as e:
-            _logger.warning(f"Galileo logging initialization failed, continuing without logging: {e}")
+            from galileo.__future__.shared.exceptions import ConfigurationError
+
+            if isinstance(e, ConfigurationError):
+                _logger.error("Galileo logging initialization failed: %s", e, exc_info=True)
+            else:
+                _logger.warning("Galileo logging initialization failed, continuing without logging: %s", e)
             return False
 
     def _prepare_call(
