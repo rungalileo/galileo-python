@@ -158,9 +158,11 @@ class Projects:
         """
         Retrieves a project by id or name.
 
-        Either `id` or `name` must be provided, but not both. If neither is provided,
-        the method will attempt to read from the environment variables `GALILEO_PROJECT_ID`
-        and `GALILEO_PROJECT`. If both environment variables are set, a ValueError is raised.
+        At least one of `id` or `name` must be provided (directly or via environment).
+        If both are provided, `id` takes precedence and `name` is ignored. If neither is
+        provided, the method will attempt to read from `GALILEO_PROJECT_ID` and
+        `GALILEO_PROJECT`; if both environment variables are set, `GALILEO_PROJECT_ID`
+        takes precedence.
 
         Parameters
         ----------
@@ -177,15 +179,17 @@ class Projects:
         Raises
         ------
         ValueError
-            If neither or both `id` and `name` are provided.
+            If neither `id` nor `name` is available (including after env fallbacks).
         errors.UnexpectedStatus
             If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException
             If the request takes longer than Client.timeout.
 
         """
+        if id and name:
+            _logger.debug("Both project id and name provided; using id=%s, ignoring name=%s", id, name)
         id = id or (None if name else _get_project_id_from_env()) or None
-        name = name or (None if id else _get_project_from_env()) or None
+        name = None if id else (name or _get_project_from_env() or None)
 
         return self.get(id=id, name=name)
 

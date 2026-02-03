@@ -183,7 +183,6 @@ class Experiment(StateManagementMixin):
             f"created_at='{self.created_at}')"
         )
 
-    @require_exactly_one("project_id", "project_name")
     @require_exactly_one("prompt", "prompt_name")  # TODO: For function-based experiments, prompt is optional.
     def __init__(
         self,
@@ -218,14 +217,17 @@ class Experiment(StateManagementMixin):
             model: Model object or model alias string to use for the experiment.
                   This will be used to configure the prompt_settings when running the experiment.
             metrics: List of metrics to evaluate.
-            project_id: The project ID. Exactly one of project_id or project_name must be provided.
-            project_name: The project name. Exactly one of project_id or project_name must be provided.
+            project_id: The project ID. If neither project_id nor project_name is provided,
+                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+            project_name: The project name. If neither project_id nor project_name is provided,
+                         falls back to GALILEO_PROJECT environment variable.
             prompt_settings: Settings for prompt runs. If provided along with model parameter,
                            the model parameter takes precedence.
 
         Raises
         ------
-            ValidationError: If name is not provided, or if neither/both project_id and project_name are provided.
+            ValidationError: If name is not provided.
+            ValueError: If project cannot be resolved at create() time (no explicit param and no env fallback).
 
         Examples
         --------
@@ -244,6 +246,14 @@ class Experiment(StateManagementMixin):
                 prompt=Prompt.get(name="ml-prompt"),
                 model="gpt-4o-mini",
                 project_name="My AI Project"
+            )
+
+            # Create using GALILEO_PROJECT environment variable
+            experiment = Experiment(
+                name="ml-evaluation",
+                dataset_name="ml-dataset",
+                prompt_name="ml-prompt"
+                # project resolved from GALILEO_PROJECT env var
             )
         """
         super().__init__()
@@ -360,20 +370,16 @@ class Experiment(StateManagementMixin):
         if not self.name:
             raise ValueError("Experiment name is not set. Cannot create experiment without a name.")
 
-        if not self.project_id and not self.project_name:
-            raise ValueError(
-                "Project information is not set. Cannot create experiment without project_id or project_name."
-            )
+        # Note: project_id and project_name can both be None here - resolution happens below
+        # via Projects().get_with_env_fallbacks() which reads from env vars
 
         try:
             _logger.info(f"Experiment.create: name='{self.name}' project_id='{self.project_id}' - started")
 
-            # Resolve project (prefer ID over name since get_with_env_fallbacks requires exactly one)
-            project_obj = Projects().get_with_env_fallbacks(
-                id=self.project_id if self.project_id else None, name=self.project_name if not self.project_id else None
-            )
+            # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
+            project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
             if not project_obj:
-                raise ValueError(f"Project not found: id={self.project_id}, name={self.project_name}")
+                raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
 
             self.project_id = project_obj.id
             if self.project_name is None:
@@ -543,15 +549,16 @@ class Experiment(StateManagementMixin):
         return instance
 
     @classmethod
-    @require_exactly_one("project_id", "project_name")
     def get(cls, *, name: str, project_id: str | None = None, project_name: str | None = None) -> Experiment | None:
         """
         Get an existing experiment by name.
 
         Args:
             name (str): The experiment name.
-            project_id (Optional[str]): The project ID.
-            project_name (Optional[str]): The project name.
+            project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
+                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+            project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
+                         falls back to GALILEO_PROJECT environment variable.
 
         Returns
         -------
@@ -559,8 +566,7 @@ class Experiment(StateManagementMixin):
 
         Raises
         ------
-            ValidationError: If neither or both project_id and project_name are provided.
-            ValueError: If the project cannot be found.
+            ValueError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------
@@ -575,13 +581,14 @@ class Experiment(StateManagementMixin):
                 name="ml-evaluation",
                 project_id="project-123"
             )
+
+            # Get using GALILEO_PROJECT environment variable
+            experiment = Experiment.get(name="ml-evaluation")
         """
-        # Resolve project (prefer ID over name since get_with_env_fallbacks requires exactly one)
-        project_obj = Projects().get_with_env_fallbacks(
-            id=project_id if project_id else None, name=project_name if not project_id else None
-        )
+        # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
+        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
         if not project_obj:
-            raise ValueError(f"Project not found: id={project_id}, name={project_name}")
+            raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
 
         experiments_service = ExperimentsService()
         retrieved_experiment = experiments_service.get(project_id=project_obj.id, experiment_name=name)
@@ -595,14 +602,15 @@ class Experiment(StateManagementMixin):
         return instance
 
     @classmethod
-    @require_exactly_one("project_id", "project_name")
     def list(cls, *, project_id: str | None = None, project_name: str | None = None) -> list[Experiment]:
         """
         List all experiments for a project.
 
         Args:
-            project_id (Optional[str]): The project ID.
-            project_name (Optional[str]): The project name.
+            project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
+                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+            project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
+                         falls back to GALILEO_PROJECT environment variable.
 
         Returns
         -------
@@ -610,8 +618,7 @@ class Experiment(StateManagementMixin):
 
         Raises
         ------
-            ValidationError: If neither or both project_id and project_name are provided.
-            ValueError: If the project cannot be found.
+            ValueError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------
@@ -620,13 +627,14 @@ class Experiment(StateManagementMixin):
 
             # List by project ID
             experiments = Experiment.list(project_id="project-123")
+
+            # List using GALILEO_PROJECT environment variable
+            experiments = Experiment.list()
         """
-        # Resolve project (prefer ID over name since get_with_env_fallbacks requires exactly one)
-        project_obj = Projects().get_with_env_fallbacks(
-            id=project_id if project_id else None, name=project_name if not project_id else None
-        )
+        # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
+        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
         if not project_obj:
-            raise ValueError(f"Project not found: id={project_id}, name={project_name}")
+            raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
 
         experiments_service = ExperimentsService()
         retrieved_experiments = experiments_service.list(project_id=project_obj.id)
@@ -1024,12 +1032,10 @@ class Experiment(StateManagementMixin):
         try:
             _logger.info(f"Experiment.run: id='{self.id}' name='{self.name}' - started")
 
-            # Resolve project (prefer ID over name since get_with_env_fallbacks requires exactly one)
-            project_obj = Projects().get_with_env_fallbacks(
-                id=self.project_id if self.project_id else None, name=self.project_name if not self.project_id else None
-            )
+            # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
+            project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
             if not project_obj:
-                raise ValueError(f"Project not found: id={self.project_id}, name={self.project_name}")
+                raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
 
             # Load dataset and records (use cached if available)
             dataset_obj: LegacyDataset | None
