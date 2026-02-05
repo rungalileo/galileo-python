@@ -223,6 +223,8 @@ class MockCallbackContext:
         self.user_id = user_id
         self.parent_context = MagicMock()
         self.parent_context.new_message = MagicMock()
+        self.session = MagicMock()
+        self.session.id = session_id
 
 
 class MockLlmRequest:
@@ -501,3 +503,52 @@ class TestCallbackPluginCompatibility:
         assert callback._tracker.llm_count == 0
 
         callback.after_agent_callback(context)
+
+
+class TestAutomaticSessionMapping:
+    """Tests for automatic ADK session_id → Galileo session mapping."""
+
+    @pytest.fixture
+    def callback(self, mock_galileo_logger: MagicMock) -> GalileoADKCallback:
+        return GalileoADKCallback(galileo_logger=mock_galileo_logger)
+
+    def test_session_mapped_on_before_agent(self, callback: GalileoADKCallback) -> None:
+        """ADK session_id is mapped to Galileo session on before_agent_callback."""
+        # Given: a callback context with a session_id
+        context = MockCallbackContext(session_id="adk-callback-session-123")
+
+        # When: calling before_agent_callback
+        callback.before_agent_callback(context)
+
+        # Then: the ADK session is tracked by the observer
+        assert callback._observer._current_adk_session == "adk-callback-session-123"
+
+    def test_session_not_remapped_for_same_session_id(self, callback: GalileoADKCallback) -> None:
+        """Same session_id doesn't trigger repeated session mapping."""
+        # Given: a persistent session
+        session_id = "persistent-callback-session"
+
+        context_1 = MockCallbackContext(agent_name="agent_1", session_id=session_id)
+        context_2 = MockCallbackContext(agent_name="agent_2", session_id=session_id)
+
+        # When: calling before_agent_callback twice
+        callback.before_agent_callback(context_1)
+        first_mapped_session = callback._observer._current_adk_session
+
+        callback.after_agent_callback(context_1)
+        callback.before_agent_callback(context_2)
+        second_mapped_session = callback._observer._current_adk_session
+
+        # Then: session remains the same (not remapped)
+        assert first_mapped_session == second_mapped_session == session_id
+
+    def test_unknown_session_id_not_mapped(self, callback: GalileoADKCallback) -> None:
+        """Session_id of 'unknown' is not mapped to Galileo session."""
+        # Given: a callback context with unknown session_id
+        context = MockCallbackContext(session_id="unknown")
+
+        # When: calling before_agent_callback
+        callback.before_agent_callback(context)
+
+        # Then: session is not tracked (remains None)
+        assert callback._observer._current_adk_session is None

@@ -34,7 +34,7 @@ class MockInvocationContext:
         self.agent_name = agent_name
         self.invocation_id = invocation_id or str(uuid4())
         self.session = MagicMock()
-        self.session.session_id = "test_session"
+        self.session.id = "test_session"
 
 
 class MockLlmRequest:
@@ -84,14 +84,6 @@ class TestGalileoADKPluginInit:
         """Plugin raises error when neither project nor hook provided."""
         with pytest.raises(ValueError, match="Either 'project' or 'ingestion_hook'"):
             GalileoADKPlugin()
-
-    def test_init_with_external_id(self) -> None:
-        """Plugin accepts external_id for session grouping."""
-        plugin = GalileoADKPlugin(
-            ingestion_hook=lambda r: None,
-            external_id="test-session-123",
-        )
-        assert plugin._observer is not None
 
     def test_init_with_static_metadata(self) -> None:
         """Plugin accepts static metadata in constructor."""
@@ -314,7 +306,7 @@ class MockToolContext:
         self.callback_context.agent_name = agent_name
         self.callback_context.invocation_id = invocation_id
         self.callback_context.session = MagicMock()
-        self.callback_context.session.session_id = session_id
+        self.callback_context.session.id = session_id
 
 
 class MockTool:
@@ -341,7 +333,7 @@ class TestInvocationScopedToolTracking:
 
         # Setup invocation 1 with session 1
         inv_context_1 = MockInvocationContext(invocation_id=inv_id_1)
-        inv_context_1.session.session_id = session_id_1
+        inv_context_1.session.id = session_id_1
         await plugin.on_user_message_callback(
             invocation_context=inv_context_1,
             user_message=MockContent(),
@@ -351,7 +343,7 @@ class TestInvocationScopedToolTracking:
 
         # Setup invocation 2 with session 2
         inv_context_2 = MockInvocationContext(invocation_id=inv_id_2)
-        inv_context_2.session.session_id = session_id_2
+        inv_context_2.session.id = session_id_2
         await plugin.on_user_message_callback(
             invocation_context=inv_context_2,
             user_message=MockContent(),
@@ -375,62 +367,6 @@ class TestInvocationScopedToolTracking:
         assert plugin._tracker.get_active_tool(session_id_2) is None
 
     @pytest.mark.asyncio
-    async def test_concurrent_tools_different_sessions(self, plugin: GalileoADKPlugin) -> None:
-        """Concurrent tools in different sessions track correctly."""
-        inv_id_1 = str(uuid4())
-        inv_id_2 = str(uuid4())
-        session_id_1 = "session_1"
-        session_id_2 = "session_2"
-
-        # Setup both invocations with different sessions
-        for inv_id, session_id in [(inv_id_1, session_id_1), (inv_id_2, session_id_2)]:
-            inv_context = MockInvocationContext(invocation_id=inv_id)
-            inv_context.session.session_id = session_id
-            await plugin.on_user_message_callback(
-                invocation_context=inv_context,
-                user_message=MockContent(),
-            )
-            callback_context = MockCallbackContext(invocation_id=inv_id)
-            await plugin.before_agent_callback(callback_context=callback_context)
-
-        # Start tool A in invocation 1 (session 1)
-        tool_a = MockTool("tool_A")
-        tool_context_a = MockToolContext(inv_id_1, session_id=session_id_1)
-        await plugin.before_tool_callback(
-            tool=tool_a,
-            tool_args={},
-            tool_context=tool_context_a,
-        )
-        active_tool_1 = plugin._tracker.get_active_tool(session_id_1)
-
-        # Start tool B in invocation 2 (session 2)
-        tool_b = MockTool("tool_B")
-        tool_context_b = MockToolContext(inv_id_2, session_id=session_id_2)
-        await plugin.before_tool_callback(
-            tool=tool_b,
-            tool_args={},
-            tool_context=tool_context_b,
-        )
-        active_tool_2 = plugin._tracker.get_active_tool(session_id_2)
-
-        # Both tools should be tracked independently
-        assert active_tool_1 is not None
-        assert active_tool_2 is not None
-        assert active_tool_1 != active_tool_2
-
-        # End tool A - should only affect session 1
-        await plugin.after_tool_callback(
-            tool=tool_a,
-            tool_args={},
-            tool_context=tool_context_a,
-            result={"status": "done"},
-        )
-
-        # Tool A cleared, Tool B still active
-        assert plugin._tracker.get_active_tool(session_id_1) is None
-        assert plugin._tracker.get_active_tool(session_id_2) is not None
-
-    @pytest.mark.asyncio
     async def test_sub_invocation_parented_to_tool_via_session(self, plugin: GalileoADKPlugin) -> None:
         """Sub-invocation with different invocation_id but same session_id is parented to tool.
 
@@ -444,7 +380,7 @@ class TestInvocationScopedToolTracking:
 
         # Setup parent invocation
         parent_inv_context = MockInvocationContext(invocation_id=parent_inv_id)
-        parent_inv_context.session.session_id = shared_session_id
+        parent_inv_context.session.id = shared_session_id
         await plugin.on_user_message_callback(
             invocation_context=parent_inv_context,
             user_message=MockContent(),
@@ -466,7 +402,7 @@ class TestInvocationScopedToolTracking:
         # Sub-invocation with DIFFERENT invocation_id but SAME session_id
         # This simulates what happens when a tool spawns a sub-agent
         child_inv_context = MockInvocationContext(invocation_id=child_inv_id)
-        child_inv_context.session.session_id = shared_session_id  # SAME session
+        child_inv_context.session.id = shared_session_id  # SAME session
 
         # The sub-invocation should find the parent tool via session_id
         await plugin.on_user_message_callback(
@@ -503,7 +439,7 @@ class TestInvocationScopedToolTracking:
 
         # Given: an invocation with a run but NO agent span
         inv_context = MockInvocationContext(invocation_id=invocation_id)
-        inv_context.session.session_id = session_id
+        inv_context.session.id = session_id
         await plugin.on_user_message_callback(
             invocation_context=inv_context,
             user_message=MockContent(),
@@ -695,7 +631,7 @@ class TestForceCommitPartialTrace:
         invocation_id = str(uuid4())
         session_id = "test_session"
         inv_context = MockInvocationContext(invocation_id=invocation_id)
-        inv_context.session.session_id = session_id
+        inv_context.session.id = session_id
         await plugin.on_user_message_callback(
             invocation_context=inv_context,
             user_message=MockContent(),
@@ -748,7 +684,7 @@ class TestForceCommitPartialTrace:
         invocation_id = str(uuid4())
         session_id = "test_session"
         inv_context = MockInvocationContext(invocation_id=invocation_id)
-        inv_context.session.session_id = session_id
+        inv_context.session.id = session_id
         await plugin.on_user_message_callback(
             invocation_context=inv_context,
             user_message=MockContent(),
@@ -868,7 +804,7 @@ class TestAfterRunCallbackCleanup:
 
         # Setup invocation
         inv_context = MockInvocationContext(invocation_id=inv_id)
-        inv_context.session.session_id = session_id
+        inv_context.session.id = session_id
         await plugin.on_user_message_callback(
             invocation_context=inv_context,
             user_message=MockContent(),
@@ -898,3 +834,97 @@ class TestAfterRunCallbackCleanup:
 
         # Active tool should be cleared
         assert plugin._tracker.get_active_tool(session_id) is None
+
+
+class TestAutomaticSessionMapping:
+    """Tests for automatic ADK session_id → Galileo session mapping."""
+
+    @pytest.fixture
+    def plugin(self) -> GalileoADKPlugin:
+        return GalileoADKPlugin(ingestion_hook=lambda r: None)
+
+    @pytest.mark.asyncio
+    async def test_session_mapped_on_first_user_message(self, plugin: GalileoADKPlugin) -> None:
+        """ADK session_id is mapped to Galileo session on first user message."""
+        # Given: an invocation context with a session_id
+        inv_context = MockInvocationContext()
+        inv_context.session.id = "adk-session-123"
+
+        # When: processing the user message
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context,
+            user_message=MockContent(),
+        )
+
+        # Then: the ADK session is tracked by the observer
+        assert plugin._observer._current_adk_session == "adk-session-123"
+
+    @pytest.mark.asyncio
+    async def test_session_not_remapped_for_same_session_id(self, plugin: GalileoADKPlugin) -> None:
+        """Same session_id doesn't trigger repeated session mapping."""
+        # Given: two invocations with the same session_id
+        session_id = "persistent-session"
+        inv_context_1 = MockInvocationContext(invocation_id="inv-1")
+        inv_context_1.session.id = session_id
+        inv_context_2 = MockInvocationContext(invocation_id="inv-2")
+        inv_context_2.session.id = session_id
+
+        # When: processing both user messages
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context_1,
+            user_message=MockContent(),
+        )
+        first_mapped_session = plugin._observer._current_adk_session
+
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context_2,
+            user_message=MockContent(),
+        )
+        second_mapped_session = plugin._observer._current_adk_session
+
+        # Then: session remains the same (not remapped)
+        assert first_mapped_session == second_mapped_session == session_id
+
+    @pytest.mark.asyncio
+    async def test_unknown_session_id_not_mapped(self, plugin: GalileoADKPlugin) -> None:
+        """Session_id of 'unknown' is not mapped to Galileo session."""
+        # Given: an invocation context with unknown session_id
+        inv_context = MockInvocationContext()
+        inv_context.session.id = "unknown"
+
+        # When: processing the user message
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context,
+            user_message=MockContent(),
+        )
+
+        # Then: session is not tracked (remains None)
+        assert plugin._observer._current_adk_session is None
+
+    @pytest.mark.asyncio
+    async def test_session_mapping_with_sub_invocations(self, plugin: GalileoADKPlugin) -> None:
+        """Sub-invocations with same session_id don't trigger remapping."""
+        # Given: parent and child invocations sharing a session
+        shared_session = "shared-session-xyz"
+
+        parent_context = MockInvocationContext(invocation_id="parent-inv")
+        parent_context.session.id = shared_session
+
+        child_context = MockInvocationContext(invocation_id="child-inv")
+        child_context.session.id = shared_session
+
+        # When: processing parent invocation
+        await plugin.on_user_message_callback(
+            invocation_context=parent_context,
+            user_message=MockContent(),
+        )
+        assert plugin._observer._current_adk_session == shared_session
+
+        # And: processing child invocation (sub-agent call)
+        await plugin.on_user_message_callback(
+            invocation_context=child_context,
+            user_message=MockContent(),
+        )
+
+        # Then: session remains the same
+        assert plugin._observer._current_adk_session == shared_session

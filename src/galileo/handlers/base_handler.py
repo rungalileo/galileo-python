@@ -85,7 +85,6 @@ class GalileoBaseHandler:
             )
 
         if self._flush_on_chain_end:
-            # Upload the trace to Galileo
             self._galileo_logger.flush()
 
         # Clear nodes after successful commit

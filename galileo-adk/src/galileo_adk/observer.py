@@ -44,15 +44,15 @@ def get_session_id(context: Any) -> str:
     # Try direct session attribute
     if hasattr(context, "session"):
         session = context.session
-        if hasattr(session, "session_id"):
-            return str(session.session_id)
+        if hasattr(session, "id"):
+            return str(session.id)
     # Try invocation_context path
     if hasattr(context, "_invocation_context"):
         inv_ctx = context._invocation_context
         if hasattr(inv_ctx, "session"):
             session = inv_ctx.session
-            if hasattr(session, "session_id"):
-                return str(session.session_id)
+            if hasattr(session, "id"):
+                return str(session.id)
     return "unknown"
 
 
@@ -60,8 +60,8 @@ def get_tool_session_id(tool_context: Any) -> str:
     """Get session_id from tool context."""
     if hasattr(tool_context, "session"):
         session = tool_context.session
-        if hasattr(session, "session_id"):
-            return str(session.session_id)
+        if hasattr(session, "id"):
+            return str(session.id)
     if hasattr(tool_context, "callback_context"):
         return get_session_id(tool_context.callback_context)
     return "unknown"
@@ -78,7 +78,6 @@ class GalileoObserver:
         start_new_trace: bool = True,
         flush_on_completion: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
-        external_id: str | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> None:
         if galileo_logger is None:
@@ -89,9 +88,7 @@ class GalileoObserver:
                 # Standard mode - use context (requires project/log_stream)
                 galileo_logger = galileo_context.get_logger_instance(project=project, log_stream=log_stream)
 
-        if external_id:
-            galileo_logger.start_session(name=external_id, external_id=external_id)
-
+        self._current_adk_session: str | None = None
         self._handler = GalileoBaseHandler(
             galileo_logger=galileo_logger,
             start_new_trace=start_new_trace,
@@ -106,6 +103,24 @@ class GalileoObserver:
     def handler(self) -> GalileoBaseHandler:
         """Access the underlying handler."""
         return self._handler
+
+    def update_session_if_changed(self, adk_session_id: str) -> None:
+        """Map ADK session_id to Galileo session for trace grouping.
+
+        Sets the session once per plugin lifecycle. Sub-invocations have different
+        ADK session_ids but share the same Galileo session as the root invocation.
+        """
+        if self._current_adk_session is not None:
+            return
+
+        if adk_session_id == "unknown":
+            return
+
+        self._current_adk_session = adk_session_id
+        self._handler._galileo_logger.start_session(
+            name=adk_session_id,
+            external_id=adk_session_id,
+        )
 
     def on_run_start(
         self,
@@ -231,8 +246,8 @@ class GalileoObserver:
             metadata["invocation_id"] = str(invocation_context.invocation_id)
         if hasattr(invocation_context, "session"):
             session = invocation_context.session
-            if hasattr(session, "session_id"):
-                metadata["session_id"] = str(session.session_id)
+            if hasattr(session, "id"):
+                metadata["session_id"] = str(session.id)
         return metadata
 
     def _extract_agent_input(self, callback_context: Any) -> str:

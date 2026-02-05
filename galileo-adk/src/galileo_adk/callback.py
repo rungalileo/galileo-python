@@ -6,7 +6,7 @@ from typing import Any
 
 from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
-from galileo_adk.observer import GalileoObserver, get_invocation_id, get_tool_invocation_id
+from galileo_adk.observer import GalileoObserver, get_invocation_id, get_session_id, get_tool_invocation_id
 from galileo_adk.span_tracker import SpanTracker
 
 try:
@@ -31,6 +31,9 @@ class GalileoADKCallback:
     constructors). For runner-level observability with full lifecycle tracking,
     use GalileoADKPlugin instead.
 
+    ADK session_id is automatically mapped to Galileo sessions for trace grouping.
+    All traces from the same ADK session will be grouped together in Galileo.
+
     Parameters
     ----------
     project : str, optional
@@ -46,8 +49,6 @@ class GalileoADKCallback:
         Whether to flush traces to Galileo when the agent ends.
     ingestion_hook : Callable[[TracesIngestRequest], None], optional
         Custom callback to receive trace data instead of sending to Galileo.
-    external_id : str, optional
-        External identifier for session grouping.
     metadata : dict[str, Any], optional
         Static metadata to attach to all spans.
 
@@ -68,7 +69,6 @@ class GalileoADKCallback:
         start_new_trace: bool = True,
         flush_on_agent_end: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
-        external_id: str | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> None:
         if not ingestion_hook and not project and not galileo_logger:
@@ -81,7 +81,6 @@ class GalileoADKCallback:
             start_new_trace=start_new_trace,
             flush_on_completion=flush_on_agent_end,
             ingestion_hook=ingestion_hook,
-            external_id=external_id,
             metadata=metadata,
         )
         self._metadata: dict[str, Any] = metadata.copy() if metadata else {}
@@ -106,6 +105,11 @@ class GalileoADKCallback:
         """Start agent span for observability."""
         try:
             invocation_id = get_invocation_id(callback_context)
+            session_id = get_session_id(callback_context)
+
+            # Map ADK session to Galileo session for trace grouping
+            self._observer.update_session_if_changed(session_id)
+
             agent_name = getattr(callback_context, "agent_name", "unknown")
             run_id = self._observer.on_agent_start(callback_context, parent_run_id=None, metadata=self._metadata)
             self._tracker.register_agent(invocation_id, agent_name, run_id)

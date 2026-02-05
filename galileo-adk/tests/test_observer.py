@@ -54,7 +54,7 @@ class TestExtractInvocationMetadata:
         # Given: an invocation context with a nested session
         context = MagicMock()
         context.invocation_id = "inv_123"
-        context.session.session_id = "sess_456"
+        context.session.id = "sess_456"
 
         # When: extracting metadata
         result = observer._extract_invocation_metadata(context)

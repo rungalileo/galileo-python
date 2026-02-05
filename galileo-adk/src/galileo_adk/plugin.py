@@ -91,6 +91,9 @@ class GalileoADKPlugin(BasePlugin):
     Provides full lifecycle observability including invocation, agent, LLM, and tool
     spans. Pass to Runner's plugins list for automatic trace capture.
 
+    ADK session_id is automatically mapped to Galileo sessions for trace grouping.
+    All traces from the same ADK session will be grouped together in Galileo.
+
     Parameters
     ----------
     project : str, optional
@@ -105,8 +108,6 @@ class GalileoADKPlugin(BasePlugin):
         Whether to flush traces when the run ends.
     ingestion_hook : Callable[[TracesIngestRequest], None], optional
         Custom callback to receive trace data instead of sending to Galileo.
-    external_id : str, optional
-        External identifier for session grouping.
     metadata : dict[str, Any], optional
         Static metadata to attach to all spans.
 
@@ -124,7 +125,6 @@ class GalileoADKPlugin(BasePlugin):
         start_new_trace: bool = True,
         flush_on_run_end: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
-        external_id: str | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> None:
         if not ingestion_hook and not project and not galileo_logger:
@@ -138,7 +138,6 @@ class GalileoADKPlugin(BasePlugin):
             start_new_trace=start_new_trace,
             flush_on_completion=flush_on_run_end,
             ingestion_hook=ingestion_hook,
-            external_id=external_id,
             metadata=metadata,
         )
         self._metadata: dict[str, Any] = metadata.copy() if metadata else {}
@@ -204,9 +203,12 @@ class GalileoADKPlugin(BasePlugin):
         try:
             invocation_id = get_invocation_id(invocation_context)
             session_id = get_session_id(invocation_context)
-            # Use session_id to find parent tool - sub-invocations have different
-            # invocation_ids but share the same session_id with their parent
-            parent_run_id = self._tracker.get_active_tool(session_id)
+
+            self._observer.update_session_if_changed(session_id)
+
+            root_session = self._observer._current_adk_session or session_id
+            parent_run_id = self._tracker.get_active_tool(root_session)
+
             run_id = self._observer.on_run_start(
                 invocation_context, user_message, parent_run_id, metadata=self._metadata
             )
@@ -383,6 +385,8 @@ class GalileoADKPlugin(BasePlugin):
             session_id = get_tool_session_id(tool_context)
             agent_name = self._get_current_agent_name_from_tool_context(tool_context)
 
+            root_session = self._observer._current_adk_session or session_id
+
             # Resolve parent with fallback chain:
             # 1. Current agent span (if agent_name available)
             parent_run_id = None
@@ -393,13 +397,12 @@ class GalileoADKPlugin(BasePlugin):
                 parent_run_id = self._tracker.get_run(invocation_id)
             # 3. Active tool in session (for tools called from within other tools)
             if not parent_run_id:
-                parent_run_id = self._tracker.get_active_tool(session_id)
+                parent_run_id = self._tracker.get_active_tool(root_session)
 
             run_id = self._observer.on_tool_start(tool, tool_args, tool_context, parent_run_id, metadata=self._metadata)
             tool_key = self._get_tool_key(tool)
             self._tracker.register_tool(invocation_id, tool_key, run_id)
-            # Use session_id for active tool tracking so sub-invocations can find it
-            self._tracker.set_active_tool(session_id, run_id)
+            self._tracker.set_active_tool(root_session, run_id)
         except Exception as e:
             _logger.error(f"Error in before_tool_callback: {e}", exc_info=True)
         return None
@@ -415,7 +418,8 @@ class GalileoADKPlugin(BasePlugin):
             run_id = self._tracker.pop_tool(invocation_id, tool_key)
             if run_id:
                 self._observer.on_tool_end(run_id, result)
-                self._tracker.clear_active_tool(session_id, run_id)
+                root_session = self._observer._current_adk_session or session_id
+                self._tracker.clear_active_tool(root_session, run_id)
         except Exception as e:
             _logger.error(f"Error in after_tool_callback: {e}", exc_info=True)
         return None
@@ -433,7 +437,8 @@ class GalileoADKPlugin(BasePlugin):
             if run_id:
                 status_code = _extract_status_code(error)
                 self._observer.on_tool_end(run_id, error_response, status_code=status_code)
-                self._tracker.clear_active_tool(session_id, run_id)
+                root_session = self._observer._current_adk_session or session_id
+                self._tracker.clear_active_tool(root_session, run_id)
         except Exception as e:
             _logger.error(f"Error in on_tool_error_callback: {e}", exc_info=True)
         return error_response
