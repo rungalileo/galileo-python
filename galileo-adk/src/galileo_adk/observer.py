@@ -1,5 +1,6 @@
 """Shared observability logic for Galileo ADK integration."""
 
+import contextlib
 import logging
 import uuid
 from collections.abc import Callable
@@ -23,7 +24,21 @@ _logger = logging.getLogger(__name__)
 
 def get_invocation_id(context: Any) -> str:
     """Extract invocation_id from context for correlation."""
-    return str(getattr(context, "invocation_id", "unknown"))
+    invocation_id = getattr(context, "invocation_id", None)
+    if invocation_id is not None:
+        return str(invocation_id)
+
+    generated_id = getattr(context, "_generated_invocation_id", None)
+    if generated_id is not None:
+        return generated_id
+
+    session_id = get_session_id(context)
+    fallback_id = f"{session_id}_{uuid.uuid4()}" if session_id != "unknown" else str(uuid.uuid4())
+
+    with contextlib.suppress(AttributeError):
+        context._generated_invocation_id = fallback_id
+
+    return fallback_id
 
 
 def get_tool_invocation_id(tool_context: Any) -> str:
@@ -32,7 +47,7 @@ def get_tool_invocation_id(tool_context: Any) -> str:
         return str(tool_context.invocation_id)
     if hasattr(tool_context, "callback_context"):
         return get_invocation_id(tool_context.callback_context)
-    return "unknown"
+    return get_invocation_id(tool_context)
 
 
 def get_session_id(context: Any) -> str:
@@ -173,7 +188,6 @@ class GalileoObserver:
         if metadata:
             return metadata
 
-        # Fall back to root invocation metadata
         root_session = self._current_adk_session or session_id
         root_invocation_id = self._session_root_invocation.get(root_session)
         if root_invocation_id:
@@ -191,22 +205,38 @@ class GalileoObserver:
         """
         self._invocation_metadata.pop(invocation_id, None)
 
-    def update_session_if_changed(self, adk_session_id: str) -> None:
+    def update_session_if_changed(self, adk_session_id: str, is_sub_invocation: bool = False) -> None:
         """Map ADK session_id to Galileo session for trace grouping.
 
-        Sets the session once per plugin lifecycle. Sub-invocations have different
-        ADK session_ids but share the same Galileo session as the root invocation.
-        """
-        if self._current_adk_session is not None:
-            return
+        Updates the Galileo session when the ADK session changes. Sessions are linked
+        via previous_session_id when switching to maintain continuity.
 
+        Parameters
+        ----------
+        adk_session_id : str
+            The ADK session ID from the invocation context
+        is_sub_invocation : bool
+            If True, this is an AgentTool sub-invocation with a different session_id.
+            Sub-invocations should NOT trigger session switching because they are
+            spawned by AgentTool within an existing conversation, not user-initiated
+            new conversations via runner.run_async().
+        """
         if adk_session_id == "unknown":
             return
 
+        # Sub-invocations keep the parent's session for trace coherence
+        if self._current_adk_session is not None and is_sub_invocation:
+            return
+
+        if adk_session_id == self._current_adk_session:
+            return
+
+        previous_session_id = self._handler._galileo_logger.session_id
         self._current_adk_session = adk_session_id
         self._handler._galileo_logger.start_session(
             name=adk_session_id,
             external_id=adk_session_id,
+            previous_session_id=previous_session_id,
         )
 
     def on_run_start(
@@ -235,10 +265,6 @@ class GalileoObserver:
     def on_run_end(self, run_id: UUID, output: str, status_code: int = 200) -> None:
         """Handle run end."""
         self._span_manager.end_run(run_id=run_id, output=output, status_code=status_code)
-
-    def on_event(self, run_id: UUID, event: Any) -> None:
-        """Handle streaming event."""
-        pass
 
     def on_agent_start(
         self, callback_context: Any, parent_run_id: UUID | None = None, metadata: dict[str, Any] | None = None
@@ -400,16 +426,17 @@ class GalileoObserver:
         if not usage:
             return {}
         return {
-            "prompt_tokens": getattr(usage, "prompt_token_count", None),
-            "completion_tokens": getattr(usage, "candidates_token_count", None),
+            "prompt_tokens": getattr(usage, "prompt_token_count", None) or getattr(usage, "input_token_count", None),
+            "completion_tokens": getattr(usage, "candidates_token_count", None)
+            or getattr(usage, "output_token_count", None),
             "total_tokens": getattr(usage, "total_token_count", None),
         }
 
     def _extract_final_output(self, invocation_context: Any) -> str:
         if hasattr(invocation_context, "session"):
             session = invocation_context.session
-            if hasattr(session, "events") and session.events:
-                last_event = session.events[-1] if isinstance(session.events, list) else None
-                if last_event and hasattr(last_event, "content"):
-                    return extract_text_from_adk_content(last_event.content)
+            if hasattr(session, "events") and session.events and isinstance(session.events, list):
+                for event in reversed(session.events):
+                    if hasattr(event, "is_final_response") and event.is_final_response() and hasattr(event, "content"):
+                        return extract_text_from_adk_content(event.content)
         return ""

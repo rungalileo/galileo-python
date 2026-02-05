@@ -13,6 +13,7 @@ def mock_galileo_logger() -> MagicMock:
     logger.current_parent.return_value = None
     logger.has_active_trace.return_value = False
     logger.traces = []
+    logger.session_id = None
     return logger
 
 

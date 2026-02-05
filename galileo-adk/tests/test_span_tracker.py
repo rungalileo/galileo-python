@@ -229,8 +229,45 @@ class TestSpanTrackerCounts:
 class TestSpanTrackerActiveTools:
     """Tests for active tool tracking."""
 
+    def test_has_any_active_tools_returns_false_when_empty(self) -> None:
+        tracker = SpanTracker()
+        assert tracker.has_any_active_tools() is False
+
+    def test_has_any_active_tools_returns_true_when_tool_active(self) -> None:
+        tracker = SpanTracker()
+        tool_run_id = uuid4()
+
+        tracker.set_active_tool("session1", tool_run_id)
+
+        assert tracker.has_any_active_tools() is True
+
+    def test_has_any_active_tools_returns_false_after_clear(self) -> None:
+        tracker = SpanTracker()
+        tool_run_id = uuid4()
+
+        tracker.set_active_tool("session1", tool_run_id)
+        assert tracker.has_any_active_tools() is True
+
+        tracker.clear_active_tool("session1", tool_run_id)
+
+        assert tracker.has_any_active_tools() is False
+
+    def test_has_any_active_tools_multiple_sessions(self) -> None:
+        tracker = SpanTracker()
+        tool_a = uuid4()
+        tool_b = uuid4()
+
+        tracker.set_active_tool("session1", tool_a)
+        tracker.set_active_tool("session2", tool_b)
+        assert tracker.has_any_active_tools() is True
+
+        tracker.clear_active_tool("session1", tool_a)
+        assert tracker.has_any_active_tools() is True
+
+        tracker.clear_active_tool("session2", tool_b)
+        assert tracker.has_any_active_tools() is False
+
     def test_pop_all_tools_clears_active_tool_by_session_id(self) -> None:
-        """Verify pop_all_tools_for_invocation clears active tool using session_id lookup."""
         tracker = SpanTracker()
         run_id = uuid4()
         tool_run_id = uuid4()
@@ -239,47 +276,35 @@ class TestSpanTrackerActiveTools:
         tracker.register_run("inv1", "session1", run_id)
         tracker.register_tool("inv1", "tool_key", tool_run_id)
         tracker.set_active_tool("session1", tool_run_id)
-
-        # Verify active tool is set
         assert tracker.get_active_tool("session1") == tool_run_id
 
-        # When: popping all tools for the invocation
         tracker.pop_all_tools_for_invocation("inv1")
 
-        # Then: the active tool is cleared (using session_id lookup)
         assert tracker.get_active_tool("session1") is None
 
     def test_pop_run_clears_invocation_to_session_mapping(self) -> None:
-        """Verify pop_run cleans up the invocation-to-session mapping."""
         tracker = SpanTracker()
         run_id = uuid4()
 
-        # Given: a run registered with session mapping
         tracker.register_run("inv1", "session1", run_id)
         assert tracker._invocation_to_session.get("inv1") == "session1"
 
-        # When: popping the run
         tracker.pop_run("inv1")
 
-        # Then: the mapping is cleaned up
         assert tracker._invocation_to_session.get("inv1") is None
 
     def test_active_tool_stack_push_pop_lifo(self) -> None:
-        """Active tools use LIFO (stack) order for concurrent sibling tools."""
+        """Active tools use LIFO order."""
         tracker = SpanTracker()
         tool_a = uuid4()
         tool_b = uuid4()
         tool_c = uuid4()
 
-        # Given: multiple tools pushed onto the stack
         tracker.set_active_tool("session1", tool_a)
         tracker.set_active_tool("session1", tool_b)
         tracker.set_active_tool("session1", tool_c)
-
-        # Then: get_active_tool returns the most recently pushed (top of stack)
         assert tracker.get_active_tool("session1") == tool_c
 
-        # When: clearing in LIFO order
         tracker.clear_active_tool("session1", tool_c)
         assert tracker.get_active_tool("session1") == tool_b
 
@@ -290,46 +315,33 @@ class TestSpanTrackerActiveTools:
         assert tracker.get_active_tool("session1") is None
 
     def test_clear_active_tool_only_pops_if_top_matches(self) -> None:
-        """clear_active_tool only pops if the given run_id matches the top of stack."""
+        """clear_active_tool only pops if run_id matches top of stack."""
         tracker = SpanTracker()
         tool_a = uuid4()
         tool_b = uuid4()
 
-        # Given: two tools on the stack
         tracker.set_active_tool("session1", tool_a)
         tracker.set_active_tool("session1", tool_b)
 
-        # When: trying to clear tool_a (not at top)
         tracker.clear_active_tool("session1", tool_a)
-
-        # Then: stack is unchanged (tool_b still at top)
         assert tracker.get_active_tool("session1") == tool_b
 
-        # When: clearing tool_b (at top)
         tracker.clear_active_tool("session1", tool_b)
-
-        # Then: tool_a is now at top
         assert tracker.get_active_tool("session1") == tool_a
 
     def test_pop_all_tools_clears_entire_stack(self) -> None:
-        """pop_all_tools_for_invocation clears the entire active tool stack."""
         tracker = SpanTracker()
         run_id = uuid4()
         tool_a = uuid4()
         tool_b = uuid4()
 
-        # Given: a run with multiple active tools stacked
         tracker.register_run("inv1", "session1", run_id)
         tracker.register_tool("inv1", "tool_a", tool_a)
         tracker.register_tool("inv1", "tool_b", tool_b)
         tracker.set_active_tool("session1", tool_a)
         tracker.set_active_tool("session1", tool_b)
-
-        # Verify stack has two items
         assert tracker.get_active_tool("session1") == tool_b
 
-        # When: popping all tools for the invocation
         tracker.pop_all_tools_for_invocation("inv1")
 
-        # Then: the entire stack is cleared
         assert tracker.get_active_tool("session1") is None

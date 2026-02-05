@@ -210,14 +210,14 @@ class TestGalileoADKCallback:
 
 
 class MockRunConfig:
-    """Mock ADK RunConfig for testing custom_metadata extraction."""
+    """Mock ADK RunConfig."""
 
     def __init__(self, custom_metadata: dict | None = None) -> None:
         self.custom_metadata = custom_metadata
 
 
 class MockCallbackContext:
-    """Mock ADK CallbackContext for testing callback error handling."""
+    """Mock ADK CallbackContext."""
 
     def __init__(
         self,
@@ -237,7 +237,7 @@ class MockCallbackContext:
 
 
 class MockLlmRequest:
-    """Mock ADK LlmRequest for testing."""
+    """Mock ADK LlmRequest."""
 
     def __init__(
         self,
@@ -252,7 +252,7 @@ class MockLlmRequest:
 
 
 class MockLlmResponse:
-    """Mock ADK LlmResponse for testing."""
+    """Mock ADK LlmResponse."""
 
     def __init__(
         self,
@@ -268,7 +268,7 @@ class MockLlmResponse:
 
 
 class MockContent:
-    """Mock ADK Content for testing."""
+    """Mock ADK Content."""
 
     def __init__(self, parts: list | None = None, role: str = "user") -> None:
         self.parts = parts or []
@@ -276,14 +276,14 @@ class MockContent:
 
 
 class MockPart:
-    """Mock ADK Part for testing."""
+    """Mock ADK Part."""
 
     def __init__(self, text: str | None = None) -> None:
         self.text = text
 
 
 class MockToolContext:
-    """Mock ADK ToolContext for testing."""
+    """Mock ADK ToolContext."""
 
     def __init__(self, callback_context: MockCallbackContext | None = None) -> None:
         self.callback_context = callback_context
@@ -300,7 +300,7 @@ class TestCallbackErrorHandling:
         self,
         callback: GalileoADKCallback,
     ) -> None:
-        """Callbacks handle various exception types without propagating errors."""
+        """Callbacks handle exceptions without propagating errors."""
         # Given: a context that raises when accessing properties
         broken_context = MagicMock()
         broken_context.agent_name = property(lambda self: 1 / 0)
@@ -333,7 +333,7 @@ class TestCallbackErrorHandling:
         self,
         callback: GalileoADKCallback,
     ) -> None:
-        """All callback methods consistently return None to allow callback chaining."""
+        """All callback methods return None."""
         context = MockCallbackContext()
         request = MockLlmRequest()
         # Use matching request_id for correlation
@@ -359,7 +359,7 @@ class TestCallbackErrorHandling:
 
 
 class TestCallbackPluginCompatibility:
-    """Tests for multi-plugin compatibility - migrated from test_multi_plugin.py."""
+    """Tests for multi-plugin compatibility."""
 
     @pytest.fixture
     def callback(self, mock_galileo_logger: MagicMock) -> GalileoADKCallback:
@@ -449,7 +449,7 @@ class TestCallbackPluginCompatibility:
         self,
         callback: GalileoADKCallback,
     ) -> None:
-        """Tests multiple LLM calls and tool calls within a single agent lifecycle."""
+        """Multiple LLM and tool calls within a single agent lifecycle."""
         context = MockCallbackContext()
         tool = MagicMock()
         tool.name = "test_tool"
@@ -491,7 +491,7 @@ class TestCallbackPluginCompatibility:
         self,
         callback: GalileoADKCallback,
     ) -> None:
-        """LLM spans are properly correlated even when request_id is not available."""
+        """LLM spans correlate without request_id."""
         context = MockCallbackContext()
 
         callback.before_agent_callback(context)
@@ -561,6 +561,21 @@ class TestAutomaticSessionMapping:
 
         # Then: session is not tracked (remains None)
         assert callback._observer._current_adk_session is None
+
+    def test_session_updated_when_different_session_id(self, callback: GalileoADKCallback) -> None:
+        """Different session_id triggers session update."""
+        # Given: first agent with session-1
+        context_1 = MockCallbackContext(agent_name="agent_1", session_id="session-1")
+        callback.before_agent_callback(context_1)
+        assert callback._observer._current_adk_session == "session-1"
+        callback.after_agent_callback(context_1)
+
+        # When: second agent with different session-2
+        context_2 = MockCallbackContext(agent_name="agent_2", session_id="session-2")
+        callback.before_agent_callback(context_2)
+
+        # Then: session is updated to the new session
+        assert callback._observer._current_adk_session == "session-2"
 
 
 class TestRunConfigMetadata:

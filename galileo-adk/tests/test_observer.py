@@ -25,8 +25,12 @@ class MockContent:
 class MockEvent:
     """Mock ADK Event."""
 
-    def __init__(self, content: MockContent | None = None) -> None:
+    def __init__(self, content: MockContent | None = None, is_final: bool = False) -> None:
         self.content = content
+        self._is_final = is_final
+
+    def is_final_response(self) -> bool:
+        return self._is_final
 
 
 @pytest.fixture
@@ -180,16 +184,43 @@ class TestExtractFinalOutput:
     """Tests for _extract_final_output method."""
 
     def test_extracts_from_session_events(self, observer: GalileoObserver) -> None:
-        # Given: an invocation context with session.events
+        # Given: an invocation context with session.events containing a final response
         context = MagicMock()
-        event = MockEvent(content=MockContent(parts=[MockPart(text="The answer is 42")]))
+        event = MockEvent(content=MockContent(parts=[MockPart(text="The answer is 42")]), is_final=True)
         context.session.events = [event]
 
         # When: extracting final output
         result = observer._extract_final_output(context)
 
-        # Then: the event content is extracted
+        # Then: the final response content is extracted
         assert result == "The answer is 42"
+
+    def test_finds_final_response_not_at_end(self, observer: GalileoObserver) -> None:
+        # Given: session.events where final response is not the last event
+        context = MagicMock()
+        tool_call = MockEvent(content=MockContent(parts=[MockPart(text="calling tool")]), is_final=False)
+        final_response = MockEvent(content=MockContent(parts=[MockPart(text="The answer is 42")]), is_final=True)
+        tool_result = MockEvent(content=MockContent(parts=[MockPart(text='{"result": 42}')]), is_final=False)
+        context.session.events = [tool_call, final_response, tool_result]
+
+        # When: extracting final output
+        result = observer._extract_final_output(context)
+
+        # Then: the final response content is extracted (not the last event)
+        assert result == "The answer is 42"
+
+    def test_returns_empty_when_no_final_response(self, observer: GalileoObserver) -> None:
+        # Given: session.events with no final response
+        context = MagicMock()
+        tool_call = MockEvent(content=MockContent(parts=[MockPart(text="calling tool")]), is_final=False)
+        tool_result = MockEvent(content=MockContent(parts=[MockPart(text='{"result": 42}')]), is_final=False)
+        context.session.events = [tool_call, tool_result]
+
+        # When: extracting final output
+        result = observer._extract_final_output(context)
+
+        # Then: empty string is returned (no misleading data)
+        assert result == ""
 
     def test_handles_missing_session_gracefully(self, observer: GalileoObserver) -> None:
         # Given: an invocation context without session

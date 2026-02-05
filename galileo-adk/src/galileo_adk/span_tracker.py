@@ -31,8 +31,8 @@ class SpanTracker:
         self._active_tools: dict[str, list[UUID]] = {}
         # {invocation_id: session_id} - maps invocations to sessions for cleanup
         self._invocation_to_session: dict[str, str] = {}
-        # {invocation_id: call_id} - tracks current LLM call_id for response correlation
-        self._current_llm_call_id: dict[str, str] = {}
+        # {invocation_id: [call_id, ...]} - stack of LLM call_ids for response correlation
+        self._current_llm_call_id: dict[str, list[str]] = {}
 
     # --- Run spans ---
     def register_run(self, invocation_id: str, session_id: str, run_id: UUID) -> None:
@@ -88,16 +88,32 @@ class SpanTracker:
         return None
 
     def set_current_llm_call_id(self, invocation_id: str, call_id: str) -> None:
-        """Store the current LLM call_id for response correlation."""
-        self._current_llm_call_id[invocation_id] = call_id
+        """Push an LLM call_id onto the stack for response correlation."""
+        if invocation_id not in self._current_llm_call_id:
+            self._current_llm_call_id[invocation_id] = []
+        self._current_llm_call_id[invocation_id].append(call_id)
 
     def get_current_llm_call_id(self, invocation_id: str) -> str | None:
-        """Get the current LLM call_id for an invocation."""
-        return self._current_llm_call_id.get(invocation_id)
+        """Get the top LLM call_id from the stack for an invocation."""
+        stack = self._current_llm_call_id.get(invocation_id)
+        if stack:
+            return stack[-1]
+        return None
 
-    def clear_current_llm_call_id(self, invocation_id: str) -> None:
-        """Clear the current LLM call_id after use."""
-        self._current_llm_call_id.pop(invocation_id, None)
+    def clear_current_llm_call_id(self, invocation_id: str, call_id: str | None = None) -> None:
+        """Pop the LLM call_id from the stack.
+
+        If call_id is provided and matches the top, pop it.
+        If call_id is None, pop the top unconditionally.
+        Removes the invocation key when the stack is empty.
+        """
+        stack = self._current_llm_call_id.get(invocation_id)
+        if not stack:
+            return
+        if call_id is None or stack[-1] == call_id:
+            stack.pop()
+        if not stack:
+            del self._current_llm_call_id[invocation_id]
 
     # --- Tool spans ---
     def register_tool(self, prefix: str, tool_key: str, run_id: UUID) -> None:
@@ -117,13 +133,12 @@ class SpanTracker:
         return None
 
     # --- Active tool tracking (for sub-invocation parenting) ---
-    def set_active_tool(self, session_id: str, run_id: UUID) -> None:
-        """Push a tool onto the active tool stack for a session.
+    def has_any_active_tools(self) -> bool:
+        """Check if any session has active tools (indicates sub-invocation)."""
+        return any(stack for stack in self._active_tools.values())
 
-        Uses session_id rather than invocation_id because sub-invocations
-        have different invocation_ids but share the same session_id.
-        Stack structure allows concurrent sibling tools to be tracked correctly.
-        """
+    def set_active_tool(self, session_id: str, run_id: UUID) -> None:
+        """Push a tool onto the active tool stack for a session."""
         if session_id not in self._active_tools:
             self._active_tools[session_id] = []
         self._active_tools[session_id].append(run_id)

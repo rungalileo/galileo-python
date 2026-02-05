@@ -32,7 +32,7 @@ pip install galileo-adk
 │                  └─────────┬──────────┘                                  │
 │                            ▼                                             │
 │                  ┌────────────────────┐                                  │
-│                  │  GalileoObserver   │  ← Shared logic                  │
+│                  │  GalileoObserver   │  ← Shared logic + metadata       │
 │                  └─────────┬──────────┘                                  │
 │                            ▼                                             │
 │                  ┌────────────────────┐                                  │
@@ -102,30 +102,47 @@ agent = LlmAgent(
 | `project` | `str` | Galileo project (or `GALILEO_PROJECT` env) |
 | `log_stream` | `str` | Log stream (or `GALILEO_LOG_STREAM` env) |
 | `ingestion_hook` | `Callable` | Custom trace handler (enables hook-only mode) |
-| `external_id` | `str` | Groups traces under same session |
-| `metadata` | `dict` |  Metadata for all spans |
 
-## Metadata
+## Session Management
 
-### Static (same for all turns)
+Sessions are automatically created from ADK's `session_id`:
 
 ```python
-plugin = GalileoADKPlugin(
-    project="my-project",
-    metadata={"env": "prod", "version": "1.0"}
+async for event in runner.run_async(
+    user_id="user-123",
+    session_id="conversation-abc",  # → Galileo session
+    new_message=message,
+):
+    # process events
+```
+
+All traces with the same `session_id` are grouped under a single Galileo session, enabling conversation-level tracking and analysis.
+
+## Per-Invocation Metadata
+
+Pass metadata via ADK's native `RunConfig.custom_metadata`:
+
+```python
+from google.adk.agents.run_config import RunConfig
+
+run_config = RunConfig(
+    custom_metadata={
+        "turn": 1,
+        "conversation_id": "conv-abc",
+        "user_tier": "premium",
+    }
 )
+
+async for event in runner.run_async(
+    user_id=user_id,
+    session_id=session_id,
+    new_message=message,
+    run_config=run_config,
+):
+    # process events
 ```
 
-### Per-Turn (updated before each turn)
-
-```python
-plugin = GalileoADKPlugin(project="my-project")
-plugin.metadata = {"turn": 1, "user_id": "abc"}
-await runner.run_async(...)
-
-plugin.metadata = {"turn": 2, "user_id": "abc"}
-await runner.run_async(...)
-```
+Metadata is automatically attached to all spans (run, agent, LLM, tool) within the invocation.
 
 ## Advanced
 
