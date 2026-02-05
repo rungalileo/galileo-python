@@ -8,6 +8,13 @@ import pytest
 from galileo_adk import GalileoADKPlugin
 
 
+class MockRunConfig:
+    """Mock ADK RunConfig for testing custom_metadata extraction."""
+
+    def __init__(self, custom_metadata: dict | None = None) -> None:
+        self.custom_metadata = custom_metadata
+
+
 class MockCallbackContext:
     """Mock ADK CallbackContext for testing."""
 
@@ -30,11 +37,13 @@ class MockInvocationContext:
         self,
         agent_name: str = "test_agent",
         invocation_id: str | None = None,
+        run_config: MockRunConfig | None = None,
     ) -> None:
         self.agent_name = agent_name
         self.invocation_id = invocation_id or str(uuid4())
         self.session = MagicMock()
         self.session.id = "test_session"
+        self.run_config = run_config
 
 
 class MockLlmRequest:
@@ -84,41 +93,6 @@ class TestGalileoADKPluginInit:
         """Plugin raises error when neither project nor hook provided."""
         with pytest.raises(ValueError, match="Either 'project' or 'ingestion_hook'"):
             GalileoADKPlugin()
-
-    def test_init_with_static_metadata(self) -> None:
-        """Plugin accepts static metadata in constructor."""
-        plugin = GalileoADKPlugin(
-            ingestion_hook=lambda r: None,
-            metadata={"env": "test", "version": "1.0"},
-        )
-        assert plugin.metadata == {"env": "test", "version": "1.0"}
-
-
-class TestGalileoADKPluginMetadata:
-    """Tests for metadata property."""
-
-    def test_metadata_get_set(self) -> None:
-        """Metadata property can be get and set."""
-        plugin = GalileoADKPlugin(ingestion_hook=lambda r: None)
-        plugin.metadata = {"turn": 1, "user": "test"}
-        assert plugin.metadata == {"turn": 1, "user": "test"}
-
-    def test_metadata_none_becomes_empty_dict(self) -> None:
-        """Setting metadata to None results in empty dict."""
-        plugin = GalileoADKPlugin(ingestion_hook=lambda r: None)
-        plugin.metadata = {"key": "value"}
-        plugin.metadata = None
-        assert plugin.metadata == {}
-
-    def test_metadata_update_between_turns(self) -> None:
-        """Metadata can be updated between turns."""
-        plugin = GalileoADKPlugin(ingestion_hook=lambda r: None)
-
-        plugin.metadata = {"turn": 1}
-        assert plugin.metadata["turn"] == 1
-
-        plugin.metadata = {"turn": 2}
-        assert plugin.metadata["turn"] == 2
 
 
 class TestGalileoADKPluginCallbacks:
@@ -223,15 +197,18 @@ class TestGalileoADKPluginCallbacks:
         assert len(captured_traces) >= 1
 
     @pytest.mark.asyncio
-    async def test_metadata_appears_on_spans(self, plugin: GalileoADKPlugin, captured_traces: list) -> None:
-        """Metadata set on plugin appears on captured spans."""
-        plugin.metadata = {"turn": 1, "user_id": "test-user"}
+    async def test_metadata_from_run_config_appears_on_spans(
+        self, plugin: GalileoADKPlugin, captured_traces: list
+    ) -> None:
+        """Metadata from RunConfig.custom_metadata appears on captured spans."""
+        # Given: RunConfig with custom_metadata
+        run_config = MockRunConfig(custom_metadata={"turn": 1, "user_id": "test-user"})
 
         invocation_id = str(uuid4())
         callback_context = MockCallbackContext(invocation_id=invocation_id)
-        inv_context = MockInvocationContext(invocation_id=invocation_id)
+        inv_context = MockInvocationContext(invocation_id=invocation_id, run_config=run_config)
 
-        # Run full lifecycle
+        # When: running full lifecycle
         await plugin.on_user_message_callback(
             invocation_context=inv_context,
             user_message=MockContent(),
@@ -240,13 +217,154 @@ class TestGalileoADKPluginCallbacks:
         await plugin.after_agent_callback(callback_context=callback_context)
         await plugin.after_run_callback(invocation_context=inv_context)
 
-        # Check metadata on captured traces
+        # Then: metadata appears on captured traces
         assert len(captured_traces) >= 1
         for trace in captured_traces:
             for span in getattr(trace, "spans", []):
                 metadata = getattr(span, "metadata", {})
                 if metadata and "turn" in metadata:
                     assert metadata["turn"] == 1
+
+    @pytest.mark.asyncio
+    async def test_missing_run_config_results_in_empty_metadata(
+        self, plugin: GalileoADKPlugin, captured_traces: list
+    ) -> None:
+        """Missing RunConfig results in empty metadata (no error)."""
+        # Given: no RunConfig (run_config=None)
+        invocation_id = str(uuid4())
+        callback_context = MockCallbackContext(invocation_id=invocation_id)
+        inv_context = MockInvocationContext(invocation_id=invocation_id, run_config=None)
+
+        # When: running full lifecycle
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context,
+            user_message=MockContent(),
+        )
+        await plugin.before_agent_callback(callback_context=callback_context)
+        await plugin.after_agent_callback(callback_context=callback_context)
+        await plugin.after_run_callback(invocation_context=inv_context)
+
+        # Then: no crash and traces are captured
+        assert len(captured_traces) >= 1
+
+
+class TestRunConfigMetadataIsolation:
+    """Tests for per-invocation metadata isolation using RunConfig.custom_metadata."""
+
+    @pytest.fixture
+    def plugin(self) -> GalileoADKPlugin:
+        return GalileoADKPlugin(ingestion_hook=lambda r: None)
+
+    @pytest.mark.asyncio
+    async def test_concurrent_invocations_have_isolated_metadata(self, plugin: GalileoADKPlugin) -> None:
+        """Concurrent invocations with different RunConfig have isolated metadata."""
+        # Given: two invocations with different custom_metadata
+        inv_id_1 = str(uuid4())
+        inv_id_2 = str(uuid4())
+
+        run_config_1 = MockRunConfig(custom_metadata={"turn": 1, "user": "alice"})
+        run_config_2 = MockRunConfig(custom_metadata={"turn": 2, "user": "bob"})
+
+        inv_context_1 = MockInvocationContext(invocation_id=inv_id_1, run_config=run_config_1)
+        inv_context_2 = MockInvocationContext(invocation_id=inv_id_2, run_config=run_config_2)
+
+        callback_context_1 = MockCallbackContext(invocation_id=inv_id_1)
+        callback_context_2 = MockCallbackContext(invocation_id=inv_id_2)
+
+        # When: starting both invocations (simulating concurrent execution)
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context_1,
+            user_message=MockContent(),
+        )
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context_2,
+            user_message=MockContent(),
+        )
+
+        # Then: each invocation has its own metadata stored (in observer)
+        assert plugin._observer._invocation_metadata[inv_id_1] == {"turn": 1, "user": "alice"}
+        assert plugin._observer._invocation_metadata[inv_id_2] == {"turn": 2, "user": "bob"}
+
+        # When: running agents for both invocations
+        await plugin.before_agent_callback(callback_context=callback_context_1)
+        await plugin.before_agent_callback(callback_context=callback_context_2)
+
+        # Then: metadata still isolated
+        assert plugin._observer._invocation_metadata[inv_id_1] == {"turn": 1, "user": "alice"}
+        assert plugin._observer._invocation_metadata[inv_id_2] == {"turn": 2, "user": "bob"}
+
+        # Cleanup
+        await plugin.after_agent_callback(callback_context=callback_context_1)
+        await plugin.after_agent_callback(callback_context=callback_context_2)
+        await plugin.after_run_callback(invocation_context=inv_context_1)
+        await plugin.after_run_callback(invocation_context=inv_context_2)
+
+        # Then: metadata cleaned up after run ends
+        assert inv_id_1 not in plugin._observer._invocation_metadata
+        assert inv_id_2 not in plugin._observer._invocation_metadata
+
+    @pytest.mark.asyncio
+    async def test_metadata_cleaned_up_after_run_ends(self, plugin: GalileoADKPlugin) -> None:
+        """Per-invocation metadata is cleaned up when run ends."""
+        # Given: an invocation with custom_metadata
+        invocation_id = str(uuid4())
+        run_config = MockRunConfig(custom_metadata={"turn": 1})
+        inv_context = MockInvocationContext(invocation_id=invocation_id, run_config=run_config)
+        callback_context = MockCallbackContext(invocation_id=invocation_id)
+
+        # When: running the invocation
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context,
+            user_message=MockContent(),
+        )
+
+        # Then: metadata is stored (in observer)
+        assert invocation_id in plugin._observer._invocation_metadata
+        assert plugin._observer._invocation_metadata[invocation_id] == {"turn": 1}
+
+        # When: run ends
+        await plugin.before_agent_callback(callback_context=callback_context)
+        await plugin.after_agent_callback(callback_context=callback_context)
+        await plugin.after_run_callback(invocation_context=inv_context)
+
+        # Then: metadata is cleaned up (no memory leak)
+        assert invocation_id not in plugin._observer._invocation_metadata
+
+    @pytest.mark.asyncio
+    async def test_sub_invocation_inherits_root_metadata(self, plugin: GalileoADKPlugin) -> None:
+        """Sub-invocations (e.g., AgentTool calls) inherit metadata from root invocation."""
+        # Given: root invocation with custom_metadata
+        root_invocation_id = str(uuid4())
+        sub_invocation_id = str(uuid4())  # Different invocation_id for sub-agent
+        session_id = "test_session"
+
+        run_config = MockRunConfig(custom_metadata={"turn": 1, "workflow": "test"})
+        inv_context = MockInvocationContext(invocation_id=root_invocation_id, run_config=run_config)
+        inv_context.session.id = session_id
+
+        # When: root invocation starts
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context,
+            user_message=MockContent(),
+        )
+
+        # Then: root invocation's metadata is stored and root is tracked (in observer)
+        assert plugin._observer._invocation_metadata[root_invocation_id] == {"turn": 1, "workflow": "test"}
+        assert plugin._observer._session_root_invocation[session_id] == root_invocation_id
+
+        # Given: sub-invocation callback context (different invocation_id, same session)
+        sub_callback_context = MockCallbackContext(invocation_id=sub_invocation_id)
+        sub_callback_context.session = MagicMock()
+        sub_callback_context.session.id = session_id
+
+        # When: getting metadata for sub-invocation (via observer)
+        metadata = plugin._observer.get_invocation_metadata(sub_invocation_id, session_id)
+
+        # Then: sub-invocation inherits root's metadata
+        assert metadata == {"turn": 1, "workflow": "test"}
+
+        # Cleanup
+        await plugin.after_run_callback(invocation_context=inv_context)
 
 
 class TestGalileoADKPluginErrorHandling:

@@ -6,7 +6,14 @@ from typing import Any
 
 from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
-from galileo_adk.observer import GalileoObserver, get_invocation_id, get_session_id, get_tool_invocation_id
+from galileo_adk.observer import (
+    GalileoObserver,
+    get_custom_metadata,
+    get_invocation_id,
+    get_session_id,
+    get_tool_invocation_id,
+    get_tool_session_id,
+)
 from galileo_adk.span_tracker import SpanTracker
 
 try:
@@ -34,6 +41,11 @@ class GalileoADKCallback:
     ADK session_id is automatically mapped to Galileo sessions for trace grouping.
     All traces from the same ADK session will be grouped together in Galileo.
 
+    Per-invocation metadata is passed via ADK's native RunConfig.custom_metadata:
+
+        run_config = RunConfig(custom_metadata={"turn": 1, "user_id": "abc"})
+        await runner.run_async(..., run_config=run_config)
+
     Parameters
     ----------
     project : str, optional
@@ -49,8 +61,6 @@ class GalileoADKCallback:
         Whether to flush traces to Galileo when the agent ends.
     ingestion_hook : Callable[[TracesIngestRequest], None], optional
         Custom callback to receive trace data instead of sending to Galileo.
-    metadata : dict[str, Any], optional
-        Static metadata to attach to all spans.
 
     Example
     -------
@@ -69,7 +79,6 @@ class GalileoADKCallback:
         start_new_trace: bool = True,
         flush_on_agent_end: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
-        metadata: dict[str, Any] | None = None,
     ) -> None:
         if not ingestion_hook and not project and not galileo_logger:
             raise ValueError("Either 'project' or 'ingestion_hook' must be provided")
@@ -81,25 +90,13 @@ class GalileoADKCallback:
             start_new_trace=start_new_trace,
             flush_on_completion=flush_on_agent_end,
             ingestion_hook=ingestion_hook,
-            metadata=metadata,
         )
-        self._metadata: dict[str, Any] = metadata.copy() if metadata else {}
         self._tracker = SpanTracker()
 
     @property
     def _handler(self) -> Any:
         """Access the underlying handler (for tests)."""
         return self._observer.handler
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        """Get current metadata that will be attached to all spans."""
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, value: dict[str, Any]) -> None:
-        """Set metadata for subsequent agent runs."""
-        self._metadata = value if value is not None else {}
 
     def before_agent_callback(self, callback_context: CallbackContext) -> Any | None:
         """Start agent span for observability."""
@@ -110,8 +107,12 @@ class GalileoADKCallback:
             # Map ADK session to Galileo session for trace grouping
             self._observer.update_session_if_changed(session_id)
 
+            # Store per-invocation metadata
+            metadata = get_custom_metadata(callback_context)
+            self._observer.store_invocation_metadata(invocation_id, session_id, metadata)
+
             agent_name = getattr(callback_context, "agent_name", "unknown")
-            run_id = self._observer.on_agent_start(callback_context, parent_run_id=None, metadata=self._metadata)
+            run_id = self._observer.on_agent_start(callback_context, parent_run_id=None, metadata=metadata)
             self._tracker.register_agent(invocation_id, agent_name, run_id)
         except Exception as e:
             _logger.error(f"Error in before_agent_callback: {e}", exc_info=True)
@@ -125,6 +126,9 @@ class GalileoADKCallback:
             run_id = self._tracker.pop_agent(invocation_id, agent_name)
             if run_id:
                 self._observer.on_agent_end(run_id, callback_context)
+
+            # Clean up per-invocation metadata
+            self._observer.cleanup_invocation_metadata(invocation_id)
         except Exception as e:
             _logger.error(f"Error in after_agent_callback: {e}", exc_info=True)
         return None
@@ -150,9 +154,14 @@ class GalileoADKCallback:
         """Start LLM span for observability."""
         try:
             invocation_id = get_invocation_id(callback_context)
+            session_id = get_session_id(callback_context)
             agent_name = getattr(callback_context, "agent_name", "unknown")
             parent_run_id = self._tracker.get_agent(invocation_id, agent_name)
-            run_id = self._observer.on_llm_start(callback_context, llm_request, parent_run_id, metadata=self._metadata)
+
+            # Get per-invocation metadata
+            metadata = self._observer.get_invocation_metadata(invocation_id, session_id)
+
+            run_id = self._observer.on_llm_start(callback_context, llm_request, parent_run_id, metadata=metadata)
             # Generate stable call_id and store for response correlation
             call_id = self._get_llm_call_id(llm_request, invocation_id)
             llm_request._galileo_call_id = call_id
@@ -197,9 +206,14 @@ class GalileoADKCallback:
         """Start tool span for observability."""
         try:
             invocation_id = get_tool_invocation_id(tool_context)
+            session_id = get_tool_session_id(tool_context)
             agent_name = self._get_agent_name_from_tool_context(tool_context)
             parent_run_id = self._tracker.get_agent(invocation_id, agent_name)
-            run_id = self._observer.on_tool_start(tool, args, tool_context, parent_run_id, metadata=self._metadata)
+
+            # Get per-invocation metadata
+            metadata = self._observer.get_invocation_metadata(invocation_id, session_id)
+
+            run_id = self._observer.on_tool_start(tool, args, tool_context, parent_run_id, metadata=metadata)
             tool_key = self._get_tool_key(tool)
             self._tracker.register_tool(invocation_id, tool_key, run_id)
         except Exception as e:

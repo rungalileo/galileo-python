@@ -67,6 +67,32 @@ def get_tool_session_id(tool_context: Any) -> str:
     return "unknown"
 
 
+def get_custom_metadata(context: Any) -> dict[str, Any]:
+    """Extract custom_metadata from context's RunConfig.
+
+    Works with both:
+    - InvocationContext (Plugin callbacks)
+    - CallbackContext (Callback callbacks) - has run_config via ReadonlyContext
+
+    Parameters
+    ----------
+    context : Any
+        ADK context object (InvocationContext or CallbackContext)
+
+    Returns
+    -------
+    dict[str, Any]
+        Custom metadata from RunConfig, or empty dict if not available
+    """
+    try:
+        run_config = getattr(context, "run_config", None)
+        if run_config and hasattr(run_config, "custom_metadata") and run_config.custom_metadata:
+            return dict(run_config.custom_metadata)
+    except Exception:
+        pass
+    return {}
+
+
 class GalileoObserver:
     """Shared observability logic for Plugin and Callback interfaces."""
 
@@ -78,7 +104,6 @@ class GalileoObserver:
         start_new_trace: bool = True,
         flush_on_completion: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
-        metadata: dict[str, Any] | None = None,
     ) -> None:
         if galileo_logger is None:
             if ingestion_hook:
@@ -97,12 +122,74 @@ class GalileoObserver:
             ingestion_hook=ingestion_hook,
         )
         self._span_manager = SpanManager(self._handler)
-        self._global_metadata = metadata or {}
+
+        # Per-invocation metadata tracking
+        self._invocation_metadata: dict[str, dict[str, Any]] = {}
+        self._session_root_invocation: dict[str, str] = {}
 
     @property
     def handler(self) -> GalileoBaseHandler:
         """Access the underlying handler."""
         return self._handler
+
+    def store_invocation_metadata(self, invocation_id: str, session_id: str, metadata: dict[str, Any]) -> None:
+        """Store metadata for an invocation and track as root for the session.
+
+        Parameters
+        ----------
+        invocation_id : str
+            The invocation ID to store metadata for
+        session_id : str
+            The session ID (used to track root invocation)
+        metadata : dict[str, Any]
+            The metadata from RunConfig.custom_metadata
+        """
+        self._invocation_metadata[invocation_id] = metadata
+
+        # Track as root only if metadata is non-empty (sub-invocations have empty metadata)
+        if metadata:
+            root_session = self._current_adk_session or session_id
+            self._session_root_invocation[root_session] = invocation_id
+
+    def get_invocation_metadata(self, invocation_id: str, session_id: str) -> dict[str, Any]:
+        """Get metadata for an invocation, falling back to root invocation's metadata.
+
+        Sub-invocations (e.g., AgentTool calls) may have different invocation_ids
+        but should inherit metadata from the root invocation.
+
+        Parameters
+        ----------
+        invocation_id : str
+            The invocation ID to get metadata for
+        session_id : str
+            The session ID (used to find root invocation for fallback)
+
+        Returns
+        -------
+        dict[str, Any]
+            The metadata for the invocation, or empty dict if not found
+        """
+        metadata = self._invocation_metadata.get(invocation_id)
+        if metadata:
+            return metadata
+
+        # Fall back to root invocation metadata
+        root_session = self._current_adk_session or session_id
+        root_invocation_id = self._session_root_invocation.get(root_session)
+        if root_invocation_id:
+            return self._invocation_metadata.get(root_invocation_id, {})
+
+        return {}
+
+    def cleanup_invocation_metadata(self, invocation_id: str) -> None:
+        """Clean up metadata for an invocation after it ends.
+
+        Parameters
+        ----------
+        invocation_id : str
+            The invocation ID to clean up
+        """
+        self._invocation_metadata.pop(invocation_id, None)
 
     def update_session_if_changed(self, adk_session_id: str) -> None:
         """Map ADK session_id to Galileo session for trace grouping.
@@ -190,7 +277,7 @@ class GalileoObserver:
         model = self._extract_model_name(llm_request)
         temperature = self._extract_temperature(llm_request)
         tools = self._extract_tools(llm_request)
-        combined_metadata = {**self._global_metadata, **(metadata or {})}
+        combined_metadata = metadata or {}
         self._span_manager.start_llm(
             run_id=run_id,
             parent_run_id=parent_run_id,
@@ -226,7 +313,7 @@ class GalileoObserver:
         """Handle tool call start."""
         run_id = uuid.uuid4()
         tool_name = getattr(tool, "name", "unknown_tool")
-        combined_metadata = {**self._global_metadata, **(metadata or {})}
+        combined_metadata = metadata or {}
         self._span_manager.start_tool(
             run_id=run_id,
             parent_run_id=parent_run_id,
@@ -241,7 +328,7 @@ class GalileoObserver:
         self._span_manager.end_tool(run_id=run_id, output=serialize_to_str(result), status_code=status_code)
 
     def _extract_invocation_metadata(self, invocation_context: Any) -> dict[str, Any]:
-        metadata = {**self._global_metadata}
+        metadata: dict[str, Any] = {}
         if hasattr(invocation_context, "invocation_id"):
             metadata["invocation_id"] = str(invocation_context.invocation_id)
         if hasattr(invocation_context, "session"):
@@ -268,7 +355,6 @@ class GalileoObserver:
 
     def _extract_agent_metadata(self, callback_context: Any) -> dict[str, Any]:
         return {
-            **self._global_metadata,
             "agent_name": getattr(callback_context, "agent_name", None),
         }
 

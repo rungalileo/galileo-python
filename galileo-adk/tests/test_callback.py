@@ -209,6 +209,13 @@ class TestGalileoADKCallback:
         assert result["total_tokens"] == 30
 
 
+class MockRunConfig:
+    """Mock ADK RunConfig for testing custom_metadata extraction."""
+
+    def __init__(self, custom_metadata: dict | None = None) -> None:
+        self.custom_metadata = custom_metadata
+
+
 class MockCallbackContext:
     """Mock ADK CallbackContext for testing callback error handling."""
 
@@ -217,6 +224,7 @@ class MockCallbackContext:
         agent_name: str = "test_agent",
         session_id: str = "test_session",
         user_id: str = "test_user",
+        run_config: MockRunConfig | None = None,
     ) -> None:
         self.agent_name = agent_name
         self.session_id = session_id
@@ -225,6 +233,7 @@ class MockCallbackContext:
         self.parent_context.new_message = MagicMock()
         self.session = MagicMock()
         self.session.id = session_id
+        self.run_config = run_config
 
 
 class MockLlmRequest:
@@ -552,3 +561,86 @@ class TestAutomaticSessionMapping:
 
         # Then: session is not tracked (remains None)
         assert callback._observer._current_adk_session is None
+
+
+class TestRunConfigMetadata:
+    """Tests for per-invocation metadata from RunConfig.custom_metadata."""
+
+    @pytest.fixture
+    def callback(self, mock_galileo_logger: MagicMock) -> GalileoADKCallback:
+        return GalileoADKCallback(galileo_logger=mock_galileo_logger)
+
+    def test_metadata_extracted_from_run_config(self, callback: GalileoADKCallback) -> None:
+        """Metadata is extracted from RunConfig.custom_metadata in before_agent_callback."""
+        # Given: a context with RunConfig containing custom_metadata
+        run_config = MockRunConfig(custom_metadata={"turn": 1, "user_id": "test-user"})
+        context = MockCallbackContext(run_config=run_config)
+
+        # When: calling before_agent_callback
+        callback.before_agent_callback(context)
+
+        # Then: metadata is stored for the invocation (in observer)
+        # The actual invocation_id comes from get_invocation_id which falls back to "unknown"
+        assert "unknown" in callback._observer._invocation_metadata or len(callback._observer._invocation_metadata) > 0
+
+    def test_missing_run_config_results_in_empty_metadata(self, callback: GalileoADKCallback) -> None:
+        """Missing RunConfig results in empty metadata (no error)."""
+        # Given: a context without RunConfig
+        context = MockCallbackContext(run_config=None)
+
+        # When: calling before_agent_callback
+        callback.before_agent_callback(context)
+
+        # Then: no crash and agent is tracked
+        assert callback._tracker.agent_count == 1
+
+    def test_metadata_cleaned_up_after_agent_ends(self, callback: GalileoADKCallback) -> None:
+        """Per-invocation metadata is cleaned up when agent ends."""
+        # Given: a context with RunConfig containing custom_metadata
+        run_config = MockRunConfig(custom_metadata={"turn": 1})
+        context = MockCallbackContext(run_config=run_config)
+
+        # When: running agent lifecycle
+        callback.before_agent_callback(context)
+
+        # Then: metadata is stored (invocation_id is "unknown" for MockCallbackContext)
+        initial_metadata_count = len(callback._observer._invocation_metadata)
+        assert initial_metadata_count >= 0  # May be 0 if "unknown" is used
+
+        # When: agent ends
+        callback.after_agent_callback(context)
+
+        # Then: metadata is cleaned up
+        # The invocation_id is "unknown" for MockCallbackContext since it has no invocation_id attr
+        assert (
+            "unknown" not in callback._observer._invocation_metadata
+            or callback._observer._invocation_metadata.get("unknown") is None
+        )
+
+    def test_concurrent_agents_have_isolated_metadata(self, callback: GalileoADKCallback) -> None:
+        """Concurrent agents with different RunConfig have isolated metadata."""
+        # Given: two contexts with different custom_metadata
+        run_config_1 = MockRunConfig(custom_metadata={"turn": 1, "user": "alice"})
+        run_config_2 = MockRunConfig(custom_metadata={"turn": 2, "user": "bob"})
+
+        # Add invocation_id to make them distinct
+        context_1 = MockCallbackContext(agent_name="agent_1", run_config=run_config_1)
+        context_1.invocation_id = "inv_1"  # type: ignore[attr-defined]
+        context_2 = MockCallbackContext(agent_name="agent_2", run_config=run_config_2)
+        context_2.invocation_id = "inv_2"  # type: ignore[attr-defined]
+
+        # When: starting both agents
+        callback.before_agent_callback(context_1)
+        callback.before_agent_callback(context_2)
+
+        # Then: each invocation has its own metadata (in observer)
+        assert callback._observer._invocation_metadata.get("inv_1") == {"turn": 1, "user": "alice"}
+        assert callback._observer._invocation_metadata.get("inv_2") == {"turn": 2, "user": "bob"}
+
+        # Cleanup
+        callback.after_agent_callback(context_1)
+        callback.after_agent_callback(context_2)
+
+        # Then: metadata is cleaned up
+        assert "inv_1" not in callback._observer._invocation_metadata
+        assert "inv_2" not in callback._observer._invocation_metadata

@@ -10,6 +10,7 @@ from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
 from galileo_adk.observer import (
     GalileoObserver,
+    get_custom_metadata,
     get_invocation_id,
     get_session_id,
     get_tool_invocation_id,
@@ -94,6 +95,11 @@ class GalileoADKPlugin(BasePlugin):
     ADK session_id is automatically mapped to Galileo sessions for trace grouping.
     All traces from the same ADK session will be grouped together in Galileo.
 
+    Per-invocation metadata is passed via ADK's native RunConfig.custom_metadata:
+
+        run_config = RunConfig(custom_metadata={"turn": 1, "user_id": "abc"})
+        await runner.run_async(..., run_config=run_config)
+
     Parameters
     ----------
     project : str, optional
@@ -108,13 +114,13 @@ class GalileoADKPlugin(BasePlugin):
         Whether to flush traces when the run ends.
     ingestion_hook : Callable[[TracesIngestRequest], None], optional
         Custom callback to receive trace data instead of sending to Galileo.
-    metadata : dict[str, Any], optional
-        Static metadata to attach to all spans.
 
     Example
     -------
     >>> plugin = GalileoADKPlugin(project="my-project")
     >>> runner = Runner(agent=agent, plugins=[plugin])
+    >>> run_config = RunConfig(custom_metadata={"turn": 1})
+    >>> await runner.run_async(..., run_config=run_config)
     """
 
     def __init__(
@@ -125,7 +131,6 @@ class GalileoADKPlugin(BasePlugin):
         start_new_trace: bool = True,
         flush_on_run_end: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
-        metadata: dict[str, Any] | None = None,
     ) -> None:
         if not ingestion_hook and not project and not galileo_logger:
             raise ValueError("Either 'project' or 'ingestion_hook' must be provided")
@@ -138,27 +143,8 @@ class GalileoADKPlugin(BasePlugin):
             start_new_trace=start_new_trace,
             flush_on_completion=flush_on_run_end,
             ingestion_hook=ingestion_hook,
-            metadata=metadata,
         )
-        self._metadata: dict[str, Any] = metadata.copy() if metadata else {}
         self._tracker = SpanTracker()
-
-    @property
-    def metadata(self) -> dict[str, Any]:
-        """Get current metadata that will be attached to all spans."""
-        return self._metadata
-
-    @metadata.setter
-    def metadata(self, value: dict[str, Any]) -> None:
-        """Set metadata for subsequent invocations.
-
-        Set this before each turn to include turn-specific metadata on all spans.
-
-        Example:
-            plugin.metadata = {"turn": 1, "thread_id": "abc", "user_tier": "premium"}
-            await runner.run_async(...)
-        """
-        self._metadata = value if value is not None else {}
 
     def _get_parent_agent_run_id(self, callback_context: CallbackContext) -> UUID | None:
         """Get the run_id of the parent agent, or fall back to root invocation."""
@@ -206,12 +192,14 @@ class GalileoADKPlugin(BasePlugin):
 
             self._observer.update_session_if_changed(session_id)
 
+            # Store per-invocation metadata
+            metadata = get_custom_metadata(invocation_context)
+            self._observer.store_invocation_metadata(invocation_id, session_id, metadata)
+
             root_session = self._observer._current_adk_session or session_id
             parent_run_id = self._tracker.get_active_tool(root_session)
 
-            run_id = self._observer.on_run_start(
-                invocation_context, user_message, parent_run_id, metadata=self._metadata
-            )
+            run_id = self._observer.on_run_start(invocation_context, user_message, parent_run_id, metadata=metadata)
             self._tracker.register_run(invocation_id, session_id, run_id)
         except Exception as e:
             _logger.error(f"Error in on_user_message_callback: {e}", exc_info=True)
@@ -243,6 +231,9 @@ class GalileoADKPlugin(BasePlugin):
             if run_id:
                 output = self._observer._extract_final_output(invocation_context)
                 self._observer.on_run_end(run_id=run_id, output=output)
+
+            # Clean up per-invocation metadata
+            self._observer.cleanup_invocation_metadata(invocation_id)
         except Exception as e:
             _logger.error(f"Error in after_run_callback: {e}", exc_info=True)
 
@@ -250,9 +241,14 @@ class GalileoADKPlugin(BasePlugin):
         """Start agent span for observability."""
         try:
             invocation_id = get_invocation_id(callback_context)
+            session_id = get_session_id(callback_context)
             agent_name = getattr(callback_context, "agent_name", "unknown")
             parent_run_id = self._get_parent_agent_run_id(callback_context)
-            run_id = self._observer.on_agent_start(callback_context, parent_run_id, metadata=self._metadata)
+
+            # Get per-invocation metadata
+            metadata = self._observer.get_invocation_metadata(invocation_id, session_id)
+
+            run_id = self._observer.on_agent_start(callback_context, parent_run_id, metadata=metadata)
             self._tracker.register_agent(invocation_id, agent_name, run_id)
         except Exception as e:
             _logger.error(f"Error in before_agent_callback: {e}", exc_info=True)
@@ -294,9 +290,14 @@ class GalileoADKPlugin(BasePlugin):
         """Handle LLM call start. Creates an LLM span for observability."""
         try:
             invocation_id = get_invocation_id(callback_context)
+            session_id = get_session_id(callback_context)
             agent_name = getattr(callback_context, "agent_name", "unknown")
             parent_run_id = self._tracker.get_agent(invocation_id, agent_name)
-            run_id = self._observer.on_llm_start(callback_context, llm_request, parent_run_id, metadata=self._metadata)
+
+            # Get per-invocation metadata
+            metadata = self._observer.get_invocation_metadata(invocation_id, session_id)
+
+            run_id = self._observer.on_llm_start(callback_context, llm_request, parent_run_id, metadata=metadata)
             # Generate stable call_id and store for response correlation
             call_id = self._get_llm_call_id(llm_request, invocation_id)
             llm_request._galileo_call_id = call_id
@@ -399,7 +400,10 @@ class GalileoADKPlugin(BasePlugin):
             if not parent_run_id:
                 parent_run_id = self._tracker.get_active_tool(root_session)
 
-            run_id = self._observer.on_tool_start(tool, tool_args, tool_context, parent_run_id, metadata=self._metadata)
+            # Get per-invocation metadata
+            metadata = self._observer.get_invocation_metadata(invocation_id, session_id)
+
+            run_id = self._observer.on_tool_start(tool, tool_args, tool_context, parent_run_id, metadata=metadata)
             tool_key = self._get_tool_key(tool)
             self._tracker.register_tool(invocation_id, tool_key, run_id)
             self._tracker.set_active_tool(root_session, run_id)
