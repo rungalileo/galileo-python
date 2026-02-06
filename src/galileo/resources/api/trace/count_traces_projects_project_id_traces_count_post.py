@@ -85,6 +85,9 @@ def sync_detailed(
 ) -> Response[Union[HTTPValidationError, LogRecordsQueryCountResponse]]:
     """Count Traces.
 
+     This endpoint may return a slightly inaccurate count due to the way records are filtered before
+    deduplication.
+
     Args:
         project_id (str):
         body (LogRecordsQueryCountRequest):  Example: {'filters': [{'case_sensitive': True,
@@ -112,6 +115,9 @@ def sync(
 ) -> Optional[Union[HTTPValidationError, LogRecordsQueryCountResponse]]:
     """Count Traces.
 
+     This endpoint may return a slightly inaccurate count due to the way records are filtered before
+    deduplication.
+
     Args:
         project_id (str):
         body (LogRecordsQueryCountRequest):  Example: {'filters': [{'case_sensitive': True,
@@ -134,6 +140,9 @@ async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsQueryCountRequest
 ) -> Response[Union[HTTPValidationError, LogRecordsQueryCountResponse]]:
     """Count Traces.
+
+     This endpoint may return a slightly inaccurate count due to the way records are filtered before
+    deduplication.
 
     Args:
         project_id (str):
@@ -161,6 +170,9 @@ async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsQueryCountRequest
 ) -> Optional[Union[HTTPValidationError, LogRecordsQueryCountResponse]]:
     """Count Traces.
+
+     This endpoint may return a slightly inaccurate count due to the way records are filtered before
+    deduplication.
 
     Args:
         project_id (str):

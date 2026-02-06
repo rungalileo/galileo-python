@@ -30,6 +30,7 @@ class BaseFinetunedScorerDB:
         name (str):
         lora_task_id (int):
         prompt (str):
+        lora_weights_path (Union[None, Unset, str]):
         luna_input_type (Union[LunaInputTypeEnum, None, Unset]):
         luna_output_type (Union[LunaOutputTypeEnum, None, Unset]):
         class_name_to_vocab_ix (Union['BaseFinetunedScorerDBClassNameToVocabIxType0',
@@ -42,6 +43,7 @@ class BaseFinetunedScorerDB:
     name: str
     lora_task_id: int
     prompt: str
+    lora_weights_path: Union[None, Unset, str] = UNSET
     luna_input_type: Union[LunaInputTypeEnum, None, Unset] = UNSET
     luna_output_type: Union[LunaOutputTypeEnum, None, Unset] = UNSET
     class_name_to_vocab_ix: Union[
@@ -65,6 +67,9 @@ class BaseFinetunedScorerDB:
         lora_task_id = self.lora_task_id
 
         prompt = self.prompt
+
+        lora_weights_path: Union[None, Unset, str]
+        lora_weights_path = UNSET if isinstance(self.lora_weights_path, Unset) else self.lora_weights_path
 
         luna_input_type: Union[None, Unset, str]
         if isinstance(self.luna_input_type, Unset):
@@ -104,6 +109,8 @@ class BaseFinetunedScorerDB:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"id": id, "name": name, "lora_task_id": lora_task_id, "prompt": prompt})
+        if lora_weights_path is not UNSET:
+            field_dict["lora_weights_path"] = lora_weights_path
         if luna_input_type is not UNSET:
             field_dict["luna_input_type"] = luna_input_type
         if luna_output_type is not UNSET:
@@ -132,6 +139,15 @@ class BaseFinetunedScorerDB:
         lora_task_id = d.pop("lora_task_id")
 
         prompt = d.pop("prompt")
+
+        def _parse_lora_weights_path(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        lora_weights_path = _parse_lora_weights_path(d.pop("lora_weights_path", UNSET))
 
         def _parse_luna_input_type(data: object) -> Union[LunaInputTypeEnum, None, Unset]:
             if data is None:
@@ -221,6 +237,7 @@ class BaseFinetunedScorerDB:
             name=name,
             lora_task_id=lora_task_id,
             prompt=prompt,
+            lora_weights_path=lora_weights_path,
             luna_input_type=luna_input_type,
             luna_output_type=luna_output_type,
             class_name_to_vocab_ix=class_name_to_vocab_ix,

@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from ..models.metric_not_applicable import MetricNotApplicable
     from ..models.metric_not_computed import MetricNotComputed
     from ..models.metric_pending import MetricPending
+    from ..models.metric_roll_up import MetricRollUp
     from ..models.metric_success import MetricSuccess
 
 
@@ -30,6 +31,7 @@ class ExtendedToolSpanRecordMetricInfoType0:
             "MetricNotApplicable",
             "MetricNotComputed",
             "MetricPending",
+            "MetricRollUp",
             "MetricSuccess",
         ],
     ] = _attrs_field(init=False, factory=dict)
@@ -37,6 +39,7 @@ class ExtendedToolSpanRecordMetricInfoType0:
     def to_dict(self) -> dict[str, Any]:
         from ..models.metric_computing import MetricComputing
         from ..models.metric_error import MetricError
+        from ..models.metric_failed import MetricFailed
         from ..models.metric_not_applicable import MetricNotApplicable
         from ..models.metric_not_computed import MetricNotComputed
         from ..models.metric_pending import MetricPending
@@ -46,7 +49,15 @@ class ExtendedToolSpanRecordMetricInfoType0:
         for prop_name, prop in self.additional_properties.items():
             if isinstance(
                 prop,
-                (MetricNotComputed, MetricPending, MetricComputing, MetricNotApplicable, MetricSuccess, MetricError),
+                (
+                    MetricNotComputed,
+                    MetricPending,
+                    MetricComputing,
+                    MetricNotApplicable,
+                    MetricSuccess,
+                    MetricError,
+                    MetricFailed,
+                ),
             ):
                 field_dict[prop_name] = prop.to_dict()
             else:
@@ -62,6 +73,7 @@ class ExtendedToolSpanRecordMetricInfoType0:
         from ..models.metric_not_applicable import MetricNotApplicable
         from ..models.metric_not_computed import MetricNotComputed
         from ..models.metric_pending import MetricPending
+        from ..models.metric_roll_up import MetricRollUp
         from ..models.metric_success import MetricSuccess
 
         d = dict(src_dict)
@@ -79,6 +91,7 @@ class ExtendedToolSpanRecordMetricInfoType0:
                 "MetricNotApplicable",
                 "MetricNotComputed",
                 "MetricPending",
+                "MetricRollUp",
                 "MetricSuccess",
             ]:
                 try:
@@ -123,9 +136,16 @@ class ExtendedToolSpanRecordMetricInfoType0:
 
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return MetricFailed.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MetricFailed.from_dict(data)
+                return MetricRollUp.from_dict(data)
 
             additional_property = _parse_additional_property(prop_dict)
 
@@ -147,6 +167,7 @@ class ExtendedToolSpanRecordMetricInfoType0:
         "MetricNotApplicable",
         "MetricNotComputed",
         "MetricPending",
+        "MetricRollUp",
         "MetricSuccess",
     ]:
         return self.additional_properties[key]
@@ -161,6 +182,7 @@ class ExtendedToolSpanRecordMetricInfoType0:
             "MetricNotApplicable",
             "MetricNotComputed",
             "MetricPending",
+            "MetricRollUp",
             "MetricSuccess",
         ],
     ) -> None:

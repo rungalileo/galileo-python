@@ -84,12 +84,15 @@ def _get_kwargs(
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> {{return_type}}:
     {% for response in endpoint.responses.patterns %}
     {% set code_range = response.status_code.range %}
+    {% set is_error_without_body = code_range[0] >= 400 and response.prop.get_type_string() == "Any" %}
+    {% if not is_error_without_body %}
     {% if code_range[0] == code_range[1] %}
     if response.status_code == {{ code_range[0] }}:
     {% else %}
     if {{ code_range[0] }} <= response.status_code <= {{ code_range[1] }}:
     {% endif %}
         {{ parse_response(parsed_responses, response) | indent(8) }}
+    {% endif %}
     {% endfor %}
     {% if endpoint.responses.default %}
     {{ parse_response(parsed_responses, endpoint.responses.default) | indent(4) }}

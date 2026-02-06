@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from ..models.message import Message
     from ..models.message_event import MessageEvent
     from ..models.reasoning_event import ReasoningEvent
+    from ..models.web_search_call_event import WebSearchCallEvent
 
 
 T = TypeVar("T", bound="ExtendedLlmSpanRecord")
@@ -70,8 +71,8 @@ class ExtendedLlmSpanRecord:
         tools (Union[None, Unset, list['ExtendedLlmSpanRecordToolsType0Item']]): List of available tools passed to the
             LLM on invocation.
         events (Union[None, Unset, list[Union['ImageGenerationEvent', 'InternalToolCall', 'MCPApprovalRequestEvent',
-            'MCPCallEvent', 'MCPListToolsEvent', 'MessageEvent', 'ReasoningEvent']]]): List of reasoning, internal tool
-            call, or MCP events that occurred during the LLM span.
+            'MCPCallEvent', 'MCPListToolsEvent', 'MessageEvent', 'ReasoningEvent', 'WebSearchCallEvent']]]): List of
+            reasoning, internal tool call, or MCP events that occurred during the LLM span.
         model (Union[None, Unset, str]): Model used for this span.
         temperature (Union[None, Unset, float]): Temperature used for generation.
         finish_reason (Union[None, Unset, str]): Reason for finishing.
@@ -119,6 +120,7 @@ class ExtendedLlmSpanRecord:
                 "MCPListToolsEvent",
                 "MessageEvent",
                 "ReasoningEvent",
+                "WebSearchCallEvent",
             ]
         ],
     ] = UNSET
@@ -136,6 +138,7 @@ class ExtendedLlmSpanRecord:
         from ..models.message import Message
         from ..models.message_event import MessageEvent
         from ..models.reasoning_event import ReasoningEvent
+        from ..models.web_search_call_event import WebSearchCallEvent
 
         id = self.id
 
@@ -276,6 +279,7 @@ class ExtendedLlmSpanRecord:
                         MessageEvent,
                         ReasoningEvent,
                         InternalToolCall,
+                        WebSearchCallEvent,
                         ImageGenerationEvent,
                         MCPCallEvent,
                         MCPListToolsEvent,
@@ -381,6 +385,7 @@ class ExtendedLlmSpanRecord:
         from ..models.message import Message
         from ..models.message_event import MessageEvent
         from ..models.reasoning_event import ReasoningEvent
+        from ..models.web_search_call_event import WebSearchCallEvent
 
         d = dict(src_dict)
         id = d.pop("id")
@@ -630,6 +635,7 @@ class ExtendedLlmSpanRecord:
                     "MCPListToolsEvent",
                     "MessageEvent",
                     "ReasoningEvent",
+                    "WebSearchCallEvent",
                 ]
             ],
         ]:
@@ -654,6 +660,7 @@ class ExtendedLlmSpanRecord:
                         "MCPListToolsEvent",
                         "MessageEvent",
                         "ReasoningEvent",
+                        "WebSearchCallEvent",
                     ]:
                         try:
                             if not isinstance(data, dict):
@@ -673,6 +680,13 @@ class ExtendedLlmSpanRecord:
                             if not isinstance(data, dict):
                                 raise TypeError()
                             return InternalToolCall.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return WebSearchCallEvent.from_dict(data)
 
                         except:  # noqa: E722
                             pass
@@ -721,6 +735,7 @@ class ExtendedLlmSpanRecord:
                             "MCPListToolsEvent",
                             "MessageEvent",
                             "ReasoningEvent",
+                            "WebSearchCallEvent",
                         ]
                     ],
                 ],

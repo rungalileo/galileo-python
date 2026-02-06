@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.aws_bedrock_integration_extra_type_0 import AwsBedrockIntegrationExtraType0
     from ..models.aws_bedrock_integration_inference_profiles import AwsBedrockIntegrationInferenceProfiles
+    from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
 
 T = TypeVar("T", bound="AwsBedrockIntegration")
@@ -20,6 +21,8 @@ class AwsBedrockIntegration:
     """
     Attributes
     ----------
+        multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
+            upload) capabilities.
         credential_type (Union[Unset, AwsCredentialType]):
         region (Union[Unset, str]):  Default: 'us-west-2'.
         inference_profiles (Union[Unset, AwsBedrockIntegrationInferenceProfiles]): Mapping from model name (Foundation
@@ -29,6 +32,7 @@ class AwsBedrockIntegration:
         extra (Union['AwsBedrockIntegrationExtraType0', None, Unset]):
     """
 
+    multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
     credential_type: Union[Unset, AwsCredentialType] = UNSET
     region: Union[Unset, str] = "us-west-2"
     inference_profiles: Union[Unset, "AwsBedrockIntegrationInferenceProfiles"] = UNSET
@@ -39,6 +43,15 @@ class AwsBedrockIntegration:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.aws_bedrock_integration_extra_type_0 import AwsBedrockIntegrationExtraType0
+        from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
+
+        multi_modal_config: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.multi_modal_config, Unset):
+            multi_modal_config = UNSET
+        elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
+            multi_modal_config = self.multi_modal_config.to_dict()
+        else:
+            multi_modal_config = self.multi_modal_config
 
         credential_type: Union[Unset, str] = UNSET
         if not isinstance(self.credential_type, Unset):
@@ -66,6 +79,8 @@ class AwsBedrockIntegration:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if multi_modal_config is not UNSET:
+            field_dict["multi_modal_config"] = multi_modal_config
         if credential_type is not UNSET:
             field_dict["credential_type"] = credential_type
         if region is not UNSET:
@@ -85,8 +100,26 @@ class AwsBedrockIntegration:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.aws_bedrock_integration_extra_type_0 import AwsBedrockIntegrationExtraType0
         from ..models.aws_bedrock_integration_inference_profiles import AwsBedrockIntegrationInferenceProfiles
+        from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
         d = dict(src_dict)
+
+        def _parse_multi_modal_config(data: object) -> Union["MultiModalModelIntegrationConfig", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return MultiModalModelIntegrationConfig.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
+
+        multi_modal_config = _parse_multi_modal_config(d.pop("multi_modal_config", UNSET))
+
         _credential_type = d.pop("credential_type", UNSET)
         credential_type: Union[Unset, AwsCredentialType]
         credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
@@ -130,6 +163,7 @@ class AwsBedrockIntegration:
         extra = _parse_extra(d.pop("extra", UNSET))
 
         aws_bedrock_integration = cls(
+            multi_modal_config=multi_modal_config,
             credential_type=credential_type,
             region=region,
             inference_profiles=inference_profiles,

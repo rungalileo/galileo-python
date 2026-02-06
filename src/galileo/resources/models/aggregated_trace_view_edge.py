@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,12 +16,16 @@ class AggregatedTraceViewEdge:
         target (str):
         weight (float):
         occurrences (int):
+        trace_count (int):
+        trace_ids (list[str]):
     """
 
     source: str
     target: str
     weight: float
     occurrences: int
+    trace_count: int
+    trace_ids: list[str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,9 +37,22 @@ class AggregatedTraceViewEdge:
 
         occurrences = self.occurrences
 
+        trace_count = self.trace_count
+
+        trace_ids = self.trace_ids
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"source": source, "target": target, "weight": weight, "occurrences": occurrences})
+        field_dict.update(
+            {
+                "source": source,
+                "target": target,
+                "weight": weight,
+                "occurrences": occurrences,
+                "trace_count": trace_count,
+                "trace_ids": trace_ids,
+            }
+        )
 
         return field_dict
 
@@ -50,7 +67,18 @@ class AggregatedTraceViewEdge:
 
         occurrences = d.pop("occurrences")
 
-        aggregated_trace_view_edge = cls(source=source, target=target, weight=weight, occurrences=occurrences)
+        trace_count = d.pop("trace_count")
+
+        trace_ids = cast(list[str], d.pop("trace_ids"))
+
+        aggregated_trace_view_edge = cls(
+            source=source,
+            target=target,
+            weight=weight,
+            occurrences=occurrences,
+            trace_count=trace_count,
+            trace_ids=trace_ids,
+        )
 
         aggregated_trace_view_edge.additional_properties = d
         return aggregated_trace_view_edge

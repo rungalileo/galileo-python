@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     )
     from ..models.aws_sage_maker_integration_create_token import AwsSageMakerIntegrationCreateToken
     from ..models.model import Model
+    from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
 
 T = TypeVar("T", bound="AwsSageMakerIntegrationCreate")
@@ -24,6 +25,8 @@ class AwsSageMakerIntegrationCreate:
     Attributes
     ----------
         token (AwsSageMakerIntegrationCreateToken):
+        multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
+            upload) capabilities.
         models (Union[Unset, list['Model']]):
         credential_type (Union[Unset, AwsCredentialType]):
         region (Union[Unset, str]):  Default: 'us-west-2'.
@@ -32,6 +35,7 @@ class AwsSageMakerIntegrationCreate:
     """
 
     token: "AwsSageMakerIntegrationCreateToken"
+    multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
     models: Union[Unset, list["Model"]] = UNSET
     credential_type: Union[Unset, AwsCredentialType] = UNSET
     region: Union[Unset, str] = "us-west-2"
@@ -39,7 +43,17 @@ class AwsSageMakerIntegrationCreate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
+
         token = self.token.to_dict()
+
+        multi_modal_config: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.multi_modal_config, Unset):
+            multi_modal_config = UNSET
+        elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
+            multi_modal_config = self.multi_modal_config.to_dict()
+        else:
+            multi_modal_config = self.multi_modal_config
 
         models: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.models, Unset):
@@ -61,6 +75,8 @@ class AwsSageMakerIntegrationCreate:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"token": token})
+        if multi_modal_config is not UNSET:
+            field_dict["multi_modal_config"] = multi_modal_config
         if models is not UNSET:
             field_dict["models"] = models
         if credential_type is not UNSET:
@@ -79,9 +95,26 @@ class AwsSageMakerIntegrationCreate:
         )
         from ..models.aws_sage_maker_integration_create_token import AwsSageMakerIntegrationCreateToken
         from ..models.model import Model
+        from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
         d = dict(src_dict)
         token = AwsSageMakerIntegrationCreateToken.from_dict(d.pop("token"))
+
+        def _parse_multi_modal_config(data: object) -> Union["MultiModalModelIntegrationConfig", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return MultiModalModelIntegrationConfig.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
+
+        multi_modal_config = _parse_multi_modal_config(d.pop("multi_modal_config", UNSET))
 
         models = []
         _models = d.pop("models", UNSET)
@@ -105,6 +138,7 @@ class AwsSageMakerIntegrationCreate:
 
         aws_sage_maker_integration_create = cls(
             token=token,
+            multi_modal_config=multi_modal_config,
             models=models,
             credential_type=credential_type,
             region=region,

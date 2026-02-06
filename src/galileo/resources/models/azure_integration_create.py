@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from ..models.azure_integration_create_default_headers_type_0 import AzureIntegrationCreateDefaultHeadersType0
     from ..models.azure_integration_create_deployments import AzureIntegrationCreateDeployments
     from ..models.azure_model_deployment import AzureModelDeployment
+    from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
 
 T = TypeVar("T", bound="AzureIntegrationCreate")
@@ -26,6 +27,8 @@ class AzureIntegrationCreate:
     ----------
         endpoint (str):
         token (str):
+        multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
+            upload) capabilities.
         proxy (Union[Unset, bool]):  Default: False.
         api_version (Union[Unset, str]):  Default: '2025-03-01-preview'.
         azure_deployment (Union[None, Unset, str]):
@@ -42,6 +45,7 @@ class AzureIntegrationCreate:
 
     endpoint: str
     token: str
+    multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
     proxy: Union[Unset, bool] = False
     api_version: Union[Unset, str] = "2025-03-01-preview"
     azure_deployment: Union[None, Unset, str] = UNSET
@@ -59,10 +63,19 @@ class AzureIntegrationCreate:
             AzureIntegrationCreateCustomHeaderMappingType0,
         )
         from ..models.azure_integration_create_default_headers_type_0 import AzureIntegrationCreateDefaultHeadersType0
+        from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
         endpoint = self.endpoint
 
         token = self.token
+
+        multi_modal_config: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.multi_modal_config, Unset):
+            multi_modal_config = UNSET
+        elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
+            multi_modal_config = self.multi_modal_config.to_dict()
+        else:
+            multi_modal_config = self.multi_modal_config
 
         proxy = self.proxy
 
@@ -116,6 +129,8 @@ class AzureIntegrationCreate:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"endpoint": endpoint, "token": token})
+        if multi_modal_config is not UNSET:
+            field_dict["multi_modal_config"] = multi_modal_config
         if proxy is not UNSET:
             field_dict["proxy"] = proxy
         if api_version is not UNSET:
@@ -147,11 +162,28 @@ class AzureIntegrationCreate:
         from ..models.azure_integration_create_default_headers_type_0 import AzureIntegrationCreateDefaultHeadersType0
         from ..models.azure_integration_create_deployments import AzureIntegrationCreateDeployments
         from ..models.azure_model_deployment import AzureModelDeployment
+        from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
         d = dict(src_dict)
         endpoint = d.pop("endpoint")
 
         token = d.pop("token")
+
+        def _parse_multi_modal_config(data: object) -> Union["MultiModalModelIntegrationConfig", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return MultiModalModelIntegrationConfig.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
+
+        multi_modal_config = _parse_multi_modal_config(d.pop("multi_modal_config", UNSET))
 
         proxy = d.pop("proxy", UNSET)
 
@@ -259,6 +291,7 @@ class AzureIntegrationCreate:
         azure_integration_create = cls(
             endpoint=endpoint,
             token=token,
+            multi_modal_config=multi_modal_config,
             proxy=proxy,
             api_version=api_version,
             azure_deployment=azure_deployment,
