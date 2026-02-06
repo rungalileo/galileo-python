@@ -89,9 +89,13 @@ class TestGalileoADKPluginInit:
         plugin = GalileoADKPlugin(ingestion_hook=lambda r: traces.extend(r.traces))
         assert plugin._observer is not None
 
-    def test_init_requires_project_or_hook(self) -> None:
+    def test_init_requires_project_or_hook(self, monkeypatch: pytest.MonkeyPatch) -> None:
         """Plugin raises error when neither project nor hook provided."""
-        with pytest.raises(ValueError, match="Either 'project' or 'ingestion_hook'"):
+        # Given: GALILEO_PROJECT env var is not set
+        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+
+        # When/Then: creating plugin without project raises an error
+        with pytest.raises(ValueError, match="Project must be provided"):
             GalileoADKPlugin()
 
 

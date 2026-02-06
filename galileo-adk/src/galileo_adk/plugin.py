@@ -1,6 +1,7 @@
 """Galileo ADK Plugin - Runner-level observability for Google ADK."""
 
 import logging
+import os
 import re
 from collections.abc import Callable
 from typing import Any
@@ -103,9 +104,10 @@ class GalileoADKPlugin(BasePlugin):
     Parameters
     ----------
     project : str, optional
-        Galileo project name. Required unless `ingestion_hook` is provided.
+        Galileo project name. Can also be set via GALILEO_PROJECT env var.
+        Required unless `ingestion_hook` or `galileo_logger` is provided.
     log_stream : str, optional
-        Log stream name within the project.
+        Log stream name within the project. Can also be set via GALILEO_LOG_STREAM env var.
     galileo_logger : GalileoLogger, optional
         Pre-configured logger instance.
     start_new_trace : bool, default True
@@ -132,8 +134,9 @@ class GalileoADKPlugin(BasePlugin):
         flush_on_run_end: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
     ) -> None:
-        if not ingestion_hook and not project and not galileo_logger:
-            raise ValueError("Either 'project' or 'ingestion_hook' must be provided")
+        effective_project = project or os.environ.get("GALILEO_PROJECT")
+        if not ingestion_hook and not effective_project and not galileo_logger:
+            raise ValueError("Project must be provided via 'project' parameter or GALILEO_PROJECT environment variable")
 
         super().__init__(name="galileo")
         self._observer = GalileoObserver(

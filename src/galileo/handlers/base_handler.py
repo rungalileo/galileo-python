@@ -70,7 +70,9 @@ class GalileoBaseHandler:
 
         if self._start_new_trace:
             self._galileo_logger.start_trace(
-                input=serialize_to_str(root_node.span_params.get("input", "")), name=root_node.span_params.get("name")
+                input=serialize_to_str(root_node.span_params.get("input", "")),
+                name=root_node.span_params.get("name"),
+                metadata=root_node.span_params.get("metadata"),
             )
 
         self.log_node_tree(root_node)

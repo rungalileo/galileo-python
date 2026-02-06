@@ -121,12 +121,7 @@ class GalileoObserver:
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
     ) -> None:
         if galileo_logger is None:
-            if ingestion_hook:
-                # Ingestion Hook mode - create logger directly with hook, no credentials needed
-                galileo_logger = GalileoLogger(ingestion_hook=ingestion_hook)
-            else:
-                # Standard mode - use context (requires project/log_stream)
-                galileo_logger = galileo_context.get_logger_instance(project=project, log_stream=log_stream)
+            galileo_logger = galileo_context.get_logger_instance(project=project, log_stream=log_stream)
 
         self._current_adk_session: str | None = None
         self._handler = GalileoBaseHandler(

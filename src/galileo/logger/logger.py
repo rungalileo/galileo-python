@@ -1789,7 +1789,7 @@ class GalileoLogger(TracesLogger):
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
     ) -> str:
         self._session_external_id = external_id
-        if self._ingestion_hook:
+        if self._ingestion_hook and not hasattr(self, "_traces_client"):
             self.session_id = str(uuid.uuid4())
             self._logger.info("Session started: session_id=%s, external_id=%s", self.session_id, external_id)
             return self.session_id
