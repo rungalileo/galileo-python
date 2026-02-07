@@ -445,6 +445,8 @@ def test__get_etag(get_dataset_content_by_id_patch: Mock) -> None:
 def test_dataset_add_rows_success(
     update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock
 ) -> None:
+    update_dataset_patch.sync_detailed.return_value = Mock(status_code=204)
+
     dataset = Dataset(dataset_db=dataset_db())
 
     dataset.add_rows([{"input": "b"}, {"input": "c"}])
@@ -453,7 +455,7 @@ def test_dataset_add_rows_success(
     expected_append_row_b.additional_properties = {"input": "b"}
     expected_append_row_c = DatasetAppendRowValues()
     expected_append_row_c.additional_properties = {"input": "c"}
-    update_dataset_patch.sync.assert_called_once_with(
+    update_dataset_patch.sync_detailed.assert_called_once_with(
         client=dataset.config.api_client,
         dataset_id="78e8035d-c429-47f2-8971-68f10e7e91c9",
         body=UpdateDatasetContentRequest(
@@ -475,7 +477,7 @@ def test_dataset_add_rows_failure(
     update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock
 ) -> None:
     """Test that add_rows raises DatasetAPIException when API returns an error."""
-    update_dataset_patch.sync.return_value = HTTPValidationError()
+    update_dataset_patch.sync_detailed.return_value = Mock(status_code=422, content=b"Validation error")
 
     dataset = Dataset(dataset_db=dataset_db())
 
@@ -483,7 +485,8 @@ def test_dataset_add_rows_failure(
         dataset.add_rows([{"input": "b"}, {"input": "c"}])
 
     assert "Request to add new rows to dataset failed" in str(exc_info.value)
-    update_dataset_patch.sync.assert_called_once()
+    assert "422" in str(exc_info.value)
+    update_dataset_patch.sync_detailed.assert_called_once()
     etag_patch.assert_called_once()
     get_dataset_content_patch.sync.assert_not_called()
 

@@ -16,24 +16,24 @@ class LogTracesIngestResponse:
     ----------
         project_id (str): Project id associated with the traces.
         project_name (str): Project name associated with the traces.
-        session_id (str): Session id associated with the traces.
         records_count (int): Total number of records ingested
         traces_count (int): total number of traces ingested
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
+        session_id (Union[None, Unset, str]): Session id associated with the traces.
         trace_ids (Union[None, Unset, list[str]]): List of trace IDs that were ingested. Only included if
             include_trace_ids=True in request.
     """
 
     project_id: str
     project_name: str
-    session_id: str
     records_count: int
     traces_count: int
     log_stream_id: Union[None, Unset, str] = UNSET
     experiment_id: Union[None, Unset, str] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
+    session_id: Union[None, Unset, str] = UNSET
     trace_ids: Union[None, Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -41,8 +41,6 @@ class LogTracesIngestResponse:
         project_id = self.project_id
 
         project_name = self.project_name
-
-        session_id = self.session_id
 
         records_count = self.records_count
 
@@ -56,6 +54,9 @@ class LogTracesIngestResponse:
 
         metrics_testing_id: Union[None, Unset, str]
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
+
+        session_id: Union[None, Unset, str]
+        session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
 
         trace_ids: Union[None, Unset, list[str]]
         if isinstance(self.trace_ids, Unset):
@@ -72,7 +73,6 @@ class LogTracesIngestResponse:
             {
                 "project_id": project_id,
                 "project_name": project_name,
-                "session_id": session_id,
                 "records_count": records_count,
                 "traces_count": traces_count,
             }
@@ -83,6 +83,8 @@ class LogTracesIngestResponse:
             field_dict["experiment_id"] = experiment_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
+        if session_id is not UNSET:
+            field_dict["session_id"] = session_id
         if trace_ids is not UNSET:
             field_dict["trace_ids"] = trace_ids
 
@@ -94,8 +96,6 @@ class LogTracesIngestResponse:
         project_id = d.pop("project_id")
 
         project_name = d.pop("project_name")
-
-        session_id = d.pop("session_id")
 
         records_count = d.pop("records_count")
 
@@ -128,6 +128,15 @@ class LogTracesIngestResponse:
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
+        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_id = _parse_session_id(d.pop("session_id", UNSET))
+
         def _parse_trace_ids(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
@@ -147,12 +156,12 @@ class LogTracesIngestResponse:
         log_traces_ingest_response = cls(
             project_id=project_id,
             project_name=project_name,
-            session_id=session_id,
             records_count=records_count,
             traces_count=traces_count,
             log_stream_id=log_stream_id,
             experiment_id=experiment_id,
             metrics_testing_id=metrics_testing_id,
+            session_id=session_id,
             trace_ids=trace_ids,
         )
 

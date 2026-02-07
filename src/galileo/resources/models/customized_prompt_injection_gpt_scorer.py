@@ -4,10 +4,12 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.categorical_roll_up_method import CategoricalRollUpMethod
 from ..models.input_type_enum import InputTypeEnum
 from ..models.luna_input_type_enum import LunaInputTypeEnum
 from ..models.luna_output_type_enum import LunaOutputTypeEnum
 from ..models.node_type import NodeType
+from ..models.numeric_roll_up_method import NumericRollUpMethod
 from ..models.output_type_enum import OutputTypeEnum
 from ..models.roll_up_strategy import RollUpStrategy
 from ..models.scorer_name import ScorerName
@@ -60,6 +62,8 @@ class CustomizedPromptInjectionGPTScorer:
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
         generated_scorer_id (Union[None, Unset, str]):
+        scorer_version_id (Union[None, Unset, str]):
+        user_code (Union[None, Unset, str]):
         can_copy_to_llm (Union[None, Unset, bool]):
         scoreable_node_types (Union[None, Unset, list[NodeType]]):
         cot_enabled (Union[None, Unset, bool]):
@@ -67,8 +71,10 @@ class CustomizedPromptInjectionGPTScorer:
         input_type (Union[InputTypeEnum, None, Unset]):
         required_scorers (Union[None, Unset, list[str]]):
         roll_up_strategy (Union[None, RollUpStrategy, Unset]):
+        roll_up_methods (Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]]):
         prompt (Union[None, Unset, str]):
         lora_task_id (Union[None, Unset, int]):
+        lora_weights_path (Union[None, Unset, str]):
         luna_input_type (Union[LunaInputTypeEnum, None, Unset]):
         luna_output_type (Union[LunaOutputTypeEnum, None, Unset]):
         class_name_to_vocab_ix (Union['CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0',
@@ -94,6 +100,8 @@ class CustomizedPromptInjectionGPTScorer:
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
     generated_scorer_id: Union[None, Unset, str] = UNSET
+    scorer_version_id: Union[None, Unset, str] = UNSET
+    user_code: Union[None, Unset, str] = UNSET
     can_copy_to_llm: Union[None, Unset, bool] = UNSET
     scoreable_node_types: Union[None, Unset, list[NodeType]] = UNSET
     cot_enabled: Union[None, Unset, bool] = UNSET
@@ -101,8 +109,10 @@ class CustomizedPromptInjectionGPTScorer:
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
     required_scorers: Union[None, Unset, list[str]] = UNSET
     roll_up_strategy: Union[None, RollUpStrategy, Unset] = UNSET
+    roll_up_methods: Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]] = UNSET
     prompt: Union[None, Unset, str] = UNSET
     lora_task_id: Union[None, Unset, int] = UNSET
+    lora_weights_path: Union[None, Unset, str] = UNSET
     luna_input_type: Union[LunaInputTypeEnum, None, Unset] = UNSET
     luna_output_type: Union[LunaOutputTypeEnum, None, Unset] = UNSET
     class_name_to_vocab_ix: Union[
@@ -222,6 +232,12 @@ class CustomizedPromptInjectionGPTScorer:
         generated_scorer_id: Union[None, Unset, str]
         generated_scorer_id = UNSET if isinstance(self.generated_scorer_id, Unset) else self.generated_scorer_id
 
+        scorer_version_id: Union[None, Unset, str]
+        scorer_version_id = UNSET if isinstance(self.scorer_version_id, Unset) else self.scorer_version_id
+
+        user_code: Union[None, Unset, str]
+        user_code = UNSET if isinstance(self.user_code, Unset) else self.user_code
+
         can_copy_to_llm: Union[None, Unset, bool]
         can_copy_to_llm = UNSET if isinstance(self.can_copy_to_llm, Unset) else self.can_copy_to_llm
 
@@ -273,11 +289,32 @@ class CustomizedPromptInjectionGPTScorer:
         else:
             roll_up_strategy = self.roll_up_strategy
 
+        roll_up_methods: Union[None, Unset, list[str]]
+        if isinstance(self.roll_up_methods, Unset):
+            roll_up_methods = UNSET
+        elif isinstance(self.roll_up_methods, list):
+            roll_up_methods = []
+            for roll_up_methods_type_0_item_data in self.roll_up_methods:
+                roll_up_methods_type_0_item = roll_up_methods_type_0_item_data.value
+                roll_up_methods.append(roll_up_methods_type_0_item)
+
+        elif isinstance(self.roll_up_methods, list):
+            roll_up_methods = []
+            for roll_up_methods_type_1_item_data in self.roll_up_methods:
+                roll_up_methods_type_1_item = roll_up_methods_type_1_item_data.value
+                roll_up_methods.append(roll_up_methods_type_1_item)
+
+        else:
+            roll_up_methods = self.roll_up_methods
+
         prompt: Union[None, Unset, str]
         prompt = UNSET if isinstance(self.prompt, Unset) else self.prompt
 
         lora_task_id: Union[None, Unset, int]
         lora_task_id = UNSET if isinstance(self.lora_task_id, Unset) else self.lora_task_id
+
+        lora_weights_path: Union[None, Unset, str]
+        lora_weights_path = UNSET if isinstance(self.lora_weights_path, Unset) else self.lora_weights_path
 
         luna_input_type: Union[None, Unset, str]
         if isinstance(self.luna_input_type, Unset):
@@ -350,6 +387,10 @@ class CustomizedPromptInjectionGPTScorer:
             field_dict["registered_scorer_id"] = registered_scorer_id
         if generated_scorer_id is not UNSET:
             field_dict["generated_scorer_id"] = generated_scorer_id
+        if scorer_version_id is not UNSET:
+            field_dict["scorer_version_id"] = scorer_version_id
+        if user_code is not UNSET:
+            field_dict["user_code"] = user_code
         if can_copy_to_llm is not UNSET:
             field_dict["can_copy_to_llm"] = can_copy_to_llm
         if scoreable_node_types is not UNSET:
@@ -364,10 +405,14 @@ class CustomizedPromptInjectionGPTScorer:
             field_dict["required_scorers"] = required_scorers
         if roll_up_strategy is not UNSET:
             field_dict["roll_up_strategy"] = roll_up_strategy
+        if roll_up_methods is not UNSET:
+            field_dict["roll_up_methods"] = roll_up_methods
         if prompt is not UNSET:
             field_dict["prompt"] = prompt
         if lora_task_id is not UNSET:
             field_dict["lora_task_id"] = lora_task_id
+        if lora_weights_path is not UNSET:
+            field_dict["lora_weights_path"] = lora_weights_path
         if luna_input_type is not UNSET:
             field_dict["luna_input_type"] = luna_input_type
         if luna_output_type is not UNSET:
@@ -579,6 +624,24 @@ class CustomizedPromptInjectionGPTScorer:
 
         generated_scorer_id = _parse_generated_scorer_id(d.pop("generated_scorer_id", UNSET))
 
+        def _parse_scorer_version_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        scorer_version_id = _parse_scorer_version_id(d.pop("scorer_version_id", UNSET))
+
+        def _parse_user_code(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        user_code = _parse_user_code(d.pop("user_code", UNSET))
+
         def _parse_can_copy_to_llm(data: object) -> Union[None, Unset, bool]:
             if data is None:
                 return data
@@ -683,6 +746,43 @@ class CustomizedPromptInjectionGPTScorer:
 
         roll_up_strategy = _parse_roll_up_strategy(d.pop("roll_up_strategy", UNSET))
 
+        def _parse_roll_up_methods(
+            data: object,
+        ) -> Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                roll_up_methods_type_0 = []
+                _roll_up_methods_type_0 = data
+                for roll_up_methods_type_0_item_data in _roll_up_methods_type_0:
+                    roll_up_methods_type_0_item = NumericRollUpMethod(roll_up_methods_type_0_item_data)
+
+                    roll_up_methods_type_0.append(roll_up_methods_type_0_item)
+
+                return roll_up_methods_type_0
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                roll_up_methods_type_1 = []
+                _roll_up_methods_type_1 = data
+                for roll_up_methods_type_1_item_data in _roll_up_methods_type_1:
+                    roll_up_methods_type_1_item = CategoricalRollUpMethod(roll_up_methods_type_1_item_data)
+
+                    roll_up_methods_type_1.append(roll_up_methods_type_1_item)
+
+                return roll_up_methods_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]], data)
+
+        roll_up_methods = _parse_roll_up_methods(d.pop("roll_up_methods", UNSET))
+
         def _parse_prompt(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -700,6 +800,15 @@ class CustomizedPromptInjectionGPTScorer:
             return cast(Union[None, Unset, int], data)
 
         lora_task_id = _parse_lora_task_id(d.pop("lora_task_id", UNSET))
+
+        def _parse_lora_weights_path(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        lora_weights_path = _parse_lora_weights_path(d.pop("lora_weights_path", UNSET))
 
         def _parse_luna_input_type(data: object) -> Union[LunaInputTypeEnum, None, Unset]:
             if data is None:
@@ -791,6 +900,8 @@ class CustomizedPromptInjectionGPTScorer:
             regex_field=regex_field,
             registered_scorer_id=registered_scorer_id,
             generated_scorer_id=generated_scorer_id,
+            scorer_version_id=scorer_version_id,
+            user_code=user_code,
             can_copy_to_llm=can_copy_to_llm,
             scoreable_node_types=scoreable_node_types,
             cot_enabled=cot_enabled,
@@ -798,8 +909,10 @@ class CustomizedPromptInjectionGPTScorer:
             input_type=input_type,
             required_scorers=required_scorers,
             roll_up_strategy=roll_up_strategy,
+            roll_up_methods=roll_up_methods,
             prompt=prompt,
             lora_task_id=lora_task_id,
+            lora_weights_path=lora_weights_path,
             luna_input_type=luna_input_type,
             luna_output_type=luna_output_type,
             class_name_to_vocab_ix=class_name_to_vocab_ix,

@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.anthropic_integration_custom_header_mapping_type_0 import AnthropicIntegrationCustomHeaderMappingType0
     from ..models.anthropic_integration_extra_type_0 import AnthropicIntegrationExtraType0
+    from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
 
 T = TypeVar("T", bound="AnthropicIntegration")
@@ -20,6 +21,8 @@ class AnthropicIntegration:
     """
     Attributes
     ----------
+        multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
+            upload) capabilities.
         authentication_type (Union[Unset, AnthropicAuthenticationType]):
         endpoint (Union[None, Unset, str]): Custom base URL for the Anthropic API. Required if `proxy` is True.
         authentication_scope (Union[None, Unset, str]):
@@ -31,6 +34,7 @@ class AnthropicIntegration:
         extra (Union['AnthropicIntegrationExtraType0', None, Unset]):
     """
 
+    multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
     authentication_type: Union[Unset, AnthropicAuthenticationType] = UNSET
     endpoint: Union[None, Unset, str] = UNSET
     authentication_scope: Union[None, Unset, str] = UNSET
@@ -46,6 +50,15 @@ class AnthropicIntegration:
             AnthropicIntegrationCustomHeaderMappingType0,
         )
         from ..models.anthropic_integration_extra_type_0 import AnthropicIntegrationExtraType0
+        from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
+
+        multi_modal_config: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.multi_modal_config, Unset):
+            multi_modal_config = UNSET
+        elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
+            multi_modal_config = self.multi_modal_config.to_dict()
+        else:
+            multi_modal_config = self.multi_modal_config
 
         authentication_type: Union[Unset, str] = UNSET
         if not isinstance(self.authentication_type, Unset):
@@ -84,6 +97,8 @@ class AnthropicIntegration:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if multi_modal_config is not UNSET:
+            field_dict["multi_modal_config"] = multi_modal_config
         if authentication_type is not UNSET:
             field_dict["authentication_type"] = authentication_type
         if endpoint is not UNSET:
@@ -109,8 +124,26 @@ class AnthropicIntegration:
             AnthropicIntegrationCustomHeaderMappingType0,
         )
         from ..models.anthropic_integration_extra_type_0 import AnthropicIntegrationExtraType0
+        from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
         d = dict(src_dict)
+
+        def _parse_multi_modal_config(data: object) -> Union["MultiModalModelIntegrationConfig", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return MultiModalModelIntegrationConfig.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
+
+        multi_modal_config = _parse_multi_modal_config(d.pop("multi_modal_config", UNSET))
+
         _authentication_type = d.pop("authentication_type", UNSET)
         authentication_type: Union[Unset, AnthropicAuthenticationType]
         if isinstance(_authentication_type, Unset):
@@ -193,6 +226,7 @@ class AnthropicIntegration:
         extra = _parse_extra(d.pop("extra", UNSET))
 
         anthropic_integration = cls(
+            multi_modal_config=multi_modal_config,
             authentication_type=authentication_type,
             endpoint=endpoint,
             authentication_scope=authentication_scope,
