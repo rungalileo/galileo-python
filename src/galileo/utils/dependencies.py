@@ -6,3 +6,4 @@ def is_dependency_available(name: str) -> bool:
 
 
 is_langchain_available = is_dependency_available("langchain_core")
+is_langgraph_available = is_dependency_available("langgraph")

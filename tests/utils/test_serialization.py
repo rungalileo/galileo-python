@@ -585,6 +585,94 @@ class TestLangChainToolCallsTransformation:
         assert "tool_calls" not in result
 
 
+class TestLangGraphTypesSerialization:
+    """Test serialization of langgraph Command and Send types."""
+
+    def test_command_serialization(self) -> None:
+        """Test that Command objects are properly serialized."""
+        pytest.importorskip("langgraph")
+        from langgraph.types import Command
+
+        # Given: a Command object with update and goto values
+        command = Command(update={"messages": ["test message"]}, goto="next_node")
+
+        # When: serializing the Command to JSON
+        result = json.loads(json.dumps(command, cls=EventSerializer))
+
+        # Then: the serialized output contains update and goto fields
+        assert "update" in result
+        assert result["update"] == {"messages": ["test message"]}
+        assert "goto" in result
+        assert result["goto"] == "next_node"
+
+    def test_command_serialization_with_default_values(self) -> None:
+        """Test that Command with minimal values serializes correctly."""
+        pytest.importorskip("langgraph")
+        from langgraph.types import Command
+
+        # Given: a Command object with only an update value
+        command = Command(update={"key": "value"})
+
+        # When: serializing the Command to JSON
+        result = json.loads(json.dumps(command, cls=EventSerializer))
+
+        # Then: the output contains update and goto defaults to empty list
+        assert "update" in result
+        assert result["update"] == {"key": "value"}
+        assert "goto" in result
+        assert result["goto"] == []
+
+    def test_send_serialization(self) -> None:
+        """Test that Send objects are properly serialized."""
+        pytest.importorskip("langgraph")
+        from langgraph.types import Send
+
+        # Given: a Send object with node and arg values
+        send = Send(node="target_node", arg={"data": "test"})
+
+        # When: serializing the Send to JSON
+        result = json.loads(json.dumps(send, cls=EventSerializer))
+
+        # Then: the serialized output contains node and arg fields
+        assert result["node"] == "target_node"
+        assert result["arg"] == {"data": "test"}
+
+    def test_command_with_send_goto(self) -> None:
+        """Test Command with Send as goto value."""
+        pytest.importorskip("langgraph")
+        from langgraph.types import Command, Send
+
+        # Given: a Command with a Send object as the goto value
+        send = Send(node="target", arg={"key": "value"})
+        command = Command(update={}, goto=send)
+
+        # When: serializing the Command to JSON
+        result = json.loads(json.dumps(command, cls=EventSerializer))
+
+        # Then: the goto field contains the serialized Send object
+        assert "goto" in result
+        assert result["goto"]["node"] == "target"
+        assert result["goto"]["arg"] == {"key": "value"}
+
+    def test_command_with_list_of_sends_goto(self) -> None:
+        """Test Command with list of Send objects as goto value."""
+        pytest.importorskip("langgraph")
+        from langgraph.types import Command, Send
+
+        # Given: a Command with a list of Send objects as goto
+        sends = [Send(node="node1", arg={"a": 1}), Send(node="node2", arg={"b": 2})]
+        command = Command(update={}, goto=sends)
+
+        # When: serializing the Command to JSON
+        result = json.loads(json.dumps(command, cls=EventSerializer))
+
+        # Then: the goto field contains the serialized list of Send objects
+        assert "goto" in result
+        assert len(result["goto"]) == 2
+        assert result["goto"][0]["node"] == "node1"
+        assert result["goto"][1]["node"] == "node2"
+
+
 class TestPydanticModelClassSerialization:
     """Test serialization of Pydantic model classes (not instances)."""
 
