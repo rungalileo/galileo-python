@@ -9,6 +9,12 @@ from pydantic import SecretStr
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
 from galileo.otel import INSTALL_ERR_MSG, OTEL_AVAILABLE, GalileoOTLPExporter, GalileoSpanProcessor
 
+if OTEL_AVAILABLE:
+    from galileo.otel import _set_workflow_span_attributes, start_galileo_span
+    from galileo_core.schemas.logging.llm import Message, MessageRole
+    from galileo_core.schemas.logging.span import WorkflowSpan
+    from galileo_core.schemas.shared.document import Document
+
 
 class TestGalileoOTLPExporter:
     """Test suite for GalileoOTLPExporter class."""
@@ -469,16 +475,12 @@ class TestWorkflowSpanAttributes:
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     def test_workflow_span_with_string_input_output(self, mock_dependencies):
         """Test WorkflowSpan with string input and output."""
-        from galileo_core.schemas.logging.span import WorkflowSpan
-
         # Given: a WorkflowSpan with string input and output
         workflow_span = WorkflowSpan(name="test-workflow", input="input text", output="output text", status_code=200)
         mock_span = mock_dependencies["span"]
         mock_json = mock_dependencies["json"]
 
         # When: setting workflow span attributes
-        from galileo.otel import _set_workflow_span_attributes
-
         _set_workflow_span_attributes(mock_span, workflow_span)
 
         # Then: input and output should be wrapped in message format
@@ -497,9 +499,6 @@ class TestWorkflowSpanAttributes:
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     def test_workflow_span_with_message_input_output(self, mock_dependencies):
         """Test WorkflowSpan with Message input and output."""
-        from galileo_core.schemas.logging.llm import Message, MessageRole
-        from galileo_core.schemas.logging.span import WorkflowSpan
-
         # Given: a WorkflowSpan with Message input and output
         input_msg = Message(role=MessageRole.user, content="user question")
         workflow_span = WorkflowSpan(name="test-workflow", input=[input_msg], output=input_msg, status_code=200)
@@ -507,8 +506,6 @@ class TestWorkflowSpanAttributes:
         mock_dependencies["json"]
 
         # When: setting workflow span attributes
-        from galileo.otel import _set_workflow_span_attributes
-
         _set_workflow_span_attributes(mock_span, workflow_span)
 
         # Then: input and output should serialize Message objects
@@ -521,21 +518,21 @@ class TestWorkflowSpanAttributes:
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     def test_workflow_span_with_document_sequence_output(self, mock_dependencies):
         """Test WorkflowSpan with Document sequence output."""
-        from galileo_core.schemas.logging.span import WorkflowSpan
-        from galileo_core.schemas.shared.document import Document
-
         # Given: a WorkflowSpan with string input and Document sequence output
         documents = [
             Document(content="doc1 content", metadata={"source": "db"}),
             Document(content="doc2 content", metadata={"source": "api"}),
         ]
-        workflow_span = WorkflowSpan(name="test-workflow", input="query", output=documents, status_code=200)
+        # Note: Using model_construct to bypass a galileo_core validator bug where
+        # Message._allow_null_content_with_tool_calling assumes dict input during
+        # Union type validation, but receives a list when validating Sequence[Document]
+        workflow_span = WorkflowSpan.model_construct(
+            name="test-workflow", input="query", output=documents, status_code=200
+        )
         mock_span = mock_dependencies["span"]
         mock_dependencies["json"]
 
         # When: setting workflow span attributes
-        from galileo.otel import _set_workflow_span_attributes
-
         _set_workflow_span_attributes(mock_span, workflow_span)
 
         # Then: output should be wrapped in assistant message with documents
@@ -546,15 +543,11 @@ class TestWorkflowSpanAttributes:
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     def test_workflow_span_with_none_output(self, mock_dependencies):
         """Test WorkflowSpan with None output (should not set output attribute)."""
-        from galileo_core.schemas.logging.span import WorkflowSpan
-
         # Given: a WorkflowSpan with None output
         workflow_span = WorkflowSpan(name="test-workflow", input="input text", output=None, status_code=200)
         mock_span = mock_dependencies["span"]
 
         # When: setting workflow span attributes
-        from galileo.otel import _set_workflow_span_attributes
-
         _set_workflow_span_attributes(mock_span, workflow_span)
 
         # Then: only input attribute should be set, not output
@@ -565,8 +558,6 @@ class TestWorkflowSpanAttributes:
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     def test_workflow_span_in_start_galileo_span(self, mock_dependencies):
         """Test that WorkflowSpan is handled in start_galileo_span context manager."""
-        from galileo_core.schemas.logging.span import WorkflowSpan
-
         # Given: a WorkflowSpan
         workflow_span = WorkflowSpan(name="test-workflow", input="input", output="output", status_code=200)
         mock_span = mock_dependencies["span"]
@@ -582,8 +573,6 @@ class TestWorkflowSpanAttributes:
 
         # Patch get_tracer_provider to return our mock
         with patch("galileo.otel.trace.get_tracer_provider", return_value=mock_trace_provider):
-            from galileo.otel import start_galileo_span
-
             # When: using start_galileo_span with WorkflowSpan
             with start_galileo_span(workflow_span):
                 pass

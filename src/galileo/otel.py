@@ -356,13 +356,13 @@ def _set_workflow_span_attributes(span: trace.Span, galileo_span: WorkflowSpan) 
         output_messages = [output_value.model_dump(exclude_none=True)]
     else:
         # Sequence[Document] - wrap in assistant message
-        documents = []
-        for doc in list(output_value):
-            if hasattr(doc, "model_dump"):
-                documents.append(doc.model_dump(exclude_none=True))
-            else:
-                documents.append(doc)
-        output_messages = [{"role": "assistant", "content": {"documents": documents}}]
+        # Use document_adapter for consistency with _set_retriever_span_attributes
+        output_messages = [
+            {
+                "role": "assistant",
+                "content": {"documents": document_adapter.dump_python(list(output_value), mode="json")},
+            }
+        ]
 
     span.set_attribute("gen_ai.output.messages", json.dumps(output_messages))
 
