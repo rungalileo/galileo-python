@@ -31,7 +31,13 @@ from galileo.schema.trace import (
     TraceUpdateRequest,
 )
 from galileo.traces import Traces
-from galileo.utils.decorators import async_warn_catch_exception, nop_async, nop_sync, retry_on_transient_http_error, warn_catch_exception
+from galileo.utils.decorators import (
+    async_warn_catch_exception,
+    nop_async,
+    nop_sync,
+    retry_on_transient_http_error,
+    warn_catch_exception,
+)
 from galileo.utils.env_helpers import (
     _get_log_stream_id_from_env,
     _get_log_stream_or_default,
