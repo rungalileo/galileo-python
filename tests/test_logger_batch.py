@@ -1820,3 +1820,122 @@ class TestMultipleLoggerInstanceIsolation:
         assert logger_a.traces == []
         assert len(logger_b.traces) == 1
         assert logger_b.current_parent() is not None
+
+
+def test_ingestion_hook_without_api_config() -> None:
+    """
+    Test that GalileoLogger works with ingestion_hook without requiring API config.
+    This is the direct regression test for sc-54690.
+    """
+    # Given: an ingestion hook that captures the payload
+    captured_payload = None
+
+    def capture_hook(ingest_request: TracesIngestRequest) -> None:
+        nonlocal captured_payload
+        captured_payload = ingest_request
+
+    # When: creating a logger with ingestion_hook but NO mocked API clients
+    # (Projects, LogStreams, Traces are not mocked - this would have crashed in v1.45.2)
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=capture_hook)
+
+    # Then: the logger initializes successfully
+    assert logger is not None
+    assert logger._ingestion_hook == capture_hook
+    assert logger._traces_client is None
+
+    # When: building and flushing a trace through the hook
+    logger.start_trace(input="test input")
+    logger.add_llm_span(input="test input", output="test output", model="gpt-4")
+    logger.conclude(output="test output")
+    logger.flush()
+
+    # Then: the hook receives the trace data
+    assert captured_payload is not None
+    assert len(captured_payload.traces) == 1
+    assert captured_payload.traces[0].input == "test input"
+    assert captured_payload.traces[0].output == "test output"
+
+
+def test_ingestion_hook_without_project_or_log_stream(monkeypatch) -> None:
+    """Test that ingestion_hook allows initialization without project/log_stream."""
+    # Given: no project or log_stream in environment
+    monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+    monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
+
+    # Given: an ingestion hook
+    hook = Mock()
+
+    # When: creating a logger with only ingestion_hook (no explicit project or log_stream)
+    # This would have raised GalileoLoggerException without the fix
+    logger = GalileoLogger(ingestion_hook=hook)
+
+    # Then: the logger initializes successfully
+    # The project/log_stream get default values, but the important thing is:
+    # 1. No exception is raised (validation is skipped)
+    # 2. No API clients are created (since we have ingestion_hook)
+    assert logger is not None
+    assert logger._ingestion_hook == hook
+    assert logger._traces_client is None
+    # Default values are used when env vars are not set
+    assert logger.project_name == "default"
+    assert logger.log_stream_name == "default"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_does_not_propagate_exceptions(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that flush() does not propagate exceptions (resilient telemetry)."""
+    # Given: a logger with mocked API that will raise an exception
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    # Make ingest_traces raise an exception
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=Exception("API error"))
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    # When: building a trace and flushing with an exception
+    logger.start_trace(input="test input")
+    logger.conclude(output="test output")
+
+    # Then: flush() does not crash (exception is caught by decorator)
+    result = logger.flush()
+
+    # The decorator catches the exception, so flush returns None (or empty list)
+    # The important thing is that it doesn't crash
+    assert result is None or result == []
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_terminate_does_not_propagate_exceptions(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that terminate() does not propagate exceptions (resilient cleanup)."""
+    # Given: a logger with mocked API that will raise an exception
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    # Make ingest_traces raise an exception
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=Exception("API error"))
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    # When: building a trace and terminating with an exception
+    logger.start_trace(input="test input")
+    logger.conclude(output="test output")
+
+    # Then: terminate() does not crash (exception is caught by decorator)
+    # The important thing is that it doesn't raise an exception
+    try:
+        logger.terminate()
+        # If we get here, the test passes
+        assert True
+    except Exception as e:
+        pytest.fail(f"terminate() should not propagate exceptions, but raised: {e}")
