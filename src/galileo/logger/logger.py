@@ -293,7 +293,8 @@ class GalileoLogger(TracesLogger):
             elif self.experiment_id:
                 self._traces_client = Traces(project_id=self.project_id, experiment_id=self.experiment_id)
         else:
-            # ingestion_hook path: no Traces client needed
+            # ingestion_hook path: Traces client not created eagerly.
+            # If the user later calls ingest_traces(), it will be created lazily.
             self._traces_client = None
 
         # If continuing an existing distributed trace, create local stubs instead of
@@ -333,6 +334,19 @@ class GalileoLogger(TracesLogger):
             self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
         else:
             self.log_stream_id = log_stream_obj.id
+
+    def _create_traces_client(self) -> Traces:
+        """Lazily create a Traces client when needed (e.g. ingestion_hook users calling ingest_traces)."""
+        self._logger.info("Creating Traces client lazily for explicit ingest_traces call.")
+        if not self.project_id:
+            self._init_project()
+        if not (self.log_stream_id or self.experiment_id):
+            self._init_log_stream()
+        if self.log_stream_id:
+            return Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)
+        if self.experiment_id:
+            return Traces(project_id=self.project_id, experiment_id=self.experiment_id)
+        raise GalileoLoggerException("Cannot create Traces client: no log_stream_id or experiment_id available.")
 
     def _init_distributed_trace_stubs(self) -> None:
         """
@@ -1934,6 +1948,8 @@ class GalileoLogger(TracesLogger):
 
         Can be used in combination with the `ingestion_hook` to ingest modified traces.
         """
+        if self._traces_client is None:
+            self._traces_client = self._create_traces_client()
         await self._traces_client.ingest_traces(ingest_request)
 
     @nop_sync
@@ -1944,4 +1960,6 @@ class GalileoLogger(TracesLogger):
 
         Can be used in combination with the `ingestion_hook` to ingest modified traces.
         """
+        if self._traces_client is None:
+            self._traces_client = self._create_traces_client()
         return async_run(self.async_ingest_traces(ingest_request))

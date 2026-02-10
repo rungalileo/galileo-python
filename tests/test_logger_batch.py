@@ -1939,3 +1939,73 @@ def test_terminate_does_not_propagate_exceptions(
         assert True
     except Exception as e:
         pytest.fail(f"terminate() should not propagate exceptions, but raised: {e}")
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_ingest_traces_lazy_creates_client_for_ingestion_hook(
+    mock_traces_cls: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that ingest_traces lazily creates a Traces client when using ingestion_hook."""
+    # Given: a logger initialized with an ingestion_hook (no eager Traces client)
+    captured_payload = None
+
+    def capture_hook(ingest_request: TracesIngestRequest) -> None:
+        nonlocal captured_payload
+        captured_payload = ingest_request
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=capture_hook)
+    assert logger._traces_client is None
+
+    # Given: mocked API clients for the lazy creation path
+    mock_traces_instance = setup_mock_traces_client(mock_traces_cls)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    # Given: a trace built and flushed through the hook
+    logger.start_trace(input="test input")
+    logger.add_llm_span(input="test input", output="test output", model="gpt-4")
+    logger.conclude(output="test output")
+    logger.flush()
+
+    assert captured_payload is not None
+
+    # When: calling ingest_traces to forward the modified traces to Galileo
+    logger.ingest_traces(captured_payload)
+
+    # Then: the Traces client was lazily created
+    assert logger._traces_client is not None
+    mock_traces_cls.assert_called_once()
+
+    # Then: the traces were forwarded to the API
+    mock_traces_instance.ingest_traces.assert_called_once_with(captured_payload)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_ingest_traces_reuses_existing_client(
+    mock_traces_cls: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that ingest_traces does not recreate the Traces client when one already exists."""
+    # Given: a logger initialized with an eager Traces client (no ingestion_hook)
+    setup_mock_traces_client(mock_traces_cls)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    assert logger._traces_client is not None
+
+    # Given: a minimal trace payload
+    trace = Trace(
+        input="test", name="test", created_at=datetime.datetime.now(), id=uuid4(), metrics=Metrics(duration_ns=0)
+    )
+    request = TracesIngestRequest(traces=[trace])
+
+    # When: calling ingest_traces
+    call_count_before = mock_traces_cls.call_count
+    logger.ingest_traces(request)
+
+    # Then: no additional Traces client was created (reuses the existing one)
+    assert mock_traces_cls.call_count == call_count_before
