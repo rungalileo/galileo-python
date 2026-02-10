@@ -2,6 +2,7 @@
 
 import pytest
 
+from galileo_adk import GalileoADKPlugin
 from galileo_adk.plugin import _extract_status_code, _is_http_status_code
 
 
@@ -74,10 +75,15 @@ class TestExtractStatusCode:
         error = Exception("500 Internal Server Error")
         assert _extract_status_code(error) == 500
 
-    def test_extract_from_error_message_404(self) -> None:
-        """Extract 404 from error message string."""
-        error = Exception("Error: 404 Not Found - model does not exist")
+    def test_extract_from_error_message_with_http_prefix(self) -> None:
+        """Extract status code from 'HTTP 404' pattern."""
+        error = Exception("Error: HTTP 404 Not Found - model does not exist")
         assert _extract_status_code(error) == 404
+
+    def test_extract_from_error_message_with_status_prefix(self) -> None:
+        """Extract status code from 'status: 503' pattern."""
+        error = Exception("Request failed with status: 503")
+        assert _extract_status_code(error) == 503
 
     def test_defaults_to_500_for_unknown_error(self) -> None:
         """Default to 500 when no status code found."""
@@ -104,48 +110,57 @@ class TestExtractStatusCode:
         error.status_code = 503  # type: ignore[attr-defined]
         assert _extract_status_code(error) == 503
 
+    def test_regex_does_not_match_embedded_numbers(self) -> None:
+        """Regex does not false-positive on embedded numbers like '500ms'."""
+        error = Exception("Failed after 500ms timeout")
+        assert _extract_status_code(error) == 500  # Default, NOT extracted from "500ms"
+
+    def test_regex_matches_leading_status_code(self) -> None:
+        """Leading status code at start of message is extracted."""
+        error = Exception("503 Service Unavailable")
+        assert _extract_status_code(error) == 503
+
+    def test_code_beats_status_code_beats_message(self) -> None:
+        """error.code takes precedence over status_code and message."""
+        error = Exception("404 Not Found")
+        error.code = 429  # type: ignore[attr-defined]
+        error.status_code = 503  # type: ignore[attr-defined]
+        assert _extract_status_code(error) == 429
+
+    def test_status_code_beats_message(self) -> None:
+        """error.status_code takes precedence over message parsing."""
+        error = Exception("404 Not Found")
+        error.status_code = 503  # type: ignore[attr-defined]
+        assert _extract_status_code(error) == 503
+
 
 class TestFatalErrorClassification:
     """Tests for fatal error detection logic."""
 
     @pytest.fixture
     def plugin(self):
-        from galileo_adk import GalileoADKPlugin
-
         return GalileoADKPlugin(ingestion_hook=lambda r: None)
 
     def test_401_is_fatal(self, plugin) -> None:
         """401 Unauthorized is a fatal error."""
-        error = Exception("Unauthorized")
-        error.code = 401  # type: ignore[attr-defined]
-        assert plugin._is_fatal_error(error) is True
+        assert plugin._is_fatal_error(401) is True
 
     def test_403_is_fatal(self, plugin) -> None:
         """403 Forbidden is a fatal error."""
-        error = Exception("Forbidden")
-        error.code = 403  # type: ignore[attr-defined]
-        assert plugin._is_fatal_error(error) is True
+        assert plugin._is_fatal_error(403) is True
 
     def test_429_is_fatal(self, plugin) -> None:
         """429 Too Many Requests is a fatal error."""
-        error = Exception("Rate limit")
-        error.code = 429  # type: ignore[attr-defined]
-        assert plugin._is_fatal_error(error) is True
+        assert plugin._is_fatal_error(429) is True
 
     def test_500_is_not_fatal(self, plugin) -> None:
         """500 Internal Server Error is not fatal (may be retried)."""
-        error = Exception("Server error")
-        error.code = 500  # type: ignore[attr-defined]
-        assert plugin._is_fatal_error(error) is False
+        assert plugin._is_fatal_error(500) is False
 
     def test_404_is_not_fatal(self, plugin) -> None:
         """404 Not Found is not fatal."""
-        error = Exception("Not found")
-        error.code = 404  # type: ignore[attr-defined]
-        assert plugin._is_fatal_error(error) is False
+        assert plugin._is_fatal_error(404) is False
 
     def test_502_is_not_fatal(self, plugin) -> None:
         """502 Bad Gateway is not fatal."""
-        error = Exception("Bad gateway")
-        error.code = 502  # type: ignore[attr-defined]
-        assert plugin._is_fatal_error(error) is False
+        assert plugin._is_fatal_error(502) is False

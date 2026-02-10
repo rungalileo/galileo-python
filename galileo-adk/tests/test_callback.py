@@ -1,20 +1,126 @@
+from collections.abc import Generator
 from unittest.mock import MagicMock, patch
-from uuid import uuid4
 
 import pytest
 
 from galileo_adk import GalileoADKCallback
 
+from .mocks import (
+    MockCallbackContext,
+    MockContent,
+    MockLlmRequest,
+    MockLlmResponse,
+    MockPart,
+    MockRunConfig,
+    MockToolContext,
+)
+
+
+@pytest.fixture
+def adk_callback_context() -> MagicMock:
+    """Create a mock ADK CallbackContext."""
+    context = MagicMock()
+    context.agent_name = "test_agent"
+    context.session_id = "test_session"
+    context.user_id = "test_user"
+    return context
+
+
+@pytest.fixture
+def adk_invocation_context() -> MagicMock:
+    """Create a mock ADK InvocationContext."""
+    context = MagicMock()
+    context.invocation_id = "test_invocation_123"
+    context.session = MagicMock()
+    context.session.session_id = "test_session"
+    return context
+
+
+@pytest.fixture
+def adk_llm_request() -> MagicMock:
+    """Create a mock ADK LlmRequest."""
+    request = MagicMock()
+    request.contents = []
+    request.config = MagicMock()
+    request.model = "gemini-pro"
+    return request
+
+
+@pytest.fixture
+def adk_llm_response() -> MagicMock:
+    """Create a mock ADK LlmResponse."""
+    response = MagicMock()
+    response.content = MagicMock()
+    response.content.parts = []
+    response.usage_metadata = MagicMock()
+    response.usage_metadata.input_token_count = 10
+    response.usage_metadata.output_token_count = 20
+    response.model_version = "gemini-pro-response"
+    return response
+
+
+@pytest.fixture
+def adk_tool() -> MagicMock:
+    """Create a mock ADK BaseTool."""
+    tool = MagicMock()
+    tool.name = "test_tool"
+    return tool
+
+
+@pytest.fixture
+def adk_tool_context() -> MagicMock:
+    """Create a mock ADK ToolContext."""
+    return MagicMock()
+
+
+@pytest.fixture
+def adk_user_message() -> Generator[MagicMock, None, None]:
+    """Create a mock ADK user message (types.Content)."""
+    message = MagicMock()
+    message.parts = [MagicMock(text="Hello, world!")]
+    return message
+
+
+class TestGalileoADKCallbackInit:
+    """Tests for callback initialization validation."""
+
+    def test_init_requires_project_and_log_stream(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Callback raises error when neither project/log_stream nor hook provided."""
+        # Given: GALILEO_PROJECT and GALILEO_LOG_STREAM env vars are not set
+        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+        monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
+
+        # When/Then: creating callback without project or log_stream raises an error
+        with pytest.raises(ValueError, match="Both 'project' and 'log_stream' must be provided"):
+            GalileoADKCallback()
+
+    def test_init_requires_log_stream(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Callback raises error when project is provided but log_stream is not."""
+        # Given: GALILEO_LOG_STREAM env var is not set
+        monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
+
+        # When/Then: creating callback with project but no log_stream raises an error
+        with pytest.raises(ValueError, match="Both 'project' and 'log_stream' must be provided"):
+            GalileoADKCallback(project="my-project")
+
+    def test_init_requires_project(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Callback raises error when log_stream is provided but project is not."""
+        # Given: GALILEO_PROJECT env var is not set
+        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+
+        # When/Then: creating callback with log_stream but no project raises an error
+        with pytest.raises(ValueError, match="Both 'project' and 'log_stream' must be provided"):
+            GalileoADKCallback(log_stream="my-stream")
+
 
 class TestGalileoADKCallback:
     @pytest.fixture
-    def callback(self, mock_galileo_logger: MagicMock) -> GalileoADKCallback:
-        return GalileoADKCallback(galileo_logger=mock_galileo_logger)
+    def callback(self) -> GalileoADKCallback:
+        return GalileoADKCallback(ingestion_hook=lambda r: None)
 
-    def test_initialization_with_logger(self, mock_galileo_logger: MagicMock) -> None:
-        callback = GalileoADKCallback(galileo_logger=mock_galileo_logger)
+    def test_initialization_with_ingestion_hook(self) -> None:
+        callback = GalileoADKCallback(ingestion_hook=lambda r: None)
         assert callback._handler is not None
-        assert callback._handler._galileo_logger == mock_galileo_logger
 
     def test_initialization_with_project_and_log_stream(self) -> None:
         with patch("galileo_adk.observer.galileo_context") as mock_context:
@@ -30,15 +136,11 @@ class TestGalileoADKCallback:
             assert callback._handler._galileo_logger == mock_logger
 
     def test_initialization_defaults(self) -> None:
-        with patch("galileo_adk.observer.galileo_context") as mock_context:
-            mock_logger = MagicMock()
-            mock_context.get_logger_instance.return_value = mock_logger
+        callback = GalileoADKCallback(ingestion_hook=lambda r: None)
 
-            callback = GalileoADKCallback(project="test")
-
-            assert callback._handler._start_new_trace is True
-            assert callback._handler._flush_on_chain_end is True
-            assert callback._handler._integration == "google_adk"
+        assert callback._handler._start_new_trace is True
+        assert callback._handler._flush_on_chain_end is True
+        assert callback._handler._integration == "google_adk"
 
     def test_before_agent_callback(self, callback: GalileoADKCallback, adk_callback_context: MagicMock) -> None:
         result = callback.before_agent_callback(adk_callback_context)
@@ -209,92 +311,12 @@ class TestGalileoADKCallback:
         assert result["total_tokens"] == 30
 
 
-class MockRunConfig:
-    """Mock ADK RunConfig."""
-
-    def __init__(self, custom_metadata: dict | None = None) -> None:
-        self.custom_metadata = custom_metadata
-
-
-class MockCallbackContext:
-    """Mock ADK CallbackContext."""
-
-    def __init__(
-        self,
-        agent_name: str = "test_agent",
-        session_id: str = "test_session",
-        user_id: str = "test_user",
-        run_config: MockRunConfig | None = None,
-    ) -> None:
-        self.agent_name = agent_name
-        self.session_id = session_id
-        self.user_id = user_id
-        self.parent_context = MagicMock()
-        self.parent_context.new_message = MagicMock()
-        self.session = MagicMock()
-        self.session.id = session_id
-        self.run_config = run_config
-
-
-class MockLlmRequest:
-    """Mock ADK LlmRequest."""
-
-    def __init__(
-        self,
-        contents: list | None = None,
-        model: str = "gemini-pro",
-        request_id: str | None = None,
-    ) -> None:
-        self.contents = contents or []
-        self.config = MagicMock(spec_set=[])
-        self.model = model
-        self.request_id = request_id or str(uuid4())
-
-
-class MockLlmResponse:
-    """Mock ADK LlmResponse."""
-
-    def __init__(
-        self,
-        content: object = None,
-        usage_metadata: object = None,
-        model_version: str = "gemini-pro-response",
-        request_id: str | None = None,
-    ) -> None:
-        self.content = content
-        self.usage_metadata = usage_metadata
-        self.model_version = model_version
-        self.request_id = request_id
-
-
-class MockContent:
-    """Mock ADK Content."""
-
-    def __init__(self, parts: list | None = None, role: str = "user") -> None:
-        self.parts = parts or []
-        self.role = role
-
-
-class MockPart:
-    """Mock ADK Part."""
-
-    def __init__(self, text: str | None = None) -> None:
-        self.text = text
-
-
-class MockToolContext:
-    """Mock ADK ToolContext."""
-
-    def __init__(self, callback_context: MockCallbackContext | None = None) -> None:
-        self.callback_context = callback_context
-
-
 class TestCallbackErrorHandling:
     """Consolidated error handling tests for GalileoADKCallback."""
 
     @pytest.fixture
-    def callback(self, mock_galileo_logger: MagicMock) -> GalileoADKCallback:
-        return GalileoADKCallback(galileo_logger=mock_galileo_logger)
+    def callback(self) -> GalileoADKCallback:
+        return GalileoADKCallback(ingestion_hook=lambda r: None)
 
     def test_callback_handles_all_exception_types_gracefully(
         self,
@@ -322,7 +344,7 @@ class TestCallbackErrorHandling:
         # When/Then: tool callbacks without parent agent handle gracefully
         tool = MagicMock()
         tool.name = "test_tool"
-        tool_context = MockToolContext()
+        tool_context = MockToolContext(callback_context=MockCallbackContext())
         result = callback.before_tool_callback(tool, {"arg": "value"}, tool_context)
         assert result is None
 
@@ -336,7 +358,6 @@ class TestCallbackErrorHandling:
         """All callback methods return None."""
         context = MockCallbackContext()
         request = MockLlmRequest()
-        # Use matching request_id for correlation
         response = MockLlmResponse(request_id=request.request_id)
         tool = MagicMock()
         tool.name = "test_tool"
@@ -362,8 +383,8 @@ class TestCallbackPluginCompatibility:
     """Tests for multi-plugin compatibility."""
 
     @pytest.fixture
-    def callback(self, mock_galileo_logger: MagicMock) -> GalileoADKCallback:
-        return GalileoADKCallback(galileo_logger=mock_galileo_logger)
+    def callback(self) -> GalileoADKCallback:
+        return GalileoADKCallback(ingestion_hook=lambda r: None)
 
     def test_callback_handles_data_modification_gracefully(
         self,
@@ -379,11 +400,9 @@ class TestCallbackPluginCompatibility:
         # External plugin modifies data
         request.contents[0].parts[0].text = "[REDACTED]"
 
-        # Use matching request_id for correlation
         response = MockLlmResponse(request_id=request.request_id)
         result = callback.after_model_callback(context, response)
         assert result is None
-        # LLM run_id tracked internally, cleaned up after after_model_callback
         assert callback._tracker.llm_count == 0
 
     def test_namespaced_attributes(self, callback: GalileoADKCallback) -> None:
@@ -436,7 +455,6 @@ class TestCallbackPluginCompatibility:
         # Internal tracking unaffected
         assert callback._tracker.llm_count == 1
 
-        # Use matching request_id for correlation
         response = MockLlmResponse(request_id=request.request_id)
         callback.after_model_callback(context, response)
 
@@ -518,8 +536,8 @@ class TestAutomaticSessionMapping:
     """Tests for automatic ADK session_id → Galileo session mapping."""
 
     @pytest.fixture
-    def callback(self, mock_galileo_logger: MagicMock) -> GalileoADKCallback:
-        return GalileoADKCallback(galileo_logger=mock_galileo_logger)
+    def callback(self) -> GalileoADKCallback:
+        return GalileoADKCallback(ingestion_hook=lambda r: None)
 
     def test_session_mapped_on_before_agent(self, callback: GalileoADKCallback) -> None:
         """ADK session_id is mapped to Galileo session on before_agent_callback."""
@@ -582,8 +600,8 @@ class TestRunConfigMetadata:
     """Tests for per-invocation metadata from RunConfig.custom_metadata."""
 
     @pytest.fixture
-    def callback(self, mock_galileo_logger: MagicMock) -> GalileoADKCallback:
-        return GalileoADKCallback(galileo_logger=mock_galileo_logger)
+    def callback(self) -> GalileoADKCallback:
+        return GalileoADKCallback(ingestion_hook=lambda r: None)
 
     def test_metadata_extracted_from_run_config(self, callback: GalileoADKCallback) -> None:
         """Metadata is extracted from RunConfig.custom_metadata in before_agent_callback."""
@@ -595,8 +613,7 @@ class TestRunConfigMetadata:
         callback.before_agent_callback(context)
 
         # Then: metadata is stored for the invocation (in observer)
-        # The actual invocation_id comes from get_invocation_id which falls back to "unknown"
-        assert "unknown" in callback._observer._invocation_metadata or len(callback._observer._invocation_metadata) > 0
+        assert len(callback._observer._invocation_metadata) > 0
 
     def test_missing_run_config_results_in_empty_metadata(self, callback: GalileoADKCallback) -> None:
         """Missing RunConfig results in empty metadata (no error)."""
@@ -618,19 +635,15 @@ class TestRunConfigMetadata:
         # When: running agent lifecycle
         callback.before_agent_callback(context)
 
-        # Then: metadata is stored (invocation_id is "unknown" for MockCallbackContext)
-        initial_metadata_count = len(callback._observer._invocation_metadata)
-        assert initial_metadata_count >= 0  # May be 0 if "unknown" is used
+        # Then: metadata is stored
+        invocation_id = context.invocation_id
+        assert invocation_id in callback._observer._invocation_metadata
 
         # When: agent ends
         callback.after_agent_callback(context)
 
         # Then: metadata is cleaned up
-        # The invocation_id is "unknown" for MockCallbackContext since it has no invocation_id attr
-        assert (
-            "unknown" not in callback._observer._invocation_metadata
-            or callback._observer._invocation_metadata.get("unknown") is None
-        )
+        assert invocation_id not in callback._observer._invocation_metadata
 
     def test_concurrent_agents_have_isolated_metadata(self, callback: GalileoADKCallback) -> None:
         """Concurrent agents with different RunConfig have isolated metadata."""
@@ -638,11 +651,8 @@ class TestRunConfigMetadata:
         run_config_1 = MockRunConfig(custom_metadata={"turn": 1, "user": "alice"})
         run_config_2 = MockRunConfig(custom_metadata={"turn": 2, "user": "bob"})
 
-        # Add invocation_id to make them distinct
-        context_1 = MockCallbackContext(agent_name="agent_1", run_config=run_config_1)
-        context_1.invocation_id = "inv_1"  # type: ignore[attr-defined]
-        context_2 = MockCallbackContext(agent_name="agent_2", run_config=run_config_2)
-        context_2.invocation_id = "inv_2"  # type: ignore[attr-defined]
+        context_1 = MockCallbackContext(agent_name="agent_1", invocation_id="inv_1", run_config=run_config_1)
+        context_2 = MockCallbackContext(agent_name="agent_2", invocation_id="inv_2", run_config=run_config_2)
 
         # When: starting both agents
         callback.before_agent_callback(context_1)

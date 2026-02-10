@@ -1,5 +1,7 @@
 """Galileo ADK Plugin - Runner-level observability for Google ADK."""
 
+from __future__ import annotations
+
 import logging
 import os
 import re
@@ -7,10 +9,10 @@ from collections.abc import Callable
 from typing import Any
 from uuid import UUID
 
-from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
 from galileo_adk.observer import (
     GalileoObserver,
+    get_agent_name_from_tool_context,
     get_custom_metadata,
     get_invocation_id,
     get_session_id,
@@ -78,11 +80,20 @@ def _extract_status_code(error: Exception) -> int:
         except (ValueError, TypeError):
             pass
 
-    # Try to parse from error message (e.g., "429 RESOURCE_EXHAUSTED")
+    # Try to parse from error message
     error_str = str(error)
-    match = re.search(r"\b(4\d{2}|5\d{2})\b", error_str)
+    # Match leading HTTP status code (e.g., "429 RESOURCE_EXHAUSTED")
+    match = re.match(r"(\d{3})\s", error_str)
     if match:
-        return int(match.group(1))
+        code = int(match.group(1))
+        if _is_http_status_code(code):
+            return code
+    # Match "HTTP <code>" or "status[: ]<code>" patterns
+    match = re.search(r"(?:HTTP\s*|status[:\s]+)(\d{3})\b", error_str, re.IGNORECASE)
+    if match:
+        code = int(match.group(1))
+        if _is_http_status_code(code):
+            return code
 
     return 500
 
@@ -105,21 +116,16 @@ class GalileoADKPlugin(BasePlugin):
     ----------
     project : str, optional
         Galileo project name. Can also be set via GALILEO_PROJECT env var.
-        Required unless `ingestion_hook` or `galileo_logger` is provided.
+        Required unless `ingestion_hook` is provided.
     log_stream : str, optional
         Log stream name within the project. Can also be set via GALILEO_LOG_STREAM env var.
-    galileo_logger : GalileoLogger, optional
-        Pre-configured logger instance.
-    start_new_trace : bool, default True
-        Whether to start a new trace for each invocation.
-    flush_on_run_end : bool, default True
-        Whether to flush traces when the run ends.
+        Required unless `ingestion_hook` is provided.
     ingestion_hook : Callable[[TracesIngestRequest], None], optional
         Custom callback to receive trace data instead of sending to Galileo.
 
     Example
     -------
-    >>> plugin = GalileoADKPlugin(project="my-project")
+    >>> plugin = GalileoADKPlugin(project="my-project", log_stream="production")
     >>> runner = Runner(agent=agent, plugins=[plugin])
     >>> run_config = RunConfig(custom_metadata={"turn": 1})
     >>> await runner.run_async(..., run_config=run_config)
@@ -129,22 +135,20 @@ class GalileoADKPlugin(BasePlugin):
         self,
         project: str | None = None,
         log_stream: str | None = None,
-        galileo_logger: GalileoLogger | None = None,
-        start_new_trace: bool = True,
-        flush_on_run_end: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
     ) -> None:
         effective_project = project or os.environ.get("GALILEO_PROJECT")
-        if not ingestion_hook and not effective_project and not galileo_logger:
-            raise ValueError("Project must be provided via 'project' parameter or GALILEO_PROJECT environment variable")
+        effective_log_stream = log_stream or os.environ.get("GALILEO_LOG_STREAM")
+        if not ingestion_hook and (not effective_project or not effective_log_stream):
+            raise ValueError(
+                "Both 'project' and 'log_stream' must be provided via parameters or "
+                "GALILEO_PROJECT/GALILEO_LOG_STREAM environment variables"
+            )
 
         super().__init__(name="galileo")
         self._observer = GalileoObserver(
             project=project,
             log_stream=log_stream,
-            galileo_logger=galileo_logger,
-            start_new_trace=start_new_trace,
-            flush_on_completion=flush_on_run_end,
             ingestion_hook=ingestion_hook,
         )
         self._tracker = SpanTracker()
@@ -167,23 +171,15 @@ class GalileoADKPlugin(BasePlugin):
                             if parent_run_id:
                                 return parent_run_id
         except Exception as e:
-            _logger.debug(f"Exception getting parent: {e}")
+            _logger.debug("_get_parent_agent_run_id: %s", e)
 
         # Fall back to root invocation run
         return self._tracker.get_run(invocation_id)
 
-    def _get_current_agent_name_from_tool_context(self, tool_context: ToolContext) -> str | None:
+    @staticmethod
+    def _get_current_agent_name_from_tool_context(tool_context: ToolContext) -> str | None:
         """Extract current agent name from tool context."""
-        try:
-            # Try callback_context path
-            if hasattr(tool_context, "callback_context"):
-                return getattr(tool_context.callback_context, "agent_name", None)
-            # Try direct agent_name
-            if hasattr(tool_context, "agent_name"):
-                return getattr(tool_context, "agent_name", None)
-        except Exception:
-            pass
-        return None
+        return get_agent_name_from_tool_context(tool_context)
 
     async def on_user_message_callback(
         self, *, invocation_context: InvocationContext, user_message: Content
@@ -193,9 +189,8 @@ class GalileoADKPlugin(BasePlugin):
             invocation_id = get_invocation_id(invocation_context)
             session_id = get_session_id(invocation_context)
 
-            # Sub-invocation detection: an invocation is a sub-invocation if the current
-            # tracked session has an active tool (i.e., AgentTool spawned a sub-agent).
-            current_session = self._observer._current_adk_session
+            # Sub-invocation: active tool on current session means AgentTool spawned a sub-agent
+            current_session = self._observer.current_adk_session
             is_sub_invocation = (
                 current_session is not None and self._tracker.get_active_tool(current_session) is not None
             )
@@ -204,37 +199,53 @@ class GalileoADKPlugin(BasePlugin):
             metadata = get_custom_metadata(invocation_context)
             self._observer.store_invocation_metadata(invocation_id, session_id, metadata)
 
-            root_session = self._observer._current_adk_session or session_id
+            root_session = self._observer.current_adk_session or session_id
             parent_run_id = self._tracker.get_active_tool(root_session)
 
             run_id = self._observer.on_run_start(invocation_context, user_message, parent_run_id, metadata=metadata)
             self._tracker.register_run(invocation_id, session_id, run_id)
         except Exception as e:
-            _logger.error(f"Error in on_user_message_callback: {e}", exc_info=True)
+            _logger.error("on_user_message_callback failed: %s", e, exc_info=True)
         return None
 
     async def before_run_callback(self, *, invocation_context: InvocationContext) -> None:
-        """Called before agent processing starts."""
-        pass
+        """Update run span name to reflect ADK's routed agent.
+
+        ADK may replace invocation_context.agent between on_user_message_callback
+        and before_run_callback via _find_agent_to_run.
+        """
+        try:
+            invocation_id = get_invocation_id(invocation_context)
+            actual_agent = getattr(getattr(invocation_context, "agent", None), "name", None)
+            run_id = self._tracker.get_run(invocation_id)
+            if run_id and actual_agent:
+                node = self._observer.handler.get_node(run_id)
+                if node:
+                    node.span_params["name"] = f"invocation [{actual_agent}]"
+                    metadata = node.span_params.get("metadata", {}) or {}
+                    metadata["adk_routed_agent"] = actual_agent
+                    node.span_params["metadata"] = metadata
+        except Exception as e:
+            _logger.debug("before_run_callback: %s", e)
 
     async def after_run_callback(self, *, invocation_context: InvocationContext) -> None:
         """Close run span and flush traces to Galileo."""
         try:
             invocation_id = get_invocation_id(invocation_context)
 
-            # Clean up any orphaned spans for this invocation
+            # Clean up orphaned spans
             orphaned_tools = self._tracker.pop_all_tools_for_invocation(invocation_id)
             for tool_run_id in orphaned_tools:
-                self._observer._span_manager.end_tool(run_id=tool_run_id, output="", status_code=500)
+                self._observer.force_end_tool(run_id=tool_run_id, output="", status_code=500)
 
             orphaned_llms = self._tracker.pop_all_llms_for_invocation(invocation_id)
             for llm_run_id in orphaned_llms:
-                self._observer._span_manager.end_llm(run_id=llm_run_id, output=None, status_code=500)
-            self._tracker._current_llm_call_id.pop(invocation_id, None)
+                self._observer.force_end_llm(run_id=llm_run_id, output=None, status_code=500)
+            self._tracker.clear_all_llm_call_ids_for_invocation(invocation_id)
 
             orphaned_agents = self._tracker.pop_all_agents_for_invocation(invocation_id)
             for agent_run_id in orphaned_agents:
-                self._observer._span_manager.end_agent(run_id=agent_run_id, output="", status_code=500)
+                self._observer.force_end_agent(run_id=agent_run_id, output="", status_code=500)
 
             run_id = self._tracker.pop_run(invocation_id)
             if run_id:
@@ -243,7 +254,7 @@ class GalileoADKPlugin(BasePlugin):
 
             self._observer.cleanup_invocation_metadata(invocation_id)
         except Exception as e:
-            _logger.error(f"Error in after_run_callback: {e}", exc_info=True)
+            _logger.error("after_run_callback failed: %s", e, exc_info=True)
 
     async def before_agent_callback(self, *, callback_context: CallbackContext, **kwargs: Any) -> Content | None:
         """Start agent span for observability."""
@@ -257,7 +268,7 @@ class GalileoADKPlugin(BasePlugin):
             run_id = self._observer.on_agent_start(callback_context, parent_run_id, metadata=metadata)
             self._tracker.register_agent(invocation_id, agent_name, run_id)
         except Exception as e:
-            _logger.error(f"Error in before_agent_callback: {e}", exc_info=True)
+            _logger.error("before_agent_callback failed: %s", e, exc_info=True)
         return None
 
     async def after_agent_callback(self, *, callback_context: CallbackContext, **kwargs: Any) -> Content | None:
@@ -269,26 +280,8 @@ class GalileoADKPlugin(BasePlugin):
             if run_id:
                 self._observer.on_agent_end(run_id, callback_context)
         except Exception as e:
-            _logger.error(f"Error in after_agent_callback: {e}", exc_info=True)
+            _logger.error("after_agent_callback failed: %s", e, exc_info=True)
         return None
-
-    def _get_llm_call_id(self, obj: Any, invocation_id: str | None = None) -> str:
-        """Extract call_id from LlmRequest or LlmResponse, with fallback."""
-        # Try stored _galileo_call_id (set by before_model_callback)
-        galileo_call_id = getattr(obj, "_galileo_call_id", None)
-        if galileo_call_id:
-            return galileo_call_id
-        # Try request_id (common correlation field in ADK)
-        request_id = getattr(obj, "request_id", None)
-        if request_id:
-            return str(request_id)
-        # For responses, check tracker for current call_id
-        if invocation_id:
-            current_call_id = self._tracker.get_current_llm_call_id(invocation_id)
-            if current_call_id:
-                return current_call_id
-        # Fallback to object identity for correlation
-        return f"llm_{id(obj)}"
 
     async def before_model_callback(
         self, *, callback_context: CallbackContext, llm_request: LlmRequest
@@ -302,13 +295,13 @@ class GalileoADKPlugin(BasePlugin):
 
             metadata = self._observer.get_invocation_metadata(invocation_id, session_id)
             run_id = self._observer.on_llm_start(callback_context, llm_request, parent_run_id, metadata=metadata)
-            # Generate stable call_id and store for response correlation
-            call_id = self._get_llm_call_id(llm_request, invocation_id)
-            llm_request._galileo_call_id = call_id
+            # Store call_id for response correlation
+            call_id = self._tracker.resolve_llm_call_id(llm_request, invocation_id)
+            self._tracker.store_call_id(llm_request, call_id)
             self._tracker.set_current_llm_call_id(invocation_id, call_id)
             self._tracker.register_llm(invocation_id, call_id, run_id)
         except Exception as e:
-            _logger.error(f"Error in before_model_callback: {e}", exc_info=True)
+            _logger.error("before_model_callback failed: %s", e, exc_info=True)
         return None
 
     async def after_model_callback(
@@ -317,13 +310,13 @@ class GalileoADKPlugin(BasePlugin):
         """Handle LLM call end. Closes the LLM span and extracts token usage metrics."""
         try:
             invocation_id = get_invocation_id(callback_context)
-            call_id = self._get_llm_call_id(llm_response, invocation_id)
+            call_id = self._tracker.resolve_llm_call_id(llm_response, invocation_id)
             run_id = self._tracker.pop_llm(invocation_id, call_id)
             if run_id:
                 self._observer.on_llm_end(run_id, llm_response)
             self._tracker.clear_current_llm_call_id(invocation_id)
         except Exception as e:
-            _logger.error(f"Error in after_model_callback: {e}", exc_info=True)
+            _logger.error("after_model_callback failed: %s", e, exc_info=True)
         return None
 
     async def on_model_error_callback(
@@ -332,55 +325,48 @@ class GalileoADKPlugin(BasePlugin):
         """Handle LLM errors. Closes the LLM span with error status code."""
         try:
             invocation_id = get_invocation_id(callback_context)
-            call_id = self._get_llm_call_id(llm_request, invocation_id)
+            call_id = self._tracker.resolve_llm_call_id(llm_request, invocation_id)
+            status_code = _extract_status_code(error)
             run_id = self._tracker.pop_llm(invocation_id, call_id)
             self._tracker.clear_current_llm_call_id(invocation_id)
             if run_id:
-                status_code = _extract_status_code(error)
                 self._observer.on_llm_end(run_id, None, status_code=status_code)
 
             # Force commit on fatal errors that will abort the run
-            if self._is_fatal_error(error):
-                self._force_commit_partial_trace(invocation_id, error)
+            if self._is_fatal_error(status_code):
+                self._force_commit_partial_trace(invocation_id, error, status_code)
         except Exception as e:
-            _logger.error(f"Error in on_model_error_callback: {e}", exc_info=True)
+            _logger.error("on_model_error_callback failed: %s", e, exc_info=True)
         return None
 
-    def _is_fatal_error(self, error: Exception) -> bool:
-        """Check if error will cause runner to abort (not retry)."""
-        code = _extract_status_code(error)
-        return code in (401, 403, 429)
+    def _is_fatal_error(self, status_code: int) -> bool:
+        """Check if error will cause runner to abort (not retry).
 
-    def _force_commit_partial_trace(self, invocation_id: str, error: Exception) -> None:
+        ADK does not retry model errors. 401/403/429 are non-retryable at the
+        application level, so we force-commit partial traces for these.
+        """
+        return status_code in (401, 403, 429)
+
+    def _force_commit_partial_trace(self, invocation_id: str, error: Exception, status_code: int) -> None:
         """End all open spans and commit partial trace on fatal error."""
         error_output = f"Error: {error}"
-        status_code = _extract_status_code(error)
 
-        # End any open tool spans for this invocation (also clears active tool via session lookup)
         tool_run_ids = self._tracker.pop_all_tools_for_invocation(invocation_id)
         for tool_run_id in tool_run_ids:
-            self._observer._span_manager.end_tool(run_id=tool_run_id, output=error_output, status_code=status_code)
+            self._observer.force_end_tool(run_id=tool_run_id, output=error_output, status_code=status_code)
 
-        # End any open LLM spans for this invocation
         llm_run_ids = self._tracker.pop_all_llms_for_invocation(invocation_id)
         for llm_run_id in llm_run_ids:
-            self._observer._span_manager.end_llm(run_id=llm_run_id, output=None, status_code=status_code)
-        self._tracker._current_llm_call_id.pop(invocation_id, None)
+            self._observer.force_end_llm(run_id=llm_run_id, output=None, status_code=status_code)
+        self._tracker.clear_all_llm_call_ids_for_invocation(invocation_id)
 
-        # End any open agent spans for this invocation
         agent_run_ids = self._tracker.pop_all_agents_for_invocation(invocation_id)
         for agent_run_id in agent_run_ids:
-            self._observer._span_manager.end_agent(run_id=agent_run_id, output=error_output, status_code=status_code)
+            self._observer.force_end_agent(run_id=agent_run_id, output=error_output, status_code=status_code)
 
         run_id = self._tracker.pop_run(invocation_id)
         if run_id:
-            self._observer._span_manager.end_run(run_id=run_id, output=error_output, status_code=status_code)
-
-    def _get_tool_key(self, tool: BaseTool) -> str:
-        """Generate a stable tool key from the tool object."""
-        tool_name = getattr(tool, "name", "unknown")
-        # Use object identity for correlation (same tool object in before/after)
-        return f"{tool_name}_{id(tool)}"
+            self._observer.force_end_run(run_id=run_id, output=error_output, status_code=status_code)
 
     async def before_tool_callback(
         self, *, tool: BaseTool, tool_args: dict[str, Any], tool_context: ToolContext
@@ -392,28 +378,25 @@ class GalileoADKPlugin(BasePlugin):
             agent_name = self._get_current_agent_name_from_tool_context(tool_context)
 
             # Use root session for consistent tracking across sub-invocations
-            root_session = self._observer._current_adk_session or session_id
+            root_session = self._observer.current_adk_session or session_id
 
-            # Parent resolution fallback chain:
-            # 1. Current agent span (if agent_name available)
+            # Parent resolution: agent span → invocation run → active tool
             parent_run_id = None
             if agent_name:
                 parent_run_id = self._tracker.get_agent(invocation_id, agent_name)
-            # 2. Invocation-level run span (root of this invocation)
             if not parent_run_id:
                 parent_run_id = self._tracker.get_run(invocation_id)
-            # 3. Active tool in session (for tools called from within other tools)
             if not parent_run_id and root_session:
                 parent_run_id = self._tracker.get_active_tool(root_session)
 
             metadata = self._observer.get_invocation_metadata(invocation_id, session_id)
             run_id = self._observer.on_tool_start(tool, tool_args, tool_context, parent_run_id, metadata=metadata)
-            tool_key = self._get_tool_key(tool)
+            tool_key = self._tracker.make_tool_key(tool)
             self._tracker.register_tool(invocation_id, tool_key, run_id)
             if root_session:
                 self._tracker.set_active_tool(root_session, run_id)
         except Exception as e:
-            _logger.error(f"Error in before_tool_callback: {e}", exc_info=True)
+            _logger.error("before_tool_callback failed: %s", e, exc_info=True)
         return None
 
     async def after_tool_callback(
@@ -423,16 +406,16 @@ class GalileoADKPlugin(BasePlugin):
         try:
             invocation_id = get_tool_invocation_id(tool_context)
             session_id = get_tool_session_id(tool_context)
-            tool_key = self._get_tool_key(tool)
+            tool_key = self._tracker.make_tool_key(tool)
             run_id = self._tracker.pop_tool(invocation_id, tool_key)
 
             if run_id:
                 self._observer.on_tool_end(run_id, result)
-                root_session = self._observer._current_adk_session or session_id
+                root_session = self._observer.current_adk_session or session_id
                 if root_session:
                     self._tracker.clear_active_tool(root_session, run_id)
         except Exception as e:
-            _logger.error(f"Error in after_tool_callback: {e}", exc_info=True)
+            _logger.error("after_tool_callback failed: %s", e, exc_info=True)
         return None
 
     async def on_tool_error_callback(
@@ -443,16 +426,16 @@ class GalileoADKPlugin(BasePlugin):
         try:
             invocation_id = get_tool_invocation_id(tool_context)
             session_id = get_tool_session_id(tool_context)
-            tool_key = self._get_tool_key(tool)
+            tool_key = self._tracker.make_tool_key(tool)
             run_id = self._tracker.pop_tool(invocation_id, tool_key)
             if run_id:
                 status_code = _extract_status_code(error)
                 self._observer.on_tool_end(run_id, error_response, status_code=status_code)
-                root_session = self._observer._current_adk_session or session_id
+                root_session = self._observer.current_adk_session or session_id
                 if root_session:
                     self._tracker.clear_active_tool(root_session, run_id)
         except Exception as e:
-            _logger.error(f"Error in on_tool_error_callback: {e}", exc_info=True)
+            _logger.error("on_tool_error_callback failed: %s", e, exc_info=True)
         return error_response
 
     async def on_event_callback(self, *, invocation_context: InvocationContext, event: Event) -> Event | None:

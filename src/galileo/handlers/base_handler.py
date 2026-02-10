@@ -68,30 +68,31 @@ class GalileoBaseHandler:
             _logger.warning("Unable to add nodes to trace: Root node does not exist")
             return
 
-        if self._start_new_trace:
-            self._galileo_logger.start_trace(
-                input=serialize_to_str(root_node.span_params.get("input", "")),
-                name=root_node.span_params.get("name"),
-                metadata=root_node.span_params.get("metadata"),
-            )
+        try:
+            if self._start_new_trace:
+                self._galileo_logger.start_trace(
+                    input=serialize_to_str(root_node.span_params.get("input", "")),
+                    name=root_node.span_params.get("name"),
+                    metadata=root_node.span_params.get("metadata"),
+                )
 
-        self.log_node_tree(root_node)
+            self.log_node_tree(root_node)
 
-        # Conclude the trace with the root node's output
-        root_output = root_node.span_params.get("output", "")
+            # Conclude the trace with the root node's output
+            root_output = root_node.span_params.get("output", "")
 
-        if self._start_new_trace:
-            # If we started a new trace, we need to conclude it
-            self._galileo_logger.conclude(
-                output=serialize_to_str(root_output), status_code=root_node.span_params.get("status_code")
-            )
+            if self._start_new_trace:
+                # If we started a new trace, we need to conclude it
+                self._galileo_logger.conclude(
+                    output=serialize_to_str(root_output), status_code=root_node.span_params.get("status_code")
+                )
 
-        if self._flush_on_chain_end:
-            self._galileo_logger.flush()
-
-        # Clear nodes after successful commit
-        self._nodes.clear()
-        self._root_node = None
+            if self._flush_on_chain_end:
+                self._galileo_logger.flush()
+        finally:
+            # Always clean up, even if trace building or flush fails
+            self._nodes.clear()
+            self._root_node = None
 
     def log_node_tree(self, node: Node) -> None:
         """

@@ -1,5 +1,7 @@
 """Unit tests for SpanTracker."""
 
+import threading
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 from galileo_adk.span_tracker import SpanTracker
@@ -129,7 +131,6 @@ class TestSpanTrackerLlms:
 
         assert tracker.llm_count == 2
 
-        # Pop specific call_id returns the exact run_id
         result1 = tracker.pop_llm("inv1", "call1")
         assert result1 == run_id1
         assert tracker.llm_count == 1
@@ -147,9 +148,7 @@ class TestSpanTrackerLlms:
         run_id = uuid4()
         tracker.register_llm("inv1", "call1", run_id)
 
-        # Popping with wrong call_id returns None
         assert tracker.pop_llm("inv1", "wrong_call_id") is None
-        # Original entry still exists
         assert tracker.llm_count == 1
 
 
@@ -175,7 +174,6 @@ class TestSpanTrackerTools:
 
         assert tracker.tool_count == 2
 
-        # Pop specific tool_key returns the exact run_id
         result1 = tracker.pop_tool("inv1", "tool1_abc")
         assert result1 == run_id1
         assert tracker.tool_count == 1
@@ -193,9 +191,7 @@ class TestSpanTrackerTools:
         run_id = uuid4()
         tracker.register_tool("inv1", "tool_abc", run_id)
 
-        # Popping with wrong tool_key returns None
         assert tracker.pop_tool("inv1", "wrong_tool_key") is None
-        # Original entry still exists
         assert tracker.tool_count == 1
 
 
@@ -345,3 +341,215 @@ class TestSpanTrackerActiveTools:
         tracker.pop_all_tools_for_invocation("inv1")
 
         assert tracker.get_active_tool("session1") is None
+
+
+class TestSpanTrackerObjectCallIds:
+    """Tests for identity-based call_id correlation."""
+
+    def test_store_and_get_call_id(self) -> None:
+        """Store and retrieve a call_id by object identity."""
+        # Given: a tracker and an object with a stored call_id
+        tracker = SpanTracker()
+        obj = MagicMock()
+        tracker.store_call_id(obj, "call-123")
+
+        # When: retrieving the call_id
+        result = tracker.get_stored_call_id(obj)
+
+        # Then: the stored call_id is returned
+        assert result == "call-123"
+
+    def test_get_stored_call_id_returns_none_for_unknown(self) -> None:
+        """get_stored_call_id returns None for untracked objects."""
+        tracker = SpanTracker()
+        obj = MagicMock()
+
+        assert tracker.get_stored_call_id(obj) is None
+
+    def test_clear_stored_call_id(self) -> None:
+        """clear_stored_call_id removes the stored call_id."""
+        tracker = SpanTracker()
+        obj = MagicMock()
+        tracker.store_call_id(obj, "call-456")
+        assert tracker.get_stored_call_id(obj) == "call-456"
+
+        tracker.clear_stored_call_id(obj)
+
+        assert tracker.get_stored_call_id(obj) is None
+
+    def test_clear_stored_call_id_noop_for_unknown(self) -> None:
+        """clear_stored_call_id is a no-op for untracked objects."""
+        tracker = SpanTracker()
+        obj = MagicMock()
+
+        # Should not raise
+        tracker.clear_stored_call_id(obj)
+
+
+class TestSpanTrackerResolveLlmCallId:
+    """Tests for resolve_llm_call_id multi-strategy resolution."""
+
+    def test_stored_call_id_takes_precedence(self) -> None:
+        """Stored call_id (identity-based) is the highest priority."""
+        # Given: an object with both a stored call_id and a request_id attribute
+        tracker = SpanTracker()
+        obj = MagicMock()
+        obj.request_id = "request-abc"
+        tracker.store_call_id(obj, "stored-xyz")
+
+        # When: resolving the call_id
+        result = tracker.resolve_llm_call_id(obj, invocation_id="inv1")
+
+        # Then: the stored call_id wins
+        assert result == "stored-xyz"
+
+    def test_request_id_attribute_used_when_no_stored(self) -> None:
+        """request_id attribute is used when no stored call_id exists."""
+        tracker = SpanTracker()
+        obj = MagicMock()
+        obj.request_id = "request-abc"
+
+        result = tracker.resolve_llm_call_id(obj)
+
+        assert result == "request-abc"
+
+    def test_current_stack_used_when_no_request_id(self) -> None:
+        """Current LLM call_id stack is used when no stored or request_id."""
+        tracker = SpanTracker()
+        obj = MagicMock(spec=[])  # No attributes
+        tracker.set_current_llm_call_id("inv1", "stack-call-1")
+
+        result = tracker.resolve_llm_call_id(obj, invocation_id="inv1")
+
+        assert result == "stack-call-1"
+
+    def test_fallback_to_object_identity(self) -> None:
+        """Falls back to object identity when all strategies fail."""
+        tracker = SpanTracker()
+        obj = MagicMock(spec=[])  # No attributes
+
+        result = tracker.resolve_llm_call_id(obj)
+
+        assert result.startswith("llm_")
+        assert str(id(obj)) in result
+
+
+class TestSpanTrackerMakeToolKey:
+    """Tests for make_tool_key static method."""
+
+    def test_generates_key_from_tool_name(self) -> None:
+        """Tool key includes the tool's name."""
+        tool = MagicMock()
+        tool.name = "my_tool"
+
+        key = SpanTracker.make_tool_key(tool)
+
+        assert key.startswith("my_tool_")
+
+    def test_generates_unique_keys_for_different_tool_instances(self) -> None:
+        """Different tool instances produce different keys."""
+        tool_a = MagicMock()
+        tool_a.name = "search"
+        tool_b = MagicMock()
+        tool_b.name = "search"
+
+        key_a = SpanTracker.make_tool_key(tool_a)
+        key_b = SpanTracker.make_tool_key(tool_b)
+
+        assert key_a != key_b
+
+    def test_handles_missing_name_attribute(self) -> None:
+        """Falls back to 'unknown' when tool has no name attribute."""
+        tool = MagicMock(spec=[])  # No attributes
+
+        key = SpanTracker.make_tool_key(tool)
+
+        assert key.startswith("unknown_")
+
+
+class TestSpanTrackerClearAllLlmCallIds:
+    """Tests for clear_all_llm_call_ids_for_invocation."""
+
+    def test_clears_all_call_ids_for_invocation(self) -> None:
+        """All LLM call_ids for an invocation are cleared."""
+        tracker = SpanTracker()
+        tracker.set_current_llm_call_id("inv1", "call-1")
+        tracker.set_current_llm_call_id("inv1", "call-2")
+        tracker.set_current_llm_call_id("inv2", "call-3")
+
+        tracker.clear_all_llm_call_ids_for_invocation("inv1")
+
+        assert tracker.get_current_llm_call_id("inv1") is None
+        # Other invocations unaffected
+        assert tracker.get_current_llm_call_id("inv2") == "call-3"
+
+    def test_noop_for_unknown_invocation(self) -> None:
+        """Clearing a non-existent invocation doesn't raise."""
+        tracker = SpanTracker()
+        tracker.clear_all_llm_call_ids_for_invocation("nonexistent")
+
+
+class TestSpanTrackerConcurrency:
+    """Tests for thread safety of SpanTracker."""
+
+    def test_concurrent_register_and_pop_runs(self) -> None:
+        """Multiple threads can register and pop runs concurrently without errors."""
+        # Given: a shared tracker
+        tracker = SpanTracker()
+        num_threads = 20
+        iterations_per_thread = 50
+        errors: list[Exception] = []
+
+        def worker(thread_id: int) -> None:
+            try:
+                for i in range(iterations_per_thread):
+                    inv_id = f"inv_{thread_id}_{i}"
+                    run_id = uuid4()
+                    tracker.register_run(inv_id, f"session_{thread_id}", run_id)
+                    got = tracker.get_run(inv_id)
+                    assert got == run_id, f"Expected {run_id}, got {got}"
+                    popped = tracker.pop_run(inv_id)
+                    assert popped == run_id, f"Expected {run_id}, popped {popped}"
+            except Exception as e:
+                errors.append(e)
+
+        # When: running concurrent workers
+        threads = [threading.Thread(target=worker, args=(tid,)) for tid in range(num_threads)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        # Then: no errors occurred
+        assert errors == [], f"Concurrent errors: {errors}"
+        assert tracker.run_count == 0
+
+    def test_concurrent_register_and_pop_agents(self) -> None:
+        """Multiple threads can register and pop agents concurrently."""
+        tracker = SpanTracker()
+        num_threads = 10
+        iterations = 30
+        errors: list[Exception] = []
+
+        def worker(thread_id: int) -> None:
+            try:
+                for i in range(iterations):
+                    inv_id = f"inv_{thread_id}"
+                    agent_name = f"agent_{thread_id}_{i}"
+                    run_id = uuid4()
+                    tracker.register_agent(inv_id, agent_name, run_id)
+                    got = tracker.get_agent(inv_id, agent_name)
+                    assert got == run_id
+                    popped = tracker.pop_agent(inv_id, agent_name)
+                    assert popped == run_id
+            except Exception as e:
+                errors.append(e)
+
+        threads = [threading.Thread(target=worker, args=(tid,)) for tid in range(num_threads)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        assert errors == [], f"Concurrent errors: {errors}"
+        assert tracker.agent_count == 0

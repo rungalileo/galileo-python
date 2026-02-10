@@ -7,77 +7,16 @@ import pytest
 
 from galileo_adk import GalileoADKPlugin
 
-
-class MockRunConfig:
-    """Mock ADK RunConfig."""
-
-    def __init__(self, custom_metadata: dict | None = None) -> None:
-        self.custom_metadata = custom_metadata
-
-
-class MockCallbackContext:
-    """Mock ADK CallbackContext."""
-
-    def __init__(
-        self,
-        agent_name: str = "test_agent",
-        invocation_id: str | None = None,
-    ) -> None:
-        self.agent_name = agent_name
-        self.invocation_id = invocation_id or str(uuid4())
-        self.parent_context = MagicMock()
-        self.parent_context.new_message = MagicMock()
-        self.parent_context.new_message.parts = [MagicMock(text="test input")]
-
-
-class MockInvocationContext:
-    """Mock ADK InvocationContext."""
-
-    def __init__(
-        self,
-        agent_name: str = "test_agent",
-        invocation_id: str | None = None,
-        run_config: MockRunConfig | None = None,
-    ) -> None:
-        self.agent_name = agent_name
-        self.invocation_id = invocation_id or str(uuid4())
-        self.session = MagicMock()
-        self.session.id = "test_session"
-        self.run_config = run_config
-
-
-class MockLlmRequest:
-    """Mock ADK LlmRequest."""
-
-    def __init__(self, model: str = "gemini-2.0-flash", request_id: str | None = None) -> None:
-        self.model = model
-        self.config = MagicMock()
-        self.config.temperature = 0.7
-        self.config.tools = None
-        self.contents = []
-        self.request_id = request_id or str(uuid4())
-
-
-class MockLlmResponse:
-    """Mock ADK LlmResponse."""
-
-    def __init__(self, text: str = "test response", request_id: str | None = None) -> None:
-        self.content = MagicMock()
-        self.content.parts = [MagicMock(text=text)]
-        self.content.role = "model"
-        self.usage_metadata = MagicMock()
-        self.usage_metadata.prompt_token_count = 10
-        self.usage_metadata.candidates_token_count = 20
-        self.usage_metadata.total_token_count = 30
-        self.request_id = request_id
-
-
-class MockContent:
-    """Mock ADK Content."""
-
-    def __init__(self, text: str = "test message") -> None:
-        self.role = "user"
-        self.parts = [MagicMock(text=text)]
+from .mocks import (
+    MockCallbackContext,
+    MockContent,
+    MockInvocationContext,
+    MockLlmRequest,
+    MockLlmResponse,
+    MockRunConfig,
+    MockTool,
+    MockToolContext,
+)
 
 
 class TestGalileoADKPluginInit:
@@ -89,14 +28,50 @@ class TestGalileoADKPluginInit:
         plugin = GalileoADKPlugin(ingestion_hook=lambda r: traces.extend(r.traces))
         assert plugin._observer is not None
 
-    def test_init_requires_project_or_hook(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """Plugin raises error when neither project nor hook provided."""
+    def test_init_with_ingestion_hook_without_env_vars(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Plugin with ingestion_hook works without any Galileo environment variables."""
+        # Given: no Galileo environment variables are set
+        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+        monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
+        monkeypatch.delenv("GALILEO_API_KEY", raising=False)
+        monkeypatch.delenv("GALILEO_CONSOLE_URL", raising=False)
+
+        # When: creating plugin with only ingestion_hook
+        traces: list = []
+        plugin = GalileoADKPlugin(ingestion_hook=lambda r: traces.extend(r.traces))
+
+        # Then: plugin initializes successfully with TraceBuilder (not GalileoLogger)
+        assert plugin._observer is not None
+        assert plugin._observer._trace_builder is not None
+        assert plugin._observer._trace_builder._ingestion_hook is not None
+
+    def test_init_requires_project_and_log_stream(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Plugin raises error when neither project/log_stream nor hook provided."""
+        # Given: GALILEO_PROJECT and GALILEO_LOG_STREAM env vars are not set
+        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+        monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
+
+        # When/Then: creating plugin without project or log_stream raises an error
+        with pytest.raises(ValueError, match="Both 'project' and 'log_stream' must be provided"):
+            GalileoADKPlugin()
+
+    def test_init_requires_log_stream(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Plugin raises error when project is provided but log_stream is not."""
+        # Given: GALILEO_LOG_STREAM env var is not set
+        monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
+
+        # When/Then: creating plugin with project but no log_stream raises an error
+        with pytest.raises(ValueError, match="Both 'project' and 'log_stream' must be provided"):
+            GalileoADKPlugin(project="my-project")
+
+    def test_init_requires_project(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        """Plugin raises error when log_stream is provided but project is not."""
         # Given: GALILEO_PROJECT env var is not set
         monkeypatch.delenv("GALILEO_PROJECT", raising=False)
 
-        # When/Then: creating plugin without project raises an error
-        with pytest.raises(ValueError, match="Project must be provided"):
-            GalileoADKPlugin()
+        # When/Then: creating plugin with log_stream but no project raises an error
+        with pytest.raises(ValueError, match="Both 'project' and 'log_stream' must be provided"):
+            GalileoADKPlugin(log_stream="my-stream")
 
 
 class TestGalileoADKPluginCallbacks:
@@ -371,6 +346,81 @@ class TestRunConfigMetadataIsolation:
         await plugin.after_run_callback(invocation_context=inv_context)
 
 
+class TestBeforeRunCallback:
+    """Tests for before_run_callback updating run span name and metadata."""
+
+    @pytest.fixture
+    def plugin(self) -> GalileoADKPlugin:
+        return GalileoADKPlugin(ingestion_hook=lambda r: None)
+
+    @pytest.mark.asyncio
+    async def test_before_run_updates_span_name_and_metadata(self, plugin: GalileoADKPlugin) -> None:
+        """before_run_callback updates run span name to reflect the routed agent."""
+        # Given: an invocation with a run span
+        invocation_id = str(uuid4())
+        inv_context = MockInvocationContext(invocation_id=invocation_id, agent_name="root_agent")
+        inv_context.agent = type("Agent", (), {"name": "root_agent"})()  # type: ignore[attr-defined]
+
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context,
+            user_message=MockContent(),
+        )
+
+        # When: before_run_callback fires (ADK may have replaced the agent)
+        inv_context.agent = type("Agent", (), {"name": "sub_agent"})()  # type: ignore[attr-defined]
+        await plugin.before_run_callback(invocation_context=inv_context)
+
+        # Then: the run span name and metadata are updated
+        run_id = plugin._tracker.get_run(invocation_id)
+        assert run_id is not None
+        node = plugin._observer.handler.get_node(run_id)
+        assert node is not None
+        assert node.span_params["name"] == "invocation [sub_agent]"
+        assert node.span_params["metadata"]["adk_routed_agent"] == "sub_agent"
+
+    @pytest.mark.asyncio
+    async def test_before_run_preserves_existing_metadata(self, plugin: GalileoADKPlugin) -> None:
+        """before_run_callback preserves any existing metadata on the run span."""
+        # Given: an invocation with run_config metadata
+        invocation_id = str(uuid4())
+        run_config = MockRunConfig(custom_metadata={"turn": 1})
+        inv_context = MockInvocationContext(invocation_id=invocation_id, run_config=run_config)
+        inv_context.agent = type("Agent", (), {"name": "my_agent"})()  # type: ignore[attr-defined]
+
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context,
+            user_message=MockContent(),
+        )
+
+        # When: before_run_callback fires
+        await plugin.before_run_callback(invocation_context=inv_context)
+
+        # Then: adk_routed_agent is added without losing existing metadata
+        run_id = plugin._tracker.get_run(invocation_id)
+        node = plugin._observer.handler.get_node(run_id)
+        assert node is not None
+        metadata = node.span_params.get("metadata", {})
+        assert metadata["adk_routed_agent"] == "my_agent"
+
+    @pytest.mark.asyncio
+    async def test_before_run_handles_missing_agent_gracefully(self, plugin: GalileoADKPlugin) -> None:
+        """before_run_callback is a no-op when agent is not available."""
+        # Given: an invocation without an agent attribute
+        invocation_id = str(uuid4())
+        inv_context = MockInvocationContext(invocation_id=invocation_id)
+
+        await plugin.on_user_message_callback(
+            invocation_context=inv_context,
+            user_message=MockContent(),
+        )
+
+        # When: before_run_callback fires (no crash expected)
+        await plugin.before_run_callback(invocation_context=inv_context)
+
+        # Then: run span still exists (not modified)
+        assert plugin._tracker.get_run(invocation_id) is not None
+
+
 class TestGalileoADKPluginErrorHandling:
     """Tests for error handling in callbacks."""
 
@@ -381,17 +431,18 @@ class TestGalileoADKPluginErrorHandling:
     @pytest.mark.asyncio
     async def test_callback_errors_dont_propagate(self, plugin: GalileoADKPlugin) -> None:
         """Errors in callbacks don't propagate to caller."""
-        # Pass invalid context - should not raise
+        # Given: an invalid context (None)
+        # When/Then: calling before_agent_callback should not raise
         result = await plugin.before_agent_callback(callback_context=None)
         assert result is None
 
     @pytest.mark.asyncio
     async def test_model_error_callback_extracts_status_code(self, plugin: GalileoADKPlugin) -> None:
         """on_model_error_callback handles errors gracefully."""
+        # Given: an invocation with an active LLM span
         invocation_id = str(uuid4())
         context = MockCallbackContext(invocation_id=invocation_id)
 
-        # Setup spans
         inv_context = MockInvocationContext(invocation_id=invocation_id)
         await plugin.on_user_message_callback(
             invocation_context=inv_context,
@@ -399,14 +450,13 @@ class TestGalileoADKPluginErrorHandling:
         )
         await plugin.before_agent_callback(callback_context=context)
 
-        # Setup LLM span
         llm_request = MockLlmRequest()
         await plugin.before_model_callback(
             callback_context=context,
             llm_request=llm_request,
         )
 
-        # Create error with status code
+        # When: an error occurs with a status code
         error = Exception("Rate limit exceeded")
         error.code = 429  # type: ignore[attr-defined]
 
@@ -416,26 +466,8 @@ class TestGalileoADKPluginErrorHandling:
             error=error,
         )
 
-        assert result is None  # Error handled gracefully
-
-
-class MockToolContext:
-    """Mock ADK ToolContext."""
-
-    def __init__(self, invocation_id: str, agent_name: str = "test_agent", session_id: str = "test_session") -> None:
-        self.invocation_id = invocation_id
-        self.callback_context = MagicMock()
-        self.callback_context.agent_name = agent_name
-        self.callback_context.invocation_id = invocation_id
-        self.callback_context.session = MagicMock()
-        self.callback_context.session.id = session_id
-
-
-class MockTool:
-    """Mock ADK BaseTool."""
-
-    def __init__(self, name: str = "test_tool") -> None:
-        self.name = name
+        # Then: error is handled gracefully without propagating
+        assert result is None
 
 
 class TestInvocationScopedToolTracking:
@@ -691,7 +723,7 @@ class TestForceCommitPartialTrace:
 
         # When: force committing partial trace
         error = Exception("Fatal error")
-        plugin._force_commit_partial_trace(invocation_id, error)
+        plugin._force_commit_partial_trace(invocation_id, error, 500)
 
         # Then: agent span is closed (removed from tracker)
         assert plugin._tracker.get_agent(invocation_id, "test_agent") is None
@@ -712,7 +744,7 @@ class TestForceCommitPartialTrace:
 
         # When: force committing partial trace
         error = Exception("429 RESOURCE_EXHAUSTED")
-        plugin._force_commit_partial_trace(invocation_id, error)
+        plugin._force_commit_partial_trace(invocation_id, error, 500)
 
         # Then: run span is closed (removed from tracker)
         assert plugin._tracker.get_run(invocation_id) is None
@@ -733,7 +765,7 @@ class TestForceCommitPartialTrace:
         # When: force committing with error that has status_code
         error = Exception("Rate limited")
         error.status_code = 429  # type: ignore[attr-defined]
-        plugin._force_commit_partial_trace(invocation_id, error)
+        plugin._force_commit_partial_trace(invocation_id, error, 500)
 
         # Then: no crash and spans are cleaned up
         assert plugin._tracker.get_run(invocation_id) is None
@@ -763,7 +795,7 @@ class TestForceCommitPartialTrace:
 
         # When: force committing partial trace
         error = Exception("Fatal error")
-        plugin._force_commit_partial_trace(invocation_id, error)
+        plugin._force_commit_partial_trace(invocation_id, error, 500)
 
         # Then: tool span is closed (removed from tracker)
         assert plugin._tracker.tool_count == 0
@@ -787,7 +819,7 @@ class TestForceCommitPartialTrace:
 
         # When: force committing partial trace
         error = Exception("Fatal error")
-        plugin._force_commit_partial_trace(invocation_id, error)
+        plugin._force_commit_partial_trace(invocation_id, error, 500)
 
         # Then: LLM span is closed (removed from tracker)
         assert plugin._tracker.llm_count == 0
@@ -816,7 +848,7 @@ class TestForceCommitPartialTrace:
 
         # When: force committing partial trace
         error = Exception("Fatal error")
-        plugin._force_commit_partial_trace(invocation_id, error)
+        plugin._force_commit_partial_trace(invocation_id, error, 500)
 
         # Then: active tool is cleared
         assert plugin._tracker.get_active_tool(session_id) is None

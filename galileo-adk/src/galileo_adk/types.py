@@ -1,5 +1,7 @@
 """Type definitions for Galileo ADK integration."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import Any
 from uuid import UUID

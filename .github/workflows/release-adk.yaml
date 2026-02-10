@@ -1,0 +1,155 @@
+name: Release galileo-adk
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.8.0, 1.0.0-beta.1). Leave empty for automatic semantic versioning.'
+        required: false
+        type: string
+      prerelease:
+        description: 'Mark as pre-release?'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # Required for OIDC trusted publishing to PyPI
+      contents: write   # Required for creating releases, tags, and pushing commits
+
+    defaults:
+      run:
+        working-directory: galileo-adk
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
+          token: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build tools
+        run: pip install --upgrade pip build hatchling
+
+      # =======================================================================
+      # PATH 1: Custom Version (Manual Override)
+      # =======================================================================
+      - name: Set Custom Version
+        id: custom_version
+        if: inputs.version != ''
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          # Validate version matches strict semver pattern
+          if ! echo "$INPUT_VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo "::error::Invalid version format: '${INPUT_VERSION}'. Must match semver (e.g., 1.2.3 or 1.2.3-beta.1)."
+            exit 1
+          fi
+
+          VERSION="$INPUT_VERSION"
+          echo "Using custom version: ${VERSION}"
+
+          # Update version in pyproject.toml
+          sed -i "s/^version = \".*\"/version = \"${VERSION}\"/" pyproject.toml
+
+          # Update version in __init__.py
+          sed -i "s/__version__ = \".*\"/__version__ = \"${VERSION}\"/" src/galileo_adk/__init__.py
+
+          # Configure git
+          git config user.name "galileo-automation"
+          git config user.email "ci@rungalileo.io"
+
+          # Commit and tag
+          git add pyproject.toml src/galileo_adk/__init__.py
+          git commit -m "chore(release): galileo-adk v${VERSION}"
+          git tag -a "galileo-adk-v${VERSION}" -m "Release galileo-adk v${VERSION}"
+
+          # Push changes
+          git push origin "HEAD:${REF_NAME}"
+          git push origin "galileo-adk-v${VERSION}"
+
+          echo "released=true" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      # =======================================================================
+      # PATH 2: Semantic Release (Automatic Versioning)
+      # =======================================================================
+      - name: Python Semantic Release
+        id: semantic_release
+        if: inputs.version == ''
+        uses: python-semantic-release/python-semantic-release@v10.2.0
+        with:
+          directory: galileo-adk
+          git_committer_name: galileo-automation
+          git_committer_email: ci@rungalileo.io
+          github_token: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}
+          ssh_public_signing_key: ${{ secrets.GALILEO_AUTOMATION_SSH_PUBLIC_KEY }}
+          ssh_private_signing_key: ${{ secrets.GALILEO_AUTOMATION_SSH_PRIVATE_KEY }}
+          vcs_release: true
+
+      # =======================================================================
+      # Determine Release Status
+      # =======================================================================
+      - name: Set Release Status
+        id: release
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          CUSTOM_RELEASED: ${{ steps.custom_version.outputs.released }}
+          CUSTOM_VERSION: ${{ steps.custom_version.outputs.version }}
+          SEMANTIC_RELEASED: ${{ steps.semantic_release.outputs.released }}
+          SEMANTIC_VERSION: ${{ steps.semantic_release.outputs.version }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "released=${CUSTOM_RELEASED}" >> "$GITHUB_OUTPUT"
+            echo "version=${CUSTOM_VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            echo "released=${SEMANTIC_RELEASED}" >> "$GITHUB_OUTPUT"
+            echo "version=${SEMANTIC_VERSION}" >> "$GITHUB_OUTPUT"
+          fi
+
+      # =======================================================================
+      # Build and Publish
+      # =======================================================================
+      - name: Build Package
+        if: steps.release.outputs.released == 'true'
+        run: |
+          python -m build
+          echo "Built artifacts:"
+          ls -la dist/
+
+      - name: Create GitHub Release
+        if: steps.release.outputs.released == 'true' && inputs.version != ''
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: galileo-adk-v${{ steps.release.outputs.version }}
+          name: galileo-adk v${{ steps.release.outputs.version }}
+          body: |
+            ## galileo-adk v${{ steps.release.outputs.version }}
+
+            ### Installation
+            ```bash
+            pip install galileo-adk==${{ steps.release.outputs.version }}
+            ```
+
+            This is a manually triggered release.
+          prerelease: ${{ inputs.prerelease }}
+          token: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}
+          files: galileo-adk/dist/*
+
+      - name: Publish to PyPI
+        if: steps.release.outputs.released == 'true'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: galileo-adk/dist/
+          verbose: true
+          print-hash: true

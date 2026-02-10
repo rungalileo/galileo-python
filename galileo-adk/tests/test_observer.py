@@ -6,31 +6,7 @@ import pytest
 
 from galileo_adk.observer import GalileoObserver
 
-
-class MockPart:
-    """Mock ADK Content Part."""
-
-    def __init__(self, text: str | None = None) -> None:
-        self.text = text
-
-
-class MockContent:
-    """Mock ADK Content."""
-
-    def __init__(self, parts: list[MockPart] | None = None, role: str = "user") -> None:
-        self.parts = parts or []
-        self.role = role
-
-
-class MockEvent:
-    """Mock ADK Event."""
-
-    def __init__(self, content: MockContent | None = None, is_final: bool = False) -> None:
-        self.content = content
-        self._is_final = is_final
-
-    def is_final_response(self) -> bool:
-        return self._is_final
+from .mocks import MockContent, MockEvent, MockPart
 
 
 @pytest.fixture
@@ -231,3 +207,71 @@ class TestExtractFinalOutput:
 
         # Then: empty string is returned
         assert result == ""
+
+
+class TestUpdateSessionIfChanged:
+    """Tests for update_session_if_changed method."""
+
+    def test_hook_mode_sets_session_external_id_without_backend_call(self) -> None:
+        # Given: an observer in hook mode
+        captured_requests: list = []
+        observer = GalileoObserver(ingestion_hook=lambda r: captured_requests.append(r))
+        logger = observer._handler._galileo_logger
+
+        # When: updating session with an ADK session ID
+        observer.update_session_if_changed("adk-session-123")
+
+        # Then: session_external_id is set for correlation
+        assert logger._session_external_id == "adk-session-123"
+        assert observer._current_adk_session == "adk-session-123"
+
+    def test_hook_mode_updates_external_id_on_session_change(self) -> None:
+        # Given: an observer in hook mode with an existing session
+        observer = GalileoObserver(ingestion_hook=lambda r: None)
+        observer.update_session_if_changed("session-1")
+        logger = observer._handler._galileo_logger
+
+        # When: the ADK session changes
+        observer.update_session_if_changed("session-2")
+
+        # Then: session_external_id is updated to the new session
+        assert logger._session_external_id == "session-2"
+        assert observer._current_adk_session == "session-2"
+
+    def test_hook_mode_ignores_unknown_session_id(self) -> None:
+        # Given: an observer in hook mode
+        observer = GalileoObserver(ingestion_hook=lambda r: None)
+        logger = observer._handler._galileo_logger
+
+        # When: updating with "unknown" session ID
+        observer.update_session_if_changed("unknown")
+
+        # Then: no session is set
+        assert logger._session_external_id is None
+        assert observer._current_adk_session is None
+
+    def test_hook_mode_ignores_duplicate_session_id(self) -> None:
+        # Given: an observer in hook mode with an existing session
+        observer = GalileoObserver(ingestion_hook=lambda r: None)
+        observer.update_session_if_changed("session-1")
+        logger = observer._handler._galileo_logger
+        original_external_id = logger._session_external_id
+
+        # When: updating with the same session ID
+        observer.update_session_if_changed("session-1")
+
+        # Then: session_external_id remains unchanged
+        assert logger._session_external_id == original_external_id
+
+    def test_hook_mode_preserves_parent_session_for_sub_invocations(self) -> None:
+        # Given: an observer in hook mode with an existing parent session
+        observer = GalileoObserver(ingestion_hook=lambda r: None)
+        observer.update_session_if_changed("parent-session")
+        logger = observer._handler._galileo_logger
+
+        # When: a sub-invocation tries to change the session
+        observer.update_session_if_changed("sub-invocation-session", is_sub_invocation=True)
+
+        # Then: the parent session is preserved
+        assert logger._session_external_id == "parent-session"
+        assert observer._current_adk_session == "parent-session"

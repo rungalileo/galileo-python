@@ -1,15 +1,17 @@
 """Shared observability logic for Galileo ADK integration."""
 
+from __future__ import annotations
+
 import contextlib
 import logging
 import uuid
+import weakref
 from collections.abc import Callable
 from typing import Any
 from uuid import UUID
 
 from galileo import galileo_context
 from galileo.handlers.base_handler import GalileoBaseHandler
-from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.serialization import serialize_to_str
 from galileo_adk.data_converters import (
@@ -18,8 +20,12 @@ from galileo_adk.data_converters import (
     extract_text_from_adk_content,
 )
 from galileo_adk.span_manager import SpanManager
+from galileo_adk.trace_builder import TraceBuilder
 
 _logger = logging.getLogger(__name__)
+
+# Cache generated invocation IDs without mutating ADK objects.
+_generated_invocation_ids: weakref.WeakKeyDictionary = weakref.WeakKeyDictionary()
 
 
 def get_invocation_id(context: Any) -> str:
@@ -28,15 +34,15 @@ def get_invocation_id(context: Any) -> str:
     if invocation_id is not None:
         return str(invocation_id)
 
-    generated_id = getattr(context, "_generated_invocation_id", None)
-    if generated_id is not None:
-        return generated_id
+    cached = _generated_invocation_ids.get(context)
+    if cached is not None:
+        return cached
 
     session_id = get_session_id(context)
     fallback_id = f"{session_id}_{uuid.uuid4()}" if session_id != "unknown" else str(uuid.uuid4())
 
-    with contextlib.suppress(AttributeError):
-        context._generated_invocation_id = fallback_id
+    with contextlib.suppress(TypeError):
+        _generated_invocation_ids[context] = fallback_id
 
     return fallback_id
 
@@ -82,6 +88,18 @@ def get_tool_session_id(tool_context: Any) -> str:
     return "unknown"
 
 
+def get_agent_name_from_tool_context(tool_context: Any) -> str | None:
+    """Extract agent name from tool context."""
+    try:
+        if hasattr(tool_context, "callback_context"):
+            return getattr(tool_context.callback_context, "agent_name", None)
+        if hasattr(tool_context, "agent_name"):
+            return getattr(tool_context, "agent_name", None)
+    except Exception:
+        pass
+    return None
+
+
 def get_custom_metadata(context: Any) -> dict[str, Any]:
     """Extract custom_metadata from context's RunConfig.
 
@@ -111,26 +129,35 @@ def get_custom_metadata(context: Any) -> dict[str, Any]:
 class GalileoObserver:
     """Shared observability logic for Plugin and Callback interfaces."""
 
+    _trace_builder: TraceBuilder | None
+
     def __init__(
         self,
         project: str | None = None,
         log_stream: str | None = None,
-        galileo_logger: GalileoLogger | None = None,
-        start_new_trace: bool = True,
-        flush_on_completion: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
     ) -> None:
-        if galileo_logger is None:
-            galileo_logger = galileo_context.get_logger_instance(project=project, log_stream=log_stream)
-
         self._current_adk_session: str | None = None
-        self._handler = GalileoBaseHandler(
-            galileo_logger=galileo_logger,
-            start_new_trace=start_new_trace,
-            flush_on_chain_end=flush_on_completion,
-            integration="google_adk",
-            ingestion_hook=ingestion_hook,
-        )
+
+        if ingestion_hook:
+            trace_builder = TraceBuilder(ingestion_hook=ingestion_hook)
+            self._trace_builder = trace_builder
+            self._handler = GalileoBaseHandler(
+                galileo_logger=trace_builder,  # type: ignore[arg-type]
+                start_new_trace=True,
+                flush_on_chain_end=True,
+                integration="google_adk",
+            )
+        else:
+            self._trace_builder = None
+            galileo_logger = galileo_context.get_logger_instance(project=project, log_stream=log_stream)
+            self._handler = GalileoBaseHandler(
+                galileo_logger=galileo_logger,
+                start_new_trace=True,
+                flush_on_chain_end=True,
+                integration="google_adk",
+            )
+
         self._span_manager = SpanManager(self._handler)
 
         # Per-invocation metadata tracking
@@ -141,6 +168,27 @@ class GalileoObserver:
     def handler(self) -> GalileoBaseHandler:
         """Access the underlying handler."""
         return self._handler
+
+    @property
+    def current_adk_session(self) -> str | None:
+        """The currently tracked ADK session ID."""
+        return self._current_adk_session
+
+    def force_end_tool(self, run_id: UUID, output: str, status_code: int) -> None:
+        """Force-close a tool span (for orphaned span cleanup)."""
+        self._span_manager.end_tool(run_id=run_id, output=output, status_code=status_code)
+
+    def force_end_llm(self, run_id: UUID, output: Any, status_code: int) -> None:
+        """Force-close an LLM span (for orphaned span cleanup)."""
+        self._span_manager.end_llm(run_id=run_id, output=output, status_code=status_code)
+
+    def force_end_agent(self, run_id: UUID, output: str, status_code: int) -> None:
+        """Force-close an agent span (for orphaned span cleanup)."""
+        self._span_manager.end_agent(run_id=run_id, output=output, status_code=status_code)
+
+    def force_end_run(self, run_id: UUID, output: str, status_code: int) -> None:
+        """Force-close a run span (for partial trace commit)."""
+        self._span_manager.end_run(run_id=run_id, output=output, status_code=status_code)
 
     def store_invocation_metadata(self, invocation_id: str, session_id: str, metadata: dict[str, Any]) -> None:
         """Store metadata for an invocation and track as root for the session.
@@ -206,6 +254,9 @@ class GalileoObserver:
         Updates the Galileo session when the ADK session changes. Sessions are linked
         via previous_session_id when switching to maintain continuity.
 
+        In hook mode, session lifecycle is delegated to the hook consumer; only the
+        external_id is stored for correlation.
+
         Parameters
         ----------
         adk_session_id : str
@@ -226,9 +277,17 @@ class GalileoObserver:
         if adk_session_id == self._current_adk_session:
             return
 
-        previous_session_id = self._handler._galileo_logger.session_id
         self._current_adk_session = adk_session_id
-        self._handler._galileo_logger.start_session(
+
+        # Hook mode: store external_id; session creation is the hook consumer's responsibility
+        if self._trace_builder is not None:
+            self._trace_builder._session_external_id = adk_session_id
+            return
+
+        # Normal mode: create/find session on backend
+        logger = self._handler._galileo_logger
+        previous_session_id = logger.session_id
+        logger.start_session(
             name=adk_session_id,
             external_id=adk_session_id,
             previous_session_id=previous_session_id,
@@ -375,9 +434,11 @@ class GalileoObserver:
         return ""
 
     def _extract_agent_metadata(self, callback_context: Any) -> dict[str, Any]:
-        return {
-            "agent_name": getattr(callback_context, "agent_name", None),
-        }
+        metadata: dict[str, Any] = {}
+        agent_name = getattr(callback_context, "agent_name", None)
+        if agent_name is not None:
+            metadata["agent_name"] = agent_name
+        return metadata
 
     def _extract_llm_input(self, llm_request: Any) -> list[Any]:
         if not hasattr(llm_request, "contents"):

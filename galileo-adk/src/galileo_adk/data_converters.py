@@ -1,5 +1,7 @@
 """Data converters for ADK to Galileo format transformations."""
 
+from __future__ import annotations
+
 import base64
 import json
 import logging
@@ -62,8 +64,7 @@ def _convert_part_to_message_with_call_id(
         adk_response_id = getattr(part.function_response, "id", None)
         name = getattr(part.function_response, "name", "unknown")
         map_key = adk_response_id if adk_response_id else f"{name}_{index}"
-        call_id = call_id_map.get(map_key)
-        return _convert_function_response(part.function_response, call_id)
+        return _convert_function_response(part.function_response, call_id_map.get(map_key))
 
     return None
 
@@ -137,12 +138,6 @@ def _convert_function_response(function_response: Any, call_id: str | None = Non
     return Message(content=content, role=MessageRole.tool, tool_call_id=call_id)
 
 
-def convert_adk_content_to_galileo_message(content: Any) -> Message:
-    """Convert ADK Content to single Galileo Message."""
-    messages = convert_adk_content_to_galileo_messages(content)
-    return messages[0] if messages else Message(content="", role=MessageRole.assistant)
-
-
 def extract_text_from_adk_content(content: Any) -> str:
     """Extract text from ADK Content."""
     if not hasattr(content, "parts") or not content.parts:
@@ -151,10 +146,16 @@ def extract_text_from_adk_content(content: Any) -> str:
     return " ".join(text_parts)
 
 
+_ADK_ROLE_TO_GALILEO: dict[str, MessageRole] = {
+    "user": MessageRole.user,
+    "model": MessageRole.assistant,
+    "system": MessageRole.system,
+}
+
+
 def _map_adk_role_to_galileo(adk_role: str) -> MessageRole:
     """Map ADK role to Galileo MessageRole."""
-    role_mapping = {"user": MessageRole.user, "model": MessageRole.assistant, "system": MessageRole.system}
-    return role_mapping.get(adk_role.lower(), MessageRole.user)
+    return _ADK_ROLE_TO_GALILEO.get(adk_role.lower(), MessageRole.user)
 
 
 def convert_adk_tools_to_galileo_format(tools: Any) -> list[dict[str, Any]]:
