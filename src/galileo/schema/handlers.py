@@ -5,7 +5,7 @@ from uuid import UUID
 SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow", "agent"]
 LANGCHAIN_NODE_TYPE = Literal["agent", "chain", "chat", "llm", "retriever", "tool", "workflow"]
 NODE_TYPE = LANGCHAIN_NODE_TYPE
-INTEGRATION = Literal["langchain", "crewai"]
+INTEGRATION = Literal["langchain", "crewai", "google_adk"]
 
 
 class NodeType(str, Enum):
