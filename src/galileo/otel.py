@@ -345,6 +345,9 @@ def _set_workflow_span_attributes(span: trace.Span, galileo_span: WorkflowSpan) 
         return
 
     output_value = galileo_span.output
+    # Type annotation to handle flexible content types (string or dict)
+    # Content can be: str (simple output), dict (documents), or dict (Message model_dump)
+    output_messages: list[dict[str, Any]] = []
 
     if isinstance(output_value, str):
         output_messages = [{"role": "assistant", "content": output_value}]
