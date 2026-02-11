@@ -15,7 +15,7 @@ from requests import Session
 from galileo.config import GalileoPythonConfig
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
 from galileo.utils.retrievers import document_adapter
-from galileo_core.schemas.logging.span import RetrieverSpan
+from galileo_core.schemas.logging.span import RetrieverSpan, ToolSpan
 from galileo_core.schemas.logging.span import Span as GalileoSpan
 
 logger = logging.getLogger(__name__)
@@ -325,6 +325,14 @@ def _set_retriever_span_attributes(span: trace.Span, galileo_span: RetrieverSpan
     )
 
 
+def _set_tool_span_attributes(span: trace.Span, galileo_span: ToolSpan) -> None:
+    span.set_attribute("gen_ai.input.messages", json.dumps([{"role": "tool", "content": galileo_span.input}]))
+    if galileo_span.output is not None:
+        span.set_attribute("gen_ai.output.messages", json.dumps([{"role": "tool", "content": galileo_span.output}]))
+    if galileo_span.tool_call_id is not None:
+        span.set_attribute("gen_ai.tool.call_id", galileo_span.tool_call_id)
+
+
 @contextmanager
 def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, None]:
     tracer_provider = _TRACE_PROVIDER_CONTEXT_VAR.get()
@@ -337,3 +345,5 @@ def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, 
         span.set_attribute("gen_ai.system", "galileo-otel")
         if isinstance(galileo_span, RetrieverSpan):
             _set_retriever_span_attributes(span, galileo_span)
+        elif isinstance(galileo_span, ToolSpan):
+            _set_tool_span_attributes(span, galileo_span)

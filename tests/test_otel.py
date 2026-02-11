@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import uuid
@@ -7,7 +8,14 @@ import pytest
 from pydantic import SecretStr
 
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
-from galileo.otel import INSTALL_ERR_MSG, OTEL_AVAILABLE, GalileoOTLPExporter, GalileoSpanProcessor
+from galileo.otel import (
+    INSTALL_ERR_MSG,
+    OTEL_AVAILABLE,
+    GalileoOTLPExporter,
+    GalileoSpanProcessor,
+    _set_tool_span_attributes,
+)
+from galileo_core.schemas.logging.span import ToolSpan
 
 
 class TestGalileoOTLPExporter:
@@ -453,3 +461,66 @@ class TestOTelContextIntegration:
         mock_resource_class.assert_not_called()
         mock_span2.resource.merge.assert_not_called()
         mock_parent_export.assert_called_once_with([mock_span2])
+
+
+class TestSetToolSpanAttributes:
+    """Test suite for _set_tool_span_attributes function."""
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_tool_span_with_all_fields(self):
+        """Test setting attributes when all ToolSpan fields are populated."""
+        # Given: a ToolSpan with input, output, and tool_call_id
+        tool_span = ToolSpan(
+            name="test-tool",
+            input="tool input data",
+            output="tool output result",
+            tool_call_id="call-123",
+            status_code=200,
+        )
+        mock_otel_span = Mock()
+
+        # When: setting tool span attributes
+        _set_tool_span_attributes(mock_otel_span, tool_span)
+
+        # Then: all attributes are set correctly
+        calls = {args[0]: args[1] for args, _ in mock_otel_span.set_attribute.call_args_list}
+        assert calls["gen_ai.input.messages"] == json.dumps([{"role": "tool", "content": "tool input data"}])
+        assert calls["gen_ai.output.messages"] == json.dumps([{"role": "tool", "content": "tool output result"}])
+        assert calls["gen_ai.tool.call_id"] == "call-123"
+        assert mock_otel_span.set_attribute.call_count == 3
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_tool_span_with_only_input(self):
+        """Test setting attributes when only input is provided."""
+        # Given: a ToolSpan with only input (output and tool_call_id are None)
+        tool_span = ToolSpan(name="test-tool", input="tool input only", output=None, tool_call_id=None, status_code=200)
+        mock_otel_span = Mock()
+
+        # When: setting tool span attributes
+        _set_tool_span_attributes(mock_otel_span, tool_span)
+
+        # Then: only input attribute is set
+        calls = {args[0]: args[1] for args, _ in mock_otel_span.set_attribute.call_args_list}
+        assert calls["gen_ai.input.messages"] == json.dumps([{"role": "tool", "content": "tool input only"}])
+        assert "gen_ai.output.messages" not in calls
+        assert "gen_ai.tool.call_id" not in calls
+        assert mock_otel_span.set_attribute.call_count == 1
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_tool_span_with_output_no_tool_call_id(self):
+        """Test setting attributes when output is provided but tool_call_id is None."""
+        # Given: a ToolSpan with input and output, but no tool_call_id
+        tool_span = ToolSpan(
+            name="test-tool", input="tool input", output="tool output", tool_call_id=None, status_code=200
+        )
+        mock_otel_span = Mock()
+
+        # When: setting tool span attributes
+        _set_tool_span_attributes(mock_otel_span, tool_span)
+
+        # Then: input and output attributes are set, but not tool_call_id
+        calls = {args[0]: args[1] for args, _ in mock_otel_span.set_attribute.call_args_list}
+        assert calls["gen_ai.input.messages"] == json.dumps([{"role": "tool", "content": "tool input"}])
+        assert calls["gen_ai.output.messages"] == json.dumps([{"role": "tool", "content": "tool output"}])
+        assert "gen_ai.tool.call_id" not in calls
+        assert mock_otel_span.set_attribute.call_count == 2
