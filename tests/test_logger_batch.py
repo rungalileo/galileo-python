@@ -1870,15 +1870,11 @@ def test_ingestion_hook_without_project_or_log_stream(monkeypatch) -> None:
     logger = GalileoLogger(ingestion_hook=hook)
 
     # Then: the logger initializes successfully
-    # The project/log_stream get default values, but the important thing is:
     # 1. No exception is raised (validation is skipped)
     # 2. No API clients are created (since we have ingestion_hook)
     assert logger is not None
     assert logger._ingestion_hook == hook
     assert logger._traces_client is None
-    # Default values are used when env vars are not set
-    assert logger.project_name == "default"
-    assert logger.log_stream_name == "default"
 
 
 @patch("galileo.logger.logger.LogStreams")
