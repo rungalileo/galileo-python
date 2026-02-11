@@ -453,3 +453,193 @@ class TestOTelContextIntegration:
         mock_resource_class.assert_not_called()
         mock_span2.resource.merge.assert_not_called()
         mock_parent_export.assert_called_once_with([mock_span2])
+
+
+class TestAgentSpanOTelAttributes:
+    """Tests for AgentSpan OpenTelemetry attribute mapping."""
+
+    def test_convert_agent_input_string(self):
+        """Test converting string input to OTel message format."""
+        # Given: a string input
+        from galileo.otel import _convert_agent_input_to_otel_messages
+
+        # When: converting to OTel messages
+        result = _convert_agent_input_to_otel_messages("Hello, agent!")
+
+        # Then: it should be wrapped in a user message
+        assert result == [{"role": "user", "content": "Hello, agent!"}]
+
+    def test_convert_agent_input_messages(self):
+        """Test converting Message sequence input to OTel message format."""
+        # Given: a sequence of Message objects
+        from galileo.otel import _convert_agent_input_to_otel_messages
+        from galileo_core.schemas.logging.llm import Message, MessageRole
+
+        messages = [
+            Message(role=MessageRole.user, content="Hello"),
+            Message(role=MessageRole.assistant, content="Hi there!"),
+        ]
+
+        # When: converting to OTel messages
+        result = _convert_agent_input_to_otel_messages(messages)
+
+        # Then: messages should be serialized correctly
+        assert len(result) == 2
+        assert result[0]["role"] == "user"
+        assert result[0]["content"] == "Hello"
+        assert result[1]["role"] == "assistant"
+        assert result[1]["content"] == "Hi there!"
+
+    def test_convert_agent_output_string(self):
+        """Test converting string output to OTel message format."""
+        # Given: a string output
+        from galileo.otel import _convert_agent_output_to_otel_messages
+
+        # When: converting to OTel messages
+        result = _convert_agent_output_to_otel_messages("Task completed!")
+
+        # Then: it should be wrapped in an assistant message
+        assert result == [{"role": "assistant", "content": "Task completed!"}]
+
+    def test_convert_agent_output_message(self):
+        """Test converting Message output to OTel message format."""
+        # Given: a Message object
+        from galileo.otel import _convert_agent_output_to_otel_messages
+        from galileo_core.schemas.logging.llm import Message, MessageRole
+
+        message = Message(role=MessageRole.assistant, content="Here's the result")
+
+        # When: converting to OTel messages
+        result = _convert_agent_output_to_otel_messages(message)
+
+        # Then: message should be serialized correctly
+        assert len(result) == 1
+        assert result[0]["role"] == "assistant"
+        assert result[0]["content"] == "Here's the result"
+
+    def test_convert_agent_output_documents(self):
+        """Test converting Document sequence output to OTel message format."""
+        # Given: a sequence of Document objects
+        from galileo.otel import _convert_agent_output_to_otel_messages
+        from galileo_core.schemas.shared.document import Document
+
+        documents = [
+            Document(content="Document 1 content", metadata={"source": "test"}),
+            Document(content="Document 2 content", metadata={}),
+        ]
+
+        # When: converting to OTel messages
+        result = _convert_agent_output_to_otel_messages(documents)
+
+        # Then: documents should be wrapped in assistant message with documents content
+        assert len(result) == 1
+        assert result[0]["role"] == "assistant"
+        assert "documents" in result[0]["content"]
+        assert len(result[0]["content"]["documents"]) == 2
+        assert result[0]["content"]["documents"][0]["content"] == "Document 1 content"
+
+    def test_set_agent_span_attributes_with_string_io(self):
+        """Test setting OTel attributes for AgentSpan with string input/output."""
+        # Given: an AgentSpan with string input and output
+        import json
+
+        from galileo.otel import _set_agent_span_attributes
+        from galileo_core.schemas.logging.agent import AgentType
+        from galileo_core.schemas.logging.span import AgentSpan
+
+        agent_span = AgentSpan(
+            name="test-agent", agent_type=AgentType.planner, input="Plan this task", output="Task planned successfully"
+        )
+        mock_span = Mock()
+
+        # When: setting the attributes
+        _set_agent_span_attributes(mock_span, agent_span)
+
+        # Then: all attributes should be set correctly
+        calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
+
+        assert calls["gen_ai.agent.type"] == "planner"
+
+        input_messages = json.loads(calls["gen_ai.input.messages"])
+        assert input_messages == [{"role": "user", "content": "Plan this task"}]
+
+        output_messages = json.loads(calls["gen_ai.output.messages"])
+        assert output_messages == [{"role": "assistant", "content": "Task planned successfully"}]
+
+    def test_set_agent_span_attributes_with_messages(self):
+        """Test setting OTel attributes for AgentSpan with Message input/output."""
+        # Given: an AgentSpan with Message input and output
+        import json
+
+        from galileo.otel import _set_agent_span_attributes
+        from galileo_core.schemas.logging.agent import AgentType
+        from galileo_core.schemas.logging.llm import Message, MessageRole
+        from galileo_core.schemas.logging.span import AgentSpan
+
+        agent_span = AgentSpan(
+            name="test-agent",
+            agent_type=AgentType.react,
+            input=[
+                Message(role=MessageRole.user, content="Execute this"),
+                Message(role=MessageRole.assistant, content="On it!"),
+            ],
+            output=Message(role=MessageRole.assistant, content="Done!"),
+        )
+        mock_span = Mock()
+
+        # When: setting the attributes
+        _set_agent_span_attributes(mock_span, agent_span)
+
+        # Then: all attributes should be set correctly
+        calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
+
+        assert calls["gen_ai.agent.type"] == "react"
+
+        input_messages = json.loads(calls["gen_ai.input.messages"])
+        assert len(input_messages) == 2
+        assert input_messages[0]["role"] == "user"
+        assert input_messages[1]["role"] == "assistant"
+
+        output_messages = json.loads(calls["gen_ai.output.messages"])
+        assert len(output_messages) == 1
+        assert output_messages[0]["content"] == "Done!"
+
+    def test_set_agent_span_attributes_with_none_output(self):
+        """Test setting OTel attributes for AgentSpan with None output."""
+        # Given: an AgentSpan with None output
+        import json
+
+        from galileo.otel import _set_agent_span_attributes
+        from galileo_core.schemas.logging.agent import AgentType
+        from galileo_core.schemas.logging.span import AgentSpan
+
+        agent_span = AgentSpan(name="test-agent", agent_type=AgentType.default, input="Start task", output=None)
+        mock_span = Mock()
+
+        # When: setting the attributes
+        _set_agent_span_attributes(mock_span, agent_span)
+
+        # Then: agent_type and input should be set, but not output
+        calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
+
+        assert calls["gen_ai.agent.type"] == "default"
+        assert "gen_ai.input.messages" in calls
+        assert "gen_ai.output.messages" not in calls
+
+    def test_set_agent_span_attributes_all_agent_types(self):
+        """Test that all AgentType enum values can be mapped to attributes."""
+        # Given: all possible AgentType values
+        from galileo.otel import _set_agent_span_attributes
+        from galileo_core.schemas.logging.agent import AgentType
+        from galileo_core.schemas.logging.span import AgentSpan
+
+        for agent_type in AgentType:
+            # When: creating an AgentSpan with this type
+            agent_span = AgentSpan(name=f"test-{agent_type.value}", agent_type=agent_type, input="test")
+            mock_span = Mock()
+
+            # Then: setting attributes should not raise
+            _set_agent_span_attributes(mock_span, agent_span)
+
+            calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
+            assert calls["gen_ai.agent.type"] == agent_type.value

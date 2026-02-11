@@ -15,8 +15,11 @@ from requests import Session
 from galileo.config import GalileoPythonConfig
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
 from galileo.utils.retrievers import document_adapter
-from galileo_core.schemas.logging.span import RetrieverSpan
+from galileo_core.schemas.logging.llm import Message
+from galileo_core.schemas.logging.span import AgentSpan, RetrieverSpan
 from galileo_core.schemas.logging.span import Span as GalileoSpan
+from galileo_core.schemas.logging.step import StepAllowedInputType, StepAllowedOutputType
+from galileo_core.schemas.shared.document import Document
 
 logger = logging.getLogger(__name__)
 
@@ -325,6 +328,58 @@ def _set_retriever_span_attributes(span: trace.Span, galileo_span: RetrieverSpan
     )
 
 
+def _convert_agent_input_to_otel_messages(input_value: StepAllowedInputType) -> list[dict[str, Any]]:
+    """Convert AgentSpan input to OTel message format.
+
+    Handles Union[str, Sequence[Message]] input type.
+    """
+    if isinstance(input_value, str):
+        return [{"role": "user", "content": input_value}]
+
+    # Sequence[Message]
+    return [msg.model_dump(mode="json", exclude_none=True) for msg in input_value]
+
+
+def _convert_agent_output_to_otel_messages(output_value: StepAllowedOutputType) -> list[dict[str, Any]]:
+    """Convert AgentSpan output to OTel message format.
+
+    Handles Union[str, Message, Sequence[Document]] output type.
+    """
+    if isinstance(output_value, str):
+        return [{"role": "assistant", "content": output_value}]
+
+    if isinstance(output_value, Message):
+        return [output_value.model_dump(mode="json", exclude_none=True)]
+
+    # Sequence[Document]
+    if isinstance(output_value, list) and all(isinstance(doc, Document) for doc in output_value):
+        return [
+            {"role": "assistant", "content": {"documents": document_adapter.dump_python(output_value, mode="json")}}
+        ]
+
+    # Fallback for any other sequence type
+    return [{"role": "assistant", "content": str(output_value)}]
+
+
+def _set_agent_span_attributes(span: trace.Span, galileo_span: AgentSpan) -> None:
+    """Set OpenTelemetry attributes for an AgentSpan.
+
+    Maps AgentSpan fields to OTel semantic conventions:
+    - agent_type -> gen_ai.agent.type
+    - input -> gen_ai.input.messages
+    - output -> gen_ai.output.messages
+    """
+    span.set_attribute("gen_ai.agent.type", galileo_span.agent_type.value)
+
+    if galileo_span.input is not None:
+        input_messages = _convert_agent_input_to_otel_messages(galileo_span.input)
+        span.set_attribute("gen_ai.input.messages", json.dumps(input_messages))
+
+    if galileo_span.output is not None:
+        output_messages = _convert_agent_output_to_otel_messages(galileo_span.output)
+        span.set_attribute("gen_ai.output.messages", json.dumps(output_messages))
+
+
 @contextmanager
 def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, None]:
     tracer_provider = _TRACE_PROVIDER_CONTEXT_VAR.get()
@@ -337,3 +392,5 @@ def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, 
         span.set_attribute("gen_ai.system", "galileo-otel")
         if isinstance(galileo_span, RetrieverSpan):
             _set_retriever_span_attributes(span, galileo_span)
+        elif isinstance(galileo_span, AgentSpan):
+            _set_agent_span_attributes(span, galileo_span)
