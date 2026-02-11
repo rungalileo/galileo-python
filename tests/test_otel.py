@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import uuid
@@ -7,7 +8,19 @@ import pytest
 from pydantic import SecretStr
 
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
-from galileo.otel import INSTALL_ERR_MSG, OTEL_AVAILABLE, GalileoOTLPExporter, GalileoSpanProcessor
+from galileo.otel import (
+    INSTALL_ERR_MSG,
+    OTEL_AVAILABLE,
+    GalileoOTLPExporter,
+    GalileoSpanProcessor,
+    _convert_agent_input_to_otel_messages,
+    _convert_agent_output_to_otel_messages,
+    _set_agent_span_attributes,
+)
+from galileo_core.schemas.logging.agent import AgentType
+from galileo_core.schemas.logging.llm import Message, MessageRole
+from galileo_core.schemas.logging.span import AgentSpan
+from galileo_core.schemas.shared.document import Document
 
 
 class TestGalileoOTLPExporter:
@@ -461,7 +474,6 @@ class TestAgentSpanOTelAttributes:
     def test_convert_agent_input_string(self):
         """Test converting string input to OTel message format."""
         # Given: a string input
-        from galileo.otel import _convert_agent_input_to_otel_messages
 
         # When: converting to OTel messages
         result = _convert_agent_input_to_otel_messages("Hello, agent!")
@@ -472,9 +484,6 @@ class TestAgentSpanOTelAttributes:
     def test_convert_agent_input_messages(self):
         """Test converting Message sequence input to OTel message format."""
         # Given: a sequence of Message objects
-        from galileo.otel import _convert_agent_input_to_otel_messages
-        from galileo_core.schemas.logging.llm import Message, MessageRole
-
         messages = [
             Message(role=MessageRole.user, content="Hello"),
             Message(role=MessageRole.assistant, content="Hi there!"),
@@ -493,7 +502,6 @@ class TestAgentSpanOTelAttributes:
     def test_convert_agent_output_string(self):
         """Test converting string output to OTel message format."""
         # Given: a string output
-        from galileo.otel import _convert_agent_output_to_otel_messages
 
         # When: converting to OTel messages
         result = _convert_agent_output_to_otel_messages("Task completed!")
@@ -504,9 +512,6 @@ class TestAgentSpanOTelAttributes:
     def test_convert_agent_output_message(self):
         """Test converting Message output to OTel message format."""
         # Given: a Message object
-        from galileo.otel import _convert_agent_output_to_otel_messages
-        from galileo_core.schemas.logging.llm import Message, MessageRole
-
         message = Message(role=MessageRole.assistant, content="Here's the result")
 
         # When: converting to OTel messages
@@ -520,9 +525,6 @@ class TestAgentSpanOTelAttributes:
     def test_convert_agent_output_documents(self):
         """Test converting Document sequence output to OTel message format."""
         # Given: a sequence of Document objects
-        from galileo.otel import _convert_agent_output_to_otel_messages
-        from galileo_core.schemas.shared.document import Document
-
         documents = [
             Document(content="Document 1 content", metadata={"source": "test"}),
             Document(content="Document 2 content", metadata={}),
@@ -541,12 +543,6 @@ class TestAgentSpanOTelAttributes:
     def test_set_agent_span_attributes_with_string_io(self):
         """Test setting OTel attributes for AgentSpan with string input/output."""
         # Given: an AgentSpan with string input and output
-        import json
-
-        from galileo.otel import _set_agent_span_attributes
-        from galileo_core.schemas.logging.agent import AgentType
-        from galileo_core.schemas.logging.span import AgentSpan
-
         agent_span = AgentSpan(
             name="test-agent", agent_type=AgentType.planner, input="Plan this task", output="Task planned successfully"
         )
@@ -569,13 +565,6 @@ class TestAgentSpanOTelAttributes:
     def test_set_agent_span_attributes_with_messages(self):
         """Test setting OTel attributes for AgentSpan with Message input/output."""
         # Given: an AgentSpan with Message input and output
-        import json
-
-        from galileo.otel import _set_agent_span_attributes
-        from galileo_core.schemas.logging.agent import AgentType
-        from galileo_core.schemas.logging.llm import Message, MessageRole
-        from galileo_core.schemas.logging.span import AgentSpan
-
         agent_span = AgentSpan(
             name="test-agent",
             agent_type=AgentType.react,
@@ -607,12 +596,6 @@ class TestAgentSpanOTelAttributes:
     def test_set_agent_span_attributes_with_none_output(self):
         """Test setting OTel attributes for AgentSpan with None output."""
         # Given: an AgentSpan with None output
-        import json
-
-        from galileo.otel import _set_agent_span_attributes
-        from galileo_core.schemas.logging.agent import AgentType
-        from galileo_core.schemas.logging.span import AgentSpan
-
         agent_span = AgentSpan(name="test-agent", agent_type=AgentType.default, input="Start task", output=None)
         mock_span = Mock()
 
@@ -629,10 +612,6 @@ class TestAgentSpanOTelAttributes:
     def test_set_agent_span_attributes_all_agent_types(self):
         """Test that all AgentType enum values can be mapped to attributes."""
         # Given: all possible AgentType values
-        from galileo.otel import _set_agent_span_attributes
-        from galileo_core.schemas.logging.agent import AgentType
-        from galileo_core.schemas.logging.span import AgentSpan
-
         for agent_type in AgentType:
             # When: creating an AgentSpan with this type
             agent_span = AgentSpan(name=f"test-{agent_type.value}", agent_type=agent_type, input="test")
