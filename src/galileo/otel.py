@@ -15,7 +15,7 @@ from requests import Session
 from galileo.config import GalileoPythonConfig
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
 from galileo.utils.retrievers import document_adapter
-from galileo_core.schemas.logging.span import RetrieverSpan
+from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan
 from galileo_core.schemas.logging.span import Span as GalileoSpan
 
 logger = logging.getLogger(__name__)
@@ -325,6 +325,39 @@ def _set_retriever_span_attributes(span: trace.Span, galileo_span: RetrieverSpan
     )
 
 
+def _set_llm_span_attributes(span: trace.Span, galileo_span: LlmSpan) -> None:
+    """Set OpenTelemetry semantic convention attributes for an LLM span.
+
+    Maps LlmSpan fields to gen_ai.* attributes following OpenTelemetry semantic conventions.
+
+    Parameters
+    ----------
+    span : trace.Span
+        The OpenTelemetry span to set attributes on.
+    galileo_span : LlmSpan
+        The Galileo LLM span containing the data to map.
+    """
+    span.set_attribute("gen_ai.input.messages", json.dumps([msg.model_dump(mode="json") for msg in galileo_span.input]))
+    span.set_attribute("gen_ai.output.messages", json.dumps([galileo_span.output.model_dump(mode="json")]))
+
+    if galileo_span.model is not None:
+        span.set_attribute("gen_ai.request.model", galileo_span.model)
+
+    if galileo_span.temperature is not None:
+        span.set_attribute("gen_ai.request.temperature", galileo_span.temperature)
+
+    if galileo_span.finish_reason is not None:
+        span.set_attribute("gen_ai.response.finish_reasons", json.dumps([galileo_span.finish_reason]))
+
+    if galileo_span.tools is not None:
+        span.set_attribute("gen_ai.request.tools", json.dumps(list(galileo_span.tools)))
+
+    if galileo_span.events is not None:
+        span.set_attribute(
+            "gen_ai.events", json.dumps([event.model_dump(mode="json") for event in galileo_span.events])
+        )
+
+
 @contextmanager
 def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, None]:
     tracer_provider = _TRACE_PROVIDER_CONTEXT_VAR.get()
@@ -335,5 +368,7 @@ def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, 
     with tracer.start_as_current_span(galileo_span.name) as span:
         yield span
         span.set_attribute("gen_ai.system", "galileo-otel")
-        if isinstance(galileo_span, RetrieverSpan):
+        if isinstance(galileo_span, LlmSpan):
+            _set_llm_span_attributes(span, galileo_span)
+        elif isinstance(galileo_span, RetrieverSpan):
             _set_retriever_span_attributes(span, galileo_span)

@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import uuid
@@ -7,7 +8,17 @@ import pytest
 from pydantic import SecretStr
 
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
-from galileo.otel import INSTALL_ERR_MSG, OTEL_AVAILABLE, GalileoOTLPExporter, GalileoSpanProcessor
+from galileo.otel import (
+    _TRACE_PROVIDER_CONTEXT_VAR,
+    INSTALL_ERR_MSG,
+    OTEL_AVAILABLE,
+    GalileoOTLPExporter,
+    GalileoSpanProcessor,
+    _set_llm_span_attributes,
+    start_galileo_span,
+)
+from galileo_core.schemas.logging.llm import Message, MessageRole
+from galileo_core.schemas.logging.span import LlmSpan
 
 
 class TestGalileoOTLPExporter:
@@ -453,3 +464,119 @@ class TestOTelContextIntegration:
         mock_resource_class.assert_not_called()
         mock_span2.resource.merge.assert_not_called()
         mock_parent_export.assert_called_once_with([mock_span2])
+
+
+class TestLlmSpanAttributes:
+    """Tests for LLM span attribute mapping to OpenTelemetry semantic conventions."""
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_set_llm_span_attributes_with_all_fields(self):
+        # Given: an LlmSpan with all fields populated
+        galileo_span = LlmSpan(
+            name="test-llm-span",
+            input=[Message(role=MessageRole.user, content="Hello")],
+            output=Message(role=MessageRole.assistant, content="Hi there!"),
+            model="gpt-4",
+            temperature=0.7,
+            finish_reason="stop",
+            tools=[{"type": "function", "function": {"name": "get_weather"}}],
+        )
+        mock_span = Mock()
+
+        # When: setting LLM span attributes
+        _set_llm_span_attributes(mock_span, galileo_span)
+
+        # Then: all attributes are set correctly
+        calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
+
+        assert "gen_ai.input.messages" in calls
+        assert "gen_ai.output.messages" in calls
+        assert calls["gen_ai.request.model"] == "gpt-4"
+        assert calls["gen_ai.request.temperature"] == 0.7
+        assert '"stop"' in calls["gen_ai.response.finish_reasons"]
+        assert "get_weather" in calls["gen_ai.request.tools"]
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_set_llm_span_attributes_with_minimal_fields(self):
+        # Given: an LlmSpan with only required fields
+        galileo_span = LlmSpan(
+            name="test-llm-span",
+            input=[Message(role=MessageRole.user, content="Hello")],
+            output=Message(role=MessageRole.assistant, content="Hi!"),
+        )
+        mock_span = Mock()
+
+        # When: setting LLM span attributes
+        _set_llm_span_attributes(mock_span, galileo_span)
+
+        # Then: only input/output messages are set, optional fields are skipped
+        calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
+
+        assert "gen_ai.input.messages" in calls
+        assert "gen_ai.output.messages" in calls
+        assert "gen_ai.request.model" not in calls
+        assert "gen_ai.request.temperature" not in calls
+        assert "gen_ai.response.finish_reasons" not in calls
+        assert "gen_ai.request.tools" not in calls
+        assert "gen_ai.events" not in calls
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_set_llm_span_attributes_message_serialization(self):
+        # Given: an LlmSpan with messages containing tool calls
+        galileo_span = LlmSpan(
+            name="test-llm-span",
+            input=[
+                Message(role=MessageRole.system, content="You are a helpful assistant."),
+                Message(role=MessageRole.user, content="What's the weather?"),
+            ],
+            output=Message(role=MessageRole.assistant, content="Let me check..."),
+        )
+        mock_span = Mock()
+
+        # When: setting LLM span attributes
+        _set_llm_span_attributes(mock_span, galileo_span)
+
+        # Then: messages are serialized as JSON with correct structure
+        calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
+
+        input_messages = json.loads(calls["gen_ai.input.messages"])
+        assert len(input_messages) == 2
+        assert input_messages[0]["role"] == "system"
+        assert input_messages[1]["role"] == "user"
+
+        output_messages = json.loads(calls["gen_ai.output.messages"])
+        assert len(output_messages) == 1
+        assert output_messages[0]["role"] == "assistant"
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_start_galileo_span_handles_llm_span(self):
+        # Given: an LlmSpan and a mocked tracer provider
+        galileo_span = LlmSpan(
+            name="test-llm-span",
+            input=[Message(role=MessageRole.user, content="Hello")],
+            output=Message(role=MessageRole.assistant, content="Hi!"),
+            model="gpt-4",
+        )
+
+        # When: using start_galileo_span context manager
+        mock_span = Mock()
+        mock_tracer = Mock()
+        mock_tracer.start_as_current_span.return_value.__enter__ = Mock(return_value=mock_span)
+        mock_tracer.start_as_current_span.return_value.__exit__ = Mock(return_value=False)
+
+        mock_provider = Mock()
+        mock_provider.get_tracer.return_value = mock_tracer
+        _TRACE_PROVIDER_CONTEXT_VAR.set(mock_provider)
+
+        try:
+            with start_galileo_span(galileo_span):
+                pass
+
+            # Then: LLM span attributes are set
+            attribute_names = [call[0][0] for call in mock_span.set_attribute.call_args_list]
+            assert "gen_ai.system" in attribute_names
+            assert "gen_ai.input.messages" in attribute_names
+            assert "gen_ai.output.messages" in attribute_names
+            assert "gen_ai.request.model" in attribute_names
+        finally:
+            _TRACE_PROVIDER_CONTEXT_VAR.set(None)
