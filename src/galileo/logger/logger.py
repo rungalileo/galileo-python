@@ -31,7 +31,13 @@ from galileo.schema.trace import (
     TraceUpdateRequest,
 )
 from galileo.traces import Traces
-from galileo.utils.decorators import nop_async, nop_sync, retry_on_transient_http_error, warn_catch_exception
+from galileo.utils.decorators import (
+    async_warn_catch_exception,
+    nop_async,
+    nop_sync,
+    retry_on_transient_http_error,
+    warn_catch_exception,
+)
 from galileo.utils.env_helpers import (
     _get_log_stream_id_from_env,
     _get_log_stream_or_default,
@@ -146,6 +152,7 @@ class GalileoLogger(TracesLogger):
     _session_external_id: Optional[str] = None
 
     _logger = logging.getLogger("galileo.logger")
+    _traces_client: Optional["Traces"] = None
     _task_handler: ThreadPoolTaskHandler
     _trace_completion_submitted: bool
 
@@ -256,10 +263,12 @@ class GalileoLogger(TracesLogger):
         self.project_name = project or project_name_from_env
         self.project_id = project_id or project_id_from_env
 
-        if self.project_name is None and self.project_id is None:
-            raise GalileoLoggerException(
-                "User must provide project_name or project_id to GalileoLogger, or set it as an environment variable."
-            )
+        # When using ingestion_hook, API configuration is optional (hook handles ingestion)
+        if not self._ingestion_hook:
+            if self.project_name is None and self.project_id is None:
+                raise GalileoLoggerException(
+                    "User must provide project_name or project_id to GalileoLogger, or set it as an environment variable."
+                )
 
         if (log_stream or log_stream_id) and experiment_id:
             raise GalileoLoggerException("User cannot specify both a log stream and an experiment.")
@@ -270,8 +279,10 @@ class GalileoLogger(TracesLogger):
             self.log_stream_name = log_stream or log_stream_name_from_env
             self.log_stream_id = log_stream_id or log_stream_id_from_env
 
-            if self.log_stream_name is None and self.log_stream_id is None:
-                raise GalileoLoggerException("log_stream or log_stream_id is required to initialize GalileoLogger.")
+            # When using ingestion_hook, log_stream is optional (hook handles ingestion)
+            if not self._ingestion_hook:
+                if self.log_stream_name is None and self.log_stream_id is None:
+                    raise GalileoLoggerException("log_stream or log_stream_id is required to initialize GalileoLogger.")
 
         if local_metrics:
             self.local_metrics = local_metrics
@@ -282,16 +293,22 @@ class GalileoLogger(TracesLogger):
             self._task_handler = ThreadPoolTaskHandler()
             self._trace_completion_submitted = False
 
-        if not self.project_id:
-            self._init_project()
+        # When using ingestion_hook, skip API initialization (hook handles ingestion)
+        if not self._ingestion_hook:
+            if not self.project_id:
+                self._init_project()
 
-        if not (self.log_stream_id or self.experiment_id):
-            self._init_log_stream()
+            if not (self.log_stream_id or self.experiment_id):
+                self._init_log_stream()
 
-        if self.log_stream_id:
-            self._traces_client = Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)
-        elif self.experiment_id:
-            self._traces_client = Traces(project_id=self.project_id, experiment_id=self.experiment_id)
+            if self.log_stream_id:
+                self._traces_client = Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)
+            elif self.experiment_id:
+                self._traces_client = Traces(project_id=self.project_id, experiment_id=self.experiment_id)
+        else:
+            # ingestion_hook path: Traces client not created eagerly.
+            # If the user later calls ingest_traces(), it will be created lazily.
+            self._traces_client = None
 
         # If continuing an existing distributed trace, create local stubs instead of
         # fetching from the backend to avoid race conditions with eventual consistency.
@@ -330,6 +347,19 @@ class GalileoLogger(TracesLogger):
             self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
         else:
             self.log_stream_id = log_stream_obj.id
+
+    def _create_traces_client(self) -> Traces:
+        """Lazily create a Traces client when needed (e.g. ingestion_hook users calling ingest_traces)."""
+        self._logger.info("Creating Traces client lazily for explicit ingest_traces call.")
+        if not self.project_id:
+            self._init_project()
+        if not (self.log_stream_id or self.experiment_id):
+            self._init_log_stream()
+        if self.log_stream_id:
+            return Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)
+        if self.experiment_id:
+            return Traces(project_id=self.project_id, experiment_id=self.experiment_id)
+        raise GalileoLoggerException("Cannot create Traces client: no log_stream_id or experiment_id available.")
 
     def _init_distributed_trace_stubs(self) -> None:
         """
@@ -392,6 +422,7 @@ class GalileoLogger(TracesLogger):
 
     @staticmethod
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def _get_last_output(node: Union[BaseStep, None]) -> tuple[Optional[str], Optional[str]]:
         """Get the last output of a node or its child spans recursively."""
         if not node:
@@ -418,7 +449,7 @@ class GalileoLogger(TracesLogger):
         return None, None
 
     @nop_sync
-    @warn_catch_exception()
+    @warn_catch_exception(exceptions=(Exception,))
     def _ingest_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
         traces_ingest_request = TracesIngestRequest(
             traces=[copy.deepcopy(trace)], session_id=self.session_id, is_complete=is_complete, reliable=True
@@ -451,7 +482,7 @@ class GalileoLogger(TracesLogger):
         self._logger.info("ingested trace %s.", trace.id)
 
     @nop_sync
-    @warn_catch_exception()
+    @warn_catch_exception(exceptions=(Exception,))
     def _ingest_span_streaming(self, span: Span) -> None:
         parent_step: Optional[StepWithChildSpans] = (
             self.current_parent()
@@ -501,7 +532,7 @@ class GalileoLogger(TracesLogger):
         self._logger.info("ingested span %s.", span.id)
 
     @nop_sync
-    @warn_catch_exception()
+    @warn_catch_exception(exceptions=(Exception,))
     def _update_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
         trace_update_request = TraceUpdateRequest(
             trace_id=trace.id,
@@ -566,7 +597,7 @@ class GalileoLogger(TracesLogger):
         self._logger.info("updated trace %s.", trace.id)
 
     @nop_sync
-    @warn_catch_exception()
+    @warn_catch_exception(exceptions=(Exception,))
     def _update_span_streaming(self, span: Span) -> None:
         span_update_request = SpanUpdateRequest(
             span_id=span.id,
@@ -622,6 +653,7 @@ class GalileoLogger(TracesLogger):
         self._logger.info("updated span %s.", span.id)
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def _ingest_step_streaming(self, step: StepWithChildSpans, is_complete: bool = False) -> None:
         if isinstance(step, Trace):
             self._ingest_trace_streaming(step, is_complete=is_complete)
@@ -629,6 +661,7 @@ class GalileoLogger(TracesLogger):
             self._ingest_span_streaming(step)
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def _update_step_streaming(self, step: StepWithChildSpans, is_complete: bool = False) -> None:
         if isinstance(step, Trace):
             self._update_trace_streaming(step, is_complete=is_complete)
@@ -636,10 +669,12 @@ class GalileoLogger(TracesLogger):
             self._update_span_streaming(step)
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def previous_parent(self) -> Optional[StepWithChildSpans]:
         return self._parent_stack[-2] if len(self._parent_stack) > 1 else None
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def has_active_trace(self) -> bool:
         if self.mode == "distributed" and (self.trace_id or self.span_id):
             return True
@@ -714,6 +749,7 @@ class GalileoLogger(TracesLogger):
         return headers
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def start_trace(
         self,
         input: StepAllowedInputType | dict,
@@ -816,6 +852,7 @@ class GalileoLogger(TracesLogger):
         return trace
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def add_single_llm_span_trace(
         self,
         input: LlmSpanAllowedInputType,
@@ -954,6 +991,7 @@ class GalileoLogger(TracesLogger):
         return trace
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def add_llm_span(
         self,
         input: LlmSpanAllowedInputType,
@@ -1080,6 +1118,7 @@ class GalileoLogger(TracesLogger):
         return span
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def add_retriever_span(
         self,
         input: str,
@@ -1150,6 +1189,7 @@ class GalileoLogger(TracesLogger):
         return span
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def add_tool_span(
         self,
         input: str,
@@ -1234,6 +1274,7 @@ class GalileoLogger(TracesLogger):
         return span
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def add_protect_span(
         self,
         payload: Payload,
@@ -1308,6 +1349,7 @@ class GalileoLogger(TracesLogger):
         return span
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def add_workflow_span(
         self,
         input: str,
@@ -1390,6 +1432,7 @@ class GalileoLogger(TracesLogger):
         return span
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def add_agent_span(
         self,
         input: str,
@@ -1475,6 +1518,7 @@ class GalileoLogger(TracesLogger):
 
         return span
 
+    @warn_catch_exception(exceptions=(Exception,))
     def _conclude(
         self,
         output: Optional[str] = None,
@@ -1507,6 +1551,7 @@ class GalileoLogger(TracesLogger):
         return (finished_step, self.current_parent())
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def conclude(
         self,
         output: Optional[str] = None,
@@ -1563,6 +1608,7 @@ class GalileoLogger(TracesLogger):
         return current_parent
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def flush(self) -> list[Trace]:
         """
         Upload all traces to Galileo.
@@ -1582,6 +1628,7 @@ class GalileoLogger(TracesLogger):
             self._set_current_parent(None)
 
     @nop_async
+    @async_warn_catch_exception(exceptions=(Exception,))
     async def async_flush(self) -> list[Trace]:
         """
         Async upload all traces to Galileo.
@@ -1599,6 +1646,7 @@ class GalileoLogger(TracesLogger):
             # Reset parent tracking. Using finally ensures cleanup even if ingestion fails.
             self._set_current_parent(None)
 
+    @async_warn_catch_exception(exceptions=(Exception,))
     async def _wait_for_all_tasks_async(self, timeout_seconds: int) -> None:
         """Wait for all background tasks to complete (async polling).
 
@@ -1616,6 +1664,7 @@ class GalileoLogger(TracesLogger):
                 )
             await asyncio.sleep(0.1)
 
+    @warn_catch_exception(exceptions=(Exception,))
     def _wait_for_all_tasks_sync(self, timeout_seconds: int) -> None:
         """Wait for all background tasks to complete (synchronous polling).
 
@@ -1634,6 +1683,7 @@ class GalileoLogger(TracesLogger):
                 break
             time.sleep(0.1)
 
+    @warn_catch_exception(exceptions=(Exception,))
     def _wait_for_pending_span_ingests(self, timeout_seconds: int) -> None:
         """Wait for all pending span ingest tasks to complete.
 
@@ -1663,6 +1713,7 @@ class GalileoLogger(TracesLogger):
                     time.sleep(0.1)
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def _auto_conclude_trace(self) -> None:
         """Helper to auto-conclude any unconcluded trace/spans before flushing.
 
@@ -1695,6 +1746,7 @@ class GalileoLogger(TracesLogger):
                 self._wait_for_pending_span_ingests(timeout_seconds=DISTRIBUTED_FLUSH_TIMEOUT_SECONDS)
                 self._update_trace_streaming(trace, is_complete=True)
 
+    @async_warn_catch_exception(exceptions=(Exception,))
     async def _flush_distributed(self) -> list[Trace]:
         """Flush in distributed mode: conclude traces and wait for pending tasks.
 
@@ -1724,6 +1776,7 @@ class GalileoLogger(TracesLogger):
 
         return []
 
+    @async_warn_catch_exception(exceptions=(Exception,))
     async def _flush_batch(self) -> list[Trace]:
         """Flush in batch mode: conclude unconcluded traces and send all traces to backend."""
         if not self.traces:
@@ -1764,6 +1817,7 @@ class GalileoLogger(TracesLogger):
         return logged_traces
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def terminate(self) -> None:
         """Terminate the logger and flush all traces to Galileo."""
         # Unregister the atexit handler first
@@ -1785,6 +1839,7 @@ class GalileoLogger(TracesLogger):
                 # Event loop might be closed during shutdown, log warning but don't crash
                 self._logger.warning(f"Could not flush during terminate due to event loop shutdown: {e}")
 
+    @async_warn_catch_exception(exceptions=(Exception,))
     async def _start_or_get_session_async(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
     ) -> str:
@@ -1829,6 +1884,7 @@ class GalileoLogger(TracesLogger):
         return self.session_id
 
     @nop_async
+    @async_warn_catch_exception(exceptions=(Exception,))
     async def async_start_session(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
     ) -> str:
@@ -1859,6 +1915,7 @@ class GalileoLogger(TracesLogger):
         )
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def start_session(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
     ) -> str:
@@ -1892,6 +1949,7 @@ class GalileoLogger(TracesLogger):
         )
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def set_session(self, session_id: str) -> None:
         """
         Set the session ID for the logger.
@@ -1910,25 +1968,32 @@ class GalileoLogger(TracesLogger):
         self._logger.info("Current session set to %s", session_id)
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def clear_session(self) -> None:
         self._logger.info("Clearing the current session from the logger...")
         self.session_id = None
         self._logger.info("Current session cleared.")
 
     @nop_async
+    @async_warn_catch_exception(exceptions=(Exception,))
     async def async_ingest_traces(self, ingest_request: TracesIngestRequest) -> None:
         """
         Async ingest traces to Galileo.
 
         Can be used in combination with the `ingestion_hook` to ingest modified traces.
         """
+        if self._traces_client is None:
+            self._traces_client = self._create_traces_client()
         await self._traces_client.ingest_traces(ingest_request)
 
     @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
     def ingest_traces(self, ingest_request: TracesIngestRequest) -> None:
         """
         Ingest traces to Galileo.
 
         Can be used in combination with the `ingestion_hook` to ingest modified traces.
         """
+        if self._traces_client is None:
+            self._traces_client = self._create_traces_client()
         return async_run(self.async_ingest_traces(ingest_request))
