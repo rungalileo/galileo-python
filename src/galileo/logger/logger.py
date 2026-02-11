@@ -151,6 +151,7 @@ class GalileoLogger(TracesLogger):
     mode: Optional[LoggerModeType] = None
 
     _logger = logging.getLogger("galileo.logger")
+    _traces_client: Optional["Traces"] = None
     _task_handler: ThreadPoolTaskHandler
     _trace_completion_submitted: bool
 
