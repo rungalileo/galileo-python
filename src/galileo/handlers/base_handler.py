@@ -43,8 +43,12 @@ class GalileoBaseHandler:
         flush_on_chain_end: bool = True,
         ingestion_hook: Optional[Callable[[TracesIngestRequest], None]] = None,
     ):
-        self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance()
-        if ingestion_hook:
+        self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance(
+            ingestion_hook=ingestion_hook
+        )
+        if galileo_logger and ingestion_hook:
+            if self._galileo_logger.mode == "distributed":
+                raise ValueError("ingestion_hook can only be used in batch mode")
             self._galileo_logger._ingestion_hook = ingestion_hook
         self._start_new_trace: bool = start_new_trace
         self._flush_on_chain_end: bool = flush_on_chain_end
