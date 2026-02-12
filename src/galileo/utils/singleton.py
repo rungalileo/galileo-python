@@ -1,6 +1,6 @@
 import logging
 import threading
-from typing import ClassVar, Optional
+from typing import Callable, ClassVar, Optional
 
 from galileo.logger import GalileoLogger
 from galileo.schema.metrics import LocalMetricConfig
@@ -50,6 +50,7 @@ class GalileoLoggerSingleton:
         experiment_id: Optional[str] = None,
         trace_id: Optional[str] = None,
         span_id: Optional[str] = None,
+        ingestion_hook_id: Optional[int] = None,
     ) -> tuple[str, ...]:
         """
         Generate a key tuple based on project, log_stream, and tracing parameters.
@@ -99,6 +100,8 @@ class GalileoLoggerSingleton:
             base_key = (*base_key, trace_id)
         if span_id is not None:
             base_key = (*base_key, span_id)
+        if ingestion_hook_id is not None:
+            base_key = (*base_key, str(ingestion_hook_id))
 
         return base_key
 
@@ -112,6 +115,7 @@ class GalileoLoggerSingleton:
         local_metrics: Optional[list[LocalMetricConfig]] = None,
         trace_id: Optional[str] = None,
         span_id: Optional[str] = None,
+        ingestion_hook: Optional[Callable] = None,
     ) -> GalileoLogger:
         """
         Retrieve an existing GalileoLogger or create a new one if it does not exist.
@@ -141,7 +145,15 @@ class GalileoLoggerSingleton:
         mode = _get_mode_or_default(mode)
 
         # Compute the key based on provided parameters or environment variables.
-        key = GalileoLoggerSingleton._get_key(project, log_stream, mode, experiment_id, trace_id, span_id)
+        key = GalileoLoggerSingleton._get_key(
+            project,
+            log_stream,
+            mode,
+            experiment_id,
+            trace_id,
+            span_id,
+            ingestion_hook_id=id(ingestion_hook) if ingestion_hook else None,
+        )
 
         # First check without acquiring lock for performance.
         if key in self._galileo_loggers:
@@ -162,6 +174,7 @@ class GalileoLoggerSingleton:
                 "mode": mode,
                 "trace_id": trace_id,
                 "span_id": span_id,
+                "ingestion_hook": ingestion_hook,
             }
             # Create the logger with filtered kwargs.
             logger = GalileoLogger(**{k: v for k, v in galileo_client_init_args.items() if v is not None})

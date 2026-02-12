@@ -978,6 +978,7 @@ class GalileoDecorator:
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
         mode: Optional[str] = None,
+        ingestion_hook: Optional[Callable] = None,
     ) -> GalileoLogger:
         """
         Get the Galileo Logger instance for the current decorator context.
@@ -1009,6 +1010,8 @@ class GalileoDecorator:
             kwargs["trace_id"] = trace_id_from_context
         if span_id_from_context:
             kwargs["span_id"] = span_id_from_context
+        if ingestion_hook is not None:
+            kwargs["ingestion_hook"] = ingestion_hook
 
         return GalileoLoggerSingleton().get(**kwargs)
 
