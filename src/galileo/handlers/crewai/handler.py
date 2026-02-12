@@ -14,109 +14,53 @@ from galileo.utils.serialization import serialize_to_str
 
 _logger = logging.getLogger(__name__)
 
-try:
-    from crewai import __version__ as CREWAI_VERSION
-
-    CREWAI_VERSION = Version(CREWAI_VERSION)
-    CREWAI_EVENTS_MODULE_AVAILABLE = Version("0.177.0") <= CREWAI_VERSION
-    if CREWAI_EVENTS_MODULE_AVAILABLE:
-        from crewai.events.base_event_listener import BaseEventListener
-        from crewai.events.types.agent_events import (  # pyright: ignore[reportMissingImports]
-            AgentExecutionCompletedEvent,
-            AgentExecutionErrorEvent,
-            AgentExecutionStartedEvent,
-        )
-        from crewai.events.types.crew_events import (  # pyright: ignore[reportMissingImports]
-            CrewKickoffCompletedEvent,
-            CrewKickoffFailedEvent,
-            CrewKickoffStartedEvent,
-        )
-        from crewai.events.types.llm_events import (  # pyright: ignore[reportMissingImports]
-            LLMCallCompletedEvent,
-            LLMCallFailedEvent,
-            LLMCallStartedEvent,
-        )
-        from crewai.events.types.memory_events import (  # pyright: ignore[reportMissingImports]
-            MemoryQueryCompletedEvent,
-            MemoryQueryFailedEvent,
-            MemoryQueryStartedEvent,
-            MemoryRetrievalCompletedEvent,
-            MemoryRetrievalStartedEvent,
-            MemorySaveCompletedEvent,
-            MemorySaveFailedEvent,
-            MemorySaveStartedEvent,
-        )
-        from crewai.events.types.task_events import (  # pyright: ignore[reportMissingImports]
-            TaskCompletedEvent,
-            TaskFailedEvent,
-            TaskStartedEvent,
-        )
-        from crewai.events.types.tool_usage_events import (  # pyright: ignore[reportMissingImports]
-            ToolUsageErrorEvent,
-            ToolUsageFinishedEvent,
-            ToolUsageStartedEvent,
-        )
-    else:
-        from crewai.utilities.events.agent_events import (  # pyright: ignore[reportMissingImports]
-            AgentExecutionCompletedEvent,
-            AgentExecutionErrorEvent,
-            AgentExecutionStartedEvent,
-        )
-        from crewai.utilities.events.base_event_listener import BaseEventListener
-        from crewai.utilities.events.crew_events import (  # pyright: ignore[reportMissingImports]
-            CrewKickoffCompletedEvent,
-            CrewKickoffFailedEvent,
-            CrewKickoffStartedEvent,
-        )
-        from crewai.utilities.events.llm_events import (  # pyright: ignore[reportMissingImports]
-            LLMCallCompletedEvent,
-            LLMCallFailedEvent,
-            LLMCallStartedEvent,
-        )
-        from crewai.utilities.events.memory_events import (  # pyright: ignore[reportMissingImports]
-            MemoryQueryCompletedEvent,
-            MemoryQueryFailedEvent,
-            MemoryQueryStartedEvent,
-            MemoryRetrievalCompletedEvent,
-            MemoryRetrievalStartedEvent,
-            MemorySaveCompletedEvent,
-            MemorySaveFailedEvent,
-            MemorySaveStartedEvent,
-        )
-        from crewai.utilities.events.task_events import (  # pyright: ignore[reportMissingImports]
-            TaskCompletedEvent,
-            TaskFailedEvent,
-            TaskStartedEvent,
-        )
-        from crewai.utilities.events.tool_usage_events import (  # pyright: ignore[reportMissingImports]
-            ToolUsageErrorEvent,
-            ToolUsageFinishedEvent,
-            ToolUsageStartedEvent,
-        )
-
-        CREWAI_EVENTS_MODULE_AVAILABLE = False
-
-    CREWAI_AVAILABLE = True
-
-except ImportError:
-    _logger.warning("CrewAI not available, using stubs")
-
-    BaseEventListener = object
-
-    CREWAI_AVAILABLE = False
-    CREWAI_EVENTS_MODULE_AVAILABLE = False
-
-try:
-    import litellm
-
-    LITE_LLM_AVAILABLE = True
-except ImportError:
-    _logger.warning("LiteLLM not available, using stubs")
-    litellm = None
-    LITE_LLM_AVAILABLE = False
+# Lazy import state — crewai wraps sys.stdout/sys.stderr at import time, which
+# causes pytest-xdist worker hangs.  All crewai/litellm imports are deferred to
+# _resolve_crewai_imports(), called once from CrewAIEventListener.__init__.
+CREWAI_AVAILABLE = False
+CREWAI_EVENTS_MODULE_AVAILABLE = False
+LITE_LLM_AVAILABLE = False
+litellm = None
+_crewai_imports_resolved = False
 
 
-class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTypeIssues]
+def _resolve_crewai_imports() -> None:
+    """Import crewai and litellm on first use, populating module-level globals."""
+    global CREWAI_AVAILABLE, CREWAI_EVENTS_MODULE_AVAILABLE  # noqa: PLW0603
+    global LITE_LLM_AVAILABLE, litellm, _crewai_imports_resolved  # noqa: PLW0603
+
+    if _crewai_imports_resolved:
+        return
+    _crewai_imports_resolved = True
+
+    try:
+        from crewai import __version__ as _crewai_version_str
+
+        crewai_version = Version(_crewai_version_str)
+        CREWAI_EVENTS_MODULE_AVAILABLE = Version("0.177.0") <= crewai_version
+        if CREWAI_EVENTS_MODULE_AVAILABLE:
+            from crewai.events.base_event_listener import BaseEventListener as _Base
+        else:
+            from crewai.utilities.events.base_event_listener import BaseEventListener as _Base
+
+        # Dynamically graft the real base class so isinstance() and super() work.
+        CrewAIEventListener.__bases__ = (_Base,)
+
+        CREWAI_AVAILABLE = True
+    except ImportError:
+        _logger.warning("CrewAI not available, using stubs")
+
+    try:
+        import litellm as _litellm
+
+        litellm = _litellm
+        LITE_LLM_AVAILABLE = True
+    except ImportError:
+        _logger.warning("LiteLLM not available, using stubs")
+        litellm = None
+
+
+class CrewAIEventListener:  # Base dynamically set to BaseEventListener by _resolve_crewai_imports()
     """
     CrewAI event listener for logging traces to the Galileo platform.
 
@@ -132,6 +76,8 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         start_new_trace: bool = True,
         flush_on_crew_completed: bool = True,
     ):
+        _resolve_crewai_imports()
+
         self._handler = GalileoBaseHandler(
             flush_on_chain_end=flush_on_crew_completed,
             start_new_trace=start_new_trace,
@@ -153,6 +99,71 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         if not CREWAI_AVAILABLE:
             _logger.warning("CrewAI not available, skipping event listener setup")
             return
+
+        # Lazy-import event types — crewai is guaranteed to be in sys.modules at
+        # this point because _resolve_crewai_imports() ran in __init__.
+        if CREWAI_EVENTS_MODULE_AVAILABLE:
+            from crewai.events.types.agent_events import (  # pyright: ignore[reportMissingImports]
+                AgentExecutionCompletedEvent,
+                AgentExecutionErrorEvent,
+                AgentExecutionStartedEvent,
+            )
+            from crewai.events.types.crew_events import (  # pyright: ignore[reportMissingImports]
+                CrewKickoffCompletedEvent,
+                CrewKickoffFailedEvent,
+                CrewKickoffStartedEvent,
+            )
+            from crewai.events.types.llm_events import (  # pyright: ignore[reportMissingImports]
+                LLMCallCompletedEvent,
+                LLMCallFailedEvent,
+                LLMCallStartedEvent,
+            )
+            from crewai.events.types.memory_events import (  # pyright: ignore[reportMissingImports]
+                MemoryQueryCompletedEvent,
+                MemoryQueryFailedEvent,
+                MemoryQueryStartedEvent,
+                MemoryRetrievalCompletedEvent,
+                MemoryRetrievalStartedEvent,
+                MemorySaveCompletedEvent,
+                MemorySaveFailedEvent,
+                MemorySaveStartedEvent,
+            )
+            from crewai.events.types.task_events import (  # pyright: ignore[reportMissingImports]
+                TaskCompletedEvent,
+                TaskFailedEvent,
+                TaskStartedEvent,
+            )
+            from crewai.events.types.tool_usage_events import (  # pyright: ignore[reportMissingImports]
+                ToolUsageErrorEvent,
+                ToolUsageFinishedEvent,
+                ToolUsageStartedEvent,
+            )
+        else:
+            from crewai.utilities.events.agent_events import (  # pyright: ignore[reportMissingImports]
+                AgentExecutionCompletedEvent,
+                AgentExecutionErrorEvent,
+                AgentExecutionStartedEvent,
+            )
+            from crewai.utilities.events.crew_events import (  # pyright: ignore[reportMissingImports]
+                CrewKickoffCompletedEvent,
+                CrewKickoffFailedEvent,
+                CrewKickoffStartedEvent,
+            )
+            from crewai.utilities.events.llm_events import (  # pyright: ignore[reportMissingImports]
+                LLMCallCompletedEvent,
+                LLMCallFailedEvent,
+                LLMCallStartedEvent,
+            )
+            from crewai.utilities.events.task_events import (  # pyright: ignore[reportMissingImports]
+                TaskCompletedEvent,
+                TaskFailedEvent,
+                TaskStartedEvent,
+            )
+            from crewai.utilities.events.tool_usage_events import (  # pyright: ignore[reportMissingImports]
+                ToolUsageErrorEvent,
+                ToolUsageFinishedEvent,
+                ToolUsageStartedEvent,
+            )
 
         # Crew event handlers
         @crewai_event_bus.on(CrewKickoffStartedEvent)
@@ -327,7 +338,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         return metadata
 
     # Crew event handlers
-    def _handle_crew_kickoff_started(self, source: Any, event: "CrewKickoffStartedEvent") -> None:
+    def _handle_crew_kickoff_started(self, source: Any, event: Any) -> None:
         """Handle crew execution start."""
         run_id = self._generate_run_id(source, event)
         crew_name = event.crew_name if hasattr(event, "crew_name") else "Crew"
@@ -367,14 +378,14 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             input = f"Tasks: {tasks}" if tasks else "-"
             root_node.span_params["input"] = input
 
-    def _handle_crew_kickoff_completed(self, source: Any, event: "CrewKickoffCompletedEvent") -> None:
+    def _handle_crew_kickoff_completed(self, source: Any, event: Any) -> None:
         """Handle crew execution completion."""
         run_id = self._generate_run_id(source, event)
         output = getattr(event, "output", {})
         self._update_crew_input(str(run_id))
         self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(output, "raw", output)))
 
-    def _handle_crew_kickoff_failed(self, source: Any, event: "CrewKickoffFailedEvent") -> None:
+    def _handle_crew_kickoff_failed(self, source: Any, event: Any) -> None:
         """Handle crew execution failure."""
         run_id = self._generate_run_id(source, event)
         metadata = self._extract_metadata(event)
@@ -383,7 +394,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         self._handler.end_node(run_id=run_id, output=f"Error: {event.error}", metadata=metadata)
 
     # Agent event handlers
-    def _handle_agent_execution_started(self, source: Any, event: "AgentExecutionStartedEvent") -> None:
+    def _handle_agent_execution_started(self, source: Any, event: Any) -> None:
         """Handle agent execution start."""
         run_id = self._generate_run_id(source, event)
         parent_run_id = self._to_uuid(event.task.id)
@@ -409,12 +420,12 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             metadata=metadata,
         )
 
-    def _handle_agent_execution_completed(self, source: Any, event: "AgentExecutionCompletedEvent") -> None:
+    def _handle_agent_execution_completed(self, source: Any, event: Any) -> None:
         """Handle agent execution completion."""
         run_id = self._generate_run_id(source, event)
         self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(event, "output", "")))
 
-    def _handle_agent_execution_error(self, source: Any, event: "AgentExecutionErrorEvent") -> None:
+    def _handle_agent_execution_error(self, source: Any, event: Any) -> None:
         """Handle agent execution error."""
         run_id = self._generate_run_id(source, event)
         metadata = self._extract_metadata(event)
@@ -425,7 +436,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         )
 
     # Task event handlers
-    def _handle_task_started(self, source: Any, event: "TaskStartedEvent") -> None:
+    def _handle_task_started(self, source: Any, event: Any) -> None:
         """Handle task start."""
         run_id = self._generate_run_id(source, event)
         task = event.task if hasattr(event, "task") else None
@@ -456,7 +467,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             metadata=metadata,
         )
 
-    def _handle_task_completed(self, source: Any, event: "TaskCompletedEvent") -> None:
+    def _handle_task_completed(self, source: Any, event: Any) -> None:
         """Handle task completion."""
         run_id = self._generate_run_id(source, event)
         output = ""
@@ -465,7 +476,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
 
         self._handler.end_node(run_id=run_id, output=serialize_to_str(output))
 
-    def _handle_task_failed(self, source: Any, event: "TaskFailedEvent") -> None:
+    def _handle_task_failed(self, source: Any, event: Any) -> None:
         """Handle task failure."""
         run_id = self._generate_run_id(source, event)
         metadata = self._extract_metadata(event)
@@ -474,7 +485,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         self._handler.end_node(run_id=run_id, output=f"Error: {event.error}", metadata=metadata)
 
     # Tool event handlers
-    def _handle_tool_usage_started(self, source: Any, event: "ToolUsageStartedEvent") -> None:
+    def _handle_tool_usage_started(self, source: Any, event: Any) -> None:
         """Handle tool usage start."""
         run_id = self._generate_run_id(source, event)
         parent_run_id = self._to_uuid(event.agent.id) if event.agent else None
@@ -495,12 +506,12 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             metadata=metadata,
         )
 
-    def _handle_tool_usage_finished(self, source: Any, event: "ToolUsageFinishedEvent") -> None:
+    def _handle_tool_usage_finished(self, source: Any, event: Any) -> None:
         """Handle tool usage completion."""
         run_id = self._generate_run_id(source, event)
         self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(event, "output", "")))
 
-    def _handle_tool_usage_error(self, source: Any, event: "ToolUsageErrorEvent") -> None:
+    def _handle_tool_usage_error(self, source: Any, event: Any) -> None:
         """Handle tool usage error."""
         run_id = self._generate_run_id(source, event)
         metadata = self._extract_metadata(event)
@@ -521,7 +532,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         return None
 
     # LLM event handlers
-    def _handle_llm_call_started(self, source: Any, event: "LLMCallStartedEvent") -> None:
+    def _handle_llm_call_started(self, source: Any, event: Any) -> None:
         """Handle LLM call start."""
         run_id = self._generate_run_id(source, event)
         parent_run_id = self._to_uuid(event.agent_id) if hasattr(event, "agent_id") else None
@@ -543,13 +554,13 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             metadata=metadata,
         )
 
-    def _handle_llm_call_completed(self, source: Any, event: "LLMCallCompletedEvent") -> None:
+    def _handle_llm_call_completed(self, source: Any, event: Any) -> None:
         """Handle LLM call completion."""
         run_id = self._generate_run_id(source, event)
 
         self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(event, "response", "")))
 
-    def _handle_llm_call_failed(self, source: Any, event: "LLMCallFailedEvent") -> None:
+    def _handle_llm_call_failed(self, source: Any, event: Any) -> None:
         """Handle LLM call failure."""
         run_id = self._generate_run_id(source, event)
         metadata = self._extract_metadata(event)
@@ -560,7 +571,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         )
 
     # Memory event handlers
-    def _handle_memory_query_started(self, source: Any, event: "MemoryQueryStartedEvent") -> None:
+    def _handle_memory_query_started(self, source: Any, event: Any) -> None:
         """Handle memory query start."""
         run_id = self._generate_run_id(source, event)
         parent_run_id = self._to_uuid(getattr(event, "agent_id", None))
@@ -597,7 +608,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             metadata=metadata,
         )
 
-    def _handle_memory_query_completed(self, source: Any, event: "MemoryQueryCompletedEvent") -> None:
+    def _handle_memory_query_completed(self, source: Any, event: Any) -> None:
         """Handle memory query completion."""
         run_id = self._generate_run_id(source, event)
 
@@ -608,7 +619,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         output = serialize_to_str(event.results) if event.results else "No results found"
         self._handler.end_node(run_id=run_id, output=output, metadata=metadata)
 
-    def _handle_memory_query_failed(self, source: Any, event: "MemoryQueryFailedEvent") -> None:
+    def _handle_memory_query_failed(self, source: Any, event: Any) -> None:
         """Handle memory query failure."""
         run_id = self._generate_run_id(source, event)
 
@@ -617,7 +628,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
 
         self._handler.end_node(run_id=run_id, output=f"Memory query failed: {event.error}", metadata=metadata)
 
-    def _handle_memory_save_started(self, source: Any, event: "MemorySaveStartedEvent") -> None:
+    def _handle_memory_save_started(self, source: Any, event: Any) -> None:
         """Handle memory save start."""
         run_id = self._generate_run_id(source, event)
         parent_run_id = self._to_uuid(getattr(event, "agent_id", None))
@@ -639,7 +650,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             metadata=metadata,
         )
 
-    def _handle_memory_save_completed(self, source: Any, event: "MemorySaveCompletedEvent") -> None:
+    def _handle_memory_save_completed(self, source: Any, event: Any) -> None:
         """Handle memory save completion."""
         run_id = self._generate_run_id(source, event)
 
@@ -648,7 +659,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
 
         self._handler.end_node(run_id=run_id, output=f"Memory saved successfully: {event.value}", metadata=metadata)
 
-    def _handle_memory_save_failed(self, source: Any, event: "MemorySaveFailedEvent") -> None:
+    def _handle_memory_save_failed(self, source: Any, event: Any) -> None:
         """Handle memory save failure."""
         run_id = self._generate_run_id(source, event)
 
@@ -657,7 +668,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
 
         self._handler.end_node(run_id=run_id, output=f"Memory save failed: {event.error}", metadata=metadata)
 
-    def _handle_memory_retrieval_started(self, source: Any, event: "MemoryRetrievalStartedEvent") -> None:
+    def _handle_memory_retrieval_started(self, source: Any, event: Any) -> None:
         """Handle memory retrieval start."""
         run_id = self._generate_run_id(source, event)
         parent_run_id = self._to_uuid(getattr(event, "task_id", None))
@@ -675,7 +686,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             metadata=metadata,
         )
 
-    def _handle_memory_retrieval_completed(self, source: Any, event: "MemoryRetrievalCompletedEvent") -> None:
+    def _handle_memory_retrieval_completed(self, source: Any, event: Any) -> None:
         """Handle memory retrieval completion."""
         run_id = self._generate_run_id(source, event)
 

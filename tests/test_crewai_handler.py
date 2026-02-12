@@ -97,6 +97,7 @@ def mock_galileo_logger():
 def crewai_callback(mock_galileo_logger):
     """Creates a CrewAIEventListener instance for testing."""
     with (
+        patch("galileo.handlers.crewai.handler._crewai_imports_resolved", True),
         patch("galileo.handlers.crewai.handler.CREWAI_AVAILABLE", False),
         patch("galileo.handlers.crewai.handler.LITE_LLM_AVAILABLE", False),
     ):
@@ -110,9 +111,9 @@ def crewai_callback(mock_galileo_logger):
 def test_initialization_with_crewai_available(mock_galileo_logger) -> None:
     """Test CrewAIEventListener initialization when CrewAI is available."""
     with (
+        patch("galileo.handlers.crewai.handler._crewai_imports_resolved", True),
         patch("galileo.handlers.crewai.handler.CREWAI_AVAILABLE", True),
         patch("galileo.handlers.crewai.handler.LITE_LLM_AVAILABLE", True),
-        patch("galileo.handlers.crewai.handler.BaseEventListener"),
     ):
         from galileo.handlers.crewai.handler import CrewAIEventListener
 
@@ -128,6 +129,7 @@ def test_initialization_with_crewai_available(mock_galileo_logger) -> None:
 def test_initialization_with_crewai_unavailable(mock_galileo_logger) -> None:
     """Test CrewAIEventListener initialization when CrewAI is unavailable."""
     with (
+        patch("galileo.handlers.crewai.handler._crewai_imports_resolved", True),
         patch("galileo.handlers.crewai.handler.CREWAI_AVAILABLE", False),
         patch("galileo.handlers.crewai.handler.LITE_LLM_AVAILABLE", False),
     ):
