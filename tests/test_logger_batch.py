@@ -1195,6 +1195,32 @@ def test_session_create(mock_traces_client: Mock, mock_projects_client: Mock, mo
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
+def test_session_create_with_metadata(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that metadata is passed correctly when creating a session."""
+    # Given: mocked clients and a logger
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    metadata = {"brand_id": "test-brand-123", "env": "production"}
+
+    # When: creating a session with metadata
+    session_id = logger.start_session(name="test-session", metadata=metadata)
+
+    # Then: the metadata is passed to the API
+    payload = mock_traces_client_instance.create_session.call_args[0][0]
+
+    assert payload.name == "test-session"
+    assert payload.user_metadata == metadata
+    assert logger.session_id == session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
 def test_session_create_empty_values(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:

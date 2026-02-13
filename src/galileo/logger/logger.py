@@ -1841,7 +1841,11 @@ class GalileoLogger(TracesLogger):
 
     @async_warn_catch_exception(exceptions=(Exception,))
     async def _start_or_get_session_async(
-        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+        self,
+        name: Optional[str] = None,
+        previous_session_id: Optional[str] = None,
+        external_id: Optional[str] = None,
+        metadata: Optional[dict[str, str]] = None,
     ) -> str:
         self._session_external_id = external_id
         if self._ingestion_hook and not hasattr(self, "_traces_client"):
@@ -1876,7 +1880,9 @@ class GalileoLogger(TracesLogger):
         self._logger.info("Starting a new session...")
 
         session = await self._traces_client.create_session(
-            SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
+            SessionCreateRequest(
+                name=name, previous_session_id=previous_session_id, external_id=external_id, user_metadata=metadata
+            )
         )
 
         self._logger.info("Session started with ID: %s", session["id"])
@@ -1886,7 +1892,11 @@ class GalileoLogger(TracesLogger):
     @nop_async
     @async_warn_catch_exception(exceptions=(Exception,))
     async def async_start_session(
-        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+        self,
+        name: Optional[str] = None,
+        previous_session_id: Optional[str] = None,
+        external_id: Optional[str] = None,
+        metadata: Optional[dict[str, str]] = None,
     ) -> str:
         """
         Async start a new session or use an existing session if an external ID is provided.
@@ -1904,6 +1914,9 @@ class GalileoLogger(TracesLogger):
             External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
             Expected format: Unique identifier string.
             Example: "user_session_abc123", "support_ticket_456"
+        metadata: Optional[dict[str, str]]
+            User metadata to attach to the session.
+            Example: {"brand_id": "acme", "environment": "production"}
 
         Returns
         -------
@@ -1911,13 +1924,17 @@ class GalileoLogger(TracesLogger):
             The ID of the session (existing or newly created).
         """
         return await self._start_or_get_session_async(
-            name=name, previous_session_id=previous_session_id, external_id=external_id
+            name=name, previous_session_id=previous_session_id, external_id=external_id, metadata=metadata
         )
 
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
     def start_session(
-        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+        self,
+        name: Optional[str] = None,
+        previous_session_id: Optional[str] = None,
+        external_id: Optional[str] = None,
+        metadata: Optional[dict[str, str]] = None,
     ) -> str:
         """
         Start a new session or use an existing session if an external ID is provided.
@@ -1936,6 +1953,9 @@ class GalileoLogger(TracesLogger):
             project/log stream or experiment; if found, that session will be reused instead of creating a new one.
             Expected format: Unique identifier string.
             Example: "user_session_abc123", "support_ticket_456"
+        metadata: Optional[dict[str, str]]
+            User metadata to attach to the session.
+            Example: {"brand_id": "acme", "environment": "production"}
 
         Returns
         -------
@@ -1944,7 +1964,7 @@ class GalileoLogger(TracesLogger):
         """
         return async_run(
             self._start_or_get_session_async(
-                name=name, previous_session_id=previous_session_id, external_id=external_id
+                name=name, previous_session_id=previous_session_id, external_id=external_id, metadata=metadata
             )
         )
 
