@@ -110,6 +110,7 @@ class SessionCreateRequest(BaseLogStreamOrExperimentModel):
     name: Optional[str] = Field(default=None, description="Name of the session.")
     previous_session_id: Optional[UUID4] = Field(default=None, description="Previous session id.")
     external_id: Optional[str] = Field(default=None, description="External id of the session.")
+    user_metadata: Optional[dict[str, str]] = Field(default=None, description="User metadata for the session.")
 
 
 class SessionCreateResponse(BaseLogStreamOrExperimentModel):

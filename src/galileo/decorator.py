@@ -978,6 +978,7 @@ class GalileoDecorator:
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
         mode: Optional[str] = None,
+        ingestion_hook: Optional[Callable] = None,
     ) -> GalileoLogger:
         """
         Get the Galileo Logger instance for the current decorator context.
@@ -1009,6 +1010,8 @@ class GalileoDecorator:
             kwargs["trace_id"] = trace_id_from_context
         if span_id_from_context:
             kwargs["span_id"] = span_id_from_context
+        if ingestion_hook is not None:
+            kwargs["ingestion_hook"] = ingestion_hook
 
         return GalileoLoggerSingleton().get(**kwargs)
 
@@ -1205,7 +1208,11 @@ class GalileoDecorator:
         _session_id_context.set(None)
 
     def start_session(
-        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+        self,
+        name: Optional[str] = None,
+        previous_session_id: Optional[str] = None,
+        external_id: Optional[str] = None,
+        metadata: Optional[dict[str, str]] = None,
     ) -> str:
         """
         Start a session in the active context logger instance.
@@ -1218,6 +1225,8 @@ class GalileoDecorator:
             The id of the previous session. Defaults to None.
         external_id
             The external id of the session. Defaults to None.
+        metadata
+            User metadata for the session. Defaults to None.
 
         Returns
         -------
@@ -1225,7 +1234,7 @@ class GalileoDecorator:
             The id of the newly created session.
         """
         session_id = self.get_logger_instance().start_session(
-            name=name, previous_session_id=previous_session_id, external_id=external_id
+            name=name, previous_session_id=previous_session_id, external_id=external_id, metadata=metadata
         )
 
         _session_id_context.set(session_id)
