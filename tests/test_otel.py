@@ -9,11 +9,11 @@ from pydantic import SecretStr
 
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
 from galileo.otel import (
+    _TRACE_PROVIDER_CONTEXT_VAR,
     INSTALL_ERR_MSG,
     OTEL_AVAILABLE,
     GalileoOTLPExporter,
     GalileoSpanProcessor,
-    _TRACE_PROVIDER_CONTEXT_VAR,
     _set_tool_span_attributes,
     start_galileo_span,
 )
