@@ -554,6 +554,7 @@ class TestAgentSpanOTelAttributes:
         # Then: all attributes should be set correctly
         calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
 
+        assert calls["gen_ai.operation.name"] == "execute_agent_task"
         assert calls["gen_ai.agent.type"] == "planner"
 
         input_messages = json.loads(calls["gen_ai.input.messages"])
@@ -582,6 +583,7 @@ class TestAgentSpanOTelAttributes:
         # Then: all attributes should be set correctly
         calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
 
+        assert calls["gen_ai.operation.name"] == "execute_agent_task"
         assert calls["gen_ai.agent.type"] == "react"
 
         input_messages = json.loads(calls["gen_ai.input.messages"])
@@ -605,6 +607,7 @@ class TestAgentSpanOTelAttributes:
         # Then: agent_type and input should be set, but not output
         calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
 
+        assert calls["gen_ai.operation.name"] == "execute_agent_task"
         assert calls["gen_ai.agent.type"] == "default"
         assert "gen_ai.input.messages" in calls
         assert "gen_ai.output.messages" not in calls
@@ -621,4 +624,5 @@ class TestAgentSpanOTelAttributes:
             _set_agent_span_attributes(mock_span, agent_span)
 
             calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
+            assert calls["gen_ai.operation.name"] == "execute_agent_task"
             assert calls["gen_ai.agent.type"] == agent_type.value

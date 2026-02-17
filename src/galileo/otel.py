@@ -365,10 +365,12 @@ def _set_agent_span_attributes(span: trace.Span, galileo_span: AgentSpan) -> Non
     """Set OpenTelemetry attributes for an AgentSpan.
 
     Maps AgentSpan fields to OTel semantic conventions:
+    - operation_name -> gen_ai.operation.name (required for agent call mapping)
     - agent_type -> gen_ai.agent.type
     - input -> gen_ai.input.messages
     - output -> gen_ai.output.messages
     """
+    span.set_attribute("gen_ai.operation.name", "execute_agent_task")
     span.set_attribute("gen_ai.agent.type", galileo_span.agent_type.value)
 
     if galileo_span.input is not None:
