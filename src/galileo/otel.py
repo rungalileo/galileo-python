@@ -337,6 +337,7 @@ def _set_llm_span_attributes(span: trace.Span, galileo_span: LlmSpan) -> None:
     galileo_span : LlmSpan
         The Galileo LLM span containing the data to map.
     """
+    span.set_attribute("gen_ai.operation.name", "chat")
     span.set_attribute("gen_ai.input.messages", json.dumps([msg.model_dump(mode="json") for msg in galileo_span.input]))
     span.set_attribute("gen_ai.output.messages", json.dumps([galileo_span.output.model_dump(mode="json")]))
 

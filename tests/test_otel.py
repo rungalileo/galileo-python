@@ -489,6 +489,7 @@ class TestLlmSpanAttributes:
         # Then: all attributes are set correctly
         calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
 
+        assert calls["gen_ai.operation.name"] == "chat"
         assert "gen_ai.input.messages" in calls
         assert "gen_ai.output.messages" in calls
         assert calls["gen_ai.request.model"] == "gpt-4"
@@ -509,9 +510,10 @@ class TestLlmSpanAttributes:
         # When: setting LLM span attributes
         _set_llm_span_attributes(mock_span, galileo_span)
 
-        # Then: only input/output messages are set, optional fields are skipped
+        # Then: operation name and input/output messages are set, optional fields are skipped
         calls = {call[0][0]: call[0][1] for call in mock_span.set_attribute.call_args_list}
 
+        assert calls["gen_ai.operation.name"] == "chat"
         assert "gen_ai.input.messages" in calls
         assert "gen_ai.output.messages" in calls
         assert "gen_ai.request.model" not in calls
@@ -575,6 +577,7 @@ class TestLlmSpanAttributes:
             # Then: LLM span attributes are set
             attribute_names = [call[0][0] for call in mock_span.set_attribute.call_args_list]
             assert "gen_ai.system" in attribute_names
+            assert "gen_ai.operation.name" in attribute_names
             assert "gen_ai.input.messages" in attribute_names
             assert "gen_ai.output.messages" in attribute_names
             assert "gen_ai.request.model" in attribute_names
