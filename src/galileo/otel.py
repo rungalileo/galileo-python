@@ -326,11 +326,14 @@ def _set_retriever_span_attributes(span: trace.Span, galileo_span: RetrieverSpan
 
 
 def _set_tool_span_attributes(span: trace.Span, galileo_span: ToolSpan) -> None:
+    span.set_attribute("gen_ai.tool.name", galileo_span.name)
+    span.set_attribute("gen_ai.tool.call.arguments", galileo_span.input)
     span.set_attribute("gen_ai.input.messages", json.dumps([{"role": "tool", "content": galileo_span.input}]))
     if galileo_span.output is not None:
+        span.set_attribute("gen_ai.tool.call.result", galileo_span.output)
         span.set_attribute("gen_ai.output.messages", json.dumps([{"role": "tool", "content": galileo_span.output}]))
     if galileo_span.tool_call_id is not None:
-        span.set_attribute("gen_ai.tool.call_id", galileo_span.tool_call_id)
+        span.set_attribute("gen_ai.tool.call.id", galileo_span.tool_call_id)
 
 
 @contextmanager
