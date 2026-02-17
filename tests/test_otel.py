@@ -13,7 +13,9 @@ from galileo.otel import (
     OTEL_AVAILABLE,
     GalileoOTLPExporter,
     GalileoSpanProcessor,
+    _TRACE_PROVIDER_CONTEXT_VAR,
     _set_tool_span_attributes,
+    start_galileo_span,
 )
 from galileo_core.schemas.logging.span import ToolSpan
 
@@ -524,3 +526,68 @@ class TestSetToolSpanAttributes:
         assert calls["gen_ai.output.messages"] == json.dumps([{"role": "tool", "content": "tool output"}])
         assert "gen_ai.tool.call_id" not in calls
         assert mock_otel_span.set_attribute.call_count == 2
+
+
+class TestStartGalileoSpan:
+    """Test suite for start_galileo_span context manager."""
+
+    @pytest.fixture(autouse=True)
+    def reset_trace_provider(self):
+        """Reset the trace provider context var before and after each test."""
+        _TRACE_PROVIDER_CONTEXT_VAR.set(None)
+        yield
+        _TRACE_PROVIDER_CONTEXT_VAR.set(None)
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_start_galileo_span_dispatches_tool_span(self):
+        """Test that start_galileo_span routes a ToolSpan to _set_tool_span_attributes."""
+        # Given: a ToolSpan with all fields populated and a mock tracer provider
+        tool_span = ToolSpan(
+            name="my-tool",
+            input="tool input data",
+            output="tool output result",
+            tool_call_id="call-789",
+            status_code=200,
+        )
+        mock_otel_span = Mock()
+        mock_tracer = Mock()
+        mock_tracer.start_as_current_span.return_value.__enter__ = Mock(return_value=mock_otel_span)
+        mock_tracer.start_as_current_span.return_value.__exit__ = Mock(return_value=False)
+        mock_provider = Mock()
+        mock_provider.get_tracer.return_value = mock_tracer
+        _TRACE_PROVIDER_CONTEXT_VAR.set(mock_provider)
+
+        # When: using start_galileo_span with the ToolSpan
+        with start_galileo_span(tool_span) as span:
+            assert span is mock_otel_span
+
+        # Then: the span has gen_ai.system set and tool-specific attributes
+        calls = {args[0]: args[1] for args, _ in mock_otel_span.set_attribute.call_args_list}
+        assert calls["gen_ai.system"] == "galileo-otel"
+        assert calls["gen_ai.input.messages"] == json.dumps([{"role": "tool", "content": "tool input data"}])
+        assert calls["gen_ai.output.messages"] == json.dumps([{"role": "tool", "content": "tool output result"}])
+        assert calls["gen_ai.tool.call_id"] == "call-789"
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_start_galileo_span_tool_span_with_none_output(self):
+        """Test that start_galileo_span handles a ToolSpan with None output and tool_call_id."""
+        # Given: a ToolSpan with only input populated
+        tool_span = ToolSpan(name="minimal-tool", input="just input", output=None, tool_call_id=None, status_code=200)
+        mock_otel_span = Mock()
+        mock_tracer = Mock()
+        mock_tracer.start_as_current_span.return_value.__enter__ = Mock(return_value=mock_otel_span)
+        mock_tracer.start_as_current_span.return_value.__exit__ = Mock(return_value=False)
+        mock_provider = Mock()
+        mock_provider.get_tracer.return_value = mock_tracer
+        _TRACE_PROVIDER_CONTEXT_VAR.set(mock_provider)
+
+        # When: using start_galileo_span with the minimal ToolSpan
+        with start_galileo_span(tool_span) as span:
+            assert span is mock_otel_span
+
+        # Then: only gen_ai.system and input are set (no output or tool_call_id)
+        calls = {args[0]: args[1] for args, _ in mock_otel_span.set_attribute.call_args_list}
+        assert calls["gen_ai.system"] == "galileo-otel"
+        assert calls["gen_ai.input.messages"] == json.dumps([{"role": "tool", "content": "just input"}])
+        assert "gen_ai.output.messages" not in calls
+        assert "gen_ai.tool.call_id" not in calls
