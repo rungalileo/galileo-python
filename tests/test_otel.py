@@ -486,13 +486,14 @@ class TestSetToolSpanAttributes:
 
         # Then: all attributes are set correctly
         calls = {args[0]: args[1] for args, _ in mock_otel_span.set_attribute.call_args_list}
+        assert calls["gen_ai.operation.name"] == "execute_tool"
         assert calls["gen_ai.tool.name"] == "test-tool"
         assert calls["gen_ai.tool.call.arguments"] == "tool input data"
         assert calls["gen_ai.tool.call.result"] == "tool output result"
         assert calls["gen_ai.input.messages"] == json.dumps([{"role": "tool", "content": "tool input data"}])
         assert calls["gen_ai.output.messages"] == json.dumps([{"role": "tool", "content": "tool output result"}])
         assert calls["gen_ai.tool.call.id"] == "call-123"
-        assert mock_otel_span.set_attribute.call_count == 6
+        assert mock_otel_span.set_attribute.call_count == 7
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     def test_tool_span_with_only_input(self):
@@ -504,15 +505,16 @@ class TestSetToolSpanAttributes:
         # When: setting tool span attributes
         _set_tool_span_attributes(mock_otel_span, tool_span)
 
-        # Then: tool name and input attributes are set, but not output or tool_call_id
+        # Then: operation name, tool name, and input attributes are set, but not output or tool_call_id
         calls = {args[0]: args[1] for args, _ in mock_otel_span.set_attribute.call_args_list}
+        assert calls["gen_ai.operation.name"] == "execute_tool"
         assert calls["gen_ai.tool.name"] == "test-tool"
         assert calls["gen_ai.tool.call.arguments"] == "tool input only"
         assert calls["gen_ai.input.messages"] == json.dumps([{"role": "tool", "content": "tool input only"}])
         assert "gen_ai.tool.call.result" not in calls
         assert "gen_ai.output.messages" not in calls
         assert "gen_ai.tool.call.id" not in calls
-        assert mock_otel_span.set_attribute.call_count == 3
+        assert mock_otel_span.set_attribute.call_count == 4
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     def test_tool_span_with_output_no_tool_call_id(self):
@@ -526,15 +528,16 @@ class TestSetToolSpanAttributes:
         # When: setting tool span attributes
         _set_tool_span_attributes(mock_otel_span, tool_span)
 
-        # Then: tool name, input, and output attributes are set, but not tool_call_id
+        # Then: operation name, tool name, input, and output attributes are set, but not tool_call_id
         calls = {args[0]: args[1] for args, _ in mock_otel_span.set_attribute.call_args_list}
+        assert calls["gen_ai.operation.name"] == "execute_tool"
         assert calls["gen_ai.tool.name"] == "test-tool"
         assert calls["gen_ai.tool.call.arguments"] == "tool input"
         assert calls["gen_ai.tool.call.result"] == "tool output"
         assert calls["gen_ai.input.messages"] == json.dumps([{"role": "tool", "content": "tool input"}])
         assert calls["gen_ai.output.messages"] == json.dumps([{"role": "tool", "content": "tool output"}])
         assert "gen_ai.tool.call.id" not in calls
-        assert mock_otel_span.set_attribute.call_count == 5
+        assert mock_otel_span.set_attribute.call_count == 6
 
 
 class TestStartGalileoSpan:
@@ -573,6 +576,7 @@ class TestStartGalileoSpan:
         # Then: the span has gen_ai.system set and tool-specific attributes
         calls = {args[0]: args[1] for args, _ in mock_otel_span.set_attribute.call_args_list}
         assert calls["gen_ai.system"] == "galileo-otel"
+        assert calls["gen_ai.operation.name"] == "execute_tool"
         assert calls["gen_ai.tool.name"] == "my-tool"
         assert calls["gen_ai.tool.call.arguments"] == "tool input data"
         assert calls["gen_ai.tool.call.result"] == "tool output result"
@@ -597,9 +601,10 @@ class TestStartGalileoSpan:
         with start_galileo_span(tool_span) as span:
             assert span is mock_otel_span
 
-        # Then: gen_ai.system, tool name, tool arguments, and input are set (no output or tool_call_id)
+        # Then: gen_ai.system, operation name, tool name, tool arguments, and input are set (no output or tool_call_id)
         calls = {args[0]: args[1] for args, _ in mock_otel_span.set_attribute.call_args_list}
         assert calls["gen_ai.system"] == "galileo-otel"
+        assert calls["gen_ai.operation.name"] == "execute_tool"
         assert calls["gen_ai.tool.name"] == "minimal-tool"
         assert calls["gen_ai.tool.call.arguments"] == "just input"
         assert calls["gen_ai.input.messages"] == json.dumps([{"role": "tool", "content": "just input"}])

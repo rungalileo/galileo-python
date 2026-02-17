@@ -326,6 +326,7 @@ def _set_retriever_span_attributes(span: trace.Span, galileo_span: RetrieverSpan
 
 
 def _set_tool_span_attributes(span: trace.Span, galileo_span: ToolSpan) -> None:
+    span.set_attribute("gen_ai.operation.name", "execute_tool")
     span.set_attribute("gen_ai.tool.name", galileo_span.name)
     span.set_attribute("gen_ai.tool.call.arguments", galileo_span.input)
     span.set_attribute("gen_ai.input.messages", json.dumps([{"role": "tool", "content": galileo_span.input}]))
