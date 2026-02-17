@@ -43,7 +43,11 @@ class GalileoAsyncBaseHandler(GalileoBaseHandler):
             return
 
         if self._start_new_trace:
-            self._galileo_logger.start_trace(input=serialize_to_str(root_node.span_params.get("input", "")))
+            self._galileo_logger.start_trace(
+                input=serialize_to_str(root_node.span_params.get("input", "")),
+                name=root_node.span_params.get("name"),
+                metadata=root_node.span_params.get("metadata"),
+            )
 
         self.log_node_tree(root_node)
 
@@ -52,7 +56,9 @@ class GalileoAsyncBaseHandler(GalileoBaseHandler):
 
         if self._start_new_trace:
             # If we started a new trace, we need to conclude it
-            self._galileo_logger.conclude(output=serialize_to_str(root_output))
+            self._galileo_logger.conclude(
+                output=serialize_to_str(root_output), status_code=root_node.span_params.get("status_code")
+            )
 
         if self._flush_on_chain_end:
             # Upload the trace to Galileo

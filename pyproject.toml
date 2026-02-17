@@ -1,6 +1,6 @@
 [project]
 name = "galileo"
-version = "1.45.2"
+version = "1.46.2"
 description = "Client library for the Galileo platform."
 authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
@@ -58,6 +58,7 @@ pyyaml = "^6.0.2"
 
 
 [tool.pytest.ini_options]
+testpaths = ["tests"]
 pythonpath = ["./src/"]
 # Note: Some env vars are also set in conftest.py for pytest-xdist compatibility
 # on Python 3.14+. This section remains for documentation and older Python support.

@@ -1158,3 +1158,57 @@ class TestUpdateRootToAgent:
         update_root_to_agent(parent_run_id, metadata, parent_node)
 
         assert parent_node.node_type == "agent"
+
+
+class TestGalileoCallbackIngestionHookWithoutCredentials:
+    """SC-54690: GalileoCallback/GalileoAsyncCallback with ingestion_hook should work without API credentials.
+
+    When a user provides an ingestion_hook, the handler should not require Galileo API configuration
+    (GALILEO_API_KEY, etc.) because the hook bypasses the API entirely. This test verifies the fix
+    without mocking Projects/LogStreams/Traces, so the real code path is exercised.
+    """
+
+    @pytest.fixture(autouse=True)
+    def clear_galileo_config(self, monkeypatch):
+        """Remove Galileo credentials and reset config to simulate no-API-key scenario."""
+        from galileo.config import GalileoPythonConfig
+        from galileo.utils.singleton import GalileoLoggerSingleton
+
+        # Given: no Galileo API credentials are configured
+        monkeypatch.delenv("GALILEO_API_KEY", raising=False)
+        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+        monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
+        monkeypatch.setenv("GALILEO_CONSOLE_URL", "https://console.galileo.ai/")
+
+        if GalileoPythonConfig._instance is not None:
+            GalileoPythonConfig._instance.reset()
+
+        GalileoLoggerSingleton().reset_all()
+
+        yield
+
+        GalileoLoggerSingleton().reset_all()
+
+    def test_callback_with_ingestion_hook_no_credentials(self):
+        """GalileoCallback(ingestion_hook=...) should not require API credentials."""
+        # Given: a sync ingestion hook
+        mock_hook = Mock()
+
+        # When: creating GalileoCallback with only an ingestion hook (no pre-created logger)
+        callback = GalileoCallback(ingestion_hook=mock_hook)
+
+        # Then: the callback is created successfully and the hook is attached
+        assert callback._handler._galileo_logger._ingestion_hook is mock_hook
+
+    def test_async_callback_with_ingestion_hook_no_credentials(self):
+        """GalileoAsyncCallback(ingestion_hook=...) should not require API credentials."""
+        from galileo.handlers.langchain import GalileoAsyncCallback
+
+        # Given: an async ingestion hook
+        mock_hook = Mock()
+
+        # When: creating GalileoAsyncCallback with only an ingestion hook (no pre-created logger)
+        callback = GalileoAsyncCallback(ingestion_hook=mock_hook)
+
+        # Then: the callback is created successfully and the hook is attached
+        assert callback._handler._galileo_logger._ingestion_hook is mock_hook

@@ -35,6 +35,7 @@ class LogRecordsIngestRequest(BaseLogStreamOrExperimentModel):
 class TracesIngestRequest(LogRecordsIngestRequest):
     traces: list[Trace] = Field(..., description="List of traces to log.", min_length=1)
     session_id: Optional[UUID4] = Field(default=None, description="Session id associated with the traces.")
+    session_external_id: Optional[str] = Field(default=None, description="External id for session grouping.")
     is_complete: Optional[bool] = Field(default=True, description="Is complete.")
 
 
@@ -109,6 +110,7 @@ class SessionCreateRequest(BaseLogStreamOrExperimentModel):
     name: Optional[str] = Field(default=None, description="Name of the session.")
     previous_session_id: Optional[UUID4] = Field(default=None, description="Previous session id.")
     external_id: Optional[str] = Field(default=None, description="External id of the session.")
+    user_metadata: Optional[dict[str, str]] = Field(default=None, description="User metadata for the session.")
 
 
 class SessionCreateResponse(BaseLogStreamOrExperimentModel):
