@@ -458,10 +458,26 @@ class Datasets:
             resolved_project_id = resolve_project_id(project_id, project_name)
             assert resolved_project_id is not None  # resolve_project_id raises if both params are none
 
+        # Normalize records through DatasetRecord to handle ground_truth -> output conversion
+        # Skip normalization for empty content or when content only has empty dicts
+        if isinstance(content, list) and len(content) > 0:
+            normalized_content = []
+            for row in content:
+                if isinstance(row, dict) and len(row) > 0:
+                    # Validate and normalize through DatasetRecord (handles ground_truth -> output)
+                    record = DatasetRecord(**row)
+                    # Convert back to dict with normalized field names
+                    normalized_row = record.model_dump(exclude_none=True)
+                    normalized_content.append(normalized_row)
+                else:
+                    normalized_content.append(row)
+            content = normalized_content
+
         if isinstance(content, (list, dict)) and len(content) == 0:
             # we want to avoid errors: Invalid CSV data: CSV parse error:
             # Empty CSV file or block: cannot infer number of columns
             content = [{}]
+
         file_path, dataset_format = parse_dataset(content)
         file = File(
             payload=file_path.open("rb"),
