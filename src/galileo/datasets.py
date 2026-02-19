@@ -458,10 +458,25 @@ class Datasets:
             resolved_project_id = resolve_project_id(project_id, project_name)
             assert resolved_project_id is not None  # resolve_project_id raises if both params are none
 
+        # Normalize records to handle ground_truth -> output conversion.
+        # Use targeted key rename instead of routing through DatasetRecord, so that
+        # custom columns (e.g. "category", "difficulty") are preserved rather than silently dropped.
+        if isinstance(content, list) and len(content) > 0:
+            normalized_content = []
+            for row in content:
+                if isinstance(row, dict) and "ground_truth" in row:
+                    row = dict(row)  # avoid mutating caller's data
+                    ground_truth = row.pop("ground_truth")
+                    if "output" not in row:
+                        row["output"] = ground_truth
+                normalized_content.append(row)
+            content = normalized_content
+
         if isinstance(content, (list, dict)) and len(content) == 0:
             # we want to avoid errors: Invalid CSV data: CSV parse error:
             # Empty CSV file or block: cannot infer number of columns
             content = [{}]
+
         file_path, dataset_format = parse_dataset(content)
         file = File(
             payload=file_path.open("rb"),
