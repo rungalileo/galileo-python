@@ -6,10 +6,21 @@ readme = "README.md"
 requires-python = ">=3.10,<3.15"
 license = { text = "Apache-2.0" }
 authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 dependencies = [
     "galileo>=1.45.0,<2.0.0",
     "google-adk>=1.14.1,<2.0.0",
 ]
+
+[project.urls]
+Repository = "https://github.com/rungalileo/galileo-python"
 
 # UV-specific configuration (path for dev, ignored when installed from PyPI)
 [tool.uv]
