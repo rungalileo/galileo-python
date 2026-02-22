@@ -24,6 +24,11 @@ from galileo_adk.trace_builder import TraceBuilder
 
 _logger = logging.getLogger(__name__)
 
+try:
+    from google.adk.tools.retrieval import BaseRetrievalTool as _BaseRetrievalTool
+except ImportError:
+    _BaseRetrievalTool = None  # type: ignore[assignment,misc]
+
 # Cache generated invocation IDs without mutating ADK objects.
 _generated_invocation_ids: weakref.WeakKeyDictionary = weakref.WeakKeyDictionary()
 
@@ -382,6 +387,18 @@ class GalileoObserver:
             status_code=status_code,
         )
 
+    def _is_retriever_tool(self, tool: Any) -> bool:
+        """Check if a tool should be logged as a retriever span.
+
+        Detection uses two strategies:
+        1. isinstance check against google.adk.tools.retrieval.BaseRetrievalTool
+        2. Custom functions decorated with @galileo_retriever (sets _galileo_is_retriever on func)
+        """
+        if _BaseRetrievalTool is not None and isinstance(tool, _BaseRetrievalTool):
+            return True
+        func = getattr(tool, "func", None)
+        return bool(func is not None and getattr(func, "_galileo_is_retriever", False))
+
     def on_tool_start(
         self,
         tool: Any,
@@ -394,12 +411,18 @@ class GalileoObserver:
         run_id = uuid.uuid4()
         tool_name = getattr(tool, "name", "unknown_tool")
         combined_metadata = metadata or {}
+        is_retriever = self._is_retriever_tool(tool)
+        if is_retriever:
+            input_data = tool_args.get("query", serialize_to_str(tool_args))
+        else:
+            input_data = serialize_to_str(tool_args)
         self._span_manager.start_tool(
             run_id=run_id,
             parent_run_id=parent_run_id,
-            input_data=serialize_to_str(tool_args),
+            input_data=input_data,
             name=tool_name,
             metadata=combined_metadata,
+            is_retriever=is_retriever,
         )
         return run_id
 

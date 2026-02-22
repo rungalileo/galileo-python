@@ -162,6 +162,23 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
+### Retriever Spans
+
+By default, all `FunctionTool` calls are logged as tool spans. To log a retriever function as a **retriever span** (enabling RAG quality metrics in Galileo), decorate it with `@galileo_retriever`:
+
+```python
+from galileo_adk import galileo_retriever
+from google.adk.tools import FunctionTool
+
+@galileo_retriever
+def search_docs(query: str) -> str:
+    """Search the knowledge base."""
+    results = my_vector_db.search(query)
+    return "\n".join(r["content"] for r in results)
+
+tool = FunctionTool(search_docs)
+```
+
 ### Ingestion Hook
 
 Intercept traces for custom processing before forwarding to Galileo:
