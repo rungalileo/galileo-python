@@ -128,6 +128,14 @@ class CrewAIEventListener:  # Base dynamically set to BaseEventListener by _reso
                 MemorySaveFailedEvent,
                 MemorySaveStartedEvent,
             )
+
+            try:
+                from crewai.events.types.memory_events import (  # pyright: ignore[reportMissingImports]
+                    MemoryRetrievalFailedEvent,
+                )
+            except ImportError:
+                MemoryRetrievalFailedEvent = None
+
             from crewai.events.types.task_events import (  # pyright: ignore[reportMissingImports]
                 TaskCompletedEvent,
                 TaskFailedEvent,
@@ -164,6 +172,8 @@ class CrewAIEventListener:  # Base dynamically set to BaseEventListener by _reso
                 ToolUsageFinishedEvent,
                 ToolUsageStartedEvent,
             )
+
+            MemoryRetrievalFailedEvent = None
 
         # Crew event handlers
         @crewai_event_bus.on(CrewKickoffStartedEvent)
@@ -265,63 +275,89 @@ class CrewAIEventListener:  # Base dynamically set to BaseEventListener by _reso
             def on_memory_retrieval_completed(source: Any, event: MemoryRetrievalCompletedEvent) -> None:
                 self._handle_memory_retrieval_completed(source, event)
 
+            if MemoryRetrievalFailedEvent is not None:
+
+                @crewai_event_bus.on(MemoryRetrievalFailedEvent)
+                def on_memory_retrieval_failed(source: Any, event: MemoryRetrievalFailedEvent) -> None:
+                    self._handle_memory_retrieval_failed(source, event)
+
+    @staticmethod
+    def _hash_to_uuid(value: str) -> UUID:
+        """Hash a string to a deterministic UUID."""
+        return UUID(hashlib.md5(value.encode()).hexdigest())
+
     def _generate_run_id(self, source: Any, event: Any) -> UUID:
         """Generate a consistent UUID for event tracing."""
-        # Memory event specific ID generation
+        # 1. Memory event specific ID generation
         if hasattr(event, "query"):  # Memory query events
             source_type = event.source_type if hasattr(event, "source_type") else ""
-            query_str = f"memory_query_{event.query}_{source_type}_{getattr(event, 'agent_id', '')}_{getattr(event, 'limit', '')}_{getattr(event, 'score_threshold', '')}"
-            hash_obj = hashlib.md5(query_str.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+            return self._hash_to_uuid(
+                f"memory_query_{event.query}_{source_type}_{getattr(event, 'agent_id', '')}_{getattr(event, 'limit', '')}_{getattr(event, 'score_threshold', '')}"
+            )
 
         if hasattr(event, "value") and getattr(event, "type", "").startswith("memory_save"):  # Memory save events
-            save_str = f"memory_save_{getattr(event, 'agent_id', '')}_{getattr(event, 'task_id', '')}_{getattr(event, 'agent_role', '')}"
-            hash_obj = hashlib.md5(save_str.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+            return self._hash_to_uuid(
+                f"memory_save_{getattr(event, 'agent_id', '')}_{getattr(event, 'task_id', '')}_{getattr(event, 'agent_role', '')}"
+            )
 
-        if (
-            hasattr(event, "memory_content") or getattr(event, "type", "") == "memory_retrieval_started"
+        if hasattr(event, "memory_content") or getattr(event, "type", "").startswith(
+            "memory_retrieval"
         ):  # Memory retrieval events
-            # Use consistent fields for all retrieval events (started/completed) - exclude memory_content to ensure same ID
-            retrieval_str = f"memory_retrieval_{getattr(event, 'task_id', '')}_{getattr(event, 'agent_id', '')}"
-            hash_obj = hashlib.md5(retrieval_str.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+            # Use consistent fields for all retrieval events (started/completed/failed) - exclude memory_content to ensure same ID
+            return self._hash_to_uuid(
+                f"memory_retrieval_{getattr(event, 'task_id', '')}_{getattr(event, 'agent_id', '')}"
+            )
 
+        # 2. event.call_id — LLM events in crewAI >= 1.0
+        call_id = getattr(event, "call_id", None)
+        if call_id:
+            return self._hash_to_uuid(f"call_{call_id}")
+
+        # 3. source.id — still works for Crew/Task sources
         if hasattr(source, "id") and source.id:
             return source.id
 
-        if hasattr(event, "messages"):
+        # 4. event.messages hash — LLM fallback for crewAI < 1.0
+        if hasattr(event, "messages") and event.messages is not None:
             messages = json.dumps(event.to_json().get("messages", []))
-            hash_obj = hashlib.md5(messages.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+            return self._hash_to_uuid(messages)
 
+        # 5. Tool events — use crewAI's event scope tracking for correlation (crewAI >= 1.0)
         if hasattr(event, "tool_args"):
-            # tool_args might be a dict or JSON string
+            # End events (finished/error) carry a reference back to the matching start event.
+            # crewAI uses `started_event_id` (older) or `previous_event_id` (newer) for this.
+            started_event_id = getattr(event, "started_event_id", None) or getattr(event, "previous_event_id", None)
+            if started_event_id:
+                return self._hash_to_uuid(f"tool_event_{started_event_id}")
+
+            # Start events have event_id (unique per emission). Use it when source has no .id (crewAI >= 1.0).
+            event_id = getattr(event, "event_id", None)
+            if event_id and not (hasattr(source, "id") and source.id):
+                return self._hash_to_uuid(f"tool_event_{event_id}")
+
+            # crewAI < 1.0: source is a Tool instance with .id, already handled by step 3.
+            # Fallback to tool_args hash for other cases.
+            tool_name = getattr(event, "tool_name", "")
             if isinstance(event.tool_args, str):
                 tool_args = event.tool_args
             else:
-                # Convert dict to JSON string
                 tool_args = json.dumps(event.tool_args) if isinstance(event.tool_args, dict) else str(event.tool_args)
-            hash_obj = hashlib.md5(tool_args.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+            return self._hash_to_uuid(f"{tool_name}_{tool_args}")
 
+        # 6. event.agent.id — Agent events in crewAI >= 1.0 (source no longer has .id)
+        event_agent = getattr(event, "agent", None)
+        if event_agent is not None and getattr(event_agent, "id", None):
+            return event_agent.id
+
+        # 7. dict messages — lite_llm callback
         if isinstance(event, dict) and "messages" in event:
-            # If event is a string, use it directly
             messages = json.dumps(event["messages"])
-            hash_obj = hashlib.md5(messages.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+            return self._hash_to_uuid(messages)
 
-        # Fallback to generating a UUID based on event properties
-        source_str = f"{getattr(event, 'crew_name', '')}_{getattr(event, 'agent', '')}_{getattr(event, 'task', '')}"
-        hash_obj = hashlib.md5(source_str.encode())
-        digest = hash_obj.hexdigest()
-        return UUID(digest)
+        # 8. Generic fallback
+        return self._hash_to_uuid(
+            f"{getattr(event, 'crew_name', '')}_{getattr(event, 'agent', '')}_{getattr(event, 'task', '')}"
+        )
 
     def _extract_metadata(self, event: Any) -> dict:
         """Extract metadata from event for span attributes."""
@@ -397,7 +433,8 @@ class CrewAIEventListener:  # Base dynamically set to BaseEventListener by _reso
     def _handle_agent_execution_started(self, source: Any, event: Any) -> None:
         """Handle agent execution start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = self._to_uuid(event.task.id)
+        event_task = getattr(event, "task", None)
+        parent_run_id = self._to_uuid(getattr(event_task, "id", None)) if event_task else None
         role = "Unknown Agent"
         metadata = self._extract_metadata(event)
 
@@ -440,7 +477,9 @@ class CrewAIEventListener:  # Base dynamically set to BaseEventListener by _reso
         """Handle task start."""
         run_id = self._generate_run_id(source, event)
         task = event.task if hasattr(event, "task") else None
-        parent_run_id = self._to_uuid(task.agent.crew.id) if task else None
+        task_agent = getattr(task, "agent", None) if task else None
+        task_crew = getattr(task_agent, "crew", None) if task_agent else None
+        parent_run_id = self._to_uuid(getattr(task_crew, "id", None)) if task_crew else None
 
         metadata = self._extract_metadata(event)
         if task:
@@ -488,7 +527,11 @@ class CrewAIEventListener:  # Base dynamically set to BaseEventListener by _reso
     def _handle_tool_usage_started(self, source: Any, event: Any) -> None:
         """Handle tool usage start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = self._to_uuid(event.agent.id) if event.agent else None
+        event_agent = getattr(event, "agent", None)
+        parent_run_id = self._to_uuid(getattr(event_agent, "id", None)) if event_agent else None
+        # Fallback: crewAI >= 1.0 may provide agent_id as a top-level string field instead of agent.id
+        if not parent_run_id:
+            parent_run_id = self._to_uuid(getattr(event, "agent_id", None))
         input = getattr(event, "tool_args", {})
         tool_name = getattr(event, "tool_name", "Unknown Tool")
 
@@ -535,8 +578,8 @@ class CrewAIEventListener:  # Base dynamically set to BaseEventListener by _reso
     def _handle_llm_call_started(self, source: Any, event: Any) -> None:
         """Handle LLM call start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = self._to_uuid(event.agent_id) if hasattr(event, "agent_id") else None
-        llm_name = getattr(source, "model", "Unknown Model")
+        parent_run_id = self._to_uuid(getattr(event, "agent_id", None))
+        llm_name = getattr(event, "model", None) or getattr(source, "model", "Unknown Model")
 
         metadata = self._extract_metadata(event)
         metadata["model"] = llm_name
@@ -694,6 +737,15 @@ class CrewAIEventListener:  # Base dynamically set to BaseEventListener by _reso
         metadata["retrieval_time_ms"] = event.retrieval_time_ms
 
         self._handler.end_node(run_id=run_id, output=serialize_to_str(event.memory_content), metadata=metadata)
+
+    def _handle_memory_retrieval_failed(self, source: Any, event: Any) -> None:
+        """Handle memory retrieval failure."""
+        run_id = self._generate_run_id(source, event)
+
+        metadata = self._extract_metadata(event)
+        metadata["error"] = getattr(event, "error", "Unknown error")
+
+        self._handler.end_node(run_id=run_id, output=f"Memory retrieval failed: {metadata['error']}", metadata=metadata)
 
     def lite_llm_usage_callback(
         self,

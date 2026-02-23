@@ -848,3 +848,416 @@ def test_memory_retrieval_completed(crewai_callback, generated_id) -> None:
         assert call_args[1]["run_id"] == expected_run_id
         assert call_args[1]["output"] == "Retrieved relevant market insights and trends"
         assert call_args[1]["metadata"]["retrieval_time_ms"] == 120.8
+
+
+# crewAI >= 1.0 compatibility tests
+
+
+def test_generate_run_id_with_call_id(crewai_callback) -> None:
+    """Test that call_id correlates start and end events for LLM calls in crewAI >= 1.0."""
+    # Given: start and end events with the same call_id but no source.id
+    source_start = MockSource()  # No .id — crewAI 1.x BaseLLM source
+    source_end = MockSource()
+    call_id = "abc-123"
+    start_event = MockEvent(call_id=call_id, messages=[{"role": "user", "content": "hi"}])
+    end_event = MockEvent(call_id=call_id, response="hello")
+
+    # When: generating run_ids for both events
+    run_id_start = crewai_callback._generate_run_id(source_start, start_event)
+    run_id_end = crewai_callback._generate_run_id(source_end, end_event)
+
+    # Then: both produce the same UUID
+    assert run_id_start == run_id_end
+    assert isinstance(run_id_start, uuid.UUID)
+
+
+def test_generate_run_id_agent_event_no_source_id(crewai_callback) -> None:
+    """Test agent events use event.agent.id when source has no .id (crewAI >= 1.0)."""
+    # Given: an event with agent.id but source without .id
+    agent_id = uuid.uuid4()
+    agent = MockAgent(agent_id=agent_id)
+    source = MockSource()  # No .id — crewAI 1.x Adapter source
+    event = MockEvent(agent=agent)
+
+    # When: generating run_id
+    result = crewai_callback._generate_run_id(source, event)
+
+    # Then: it uses agent.id from the event
+    assert result == agent_id
+
+
+def test_llm_call_lifecycle_crewai_v1(crewai_callback) -> None:
+    """Test full LLM start/complete lifecycle with call_id (crewAI >= 1.0)."""
+    # Given: a source without .id and events with call_id
+    source = MockSource()  # No .id — crewAI 1.x BaseLLM
+    call_id = "llm-call-456"
+    start_event = MockEvent(
+        call_id=call_id, model="gpt-4o", agent_id=str(uuid.uuid4()), messages=[{"role": "user", "content": "test"}]
+    )
+    end_event = MockEvent(call_id=call_id, response="LLM response")
+
+    with (
+        patch.object(crewai_callback._handler, "start_node") as mock_start,
+        patch.object(crewai_callback._handler, "end_node") as mock_end,
+    ):
+        # When: handling start and complete
+        crewai_callback._handle_llm_call_started(source, start_event)
+        crewai_callback._handle_llm_call_completed(source, end_event)
+
+        # Then: both use the same run_id
+        start_run_id = mock_start.call_args[1]["run_id"]
+        end_run_id = mock_end.call_args[1]["run_id"]
+        assert start_run_id == end_run_id
+
+
+def test_llm_call_started_prefers_event_model(crewai_callback) -> None:
+    """Test that event.model is preferred over source.model for LLM name."""
+    # Given: source with one model and event with a different model
+    source = MockSource(id=uuid.uuid4(), model="old-model", temperature=0.5)
+    event = MockEvent(model="gpt-4o", agent_id=str(uuid.uuid4()), messages=[{"role": "user", "content": "hi"}])
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        # When: handling the event
+        crewai_callback._handle_llm_call_started(source, event)
+
+        # Then: event.model wins
+        call_args = mock_start_node.call_args[1]
+        assert call_args["name"] == "gpt-4o"
+        assert call_args["model"] == "gpt-4o"
+        assert call_args["metadata"]["model"] == "gpt-4o"
+
+
+def test_memory_retrieval_failed(crewai_callback) -> None:
+    """Test memory retrieval failed event handling."""
+    # Given: a memory retrieval failed event
+    source = MockSource()
+    event = MockEvent(
+        type="memory_retrieval_failed",
+        task_id=str(uuid.uuid4()),
+        agent_id=str(uuid.uuid4()),
+        error="Memory store unavailable",
+    )
+
+    with patch.object(crewai_callback._handler, "end_node") as mock_end_node:
+        # When: handling the failure
+        crewai_callback._handle_memory_retrieval_failed(source, event)
+
+        # Then: error is recorded properly
+        mock_end_node.assert_called_once()
+        call_args = mock_end_node.call_args[1]
+        assert call_args["output"] == "Memory retrieval failed: Memory store unavailable"
+        assert call_args["metadata"]["error"] == "Memory store unavailable"
+
+
+def test_agent_execution_started_no_task_id(crewai_callback) -> None:
+    """Test agent execution started when event.task has no .id (crewAI >= 1.0)."""
+    # Given: an event where task object lacks .id
+    agent_id = uuid.uuid4()
+    agent = MockAgent(agent_id=agent_id, role="Analyst")
+    task = MockSource(description="Analyze data")  # No .id attribute
+    source = MockSource(id=agent_id)
+    event = MockEvent(agent=agent, task=task, task_prompt="Analyze the data")
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        # When: handling the event
+        crewai_callback._handle_agent_execution_started(source, event)
+
+        # Then: parent_run_id is None (graceful degradation)
+        call_args = mock_start_node.call_args[1]
+        assert call_args["parent_run_id"] is None
+        assert call_args["name"] == "Analyst"
+
+
+def test_task_started_no_agent_on_task(crewai_callback) -> None:
+    """Test task started when task has no agent attribute (crewAI >= 1.0)."""
+    # Given: a task without .agent
+    task_id = uuid.uuid4()
+    task = MockSource(id=task_id, description="Research market trends")
+    source = MockSource(id=task_id)
+    event = MockEvent(task=task)
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        # When: handling the event
+        crewai_callback._handle_task_started(source, event)
+
+        # Then: parent_run_id is None, rest works fine
+        call_args = mock_start_node.call_args[1]
+        assert call_args["parent_run_id"] is None
+        assert call_args["name"] == "Research market trends"
+
+
+def test_tool_usage_started_no_agent_id(crewai_callback) -> None:
+    """Test tool usage started when event.agent has no .id (crewAI >= 1.0)."""
+    # Given: an event where agent lacks .id
+    agent = MockSource(role="Researcher")  # No .id
+    source = MockSource()
+    event = MockEvent(agent=agent, tool_name="web_search", tool_args={"query": "test"})
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        # When: handling the event
+        crewai_callback._handle_tool_usage_started(source, event)
+
+        # Then: parent_run_id is None, tool node still created
+        call_args = mock_start_node.call_args[1]
+        assert call_args["parent_run_id"] is None
+        assert call_args["name"] == "web_search"
+
+
+def test_tool_lifecycle_crewai_v1(crewai_callback) -> None:
+    """Test tool start/end correlation via event_id/started_event_id (crewAI >= 1.0).
+
+    In crewAI 1.x, the event bus sets started_event_id on scope-ending events
+    to match the event_id of the corresponding start event. This provides
+    reliable correlation regardless of thread pool execution order.
+    """
+    # Given: a ToolUsage-like source (no .id) with event_id/started_event_id
+    source = MockSource()  # No .id — crewAI 1.x ToolUsage source
+    start_event_id = str(uuid.uuid4())
+
+    # Start event has event_id (set by crewAI's BaseEvent)
+    start_event = MockEvent(
+        tool_name="SearchTool", tool_args='{"query": "market research"}', agent_key="agent_1", event_id=start_event_id
+    )
+    # End event has started_event_id pointing to the start event's event_id
+    end_event = MockEvent(
+        tool_name="search_tool",
+        tool_args={"query": "market research"},
+        output="search results",
+        agent_key="agent_1",
+        started_event_id=start_event_id,
+    )
+
+    # When: generating run_ids for both events
+    run_id_start = crewai_callback._generate_run_id(source, start_event)
+    run_id_end = crewai_callback._generate_run_id(source, end_event)
+
+    # Then: both produce the same UUID via event scope tracking
+    assert run_id_start == run_id_end
+    assert isinstance(run_id_start, uuid.UUID)
+
+
+def test_tool_lifecycle_crewai_v1_different_sources(crewai_callback) -> None:
+    """Test tool correlation works even with different source instances (thread pool race).
+
+    The event bus may deliver start/end handlers to different thread pool workers.
+    Using event_id/started_event_id ensures correlation is independent of source identity.
+    """
+    # Given: different source instances (simulating thread pool race or GC reuse)
+    source_start = MockSource()
+    source_end = MockSource()  # Different instance!
+    start_event_id = str(uuid.uuid4())
+
+    start_event = MockEvent(tool_name="SearchTool", tool_args='{"query": "test"}', event_id=start_event_id)
+    end_event = MockEvent(
+        tool_name="search_tool", tool_args={"query": "test"}, output="results", started_event_id=start_event_id
+    )
+
+    # When: generating run_ids with different sources
+    run_id_start = crewai_callback._generate_run_id(source_start, start_event)
+    run_id_end = crewai_callback._generate_run_id(source_end, end_event)
+
+    # Then: still produces the same UUID
+    assert run_id_start == run_id_end
+
+
+def test_tool_lifecycle_crewai_v1_full(crewai_callback) -> None:
+    """Test full tool start/finish lifecycle with crewAI 1.x event scope tracking."""
+    # Given: source without .id, events with event_id/started_event_id
+    source = MockSource()
+    agent_id = uuid.uuid4()
+    agent = MockAgent(agent_id=agent_id)
+    start_event_id = str(uuid.uuid4())
+
+    start_event = MockEvent(agent=agent, tool_name="WebSearch", tool_args='{"query": "test"}', event_id=start_event_id)
+    end_event = MockEvent(
+        tool_name="web_search", tool_args={"query": "test"}, output="Results found", started_event_id=start_event_id
+    )
+
+    with (
+        patch.object(crewai_callback._handler, "start_node") as mock_start,
+        patch.object(crewai_callback._handler, "end_node") as mock_end,
+    ):
+        # When: handling start and finish
+        crewai_callback._handle_tool_usage_started(source, start_event)
+        crewai_callback._handle_tool_usage_finished(source, end_event)
+
+        # Then: both use the same run_id
+        start_run_id = mock_start.call_args[1]["run_id"]
+        end_run_id = mock_end.call_args[1]["run_id"]
+        assert start_run_id == end_run_id
+
+
+def test_tool_lifecycle_crewai_v1_with_error(crewai_callback) -> None:
+    """Test tool start/error correlation via event scope tracking (crewAI >= 1.0)."""
+    # Given: a tool that fails — error event also gets started_event_id
+    source = MockSource()
+    agent_id = uuid.uuid4()
+    agent = MockAgent(agent_id=agent_id)
+    start_event_id = str(uuid.uuid4())
+
+    start_event = MockEvent(agent=agent, tool_name="WebSearch", tool_args='{"query": "test"}', event_id=start_event_id)
+    error_event = MockEvent(
+        tool_name="web_search", tool_args={"query": "test"}, error="Connection timeout", started_event_id=start_event_id
+    )
+
+    with (
+        patch.object(crewai_callback._handler, "start_node") as mock_start,
+        patch.object(crewai_callback._handler, "end_node") as mock_end,
+    ):
+        # When: handling start and error
+        crewai_callback._handle_tool_usage_started(source, start_event)
+        crewai_callback._handle_tool_usage_error(source, error_event)
+
+        # Then: both use the same run_id
+        start_run_id = mock_start.call_args[1]["run_id"]
+        end_run_id = mock_end.call_args[1]["run_id"]
+        assert start_run_id == end_run_id
+
+
+def test_tool_lifecycle_crewai_v1_retry_gets_unique_ids(crewai_callback) -> None:
+    """Test that retried tool calls get unique run_ids (crewAI >= 1.0).
+
+    Each retry emits a new start event with a new event_id, so each attempt
+    gets its own span in the trace.
+    """
+    # Given: two attempts on the same ToolUsage instance
+    source = MockSource()
+    first_event_id = str(uuid.uuid4())
+    second_event_id = str(uuid.uuid4())
+
+    first_start = MockEvent(tool_name="SearchTool", tool_args="query", event_id=first_event_id)
+    first_error = MockEvent(tool_name="search_tool", tool_args={}, error="fail", started_event_id=first_event_id)
+    second_start = MockEvent(tool_name="SearchTool", tool_args="query", event_id=second_event_id)
+    second_finish = MockEvent(tool_name="search_tool", tool_args={}, output="ok", started_event_id=second_event_id)
+
+    # When: generating run_ids for both attempts
+    rid_1_start = crewai_callback._generate_run_id(source, first_start)
+    rid_1_error = crewai_callback._generate_run_id(source, first_error)
+    rid_2_start = crewai_callback._generate_run_id(source, second_start)
+    rid_2_finish = crewai_callback._generate_run_id(source, second_finish)
+
+    # Then: each attempt correlates correctly and is distinct from the other
+    assert rid_1_start == rid_1_error
+    assert rid_2_start == rid_2_finish
+    assert rid_1_start != rid_2_start
+
+
+def test_tool_lifecycle_previous_event_id(crewai_callback) -> None:
+    """Test tool start/end correlation via previous_event_id (crewAI >= 1.0).
+
+    Newer crewAI versions use previous_event_id instead of started_event_id
+    to link finish/error events back to the corresponding start event.
+    """
+    # Given: a source without .id and events using previous_event_id
+    source = MockSource()
+    start_event_id = str(uuid.uuid4())
+
+    start_event = MockEvent(
+        tool_name="duck_duck_go_search", tool_args={"query": "latest advancements in AI"}, event_id=start_event_id
+    )
+    # Finish event uses previous_event_id (not started_event_id)
+    end_event = MockEvent(
+        tool_name="duck_duck_go_search",
+        tool_args={"query": "latest advancements in AI"},
+        output="No good DuckDuckGo Search Result was found",
+        event_id=str(uuid.uuid4()),
+        previous_event_id=start_event_id,
+    )
+
+    # When: generating run_ids for both events
+    run_id_start = crewai_callback._generate_run_id(source, start_event)
+    run_id_end = crewai_callback._generate_run_id(source, end_event)
+
+    # Then: both produce the same UUID
+    assert run_id_start == run_id_end
+    assert isinstance(run_id_start, uuid.UUID)
+
+
+def test_tool_lifecycle_previous_event_id_full(crewai_callback) -> None:
+    """Test full tool start/finish lifecycle with previous_event_id (crewAI >= 1.0)."""
+    # Given: events matching real crewAI output (agent as null, agent_id as string)
+    source = MockSource()
+    agent_id = str(uuid.uuid4())
+    start_event_id = str(uuid.uuid4())
+
+    start_event = MockEvent(
+        agent=None,
+        agent_id=agent_id,
+        tool_name="duck_duck_go_search",
+        tool_args={"query": "test"},
+        event_id=start_event_id,
+    )
+    end_event = MockEvent(
+        agent=None,
+        agent_id=agent_id,
+        tool_name="duck_duck_go_search",
+        tool_args={"query": "test"},
+        output="search results",
+        event_id=str(uuid.uuid4()),
+        previous_event_id=start_event_id,
+    )
+
+    with (
+        patch.object(crewai_callback._handler, "start_node") as mock_start,
+        patch.object(crewai_callback._handler, "end_node") as mock_end,
+    ):
+        # When: handling start and finish
+        crewai_callback._handle_tool_usage_started(source, start_event)
+        crewai_callback._handle_tool_usage_finished(source, end_event)
+
+        # Then: both use the same run_id and parent is resolved from agent_id
+        start_run_id = mock_start.call_args[1]["run_id"]
+        end_run_id = mock_end.call_args[1]["run_id"]
+        assert start_run_id == end_run_id
+        assert str(mock_start.call_args[1]["parent_run_id"]) == agent_id
+
+
+def test_tool_usage_started_agent_id_fallback(crewai_callback) -> None:
+    """Test tool usage started resolves parent from event.agent_id when event.agent is None."""
+    # Given: an event with agent=None but agent_id as a top-level string (crewAI >= 1.0)
+    source = MockSource()
+    agent_id = str(uuid.uuid4())
+    event = MockEvent(
+        agent=None, agent_id=agent_id, tool_name="web_search", tool_args={"query": "test"}, event_id=str(uuid.uuid4())
+    )
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        # When: handling the event
+        crewai_callback._handle_tool_usage_started(source, event)
+
+        # Then: parent_run_id is resolved from the top-level agent_id
+        call_args = mock_start_node.call_args[1]
+        assert str(call_args["parent_run_id"]) == agent_id
+        assert call_args["name"] == "web_search"
+
+
+def test_tool_lifecycle_previous_event_id_with_error(crewai_callback) -> None:
+    """Test tool start/error correlation via previous_event_id (crewAI >= 1.0)."""
+    # Given: a tool that fails, error event uses previous_event_id
+    source = MockSource()
+    agent_id = str(uuid.uuid4())
+    start_event_id = str(uuid.uuid4())
+
+    start_event = MockEvent(
+        agent=None, agent_id=agent_id, tool_name="web_search", tool_args={"query": "test"}, event_id=start_event_id
+    )
+    error_event = MockEvent(
+        tool_name="web_search",
+        tool_args={"query": "test"},
+        error="Connection timeout",
+        event_id=str(uuid.uuid4()),
+        previous_event_id=start_event_id,
+    )
+
+    with (
+        patch.object(crewai_callback._handler, "start_node") as mock_start,
+        patch.object(crewai_callback._handler, "end_node") as mock_end,
+    ):
+        # When: handling start and error
+        crewai_callback._handle_tool_usage_started(source, start_event)
+        crewai_callback._handle_tool_usage_error(source, error_event)
+
+        # Then: both use the same run_id
+        start_run_id = mock_start.call_args[1]["run_id"]
+        end_run_id = mock_end.call_args[1]["run_id"]
+        assert start_run_id == end_run_id
