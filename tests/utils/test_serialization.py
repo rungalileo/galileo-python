@@ -723,3 +723,63 @@ class TestPydanticModelClassSerialization:
 
             # Should return class name when schema method is not callable
             assert result == "<ModelWithoutSchema>"
+
+
+try:
+    import proto as _proto
+
+    class _ProtoAuthor(_proto.Message):
+        name = _proto.Field(_proto.STRING, number=1)
+
+    class _ProtoBook(_proto.Message):
+        title = _proto.Field(_proto.STRING, number=1)
+        page_count = _proto.Field(_proto.INT32, number=2)
+
+    class _ProtoBookWithAuthor(_proto.Message):
+        title = _proto.Field(_proto.STRING, number=1)
+        author = _proto.Field(_ProtoAuthor, number=2)
+
+    class _ProtoEmpty(_proto.Message):
+        name = _proto.Field(_proto.STRING, number=1)
+
+    _has_proto = True
+except ImportError:
+    _has_proto = False
+
+
+@pytest.mark.skipif(not _has_proto, reason="proto-plus not installed")
+class TestProtoMessageSerialization:
+    """Test serialization of proto-plus messages (e.g. Google Cloud AI Platform types)."""
+
+    def test_proto_plus_message_serialization(self) -> None:
+        """Test that proto-plus messages are serialized via proto.Message.to_dict."""
+        # Given: a proto-plus message with fields set
+        book = _ProtoBook(title="Great Expectations", page_count=432)
+
+        # When: serializing the proto-plus message
+        result = json.loads(json.dumps(book, cls=EventSerializer))
+
+        # Then: the message fields are properly serialized
+        assert result == {"title": "Great Expectations", "page_count": 432}
+
+    def test_proto_plus_empty_message_serialization(self) -> None:
+        """Test that proto-plus messages with no set fields serialize correctly."""
+        # Given: a proto-plus message with no fields set
+        msg = _ProtoEmpty()
+
+        # When: serializing the empty message
+        result = json.loads(json.dumps(msg, cls=EventSerializer))
+
+        # Then: unset fields use their protobuf defaults (empty string for STRING)
+        assert result == {"name": ""}
+
+    def test_proto_plus_nested_message_serialization(self) -> None:
+        """Test that nested proto-plus messages are serialized recursively."""
+        # Given: a proto-plus message with a nested message
+        book = _ProtoBookWithAuthor(title="Great Expectations", author=_ProtoAuthor(name="Dickens"))
+
+        # When: serializing the nested message
+        result = json.loads(json.dumps(book, cls=EventSerializer))
+
+        # Then: nested message is properly serialized
+        assert result == {"title": "Great Expectations", "author": {"name": "Dickens"}}

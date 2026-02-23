@@ -13,7 +13,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from galileo.utils.dependencies import is_langchain_available, is_langgraph_available
+from galileo.utils.dependencies import is_langchain_available, is_langgraph_available, is_proto_plus_available
 
 _logger = logging.getLogger(__name__)
 
@@ -241,6 +241,15 @@ class EventSerializer(JSONEncoder):
             # Useful for serializing protobuf messages
             if isinstance(obj, Sequence):
                 return [self.default(item) for item in obj]
+
+            # Handle proto-plus messages (e.g. google.cloud.aiplatform types).
+            # Their __dict__ only contains private attrs, so the generic
+            # __dict__ serialization below would produce empty objects.
+            if is_proto_plus_available:
+                import proto
+
+                if isinstance(obj, proto.Message):
+                    return proto.Message.to_dict(obj)
 
             if hasattr(obj, "__slots__") and len(obj.__slots__) > 0:
                 return self.default({slot: getattr(obj, slot, None) for slot in obj.__slots__})
