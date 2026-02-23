@@ -246,6 +246,7 @@ class EventSerializer(JSONEncoder):
             # Their __dict__ only contains private attrs, so the generic
             # __dict__ serialization below would produce empty objects.
             if is_proto_plus_available:
+                # Lazy import: proto-plus is an optional dependency used by GCP tool classes (e.g. google.cloud.aiplatform)
                 import proto
 
                 if isinstance(obj, proto.Message):
