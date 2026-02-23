@@ -250,7 +250,7 @@ class EventSerializer(JSONEncoder):
                 import proto
 
                 if isinstance(obj, proto.Message):
-                    return proto.Message.to_dict(obj)
+                    return proto.Message.to_dict(obj, use_integers_for_enums=False)
 
             if hasattr(obj, "__slots__") and len(obj.__slots__) > 0:
                 return self.default({slot: getattr(obj, slot, None) for slot in obj.__slots__})
