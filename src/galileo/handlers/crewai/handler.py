@@ -326,17 +326,6 @@ class CrewAIEventListener:
 
         # 5. Tool events — use crewAI's event scope tracking for correlation (crewAI >= 1.0)
         if hasattr(event, "tool_args"):
-            # End events (finished/error) carry a reference back to the matching start event.
-            # crewAI uses `started_event_id` (older) or `previous_event_id` (newer) for this.
-            started_event_id = getattr(event, "started_event_id", None) or getattr(event, "previous_event_id", None)
-            if started_event_id:
-                return self._hash_to_uuid(f"tool_event_{started_event_id}")
-
-            # Start events have event_id (unique per emission). Use it when source has no .id (crewAI >= 1.0).
-            event_id = getattr(event, "event_id", None)
-            if event_id and not (hasattr(source, "id") and source.id):
-                return self._hash_to_uuid(f"tool_event_{event_id}")
-
             # crewAI < 1.0: source is a Tool instance with .id, already handled by step 3.
             # Fallback to tool_args hash for other cases.
             tool_name = getattr(event, "tool_name", "")
