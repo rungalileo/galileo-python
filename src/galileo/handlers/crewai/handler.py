@@ -603,7 +603,20 @@ class CrewAIEventListener:
         """Handle LLM call completion."""
         run_id = self._generate_run_id(source, event)
 
-        self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(event, "response", "")))
+        token_kwargs: dict[str, Any] = {}
+        response = getattr(event, "response", None)
+        if response is not None:
+            usage = getattr(response, "usage", None) or (getattr(response, "model_extra", None) or {}).get("usage")
+            if usage is None:
+                # Fallback: some crewai/litellm versions expose usage on the source object
+                usage = getattr(source, "_token_usage", None)
+            if usage is not None:
+                _get = usage.get if isinstance(usage, dict) else lambda k, d=0: getattr(usage, k, d)
+                token_kwargs["num_input_tokens"] = _get("prompt_tokens", 0)
+                token_kwargs["num_output_tokens"] = _get("completion_tokens", 0)
+                token_kwargs["total_tokens"] = _get("total_tokens", 0)
+
+        self._handler.end_node(run_id=run_id, output=serialize_to_str(response or ""), **token_kwargs)
 
     def _handle_llm_call_failed(self, source: Any, event: Any) -> None:
         """Handle LLM call failure."""

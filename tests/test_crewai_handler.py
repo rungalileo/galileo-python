@@ -561,6 +561,68 @@ def test_llm_call_completed(crewai_callback, generated_id) -> None:
         mock_end_node.assert_called_once_with(run_id=llm_id, output="Hello! How can I help you?")
 
 
+def test_llm_call_completed_extracts_token_usage(crewai_callback) -> None:
+    """Test that LLM call completed extracts token usage from response."""
+    # Given: an LLM completed event whose response carries usage data
+    llm_id = uuid.uuid4()
+    source = MockSource(id=llm_id)
+    mock_usage = Mock(prompt_tokens=150, completion_tokens=50, total_tokens=200)
+    mock_response = Mock(usage=mock_usage)
+    mock_response.model_extra = {}
+    event = MockEvent(response=mock_response)
+
+    # When: the completed handler processes the event
+    with patch.object(crewai_callback._handler, "end_node") as mock_end_node:
+        crewai_callback._handle_llm_call_completed(source, event)
+
+        # Then: token usage is passed to end_node
+        call_args = mock_end_node.call_args[1]
+        assert call_args["num_input_tokens"] == 150
+        assert call_args["num_output_tokens"] == 50
+        assert call_args["total_tokens"] == 200
+
+
+def test_llm_call_completed_extracts_token_usage_from_model_extra(crewai_callback) -> None:
+    """Test that LLM call completed extracts token usage from model_extra when usage attr is missing."""
+    # Given: a response where usage is in model_extra (litellm ModelResponse pattern)
+    llm_id = uuid.uuid4()
+    source = MockSource(id=llm_id)
+    mock_usage = Mock(prompt_tokens=100, completion_tokens=25, total_tokens=125)
+    mock_response = Mock(spec=[])  # no attributes at all
+    mock_response.model_extra = {"usage": mock_usage}
+    event = MockEvent(response=mock_response)
+
+    # When: the completed handler processes the event
+    with patch.object(crewai_callback._handler, "end_node") as mock_end_node:
+        crewai_callback._handle_llm_call_completed(source, event)
+
+        # Then: token usage is extracted from model_extra
+        call_args = mock_end_node.call_args[1]
+        assert call_args["num_input_tokens"] == 100
+        assert call_args["num_output_tokens"] == 25
+        assert call_args["total_tokens"] == 125
+
+
+def test_llm_call_completed_extracts_token_usage_from_source(crewai_callback) -> None:
+    """Test that LLM call completed falls back to source._token_usage dict."""
+    # Given: a response with no usage, but source carries _token_usage as a dict
+    llm_id = uuid.uuid4()
+    source = MockSource(id=llm_id, _token_usage={"prompt_tokens": 80, "completion_tokens": 20, "total_tokens": 100})
+    mock_response = Mock(spec=[], **{"usage": None})
+    mock_response.model_extra = {}
+    event = MockEvent(response=mock_response)
+
+    # When: the completed handler processes the event
+    with patch.object(crewai_callback._handler, "end_node") as mock_end_node:
+        crewai_callback._handle_llm_call_completed(source, event)
+
+        # Then: token usage is extracted from source._token_usage
+        call_args = mock_end_node.call_args[1]
+        assert call_args["num_input_tokens"] == 80
+        assert call_args["num_output_tokens"] == 20
+        assert call_args["total_tokens"] == 100
+
+
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
 def test_llm_call_failed(crewai_callback, generated_id) -> None:
     """Test LLM call failed event handling."""
