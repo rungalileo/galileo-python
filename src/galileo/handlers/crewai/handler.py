@@ -38,13 +38,6 @@ def _resolve_crewai_imports() -> None:
 
         crewai_version = Version(_crewai_version_str)
         CREWAI_EVENTS_MODULE_AVAILABLE = Version("0.177.0") <= crewai_version
-        if CREWAI_EVENTS_MODULE_AVAILABLE:
-            from crewai.events.base_event_listener import BaseEventListener as _Base
-        else:
-            from crewai.utilities.events.base_event_listener import BaseEventListener as _Base
-
-        # Dynamically graft the real base class so isinstance() and super() work.
-        CrewAIEventListener.__bases__ = (_Base,)
 
         CREWAI_AVAILABLE = True
     except ImportError:
@@ -60,7 +53,7 @@ def _resolve_crewai_imports() -> None:
         litellm = None
 
 
-class CrewAIEventListener:  # Base dynamically set to BaseEventListener by _resolve_crewai_imports()
+class CrewAIEventListener:
     """
     CrewAI event listener for logging traces to the Galileo platform.
 
@@ -85,9 +78,18 @@ class CrewAIEventListener:  # Base dynamically set to BaseEventListener by _reso
             integration="crewai",
         )
 
-        # Only call super().__init__() if CrewAI is available
         if CREWAI_AVAILABLE:
-            super().__init__()
+            # Register with the event bus directly instead of inheriting from
+            # BaseEventListener — dynamic __bases__ assignment is rejected by
+            # CPython when the deallocator differs from object's.
+            try:
+                if CREWAI_EVENTS_MODULE_AVAILABLE:
+                    from crewai.events import crewai_event_bus  # pyright: ignore[reportMissingImports]
+                else:
+                    from crewai.utilities.events import crewai_event_bus  # pyright: ignore[reportMissingImports]
+                self.setup_listeners(crewai_event_bus)
+            except ImportError:
+                _logger.warning("Could not import crewai event bus, skipping listener setup")
 
         if LITE_LLM_AVAILABLE and litellm is not None:
             if not litellm.success_callback:
