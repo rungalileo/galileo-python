@@ -1257,7 +1257,9 @@ def test_tool_lifecycle_previous_event_id_with_error(crewai_callback) -> None:
     agent_id = str(uuid.uuid4())
 
     start_event = MockEvent(agent=None, agent_id=agent_id, tool_name="web_search", tool_args={"query": "test"})
-    error_event = MockEvent(tool_name="web_search", tool_args={"query": "test"}, error="Connection timeout")
+    error_event = MockEvent(
+        agent_id=agent_id, tool_name="web_search", tool_args={"query": "test"}, error="Connection timeout"
+    )
 
     with (
         patch.object(crewai_callback._handler, "start_node") as mock_start,
