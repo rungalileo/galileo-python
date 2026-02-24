@@ -763,7 +763,7 @@ class TestProtoMessageSerialization:
         assert result == {"title": "Great Expectations", "page_count": 432}
 
     def test_proto_plus_empty_message_serialization(self) -> None:
-        """Test that proto-plus messages with no set fields serialize correctly."""
+        """Test that proto-plus messages with unset fields produce protobuf defaults, not empty dicts."""
         # Given: a proto-plus message with no fields set
         msg = _ProtoEmpty()
 

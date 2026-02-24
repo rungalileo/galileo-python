@@ -237,8 +237,10 @@ class EventSerializer(JSONEncoder):
             if isinstance(obj, list):
                 return [self.default(item) for item in obj]
 
-            # Important: this needs to be always checked after str and bytes types
-            # Useful for serializing protobuf messages
+            # Important: this needs to be always checked after str and bytes types.
+            # Bare protobuf messages (google.protobuf.message.Message) implement
+            # Sequence, so this branch handles them as iterables. Proto-plus
+            # messages (proto.Message) are handled separately below.
             if isinstance(obj, Sequence):
                 return [self.default(item) for item in obj]
 
@@ -250,7 +252,7 @@ class EventSerializer(JSONEncoder):
                 import proto
 
                 if isinstance(obj, proto.Message):
-                    return proto.Message.to_dict(obj, use_integers_for_enums=False)
+                    return self.default(proto.Message.to_dict(obj, use_integers_for_enums=False))
 
             if hasattr(obj, "__slots__") and len(obj.__slots__) > 0:
                 return self.default({slot: getattr(obj, slot, None) for slot in obj.__slots__})
