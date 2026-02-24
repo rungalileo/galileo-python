@@ -70,11 +70,15 @@ def parse_llm_result(response: Any) -> LLMEndResult:
     try:
         flattened_messages = [message for batch in response.generations for message in batch]
         first_message = flattened_messages[0] if flattened_messages else None
-        output = json.loads(json.dumps(first_message, cls=EventSerializer))
-        if not token_usage and hasattr(first_message, "message"):
-            message_token_usage = getattr(getattr(first_message, "message", {}), "usage_metadata", None)
-            if message_token_usage:
-                token_usage = {**token_usage, **message_token_usage}
+        if first_message is None:
+            # Empty generations - fall back to stringified representation
+            output = str(response.generations)
+        else:
+            output = json.loads(json.dumps(first_message, cls=EventSerializer))
+            if not token_usage and hasattr(first_message, "message"):
+                message_token_usage = getattr(getattr(first_message, "message", {}), "usage_metadata", None)
+                if message_token_usage:
+                    token_usage = {**token_usage, **message_token_usage}
     except Exception as e:
         _logger.warning(f"Failed to serialize LLM output: {e}")
         output = str(response.generations)

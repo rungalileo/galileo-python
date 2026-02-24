@@ -1259,10 +1259,26 @@ class TestParseLlmResult:
         # When: parsing the result
         result = parse_llm_result(response)
 
-        # Then: output is None but tokens are still extracted
-        assert result.output is None
+        # Then: output is stringified fallback (never None), tokens are still extracted
+        assert result.output == "[[]]"
         assert result.num_input_tokens == 10
         assert result.num_output_tokens == 20
+
+    def test_completely_empty_generations(self) -> None:
+        """Test graceful handling when generations is completely empty (no batches)."""
+        # Given: an LLMResult with no generation batches at all
+        response = LLMResult(
+            generations=[],
+            llm_output={"token_usage": {"prompt_tokens": 5, "completion_tokens": 10, "total_tokens": 15}},
+        )
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: output is stringified fallback (never None), tokens are still extracted
+        assert result.output == "[]"
+        assert result.num_input_tokens == 5
+        assert result.num_output_tokens == 10
 
     def test_llm_output_empty_token_usage_with_usage_metadata(self) -> None:
         """Test fallback to usage_metadata when llm_output exists but token_usage is empty."""
