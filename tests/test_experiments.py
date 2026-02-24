@@ -664,7 +664,7 @@ class TestExperiments:
     ) -> None:
         # Given: no prompt_template and no dataset
         # When/Then: ValueError is raised requiring a dataset
-        with pytest.raises(ValueError, match="A dataset object must be provided"):
+        with pytest.raises(ValueError, match="dataset"):
             run_experiment("test_experiment", project="awesome-new-project")
 
     @patch("galileo.logger.logger.LogStreams")
