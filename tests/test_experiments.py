@@ -572,6 +572,101 @@ class TestExperiments:
             prompt_settings=ANY,
         )
 
+    @travel(datetime(2012, 1, 1), tick=False)
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_generated_output_flow(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ) -> None:
+        # Given: no prompt_template, dataset provided (generated-output flow)
+        mock_create_job.return_value = MagicMock()
+        dataset_id = str(UUID(int=0))
+
+        # When: run_experiment is called without a prompt_template
+        result = run_experiment(
+            "test_experiment", project="awesome-new-project", dataset_id=dataset_id
+        )
+
+        # Then: Jobs.create is called with prompt_template_id=None and prompt_settings=None
+        assert result is not None
+        mock_create_job.assert_called_once_with(
+            name="playground_run",
+            project_id="00000000-0000-0000-0000-000000000000",
+            run_id="00000000-0000-4000-8000-000000000001",
+            prompt_template_id=None,
+            dataset_id=ANY,
+            task_type=TaskType.VALUE_16,
+            scorers=None,
+            prompt_settings=None,
+        )
+
+    @travel(datetime(2012, 1, 1), tick=False)
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_prompt_takes_precedence_over_generated_output(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ) -> None:
+        # Given: both prompt_template and dataset provided
+        mock_create_job.return_value = MagicMock()
+        dataset_id = str(UUID(int=0))
+
+        # When: run_experiment is called with a prompt_template
+        result = run_experiment(
+            "test_experiment",
+            project="awesome-new-project",
+            dataset_id=dataset_id,
+            prompt_template=prompt_template(),
+        )
+
+        # Then: Jobs.create is called with the prompt_template_id set (prompt-driven flow)
+        assert result is not None
+        mock_create_job.assert_called_once_with(
+            name="playground_run",
+            project_id="00000000-0000-0000-0000-000000000000",
+            run_id="00000000-0000-4000-8000-000000000001",
+            prompt_template_id="00000000-0000-0000-0000-000000000003",
+            dataset_id=ANY,
+            task_type=TaskType.VALUE_16,
+            scorers=None,
+            prompt_settings=ANY,
+        )
+
+    @patch.object(galileo.datasets.Datasets, "get", return_value=None)
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_no_prompt_no_dataset_raises(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+    ) -> None:
+        # Given: no prompt_template and no dataset
+        # When/Then: ValueError is raised requiring a dataset
+        with pytest.raises(ValueError, match="A dataset object must be provided"):
+            run_experiment("test_experiment", project="awesome-new-project")
+
     @patch("galileo.logger.logger.LogStreams")
     @patch("galileo.logger.logger.Projects")
     @patch("galileo.logger.logger.Traces")
