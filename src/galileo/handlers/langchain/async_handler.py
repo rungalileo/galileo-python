@@ -102,13 +102,13 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         # The input is sent via kwargs in on_chain_end in async streaming mode
         if "inputs" in kwargs:
             kwargs["input"] = serialize_to_str(kwargs["inputs"])
-        await self._handler.async_end_node(run_id, output=serialize_to_str(outputs), **kwargs)
+        await self._handler.async_end_node(run_id, output=serialize_to_str(outputs), status_code=200, **kwargs)
 
     async def on_agent_finish(self, finish: AgentFinish, *, run_id: UUID, **kwargs: Any) -> Any:
         """Langchain callback when an agent finishes."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
-        await self._handler.async_end_node(run_id, output=serialize_to_str(finish))
+        await self._handler.async_end_node(run_id, output=serialize_to_str(finish), status_code=200)
 
     async def on_llm_start(
         self,
@@ -223,6 +223,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             num_input_tokens=result.num_input_tokens,
             num_output_tokens=result.num_output_tokens,
             total_tokens=result.total_tokens,
+            status_code=200,
         )
 
     async def on_tool_start(
@@ -262,7 +263,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
 
-        end_node_kwargs = {}
+        end_node_kwargs: dict[str, Any] = {"status_code": 200}
         if (tool_message := GalileoCallback._find_tool_message(output)) is not None:
             end_node_kwargs["output"] = tool_message.content
             end_node_kwargs["tool_call_id"] = tool_message.tool_call_id
@@ -322,36 +323,36 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             _logger.warning(f"Failed to serialize retriever output: {e}")
             serialized_response = str(documents)
 
-        await self._handler.async_end_node(run_id, output=serialized_response)
+        await self._handler.async_end_node(run_id, output=serialized_response, status_code=200)
 
     async def on_chain_error(
         self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
-        """Called when a chain errors."""
+        """Langchain callback when a chain errors."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
-        await self._handler.async_end_node(run_id, output=f"Error: {error!s}")
+        await self._handler.async_end_node(run_id, output=f"Error: {error!s}", status_code=400)
 
     async def on_llm_error(
         self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
-        """Called when an LLM errors."""
+        """Langchain callback when an LLM errors."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
-        await self._handler.async_end_node(run_id, output=f"Error: {error!s}")
+        await self._handler.async_end_node(run_id, output=f"Error: {error!s}", status_code=400)
 
     async def on_tool_error(
         self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
-        """Called when a tool errors."""
+        """Langchain callback when a tool errors."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
-        await self._handler.async_end_node(run_id, output=f"Error: {error!s}")
+        await self._handler.async_end_node(run_id, output=f"Error: {error!s}", status_code=400)
 
     async def on_retriever_error(
         self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
-        """Called when a retriever errors."""
+        """Langchain callback when a retriever errors."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
-        await self._handler.async_end_node(run_id, output=f"Error: {error!s}")
+        await self._handler.async_end_node(run_id, output=f"Error: {error!s}", status_code=400)
