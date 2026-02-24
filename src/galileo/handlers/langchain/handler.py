@@ -5,7 +5,7 @@ from typing import Any, Callable, Optional
 from uuid import UUID
 
 from galileo.handlers.base_handler import GalileoBaseHandler
-from galileo.handlers.langchain.utils import get_agent_name, is_agent_node, update_root_to_agent
+from galileo.handlers.langchain.utils import get_agent_name, is_agent_node, parse_llm_result, update_root_to_agent
 from galileo.logger import GalileoLogger
 from galileo.schema.handlers import LANGCHAIN_NODE_TYPE, NODE_TYPE
 from galileo.schema.trace import TracesIngestRequest
@@ -237,21 +237,13 @@ class GalileoCallback(BaseCallbackHandler):
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
 
-        token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
-
-        try:
-            flattened_messages = [message for batch in response.generations for message in batch]
-            output = json.loads(json.dumps(flattened_messages[0], cls=EventSerializer))
-        except Exception as e:
-            _logger.warning(f"Failed to serialize LLM output: {e}")
-            output = str(response.generations)
-
+        result = parse_llm_result(response)
         self._handler.end_node(
             run_id,
-            output=output,
-            num_input_tokens=token_usage.get("prompt_tokens"),
-            num_output_tokens=token_usage.get("completion_tokens"),
-            total_tokens=token_usage.get("total_tokens"),
+            output=result.output,
+            num_input_tokens=result.num_input_tokens,
+            num_output_tokens=result.num_output_tokens,
+            total_tokens=result.total_tokens,
         )
 
     def on_tool_start(

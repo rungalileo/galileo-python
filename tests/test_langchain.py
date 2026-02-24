@@ -12,7 +12,7 @@ from langchain_core.outputs import ChatGeneration, LLMResult
 
 from galileo import Message, MessageRole, galileo_context
 from galileo.handlers.langchain import GalileoCallback
-from galileo.handlers.langchain.utils import update_root_to_agent
+from galileo.handlers.langchain.utils import parse_llm_result, update_root_to_agent
 from galileo.logger.logger import GalileoLogger
 from galileo.schema.handlers import Node
 from galileo.utils.uuid_utils import uuid7_to_uuid4
@@ -1158,6 +1158,126 @@ class TestUpdateRootToAgent:
         update_root_to_agent(parent_run_id, metadata, parent_node)
 
         assert parent_node.node_type == "agent"
+
+
+class TestParseLlmResult:
+    """Tests for the parse_llm_result utility (GCP Vertex AI token metrics support)."""
+
+    def test_openai_style_token_usage(self) -> None:
+        """Test standard OpenAI token keys in llm_output."""
+        # Given: an LLMResult with OpenAI-style token_usage
+        response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="hello"))]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: standard keys are used
+        assert result.num_input_tokens == 10
+        assert result.num_output_tokens == 20
+        assert result.total_tokens == 30
+
+    def test_gcp_style_token_usage(self) -> None:
+        """Test GCP Vertex AI token keys (input_tokens/output_tokens) in llm_output."""
+        # Given: an LLMResult with GCP-style token keys
+        response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="hello"))]],
+            llm_output={"token_usage": {"input_tokens": 15, "output_tokens": 25, "total_tokens": 40}},
+        )
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: GCP keys are used as fallback
+        assert result.num_input_tokens == 15
+        assert result.num_output_tokens == 25
+        assert result.total_tokens == 40
+
+    def test_openai_keys_take_precedence_over_gcp_keys(self) -> None:
+        """Test that prompt_tokens/completion_tokens take precedence when both key styles exist."""
+        # Given: an LLMResult with both OpenAI and GCP token keys
+        response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="hello"))]],
+            llm_output={
+                "token_usage": {
+                    "prompt_tokens": 10,
+                    "completion_tokens": 20,
+                    "input_tokens": 99,
+                    "output_tokens": 99,
+                    "total_tokens": 30,
+                }
+            },
+        )
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: OpenAI keys take precedence
+        assert result.num_input_tokens == 10
+        assert result.num_output_tokens == 20
+
+    def test_token_usage_from_message_usage_metadata(self) -> None:
+        """Test fallback to message.usage_metadata when llm_output has no token_usage."""
+        # Given: an LLMResult with no llm_output but usage_metadata on the message
+        ai_message = AIMessage(content="hello")
+        ai_message.usage_metadata = {"input_tokens": 5, "output_tokens": 12, "total_tokens": 17}
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the result
+
+        result = parse_llm_result(response)
+
+        # Then: usage_metadata values are extracted
+        assert result.num_input_tokens == 5
+        assert result.num_output_tokens == 12
+        assert result.total_tokens == 17
+
+    def test_no_token_usage_anywhere(self) -> None:
+        """Test that None is returned when no token usage is available."""
+        # Given: an LLMResult with no token information
+        response = LLMResult(generations=[[ChatGeneration(message=AIMessage(content="hello"))]], llm_output=None)
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: all token fields are None
+        assert result.num_input_tokens is None
+        assert result.num_output_tokens is None
+        assert result.total_tokens is None
+        assert result.output is not None
+
+    def test_empty_generations(self) -> None:
+        """Test graceful handling when generations list is empty."""
+        # Given: an LLMResult with empty generations
+        response = LLMResult(
+            generations=[[]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: output is None but tokens are still extracted
+        assert result.output is None
+        assert result.num_input_tokens == 10
+        assert result.num_output_tokens == 20
+
+    def test_llm_output_empty_token_usage_with_usage_metadata(self) -> None:
+        """Test fallback to usage_metadata when llm_output exists but token_usage is empty."""
+        # Given: an LLMResult with empty token_usage in llm_output
+        ai_message = AIMessage(content="response")
+        ai_message.usage_metadata = {"input_tokens": 8, "output_tokens": 16, "total_tokens": 24}
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output={"token_usage": {}})
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: usage_metadata values are extracted as fallback
+        assert result.num_input_tokens == 8
+        assert result.num_output_tokens == 16
+        assert result.total_tokens == 24
 
 
 class TestGalileoCallbackIngestionHookWithoutCredentials:
