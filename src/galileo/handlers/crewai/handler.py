@@ -291,7 +291,7 @@ class CrewAIEventListener:
     def _generate_run_id(self, source: Any, event: Any) -> UUID:
         """Generate a consistent UUID for event tracing."""
         # 1. Memory event specific ID generation
-        if hasattr(event, "query"):  # Memory query events
+        if hasattr(event, "query") and getattr(event, "type", "").startswith("memory_query"):  # Memory query events
             source_type = event.source_type if hasattr(event, "source_type") else ""
             return self._hash_to_uuid(
                 f"memory_query_{event.query}_{source_type}_{getattr(event, 'agent_id', '')}_{getattr(event, 'limit', '')}_{getattr(event, 'score_threshold', '')}"
@@ -333,7 +333,8 @@ class CrewAIEventListener:
                 tool_args = event.tool_args
             else:
                 tool_args = json.dumps(event.tool_args) if isinstance(event.tool_args, dict) else str(event.tool_args)
-            return self._hash_to_uuid(f"{tool_name}_{tool_args}")
+            agent_id = getattr(event, "agent_id", "") or ""
+            return self._hash_to_uuid(f"{tool_name}_{tool_args}_{agent_id}")
 
         # 6. event.agent.id — Agent events in crewAI >= 1.0 (source no longer has .id)
         event_agent = getattr(event, "agent", None)
