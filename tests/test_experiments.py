@@ -592,9 +592,7 @@ class TestExperiments:
         dataset_id = str(UUID(int=0))
 
         # When: run_experiment is called without a prompt_template
-        result = run_experiment(
-            "test_experiment", project="awesome-new-project", dataset_id=dataset_id
-        )
+        result = run_experiment("test_experiment", project="awesome-new-project", dataset_id=dataset_id)
 
         # Then: Jobs.create is called with prompt_template_id=None and prompt_settings=None
         assert result is not None
@@ -630,10 +628,7 @@ class TestExperiments:
 
         # When: run_experiment is called with a prompt_template
         result = run_experiment(
-            "test_experiment",
-            project="awesome-new-project",
-            dataset_id=dataset_id,
-            prompt_template=prompt_template(),
+            "test_experiment", project="awesome-new-project", dataset_id=dataset_id, prompt_template=prompt_template()
         )
 
         # Then: Jobs.create is called with the prompt_template_id set (prompt-driven flow)
