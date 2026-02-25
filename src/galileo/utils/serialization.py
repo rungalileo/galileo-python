@@ -14,6 +14,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from galileo.utils.dependencies import is_langchain_available, is_langgraph_available, is_proto_plus_available
+from galileo_core.schemas.shared.content_blocks import DataContentBlock, IngestContentBlock, TextContentBlock
 
 _logger = logging.getLogger(__name__)
 
@@ -42,8 +43,67 @@ def serialize_datetime(v: dt.datetime) -> str:
 
 
 def map_langchain_role(role: str) -> str:
-    role_map = {"ai": "assistant", "human": "user"}
+    # Non-chunk types like "system", "tool", "function", "chat" pass through unchanged.
+    # Chunk classes set type to the class name (e.g. "AIMessageChunk") so we map those too.
+    role_map = {
+        "ai": "assistant",
+        "AIMessageChunk": "assistant",
+        "human": "user",
+        "HumanMessageChunk": "user",
+        "SystemMessageChunk": "system",
+        "ToolMessageChunk": "tool",
+        "FunctionMessageChunk": "function",
+        "ChatMessageChunk": "chat",
+    }
     return role_map.get(role, role)
+
+
+# LangChain multimodal message format mapping.
+# See https://python.langchain.com/docs/concepts/multimodality/
+# LangChain uses {"type": "<modality>_url", "<modality>_url": {"url": "..."}} for media,
+# and {"type": "text", "text": "..."} for text segments.
+_LANGCHAIN_TYPE_TO_MODALITY = {
+    "image_url": "image",
+    "audio_url": "audio",
+    "video_url": "video",
+    "document_url": "document",
+    "input_image": "image",
+    "input_audio": "audio",
+}
+
+
+def _convert_langchain_content_block(block: dict) -> IngestContentBlock:
+    """Convert a single LangChain content block dict to a Galileo ingest content block.
+
+    LangChain multimodal format (https://python.langchain.com/docs/concepts/multimodality/):
+        {"type": "text", "text": "hello"}
+        {"type": "image_url", "image_url": {"url": "https://..."}}
+        {"type": "input_audio", "input_audio": {"data": "base64...", "format": "wav"}}
+
+    Returns either a TextContentBlock or DataContentBlock instance.
+    """
+    block_type = block.get("type", "")
+    if block_type == "text" or (not block_type and "text" in block):
+        return TextContentBlock(text=block.get("text", ""))
+    modality = _LANGCHAIN_TYPE_TO_MODALITY.get(block_type)
+    if modality:
+        nested = block.get(block_type, {})
+        url = nested.get("url", "") if isinstance(nested, dict) else str(nested)
+        kwargs: dict[str, Any] = {"type": modality}
+        if url:
+            if url.startswith("data:"):
+                kwargs["base64"] = url
+            else:
+                kwargs["url"] = url
+        return DataContentBlock(**kwargs)
+    return TextContentBlock(text=str(block))
+
+
+def _normalize_multimodal_content(dumped: dict) -> None:
+    """If ``dumped["content"]`` is a list of dicts, convert each to an ingest content block in-place."""
+    content = dumped.get("content")
+    if isinstance(content, list) and content and isinstance(content[0], dict):
+        dumped["content"] = [_convert_langchain_content_block(b) for b in content]
 
 
 class EventSerializer(JSONEncoder):
@@ -96,6 +156,14 @@ class EventSerializer(JSONEncoder):
                     return self.default(obj.message)
                 if isinstance(obj, LLMResult):
                     return self.default(obj.generations[0])
+                # LangChain message type multimodal audit (all 12 types accounted for):
+                #   Branch 1 (AIMessageChunk, AIMessage): explicit — tool_calls + multimodal
+                #   Branch 2 (ToolMessage, ToolMessageChunk via inheritance): explicit — status + multimodal
+                #   Branch 3 (BaseMessage catch-all): HumanMessage, HumanMessageChunk,
+                #     SystemMessage, SystemMessageChunk, ChatMessage, ChatMessageChunk,
+                #     FunctionMessage (deprecated), FunctionMessageChunk (deprecated)
+                # _normalize_multimodal_content() is called in every branch so list[dict]
+                # content is converted to IngestContentBlock for all message types.
                 if isinstance(obj, (AIMessageChunk, AIMessage)):
                     # Map the `type` to `role`.
                     if hasattr(obj, "model_dump"):
@@ -105,12 +173,7 @@ class EventSerializer(JSONEncoder):
                     else:
                         # Fallback to using the dict method if model_dump is not available i.e pydantic v1
                         dumped = obj.dict(include={"content", "type", "additional_kwargs", "tool_calls"})
-                    content = dumped.get("content")
-                    if isinstance(content, list):
-                        # Responses API returns content as a list of dicts
-                        # Convert list content to string format for consistency
-                        if content and isinstance(content[0], dict):
-                            dumped["content"] = content[0].get("text", "")
+                    _normalize_multimodal_content(dumped)
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     additional_kwargs = dumped.pop("additional_kwargs", {})
                     # Check both direct attribute and additional_kwargs for tool_calls
@@ -156,6 +219,7 @@ class EventSerializer(JSONEncoder):
                     else:
                         # Fallback to using the dict method if model_dump is not available i.e pydantic v1
                         dumped = obj.dict(include={"content", "type", "status", "tool_call_id"})
+                    _normalize_multimodal_content(dumped)
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     return dumped
                 if isinstance(obj, BaseMessage):
@@ -165,6 +229,7 @@ class EventSerializer(JSONEncoder):
                     else:
                         # Fallback to using the dict method if model_dump is not available i.e pydantic v1
                         dumped = obj.dict(include={"content", "type"})
+                    _normalize_multimodal_content(dumped)
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     return dumped
 
@@ -211,6 +276,9 @@ class EventSerializer(JSONEncoder):
                         # If schema generation fails, return class name
                         return f"<{obj.__name__}>"
                 return f"<{obj.__name__}>"
+
+            if isinstance(obj, (TextContentBlock, DataContentBlock)):
+                return obj.model_dump(mode="json", exclude_none=True)
 
             if isinstance(obj, BaseModel):
                 if hasattr(obj, "model_dump"):

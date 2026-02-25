@@ -4,6 +4,7 @@ import copy
 import inspect
 import json
 import logging
+import os
 import time
 import uuid
 from datetime import datetime
@@ -30,7 +31,7 @@ from galileo.schema.trace import (
     TracesIngestRequest,
     TraceUpdateRequest,
 )
-from galileo.traces import Traces
+from galileo.traces import IngestTraces, Traces
 from galileo.utils.decorators import (
     async_warn_catch_exception,
     nop_async,
@@ -153,6 +154,7 @@ class GalileoLogger(TracesLogger):
 
     _logger = logging.getLogger("galileo.logger")
     _traces_client: Optional["Traces"] = None
+    _ingest_client: Optional["IngestTraces"] = None
     _task_handler: ThreadPoolTaskHandler
     _trace_completion_submitted: bool
 
@@ -305,6 +307,11 @@ class GalileoLogger(TracesLogger):
                 self._traces_client = Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)
             elif self.experiment_id:
                 self._traces_client = Traces(project_id=self.project_id, experiment_id=self.experiment_id)
+
+            if os.environ.get("GALILEO_INGEST_URL"):
+                self._ingest_client = IngestTraces(
+                    project_id=self.project_id, log_stream_id=self.log_stream_id, experiment_id=self.experiment_id
+                )
         else:
             # ingestion_hook path: Traces client not created eagerly.
             # If the user later calls ingest_traces(), it will be created lazily.
@@ -474,6 +481,8 @@ class GalileoLogger(TracesLogger):
         )
         @retry_on_transient_http_error
         async def ingest_traces_with_backoff(request: Any) -> None:
+            if self._ingest_client:
+                return await self._ingest_client.ingest_traces(request)
             return await self._traces_client.ingest_traces(request)
 
         self._task_handler.submit_task(
@@ -1807,6 +1816,8 @@ class GalileoLogger(TracesLogger):
                 await self._ingestion_hook(traces_ingest_request)
             else:
                 self._ingestion_hook(traces_ingest_request)
+        elif self._ingest_client:
+            await self._ingest_client.ingest_traces(traces_ingest_request)
         else:
             await self._traces_client.ingest_traces(traces_ingest_request)
 

@@ -11,10 +11,26 @@ from typing import Any, NoReturn, Optional
 from unittest.mock import patch
 
 import pytest
-from langchain_core.messages import AIMessage
+from langchain_core.messages import (
+    AIMessage,
+    AIMessageChunk,
+    ChatMessage,
+    FunctionMessage,
+    HumanMessage,
+    SystemMessage,
+    ToolMessage,
+    ToolMessageChunk,
+)
 from pydantic import BaseModel
 
-from galileo.utils.serialization import EventSerializer, convert_to_string_dict, serialize_datetime, serialize_to_str
+from galileo.utils.serialization import (
+    EventSerializer,
+    _convert_langchain_content_block,
+    convert_to_string_dict,
+    serialize_datetime,
+    serialize_to_str,
+)
+from galileo_core.schemas.shared.content_blocks import DataContentBlock, TextContentBlock
 
 
 class TestSerializeDateTime:
@@ -783,3 +799,271 @@ class TestProtoMessageSerialization:
 
         # Then: nested message is properly serialized
         assert result == {"title": "Great Expectations", "author": {"name": "Dickens"}}
+
+
+class TestConvertLangchainContentBlock:
+    """Test conversion of LangChain content blocks to ingest service format."""
+
+    def test_text_block(self) -> None:
+        # Given: a LangChain text content block
+        block = {"type": "text", "text": "What is in this image?"}
+
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+
+        # Then: it returns a TextContentBlock instance
+        assert isinstance(result, TextContentBlock)
+        assert result.type == "text"
+        assert result.text == "What is in this image?"
+
+    def test_image_url_block(self) -> None:
+        # Given: a LangChain image_url content block
+        block = {"type": "image_url", "image_url": {"url": "https://example.com/img.png"}}
+
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+
+        # Then: it returns a DataContentBlock with modality=image
+        assert isinstance(result, DataContentBlock)
+        assert result.type == "image"
+        assert result.url == "https://example.com/img.png"
+
+    def test_image_url_base64(self) -> None:
+        # Given: a LangChain image_url with a base64 data URI
+        block = {"type": "image_url", "image_url": {"url": "data:image/png;base64,abc123"}}
+
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+
+        # Then: it returns a DataContentBlock with base64 instead of url
+        assert isinstance(result, DataContentBlock)
+        assert result.type == "image"
+        assert result.base64 == "data:image/png;base64,abc123"
+        assert result.url is None
+
+    def test_audio_url_block(self) -> None:
+        # Given: a LangChain audio_url content block
+        block = {"type": "audio_url", "audio_url": {"url": "https://example.com/audio.mp3"}}
+
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+
+        # Then: it returns a DataContentBlock with modality=audio
+        assert isinstance(result, DataContentBlock)
+        assert result.type == "audio"
+        assert result.url == "https://example.com/audio.mp3"
+
+    def test_unknown_block_type_falls_back_to_text(self) -> None:
+        # Given: an unknown content block type
+        block = {"type": "custom_thing", "data": "value"}
+
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+
+        # Then: it falls back to a TextContentBlock with stringified content
+        assert isinstance(result, TextContentBlock)
+        assert result.type == "text"
+
+
+class TestMultimodalContentSerialization:
+    """Test that multimodal content in LangChain messages is serialized to content blocks."""
+
+    def test_ai_message_with_text_only_content(self) -> None:
+        """String content should remain a plain string (backward compat)."""
+        pytest.importorskip("langchain_core")
+
+        # Given: an AIMessage with string content
+        message = AIMessage(content="Hello world")
+
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+
+        # Then: content is still a plain string
+        assert result["content"] == "Hello world"
+        assert result["role"] == "assistant"
+
+    def test_ai_message_with_multimodal_content(self) -> None:
+        """List content should be converted to content blocks, not flattened."""
+        pytest.importorskip("langchain_core")
+
+        # Given: an AIMessage with list content (text + image)
+        message = AIMessage(
+            content=[
+                {"type": "text", "text": "Here is the image analysis"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/result.png"}},
+            ]
+        )
+
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+
+        # Then: content is an array of content blocks
+        assert isinstance(result["content"], list)
+        assert len(result["content"]) == 2
+        assert result["content"][0] == {"type": "text", "text": "Here is the image analysis"}
+        assert result["content"][1] == {"type": "image", "url": "https://example.com/result.png"}
+
+    def test_human_message_with_multimodal_content(self) -> None:
+        """BaseMessage subclasses with list content should also produce content blocks."""
+        pytest.importorskip("langchain_core")
+
+        # Given: a HumanMessage with list content
+        message = HumanMessage(
+            content=[
+                {"type": "text", "text": "What is in this image?"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/photo.jpg"}},
+            ]
+        )
+
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+
+        # Then: content is an array of content blocks
+        assert isinstance(result["content"], list)
+        assert len(result["content"]) == 2
+        assert result["content"][0] == {"type": "text", "text": "What is in this image?"}
+        assert result["content"][1] == {"type": "image", "url": "https://example.com/photo.jpg"}
+        assert result["role"] == "user"
+
+    def test_system_message_with_multimodal_content(self) -> None:
+        pytest.importorskip("langchain_core")
+
+        # Given: a SystemMessage with list content (technically supported by LangChain)
+        message = SystemMessage(
+            content=[
+                {"type": "text", "text": "You are a vision assistant."},
+                {"type": "image_url", "image_url": {"url": "https://example.com/ref.png"}},
+            ]
+        )
+
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+
+        # Then: content is converted to content blocks via BaseMessage branch
+        assert isinstance(result["content"], list)
+        assert result["content"][0] == {"type": "text", "text": "You are a vision assistant."}
+        assert result["content"][1] == {"type": "image", "url": "https://example.com/ref.png"}
+        assert result["role"] == "system"
+
+    def test_tool_message_with_multimodal_content(self) -> None:
+        pytest.importorskip("langchain_core")
+
+        # Given: a ToolMessage with list content (tool returning image results)
+        message = ToolMessage(
+            content=[
+                {"type": "text", "text": "Generated chart:"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/chart.png"}},
+            ],
+            tool_call_id="call_abc123",
+        )
+
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+
+        # Then: content is converted to content blocks via ToolMessage branch
+        assert isinstance(result["content"], list)
+        assert result["content"][0] == {"type": "text", "text": "Generated chart:"}
+        assert result["content"][1] == {"type": "image", "url": "https://example.com/chart.png"}
+        assert result["role"] == "tool"
+
+    def test_tool_message_chunk_with_multimodal_content(self) -> None:
+        pytest.importorskip("langchain_core")
+
+        # Given: a ToolMessageChunk with list content (inherits from ToolMessage)
+        message = ToolMessageChunk(
+            content=[
+                {"type": "text", "text": "Partial result:"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/partial.png"}},
+            ],
+            tool_call_id="call_xyz789",
+        )
+
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+
+        # Then: content is converted via ToolMessage branch (ToolMessageChunk is a subclass)
+        assert isinstance(result["content"], list)
+        assert result["content"][0] == {"type": "text", "text": "Partial result:"}
+        assert result["content"][1] == {"type": "image", "url": "https://example.com/partial.png"}
+        assert result["role"] == "tool"
+
+    def test_ai_message_chunk_with_multimodal_content(self) -> None:
+        pytest.importorskip("langchain_core")
+
+        # Given: an AIMessageChunk with list content (streaming variant)
+        message = AIMessageChunk(
+            content=[
+                {"type": "text", "text": "Here is what I found:"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/found.png"}},
+            ]
+        )
+
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+
+        # Then: content is converted via AIMessageChunk branch
+        assert isinstance(result["content"], list)
+        assert result["content"][0] == {"type": "text", "text": "Here is what I found:"}
+        assert result["content"][1] == {"type": "image", "url": "https://example.com/found.png"}
+        assert result["role"] == "assistant"
+
+    def test_chat_message_with_multimodal_content(self) -> None:
+        pytest.importorskip("langchain_core")
+
+        # Given: a ChatMessage with list content (generic role-based message)
+        message = ChatMessage(
+            content=[
+                {"type": "text", "text": "Custom role message"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/custom.png"}},
+            ],
+            role="custom",
+        )
+
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+
+        # Then: content is converted via BaseMessage catch-all branch
+        assert isinstance(result["content"], list)
+        assert result["content"][0] == {"type": "text", "text": "Custom role message"}
+        assert result["content"][1] == {"type": "image", "url": "https://example.com/custom.png"}
+        assert result["role"] == "chat"
+
+    def test_function_message_with_multimodal_content(self) -> None:
+        pytest.importorskip("langchain_core")
+
+        # Given: a FunctionMessage with list content (deprecated but still supported)
+        message = FunctionMessage(
+            content=[
+                {"type": "text", "text": "Function output:"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/func.png"}},
+            ],
+            name="generate_image",
+        )
+
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+
+        # Then: content is converted via BaseMessage catch-all branch
+        assert isinstance(result["content"], list)
+        assert result["content"][0] == {"type": "text", "text": "Function output:"}
+        assert result["content"][1] == {"type": "image", "url": "https://example.com/func.png"}
+        assert result["role"] == "function"
+
+    def test_audio_content_block(self) -> None:
+        pytest.importorskip("langchain_core")
+
+        # Given: a HumanMessage with an audio_url content block
+        message = HumanMessage(
+            content=[
+                {"type": "text", "text": "Transcribe this audio:"},
+                {"type": "input_audio", "input_audio": {"data": "base64audiodata", "format": "wav"}},
+            ]
+        )
+
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+
+        # Then: audio block is converted to a DataContentBlock with modality=audio
+        assert isinstance(result["content"], list)
+        assert result["content"][0] == {"type": "text", "text": "Transcribe this audio:"}
+        assert result["content"][1]["type"] == "audio"
