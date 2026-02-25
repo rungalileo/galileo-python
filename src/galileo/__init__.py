@@ -40,12 +40,6 @@ from galileo_core.schemas.logging.span import (
 )
 from galileo_core.schemas.logging.step import StepType
 from galileo_core.schemas.logging.trace import Trace
-from galileo_core.schemas.protect.execution_status import ExecutionStatus
-from galileo_core.schemas.protect.payload import Payload
-from galileo_core.schemas.protect.request import Request
-from galileo_core.schemas.protect.response import Response
-from galileo_core.schemas.protect.ruleset import Ruleset
-from galileo_core.schemas.protect.stage import StageType
 
 __version__ = "1.47.0"
 
