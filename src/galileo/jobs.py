@@ -21,21 +21,23 @@ class Jobs:
         name: str,
         run_id: str,
         dataset_id: str,
-        prompt_template_id: str,
+        prompt_template_id: Optional[str],
         task_type: TaskType,
         scorers: Optional[list[ScorerConfig]],
-        prompt_settings: PromptRunSettings,
+        prompt_settings: Optional[PromptRunSettings],
     ) -> CreateJobResponse:
-        create_params = {
+        create_params: dict = {
             "project_id": project_id,
             "dataset_id": dataset_id,
             "job_name": name,
             "run_id": run_id,
-            "prompt_settings": prompt_settings,
-            "prompt_template_version_id": prompt_template_id,
             "task_type": task_type,
             "scorers": scorers,
         }
+        if prompt_template_id is not None:
+            create_params["prompt_template_version_id"] = prompt_template_id
+        if prompt_settings is not None:
+            create_params["prompt_settings"] = prompt_settings
         _logger.info(f"create job: {create_params}")
         result = create_job_jobs_post.sync_detailed(
             client=self.config.api_client, body=CreateJobRequest(**create_params)
