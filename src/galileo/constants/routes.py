@@ -23,3 +23,5 @@ class Routes(str, Enum):
 
     sessions = "/v2/projects/{project_id}/sessions"
     sessions_search = "/v2/projects/{project_id}/sessions/search"
+
+    ingest_traces = "/ingest/traces/{project_id}"

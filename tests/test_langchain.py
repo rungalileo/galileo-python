@@ -230,6 +230,44 @@ class TestGalileoCallback:
         assert input_data[1]["role"] == "user"
         assert input_data[2]["role"] == "assistant"
 
+    def test_on_chat_model_start_multimodal(self, callback: GalileoCallback) -> None:
+        """Test that multimodal HumanMessage produces structured content blocks, not stringified JSON."""
+        parent_id = uuid.uuid4()
+        run_id = uuid.uuid4()
+
+        callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+
+        # Given: a HumanMessage with an image_url content block (LangChain multimodal format)
+        multimodal_message = HumanMessage(
+            content=[
+                {"type": "text", "text": "What is in this image?"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/cat.png"}},
+            ]
+        )
+
+        # When: on_chat_model_start processes the multimodal message
+        callback.on_chat_model_start(
+            serialized={},
+            messages=[[multimodal_message]],
+            run_id=run_id,
+            parent_run_id=parent_id,
+            invocation_params={"model": "gpt-4o"},
+        )
+
+        # Then: the input content is a list of structured content blocks, not a flat string
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        input_data = node.span_params["input"]
+        assert isinstance(input_data, list)
+        assert len(input_data) == 1
+        content = input_data[0]["content"]
+        assert isinstance(content, list), "Multimodal content should be a list of blocks, not a string"
+        assert len(content) == 2
+        assert content[0]["type"] == "text"
+        assert content[0]["text"] == "What is in this image?"
+        assert content[1]["type"] == "image"
+        assert content[1]["url"] == "https://example.com/cat.png"
+
     def test_on_chat_model_start_end_with_tools(self, callback: GalileoCallback, galileo_logger: GalileoLogger) -> None:
         """Test chat model start and end callbacks with tools"""
         run_id = uuid.uuid4()
@@ -923,11 +961,11 @@ class TestGalileoCallback:
         assert node is not None
         assert node.node_type == "chat"
 
-        # Check that content was properly converted from list to string
+        # Check that content was properly converted to structured content blocks
         input_data = node.span_params["input"]
         assert isinstance(input_data, list)
         assert len(input_data) == 1
-        assert input_data[0]["content"] == "This is a response from the Responses API"
+        assert input_data[0]["content"] == [{"type": "text", "text": "This is a response from the Responses API"}]
         assert input_data[0]["role"] == "assistant"
 
     def test_ai_message_with_reasoning(self, callback: GalileoCallback, galileo_logger: GalileoLogger) -> None:
