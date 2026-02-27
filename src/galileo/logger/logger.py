@@ -864,7 +864,7 @@ class GalileoLogger(TracesLogger):
         name: Optional[str] = None,
         created_at: Optional[datetime] = None,
         duration_ns: Optional[int] = None,
-        metadata: Optional[dict[str, str]] = None,
+        metadata: Optional[dict[str, MetadataValue]] = None,
         tags: Optional[list[str]] = None,
         num_input_tokens: Optional[int] = None,
         num_output_tokens: Optional[int] = None,
@@ -874,7 +874,7 @@ class GalileoLogger(TracesLogger):
         time_to_first_token_ns: Optional[int] = None,
         dataset_input: Optional[str] = None,
         dataset_output: Optional[str] = None,
-        dataset_metadata: Optional[dict[str, str]] = None,
+        dataset_metadata: Optional[dict[str, MetadataValue]] = None,
         span_step_number: Optional[int] = None,
     ) -> Trace:
         """
@@ -958,6 +958,12 @@ class GalileoLogger(TracesLogger):
         Trace
             The created trace.
         """
+        # Auto-convert non-string metadata values to strings
+        if metadata:
+            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+        if dataset_metadata:
+            dataset_metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in dataset_metadata.items()}
+
         trace = super().add_single_llm_span_trace(
             input=input,
             output=output,
@@ -1003,7 +1009,7 @@ class GalileoLogger(TracesLogger):
         name: Optional[str] = None,
         created_at: Optional[datetime] = None,
         duration_ns: Optional[int] = None,
-        metadata: Optional[dict[str, str]] = None,
+        metadata: Optional[dict[str, MetadataValue]] = None,
         tags: Optional[list[str]] = None,
         num_input_tokens: Optional[int] = None,
         num_output_tokens: Optional[int] = None,
@@ -1087,6 +1093,10 @@ class GalileoLogger(TracesLogger):
         LlmSpan
             The created span.
         """
+        # Auto-convert non-string metadata values to strings
+        if metadata:
+            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+
         kwargs = {
             "input": input,
             "output": output,
@@ -1128,7 +1138,7 @@ class GalileoLogger(TracesLogger):
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
-        metadata: Optional[dict[str, str]] = None,
+        metadata: Optional[dict[str, MetadataValue]] = None,
         tags: Optional[list[str]] = None,
         status_code: Optional[int] = None,
         step_number: Optional[int] = None,
@@ -1167,6 +1177,10 @@ class GalileoLogger(TracesLogger):
         documents = convert_to_documents(output, "output")
         redacted_documents = convert_to_documents(redacted_output, "redacted_output")
 
+        # Auto-convert non-string metadata values to strings
+        if metadata:
+            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+
         kwargs = {
             "input": input,
             "documents": documents,
@@ -1199,7 +1213,7 @@ class GalileoLogger(TracesLogger):
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
-        metadata: Optional[dict[str, str]] = None,
+        metadata: Optional[dict[str, MetadataValue]] = None,
         tags: Optional[list[str]] = None,
         status_code: Optional[int] = None,
         tool_call_id: Optional[str] = None,
@@ -1251,6 +1265,10 @@ class GalileoLogger(TracesLogger):
         ToolSpan
             The created span.
         """
+        # Auto-convert non-string metadata values to strings
+        if metadata:
+            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+
         kwargs = {
             "input": input,
             "redacted_input": redacted_input,
@@ -1282,7 +1300,7 @@ class GalileoLogger(TracesLogger):
         response: Optional[Response] = None,
         redacted_response: Optional[Response] = None,
         created_at: Optional[datetime] = None,
-        metadata: Optional[dict[str, str]] = None,
+        metadata: Optional[dict[str, MetadataValue]] = None,
         tags: Optional[list[str]] = None,
         status_code: Optional[int] = None,
         step_number: Optional[int] = None,
@@ -1325,6 +1343,10 @@ class GalileoLogger(TracesLogger):
         ToolSpan
             The created Protect tool span.
         """
+        # Auto-convert non-string metadata values to strings
+        if metadata:
+            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+
         kwargs = {
             "input": json.dumps(payload.model_dump(mode="json")),
             "redacted_input": json.dumps(redacted_payload.model_dump(mode="json")) if redacted_payload else None,
@@ -1359,7 +1381,7 @@ class GalileoLogger(TracesLogger):
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
-        metadata: Optional[dict[str, str]] = None,
+        metadata: Optional[dict[str, MetadataValue]] = None,
         tags: Optional[list[str]] = None,
         step_number: Optional[int] = None,
         status_code: Optional[int] = None,
@@ -1408,6 +1430,10 @@ class GalileoLogger(TracesLogger):
         WorkflowSpan
             The created span.
         """
+        # Auto-convert non-string metadata values to strings
+        if metadata:
+            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+
         kwargs = {
             "input": input,
             "redacted_input": redacted_input,
@@ -1442,7 +1468,7 @@ class GalileoLogger(TracesLogger):
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
-        metadata: Optional[dict[str, str]] = None,
+        metadata: Optional[dict[str, MetadataValue]] = None,
         tags: Optional[list[str]] = None,
         agent_type: Optional[AgentType] = None,
         step_number: Optional[int] = None,
@@ -1494,6 +1520,10 @@ class GalileoLogger(TracesLogger):
         AgentSpan
             The created span.
         """
+        # Auto-convert non-string metadata values to strings
+        if metadata:
+            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+
         kwargs = {
             "input": input,
             "redacted_input": redacted_input,

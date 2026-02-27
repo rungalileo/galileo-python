@@ -1754,6 +1754,126 @@ def test_start_trace_auto_conversion(
         assert getattr(payload_trace, attr) == expected_value, f"payload.{attr} mismatch"
 
 
+@pytest.mark.parametrize(
+    "span_method,span_kwargs,expected_metadata",
+    [
+        pytest.param(
+            "add_llm_span",
+            {"input": "prompt", "output": "response", "model": "gpt-4o"},
+            {"intMeta": "1", "boolMeta": "True", "ratio": "3.14", "name": "test"},
+            id="llm_span",
+        ),
+        pytest.param(
+            "add_retriever_span",
+            {"input": "query", "output": [Document(content="doc1")]},
+            {"intMeta": "1", "boolMeta": "True", "ratio": "3.14", "name": "test"},
+            id="retriever_span",
+        ),
+        pytest.param(
+            "add_tool_span",
+            {"input": "tool input"},
+            {"intMeta": "1", "boolMeta": "True", "ratio": "3.14", "name": "test"},
+            id="tool_span",
+        ),
+        pytest.param(
+            "add_workflow_span",
+            {"input": "workflow input"},
+            {"intMeta": "1", "boolMeta": "True", "ratio": "3.14", "name": "test"},
+            id="workflow_span",
+        ),
+        pytest.param(
+            "add_agent_span",
+            {"input": "agent input"},
+            {"intMeta": "1", "boolMeta": "True", "ratio": "3.14", "name": "test"},
+            id="agent_span",
+        ),
+    ],
+)
+def test_span_metadata_auto_conversion(
+    span_method: str,
+    span_kwargs: dict,
+    expected_metadata: dict,
+) -> None:
+    """Test that span methods auto-convert non-string metadata values to strings.
+
+    Regression test for Shortcut #54947: passing int/bool metadata to span methods
+    caused a silent Pydantic ValidationError, dropping the span entirely.
+    """
+    # Given: a logger with an active trace and non-string metadata values
+    ingestion_hook = Mock()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=ingestion_hook)
+    logger.start_trace(input="test input")
+
+    non_string_metadata = {"intMeta": 1, "boolMeta": True, "ratio": 3.14, "name": "test"}
+
+    # When: adding a span with non-string metadata
+    method = getattr(logger, span_method)
+    span = method(**span_kwargs, metadata=non_string_metadata)
+
+    # Then: the span is created successfully with metadata converted to strings
+    assert span is not None, f"{span_method} returned None — metadata conversion failed"
+    assert span.user_metadata == expected_metadata, f"{span_method} metadata mismatch"
+
+
+@pytest.mark.parametrize(
+    "span_method,span_kwargs",
+    [
+        pytest.param("add_llm_span", {"input": "prompt", "output": "response", "model": "gpt-4o"}, id="llm_span"),
+        pytest.param("add_tool_span", {"input": "tool input"}, id="tool_span"),
+        pytest.param("add_workflow_span", {"input": "workflow input"}, id="workflow_span"),
+        pytest.param("add_agent_span", {"input": "agent input"}, id="agent_span"),
+    ],
+)
+def test_span_metadata_none_values_converted(
+    span_method: str,
+    span_kwargs: dict,
+) -> None:
+    """Test that None metadata values are converted to the string 'None'."""
+    # Given: a logger with an active trace and metadata containing None values
+    ingestion_hook = Mock()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=ingestion_hook)
+    logger.start_trace(input="test input")
+
+    metadata_with_none = {"key1": "value1", "key2": None, "key3": 42}
+
+    # When: adding a span with metadata containing None
+    method = getattr(logger, span_method)
+    span = method(**span_kwargs, metadata=metadata_with_none)
+
+    # Then: the span is created with None converted to string "None"
+    assert span is not None, f"{span_method} returned None"
+    assert span.user_metadata["key1"] == "value1"
+    assert span.user_metadata["key2"] == "None"
+    assert span.user_metadata["key3"] == "42"
+
+
+def test_add_single_llm_span_trace_metadata_auto_conversion() -> None:
+    """Test that add_single_llm_span_trace auto-converts non-string metadata and dataset_metadata."""
+    # Given: non-string metadata and dataset_metadata values
+    ingestion_hook = Mock()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=ingestion_hook)
+
+    non_string_metadata = {"intMeta": 1, "boolMeta": True, "strMeta": "physics"}
+    non_string_dataset_metadata = {"enabled": True, "count": 42}
+
+    # When: creating a single LLM span trace with non-string metadata
+    trace = logger.add_single_llm_span_trace(
+        input="prompt",
+        output="response",
+        model="gpt-4o",
+        metadata=non_string_metadata,
+        dataset_metadata=non_string_dataset_metadata,
+    )
+
+    # Then: both metadata dicts are converted to strings
+    assert trace is not None, "add_single_llm_span_trace returned None"
+    assert trace.user_metadata == {"intMeta": "1", "boolMeta": "True", "strMeta": "physics"}
+    assert trace.dataset_metadata == {"enabled": "True", "count": "42"}
+
+    # Then: the child span also has converted metadata
+    llm_span = trace.spans[0]
+    assert llm_span.user_metadata == {"intMeta": "1", "boolMeta": "True", "strMeta": "physics"}
+
 class TestMultipleLoggerInstanceIsolation:
     """Test that multiple GalileoLogger instances have fully isolated state.
 
