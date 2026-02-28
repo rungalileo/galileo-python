@@ -375,7 +375,7 @@ class TestOTelContextIntegration:
         assert ("galileo.project.name", "test-project") in actual_calls
         assert ("galileo.session.id", "test-session") in actual_calls
 
-        # Test with only project set (None values should be skipped)
+        # Test with only project set in context (None values should fall back to env vars or be skipped)
         _log_stream_context.set(None)
         _experiment_id_context.set(None)
         _session_id_context.set(None)
@@ -384,8 +384,11 @@ class TestOTelContextIntegration:
         mock_span2 = Mock()
         processor2.on_start(mock_span2, None)
 
-        assert mock_span2.set_attribute.call_count == 1
-        mock_span2.set_attribute.assert_called_with("galileo.project.name", "test-project")
+        # project from context, logstream from env var fallback, experiment/session skipped
+        actual_calls2 = {(args[0], args[1]) for args, _ in mock_span2.set_attribute.call_args_list}
+        assert ("galileo.project.name", "test-project") in actual_calls2
+        assert "galileo.experiment.id" not in {c[0] for c in actual_calls2}
+        assert "galileo.session.id" not in {c[0] for c in actual_calls2}
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.OTLPSpanExporter.export")
@@ -453,3 +456,54 @@ class TestOTelContextIntegration:
         mock_resource_class.assert_not_called()
         mock_span2.resource.merge.assert_not_called()
         mock_parent_export.assert_called_once_with([mock_span2])
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_processor_env_var_fallback(self, mock_processor_deps, reset_decorator_context):
+        """Test processor reads env vars when no args or context are provided."""
+        # Given: context vars are cleared and env vars are set
+        with patch.dict(os.environ, {"GALILEO_PROJECT": "env-project", "GALILEO_LOG_STREAM": "env-logstream"}):
+            # When: creating a processor with no explicit args
+            processor = GalileoSpanProcessor()
+
+            # Then: processor picks up values from env vars
+            assert processor._project == "env-project"
+            assert processor._logstream == "env-logstream"
+
+            # And: on_start sets the correct span attributes
+            mock_span = Mock()
+            processor.on_start(mock_span, None)
+
+            actual_calls = {(args[0], args[1]) for args, _ in mock_span.set_attribute.call_args_list}
+            assert ("galileo.project.name", "env-project") in actual_calls
+            assert ("galileo.logstream.name", "env-logstream") in actual_calls
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    @patch("galileo.otel.OTLPSpanExporter.export")
+    def test_export_does_not_overwrite_headers_with_none(self, mock_parent_export, reset_decorator_context):
+        """Test export preserves original headers when spans lack galileo attributes."""
+        # Given: an exporter with explicit project/logstream headers
+        with (
+            patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None),
+            patch("galileo.otel.GalileoPythonConfig.get") as mock_config_get,
+        ):
+            config = Mock()
+            config.api_url = "https://api.galileo.ai"
+            config.api_key = SecretStr("test-key")
+            mock_config_get.return_value = config
+
+            exporter = GalileoOTLPExporter(project="original-project", logstream="original-logstream")
+            exporter._session = Mock()
+            exporter._session.headers = {
+                "project": "original-project",
+                "logstream": "original-logstream",
+            }
+
+        # When: exporting spans that have no galileo.* attributes
+        mock_span = Mock()
+        mock_span.attributes = {"some.other.attribute": "value"}
+        mock_span.resource = Mock()
+        exporter.export([mock_span])
+
+        # Then: the original headers are preserved, not overwritten with None
+        assert exporter._session.headers["project"] == "original-project"
+        assert exporter._session.headers["logstream"] == "original-logstream"

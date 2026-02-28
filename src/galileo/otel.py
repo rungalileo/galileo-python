@@ -185,12 +185,12 @@ class GalileoOTLPExporter(OTLPSpanExporter):
         # for the last span update the headers
         if spans:
             last_span = spans[-1]
-            self._session.headers.update(
-                {
-                    "project": last_span.attributes.get("galileo.project.name"),
-                    "logstream": last_span.attributes.get("galileo.logstream.name"),
-                }
-            )
+            project = last_span.attributes.get("galileo.project.name")
+            logstream = last_span.attributes.get("galileo.logstream.name")
+            if project:
+                self._session.headers["project"] = project
+            if logstream:
+                self._session.headers["logstream"] = logstream
 
         return super().export(spans)
 
@@ -246,7 +246,12 @@ class GalileoSpanProcessor(SpanProcessor):
             _log_stream_context.set(logstream)
 
         self._project = _project_context.get()
+        if self._project is None and "GALILEO_PROJECT" in os.environ:
+            self._project = os.environ["GALILEO_PROJECT"]
+
         self._logstream = _log_stream_context.get()
+        if self._logstream is None and "GALILEO_LOG_STREAM" in os.environ:
+            self._logstream = os.environ["GALILEO_LOG_STREAM"]
 
         # Create the exporter using the config-based approach
         self._exporter = GalileoOTLPExporter(**kwargs)
@@ -259,8 +264,8 @@ class GalileoSpanProcessor(SpanProcessor):
     def on_start(self, span: Span, parent_context: Optional[context.Context] = None) -> None:
         """Handle span start events by delegating to the underlying processor."""
         # Set Galileo context attributes on the span
-        project = _project_context.get(self._project)
-        log_stream = _log_stream_context.get(self._logstream)
+        project = _project_context.get(None) or self._project
+        log_stream = _log_stream_context.get(None) or self._logstream
         experiment_id = _experiment_id_context.get(None)
         session_id = _session_id_context.get(None)
 
