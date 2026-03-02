@@ -1789,11 +1789,7 @@ def test_start_trace_auto_conversion(
         ),
     ],
 )
-def test_span_metadata_auto_conversion(
-    span_method: str,
-    span_kwargs: dict,
-    expected_metadata: dict,
-) -> None:
+def test_span_metadata_auto_conversion(span_method: str, span_kwargs: dict, expected_metadata: dict) -> None:
     """Test that span methods auto-convert non-string metadata values to strings.
 
     Regression test for Shortcut #54947: passing int/bool metadata to span methods
@@ -1824,10 +1820,7 @@ def test_span_metadata_auto_conversion(
         pytest.param("add_agent_span", {"input": "agent input"}, id="agent_span"),
     ],
 )
-def test_span_metadata_none_values_converted(
-    span_method: str,
-    span_kwargs: dict,
-) -> None:
+def test_span_metadata_none_values_converted(span_method: str, span_kwargs: dict) -> None:
     """Test that None metadata values are converted to the string 'None'."""
     # Given: a logger with an active trace and metadata containing None values
     ingestion_hook = Mock()
@@ -1873,6 +1866,7 @@ def test_add_single_llm_span_trace_metadata_auto_conversion() -> None:
     # Then: the child span also has converted metadata
     llm_span = trace.spans[0]
     assert llm_span.user_metadata == {"intMeta": "1", "boolMeta": "True", "strMeta": "physics"}
+
 
 class TestMultipleLoggerInstanceIsolation:
     """Test that multiple GalileoLogger instances have fully isolated state.
