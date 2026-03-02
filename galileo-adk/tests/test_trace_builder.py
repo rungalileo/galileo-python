@@ -182,6 +182,57 @@ class TestTraceBuilderSpans:
         # Then: span is created
         assert span is not None
 
+    def test_add_retriever_span_with_string_output(self, builder_with_trace: TraceBuilder) -> None:
+        # Given: a trace builder with an active trace and string output
+        # (this is what GalileoBaseHandler passes after serialize_to_str)
+        builder = builder_with_trace
+
+        # When: adding a retriever span with a string output
+        span = builder.add_retriever_span(
+            input="search query",
+            output="Title: RAG Intro\nContent: RAG combines retrieval and generation.",
+            name="knowledge_search",
+        )
+
+        # Then: span is created with non-empty output documents
+        assert span is not None
+        assert span.output is not None
+        assert len(span.output) > 0
+        assert span.output[0].content == "Title: RAG Intro\nContent: RAG combines retrieval and generation."
+
+    def test_add_retriever_span_with_json_string_output(self, builder_with_trace: TraceBuilder) -> None:
+        # Given: a trace builder with serialized JSON output (from serialize_to_str on a dict)
+        builder = builder_with_trace
+        import json
+
+        result_dict = {"title": "RAG Intro", "content": "RAG combines retrieval and generation."}
+        serialized = json.dumps(result_dict)
+
+        # When: adding a retriever span with serialized JSON string
+        span = builder.add_retriever_span(
+            input="search query",
+            output=serialized,
+            name="knowledge_search",
+        )
+
+        # Then: span is created with non-empty output documents
+        assert span is not None
+        assert len(span.output) > 0
+        assert span.output[0].content != ""
+
+    def test_add_retriever_span_with_none_output(self, builder_with_trace: TraceBuilder) -> None:
+        # Given: a trace builder with None output
+        builder = builder_with_trace
+
+        # When: adding a retriever span with None output
+        span = builder.add_retriever_span(
+            input="search query",
+            output=None,
+        )
+
+        # Then: span is created (convert_to_documents handles None)
+        assert span is not None
+
 
 class TestTraceBuilderFlush:
     """Tests for flush method."""

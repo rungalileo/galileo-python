@@ -15,7 +15,7 @@ from requests import Session
 from galileo.config import GalileoPythonConfig
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
 from galileo.utils.retrievers import document_adapter
-from galileo_core.schemas.logging.span import RetrieverSpan, ToolSpan
+from galileo_core.schemas.logging.span import RetrieverSpan, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.span import Span as GalileoSpan
 
 logger = logging.getLogger(__name__)
@@ -337,6 +337,48 @@ def _set_tool_span_attributes(span: trace.Span, galileo_span: ToolSpan) -> None:
         span.set_attribute("gen_ai.tool.call.id", galileo_span.tool_call_id)
 
 
+def _set_workflow_span_attributes(span: trace.Span, galileo_span: WorkflowSpan) -> None:
+    """Set OpenTelemetry attributes for WorkflowSpan."""
+    # Handle input - Union[str, Sequence[Message]]
+    if isinstance(galileo_span.input, str):
+        input_messages = [{"role": "user", "content": galileo_span.input}]
+    else:
+        # Sequence[Message] - serialize each message
+        input_messages = []
+        for msg in list(galileo_span.input):
+            if hasattr(msg, "model_dump"):
+                input_messages.append(msg.model_dump(exclude_none=True))
+            else:
+                input_messages.append(msg)
+    span.set_attribute("gen_ai.input.messages", json.dumps(input_messages))
+
+    # Handle output - Union[str, Message, Sequence[Document], None]
+    if galileo_span.output is None:
+        return
+
+    output_value = galileo_span.output
+    # Type annotation to handle flexible content types (string or dict)
+    # Content can be: str (simple output), dict (documents), or dict (Message model_dump)
+    output_messages: list[dict[str, Any]] = []
+
+    if isinstance(output_value, str):
+        output_messages = [{"role": "assistant", "content": output_value}]
+    elif hasattr(output_value, "model_dump"):
+        # Single Message
+        output_messages = [output_value.model_dump(exclude_none=True)]
+    else:
+        # Sequence[Document] - wrap in assistant message
+        # Use document_adapter for consistency with _set_retriever_span_attributes
+        output_messages = [
+            {
+                "role": "assistant",
+                "content": {"documents": document_adapter.dump_python(list(output_value), mode="json")},
+            }
+        ]
+
+    span.set_attribute("gen_ai.output.messages", json.dumps(output_messages))
+
+
 @contextmanager
 def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, None]:
     tracer_provider = _TRACE_PROVIDER_CONTEXT_VAR.get()
@@ -351,3 +393,5 @@ def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, 
             _set_retriever_span_attributes(span, galileo_span)
         elif isinstance(galileo_span, ToolSpan):
             _set_tool_span_attributes(span, galileo_span)
+        elif isinstance(galileo_span, WorkflowSpan):
+            _set_workflow_span_attributes(span, galileo_span)

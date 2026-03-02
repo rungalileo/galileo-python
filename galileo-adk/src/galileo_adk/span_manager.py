@@ -158,15 +158,34 @@ class SpanManager:
         input_data: str,
         name: str,
         metadata: dict[str, Any] | None = None,
+        is_retriever: bool = False,
     ) -> None:
-        """Start a tool span."""
+        """Start a tool span.
+
+        Args:
+            run_id: Unique ID for this span
+            parent_run_id: Parent span ID
+            input_data: Serialized tool input
+            name: Tool name
+            metadata: Additional metadata
+            is_retriever: If True, creates a retriever span instead of a tool span
+        """
+        if is_retriever:
+            node_type = "retriever"
+            span_name = f"retriever [{name}]"
+            tags = [INTEGRATION_TAG, "retriever", f"retriever:{name}"]
+        else:
+            node_type = "tool"
+            span_name = f"execute_tool [{name}]"
+            tags = [INTEGRATION_TAG, "tool", f"tool:{name}"]
+
         self._handler.start_node(
-            node_type="tool",
+            node_type=node_type,
             parent_run_id=parent_run_id,
             run_id=run_id,
             input=input_data,
-            name=f"execute_tool [{name}]",
-            tags=[INTEGRATION_TAG, "tool", f"tool:{name}"],
+            name=span_name,
+            tags=tags,
             metadata=metadata,
         )
 

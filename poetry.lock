@@ -6735,4 +6735,4 @@ otel = ["opentelemetry-api", "opentelemetry-exporter-otlp", "opentelemetry-sdk"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10,<3.15"
-content-hash = "05c904662e0eba3391a4e1dc2f28781c6b30e3ca974f80aaaace62e778eac399"
+content-hash = "c1ef20ce1593e132897a3eaf576eef4a49b18e78469dcd4e84b4b83cffea889e"

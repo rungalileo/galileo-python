@@ -27,6 +27,7 @@ from galileo_core.schemas.shared.traces_logger import TracesLogger
 from pydantic import PrivateAttr
 
 from galileo.schema.trace import TracesIngestRequest
+from galileo.utils.retrievers import convert_to_documents
 
 _logger = logging.getLogger(__name__)
 
@@ -349,12 +350,14 @@ class TraceBuilder(TracesLogger):
         This method wraps TracesLogger.add_retriever_span() to accept
         `metadata` parameter (for GalileoBaseHandler compatibility).
         """
+        documents = convert_to_documents(output, "output")
+        redacted_documents = convert_to_documents(redacted_output, "redacted_output")
         return super().add_retriever_span(
             id=uuid.uuid4(),
             input=input,
-            documents=output if isinstance(output, list) else [],
+            documents=documents,
             redacted_input=redacted_input,
-            redacted_documents=redacted_output if isinstance(redacted_output, list) else None,
+            redacted_documents=redacted_documents,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,

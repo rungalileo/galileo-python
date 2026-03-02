@@ -254,3 +254,42 @@ class TestSpanManagerToolSpans:
 
         call_kwargs = mock_handler.end_node.call_args.kwargs
         assert call_kwargs["status_code"] == 500
+
+    def test_start_tool_as_retriever_creates_retriever_node(
+        self, span_manager: SpanManager, mock_handler: MagicMock
+    ) -> None:
+        """start_tool with is_retriever=True creates a retriever node."""
+        # Given: a tool call marked as retriever
+        run_id = uuid4()
+        parent_id = uuid4()
+
+        # When: starting a tool with is_retriever=True
+        span_manager.start_tool(
+            run_id,
+            parent_id,
+            "what is the meaning of life?",
+            name="rag_retriever",
+            is_retriever=True,
+        )
+
+        # Then: the span has retriever node_type, name, and tags
+        mock_handler.start_node.assert_called_once()
+        call_kwargs = mock_handler.start_node.call_args.kwargs
+        assert call_kwargs["node_type"] == "retriever"
+        assert call_kwargs["name"] == "retriever [rag_retriever]"
+        assert "retriever" in call_kwargs["tags"]
+        assert "retriever:rag_retriever" in call_kwargs["tags"]
+        assert INTEGRATION_TAG in call_kwargs["tags"]
+
+    def test_start_tool_default_is_not_retriever(self, span_manager: SpanManager, mock_handler: MagicMock) -> None:
+        """start_tool defaults to tool node when is_retriever is not specified."""
+        # Given: a regular tool call (no is_retriever argument)
+        run_id = uuid4()
+
+        # When: starting a tool without is_retriever
+        span_manager.start_tool(run_id, None, "{}", name="calculator")
+
+        # Then: the span is a regular tool node
+        call_kwargs = mock_handler.start_node.call_args.kwargs
+        assert call_kwargs["node_type"] == "tool"
+        assert call_kwargs["name"] == "execute_tool [calculator]"
