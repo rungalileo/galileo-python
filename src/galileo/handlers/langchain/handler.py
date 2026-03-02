@@ -5,7 +5,7 @@ from typing import Any, Callable, Optional
 from uuid import UUID
 
 from galileo.handlers.base_handler import GalileoBaseHandler
-from galileo.handlers.langchain.utils import get_agent_name, is_agent_node, update_root_to_agent
+from galileo.handlers.langchain.utils import get_agent_name, is_agent_node, parse_llm_result, update_root_to_agent
 from galileo.logger import GalileoLogger
 from galileo.schema.handlers import LANGCHAIN_NODE_TYPE, NODE_TYPE
 from galileo.schema.trace import TracesIngestRequest
@@ -123,13 +123,13 @@ class GalileoCallback(BaseCallbackHandler):
         """Langchain callback when a chain ends."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
-        self._handler.end_node(run_id, output=serialize_to_str(outputs))
+        self._handler.end_node(run_id, output=serialize_to_str(outputs), status_code=200)
 
     def on_agent_finish(self, finish: AgentFinish, *, run_id: UUID, **kwargs: Any) -> Any:
         """Langchain callback when an agent finishes."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
-        self._handler.end_node(run_id, output=serialize_to_str(finish))
+        self._handler.end_node(run_id, output=serialize_to_str(finish), status_code=200)
 
     def on_llm_start(
         self,
@@ -237,21 +237,14 @@ class GalileoCallback(BaseCallbackHandler):
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
 
-        token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
-
-        try:
-            flattened_messages = [message for batch in response.generations for message in batch]
-            output = json.loads(json.dumps(flattened_messages[0], cls=EventSerializer))
-        except Exception as e:
-            _logger.warning(f"Failed to serialize LLM output: {e}")
-            output = str(response.generations)
-
+        result = parse_llm_result(response)
         self._handler.end_node(
             run_id,
-            output=output,
-            num_input_tokens=token_usage.get("prompt_tokens"),
-            num_output_tokens=token_usage.get("completion_tokens"),
-            total_tokens=token_usage.get("total_tokens"),
+            output=result.output,
+            num_input_tokens=result.num_input_tokens,
+            num_output_tokens=result.num_output_tokens,
+            total_tokens=result.total_tokens,
+            status_code=200,
         )
 
     def on_tool_start(
@@ -320,7 +313,7 @@ class GalileoCallback(BaseCallbackHandler):
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
 
-        end_node_kwargs = {}
+        end_node_kwargs: dict[str, Any] = {"status_code": 200}
         if (tool_message := self._find_tool_message(output)) is not None:
             end_node_kwargs["output"] = tool_message.content
             end_node_kwargs["tool_call_id"] = tool_message.tool_call_id
@@ -380,7 +373,7 @@ class GalileoCallback(BaseCallbackHandler):
             _logger.warning(f"Failed to serialize retriever output: {e}")
             serialized_response = str(documents)
 
-        self._handler.end_node(run_id, output=serialized_response)
+        self._handler.end_node(run_id, output=serialized_response, status_code=200)
 
     def _get_agent_name(self, parent_run_id: Optional[UUID], node_name: str) -> str:
         if parent_run_id is not None:
@@ -390,3 +383,35 @@ class GalileoCallback(BaseCallbackHandler):
             if parent:
                 return parent.span_params["name"] + ":" + node_name
         return node_name
+
+    def on_chain_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Langchain callback when a chain errors."""
+        # Convert UUID7 to UUID4 if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+        self._handler.end_node(run_id, output=f"Error: {error!s}", status_code=400)
+
+    def on_llm_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Langchain callback when an LLM errors."""
+        # Convert UUID7 to UUID4 if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+        self._handler.end_node(run_id, output=f"Error: {error!s}", status_code=400)
+
+    def on_tool_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Langchain callback when a tool errors."""
+        # Convert UUID7 to UUID4 if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+        self._handler.end_node(run_id, output=f"Error: {error!s}", status_code=400)
+
+    def on_retriever_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Langchain callback when a retriever errors."""
+        # Convert UUID7 to UUID4 if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+        self._handler.end_node(run_id, output=f"Error: {error!s}", status_code=400)
