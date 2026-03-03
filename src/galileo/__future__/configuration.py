@@ -7,6 +7,7 @@ from typing import Any, Callable, Optional
 
 from galileo.__future__.shared.exceptions import ConfigurationError
 from galileo.config import GalileoPythonConfig
+from galileo.constants import DEFAULT_CONSOLE_URL
 from galileo.utils.log_config import enable_console_logging as _enable_console_logging
 from galileo.utils.log_config import get_logger
 
@@ -76,7 +77,10 @@ _CONFIGURATION_KEYS = [
         sensitive=True,
     ),
     ConfigKey(
-        name="console_url", env_var="GALILEO_CONSOLE_URL", description="URL of the Galileo console", required=True
+        name="console_url",
+        env_var="GALILEO_CONSOLE_URL",
+        description="URL of the Galileo console",
+        default=DEFAULT_CONSOLE_URL,
     ),
     ConfigKey(
         name="openai_api_key",
@@ -378,11 +382,6 @@ class Configuration(metaclass=ConfigurationMeta):
     def connect(cls) -> None:
         """Validate configuration and connect to Galileo."""
         cls._load_env_file()
-
-        if not cls.console_url:
-            raise ConfigurationError(
-                "Galileo console URL is required. Set Configuration.console_url or GALILEO_CONSOLE_URL."
-            )
 
         if not cls.galileo_api_key:
             raise ConfigurationError(

@@ -572,6 +572,43 @@ class TestExperiments:
             prompt_settings=ANY,
         )
 
+    @pytest.mark.parametrize("console_url", ["http://localtest:8088", "http://localtest:8088/"])
+    @travel(datetime(2012, 1, 1), tick=False)
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_link_no_double_slash(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        console_url: str,
+        dataset_content: DatasetContent,
+    ) -> None:
+        # Given: a console_url with or without a trailing slash
+        mock_create_job.return_value = MagicMock()
+        mock_config = MagicMock()
+        mock_config.console_url = console_url
+
+        # When: running an experiment
+        with patch("galileo.experiments.GalileoPythonConfig.get", return_value=mock_config):
+            result = run_experiment(
+                "test_experiment",
+                project="awesome-new-project",
+                dataset_id=str(UUID(int=0)),
+                prompt_template=prompt_template(),
+            )
+
+        # Then: the link does not contain double slashes after the protocol
+        assert result is not None
+        link = result["link"]
+        assert "//project" not in link
+        assert f"/project/{project().id}/experiments/{experiment_response().id}" in link
+
     @travel(datetime(2012, 1, 1), tick=False)
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")

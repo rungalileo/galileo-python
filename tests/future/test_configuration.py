@@ -281,25 +281,29 @@ class TestConfigurationConnect:
         assert "Validating Galileo configuration" in logs
         assert "Successfully connected to Galileo" in logs
 
-    def test_connect_fails_without_console_url(
-        self, monkeypatch: pytest.MonkeyPatch, reset_configuration: None, capture_logs: tuple[logging.Logger, StringIO]
+    def test_connect_passes_without_console_url(
+        self,
+        mock_api_endpoints: MagicMock,
+        monkeypatch: pytest.MonkeyPatch,
+        reset_configuration: None,
+        capture_logs: tuple[logging.Logger, StringIO],
     ) -> None:
-        """Test connect() raises ConfigurationError when console URL is missing."""
+        """Test successful connection with valid API key and should default to default console URL."""
         _, log_stream = capture_logs
 
-        # Set only API key
+        # Set valid configuration
         monkeypatch.setenv("GALILEO_API_KEY", "valid-key")
 
-        # Should raise ConfigurationError
-        with pytest.raises(ConfigurationError) as exc_info:
-            Configuration.connect()
+        # Connect should succeed without raising
+        Configuration.connect()
 
-        # Verify error message provides helpful guidance
-        assert "console url is required" in str(exc_info.value).lower()
-        assert "configuration.console_url" in str(exc_info.value).lower()
+        # Verify logging occurred (no print statements)
+        logs = log_stream.getvalue()
+        assert "Validating Galileo configuration" in logs
+        assert "Successfully connected to Galileo" in logs
 
-        # Note: Early validation failures don't produce logs since they occur
-        # before the logger.info call in connect()
+        # Verify console URL is set to default
+        assert Configuration.console_url == "https://app.galileo.ai/"
 
     def test_connect_fails_without_api_key(
         self, monkeypatch: pytest.MonkeyPatch, reset_configuration: None, capture_logs: tuple[logging.Logger, StringIO]

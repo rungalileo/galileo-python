@@ -4,13 +4,14 @@ from typing import Any, ClassVar, Optional
 
 from pydantic_core import Url
 
+from galileo.constants import DEFAULT_CONSOLE_URL
 from galileo_core.schemas.base_config import GalileoConfig
 
 
 class GalileoPythonConfig(GalileoConfig):
     # Config file for this project.
     config_filename: str = "galileo-python-config.json"
-    console_url: Url = "https://app.galileo.ai"
+    console_url: Url = DEFAULT_CONSOLE_URL
 
     _instance: ClassVar[Optional["GalileoPythonConfig"]] = None
 
