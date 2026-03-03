@@ -148,7 +148,7 @@ class Dataset:
 
         return self
 
-    def get_version_history(self) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
+    def load_version_history(self) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
         return query_dataset_versions_datasets_dataset_id_versions_query_post.sync(
             dataset_id=self.dataset.id, client=self.config.api_client, body=ListDatasetVersionParams()
         )
@@ -855,12 +855,12 @@ def get_dataset_version_history(
         dataset = Datasets().get(name=dataset_name)
         if dataset is None:
             raise ValueError(f"Dataset '{dataset_name}' not found")
-        return dataset.get_version_history()
+        return dataset.load_version_history()
     if dataset_id is not None:
         dataset = Datasets().get(id=dataset_id)
         if dataset is None:
             raise ValueError(f"Dataset '{dataset_id}' not found")
-        return dataset.get_version_history()
+        return dataset.load_version_history()
     raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 

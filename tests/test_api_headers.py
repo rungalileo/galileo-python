@@ -46,9 +46,9 @@ class TestApiHeaders:
         assert isinstance(version_part, str)
 
     @patch("galileo.utils.headers_data.get_package_version")
-    def test_generated_api_method_with_mocked_version(self, mock_get_version) -> None:
+    def test_generated_api_method_with_mocked_version(self, mock_load_version) -> None:
         """Test header includes mocked version and method name."""
-        mock_get_version.return_value = "1.2.3"
+        mock_load_version.return_value = "1.2.3"
 
         dataset_id = "test-dataset-id"
         kwargs = dataset_get_kwargs(dataset_id=dataset_id)
