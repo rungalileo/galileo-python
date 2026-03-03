@@ -76,7 +76,10 @@ _CONFIGURATION_KEYS = [
         sensitive=True,
     ),
     ConfigKey(
-        name="console_url", env_var="GALILEO_CONSOLE_URL", description="URL of the Galileo console", required=True
+        name="console_url",
+        env_var="GALILEO_CONSOLE_URL",
+        description="URL of the Galileo console",
+        default="https://app.galileo.ai",
     ),
     ConfigKey(
         name="openai_api_key",
