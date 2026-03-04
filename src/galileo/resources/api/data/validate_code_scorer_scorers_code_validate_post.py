@@ -83,6 +83,8 @@ def sync_detailed(
 ) -> Response[Union[HTTPValidationError, ValidateCodeScorerResponse]]:
     """Validate Code Scorer.
 
+     Validate a code scorer with optional simple input/output test.
+
     Args:
         body (BodyValidateCodeScorerScorersCodeValidatePost):
 
@@ -107,6 +109,8 @@ def sync(
 ) -> Optional[Union[HTTPValidationError, ValidateCodeScorerResponse]]:
     """Validate Code Scorer.
 
+     Validate a code scorer with optional simple input/output test.
+
     Args:
         body (BodyValidateCodeScorerScorersCodeValidatePost):
 
@@ -126,6 +130,8 @@ async def asyncio_detailed(
     *, client: ApiClient, body: BodyValidateCodeScorerScorersCodeValidatePost
 ) -> Response[Union[HTTPValidationError, ValidateCodeScorerResponse]]:
     """Validate Code Scorer.
+
+     Validate a code scorer with optional simple input/output test.
 
     Args:
         body (BodyValidateCodeScorerScorersCodeValidatePost):
@@ -150,6 +156,8 @@ async def asyncio(
     *, client: ApiClient, body: BodyValidateCodeScorerScorersCodeValidatePost
 ) -> Optional[Union[HTTPValidationError, ValidateCodeScorerResponse]]:
     """Validate Code Scorer.
+
+     Validate a code scorer with optional simple input/output test.
 
     Args:
         body (BodyValidateCodeScorerScorersCodeValidatePost):

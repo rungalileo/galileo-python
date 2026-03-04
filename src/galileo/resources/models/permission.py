@@ -4,6 +4,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.annotation_queue_action import AnnotationQueueAction
 from ..models.api_key_action import ApiKeyAction
 from ..models.dataset_action import DatasetAction
 from ..models.fine_tuned_scorer_action import FineTunedScorerAction
@@ -25,13 +26,15 @@ class Permission:
     """
     Attributes
     ----------
-        action (Union[ApiKeyAction, DatasetAction, FineTunedScorerAction, GeneratedScorerAction, GroupAction,
-            GroupMemberAction, IntegrationAction, OrganizationAction, ProjectAction, RegisteredScorerAction, UserAction]):
+        action (Union[AnnotationQueueAction, ApiKeyAction, DatasetAction, FineTunedScorerAction, GeneratedScorerAction,
+            GroupAction, GroupMemberAction, IntegrationAction, OrganizationAction, ProjectAction, RegisteredScorerAction,
+            UserAction]):
         allowed (bool):
         message (Union[None, Unset, str]):
     """
 
     action: Union[
+        AnnotationQueueAction,
         ApiKeyAction,
         DatasetAction,
         FineTunedScorerAction,
@@ -63,6 +66,7 @@ class Permission:
                 FineTunedScorerAction,
                 DatasetAction,
                 IntegrationAction,
+                OrganizationAction,
             ),
         ):
             action = self.action.value
@@ -89,6 +93,7 @@ class Permission:
         def _parse_action(
             data: object,
         ) -> Union[
+            AnnotationQueueAction,
             ApiKeyAction,
             DatasetAction,
             FineTunedScorerAction,
@@ -171,9 +176,16 @@ class Permission:
 
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return OrganizationAction(data)
+
+            except:  # noqa: E722
+                pass
             if not isinstance(data, str):
                 raise TypeError()
-            return OrganizationAction(data)
+            return AnnotationQueueAction(data)
 
         action = _parse_action(d.pop("action"))
 

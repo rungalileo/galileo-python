@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
@@ -46,8 +46,8 @@ def _get_kwargs(
 
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
-    if response.status_code == 200:
-        return response.json()
+    if response.status_code == 204:
+        return cast(Any, None)
 
     if response.status_code == 422:
         return HTTPValidationError.from_dict(response.json())

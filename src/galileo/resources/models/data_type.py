@@ -3,6 +3,7 @@ from enum import Enum
 
 class DataType(str, Enum):
     BOOLEAN = "boolean"
+    CATEGORY_COUNTS = "category_counts"
     DATASET = "dataset"
     FLOATING_POINT = "floating_point"
     INTEGER = "integer"

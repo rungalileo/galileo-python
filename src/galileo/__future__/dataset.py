@@ -446,10 +446,8 @@ class Dataset(StateManagementMixin):
         if self.id is None:
             raise ValueError("Dataset ID is not set. Cannot extend a local-only dataset.")
         datasets_service = Datasets()
-        dataset = datasets_service.get(id=self.id)
-        if dataset is None:
-            return []
-        return dataset.extend(
+        # Call extend on the service, not on the Dataset object
+        return datasets_service.extend(
             prompt=prompt,
             instructions=instructions,
             examples=examples,

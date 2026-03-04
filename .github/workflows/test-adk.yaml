@@ -1,0 +1,61 @@
+name: Test galileo-adk
+
+on:
+  pull_request:
+    paths:
+      - 'galileo-adk/**'
+      - '.github/workflows/test-adk.yaml'
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        galileo-version: ["min", "latest"]
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: galileo-adk
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Pin galileo to minimum version
+        if: matrix.galileo-version == 'min'
+        run: uv pip install galileo==1.45.0
+
+      - name: Upgrade galileo to latest
+        if: matrix.galileo-version == 'latest'
+        run: uv pip install --upgrade galileo
+
+      - name: Show installed versions
+        run: uv pip list | grep -E "^(galileo|google-adk)"
+
+      - name: Run type check
+        run: uv run mypy src/
+
+      - name: Run tests
+        run: uv run pytest --cov=galileo_adk --cov-report=xml
+
+      - name: Upload coverage
+        if: matrix.python-version == '3.11' && matrix.galileo-version == 'latest'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: galileo-adk
+          files: galileo-adk/coverage.xml

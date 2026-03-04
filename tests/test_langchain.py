@@ -12,7 +12,7 @@ from langchain_core.outputs import ChatGeneration, LLMResult
 
 from galileo import Message, MessageRole, galileo_context
 from galileo.handlers.langchain import GalileoCallback
-from galileo.handlers.langchain.utils import update_root_to_agent
+from galileo.handlers.langchain.utils import parse_llm_result, update_root_to_agent
 from galileo.logger.logger import GalileoLogger
 from galileo.schema.handlers import Node
 from galileo.utils.uuid_utils import uuid7_to_uuid4
@@ -1158,3 +1158,193 @@ class TestUpdateRootToAgent:
         update_root_to_agent(parent_run_id, metadata, parent_node)
 
         assert parent_node.node_type == "agent"
+
+
+class TestParseLlmResult:
+    """Tests for the parse_llm_result utility (GCP Vertex AI token metrics support)."""
+
+    def test_openai_style_token_usage(self) -> None:
+        """Test standard OpenAI token keys in llm_output."""
+        # Given: an LLMResult with OpenAI-style token_usage
+        response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="hello"))]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: standard keys are used
+        assert result.num_input_tokens == 10
+        assert result.num_output_tokens == 20
+        assert result.total_tokens == 30
+
+    def test_gcp_style_token_usage(self) -> None:
+        """Test GCP Vertex AI token keys (input_tokens/output_tokens) in llm_output."""
+        # Given: an LLMResult with GCP-style token keys
+        response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="hello"))]],
+            llm_output={"token_usage": {"input_tokens": 15, "output_tokens": 25, "total_tokens": 40}},
+        )
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: GCP keys are used as fallback
+        assert result.num_input_tokens == 15
+        assert result.num_output_tokens == 25
+        assert result.total_tokens == 40
+
+    def test_openai_keys_take_precedence_over_gcp_keys(self) -> None:
+        """Test that prompt_tokens/completion_tokens take precedence when both key styles exist."""
+        # Given: an LLMResult with both OpenAI and GCP token keys
+        response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="hello"))]],
+            llm_output={
+                "token_usage": {
+                    "prompt_tokens": 10,
+                    "completion_tokens": 20,
+                    "input_tokens": 99,
+                    "output_tokens": 99,
+                    "total_tokens": 30,
+                }
+            },
+        )
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: OpenAI keys take precedence
+        assert result.num_input_tokens == 10
+        assert result.num_output_tokens == 20
+
+    def test_token_usage_from_message_usage_metadata(self) -> None:
+        """Test fallback to message.usage_metadata when llm_output has no token_usage."""
+        # Given: an LLMResult with no llm_output but usage_metadata on the message
+        ai_message = AIMessage(content="hello")
+        ai_message.usage_metadata = {"input_tokens": 5, "output_tokens": 12, "total_tokens": 17}
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the result
+
+        result = parse_llm_result(response)
+
+        # Then: usage_metadata values are extracted
+        assert result.num_input_tokens == 5
+        assert result.num_output_tokens == 12
+        assert result.total_tokens == 17
+
+    def test_no_token_usage_anywhere(self) -> None:
+        """Test that None is returned when no token usage is available."""
+        # Given: an LLMResult with no token information
+        response = LLMResult(generations=[[ChatGeneration(message=AIMessage(content="hello"))]], llm_output=None)
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: all token fields are None
+        assert result.num_input_tokens is None
+        assert result.num_output_tokens is None
+        assert result.total_tokens is None
+        assert result.output is not None
+
+    def test_empty_generations(self) -> None:
+        """Test graceful handling when generations list is empty."""
+        # Given: an LLMResult with empty generations
+        response = LLMResult(
+            generations=[[]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: output is stringified fallback (never None), tokens are still extracted
+        assert result.output == "[[]]"
+        assert result.num_input_tokens == 10
+        assert result.num_output_tokens == 20
+
+    def test_completely_empty_generations(self) -> None:
+        """Test graceful handling when generations is completely empty (no batches)."""
+        # Given: an LLMResult with no generation batches at all
+        response = LLMResult(
+            generations=[],
+            llm_output={"token_usage": {"prompt_tokens": 5, "completion_tokens": 10, "total_tokens": 15}},
+        )
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: output is stringified fallback (never None), tokens are still extracted
+        assert result.output == "[]"
+        assert result.num_input_tokens == 5
+        assert result.num_output_tokens == 10
+
+    def test_llm_output_empty_token_usage_with_usage_metadata(self) -> None:
+        """Test fallback to usage_metadata when llm_output exists but token_usage is empty."""
+        # Given: an LLMResult with empty token_usage in llm_output
+        ai_message = AIMessage(content="response")
+        ai_message.usage_metadata = {"input_tokens": 8, "output_tokens": 16, "total_tokens": 24}
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output={"token_usage": {}})
+
+        # When: parsing the result
+        result = parse_llm_result(response)
+
+        # Then: usage_metadata values are extracted as fallback
+        assert result.num_input_tokens == 8
+        assert result.num_output_tokens == 16
+        assert result.total_tokens == 24
+
+
+class TestGalileoCallbackIngestionHookWithoutCredentials:
+    """SC-54690: GalileoCallback/GalileoAsyncCallback with ingestion_hook should work without API credentials.
+
+    When a user provides an ingestion_hook, the handler should not require Galileo API configuration
+    (GALILEO_API_KEY, etc.) because the hook bypasses the API entirely. This test verifies the fix
+    without mocking Projects/LogStreams/Traces, so the real code path is exercised.
+    """
+
+    @pytest.fixture(autouse=True)
+    def clear_galileo_config(self, monkeypatch):
+        """Remove Galileo credentials and reset config to simulate no-API-key scenario."""
+        from galileo.config import GalileoPythonConfig
+        from galileo.utils.singleton import GalileoLoggerSingleton
+
+        # Given: no Galileo API credentials are configured
+        monkeypatch.delenv("GALILEO_API_KEY", raising=False)
+        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+        monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
+        monkeypatch.setenv("GALILEO_CONSOLE_URL", "https://console.galileo.ai/")
+
+        if GalileoPythonConfig._instance is not None:
+            GalileoPythonConfig._instance.reset()
+
+        GalileoLoggerSingleton().reset_all()
+
+        yield
+
+        GalileoLoggerSingleton().reset_all()
+
+    def test_callback_with_ingestion_hook_no_credentials(self):
+        """GalileoCallback(ingestion_hook=...) should not require API credentials."""
+        # Given: a sync ingestion hook
+        mock_hook = Mock()
+
+        # When: creating GalileoCallback with only an ingestion hook (no pre-created logger)
+        callback = GalileoCallback(ingestion_hook=mock_hook)
+
+        # Then: the callback is created successfully and the hook is attached
+        assert callback._handler._galileo_logger._ingestion_hook is mock_hook
+
+    def test_async_callback_with_ingestion_hook_no_credentials(self):
+        """GalileoAsyncCallback(ingestion_hook=...) should not require API credentials."""
+        from galileo.handlers.langchain import GalileoAsyncCallback
+
+        # Given: an async ingestion hook
+        mock_hook = Mock()
+
+        # When: creating GalileoAsyncCallback with only an ingestion hook (no pre-created logger)
+        callback = GalileoAsyncCallback(ingestion_hook=mock_hook)
+
+        # Then: the callback is created successfully and the hook is attached
+        assert callback._handler._galileo_logger._ingestion_hook is mock_hook

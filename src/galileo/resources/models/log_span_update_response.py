@@ -16,30 +16,28 @@ class LogSpanUpdateResponse:
     ----------
         project_id (str): Project id associated with the traces.
         project_name (str): Project name associated with the traces.
-        session_id (str): Session id associated with the traces.
         records_count (int): Total number of records ingested
         span_id (str): Span id associated with the updated span.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
+        session_id (Union[None, Unset, str]): Session id associated with the traces.
     """
 
     project_id: str
     project_name: str
-    session_id: str
     records_count: int
     span_id: str
     log_stream_id: Union[None, Unset, str] = UNSET
     experiment_id: Union[None, Unset, str] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
+    session_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         project_id = self.project_id
 
         project_name = self.project_name
-
-        session_id = self.session_id
 
         records_count = self.records_count
 
@@ -54,16 +52,13 @@ class LogSpanUpdateResponse:
         metrics_testing_id: Union[None, Unset, str]
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
+        session_id: Union[None, Unset, str]
+        session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "project_id": project_id,
-                "project_name": project_name,
-                "session_id": session_id,
-                "records_count": records_count,
-                "span_id": span_id,
-            }
+            {"project_id": project_id, "project_name": project_name, "records_count": records_count, "span_id": span_id}
         )
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
@@ -71,6 +66,8 @@ class LogSpanUpdateResponse:
             field_dict["experiment_id"] = experiment_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
+        if session_id is not UNSET:
+            field_dict["session_id"] = session_id
 
         return field_dict
 
@@ -80,8 +77,6 @@ class LogSpanUpdateResponse:
         project_id = d.pop("project_id")
 
         project_name = d.pop("project_name")
-
-        session_id = d.pop("session_id")
 
         records_count = d.pop("records_count")
 
@@ -114,15 +109,24 @@ class LogSpanUpdateResponse:
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
+        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_id = _parse_session_id(d.pop("session_id", UNSET))
+
         log_span_update_response = cls(
             project_id=project_id,
             project_name=project_name,
-            session_id=session_id,
             records_count=records_count,
             span_id=span_id,
             log_stream_id=log_stream_id,
             experiment_id=experiment_id,
             metrics_testing_id=metrics_testing_id,
+            session_id=session_id,
         )
 
         log_span_update_response.additional_properties = d

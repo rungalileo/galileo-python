@@ -18,11 +18,13 @@ class ColumnMapping:
     ----------
         input_ (Union['ColumnMappingConfig', None, list[str]]):
         output (Union['ColumnMappingConfig', None, list[str]]):
+        generated_output (Union['ColumnMappingConfig', None, list[str]]):
         metadata (Union['ColumnMappingConfig', None, list[str]]):
     """
 
     input_: Union["ColumnMappingConfig", None, list[str]]
     output: Union["ColumnMappingConfig", None, list[str]]
+    generated_output: Union["ColumnMappingConfig", None, list[str]]
     metadata: Union["ColumnMappingConfig", None, list[str]]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -47,6 +49,15 @@ class ColumnMapping:
         else:
             output = self.output
 
+        generated_output: Union[None, dict[str, Any], list[str]]
+        if isinstance(self.generated_output, ColumnMappingConfig):
+            generated_output = self.generated_output.to_dict()
+        elif isinstance(self.generated_output, list):
+            generated_output = self.generated_output
+
+        else:
+            generated_output = self.generated_output
+
         metadata: Union[None, dict[str, Any], list[str]]
         if isinstance(self.metadata, ColumnMappingConfig):
             metadata = self.metadata.to_dict()
@@ -58,7 +69,9 @@ class ColumnMapping:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"input": input_, "output": output, "metadata": metadata})
+        field_dict.update(
+            {"input": input_, "output": output, "generated_output": generated_output, "metadata": metadata}
+        )
 
         return field_dict
 
@@ -110,6 +123,27 @@ class ColumnMapping:
 
         output = _parse_output(d.pop("output"))
 
+        def _parse_generated_output(data: object) -> Union["ColumnMappingConfig", None, list[str]]:
+            if data is None:
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ColumnMappingConfig.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["ColumnMappingConfig", None, list[str]], data)
+
+        generated_output = _parse_generated_output(d.pop("generated_output"))
+
         def _parse_metadata(data: object) -> Union["ColumnMappingConfig", None, list[str]]:
             if data is None:
                 return data
@@ -131,7 +165,7 @@ class ColumnMapping:
 
         metadata = _parse_metadata(d.pop("metadata"))
 
-        column_mapping = cls(input_=input_, output=output, metadata=metadata)
+        column_mapping = cls(input_=input_, output=output, generated_output=generated_output, metadata=metadata)
 
         column_mapping.additional_properties = d
         return column_mapping

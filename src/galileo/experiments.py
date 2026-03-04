@@ -105,12 +105,13 @@ class Experiments:
         self,
         project_obj: Project,
         experiment_obj: ExperimentResponse,
-        prompt_template: PromptTemplate,
+        prompt_template: Optional[PromptTemplate],
         dataset_id: str,
         scorers: Optional[builtins.list[ScorerConfig]],
         prompt_settings: Optional[PromptRunSettings] = None,
     ) -> dict[str, Any]:
-        if prompt_settings is None:
+        # Only set default prompt_settings for prompt-driven flow (when a template is provided)
+        if prompt_template is not None and prompt_settings is None:
             prompt_settings = PromptRunSettings(
                 n=1,
                 echo=False,
@@ -134,7 +135,7 @@ class Experiments:
             name="playground_run",
             project_id=project_obj.id,
             run_id=experiment_obj.id,
-            prompt_template_id=prompt_template.selected_version_id,
+            prompt_template_id=prompt_template.selected_version_id if prompt_template is not None else None,
             dataset_id=dataset_id,
             task_type=EXPERIMENT_TASK_TYPE,
             scorers=scorers,
@@ -350,16 +351,15 @@ def run_experiment(
             local_metrics=local_metrics,
         )
 
-    if prompt_template is None:
-        raise ValueError("A prompt template must be provided")
-
     if dataset_obj is None:
         raise ValueError("A dataset object must be provided")
 
     if local_metrics:
         raise ValueError("Local metrics can only be used with a locally run experiment, not a prompt experiment.")
 
-    # Execute a prompt template experiment
+    # Execute a prompt template or generated-output experiment.
+    # If prompt_template is None, the API determines the flow based on the dataset contents.
+    # The API will return error 3512 if the dataset has no generated_output column.
     return Experiments().run(
         project_obj, experiment_obj, prompt_template, dataset_obj.dataset.id, scorer_settings, prompt_settings
     )

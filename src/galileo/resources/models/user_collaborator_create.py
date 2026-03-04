@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,42 +12,72 @@ T = TypeVar("T", bound="UserCollaboratorCreate")
 
 @_attrs_define
 class UserCollaboratorCreate:
-    """
+    """Create a user collaborator using either user_id or email.
+
+    When using email, if the user doesn't exist in the organization,
+    they will be invited automatically.
+
     Attributes
     ----------
-        user_id (str):
-        role (Union[Unset, CollaboratorRole]):
+            role (Union[Unset, CollaboratorRole]):
+            user_id (Union[None, Unset, str]):
+            user_email (Union[None, Unset, str]):
     """
 
-    user_id: str
     role: Union[Unset, CollaboratorRole] = UNSET
+    user_id: Union[None, Unset, str] = UNSET
+    user_email: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        user_id = self.user_id
-
         role: Union[Unset, str] = UNSET
         if not isinstance(self.role, Unset):
             role = self.role.value
 
+        user_id: Union[None, Unset, str]
+        user_id = UNSET if isinstance(self.user_id, Unset) else self.user_id
+
+        user_email: Union[None, Unset, str]
+        user_email = UNSET if isinstance(self.user_email, Unset) else self.user_email
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"user_id": user_id})
+        field_dict.update({})
         if role is not UNSET:
             field_dict["role"] = role
+        if user_id is not UNSET:
+            field_dict["user_id"] = user_id
+        if user_email is not UNSET:
+            field_dict["user_email"] = user_email
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        user_id = d.pop("user_id")
-
         _role = d.pop("role", UNSET)
         role: Union[Unset, CollaboratorRole]
         role = UNSET if isinstance(_role, Unset) else CollaboratorRole(_role)
 
-        user_collaborator_create = cls(user_id=user_id, role=role)
+        def _parse_user_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        user_id = _parse_user_id(d.pop("user_id", UNSET))
+
+        def _parse_user_email(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        user_email = _parse_user_email(d.pop("user_email", UNSET))
+
+        user_collaborator_create = cls(role=role, user_id=user_id, user_email=user_email)
 
         user_collaborator_create.additional_properties = d
         return user_collaborator_create

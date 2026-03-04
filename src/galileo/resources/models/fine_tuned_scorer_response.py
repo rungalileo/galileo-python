@@ -35,6 +35,7 @@ class FineTunedScorerResponse:
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         created_by (str):
+        lora_weights_path (Union[None, Unset, str]):
         luna_input_type (Union[LunaInputTypeEnum, None, Unset]):
         luna_output_type (Union[LunaOutputTypeEnum, None, Unset]):
         class_name_to_vocab_ix (Union['FineTunedScorerResponseClassNameToVocabIxType0',
@@ -50,6 +51,7 @@ class FineTunedScorerResponse:
     created_at: datetime.datetime
     updated_at: datetime.datetime
     created_by: str
+    lora_weights_path: Union[None, Unset, str] = UNSET
     luna_input_type: Union[LunaInputTypeEnum, None, Unset] = UNSET
     luna_output_type: Union[LunaOutputTypeEnum, None, Unset] = UNSET
     class_name_to_vocab_ix: Union[
@@ -79,6 +81,9 @@ class FineTunedScorerResponse:
         updated_at = self.updated_at.isoformat()
 
         created_by = self.created_by
+
+        lora_weights_path: Union[None, Unset, str]
+        lora_weights_path = UNSET if isinstance(self.lora_weights_path, Unset) else self.lora_weights_path
 
         luna_input_type: Union[None, Unset, str]
         if isinstance(self.luna_input_type, Unset):
@@ -128,6 +133,8 @@ class FineTunedScorerResponse:
                 "created_by": created_by,
             }
         )
+        if lora_weights_path is not UNSET:
+            field_dict["lora_weights_path"] = lora_weights_path
         if luna_input_type is not UNSET:
             field_dict["luna_input_type"] = luna_input_type
         if luna_output_type is not UNSET:
@@ -162,6 +169,15 @@ class FineTunedScorerResponse:
         updated_at = isoparse(d.pop("updated_at"))
 
         created_by = d.pop("created_by")
+
+        def _parse_lora_weights_path(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        lora_weights_path = _parse_lora_weights_path(d.pop("lora_weights_path", UNSET))
 
         def _parse_luna_input_type(data: object) -> Union[LunaInputTypeEnum, None, Unset]:
             if data is None:
@@ -257,6 +273,7 @@ class FineTunedScorerResponse:
             created_at=created_at,
             updated_at=updated_at,
             created_by=created_by,
+            lora_weights_path=lora_weights_path,
             luna_input_type=luna_input_type,
             luna_output_type=luna_output_type,
             class_name_to_vocab_ix=class_name_to_vocab_ix,

@@ -133,11 +133,15 @@ class Dataset:
             DatasetAppendRow(values=DatasetAppendRowValues.from_dict(row)) for row in row_data
         ]
         request = UpdateDatasetContentRequest(edits=append_rows)
-        response = update_dataset_content_datasets_dataset_id_content_patch.sync(
+        # Use sync_detailed to access status_code and headers from the 204 No Content response
+        response = update_dataset_content_datasets_dataset_id_content_patch.sync_detailed(
             client=self.config.api_client, dataset_id=self.dataset.id, body=request, if_match=self._get_etag()
         )
-        if isinstance(response, HTTPValidationError):
-            raise DatasetAPIException("Request to add new rows to dataset failed.")
+        # 204 No Content is the expected success response
+        if response.status_code not in (200, 204):
+            raise DatasetAPIException(
+                f"Request to add new rows to dataset failed with status {response.status_code}: {response.content}"
+            )
 
         # Refresh the content
         self.get_content()
@@ -454,10 +458,25 @@ class Datasets:
             resolved_project_id = resolve_project_id(project_id, project_name)
             assert resolved_project_id is not None  # resolve_project_id raises if both params are none
 
+        # Normalize records to handle ground_truth -> output conversion.
+        # Use targeted key rename instead of routing through DatasetRecord, so that
+        # custom columns (e.g. "category", "difficulty") are preserved rather than silently dropped.
+        if isinstance(content, list) and len(content) > 0:
+            normalized_content = []
+            for row in content:
+                if isinstance(row, dict) and "ground_truth" in row:
+                    row = dict(row)  # avoid mutating caller's data
+                    ground_truth = row.pop("ground_truth")
+                    if "output" not in row:
+                        row["output"] = ground_truth
+                normalized_content.append(row)
+            content = normalized_content
+
         if isinstance(content, (list, dict)) and len(content) == 0:
             # we want to avoid errors: Invalid CSV data: CSV parse error:
             # Empty CSV file or block: cannot infer number of columns
             content = [{}]
+
         file_path, dataset_format = parse_dataset(content)
         file = File(
             payload=file_path.open("rb"),
@@ -526,11 +545,11 @@ class Datasets:
             If the request takes longer than Client.timeout.
         """
         # Convert prompt_settings dict to PromptRunSettings if provided
-        model_alias = prompt_settings.get("model_alias", "gpt-4.1-mini") if prompt_settings else "gpt-4.1-mini"
+        model_alias = prompt_settings.get("model_alias", "gpt-4o-mini") if prompt_settings else "gpt-4o-mini"
         prompt_run_settings = PromptRunSettings(model_alias=model_alias)
 
         # Convert data_types strings to SyntheticDataTypes enum if provided
-        synthetic_data_types = None
+        synthetic_data_types: builtins.list[SyntheticDataTypes] | Unset = UNSET
         if data_types:
             synthetic_data_types = []
             for data_type in data_types:
@@ -542,12 +561,13 @@ class Datasets:
                     )
 
         # Create the extension request
+        # Use UNSET instead of None for optional fields to avoid API validation errors
         request = SyntheticDatasetExtensionRequest(
             count=count,
             data_types=synthetic_data_types,
-            examples=examples,
-            instructions=instructions,
-            prompt=prompt,
+            examples=examples if examples is not None else UNSET,
+            instructions=instructions if instructions is not None else UNSET,
+            prompt=prompt if prompt is not None else UNSET,
             prompt_settings=prompt_run_settings,
         )
 
@@ -555,7 +575,7 @@ class Datasets:
         response = extend_dataset_content_datasets_extend_post.sync(client=self.config.api_client, body=request)
 
         if isinstance(response, HTTPValidationError):
-            raise DatasetAPIException("Request to extend dataset failed.")
+            raise DatasetAPIException(f"Request to extend dataset failed: {response}")
 
         if not response or not isinstance(response, SyntheticDatasetExtensionResponse):
             raise DatasetAPIException("Invalid response from extend dataset API.")

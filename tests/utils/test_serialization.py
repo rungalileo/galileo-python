@@ -585,6 +585,94 @@ class TestLangChainToolCallsTransformation:
         assert "tool_calls" not in result
 
 
+class TestLangGraphTypesSerialization:
+    """Test serialization of langgraph Command and Send types."""
+
+    def test_command_serialization(self) -> None:
+        """Test that Command objects are properly serialized."""
+        pytest.importorskip("langgraph")
+        from langgraph.types import Command
+
+        # Given: a Command object with update and goto values
+        command = Command(update={"messages": ["test message"]}, goto="next_node")
+
+        # When: serializing the Command to JSON
+        result = json.loads(json.dumps(command, cls=EventSerializer))
+
+        # Then: the serialized output contains update and goto fields
+        assert "update" in result
+        assert result["update"] == {"messages": ["test message"]}
+        assert "goto" in result
+        assert result["goto"] == "next_node"
+
+    def test_command_serialization_with_default_values(self) -> None:
+        """Test that Command with minimal values serializes correctly."""
+        pytest.importorskip("langgraph")
+        from langgraph.types import Command
+
+        # Given: a Command object with only an update value
+        command = Command(update={"key": "value"})
+
+        # When: serializing the Command to JSON
+        result = json.loads(json.dumps(command, cls=EventSerializer))
+
+        # Then: the output contains update and goto defaults to empty list
+        assert "update" in result
+        assert result["update"] == {"key": "value"}
+        assert "goto" in result
+        assert result["goto"] == []
+
+    def test_send_serialization(self) -> None:
+        """Test that Send objects are properly serialized."""
+        pytest.importorskip("langgraph")
+        from langgraph.types import Send
+
+        # Given: a Send object with node and arg values
+        send = Send(node="target_node", arg={"data": "test"})
+
+        # When: serializing the Send to JSON
+        result = json.loads(json.dumps(send, cls=EventSerializer))
+
+        # Then: the serialized output contains node and arg fields
+        assert result["node"] == "target_node"
+        assert result["arg"] == {"data": "test"}
+
+    def test_command_with_send_goto(self) -> None:
+        """Test Command with Send as goto value."""
+        pytest.importorskip("langgraph")
+        from langgraph.types import Command, Send
+
+        # Given: a Command with a Send object as the goto value
+        send = Send(node="target", arg={"key": "value"})
+        command = Command(update={}, goto=send)
+
+        # When: serializing the Command to JSON
+        result = json.loads(json.dumps(command, cls=EventSerializer))
+
+        # Then: the goto field contains the serialized Send object
+        assert "goto" in result
+        assert result["goto"]["node"] == "target"
+        assert result["goto"]["arg"] == {"key": "value"}
+
+    def test_command_with_list_of_sends_goto(self) -> None:
+        """Test Command with list of Send objects as goto value."""
+        pytest.importorskip("langgraph")
+        from langgraph.types import Command, Send
+
+        # Given: a Command with a list of Send objects as goto
+        sends = [Send(node="node1", arg={"a": 1}), Send(node="node2", arg={"b": 2})]
+        command = Command(update={}, goto=sends)
+
+        # When: serializing the Command to JSON
+        result = json.loads(json.dumps(command, cls=EventSerializer))
+
+        # Then: the goto field contains the serialized list of Send objects
+        assert "goto" in result
+        assert len(result["goto"]) == 2
+        assert result["goto"][0]["node"] == "node1"
+        assert result["goto"][1]["node"] == "node2"
+
+
 class TestPydanticModelClassSerialization:
     """Test serialization of Pydantic model classes (not instances)."""
 
@@ -635,3 +723,63 @@ class TestPydanticModelClassSerialization:
 
             # Should return class name when schema method is not callable
             assert result == "<ModelWithoutSchema>"
+
+
+try:
+    import proto as _proto
+
+    class _ProtoAuthor(_proto.Message):
+        name = _proto.Field(_proto.STRING, number=1)
+
+    class _ProtoBook(_proto.Message):
+        title = _proto.Field(_proto.STRING, number=1)
+        page_count = _proto.Field(_proto.INT32, number=2)
+
+    class _ProtoBookWithAuthor(_proto.Message):
+        title = _proto.Field(_proto.STRING, number=1)
+        author = _proto.Field(_ProtoAuthor, number=2)
+
+    class _ProtoEmpty(_proto.Message):
+        name = _proto.Field(_proto.STRING, number=1)
+
+    _has_proto = True
+except ImportError:
+    _has_proto = False
+
+
+@pytest.mark.skipif(not _has_proto, reason="proto-plus not installed")
+class TestProtoMessageSerialization:
+    """Test serialization of proto-plus messages (e.g. Google Cloud AI Platform types)."""
+
+    def test_proto_plus_message_serialization(self) -> None:
+        """Test that proto-plus messages are serialized via proto.Message.to_dict."""
+        # Given: a proto-plus message with fields set
+        book = _ProtoBook(title="Great Expectations", page_count=432)
+
+        # When: serializing the proto-plus message
+        result = json.loads(json.dumps(book, cls=EventSerializer))
+
+        # Then: the message fields are properly serialized
+        assert result == {"title": "Great Expectations", "page_count": 432}
+
+    def test_proto_plus_empty_message_serialization(self) -> None:
+        """Test that proto-plus messages with unset fields produce protobuf defaults, not empty dicts."""
+        # Given: a proto-plus message with no fields set
+        msg = _ProtoEmpty()
+
+        # When: serializing the empty message
+        result = json.loads(json.dumps(msg, cls=EventSerializer))
+
+        # Then: unset fields use their protobuf defaults (empty string for STRING)
+        assert result == {"name": ""}
+
+    def test_proto_plus_nested_message_serialization(self) -> None:
+        """Test that nested proto-plus messages are serialized recursively."""
+        # Given: a proto-plus message with a nested message
+        book = _ProtoBookWithAuthor(title="Great Expectations", author=_ProtoAuthor(name="Dickens"))
+
+        # When: serializing the nested message
+        result = json.loads(json.dumps(book, cls=EventSerializer))
+
+        # Then: nested message is properly serialized
+        assert result == {"title": "Great Expectations", "author": {"name": "Dickens"}}

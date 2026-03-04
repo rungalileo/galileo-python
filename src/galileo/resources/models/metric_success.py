@@ -36,13 +36,13 @@ class MetricSuccess:
             str]):
         status_type (Union[Literal['success'], Unset]):  Default: 'success'.
         scorer_type (Union[None, ScorerType, Unset]):
-        display_value (Union[None, Unset, str]):
         explanation (Union[None, Unset, str]):
-        rationale (Union[None, Unset, str]):
         cost (Union[None, Unset, float]):
         model_alias (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
         critique (Union['MetricCritiqueColumnar', None, Unset]):
+        display_value (Union[None, Unset, str]):
+        rationale (Union[None, Unset, str]):
     """
 
     value: Union[
@@ -115,13 +115,13 @@ class MetricSuccess:
     ]
     status_type: Union[Literal["success"], Unset] = "success"
     scorer_type: Union[None, ScorerType, Unset] = UNSET
-    display_value: Union[None, Unset, str] = UNSET
     explanation: Union[None, Unset, str] = UNSET
-    rationale: Union[None, Unset, str] = UNSET
     cost: Union[None, Unset, float] = UNSET
     model_alias: Union[None, Unset, str] = UNSET
     num_judges: Union[None, Unset, int] = UNSET
     critique: Union["MetricCritiqueColumnar", None, Unset] = UNSET
+    display_value: Union[None, Unset, str] = UNSET
+    rationale: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -225,14 +225,8 @@ class MetricSuccess:
         else:
             scorer_type = self.scorer_type
 
-        display_value: Union[None, Unset, str]
-        display_value = UNSET if isinstance(self.display_value, Unset) else self.display_value
-
         explanation: Union[None, Unset, str]
         explanation = UNSET if isinstance(self.explanation, Unset) else self.explanation
-
-        rationale: Union[None, Unset, str]
-        rationale = UNSET if isinstance(self.rationale, Unset) else self.rationale
 
         cost: Union[None, Unset, float]
         cost = UNSET if isinstance(self.cost, Unset) else self.cost
@@ -251,6 +245,12 @@ class MetricSuccess:
         else:
             critique = self.critique
 
+        display_value: Union[None, Unset, str]
+        display_value = UNSET if isinstance(self.display_value, Unset) else self.display_value
+
+        rationale: Union[None, Unset, str]
+        rationale = UNSET if isinstance(self.rationale, Unset) else self.rationale
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"value": value})
@@ -258,12 +258,8 @@ class MetricSuccess:
             field_dict["status_type"] = status_type
         if scorer_type is not UNSET:
             field_dict["scorer_type"] = scorer_type
-        if display_value is not UNSET:
-            field_dict["display_value"] = display_value
         if explanation is not UNSET:
             field_dict["explanation"] = explanation
-        if rationale is not UNSET:
-            field_dict["rationale"] = rationale
         if cost is not UNSET:
             field_dict["cost"] = cost
         if model_alias is not UNSET:
@@ -272,6 +268,10 @@ class MetricSuccess:
             field_dict["num_judges"] = num_judges
         if critique is not UNSET:
             field_dict["critique"] = critique
+        if display_value is not UNSET:
+            field_dict["display_value"] = display_value
+        if rationale is not UNSET:
+            field_dict["rationale"] = rationale
 
         return field_dict
 
@@ -815,15 +815,6 @@ class MetricSuccess:
 
         scorer_type = _parse_scorer_type(d.pop("scorer_type", UNSET))
 
-        def _parse_display_value(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        display_value = _parse_display_value(d.pop("display_value", UNSET))
-
         def _parse_explanation(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -832,15 +823,6 @@ class MetricSuccess:
             return cast(Union[None, Unset, str], data)
 
         explanation = _parse_explanation(d.pop("explanation", UNSET))
-
-        def _parse_rationale(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        rationale = _parse_rationale(d.pop("rationale", UNSET))
 
         def _parse_cost(data: object) -> Union[None, Unset, float]:
             if data is None:
@@ -885,17 +867,35 @@ class MetricSuccess:
 
         critique = _parse_critique(d.pop("critique", UNSET))
 
+        def _parse_display_value(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        display_value = _parse_display_value(d.pop("display_value", UNSET))
+
+        def _parse_rationale(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        rationale = _parse_rationale(d.pop("rationale", UNSET))
+
         metric_success = cls(
             value=value,
             status_type=status_type,
             scorer_type=scorer_type,
-            display_value=display_value,
             explanation=explanation,
-            rationale=rationale,
             cost=cost,
             model_alias=model_alias,
             num_judges=num_judges,
             critique=critique,
+            display_value=display_value,
+            rationale=rationale,
         )
 
         metric_success.additional_properties = d

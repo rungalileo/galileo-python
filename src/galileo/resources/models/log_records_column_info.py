@@ -8,6 +8,7 @@ from ..models.column_category import ColumnCategory
 from ..models.data_type import DataType
 from ..models.data_unit import DataUnit
 from ..models.insight_type import InsightType
+from ..models.log_records_column_info_label_color_type_0 import LogRecordsColumnInfoLabelColorType0
 from ..models.log_records_filter_type import LogRecordsFilterType
 from ..models.step_type import StepType
 from ..types import UNSET, Unset
@@ -49,6 +50,8 @@ class LogRecordsColumnInfo:
         insight_type (Union[InsightType, None, Unset]): Insight type.
         filter_type (Union[LogRecordsFilterType, None, Unset]): Filter type.
         threshold (Union['MetricThreshold', None, Unset]): Thresholds for the column, if this is a metrics column.
+        label_color (Union[LogRecordsColumnInfoLabelColorType0, None, Unset]): Type of label color for the column, if
+            this is a multilabel metric column.
     """
 
     id: str
@@ -71,6 +74,7 @@ class LogRecordsColumnInfo:
     insight_type: Union[InsightType, None, Unset] = UNSET
     filter_type: Union[LogRecordsFilterType, None, Unset] = UNSET
     threshold: Union["MetricThreshold", None, Unset] = UNSET
+    label_color: Union[LogRecordsColumnInfoLabelColorType0, None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -164,6 +168,14 @@ class LogRecordsColumnInfo:
         else:
             threshold = self.threshold
 
+        label_color: Union[None, Unset, str]
+        if isinstance(self.label_color, Unset):
+            label_color = UNSET
+        elif isinstance(self.label_color, LogRecordsColumnInfoLabelColorType0):
+            label_color = self.label_color.value
+        else:
+            label_color = self.label_color
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"id": id, "category": category, "data_type": data_type})
@@ -201,6 +213,8 @@ class LogRecordsColumnInfo:
             field_dict["filter_type"] = filter_type
         if threshold is not UNSET:
             field_dict["threshold"] = threshold
+        if label_color is not UNSET:
+            field_dict["label_color"] = label_color
 
         return field_dict
 
@@ -379,6 +393,22 @@ class LogRecordsColumnInfo:
 
         threshold = _parse_threshold(d.pop("threshold", UNSET))
 
+        def _parse_label_color(data: object) -> Union[LogRecordsColumnInfoLabelColorType0, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return LogRecordsColumnInfoLabelColorType0(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[LogRecordsColumnInfoLabelColorType0, None, Unset], data)
+
+        label_color = _parse_label_color(d.pop("label_color", UNSET))
+
         log_records_column_info = cls(
             id=id,
             category=category,
@@ -400,6 +430,7 @@ class LogRecordsColumnInfo:
             insight_type=insight_type,
             filter_type=filter_type,
             threshold=threshold,
+            label_color=label_color,
         )
 
         log_records_column_info.additional_properties = d

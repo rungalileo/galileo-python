@@ -21,6 +21,7 @@ from .aggregated_trace_view_node_metrics import AggregatedTraceViewNodeMetrics
 from .aggregated_trace_view_request import AggregatedTraceViewRequest
 from .aggregated_trace_view_response import AggregatedTraceViewResponse
 from .and_node_log_records_filter import AndNodeLogRecordsFilter
+from .annotation_queue_action import AnnotationQueueAction
 from .anthropic_authentication_type import AnthropicAuthenticationType
 from .anthropic_integration import AnthropicIntegration
 from .anthropic_integration_create import AnthropicIntegrationCreate
@@ -60,6 +61,7 @@ from .base_finetuned_scorer_db import BaseFinetunedScorerDB
 from .base_finetuned_scorer_db_class_name_to_vocab_ix_type_0 import BaseFinetunedScorerDBClassNameToVocabIxType0
 from .base_finetuned_scorer_db_class_name_to_vocab_ix_type_1 import BaseFinetunedScorerDBClassNameToVocabIxType1
 from .base_generated_scorer_db import BaseGeneratedScorerDB
+from .base_metric_roll_up_config_db import BaseMetricRollUpConfigDB
 from .base_prompt_template_response import BasePromptTemplateResponse
 from .base_prompt_template_version import BasePromptTemplateVersion
 from .base_prompt_template_version_response import BasePromptTemplateVersionResponse
@@ -84,6 +86,9 @@ from .body_upload_file_projects_project_id_upload_file_post import BodyUploadFil
 from .body_upload_prompt_evaluation_dataset_projects_project_id_prompt_datasets_post import (
     BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
 )
+from .body_validate_code_scorer_log_record_scorers_code_validate_log_record_post import (
+    BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost,
+)
 from .body_validate_code_scorer_scorers_code_validate_post import BodyValidateCodeScorerScorersCodeValidatePost
 from .bucketed_metric import BucketedMetric
 from .bucketed_metric_buckets import BucketedMetricBuckets
@@ -92,6 +97,7 @@ from .bulk_delete_datasets_request import BulkDeleteDatasetsRequest
 from .bulk_delete_datasets_response import BulkDeleteDatasetsResponse
 from .bulk_delete_failure import BulkDeleteFailure
 from .bulk_delete_prompt_templates_request import BulkDeletePromptTemplatesRequest
+from .categorical_roll_up_method import CategoricalRollUpMethod
 from .chain_aggregation_strategy import ChainAggregationStrategy
 from .chain_poll_template import ChainPollTemplate
 from .chain_poll_template_response_schema_type_0 import ChainPollTemplateResponseSchemaType0
@@ -130,6 +136,8 @@ from .custom_authentication_type import CustomAuthenticationType
 from .custom_integration import CustomIntegration
 from .custom_integration_create import CustomIntegrationCreate
 from .custom_integration_extra_type_0 import CustomIntegrationExtraType0
+from .custom_llm_config import CustomLLMConfig
+from .custom_llm_config_init_kwargs_type_0 import CustomLLMConfigInitKwargsType0
 from .customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
 from .customized_agentic_session_success_gpt_scorer_aggregates_type_0 import (
     CustomizedAgenticSessionSuccessGPTScorerAggregatesType0,
@@ -522,6 +530,7 @@ from .image_generation_event import ImageGenerationEvent
 from .image_generation_event_images_type_0_item import ImageGenerationEventImagesType0Item
 from .image_generation_event_metadata_type_0 import ImageGenerationEventMetadataType0
 from .input_map import InputMap
+from .input_modality import InputModality
 from .input_pii_scorer import InputPIIScorer
 from .input_sexist_scorer import InputSexistScorer
 from .input_sexist_scorer_type import InputSexistScorerType
@@ -533,6 +542,8 @@ from .input_toxicity_scorer_type import InputToxicityScorerType
 from .input_toxicity_template import InputToxicityTemplate
 from .input_toxicity_template_response_schema_type_0 import InputToxicityTemplateResponseSchemaType0
 from .input_type_enum import InputTypeEnum
+from .insight_summary import InsightSummary
+from .insight_summary_priority_category_type_0 import InsightSummaryPriorityCategoryType0
 from .insight_type import InsightType
 from .instruction_adherence_scorer import InstructionAdherenceScorer
 from .instruction_adherence_template import InstructionAdherenceTemplate
@@ -592,6 +603,7 @@ from .log_records_boolean_filter_operator import LogRecordsBooleanFilterOperator
 from .log_records_collection_filter import LogRecordsCollectionFilter
 from .log_records_collection_filter_operator import LogRecordsCollectionFilterOperator
 from .log_records_column_info import LogRecordsColumnInfo
+from .log_records_column_info_label_color_type_0 import LogRecordsColumnInfoLabelColorType0
 from .log_records_date_filter import LogRecordsDateFilter
 from .log_records_date_filter_operator import LogRecordsDateFilterOperator
 from .log_records_delete_request import LogRecordsDeleteRequest
@@ -606,6 +618,8 @@ from .log_records_metrics_response_aggregate_metrics import LogRecordsMetricsRes
 from .log_records_metrics_response_bucketed_metrics import LogRecordsMetricsResponseBucketedMetrics
 from .log_records_number_filter import LogRecordsNumberFilter
 from .log_records_number_filter_operator import LogRecordsNumberFilterOperator
+from .log_records_partial_query_request import LogRecordsPartialQueryRequest
+from .log_records_partial_query_response import LogRecordsPartialQueryResponse
 from .log_records_query_count_request import LogRecordsQueryCountRequest
 from .log_records_query_count_response import LogRecordsQueryCountResponse
 from .log_records_query_request import LogRecordsQueryRequest
@@ -660,6 +674,10 @@ from .metric_failed import MetricFailed
 from .metric_not_applicable import MetricNotApplicable
 from .metric_not_computed import MetricNotComputed
 from .metric_pending import MetricPending
+from .metric_roll_up import MetricRollUp
+from .metric_roll_up_roll_up_metrics_type_0 import MetricRollUpRollUpMetricsType0
+from .metric_roll_up_roll_up_metrics_type_1 import MetricRollUpRollUpMetricsType1
+from .metric_roll_up_roll_up_metrics_type_1_additional_property import MetricRollUpRollUpMetricsType1AdditionalProperty
 from .metric_settings_request import MetricSettingsRequest
 from .metric_settings_response import MetricSettingsResponse
 from .metric_success import MetricSuccess
@@ -672,6 +690,7 @@ from .mistral_integration_extra_type_0 import MistralIntegrationExtraType0
 from .model import Model
 from .model_cost_by import ModelCostBy
 from .model_type import ModelType
+from .multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 from .name import Name
 from .node_name_filter import NodeNameFilter
 from .node_name_filter_operator import NodeNameFilterOperator
@@ -697,6 +716,46 @@ from .output_toxicity_scorer import OutputToxicityScorer
 from .output_toxicity_scorer_type import OutputToxicityScorerType
 from .output_type_enum import OutputTypeEnum
 from .override_action import OverrideAction
+from .partial_extended_agent_span_record import PartialExtendedAgentSpanRecord
+from .partial_extended_agent_span_record_dataset_metadata import PartialExtendedAgentSpanRecordDatasetMetadata
+from .partial_extended_agent_span_record_feedback_rating_info import PartialExtendedAgentSpanRecordFeedbackRatingInfo
+from .partial_extended_agent_span_record_metric_info_type_0 import PartialExtendedAgentSpanRecordMetricInfoType0
+from .partial_extended_agent_span_record_user_metadata import PartialExtendedAgentSpanRecordUserMetadata
+from .partial_extended_llm_span_record import PartialExtendedLlmSpanRecord
+from .partial_extended_llm_span_record_dataset_metadata import PartialExtendedLlmSpanRecordDatasetMetadata
+from .partial_extended_llm_span_record_feedback_rating_info import PartialExtendedLlmSpanRecordFeedbackRatingInfo
+from .partial_extended_llm_span_record_metric_info_type_0 import PartialExtendedLlmSpanRecordMetricInfoType0
+from .partial_extended_llm_span_record_tools_type_0_item import PartialExtendedLlmSpanRecordToolsType0Item
+from .partial_extended_llm_span_record_user_metadata import PartialExtendedLlmSpanRecordUserMetadata
+from .partial_extended_retriever_span_record import PartialExtendedRetrieverSpanRecord
+from .partial_extended_retriever_span_record_dataset_metadata import PartialExtendedRetrieverSpanRecordDatasetMetadata
+from .partial_extended_retriever_span_record_feedback_rating_info import (
+    PartialExtendedRetrieverSpanRecordFeedbackRatingInfo,
+)
+from .partial_extended_retriever_span_record_metric_info_type_0 import PartialExtendedRetrieverSpanRecordMetricInfoType0
+from .partial_extended_retriever_span_record_user_metadata import PartialExtendedRetrieverSpanRecordUserMetadata
+from .partial_extended_session_record import PartialExtendedSessionRecord
+from .partial_extended_session_record_dataset_metadata import PartialExtendedSessionRecordDatasetMetadata
+from .partial_extended_session_record_feedback_rating_info import PartialExtendedSessionRecordFeedbackRatingInfo
+from .partial_extended_session_record_metric_info_type_0 import PartialExtendedSessionRecordMetricInfoType0
+from .partial_extended_session_record_user_metadata import PartialExtendedSessionRecordUserMetadata
+from .partial_extended_tool_span_record import PartialExtendedToolSpanRecord
+from .partial_extended_tool_span_record_dataset_metadata import PartialExtendedToolSpanRecordDatasetMetadata
+from .partial_extended_tool_span_record_feedback_rating_info import PartialExtendedToolSpanRecordFeedbackRatingInfo
+from .partial_extended_tool_span_record_metric_info_type_0 import PartialExtendedToolSpanRecordMetricInfoType0
+from .partial_extended_tool_span_record_user_metadata import PartialExtendedToolSpanRecordUserMetadata
+from .partial_extended_trace_record import PartialExtendedTraceRecord
+from .partial_extended_trace_record_dataset_metadata import PartialExtendedTraceRecordDatasetMetadata
+from .partial_extended_trace_record_feedback_rating_info import PartialExtendedTraceRecordFeedbackRatingInfo
+from .partial_extended_trace_record_metric_info_type_0 import PartialExtendedTraceRecordMetricInfoType0
+from .partial_extended_trace_record_user_metadata import PartialExtendedTraceRecordUserMetadata
+from .partial_extended_workflow_span_record import PartialExtendedWorkflowSpanRecord
+from .partial_extended_workflow_span_record_dataset_metadata import PartialExtendedWorkflowSpanRecordDatasetMetadata
+from .partial_extended_workflow_span_record_feedback_rating_info import (
+    PartialExtendedWorkflowSpanRecordFeedbackRatingInfo,
+)
+from .partial_extended_workflow_span_record_metric_info_type_0 import PartialExtendedWorkflowSpanRecordMetricInfoType0
+from .partial_extended_workflow_span_record_user_metadata import PartialExtendedWorkflowSpanRecordUserMetadata
 from .passthrough_action import PassthroughAction
 from .payload import Payload
 from .permission import Permission
@@ -763,6 +822,7 @@ from .protect_response import ProtectResponse
 from .query_dataset_params import QueryDatasetParams
 from .reasoning_event import ReasoningEvent
 from .reasoning_event_metadata_type_0 import ReasoningEventMetadataType0
+from .reasoning_event_summary_type_1_item import ReasoningEventSummaryType1Item
 from .recompute_log_records_metrics_request import RecomputeLogRecordsMetricsRequest
 from .recompute_settings_log_stream import RecomputeSettingsLogStream
 from .recompute_settings_observe import RecomputeSettingsObserve
@@ -835,6 +895,7 @@ from .scorer_updated_at_filter_operator import ScorerUpdatedAtFilterOperator
 from .scorers_configuration import ScorersConfiguration
 from .segment import Segment
 from .segment_filter import SegmentFilter
+from .select_columns import SelectColumns
 from .session_create_request import SessionCreateRequest
 from .session_create_response import SessionCreateResponse
 from .sexist_template import SexistTemplate
@@ -904,6 +965,7 @@ from .validate_code_scorer_response import ValidateCodeScorerResponse
 from .validate_llm_scorer_log_record_request import ValidateLLMScorerLogRecordRequest
 from .validate_llm_scorer_log_record_response import ValidateLLMScorerLogRecordResponse
 from .validate_registered_scorer_result import ValidateRegisteredScorerResult
+from .validate_scorer_log_record_response import ValidateScorerLogRecordResponse
 from .validation_error import ValidationError
 from .vegas_gateway_integration import VegasGatewayIntegration
 from .vegas_gateway_integration_create import VegasGatewayIntegrationCreate
@@ -911,6 +973,9 @@ from .vegas_gateway_integration_extra_type_0 import VegasGatewayIntegrationExtra
 from .vertex_ai_integration import VertexAIIntegration
 from .vertex_ai_integration_create import VertexAIIntegrationCreate
 from .vertex_ai_integration_extra_type_0 import VertexAIIntegrationExtraType0
+from .web_search_action import WebSearchAction
+from .web_search_call_event import WebSearchCallEvent
+from .web_search_call_event_metadata_type_0 import WebSearchCallEventMetadataType0
 from .workflow_span import WorkflowSpan
 from .workflow_span_dataset_metadata import WorkflowSpanDatasetMetadata
 from .workflow_span_user_metadata import WorkflowSpanUserMetadata
@@ -940,6 +1005,7 @@ __all__ = (
     "AggregatedTraceViewRequest",
     "AggregatedTraceViewResponse",
     "AndNodeLogRecordsFilter",
+    "AnnotationQueueAction",
     "AnthropicAuthenticationType",
     "AnthropicIntegration",
     "AnthropicIntegrationCreate",
@@ -977,6 +1043,7 @@ __all__ = (
     "BaseFinetunedScorerDBClassNameToVocabIxType0",
     "BaseFinetunedScorerDBClassNameToVocabIxType1",
     "BaseGeneratedScorerDB",
+    "BaseMetricRollUpConfigDB",
     "BasePromptTemplateResponse",
     "BasePromptTemplateVersion",
     "BasePromptTemplateVersionResponse",
@@ -995,6 +1062,7 @@ __all__ = (
     "BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut",
     "BodyUploadFileProjectsProjectIdUploadFilePost",
     "BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost",
+    "BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost",
     "BodyValidateCodeScorerScorersCodeValidatePost",
     "BucketedMetric",
     "BucketedMetricBuckets",
@@ -1003,6 +1071,7 @@ __all__ = (
     "BulkDeleteDatasetsResponse",
     "BulkDeleteFailure",
     "BulkDeletePromptTemplatesRequest",
+    "CategoricalRollUpMethod",
     "ChainAggregationStrategy",
     "ChainPollTemplate",
     "ChainPollTemplateResponseSchemaType0",
@@ -1039,6 +1108,8 @@ __all__ = (
     "CustomIntegration",
     "CustomIntegrationCreate",
     "CustomIntegrationExtraType0",
+    "CustomLLMConfig",
+    "CustomLLMConfigInitKwargsType0",
     "CustomizedAgenticSessionSuccessGPTScorer",
     "CustomizedAgenticSessionSuccessGPTScorerAggregatesType0",
     "CustomizedAgenticSessionSuccessGPTScorerClassNameToVocabIxType0",
@@ -1315,6 +1386,7 @@ __all__ = (
     "ImageGenerationEventImagesType0Item",
     "ImageGenerationEventMetadataType0",
     "InputMap",
+    "InputModality",
     "InputPIIScorer",
     "InputSexistScorer",
     "InputSexistScorerType",
@@ -1326,6 +1398,8 @@ __all__ = (
     "InputToxicityTemplate",
     "InputToxicityTemplateResponseSchemaType0",
     "InputTypeEnum",
+    "InsightSummary",
+    "InsightSummaryPriorityCategoryType0",
     "InsightType",
     "InstructionAdherenceScorer",
     "InstructionAdherenceTemplate",
@@ -1385,6 +1459,7 @@ __all__ = (
     "LogRecordsCollectionFilter",
     "LogRecordsCollectionFilterOperator",
     "LogRecordsColumnInfo",
+    "LogRecordsColumnInfoLabelColorType0",
     "LogRecordsDateFilter",
     "LogRecordsDateFilterOperator",
     "LogRecordsDeleteRequest",
@@ -1399,6 +1474,8 @@ __all__ = (
     "LogRecordsMetricsResponseBucketedMetrics",
     "LogRecordsNumberFilter",
     "LogRecordsNumberFilterOperator",
+    "LogRecordsPartialQueryRequest",
+    "LogRecordsPartialQueryResponse",
     "LogRecordsQueryCountRequest",
     "LogRecordsQueryCountResponse",
     "LogRecordsQueryRequest",
@@ -1453,6 +1530,10 @@ __all__ = (
     "MetricNotApplicable",
     "MetricNotComputed",
     "MetricPending",
+    "MetricRollUp",
+    "MetricRollUpRollUpMetricsType0",
+    "MetricRollUpRollUpMetricsType1",
+    "MetricRollUpRollUpMetricsType1AdditionalProperty",
     "MetricSettingsRequest",
     "MetricSettingsResponse",
     "MetricSuccess",
@@ -1465,6 +1546,7 @@ __all__ = (
     "Model",
     "ModelCostBy",
     "ModelType",
+    "MultiModalModelIntegrationConfig",
     "Name",
     "NodeNameFilter",
     "NodeNameFilterOperator",
@@ -1490,6 +1572,42 @@ __all__ = (
     "OutputToxicityScorerType",
     "OutputTypeEnum",
     "OverrideAction",
+    "PartialExtendedAgentSpanRecord",
+    "PartialExtendedAgentSpanRecordDatasetMetadata",
+    "PartialExtendedAgentSpanRecordFeedbackRatingInfo",
+    "PartialExtendedAgentSpanRecordMetricInfoType0",
+    "PartialExtendedAgentSpanRecordUserMetadata",
+    "PartialExtendedLlmSpanRecord",
+    "PartialExtendedLlmSpanRecordDatasetMetadata",
+    "PartialExtendedLlmSpanRecordFeedbackRatingInfo",
+    "PartialExtendedLlmSpanRecordMetricInfoType0",
+    "PartialExtendedLlmSpanRecordToolsType0Item",
+    "PartialExtendedLlmSpanRecordUserMetadata",
+    "PartialExtendedRetrieverSpanRecord",
+    "PartialExtendedRetrieverSpanRecordDatasetMetadata",
+    "PartialExtendedRetrieverSpanRecordFeedbackRatingInfo",
+    "PartialExtendedRetrieverSpanRecordMetricInfoType0",
+    "PartialExtendedRetrieverSpanRecordUserMetadata",
+    "PartialExtendedSessionRecord",
+    "PartialExtendedSessionRecordDatasetMetadata",
+    "PartialExtendedSessionRecordFeedbackRatingInfo",
+    "PartialExtendedSessionRecordMetricInfoType0",
+    "PartialExtendedSessionRecordUserMetadata",
+    "PartialExtendedToolSpanRecord",
+    "PartialExtendedToolSpanRecordDatasetMetadata",
+    "PartialExtendedToolSpanRecordFeedbackRatingInfo",
+    "PartialExtendedToolSpanRecordMetricInfoType0",
+    "PartialExtendedToolSpanRecordUserMetadata",
+    "PartialExtendedTraceRecord",
+    "PartialExtendedTraceRecordDatasetMetadata",
+    "PartialExtendedTraceRecordFeedbackRatingInfo",
+    "PartialExtendedTraceRecordMetricInfoType0",
+    "PartialExtendedTraceRecordUserMetadata",
+    "PartialExtendedWorkflowSpanRecord",
+    "PartialExtendedWorkflowSpanRecordDatasetMetadata",
+    "PartialExtendedWorkflowSpanRecordFeedbackRatingInfo",
+    "PartialExtendedWorkflowSpanRecordMetricInfoType0",
+    "PartialExtendedWorkflowSpanRecordUserMetadata",
     "PassthroughAction",
     "Payload",
     "Permission",
@@ -1556,6 +1674,7 @@ __all__ = (
     "QueryDatasetParams",
     "ReasoningEvent",
     "ReasoningEventMetadataType0",
+    "ReasoningEventSummaryType1Item",
     "RecomputeLogRecordsMetricsRequest",
     "RecomputeSettingsLogStream",
     "RecomputeSettingsObserve",
@@ -1628,6 +1747,7 @@ __all__ = (
     "ScorersConfiguration",
     "Segment",
     "SegmentFilter",
+    "SelectColumns",
     "SessionCreateRequest",
     "SessionCreateResponse",
     "SexistTemplate",
@@ -1697,6 +1817,7 @@ __all__ = (
     "ValidateLLMScorerLogRecordRequest",
     "ValidateLLMScorerLogRecordResponse",
     "ValidateRegisteredScorerResult",
+    "ValidateScorerLogRecordResponse",
     "ValidationError",
     "VegasGatewayIntegration",
     "VegasGatewayIntegrationCreate",
@@ -1704,6 +1825,9 @@ __all__ = (
     "VertexAIIntegration",
     "VertexAIIntegrationCreate",
     "VertexAIIntegrationExtraType0",
+    "WebSearchAction",
+    "WebSearchCallEvent",
+    "WebSearchCallEventMetadataType0",
     "WorkflowSpan",
     "WorkflowSpanDatasetMetadata",
     "WorkflowSpanUserMetadata",

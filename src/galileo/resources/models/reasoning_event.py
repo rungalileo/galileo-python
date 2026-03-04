@@ -9,6 +9,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.reasoning_event_metadata_type_0 import ReasoningEventMetadataType0
+    from ..models.reasoning_event_summary_type_1_item import ReasoningEventSummaryType1Item
 
 
 T = TypeVar("T", bound="ReasoningEvent")
@@ -26,7 +27,7 @@ class ReasoningEvent:
         metadata (Union['ReasoningEventMetadataType0', None, Unset]): Provider-specific metadata and additional fields
         error_message (Union[None, Unset, str]): Error message if the event failed
         content (Union[None, Unset, str]): The reasoning/thinking content
-        summary (Union[None, Unset, str]): Summary of the reasoning
+        summary (Union[None, Unset, list['ReasoningEventSummaryType1Item'], str]): Summary of the reasoning
     """
 
     type_: Union[Literal["reasoning"], Unset] = "reasoning"
@@ -35,7 +36,7 @@ class ReasoningEvent:
     metadata: Union["ReasoningEventMetadataType0", None, Unset] = UNSET
     error_message: Union[None, Unset, str] = UNSET
     content: Union[None, Unset, str] = UNSET
-    summary: Union[None, Unset, str] = UNSET
+    summary: Union[None, Unset, list["ReasoningEventSummaryType1Item"], str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -68,8 +69,17 @@ class ReasoningEvent:
         content: Union[None, Unset, str]
         content = UNSET if isinstance(self.content, Unset) else self.content
 
-        summary: Union[None, Unset, str]
-        summary = UNSET if isinstance(self.summary, Unset) else self.summary
+        summary: Union[None, Unset, list[dict[str, Any]], str]
+        if isinstance(self.summary, Unset):
+            summary = UNSET
+        elif isinstance(self.summary, list):
+            summary = []
+            for summary_type_1_item_data in self.summary:
+                summary_type_1_item = summary_type_1_item_data.to_dict()
+                summary.append(summary_type_1_item)
+
+        else:
+            summary = self.summary
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -94,6 +104,7 @@ class ReasoningEvent:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.reasoning_event_metadata_type_0 import ReasoningEventMetadataType0
+        from ..models.reasoning_event_summary_type_1_item import ReasoningEventSummaryType1Item
 
         d = dict(src_dict)
         type_ = cast(Union[Literal["reasoning"], Unset], d.pop("type", UNSET))
@@ -159,12 +170,25 @@ class ReasoningEvent:
 
         content = _parse_content(d.pop("content", UNSET))
 
-        def _parse_summary(data: object) -> Union[None, Unset, str]:
+        def _parse_summary(data: object) -> Union[None, Unset, list["ReasoningEventSummaryType1Item"], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                summary_type_1 = []
+                _summary_type_1 = data
+                for summary_type_1_item_data in _summary_type_1:
+                    summary_type_1_item = ReasoningEventSummaryType1Item.from_dict(summary_type_1_item_data)
+
+                    summary_type_1.append(summary_type_1_item)
+
+                return summary_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list["ReasoningEventSummaryType1Item"], str], data)
 
         summary = _parse_summary(d.pop("summary", UNSET))
 

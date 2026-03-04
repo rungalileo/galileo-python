@@ -79,10 +79,14 @@ def sync_detailed(
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
     """Create Or Update Integration.
 
-     Create or update a custom integration for this user.
-
     Args:
-        body (CustomIntegrationCreate):
+        body (CustomIntegrationCreate): Schema for creating custom integrations.
+
+            Inherits api_key field validation from CustomConfig:
+            - api_key_header and api_key_value are required when authentication_type is api_key
+
+            Token field is only used for oauth2 authentication (contains OAuth2 client credentials).
+            For api_key auth, the api_key_value field is used instead.
 
     Raises
     ------
@@ -103,10 +107,14 @@ def sync_detailed(
 def sync(*, client: ApiClient, body: CustomIntegrationCreate) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
     """Create Or Update Integration.
 
-     Create or update a custom integration for this user.
-
     Args:
-        body (CustomIntegrationCreate):
+        body (CustomIntegrationCreate): Schema for creating custom integrations.
+
+            Inherits api_key field validation from CustomConfig:
+            - api_key_header and api_key_value are required when authentication_type is api_key
+
+            Token field is only used for oauth2 authentication (contains OAuth2 client credentials).
+            For api_key auth, the api_key_value field is used instead.
 
     Raises
     ------
@@ -125,10 +133,14 @@ async def asyncio_detailed(
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
     """Create Or Update Integration.
 
-     Create or update a custom integration for this user.
-
     Args:
-        body (CustomIntegrationCreate):
+        body (CustomIntegrationCreate): Schema for creating custom integrations.
+
+            Inherits api_key field validation from CustomConfig:
+            - api_key_header and api_key_value are required when authentication_type is api_key
+
+            Token field is only used for oauth2 authentication (contains OAuth2 client credentials).
+            For api_key auth, the api_key_value field is used instead.
 
     Raises
     ------
@@ -151,10 +163,14 @@ async def asyncio(
 ) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
     """Create Or Update Integration.
 
-     Create or update a custom integration for this user.
-
     Args:
-        body (CustomIntegrationCreate):
+        body (CustomIntegrationCreate): Schema for creating custom integrations.
+
+            Inherits api_key field validation from CustomConfig:
+            - api_key_header and api_key_value are required when authentication_type is api_key
+
+            Token field is only used for oauth2 authentication (contains OAuth2 client credentials).
+            For api_key auth, the api_key_value field is used instead.
 
     Raises
     ------

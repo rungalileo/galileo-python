@@ -445,6 +445,8 @@ def test__get_etag(get_dataset_content_by_id_patch: Mock) -> None:
 def test_dataset_add_rows_success(
     update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock
 ) -> None:
+    update_dataset_patch.sync_detailed.return_value = Mock(status_code=204)
+
     dataset = Dataset(dataset_db=dataset_db())
 
     dataset.add_rows([{"input": "b"}, {"input": "c"}])
@@ -453,7 +455,7 @@ def test_dataset_add_rows_success(
     expected_append_row_b.additional_properties = {"input": "b"}
     expected_append_row_c = DatasetAppendRowValues()
     expected_append_row_c.additional_properties = {"input": "c"}
-    update_dataset_patch.sync.assert_called_once_with(
+    update_dataset_patch.sync_detailed.assert_called_once_with(
         client=dataset.config.api_client,
         dataset_id="78e8035d-c429-47f2-8971-68f10e7e91c9",
         body=UpdateDatasetContentRequest(
@@ -475,7 +477,7 @@ def test_dataset_add_rows_failure(
     update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock
 ) -> None:
     """Test that add_rows raises DatasetAPIException when API returns an error."""
-    update_dataset_patch.sync.return_value = HTTPValidationError()
+    update_dataset_patch.sync_detailed.return_value = Mock(status_code=422, content=b"Validation error")
 
     dataset = Dataset(dataset_db=dataset_db())
 
@@ -483,7 +485,8 @@ def test_dataset_add_rows_failure(
         dataset.add_rows([{"input": "b"}, {"input": "c"}])
 
     assert "Request to add new rows to dataset failed" in str(exc_info.value)
-    update_dataset_patch.sync.assert_called_once()
+    assert "422" in str(exc_info.value)
+    update_dataset_patch.sync_detailed.assert_called_once()
     etag_patch.assert_called_once()
     get_dataset_content_patch.sync.assert_not_called()
 
@@ -1350,3 +1353,90 @@ def test_list_dataset_projects_with_nonexistent_dataset(get_dataset_mock: Mock) 
 
     with pytest.raises(ValueError, match="Dataset 'nonexistent-dataset' not found"):
         list_dataset_projects(dataset_id="nonexistent-dataset")
+
+
+@patch("galileo.datasets.create_dataset_datasets_post")
+def test_create_dataset_normalizes_ground_truth_to_output(create_dataset_datasets_post_mock: Mock) -> None:
+    """Test that create_dataset normalizes ground_truth field to output before sending to API."""
+    # Given: a dataset with ground_truth fields
+    test_data = [
+        {"input": "Which continent is Spain in?", "ground_truth": "Europe"},
+        {"input": "Which continent is Japan in?", "ground_truth": "Asia"},
+    ]
+
+    create_dataset_datasets_post_mock.sync_detailed.return_value = Response(
+        content=b'{"id":"bb830fae-99d3-4ce7-bef9-300d528e0060","draft":false}',
+        status_code=HTTPStatus.OK,
+        headers={},
+        parsed=DatasetDB.from_dict(
+            {
+                "draft": False,
+                "column_names": ["input", "output"],
+                "created_at": "2025-03-10T15:25:03.088471+00:00",
+                "created_by_user": {"id": "01ce18ac-3960-46e1-bb79-0e4965069add"},
+                "current_version_index": 1,
+                "id": "bb830fae-99d3-4ce7-bef9-300d528e0060",
+                "name": "countries-dataset",
+                "updated_at": "2025-03-26T12:00:44.558105+00:00",
+                "num_rows": 2,
+                "project_count": 0,
+                "permissions": [],
+            }
+        ),
+    )
+
+    # When: creating the dataset
+    create_dataset(name="countries-dataset", content=test_data)
+
+    # Then: the API call should be made with normalized data (ground_truth -> output)
+    create_dataset_datasets_post_mock.sync_detailed.assert_called_once()
+    call_args = create_dataset_datasets_post_mock.sync_detailed.call_args
+
+    # Extract the file from the body and verify contents
+    body = call_args.kwargs["body"]
+    file_content = body.file.payload.read().decode("utf-8")
+
+    # Verify each line in the JSONL file has 'output' instead of 'ground_truth'
+    lines = file_content.strip().split("\n")
+    assert len(lines) == 2
+
+    for line in lines:
+        row = json.loads(line)
+        assert "output" in row, "Expected 'output' field in normalized data"
+        assert "ground_truth" not in row, "Expected 'ground_truth' to be converted to 'output'"
+        assert row["output"] in ["Europe", "Asia"], f"Expected output value, got {row['output']}"
+
+
+@patch("galileo.datasets.create_dataset_datasets_post")
+def test_create_dataset_does_not_mutate_caller_dicts(create_dataset_datasets_post_mock: Mock) -> None:
+    """Test that create_dataset does not mutate the caller's input dicts."""
+    # Given: a dataset with ground_truth in caller-owned dicts
+    row = {"input": "What is 2+2?", "ground_truth": "4"}
+    content = [row]
+
+    create_dataset_datasets_post_mock.sync_detailed.return_value = Response(
+        content=b'{"id":"bb830fae-99d3-4ce7-bef9-300d528e0062","draft":false}',
+        status_code=HTTPStatus.OK,
+        headers={},
+        parsed=DatasetDB.from_dict(
+            {
+                "draft": False,
+                "column_names": ["input", "output"],
+                "created_at": "2025-03-10T15:25:03.088471+00:00",
+                "created_by_user": {"id": "01ce18ac-3960-46e1-bb79-0e4965069add"},
+                "current_version_index": 1,
+                "id": "bb830fae-99d3-4ce7-bef9-300d528e0062",
+                "name": "no-mutation-dataset",
+                "updated_at": "2025-03-26T12:00:44.558105+00:00",
+                "num_rows": 1,
+                "project_count": 0,
+                "permissions": [],
+            }
+        ),
+    )
+
+    # When: creating the dataset
+    create_dataset(name="no-mutation-dataset", content=content)
+
+    # Then: the original dict is not mutated
+    assert row == {"input": "What is 2+2?", "ground_truth": "4"}, "Caller's dict should not be mutated"

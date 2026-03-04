@@ -19,12 +19,15 @@ class DatasetCopyRecordData:
         ids (list[str]): List of trace or span IDs to copy data from
         edit_type (Union[Literal['copy_record_data'], Unset]):  Default: 'copy_record_data'.
         prepend (Union[Unset, bool]): A flag to control appending vs prepending Default: True.
+        use_generated_output_column (Union[Unset, bool]): If True, write trace output to generated_output column; if
+            False, write to output column (backward compatible) Default: False.
     """
 
     project_id: str
     ids: list[str]
     edit_type: Union[Literal["copy_record_data"], Unset] = "copy_record_data"
     prepend: Union[Unset, bool] = True
+    use_generated_output_column: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,6 +39,8 @@ class DatasetCopyRecordData:
 
         prepend = self.prepend
 
+        use_generated_output_column = self.use_generated_output_column
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"project_id": project_id, "ids": ids})
@@ -43,6 +48,8 @@ class DatasetCopyRecordData:
             field_dict["edit_type"] = edit_type
         if prepend is not UNSET:
             field_dict["prepend"] = prepend
+        if use_generated_output_column is not UNSET:
+            field_dict["use_generated_output_column"] = use_generated_output_column
 
         return field_dict
 
@@ -59,7 +66,15 @@ class DatasetCopyRecordData:
 
         prepend = d.pop("prepend", UNSET)
 
-        dataset_copy_record_data = cls(project_id=project_id, ids=ids, edit_type=edit_type, prepend=prepend)
+        use_generated_output_column = d.pop("use_generated_output_column", UNSET)
+
+        dataset_copy_record_data = cls(
+            project_id=project_id,
+            ids=ids,
+            edit_type=edit_type,
+            prepend=prepend,
+            use_generated_output_column=use_generated_output_column,
+        )
 
         dataset_copy_record_data.additional_properties = d
         return dataset_copy_record_data

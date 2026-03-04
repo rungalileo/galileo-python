@@ -652,17 +652,27 @@ paths:
             schema:
               $ref: '#/components/schemas/UpdateDatasetContentRequest'
       responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
+        '204':
+          description: Dataset content updated successfully
+          headers:
+            ETag:
+              description: New version identifier for the dataset
+              schema:
+                type: string
+        '404':
+          description: Dataset not found
+        '412':
+          description: ETag mismatch; client's If-Match does not match current resource
+            version
         '422':
-          description: Validation Error
+          description: Validation error in request body
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+        '423':
+          description: Resource lock could not be acquired; another update may be
+            in progress
     get:
       tags:
         - datasets
@@ -735,17 +745,19 @@ paths:
                 - $ref: '#/components/schemas/UpsertDatasetContentRequest'
               title: Body
       responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
+        '204':
+          description: Dataset content upserted successfully
+        '404':
+          description: Dataset not found
         '422':
-          description: Validation Error
+          description: Validation error in request body
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+        '423':
+          description: Resource lock could not be acquired; another update may be
+            in progress
   /datasets/{dataset_id}/download:
     get:
       tags:
@@ -2942,11 +2954,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /projects/{project_id}/traces/partial_search:
+    post:
+      tags:
+        - trace
+      summary: Query Partial Traces
+      operationId: query_partial_traces_projects__project_id__traces_partial_search_post
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid4
+            title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogRecordsPartialQueryRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogRecordsPartialQueryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /projects/{project_id}/traces/count:
     post:
       tags:
         - trace
       summary: Count Traces
+      description: This endpoint may return a slightly inaccurate count due to the
+        way records are filtered before deduplication.
       operationId: count_traces_projects__project_id__traces_count_post
       security:
         - APIKeyHeader: []
@@ -3047,6 +3098,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LogRecordsQueryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /projects/{project_id}/spans/partial_search:
+    post:
+      tags:
+        - trace
+      summary: Query Partial Spans
+      operationId: query_partial_spans_projects__project_id__spans_partial_search_post
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid4
+            title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogRecordsPartialQueryRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogRecordsPartialQueryResponse'
         '422':
           description: Validation Error
           content:
@@ -3195,6 +3283,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LogRecordsQueryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /projects/{project_id}/sessions/partial_search:
+    post:
+      tags:
+        - trace
+      summary: Query Partial Sessions
+      operationId: query_partial_sessions_projects__project_id__sessions_partial_search_post
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid4
+            title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogRecordsPartialQueryRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogRecordsPartialQueryResponse'
         '422':
           description: Validation Error
           content:
@@ -5745,6 +5870,7 @@ paths:
         - prompts
         - rows
       summary: Validate Code Scorer
+      description: Validate a code scorer with optional simple input/output test.
       operationId: validate_code_scorer_scorers_code_validate_post
       requestBody:
         content:
@@ -5759,6 +5885,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ValidateCodeScorerResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+  /scorers/code/validate/log_record:
+    post:
+      tags:
+        - data
+        - prompts
+        - rows
+      summary: Validate Code Scorer Log Record
+      description: Validate a code scorer using actual log records.
+      operationId: validate_code_scorer_log_record_scorers_code_validate_log_record_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_validate_code_scorer_log_record_scorers_code_validate_log_record_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateScorerLogRecordResponse'
         '422':
           description: Validation Error
           content:
@@ -7416,6 +7574,8 @@ paths:
                       alias: aws_hello_world
                       integration: aws_sagemaker
                       system_supported: false
+                      input_modalities:
+                        - text
                       alternative_names: []
                       token_limit: 4000
                       output_price: 0.0
@@ -7425,6 +7585,7 @@ paths:
                       provides_log_probs: false
                       formatting_tokens: 0
                       response_prefix_tokens: 0
+                      legacy_mistral_prompt_format: false
                       params_map:
                         model: model
                       input_map:
@@ -7523,7 +7684,6 @@ paths:
       tags:
         - integrations
       summary: Create Or Update Integration
-      description: Create or update a custom integration for this user.
       operationId: create_or_update_integration_integrations_custom_put
       requestBody:
         content:
@@ -7540,6 +7700,25 @@ paths:
                   oauth2_token_url: https://api.custom-provider.com/oauth2/token
                   token: your_oauth2_client_credentials_json
                   default_model: custom-model-1
+                - authentication_type: none
+                  models:
+                    - custom-model-1
+                    - custom-model-2
+                  endpoint: https://internal-gateway.local/v1
+                  default_model: custom-model-1
+                - authentication_type: api_key
+                  models:
+                    - custom-model-1
+                    - custom-model-2
+                  endpoint: https://api.gateway-provider.com/v1
+                  api_key_header: X-API-Key
+                  api_key_value: your_api_key_here
+                  default_model: custom-model-1
+                  custom_llm_config:
+                    file_name: proprietary_handler.py
+                    class_name: ProprietaryLLMHandler
+                    init_kwargs:
+                      timeout: 60
         required: true
       responses:
         '200':
@@ -8062,7 +8241,7 @@ paths:
               $ref: '#/components/schemas/VegasGatewayIntegrationCreate'
               examples:
                 - token: my_secret_api_token
-                  endpoint: https://oa-uat.ebiz.verizon.com/vegas/apps/prompt/v2/relay/use_case
+                  endpoint: https://example.com/vegas/apps/prompt/v2/relay/use_case
                   use_case: LLM_EVALUATION_FRAMEWORK
         required: true
       responses:
@@ -9217,12 +9396,23 @@ components:
         occurrences:
           type: integer
           title: Occurrences
+        trace_count:
+          type: integer
+          title: Trace Count
+        trace_ids:
+          items:
+            type: string
+            format: uuid4
+          type: array
+          title: Trace Ids
       type: object
       required:
         - source
         - target
         - weight
         - occurrences
+        - trace_count
+        - trace_ids
       title: AggregatedTraceViewEdge
     AggregatedTraceViewGraph:
       properties:
@@ -9236,6 +9426,11 @@ components:
             $ref: '#/components/schemas/AggregatedTraceViewEdge'
           type: array
           title: Edges
+        edge_occurrences_histogram:
+          anyOf:
+            - $ref: '#/components/schemas/Histogram'
+            - type: 'null'
+          description: Histogram of edge occurrence counts across the graph
       type: object
       required:
         - nodes
@@ -9275,13 +9470,17 @@ components:
         weight:
           type: number
           title: Weight
+        insights:
+          items:
+            $ref: '#/components/schemas/InsightSummary'
+          type: array
+          title: Insights
       type: object
       required:
         - id
         - name
         - type
         - occurrences
-        - parent_id
         - has_children
         - metrics
         - trace_count
@@ -9372,6 +9571,14 @@ components:
       required:
         - and
       title: AndNodeLogRecordsFilter
+    AnnotationQueueAction:
+      type: string
+      enum:
+        - update
+        - delete
+        - share
+        - record_annotation
+      title: AnnotationQueueAction
     AnthropicAuthenticationType:
       type: string
       enum:
@@ -9380,6 +9587,11 @@ components:
       title: AnthropicAuthenticationType
     AnthropicIntegration:
       properties:
+        multi_modal_config:
+          anyOf:
+            - $ref: '#/components/schemas/MultiModalModelIntegrationConfig'
+            - type: 'null'
+          description: Configuration for multi-modal (file upload) capabilities.
         authentication_type:
           $ref: '#/components/schemas/AnthropicAuthenticationType'
           default: api_key
@@ -9431,6 +9643,11 @@ components:
       title: AnthropicIntegration
     AnthropicIntegrationCreate:
       properties:
+        multi_modal_config:
+          anyOf:
+            - $ref: '#/components/schemas/MultiModalModelIntegrationConfig'
+            - type: 'null'
+          description: Configuration for multi-modal (file upload) capabilities.
         authentication_type:
           $ref: '#/components/schemas/AnthropicAuthenticationType'
           default: api_key
@@ -9506,6 +9723,11 @@ components:
       title: AvailableIntegrations
     AwsBedrockIntegration:
       properties:
+        multi_modal_config:
+          anyOf:
+            - $ref: '#/components/schemas/MultiModalModelIntegrationConfig'
+            - type: 'null'
+          description: Configuration for multi-modal (file upload) capabilities.
         credential_type:
           $ref: '#/components/schemas/AwsCredentialType'
           default: key_secret
@@ -9554,6 +9776,11 @@ components:
           type: string
           title: Region
           default: us-west-2
+        multi_modal_config:
+          anyOf:
+            - $ref: '#/components/schemas/MultiModalModelIntegrationConfig'
+            - type: 'null'
+          description: Configuration for multi-modal (file upload) capabilities.
         models:
           items:
             $ref: '#/components/schemas/Model'
@@ -9580,6 +9807,11 @@ components:
       title: AwsSageMakerIntegration
     AwsSageMakerIntegrationCreate:
       properties:
+        multi_modal_config:
+          anyOf:
+            - $ref: '#/components/schemas/MultiModalModelIntegrationConfig'
+            - type: 'null'
+          description: Configuration for multi-modal (file upload) capabilities.
         models:
           items:
             $ref: '#/components/schemas/Model'
@@ -9618,6 +9850,11 @@ components:
       title: AzureAuthenticationType
     AzureIntegration:
       properties:
+        multi_modal_config:
+          anyOf:
+            - $ref: '#/components/schemas/MultiModalModelIntegrationConfig'
+            - type: 'null'
+          description: Configuration for multi-modal (file upload) capabilities.
         proxy:
           type: boolean
           title: Proxy
@@ -9701,6 +9938,11 @@ components:
       title: AzureIntegration
     AzureIntegrationCreate:
       properties:
+        multi_modal_config:
+          anyOf:
+            - $ref: '#/components/schemas/MultiModalModelIntegrationConfig'
+            - type: 'null'
+          description: Configuration for multi-modal (file upload) capabilities.
         proxy:
           type: boolean
           title: Proxy
@@ -9786,6 +10028,11 @@ components:
       title: AzureModelDeployment
     BaseAwsIntegrationCreate:
       properties:
+        multi_modal_config:
+          anyOf:
+            - $ref: '#/components/schemas/MultiModalModelIntegrationConfig'
+            - type: 'null'
+          description: Configuration for multi-modal (file upload) capabilities.
         credential_type:
           $ref: '#/components/schemas/AwsCredentialType'
           default: key_secret
@@ -9821,6 +10068,11 @@ components:
         lora_task_id:
           type: integer
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         prompt:
           type: string
           title: Prompt
@@ -9885,6 +10137,25 @@ components:
         - name
         - chain_poll_template
       title: BaseGeneratedScorerDB
+    BaseMetricRollUpConfigDB:
+      properties:
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+          minLength: 1
+          title: Roll Up Methods
+          description: List of roll up methods to apply to the metric. For numeric
+            scorers we support doing multiple roll up types per metric.
+      type: object
+      required:
+        - roll_up_methods
+      title: BaseMetricRollUpConfigDB
+      description: Configuration for rolling up metrics to parent/trace/session.
     BasePromptTemplateResponse:
       properties:
         id:
@@ -10189,6 +10460,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -10225,6 +10507,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -10235,6 +10527,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -10572,12 +10869,81 @@ components:
       required:
         - file
       title: Body_upload_prompt_evaluation_dataset_projects__project_id__prompt_datasets_post
+    Body_validate_code_scorer_log_record_scorers_code_validate_log_record_post:
+      properties:
+        file:
+          type: string
+          format: binary
+          title: File
+        log_stream_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Log Stream Id
+        experiment_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Experiment Id
+        limit:
+          type: integer
+          title: Limit
+          default: 100
+        starting_token:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Starting Token
+        filters:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Filters
+          description: JSON string array of LogRecordsQueryFilter
+        sort:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Sort
+          description: JSON string of LogRecordsSortClause
+        required_scorers:
+          anyOf:
+            - type: string
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
+        scoreable_node_types:
+          anyOf:
+            - type: string
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Scoreable Node Types
+      type: object
+      required:
+        - file
+      title: Body_validate_code_scorer_log_record_scorers_code_validate_log_record_post
     Body_validate_code_scorer_scorers_code_validate_post:
       properties:
         file:
           type: string
           format: binary
           title: File
+        test_input:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Test Input
+        test_output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Test Output
         required_scorers:
           anyOf:
             - type: string
@@ -10702,6 +11068,13 @@ components:
         - message
       title: BulkDeletePromptTemplatesResponse
       description: Response from bulk deletion operation.
+    CategoricalRollUpMethod:
+      type: string
+      enum:
+        - category_count
+      title: CategoricalRollUpMethod
+      description: Roll up methods for aggregating categorical metrics up the session/trace/span
+        hierarchy.
     ChainAggregationStrategy:
       type: string
       enum:
@@ -10898,6 +11271,7 @@ components:
         - standard
         - metric
         - user_metadata
+        - metric_status
         - dataset_metadata
         - dataset
         - feedback
@@ -11010,6 +11384,14 @@ components:
               type: array
             - type: 'null'
           title: Output
+        generated_output:
+          anyOf:
+            - $ref: '#/components/schemas/ColumnMappingConfig'
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Generated Output
         metadata:
           anyOf:
             - $ref: '#/components/schemas/ColumnMappingConfig'
@@ -11022,6 +11404,7 @@ components:
       required:
         - input
         - output
+        - generated_output
         - metadata
       title: ColumnMapping
     ColumnMappingConfig:
@@ -11263,6 +11646,11 @@ components:
         prompt:
           type: string
           title: Prompt
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         executor:
           anyOf:
             - $ref: '#/components/schemas/galileo_core__schemas__shared__scorers__scorer_name__ScorerName'
@@ -12192,10 +12580,27 @@ components:
     CustomAuthenticationType:
       type: string
       enum:
+        - api_key
+        - none
         - oauth2
       title: CustomAuthenticationType
+      description: 'Authentication types for custom integrations.
+
+
+        Values:
+
+        - none: No authentication required
+
+        - oauth2: OAuth2 token-based authentication
+
+        - api_key: API key header-based authentication'
     CustomIntegration:
       properties:
+        multi_modal_config:
+          anyOf:
+            - $ref: '#/components/schemas/MultiModalModelIntegrationConfig'
+            - type: 'null'
+          description: Configuration for multi-modal (file upload) capabilities.
         authentication_type:
           $ref: '#/components/schemas/CustomAuthenticationType'
           default: oauth2
@@ -12230,6 +12635,26 @@ components:
           title: Oauth2 Token Url
           description: OAuth2 token URL for custom OAuth2 authentication. If not provided,
             defaults to the endpoint.
+        api_key_header:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Api Key Header
+          description: HTTP header name to use for API key authentication (e.g., 'X-API-Key',
+            'Authorization').
+        api_key_value:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Api Key Value
+          description: API key value to send in the specified header for authentication.
+        custom_llm_config:
+          anyOf:
+            - $ref: '#/components/schemas/CustomLLMConfig'
+            - type: 'null'
+          description: Optional configuration for a custom LiteLLM handler class.
+            When specified, the handler's acompletion() method is used instead of
+            the default litellm.acompletion().
         id:
           anyOf:
             - type: string
@@ -12252,8 +12677,19 @@ components:
         - models
         - endpoint
       title: CustomIntegration
+      description: 'Read model for custom integrations.
+
+
+        api_key_value is not stored in extra (it''s encrypted in the token column),
+
+        so we override the parent validator to skip requiring it on read.'
     CustomIntegrationCreate:
       properties:
+        multi_modal_config:
+          anyOf:
+            - $ref: '#/components/schemas/MultiModalModelIntegrationConfig'
+            - type: 'null'
+          description: Configuration for multi-modal (file upload) capabilities.
         authentication_type:
           $ref: '#/components/schemas/CustomAuthenticationType'
           default: oauth2
@@ -12288,15 +12724,77 @@ components:
           title: Oauth2 Token Url
           description: OAuth2 token URL for custom OAuth2 authentication. If not provided,
             defaults to the endpoint.
+        api_key_header:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Api Key Header
+          description: HTTP header name to use for API key authentication (e.g., 'X-API-Key',
+            'Authorization').
+        api_key_value:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Api Key Value
+          description: API key value to send in the specified header for authentication.
+        custom_llm_config:
+          anyOf:
+            - $ref: '#/components/schemas/CustomLLMConfig'
+            - type: 'null'
+          description: Optional configuration for a custom LiteLLM handler class.
+            When specified, the handler's acompletion() method is used instead of
+            the default litellm.acompletion().
         token:
-          type: string
+          anyOf:
+            - type: string
+            - type: 'null'
           title: Token
       type: object
       required:
         - models
         - endpoint
-        - token
       title: CustomIntegrationCreate
+      description: 'Schema for creating custom integrations.
+
+
+        Inherits api_key field validation from CustomConfig:
+
+        - api_key_header and api_key_value are required when authentication_type is
+        api_key
+
+
+        Token field is only used for oauth2 authentication (contains OAuth2 client
+        credentials).
+
+        For api_key auth, the api_key_value field is used instead.'
+    CustomLLMConfig:
+      properties:
+        file_name:
+          type: string
+          title: File Name
+          description: Python file name containing the CustomLLM class (e.g., 'my_handler.py')
+        class_name:
+          type: string
+          title: Class Name
+          description: Class name within the module (must be a litellm.CustomLLM subclass)
+        init_kwargs:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Init Kwargs
+          description: Optional keyword arguments to pass to the CustomLLM constructor
+      type: object
+      required:
+        - file_name
+        - class_name
+      title: CustomLLMConfig
+      description: 'Configuration for a custom LiteLLM handler class.
+
+
+        Allows users to specify a custom implementation of litellm.CustomLLM
+
+        that handles acompletion() calls with custom request/response transformation.'
     CustomizedAgenticSessionSuccessGPTScorer:
       properties:
         scorer_name:
@@ -12756,6 +13254,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -12792,6 +13301,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -12802,6 +13321,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -13162,6 +13686,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -13198,6 +13733,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -13208,6 +13753,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -13362,6 +13912,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -13398,6 +13959,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -13408,6 +13979,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -13563,6 +14139,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -13599,6 +14186,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -13609,6 +14206,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -13958,6 +14560,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -13994,6 +14607,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -14004,6 +14627,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -14187,6 +14815,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -14223,6 +14862,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -14233,6 +14882,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -14441,6 +15095,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -14477,6 +15142,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -14487,6 +15162,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -14661,6 +15341,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -14697,6 +15388,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -14707,6 +15408,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -14889,6 +15595,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -14925,6 +15642,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -14935,6 +15662,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -15164,6 +15896,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -15200,6 +15943,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -15210,6 +15963,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -15385,6 +16143,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -15421,6 +16190,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -15431,6 +16210,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -15605,6 +16389,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -15641,6 +16436,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -15651,6 +16456,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -15832,6 +16642,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -15868,6 +16689,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -15878,6 +16709,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -16094,6 +16930,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -16130,6 +16977,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -16140,6 +16997,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -16322,6 +17184,17 @@ components:
               format: uuid4
             - type: 'null'
           title: Generated Scorer Id
+        scorer_version_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Scorer Version Id
+        user_code:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Code
         can_copy_to_llm:
           anyOf:
             - type: boolean
@@ -16358,6 +17231,16 @@ components:
           anyOf:
             - $ref: '#/components/schemas/RollUpStrategy'
             - type: 'null'
+        roll_up_methods:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/NumericRollUpMethod'
+              type: array
+            - items:
+                $ref: '#/components/schemas/CategoricalRollUpMethod'
+              type: array
+            - type: 'null'
+          title: Roll Up Methods
         prompt:
           anyOf:
             - type: string
@@ -16368,6 +17251,11 @@ components:
             - type: integer
             - type: 'null'
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         luna_input_type:
           anyOf:
             - $ref: '#/components/schemas/LunaInputTypeEnum'
@@ -16406,6 +17294,7 @@ components:
         - prompt
         - playground
         - rank
+        - category_counts
         - score_rating_aggregate
         - star_rating_aggregate
         - thumb_rating_aggregate
@@ -17246,6 +18135,12 @@ components:
           title: Prepend
           description: A flag to control appending vs prepending
           default: true
+        use_generated_output_column:
+          type: boolean
+          title: Use Generated Output Column
+          description: If True, write trace output to generated_output column; if
+            False, write to output column (backward compatible)
+          default: false
       type: object
       required:
         - project_id
@@ -18995,6 +19890,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -19004,6 +19900,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -19234,6 +20131,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -19243,6 +20141,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -19439,6 +20338,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -19448,6 +20348,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -19486,6 +20387,7 @@ components:
                   - $ref: '#/components/schemas/MessageEvent'
                   - $ref: '#/components/schemas/ReasoningEvent'
                   - $ref: '#/components/schemas/InternalToolCall'
+                  - $ref: '#/components/schemas/WebSearchCallEvent'
                   - $ref: '#/components/schemas/ImageGenerationEvent'
                   - $ref: '#/components/schemas/MCPCallEvent'
                   - $ref: '#/components/schemas/MCPListToolsEvent'
@@ -19500,6 +20402,7 @@ components:
                     mcp_list_tools: '#/components/schemas/MCPListToolsEvent'
                     message: '#/components/schemas/MessageEvent'
                     reasoning: '#/components/schemas/ReasoningEvent'
+                    web_search_call: '#/components/schemas/WebSearchCallEvent'
               type: array
             - type: 'null'
           title: Events
@@ -19696,6 +20599,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -19705,6 +20609,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -19918,6 +20823,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -19927,6 +20833,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -20135,6 +21042,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -20144,6 +21052,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -20350,6 +21259,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -20359,6 +21269,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -20545,6 +21456,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -20554,6 +21466,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -20771,6 +21684,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -20780,6 +21694,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -20977,6 +21892,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -20986,6 +21902,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -21189,6 +22106,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -21198,6 +22116,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -21400,6 +22319,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -21409,6 +22329,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -21635,6 +22556,7 @@ components:
                   - $ref: '#/components/schemas/MetricSuccess'
                   - $ref: '#/components/schemas/MetricError'
                   - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
                 discriminator:
                   propertyName: status_type
                   mapping:
@@ -21644,6 +22566,7 @@ components:
                     not_applicable: '#/components/schemas/MetricNotApplicable'
                     not_computed: '#/components/schemas/MetricNotComputed'
                     pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
                     success: '#/components/schemas/MetricSuccess'
               type: object
             - type: 'null'
@@ -22297,6 +23220,11 @@ components:
         lora_task_id:
           type: integer
           title: Lora Task Id
+        lora_weights_path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Lora Weights Path
         prompt:
           type: string
           title: Prompt
@@ -22927,6 +23855,15 @@ components:
       required:
         - prompt
       title: InputMap
+    InputModality:
+      type: string
+      enum:
+        - audio
+        - document
+        - image
+        - text
+      title: InputModality
+      description: Types of input that a model can accept.
     InputPIIScorer:
       properties:
         name:
@@ -23241,6 +24178,45 @@ components:
         - workflow_spans
       title: InputTypeEnum
       description: Enumeration of input types.
+    InsightSummary:
+      properties:
+        id:
+          type: string
+          format: uuid4
+          title: Id
+        title:
+          type: string
+          title: Title
+        observation:
+          type: string
+          title: Observation
+        details:
+          type: string
+          title: Details
+        suggested_action:
+          type: string
+          title: Suggested Action
+        priority:
+          type: integer
+          title: Priority
+        priority_category:
+          anyOf:
+            - type: string
+              enum:
+                - error
+                - warning
+                - info
+            - type: 'null'
+          title: Priority Category
+      type: object
+      required:
+        - id
+        - title
+        - observation
+        - details
+        - suggested_action
+        - priority
+      title: InsightSummary
     InsightType:
       type: string
       enum:
@@ -24606,6 +25582,7 @@ components:
                   - $ref: '#/components/schemas/MessageEvent'
                   - $ref: '#/components/schemas/ReasoningEvent'
                   - $ref: '#/components/schemas/InternalToolCall'
+                  - $ref: '#/components/schemas/WebSearchCallEvent'
                   - $ref: '#/components/schemas/ImageGenerationEvent'
                   - $ref: '#/components/schemas/MCPCallEvent'
                   - $ref: '#/components/schemas/MCPListToolsEvent'
@@ -24620,6 +25597,7 @@ components:
                     mcp_list_tools: '#/components/schemas/MCPListToolsEvent'
                     message: '#/components/schemas/MessageEvent'
                     reasoning: '#/components/schemas/ReasoningEvent'
+                    web_search_call: '#/components/schemas/WebSearchCallEvent'
               type: array
             - type: 'null'
           title: Events
@@ -24696,13 +25674,13 @@ components:
       examples:
         - columns:
             - applicable_types:
-                - session
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
+                - session
               category: standard
               complex: false
               data_type: text
@@ -24717,13 +25695,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - session
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
+                - session
               category: standard
               complex: false
               data_type: text
@@ -24738,13 +25716,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - session
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
+                - session
               category: standard
               complex: false
               data_type: text
@@ -24759,13 +25737,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - session
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
+                - session
               category: standard
               complex: false
               data_type: timestamp
@@ -24780,12 +25758,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: string_list
@@ -24800,12 +25778,12 @@ components:
               multi_valued: true
               sortable: false
             - applicable_types:
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: integer
@@ -24821,13 +25799,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - session
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
+                - session
               category: standard
               complex: false
               data_type: text
@@ -24842,12 +25820,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -24862,12 +25840,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -24882,13 +25860,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - session
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
+                - session
               category: standard
               complex: false
               data_type: uuid
@@ -24903,12 +25881,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -24924,12 +25902,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -24945,12 +25923,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -24966,12 +25944,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: timestamp
@@ -24986,12 +25964,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: boolean
@@ -25006,12 +25984,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - llm
-                - retriever
-                - tool
                 - agent
-                - trace
+                - tool
                 - workflow
+                - retriever
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: boolean
@@ -25026,19 +26004,19 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - session
-                - llm
-                - retriever
-                - tool
                 - agent
+                - tool
+                - workflow
+                - retriever
                 - trace
-                - workflow
+                - llm
+                - session
               applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - llm
-                - tool
-                - agent
-                - workflow
               category: standard
               complex: false
               data_type: text
@@ -25053,11 +26031,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - llm
-                - tool
-                - agent
-                - workflow
               category: standard
               complex: false
               data_type: uuid
@@ -25073,11 +26051,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - llm
-                - tool
-                - agent
-                - workflow
               category: standard
               complex: false
               data_type: uuid
@@ -25092,11 +26070,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - llm
-                - tool
-                - agent
-                - workflow
               category: standard
               complex: false
               data_type: integer
@@ -25111,14 +26089,14 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - planner
                 - reflection
-                - classifier
-                - judge
                 - react
+                - judge
                 - supervisor
                 - default
                 - router
+                - planner
+                - classifier
               applicable_types:
                 - agent
               category: standard
@@ -25246,7 +26224,7 @@ components:
               id: metrics/bleu
               is_empty: false
               is_optional: false
-              label: BLEU
+              label: BLEU - DEPRECATED
               multi_valued: false
               sortable: true
     LogRecordsBooleanFilter:
@@ -25421,6 +26399,16 @@ components:
             - $ref: '#/components/schemas/MetricThreshold'
             - type: 'null'
           description: Thresholds for the column, if this is a metrics column.
+        label_color:
+          anyOf:
+            - type: string
+              enum:
+                - positive
+                - negative
+            - type: 'null'
+          title: Label Color
+          description: Type of label color for the column, if this is a multilabel
+            metric column.
       type: object
       required:
         - id
@@ -25816,6 +26804,232 @@ components:
         - operator
         - value
       title: LogRecordsNumberFilter
+    LogRecordsPartialQueryRequest:
+      properties:
+        starting_token:
+          type: integer
+          title: Starting Token
+          default: 0
+        limit:
+          type: integer
+          title: Limit
+          default: 100
+        previous_last_row_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Previous Last Row Id
+        log_stream_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Log Stream Id
+          description: Log stream id associated with the traces.
+        experiment_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Experiment Id
+          description: Experiment id associated with the traces.
+        metrics_testing_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Metrics Testing Id
+          description: Metrics testing id associated with the traces.
+        filters:
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/LogRecordsIDFilter'
+              - $ref: '#/components/schemas/LogRecordsDateFilter'
+              - $ref: '#/components/schemas/LogRecordsNumberFilter'
+              - $ref: '#/components/schemas/LogRecordsBooleanFilter'
+              - $ref: '#/components/schemas/LogRecordsCollectionFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
+            discriminator:
+              propertyName: type
+              mapping:
+                boolean: '#/components/schemas/LogRecordsBooleanFilter'
+                collection: '#/components/schemas/LogRecordsCollectionFilter'
+                date: '#/components/schemas/LogRecordsDateFilter'
+                id: '#/components/schemas/LogRecordsIDFilter'
+                number: '#/components/schemas/LogRecordsNumberFilter'
+                text: '#/components/schemas/LogRecordsTextFilter'
+          type: array
+          title: Filters
+        filter_tree:
+          anyOf:
+            - $ref: '#/components/schemas/FilterExpression_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____'
+            - type: 'null'
+        sort:
+          anyOf:
+            - $ref: '#/components/schemas/LogRecordsSortClause'
+            - type: 'null'
+          description: Sort for the query.  Defaults to native sort (created_at, id
+            descending).
+        truncate_fields:
+          type: boolean
+          title: Truncate Fields
+          default: false
+        include_counts:
+          type: boolean
+          title: Include Counts
+          description: If True, include computed child counts (e.g., num_traces for
+            sessions, num_spans for traces).
+          default: false
+        select_columns:
+          $ref: '#/components/schemas/SelectColumns'
+      type: object
+      required:
+        - select_columns
+      title: LogRecordsPartialQueryRequest
+      description: Request to query a genai project run (log stream or experiment)
+        with partial results.
+      examples:
+        - filters:
+            - case_sensitive: true
+              name: input
+              operator: eq
+              type: text
+              value: example input
+          log_stream_id: 00000000-0000-0000-0000-000000000000
+          pagination:
+            limit: 5
+            starting_token: 0
+          select_columns:
+            column_ids:
+              - id
+              - metrics/agentic_session_success
+              - metrics/completeness_gpt
+            include_all_feedback: false
+            include_all_metrics: false
+            includes_metric_columns: true
+            metric_columns_names:
+              - agentic_session_success
+              - completeness_gpt
+          sort:
+            ascending: false
+            name: updated_at
+            sort_type: column
+        - filter_tree:
+            and:
+              - or:
+                  - filter:
+                      name: input
+                      operator: contains
+                      type: text
+                      value: abx
+                  - filter:
+                      name: output
+                      operator: contains
+                      type: text
+                      value: xyz
+              - filter:
+                  name: session_id
+                  operator: eq
+                  type: id
+                  value: 123e4567-e89b-42d3-a456-426614174000
+          log_stream_id: 00000000-0000-0000-0000-000000000000
+          pagination:
+            limit: 5
+            starting_token: 0
+          select_columns:
+            column_ids:
+              - id
+            include_all_feedback: false
+            include_all_metrics: true
+            includes_metric_columns: true
+            metric_columns_names: []
+          sort:
+            ascending: false
+            name: updated_at
+            sort_type: column
+    LogRecordsPartialQueryResponse:
+      properties:
+        starting_token:
+          type: integer
+          title: Starting Token
+          default: 0
+        limit:
+          type: integer
+          title: Limit
+          default: 100
+        paginated:
+          type: boolean
+          title: Paginated
+          default: false
+        next_starting_token:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Next Starting Token
+        last_row_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Last Row Id
+        records:
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/PartialExtendedTraceRecord'
+              - $ref: '#/components/schemas/PartialExtendedAgentSpanRecord'
+              - $ref: '#/components/schemas/PartialExtendedWorkflowSpanRecord'
+              - $ref: '#/components/schemas/PartialExtendedLlmSpanRecord'
+              - $ref: '#/components/schemas/PartialExtendedToolSpanRecord'
+              - $ref: '#/components/schemas/PartialExtendedRetrieverSpanRecord'
+              - $ref: '#/components/schemas/PartialExtendedSessionRecord'
+            discriminator:
+              propertyName: type
+              mapping:
+                agent: '#/components/schemas/PartialExtendedAgentSpanRecord'
+                llm: '#/components/schemas/PartialExtendedLlmSpanRecord'
+                retriever: '#/components/schemas/PartialExtendedRetrieverSpanRecord'
+                session: '#/components/schemas/PartialExtendedSessionRecord'
+                tool: '#/components/schemas/PartialExtendedToolSpanRecord'
+                trace: '#/components/schemas/PartialExtendedTraceRecord'
+                workflow: '#/components/schemas/PartialExtendedWorkflowSpanRecord'
+          type: array
+          title: Records
+          description: records matching the query
+      type: object
+      title: LogRecordsPartialQueryResponse
+      examples:
+        - next_starting_token: 2
+          num_rows: 2
+          paginated: true
+          records:
+            - created_at: '2026-02-06T20:38:17.206536Z'
+              dataset_metadata: {}
+              feedback_rating_info: {}
+              id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
+              input: Who is a smart LLM?
+              is_complete: true
+              metrics: {}
+              name: ''
+              tags: []
+              type: trace
+              user_metadata: {}
+            - created_at: '2026-02-06T20:38:17.206658Z'
+              dataset_metadata: {}
+              feedback_rating_info: {}
+              id: 1edc2401-24b4-448c-a392-b36932293061
+              input:
+                - content: Who is a smart LLM?
+                  role: user
+              is_complete: true
+              metrics: {}
+              name: ''
+              output:
+                content: ''
+                role: assistant
+              tags: []
+              type: llm
+              user_metadata: {}
     LogRecordsQueryCountRequest:
       properties:
         log_stream_id:
@@ -26058,7 +27272,7 @@ components:
           num_rows: 2
           paginated: true
           records:
-            - created_at: '2026-01-06T05:01:38.681400Z'
+            - created_at: '2026-02-06T20:38:17.202925Z'
               dataset_metadata: {}
               feedback_rating_info: {}
               id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
@@ -26075,7 +27289,7 @@ components:
               trace_id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
               type: trace
               user_metadata: {}
-            - created_at: '2026-01-06T05:01:38.681555Z'
+            - created_at: '2026-02-06T20:38:17.203079Z'
               dataset_metadata: {}
               feedback_rating_info: {}
               id: 1edc2401-24b4-448c-a392-b36932293061
@@ -26278,8 +27492,10 @@ components:
           title: Project Name
           description: Project name associated with the traces.
         session_id:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: Session Id
           description: Session id associated with the traces.
         records_count:
@@ -26295,7 +27511,6 @@ components:
       required:
         - project_id
         - project_name
-        - session_id
         - records_count
         - span_id
       title: LogSpanUpdateResponse
@@ -26380,14 +27595,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           parent_id: 11000011-0000-0000-0000-110000110000
           spans:
-            - created_at: '2026-01-06T05:01:38.658430Z'
+            - created_at: '2026-02-06T20:38:17.171558Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2026-01-06T05:01:38.644775Z'
+                - created_at: '2026-02-06T20:38:17.153400Z'
                   dataset_metadata: {}
                   id: 22222222-2222-4222-a222-222222222222
                   input:
@@ -26438,8 +27653,10 @@ components:
           title: Project Name
           description: Project name associated with the traces.
         session_id:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: Session Id
           description: Session id associated with the traces.
         records_count:
@@ -26460,7 +27677,6 @@ components:
       required:
         - project_id
         - project_name
-        - session_id
         - records_count
         - trace_id
         - parent_id
@@ -26916,8 +28132,10 @@ components:
           title: Project Name
           description: Project name associated with the traces.
         session_id:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: Session Id
           description: Session id associated with the traces.
         records_count:
@@ -26933,7 +28151,6 @@ components:
       required:
         - project_id
         - project_name
-        - session_id
         - records_count
         - trace_id
       title: LogTraceUpdateResponse
@@ -27017,14 +28234,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           session_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2026-01-06T05:01:38.637974Z'
+            - created_at: '2026-02-06T20:38:17.146441Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2026-01-06T05:01:38.637938Z'
+                - created_at: '2026-02-06T20:38:17.146410Z'
                   dataset_metadata: {}
                   input:
                     - content: 'Question: who is a smart LLM?'
@@ -27042,14 +28259,14 @@ components:
               user_metadata: {}
         - experiment_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2026-01-06T05:01:38.638483Z'
+            - created_at: '2026-02-06T20:38:17.146857Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2026-01-06T05:01:38.638447Z'
+                - created_at: '2026-02-06T20:38:17.146821Z'
                   dataset_metadata: {}
                   id: 11111111-1111-4111-a111-111111111111
                   input:
@@ -27099,8 +28316,10 @@ components:
           title: Project Name
           description: Project name associated with the traces.
         session_id:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: Session Id
           description: Session id associated with the traces.
         records_count:
@@ -27125,7 +28344,6 @@ components:
       required:
         - project_id
         - project_name
-        - session_id
         - records_count
         - traces_count
       title: LogTracesIngestResponse
@@ -27690,6 +28908,56 @@ components:
             - type: 'null'
       type: object
       title: MetricPending
+    MetricRollUp:
+      properties:
+        status_type:
+          type: string
+          const: roll_up
+          title: Status Type
+          default: roll_up
+        scorer_type:
+          anyOf:
+            - $ref: '#/components/schemas/ScorerType'
+            - type: 'null'
+        explanation:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Explanation
+        cost:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Cost
+        model_alias:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Model Alias
+        num_judges:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Num Judges
+        critique:
+          anyOf:
+            - $ref: '#/components/schemas/MetricCritiqueColumnar'
+            - type: 'null'
+        roll_up_metrics:
+          anyOf:
+            - additionalProperties:
+                type: number
+              type: object
+            - additionalProperties:
+                additionalProperties:
+                  type: integer
+                type: object
+              type: object
+          title: Roll Up Metrics
+          description: Roll up metrics e.g. sum, average, min, max for numeric, and
+            category_count for categorical metrics.
+      type: object
+      title: MetricRollUp
     MetricSettingsRequest:
       properties:
         scorers:
@@ -27739,6 +29007,30 @@ components:
         scorer_type:
           anyOf:
             - $ref: '#/components/schemas/ScorerType'
+            - type: 'null'
+        explanation:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Explanation
+        cost:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Cost
+        model_alias:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Model Alias
+        num_judges:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Num Judges
+        critique:
+          anyOf:
+            - $ref: '#/components/schemas/MetricCritiqueColumnar'
             - type: 'null'
         value:
           anyOf:
@@ -27819,35 +29111,11 @@ components:
             - type: string
             - type: 'null'
           title: Display Value
-        explanation:
-          anyOf:
-            - type: string
-            - type: 'null'
-          title: Explanation
         rationale:
           anyOf:
             - type: string
             - type: 'null'
           title: Rationale
-        cost:
-          anyOf:
-            - type: number
-            - type: 'null'
-          title: Cost
-        model_alias:
-          anyOf:
-            - type: string
-            - type: 'null'
-          title: Model Alias
-        num_judges:
-          anyOf:
-            - type: integer
-            - type: 'null'
-          title: Num Judges
-        critique:
-          anyOf:
-            - $ref: '#/components/schemas/MetricCritiqueColumnar'
-            - type: 'null'
       type: object
       required:
         - value
@@ -27878,6 +29146,12 @@ components:
             for displaying.
       type: object
       title: MetricThreshold
+      description: 'Threshold configuration for metrics.
+
+
+        Defines how metric values are bucketed and displayed, including whether
+
+        lower or higher values are considered better.'
     Metrics:
       properties:
         duration_ns:
@@ -27929,6 +29203,29 @@ components:
             (CoT) enabled scorers. If True, the columns will be generated for CoT
             enabled scorers.
           default: false
+        metric_key:
+          type: string
+          title: Metric Key
+          description: The metric key to use for column generation (e.g., 'generated_scorer_validation'
+            or 'registered_scorer_validation').
+          default: generated_scorer_validation
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
+          description: List of required scorer names for composite scorers. Columns
+            will be generated for these scorers.
+        score_type:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Score Type
+          description: The score type for registered scorers (e.g., 'bool', 'int',
+            'float', 'str'). Used to determine the correct data_type for the column.
+            Provided by validation result.
       type: object
       required:
         - name
@@ -27989,6 +29286,12 @@ components:
           type: boolean
           title: System Supported
           default: false
+        input_modalities:
+          items:
+            $ref: '#/components/schemas/InputModality'
+          type: array
+          title: Input Modalities
+          description: Input modalities that the model can accept.
         alternative_names:
           items:
             type: string
@@ -28043,6 +29346,15 @@ components:
             - type: string
             - type: 'null'
           title: Api Version
+        legacy_mistral_prompt_format:
+          type: boolean
+          title: Legacy Mistral Prompt Format
+          default: false
+        max_top_p:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Max Top P
         params_map:
           $ref: '#/components/schemas/RunParamsMap'
         output_map:
@@ -28071,10 +29383,32 @@ components:
         - llm
         - code
       title: ModelType
+    MultiModalModelIntegrationConfig:
+      properties:
+        max_files:
+          anyOf:
+            - type: integer
+              minimum: 1.0
+            - type: 'null'
+          title: Max Files
+          description: Maximum number of files allowed per request. None means no
+            limit.
+        max_file_size_bytes:
+          anyOf:
+            - type: integer
+              minimum: 1.0
+            - type: 'null'
+          title: Max File Size Bytes
+          description: Maximum file size in bytes per file. None means no limit.
+      type: object
+      title: MultiModalModelIntegrationConfig
+      description: Configuration for multi-modal capabilities (file uploads).
     Name:
       properties:
         value:
           type: string
+          maxLength: 128
+          minLength: 1
           title: Value
         append_suffix_if_duplicate:
           type: boolean
@@ -28449,6 +29783,8 @@ components:
         - freeform
         - percentage
         - multilabel
+        - retrieved_chunk_list_boolean
+        - boolean_multilabel
       title: OutputTypeEnum
       description: Enumeration of output types.
     OverrideAction:
@@ -28477,6 +29813,1612 @@ components:
       required:
         - choices
       title: OverrideAction
+    PartialExtendedAgentSpanRecord:
+      properties:
+        type:
+          type: string
+          const: agent
+          title: Type
+          description: Type of the trace, span or session.
+          default: agent
+        input:
+          anyOf:
+            - type: string
+            - items:
+                $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+              type: array
+          title: Input
+          description: Input to the trace or span.
+          default: ''
+        redacted_input:
+          anyOf:
+            - type: string
+            - items:
+                $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+              type: array
+            - type: 'null'
+          title: Redacted Input
+          description: Redacted input of the trace or span.
+        output:
+          anyOf:
+            - type: string
+            - $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+            - items:
+                $ref: '#/components/schemas/Document'
+              type: array
+            - type: 'null'
+          title: Output
+          description: Output of the trace or span.
+        redacted_output:
+          anyOf:
+            - type: string
+            - $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+            - items:
+                $ref: '#/components/schemas/Document'
+              type: array
+            - type: 'null'
+          title: Redacted Output
+          description: Redacted output of the trace or span.
+        name:
+          type: string
+          title: Name
+          description: Name of the trace, span or session.
+          default: ''
+        created_at:
+          type: string
+          format: date-time
+          title: Created
+          description: Timestamp of the trace or span's creation.
+        user_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: User Metadata
+          description: Metadata associated with this trace or span.
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Tags associated with this trace or span.
+        status_code:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Status Code
+          description: Status code of the trace or span. Used for logging failure
+            or error states.
+        metrics:
+          $ref: '#/components/schemas/Metrics'
+          description: Metrics associated with this trace or span.
+        external_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: External Id
+          description: A user-provided session, trace or span ID.
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Input
+          description: Input to the dataset associated with this trace
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Output
+          description: Output from the dataset associated with this trace
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Dataset Metadata
+          description: Metadata from the dataset associated with this trace
+        id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: ID
+          description: Galileo ID of the session, trace or span
+          metadata:
+            - uuid_version: 4
+        session_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Session ID
+          description: Galileo ID of the session containing the trace (or the same
+            value as id for a trace)
+          metadata:
+            - uuid_version: 4
+        trace_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Trace ID
+          description: Galileo ID of the trace containing the span (or the same value
+            as id for a trace)
+        project_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Project ID
+          description: Galileo ID of the project associated with this trace or span
+          metadata:
+            - uuid_version: 4
+        run_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Run ID
+          description: Galileo ID of the run (log stream or experiment) associated
+            with this trace or span
+          metadata:
+            - uuid_version: 4
+        updated_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Last Updated
+          description: Timestamp of the session or trace or span's last update
+        has_children:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Has Children
+          description: Whether or not this trace or span has child spans
+        metrics_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Metrics Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        session_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Session Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        feedback_rating_info:
+          additionalProperties:
+            $ref: '#/components/schemas/FeedbackRatingInfo'
+          type: object
+          title: Feedback Rating Info
+          description: Feedback information related to the record
+        metric_info:
+          anyOf:
+            - additionalProperties:
+                oneOf:
+                  - $ref: '#/components/schemas/MetricNotComputed'
+                  - $ref: '#/components/schemas/MetricPending'
+                  - $ref: '#/components/schemas/MetricComputing'
+                  - $ref: '#/components/schemas/MetricNotApplicable'
+                  - $ref: '#/components/schemas/MetricSuccess'
+                  - $ref: '#/components/schemas/MetricError'
+                  - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
+                discriminator:
+                  propertyName: status_type
+                  mapping:
+                    computing: '#/components/schemas/MetricComputing'
+                    error: '#/components/schemas/MetricError'
+                    failed: '#/components/schemas/MetricFailed'
+                    not_applicable: '#/components/schemas/MetricNotApplicable'
+                    not_computed: '#/components/schemas/MetricNotComputed'
+                    pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
+                    success: '#/components/schemas/MetricSuccess'
+              type: object
+            - type: 'null'
+          title: Metric Info
+          description: Detailed information about the metrics associated with this
+            trace or span
+        parent_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Parent ID
+          description: Galileo ID of the parent of this span
+          metadata:
+            - uuid_version: 4
+        is_complete:
+          type: boolean
+          title: Is Complete
+          description: Whether the parent trace is complete or not
+          default: true
+        step_number:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Step Number
+          description: Topological step number of the span.
+        agent_type:
+          $ref: '#/components/schemas/AgentType'
+          description: Agent type.
+          default: default
+      type: object
+      title: PartialExtendedAgentSpanRecord
+    PartialExtendedLlmSpanRecord:
+      properties:
+        type:
+          type: string
+          const: llm
+          title: Type
+          description: Type of the trace, span or session.
+          default: llm
+        input:
+          items:
+            $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+          type: array
+          title: Input
+          description: Input to the trace or span.
+        redacted_input:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+              type: array
+            - type: 'null'
+          title: Redacted Input
+          description: Redacted input of the trace or span.
+        output:
+          $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+          description: Output of the trace or span.
+        redacted_output:
+          anyOf:
+            - $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+            - type: 'null'
+          description: Redacted output of the trace or span.
+        name:
+          type: string
+          title: Name
+          description: Name of the trace, span or session.
+          default: ''
+        created_at:
+          type: string
+          format: date-time
+          title: Created
+          description: Timestamp of the trace or span's creation.
+        user_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: User Metadata
+          description: Metadata associated with this trace or span.
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Tags associated with this trace or span.
+        status_code:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Status Code
+          description: Status code of the trace or span. Used for logging failure
+            or error states.
+        metrics:
+          $ref: '#/components/schemas/LlmMetrics'
+          description: Metrics associated with this trace or span.
+        external_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: External Id
+          description: A user-provided session, trace or span ID.
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Input
+          description: Input to the dataset associated with this trace
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Output
+          description: Output from the dataset associated with this trace
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Dataset Metadata
+          description: Metadata from the dataset associated with this trace
+        id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: ID
+          description: Galileo ID of the session, trace or span
+          metadata:
+            - uuid_version: 4
+        session_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Session ID
+          description: Galileo ID of the session containing the trace (or the same
+            value as id for a trace)
+          metadata:
+            - uuid_version: 4
+        trace_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Trace ID
+          description: Galileo ID of the trace containing the span (or the same value
+            as id for a trace)
+        project_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Project ID
+          description: Galileo ID of the project associated with this trace or span
+          metadata:
+            - uuid_version: 4
+        run_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Run ID
+          description: Galileo ID of the run (log stream or experiment) associated
+            with this trace or span
+          metadata:
+            - uuid_version: 4
+        updated_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Last Updated
+          description: Timestamp of the session or trace or span's last update
+        has_children:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Has Children
+          description: Whether or not this trace or span has child spans
+        metrics_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Metrics Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        session_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Session Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        feedback_rating_info:
+          additionalProperties:
+            $ref: '#/components/schemas/FeedbackRatingInfo'
+          type: object
+          title: Feedback Rating Info
+          description: Feedback information related to the record
+        metric_info:
+          anyOf:
+            - additionalProperties:
+                oneOf:
+                  - $ref: '#/components/schemas/MetricNotComputed'
+                  - $ref: '#/components/schemas/MetricPending'
+                  - $ref: '#/components/schemas/MetricComputing'
+                  - $ref: '#/components/schemas/MetricNotApplicable'
+                  - $ref: '#/components/schemas/MetricSuccess'
+                  - $ref: '#/components/schemas/MetricError'
+                  - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
+                discriminator:
+                  propertyName: status_type
+                  mapping:
+                    computing: '#/components/schemas/MetricComputing'
+                    error: '#/components/schemas/MetricError'
+                    failed: '#/components/schemas/MetricFailed'
+                    not_applicable: '#/components/schemas/MetricNotApplicable'
+                    not_computed: '#/components/schemas/MetricNotComputed'
+                    pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
+                    success: '#/components/schemas/MetricSuccess'
+              type: object
+            - type: 'null'
+          title: Metric Info
+          description: Detailed information about the metrics associated with this
+            trace or span
+        parent_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Parent ID
+          description: Galileo ID of the parent of this span
+          metadata:
+            - uuid_version: 4
+        is_complete:
+          type: boolean
+          title: Is Complete
+          description: Whether the parent trace is complete or not
+          default: true
+        step_number:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Step Number
+          description: Topological step number of the span.
+        tools:
+          anyOf:
+            - items:
+                additionalProperties: true
+                type: object
+              type: array
+            - type: 'null'
+          title: Tools
+          description: List of available tools passed to the LLM on invocation.
+        events:
+          anyOf:
+            - items:
+                oneOf:
+                  - $ref: '#/components/schemas/MessageEvent'
+                  - $ref: '#/components/schemas/ReasoningEvent'
+                  - $ref: '#/components/schemas/InternalToolCall'
+                  - $ref: '#/components/schemas/WebSearchCallEvent'
+                  - $ref: '#/components/schemas/ImageGenerationEvent'
+                  - $ref: '#/components/schemas/MCPCallEvent'
+                  - $ref: '#/components/schemas/MCPListToolsEvent'
+                  - $ref: '#/components/schemas/MCPApprovalRequestEvent'
+                discriminator:
+                  propertyName: type
+                  mapping:
+                    image_generation: '#/components/schemas/ImageGenerationEvent'
+                    internal_tool_call: '#/components/schemas/InternalToolCall'
+                    mcp_approval_request: '#/components/schemas/MCPApprovalRequestEvent'
+                    mcp_call: '#/components/schemas/MCPCallEvent'
+                    mcp_list_tools: '#/components/schemas/MCPListToolsEvent'
+                    message: '#/components/schemas/MessageEvent'
+                    reasoning: '#/components/schemas/ReasoningEvent'
+                    web_search_call: '#/components/schemas/WebSearchCallEvent'
+              type: array
+            - type: 'null'
+          title: Events
+          description: List of reasoning, internal tool call, or MCP events that occurred
+            during the LLM span.
+        model:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Model
+          description: Model used for this span.
+        temperature:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Temperature
+          description: Temperature used for generation.
+        finish_reason:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Finish Reason
+          description: Reason for finishing.
+      type: object
+      title: PartialExtendedLlmSpanRecord
+    PartialExtendedRetrieverSpanRecord:
+      properties:
+        type:
+          type: string
+          const: retriever
+          title: Type
+          description: Type of the trace, span or session.
+          default: retriever
+        input:
+          type: string
+          title: Input
+          description: Input to the trace or span.
+          default: ''
+        redacted_input:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Redacted Input
+          description: Redacted input of the trace or span.
+        output:
+          items:
+            $ref: '#/components/schemas/Document'
+          type: array
+          title: Output
+          description: Output of the trace or span.
+        redacted_output:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/Document'
+              type: array
+            - type: 'null'
+          title: Redacted Output
+          description: Redacted output of the trace or span.
+        name:
+          type: string
+          title: Name
+          description: Name of the trace, span or session.
+          default: ''
+        created_at:
+          type: string
+          format: date-time
+          title: Created
+          description: Timestamp of the trace or span's creation.
+        user_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: User Metadata
+          description: Metadata associated with this trace or span.
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Tags associated with this trace or span.
+        status_code:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Status Code
+          description: Status code of the trace or span. Used for logging failure
+            or error states.
+        metrics:
+          $ref: '#/components/schemas/Metrics'
+          description: Metrics associated with this trace or span.
+        external_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: External Id
+          description: A user-provided session, trace or span ID.
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Input
+          description: Input to the dataset associated with this trace
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Output
+          description: Output from the dataset associated with this trace
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Dataset Metadata
+          description: Metadata from the dataset associated with this trace
+        id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: ID
+          description: Galileo ID of the session, trace or span
+          metadata:
+            - uuid_version: 4
+        session_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Session ID
+          description: Galileo ID of the session containing the trace (or the same
+            value as id for a trace)
+          metadata:
+            - uuid_version: 4
+        trace_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Trace ID
+          description: Galileo ID of the trace containing the span (or the same value
+            as id for a trace)
+        project_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Project ID
+          description: Galileo ID of the project associated with this trace or span
+          metadata:
+            - uuid_version: 4
+        run_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Run ID
+          description: Galileo ID of the run (log stream or experiment) associated
+            with this trace or span
+          metadata:
+            - uuid_version: 4
+        updated_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Last Updated
+          description: Timestamp of the session or trace or span's last update
+        has_children:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Has Children
+          description: Whether or not this trace or span has child spans
+        metrics_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Metrics Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        session_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Session Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        feedback_rating_info:
+          additionalProperties:
+            $ref: '#/components/schemas/FeedbackRatingInfo'
+          type: object
+          title: Feedback Rating Info
+          description: Feedback information related to the record
+        metric_info:
+          anyOf:
+            - additionalProperties:
+                oneOf:
+                  - $ref: '#/components/schemas/MetricNotComputed'
+                  - $ref: '#/components/schemas/MetricPending'
+                  - $ref: '#/components/schemas/MetricComputing'
+                  - $ref: '#/components/schemas/MetricNotApplicable'
+                  - $ref: '#/components/schemas/MetricSuccess'
+                  - $ref: '#/components/schemas/MetricError'
+                  - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
+                discriminator:
+                  propertyName: status_type
+                  mapping:
+                    computing: '#/components/schemas/MetricComputing'
+                    error: '#/components/schemas/MetricError'
+                    failed: '#/components/schemas/MetricFailed'
+                    not_applicable: '#/components/schemas/MetricNotApplicable'
+                    not_computed: '#/components/schemas/MetricNotComputed'
+                    pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
+                    success: '#/components/schemas/MetricSuccess'
+              type: object
+            - type: 'null'
+          title: Metric Info
+          description: Detailed information about the metrics associated with this
+            trace or span
+        parent_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Parent ID
+          description: Galileo ID of the parent of this span
+          metadata:
+            - uuid_version: 4
+        is_complete:
+          type: boolean
+          title: Is Complete
+          description: Whether the parent trace is complete or not
+          default: true
+        step_number:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Step Number
+          description: Topological step number of the span.
+      type: object
+      title: PartialExtendedRetrieverSpanRecord
+    PartialExtendedSessionRecord:
+      properties:
+        type:
+          type: string
+          const: session
+          title: Type
+          description: Type of the trace, span or session.
+          default: session
+        input:
+          anyOf:
+            - type: string
+            - items:
+                $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+              type: array
+          title: Input
+          default: ''
+        redacted_input:
+          anyOf:
+            - type: string
+            - items:
+                $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+              type: array
+            - type: 'null'
+          title: Redacted Input
+          description: Redacted input of the trace or span.
+        output:
+          anyOf:
+            - type: string
+            - $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+            - items:
+                $ref: '#/components/schemas/Document'
+              type: array
+            - type: 'null'
+          title: Output
+          description: Output of the trace or span.
+        redacted_output:
+          anyOf:
+            - type: string
+            - $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+            - items:
+                $ref: '#/components/schemas/Document'
+              type: array
+            - type: 'null'
+          title: Redacted Output
+          description: Redacted output of the trace or span.
+        name:
+          type: string
+          title: Name
+          description: Name of the trace, span or session.
+          default: ''
+        created_at:
+          type: string
+          format: date-time
+          title: Created
+          description: Timestamp of the trace or span's creation.
+        user_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: User Metadata
+          description: Metadata associated with this trace or span.
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Tags associated with this trace or span.
+        status_code:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Status Code
+          description: Status code of the trace or span. Used for logging failure
+            or error states.
+        metrics:
+          $ref: '#/components/schemas/Metrics'
+          description: Metrics associated with this trace or span.
+        external_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: External Id
+          description: A user-provided session, trace or span ID.
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Input
+          description: Input to the dataset associated with this trace
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Output
+          description: Output from the dataset associated with this trace
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Dataset Metadata
+          description: Metadata from the dataset associated with this trace
+        id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: ID
+          description: Galileo ID of the session
+          metadata:
+            - uuid_version: 4
+        session_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Session ID
+          description: Galileo ID of the session containing the trace or span or session
+        trace_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Trace ID
+          description: Galileo ID of the trace containing the span (or the same value
+            as id for a trace)
+        project_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Project ID
+          description: Galileo ID of the project associated with this trace or span
+          metadata:
+            - uuid_version: 4
+        run_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Run ID
+          description: Galileo ID of the run (log stream or experiment) associated
+            with this trace or span
+          metadata:
+            - uuid_version: 4
+        updated_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Last Updated
+          description: Timestamp of the session or trace or span's last update
+        has_children:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Has Children
+          description: Whether or not this trace or span has child spans
+        metrics_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Metrics Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        session_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Session Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        feedback_rating_info:
+          additionalProperties:
+            $ref: '#/components/schemas/FeedbackRatingInfo'
+          type: object
+          title: Feedback Rating Info
+          description: Feedback information related to the record
+        metric_info:
+          anyOf:
+            - additionalProperties:
+                oneOf:
+                  - $ref: '#/components/schemas/MetricNotComputed'
+                  - $ref: '#/components/schemas/MetricPending'
+                  - $ref: '#/components/schemas/MetricComputing'
+                  - $ref: '#/components/schemas/MetricNotApplicable'
+                  - $ref: '#/components/schemas/MetricSuccess'
+                  - $ref: '#/components/schemas/MetricError'
+                  - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
+                discriminator:
+                  propertyName: status_type
+                  mapping:
+                    computing: '#/components/schemas/MetricComputing'
+                    error: '#/components/schemas/MetricError'
+                    failed: '#/components/schemas/MetricFailed'
+                    not_applicable: '#/components/schemas/MetricNotApplicable'
+                    not_computed: '#/components/schemas/MetricNotComputed'
+                    pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
+                    success: '#/components/schemas/MetricSuccess'
+              type: object
+            - type: 'null'
+          title: Metric Info
+          description: Detailed information about the metrics associated with this
+            trace or span
+        previous_session_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Previous Session Id
+      type: object
+      title: PartialExtendedSessionRecord
+    PartialExtendedToolSpanRecord:
+      properties:
+        type:
+          type: string
+          const: tool
+          title: Type
+          description: Type of the trace, span or session.
+          default: tool
+        input:
+          type: string
+          title: Input
+          description: Input to the trace or span.
+          default: ''
+        redacted_input:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Redacted Input
+          description: Redacted input of the trace or span.
+        output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Output
+          description: Output of the trace or span.
+        redacted_output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Redacted Output
+          description: Redacted output of the trace or span.
+        name:
+          type: string
+          title: Name
+          description: Name of the trace, span or session.
+          default: ''
+        created_at:
+          type: string
+          format: date-time
+          title: Created
+          description: Timestamp of the trace or span's creation.
+        user_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: User Metadata
+          description: Metadata associated with this trace or span.
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Tags associated with this trace or span.
+        status_code:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Status Code
+          description: Status code of the trace or span. Used for logging failure
+            or error states.
+        metrics:
+          $ref: '#/components/schemas/Metrics'
+          description: Metrics associated with this trace or span.
+        external_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: External Id
+          description: A user-provided session, trace or span ID.
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Input
+          description: Input to the dataset associated with this trace
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Output
+          description: Output from the dataset associated with this trace
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Dataset Metadata
+          description: Metadata from the dataset associated with this trace
+        id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: ID
+          description: Galileo ID of the session, trace or span
+          metadata:
+            - uuid_version: 4
+        session_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Session ID
+          description: Galileo ID of the session containing the trace (or the same
+            value as id for a trace)
+          metadata:
+            - uuid_version: 4
+        trace_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Trace ID
+          description: Galileo ID of the trace containing the span (or the same value
+            as id for a trace)
+        project_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Project ID
+          description: Galileo ID of the project associated with this trace or span
+          metadata:
+            - uuid_version: 4
+        run_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Run ID
+          description: Galileo ID of the run (log stream or experiment) associated
+            with this trace or span
+          metadata:
+            - uuid_version: 4
+        updated_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Last Updated
+          description: Timestamp of the session or trace or span's last update
+        has_children:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Has Children
+          description: Whether or not this trace or span has child spans
+        metrics_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Metrics Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        session_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Session Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        feedback_rating_info:
+          additionalProperties:
+            $ref: '#/components/schemas/FeedbackRatingInfo'
+          type: object
+          title: Feedback Rating Info
+          description: Feedback information related to the record
+        metric_info:
+          anyOf:
+            - additionalProperties:
+                oneOf:
+                  - $ref: '#/components/schemas/MetricNotComputed'
+                  - $ref: '#/components/schemas/MetricPending'
+                  - $ref: '#/components/schemas/MetricComputing'
+                  - $ref: '#/components/schemas/MetricNotApplicable'
+                  - $ref: '#/components/schemas/MetricSuccess'
+                  - $ref: '#/components/schemas/MetricError'
+                  - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
+                discriminator:
+                  propertyName: status_type
+                  mapping:
+                    computing: '#/components/schemas/MetricComputing'
+                    error: '#/components/schemas/MetricError'
+                    failed: '#/components/schemas/MetricFailed'
+                    not_applicable: '#/components/schemas/MetricNotApplicable'
+                    not_computed: '#/components/schemas/MetricNotComputed'
+                    pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
+                    success: '#/components/schemas/MetricSuccess'
+              type: object
+            - type: 'null'
+          title: Metric Info
+          description: Detailed information about the metrics associated with this
+            trace or span
+        parent_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Parent ID
+          description: Galileo ID of the parent of this span
+          metadata:
+            - uuid_version: 4
+        is_complete:
+          type: boolean
+          title: Is Complete
+          description: Whether the parent trace is complete or not
+          default: true
+        step_number:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Step Number
+          description: Topological step number of the span.
+        tool_call_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Tool Call Id
+          description: ID of the tool call.
+      type: object
+      title: PartialExtendedToolSpanRecord
+    PartialExtendedTraceRecord:
+      properties:
+        type:
+          type: string
+          const: trace
+          title: Type
+          description: Type of the trace, span or session.
+          default: trace
+        input:
+          type: string
+          title: Input
+          description: Input to the trace or span.
+          default: ''
+        redacted_input:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Redacted Input
+          description: Redacted input of the trace or span.
+        output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Output
+          description: Output of the trace or span.
+        redacted_output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Redacted Output
+          description: Redacted output of the trace or span.
+        name:
+          type: string
+          title: Name
+          description: Name of the trace, span or session.
+          default: ''
+        created_at:
+          type: string
+          format: date-time
+          title: Created
+          description: Timestamp of the trace or span's creation.
+        user_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: User Metadata
+          description: Metadata associated with this trace or span.
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Tags associated with this trace or span.
+        status_code:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Status Code
+          description: Status code of the trace or span. Used for logging failure
+            or error states.
+        metrics:
+          $ref: '#/components/schemas/Metrics'
+          description: Metrics associated with this trace or span.
+        external_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: External Id
+          description: A user-provided session, trace or span ID.
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Input
+          description: Input to the dataset associated with this trace
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Output
+          description: Output from the dataset associated with this trace
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Dataset Metadata
+          description: Metadata from the dataset associated with this trace
+        id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: ID
+          description: Galileo ID of the trace
+          metadata:
+            - uuid_version: 4
+        session_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Session ID
+          description: Galileo ID of the session containing the trace (or the same
+            value as id for a trace)
+          metadata:
+            - uuid_version: 4
+        trace_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Trace ID
+          description: Galileo ID of the trace containing the span (or the same value
+            as id for a trace)
+          metadata:
+            - uuid_version: 4
+        project_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Project ID
+          description: Galileo ID of the project associated with this trace or span
+          metadata:
+            - uuid_version: 4
+        run_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Run ID
+          description: Galileo ID of the run (log stream or experiment) associated
+            with this trace or span
+          metadata:
+            - uuid_version: 4
+        updated_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Last Updated
+          description: Timestamp of the session or trace or span's last update
+        has_children:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Has Children
+          description: Whether or not this trace or span has child spans
+        metrics_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Metrics Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        session_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Session Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        feedback_rating_info:
+          additionalProperties:
+            $ref: '#/components/schemas/FeedbackRatingInfo'
+          type: object
+          title: Feedback Rating Info
+          description: Feedback information related to the record
+        metric_info:
+          anyOf:
+            - additionalProperties:
+                oneOf:
+                  - $ref: '#/components/schemas/MetricNotComputed'
+                  - $ref: '#/components/schemas/MetricPending'
+                  - $ref: '#/components/schemas/MetricComputing'
+                  - $ref: '#/components/schemas/MetricNotApplicable'
+                  - $ref: '#/components/schemas/MetricSuccess'
+                  - $ref: '#/components/schemas/MetricError'
+                  - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
+                discriminator:
+                  propertyName: status_type
+                  mapping:
+                    computing: '#/components/schemas/MetricComputing'
+                    error: '#/components/schemas/MetricError'
+                    failed: '#/components/schemas/MetricFailed'
+                    not_applicable: '#/components/schemas/MetricNotApplicable'
+                    not_computed: '#/components/schemas/MetricNotComputed'
+                    pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
+                    success: '#/components/schemas/MetricSuccess'
+              type: object
+            - type: 'null'
+          title: Metric Info
+          description: Detailed information about the metrics associated with this
+            trace or span
+        is_complete:
+          type: boolean
+          title: Is Complete
+          description: Whether the trace is complete or not
+          default: true
+      type: object
+      title: PartialExtendedTraceRecord
+    PartialExtendedWorkflowSpanRecord:
+      properties:
+        type:
+          type: string
+          const: workflow
+          title: Type
+          description: Type of the trace, span or session.
+          default: workflow
+        input:
+          anyOf:
+            - type: string
+            - items:
+                $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+              type: array
+          title: Input
+          description: Input to the trace or span.
+          default: ''
+        redacted_input:
+          anyOf:
+            - type: string
+            - items:
+                $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+              type: array
+            - type: 'null'
+          title: Redacted Input
+          description: Redacted input of the trace or span.
+        output:
+          anyOf:
+            - type: string
+            - $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+            - items:
+                $ref: '#/components/schemas/Document'
+              type: array
+            - type: 'null'
+          title: Output
+          description: Output of the trace or span.
+        redacted_output:
+          anyOf:
+            - type: string
+            - $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
+            - items:
+                $ref: '#/components/schemas/Document'
+              type: array
+            - type: 'null'
+          title: Redacted Output
+          description: Redacted output of the trace or span.
+        name:
+          type: string
+          title: Name
+          description: Name of the trace, span or session.
+          default: ''
+        created_at:
+          type: string
+          format: date-time
+          title: Created
+          description: Timestamp of the trace or span's creation.
+        user_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: User Metadata
+          description: Metadata associated with this trace or span.
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Tags associated with this trace or span.
+        status_code:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Status Code
+          description: Status code of the trace or span. Used for logging failure
+            or error states.
+        metrics:
+          $ref: '#/components/schemas/Metrics'
+          description: Metrics associated with this trace or span.
+        external_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: External Id
+          description: A user-provided session, trace or span ID.
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Input
+          description: Input to the dataset associated with this trace
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Dataset Output
+          description: Output from the dataset associated with this trace
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          type: object
+          title: Dataset Metadata
+          description: Metadata from the dataset associated with this trace
+        id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: ID
+          description: Galileo ID of the session, trace or span
+          metadata:
+            - uuid_version: 4
+        session_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Session ID
+          description: Galileo ID of the session containing the trace (or the same
+            value as id for a trace)
+          metadata:
+            - uuid_version: 4
+        trace_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Trace ID
+          description: Galileo ID of the trace containing the span (or the same value
+            as id for a trace)
+        project_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Project ID
+          description: Galileo ID of the project associated with this trace or span
+          metadata:
+            - uuid_version: 4
+        run_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Run ID
+          description: Galileo ID of the run (log stream or experiment) associated
+            with this trace or span
+          metadata:
+            - uuid_version: 4
+        updated_at:
+          anyOf:
+            - type: string
+              format: date-time
+            - type: 'null'
+          title: Last Updated
+          description: Timestamp of the session or trace or span's last update
+        has_children:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Has Children
+          description: Whether or not this trace or span has child spans
+        metrics_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Metrics Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        session_batch_id:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Session Batch Id
+          description: Galileo ID of the metrics batch associated with this trace
+            or span
+        feedback_rating_info:
+          additionalProperties:
+            $ref: '#/components/schemas/FeedbackRatingInfo'
+          type: object
+          title: Feedback Rating Info
+          description: Feedback information related to the record
+        metric_info:
+          anyOf:
+            - additionalProperties:
+                oneOf:
+                  - $ref: '#/components/schemas/MetricNotComputed'
+                  - $ref: '#/components/schemas/MetricPending'
+                  - $ref: '#/components/schemas/MetricComputing'
+                  - $ref: '#/components/schemas/MetricNotApplicable'
+                  - $ref: '#/components/schemas/MetricSuccess'
+                  - $ref: '#/components/schemas/MetricError'
+                  - $ref: '#/components/schemas/MetricFailed'
+                  - $ref: '#/components/schemas/MetricRollUp'
+                discriminator:
+                  propertyName: status_type
+                  mapping:
+                    computing: '#/components/schemas/MetricComputing'
+                    error: '#/components/schemas/MetricError'
+                    failed: '#/components/schemas/MetricFailed'
+                    not_applicable: '#/components/schemas/MetricNotApplicable'
+                    not_computed: '#/components/schemas/MetricNotComputed'
+                    pending: '#/components/schemas/MetricPending'
+                    roll_up: '#/components/schemas/MetricRollUp'
+                    success: '#/components/schemas/MetricSuccess'
+              type: object
+            - type: 'null'
+          title: Metric Info
+          description: Detailed information about the metrics associated with this
+            trace or span
+        parent_id:
+          anyOf:
+            - type: string
+              format: uuid
+            - type: 'null'
+          title: Parent ID
+          description: Galileo ID of the parent of this span
+          metadata:
+            - uuid_version: 4
+        is_complete:
+          type: boolean
+          title: Is Complete
+          description: Whether the parent trace is complete or not
+          default: true
+        step_number:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Step Number
+          description: Topological step number of the span.
+      type: object
+      title: PartialExtendedWorkflowSpanRecord
     PassthroughAction:
       properties:
         type:
@@ -28524,6 +31466,7 @@ components:
             - $ref: '#/components/schemas/DatasetAction'
             - $ref: '#/components/schemas/IntegrationAction'
             - $ref: '#/components/schemas/OrganizationAction'
+            - $ref: '#/components/schemas/AnnotationQueueAction'
           title: Action
         allowed:
           type: boolean
@@ -28572,9 +31515,6 @@ components:
         - dismiss_alert
         - edit_slice
         - edit_edit
-        - create_annotation_queue
-        - update_annotation_queue
-        - delete_annotation_queue
       title: ProjectAction
     ProjectBookmarkFilter:
       properties:
@@ -29980,6 +32920,10 @@ components:
         summary:
           anyOf:
             - type: string
+            - items:
+                additionalProperties: true
+                type: object
+              type: array
             - type: 'null'
           title: Summary
           description: Summary of the reasoning
@@ -31467,6 +34411,10 @@ components:
             - type: boolean
             - type: 'null'
           title: Deprecated
+        roll_up_config:
+          anyOf:
+            - $ref: '#/components/schemas/BaseMetricRollUpConfigDB'
+            - type: 'null'
         label:
           anyOf:
             - type: string
@@ -31856,6 +34804,23 @@ components:
       required:
         - sample_rate
       title: SegmentFilter
+    SelectColumns:
+      properties:
+        column_ids:
+          items:
+            type: string
+          type: array
+          title: Column Ids
+        include_all_metrics:
+          type: boolean
+          title: Include All Metrics
+          default: false
+        include_all_feedback:
+          type: boolean
+          title: Include All Feedback
+          default: false
+      type: object
+      title: SelectColumns
     SessionCreateRequest:
       properties:
         log_stream_id:
@@ -32479,6 +35444,7 @@ components:
       type: string
       enum:
         - pending
+        - started
         - completed
         - failed
       title: TaskResultStatus
@@ -33532,13 +36498,25 @@ components:
           $ref: '#/components/schemas/CollaboratorRole'
           default: viewer
         user_id:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: User Id
+        user_email:
+          anyOf:
+            - type: string
+              format: email
+            - type: 'null'
+          title: User Email
       type: object
-      required:
-        - user_id
       title: UserCollaboratorCreate
+      description: 'Create a user collaborator using either user_id or email.
+
+
+        When using email, if the user doesn''t exist in the organization,
+
+        they will be invited automatically.'
     UserDB:
       properties:
         id:
@@ -33831,12 +36809,6 @@ components:
       required:
         - metrics_experiment_id
       title: ValidateLLMScorerLogRecordResponse
-      description: 'Response model for validating a new LLM scorer based on a log
-        record.
-
-
-        Returns the uuid of the experiment created with the copied log records to
-        store the metric testing results.'
     ValidateRegisteredScorerResult:
       properties:
         result:
@@ -33848,6 +36820,21 @@ components:
       required:
         - result
       title: ValidateRegisteredScorerResult
+    ValidateScorerLogRecordResponse:
+      properties:
+        metrics_experiment_id:
+          type: string
+          format: uuid4
+          title: Metrics Experiment Id
+      type: object
+      required:
+        - metrics_experiment_id
+      title: ValidateScorerLogRecordResponse
+      description: 'Response model for validating a scorer based on log records.
+
+
+        Returns the uuid of the experiment created with the copied log records to
+        store the metric testing results.'
     ValidationError:
       properties:
         loc:
@@ -33892,6 +36879,11 @@ components:
       title: VegasGatewayIntegration
     VegasGatewayIntegrationCreate:
       properties:
+        multi_modal_config:
+          anyOf:
+            - $ref: '#/components/schemas/MultiModalModelIntegrationConfig'
+            - type: 'null'
+          description: Configuration for multi-modal (file upload) capabilities.
         endpoint:
           type: string
           maxLength: 2083
@@ -33940,6 +36932,69 @@ components:
       required:
         - token
       title: VertexAIIntegrationCreate
+    WebSearchAction:
+      properties:
+        type:
+          type: string
+          const: search
+          title: Type
+          description: Type of web search action
+        query:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Query
+          description: Search query string
+        sources:
+          anyOf:
+            - {}
+            - type: 'null'
+          title: Sources
+          description: Optional provider-specific sources
+      type: object
+      required:
+        - type
+      title: WebSearchAction
+      description: Action payload for a web search call event.
+    WebSearchCallEvent:
+      properties:
+        type:
+          type: string
+          const: web_search_call
+          title: Type
+          default: web_search_call
+        id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Id
+          description: Unique identifier for the event
+        status:
+          anyOf:
+            - $ref: '#/components/schemas/EventStatus'
+            - type: 'null'
+          description: Status of the event
+        metadata:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Metadata
+          description: Provider-specific metadata and additional fields
+        error_message:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Error Message
+          description: Error message if the event failed
+        action:
+          $ref: '#/components/schemas/WebSearchAction'
+          description: Web search action payload
+      type: object
+      required:
+        - action
+      title: WebSearchCallEvent
+      description: An OpenAI-style web search call event.
     WorkflowSpan:
       properties:
         type:
@@ -34306,10 +37361,12 @@ components:
         - bleu
         - chunk_attribution_utilization
         - chunk_attribution_utilization_luna
+        - chunk_relevance
         - completeness
         - completeness_luna
         - context_adherence
         - context_adherence_luna
+        - context_precision
         - context_relevance
         - context_relevance_luna
         - conversation_quality
@@ -34332,9 +37389,11 @@ components:
         - output_tone_gpt
         - output_toxicity
         - output_toxicity_luna
+        - precision_at_k
         - prompt_injection
         - prompt_injection_luna
         - prompt_perplexity
+        - reasoning_coherence
         - rouge
         - sql_adherence
         - sql_correctness
@@ -34424,7 +37483,7 @@ components:
       flows:
         password:
           scopes: {}
-          tokenUrl: https://api.galileo.ai/login
+          tokenUrl: http://localhost:8088/login
     HTTPBasic:
       type: http
       scheme: basic

@@ -93,3 +93,47 @@ class TestGalileoBaseHandler:
         assert traces[0].spans[0].type == "workflow"
         assert traces[0].spans[0].input == '{"query": "test"}'
         assert traces[0].spans[0].output == '{"result": "test result"}'
+
+    def test_commit_calls_flush(self) -> None:
+        """Test that commit() calls flush() when flush_on_chain_end=True."""
+        # Given: a mock logger
+        mock_logger = Mock(spec=GalileoLogger)
+        mock_logger.start_trace = Mock()
+        mock_logger.conclude = Mock()
+        mock_logger.current_parent = Mock(return_value=None)
+        mock_logger.add_workflow_span = Mock()
+        mock_logger._set_current_parent = Mock()
+        handler = GalileoBaseHandler(galileo_logger=mock_logger, flush_on_chain_end=True)
+
+        # Setup a simple trace to commit
+        run_id = uuid.uuid4()
+        handler.start_node(node_type="chain", parent_run_id=None, run_id=run_id, name="Test", input="test")
+
+        # When: ending the node (which triggers commit)
+        handler.end_node(run_id, output="result")
+
+        # Then: flush is called
+        mock_logger.flush.assert_called_once()
+
+    def test_commit_no_flush_when_disabled(self) -> None:
+        """Test that commit() doesn't call flush or terminate when flush_on_chain_end=False."""
+        # Given: a mock logger with flush disabled
+        mock_logger = Mock(spec=GalileoLogger)
+        mock_logger.mode = "batch"
+        mock_logger.start_trace = Mock()
+        mock_logger.conclude = Mock()
+        mock_logger.current_parent = Mock(return_value=None)
+        mock_logger.add_workflow_span = Mock()
+        mock_logger._set_current_parent = Mock()
+        handler = GalileoBaseHandler(galileo_logger=mock_logger, flush_on_chain_end=False)
+
+        # Setup a simple trace to commit
+        run_id = uuid.uuid4()
+        handler.start_node(node_type="chain", parent_run_id=None, run_id=run_id, name="Test", input="test")
+
+        # When: ending the node (which triggers commit)
+        handler.end_node(run_id, output="result")
+
+        # Then: neither flush nor terminate is called
+        mock_logger.flush.assert_not_called()
+        mock_logger.terminate.assert_not_called()

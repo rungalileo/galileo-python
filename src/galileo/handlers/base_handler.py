@@ -43,8 +43,12 @@ class GalileoBaseHandler:
         flush_on_chain_end: bool = True,
         ingestion_hook: Optional[Callable[[TracesIngestRequest], None]] = None,
     ):
-        self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance()
-        if ingestion_hook:
+        self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance(
+            ingestion_hook=ingestion_hook
+        )
+        if galileo_logger and ingestion_hook:
+            if self._galileo_logger.mode == "distributed":
+                raise ValueError("ingestion_hook can only be used in batch mode")
             self._galileo_logger._ingestion_hook = ingestion_hook
         self._start_new_trace: bool = start_new_trace
         self._flush_on_chain_end: bool = flush_on_chain_end
@@ -68,25 +72,31 @@ class GalileoBaseHandler:
             _logger.warning("Unable to add nodes to trace: Root node does not exist")
             return
 
-        if self._start_new_trace:
-            self._galileo_logger.start_trace(input=serialize_to_str(root_node.span_params.get("input", "")))
+        try:
+            if self._start_new_trace:
+                self._galileo_logger.start_trace(
+                    input=serialize_to_str(root_node.span_params.get("input", "")),
+                    name=root_node.span_params.get("name"),
+                    metadata=root_node.span_params.get("metadata"),
+                )
 
-        self.log_node_tree(root_node)
+            self.log_node_tree(root_node)
 
-        # Conclude the trace with the root node's output
-        root_output = root_node.span_params.get("output", "")
+            # Conclude the trace with the root node's output
+            root_output = root_node.span_params.get("output", "")
 
-        if self._start_new_trace:
-            # If we started a new trace, we need to conclude it
-            self._galileo_logger.conclude(output=serialize_to_str(root_output))
+            if self._start_new_trace:
+                # If we started a new trace, we need to conclude it
+                self._galileo_logger.conclude(
+                    output=serialize_to_str(root_output), status_code=root_node.span_params.get("status_code")
+                )
 
-        if self._flush_on_chain_end:
-            # Upload the trace to Galileo
-            self._galileo_logger.flush()
-
-        # Clear nodes after successful commit
-        self._nodes.clear()
-        self._root_node = None
+            if self._flush_on_chain_end:
+                self._galileo_logger.flush()
+        finally:
+            # Always clean up, even if trace building or flush fails
+            self._nodes.clear()
+            self._root_node = None
 
     def log_node_tree(self, node: Node) -> None:
         """
@@ -127,6 +137,7 @@ class GalileoBaseHandler:
                 tags=tags,
                 created_at=created_at,
                 step_number=step_number,
+                status_code=node.span_params.get("status_code"),
             )
             is_span_with_children = True
         elif node.node_type == "agent":
@@ -139,6 +150,7 @@ class GalileoBaseHandler:
                 tags=tags,
                 created_at=created_at,
                 step_number=step_number,
+                status_code=node.span_params.get("status_code"),
             )
             is_span_with_children = True
         elif node.node_type in ("llm", "chat"):
@@ -158,6 +170,7 @@ class GalileoBaseHandler:
                 time_to_first_token_ns=node.span_params.get("time_to_first_token_ns"),
                 created_at=created_at,
                 step_number=step_number,
+                status_code=node.span_params.get("status_code"),
             )
         elif node.node_type == "retriever":
             self._galileo_logger.add_retriever_span(
@@ -171,7 +184,7 @@ class GalileoBaseHandler:
                 step_number=step_number,
             )
         elif node.node_type == "tool":
-            self._galileo_logger.add_tool_span(
+            tool_span = self._galileo_logger.add_tool_span(
                 input=input_,
                 output=output,
                 name=name,
@@ -181,7 +194,14 @@ class GalileoBaseHandler:
                 created_at=created_at,
                 step_number=step_number,
                 tool_call_id=node.span_params.get("tool_call_id"),
+                status_code=node.span_params.get("status_code"),
             )
+            # If tool has children (e.g., agent-as-tool invocations), push it to parent stack
+            if node.children and tool_span is not None:
+                parent_before_tool = self._galileo_logger.current_parent()
+                tool_span._parent = parent_before_tool
+                self._galileo_logger._set_current_parent(tool_span)
+                is_span_with_children = True
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
 
@@ -198,7 +218,9 @@ class GalileoBaseHandler:
         # Conclude parent span. Use the last child's output if necessary
         if is_span_with_children:
             output = output or (last_child.span_params.get("output", "") if last_child else "")
-            self._galileo_logger.conclude(output=serialize_to_str(output))
+            self._galileo_logger.conclude(
+                output=serialize_to_str(output), status_code=node.span_params.get("status_code")
+            )
 
     def start_node(self, node_type: NODE_TYPE, parent_run_id: Optional[UUID], run_id: UUID, **kwargs: Any) -> Node:
         """

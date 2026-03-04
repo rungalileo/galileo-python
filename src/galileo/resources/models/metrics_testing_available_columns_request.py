@@ -23,6 +23,12 @@ class MetricsTestingAvailableColumnsRequest:
         output_type (Union[Unset, OutputTypeEnum]): Enumeration of output types.
         cot_enabled (Union[Unset, bool]): Whether the metrics testing table is using chain of thought (CoT) enabled
             scorers. If True, the columns will be generated for CoT enabled scorers. Default: False.
+        metric_key (Union[Unset, str]): The metric key to use for column generation (e.g., 'generated_scorer_validation'
+            or 'registered_scorer_validation'). Default: 'generated_scorer_validation'.
+        required_scorers (Union[None, Unset, list[str]]): List of required scorer names for composite scorers. Columns
+            will be generated for these scorers.
+        score_type (Union[None, Unset, str]): The score type for registered scorers (e.g., 'bool', 'int', 'float',
+            'str'). Used to determine the correct data_type for the column. Provided by validation result.
     """
 
     name: str
@@ -31,6 +37,9 @@ class MetricsTestingAvailableColumnsRequest:
     metrics_testing_id: Union[None, Unset, str] = UNSET
     output_type: Union[Unset, OutputTypeEnum] = UNSET
     cot_enabled: Union[Unset, bool] = False
+    metric_key: Union[Unset, str] = "generated_scorer_validation"
+    required_scorers: Union[None, Unset, list[str]] = UNSET
+    score_type: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -51,6 +60,20 @@ class MetricsTestingAvailableColumnsRequest:
 
         cot_enabled = self.cot_enabled
 
+        metric_key = self.metric_key
+
+        required_scorers: Union[None, Unset, list[str]]
+        if isinstance(self.required_scorers, Unset):
+            required_scorers = UNSET
+        elif isinstance(self.required_scorers, list):
+            required_scorers = self.required_scorers
+
+        else:
+            required_scorers = self.required_scorers
+
+        score_type: Union[None, Unset, str]
+        score_type = UNSET if isinstance(self.score_type, Unset) else self.score_type
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"name": name})
@@ -64,6 +87,12 @@ class MetricsTestingAvailableColumnsRequest:
             field_dict["output_type"] = output_type
         if cot_enabled is not UNSET:
             field_dict["cot_enabled"] = cot_enabled
+        if metric_key is not UNSET:
+            field_dict["metric_key"] = metric_key
+        if required_scorers is not UNSET:
+            field_dict["required_scorers"] = required_scorers
+        if score_type is not UNSET:
+            field_dict["score_type"] = score_type
 
         return field_dict
 
@@ -105,6 +134,33 @@ class MetricsTestingAvailableColumnsRequest:
 
         cot_enabled = d.pop("cot_enabled", UNSET)
 
+        metric_key = d.pop("metric_key", UNSET)
+
+        def _parse_required_scorers(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
+
+        def _parse_score_type(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        score_type = _parse_score_type(d.pop("score_type", UNSET))
+
         metrics_testing_available_columns_request = cls(
             name=name,
             log_stream_id=log_stream_id,
@@ -112,6 +168,9 @@ class MetricsTestingAvailableColumnsRequest:
             metrics_testing_id=metrics_testing_id,
             output_type=output_type,
             cot_enabled=cot_enabled,
+            metric_key=metric_key,
+            required_scorers=required_scorers,
+            score_type=score_type,
         )
 
         metrics_testing_available_columns_request.additional_properties = d

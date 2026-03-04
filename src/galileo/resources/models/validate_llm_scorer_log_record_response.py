@@ -9,13 +9,10 @@ T = TypeVar("T", bound="ValidateLLMScorerLogRecordResponse")
 
 @_attrs_define
 class ValidateLLMScorerLogRecordResponse:
-    """Response model for validating a new LLM scorer based on a log record.
-
-    Returns the uuid of the experiment created with the copied log records to store the metric testing results.
-
+    """
     Attributes
     ----------
-            metrics_experiment_id (str):
+        metrics_experiment_id (str):
     """
 
     metrics_experiment_id: str

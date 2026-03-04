@@ -14,6 +14,7 @@ from ..models.scorer_types import ScorerTypes
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.base_metric_roll_up_config_db import BaseMetricRollUpConfigDB
     from ..models.base_scorer_version_db import BaseScorerVersionDB
     from ..models.scorer_defaults import ScorerDefaults
 
@@ -42,6 +43,7 @@ class ScorerResponse:
         input_type (Union[InputTypeEnum, None, Unset]):
         required_scorers (Union[None, Unset, list[str]]):
         deprecated (Union[None, Unset, bool]):
+        roll_up_config (Union['BaseMetricRollUpConfigDB', None, Unset]):
         label (Union[None, Unset, str]):  Default: ''.
         included_fields (Union[Unset, list[str]]): Fields that can be used in the scorer to configure it. i.e. model,
             num_judges, etc. This enables the ui to know which fields a user can configure when they're setting a scorer
@@ -68,6 +70,7 @@ class ScorerResponse:
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
     required_scorers: Union[None, Unset, list[str]] = UNSET
     deprecated: Union[None, Unset, bool] = UNSET
+    roll_up_config: Union["BaseMetricRollUpConfigDB", None, Unset] = UNSET
     label: Union[None, Unset, str] = ""
     included_fields: Union[Unset, list[str]] = UNSET
     description: Union[None, Unset, str] = UNSET
@@ -78,6 +81,7 @@ class ScorerResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.base_metric_roll_up_config_db import BaseMetricRollUpConfigDB
         from ..models.base_scorer_version_db import BaseScorerVersionDB
         from ..models.scorer_defaults import ScorerDefaults
 
@@ -167,6 +171,14 @@ class ScorerResponse:
         deprecated: Union[None, Unset, bool]
         deprecated = UNSET if isinstance(self.deprecated, Unset) else self.deprecated
 
+        roll_up_config: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.roll_up_config, Unset):
+            roll_up_config = UNSET
+        elif isinstance(self.roll_up_config, BaseMetricRollUpConfigDB):
+            roll_up_config = self.roll_up_config.to_dict()
+        else:
+            roll_up_config = self.roll_up_config
+
         label: Union[None, Unset, str]
         label = UNSET if isinstance(self.label, Unset) else self.label
 
@@ -231,6 +243,8 @@ class ScorerResponse:
             field_dict["required_scorers"] = required_scorers
         if deprecated is not UNSET:
             field_dict["deprecated"] = deprecated
+        if roll_up_config is not UNSET:
+            field_dict["roll_up_config"] = roll_up_config
         if label is not UNSET:
             field_dict["label"] = label
         if included_fields is not UNSET:
@@ -250,6 +264,7 @@ class ScorerResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.base_metric_roll_up_config_db import BaseMetricRollUpConfigDB
         from ..models.base_scorer_version_db import BaseScorerVersionDB
         from ..models.scorer_defaults import ScorerDefaults
 
@@ -426,6 +441,22 @@ class ScorerResponse:
 
         deprecated = _parse_deprecated(d.pop("deprecated", UNSET))
 
+        def _parse_roll_up_config(data: object) -> Union["BaseMetricRollUpConfigDB", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return BaseMetricRollUpConfigDB.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["BaseMetricRollUpConfigDB", None, Unset], data)
+
+        roll_up_config = _parse_roll_up_config(d.pop("roll_up_config", UNSET))
+
         def _parse_label(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -520,6 +551,7 @@ class ScorerResponse:
             input_type=input_type,
             required_scorers=required_scorers,
             deprecated=deprecated,
+            roll_up_config=roll_up_config,
             label=label,
             included_fields=included_fields,
             description=description,

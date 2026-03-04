@@ -13,7 +13,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from galileo.utils.dependencies import is_langchain_available
+from galileo.utils.dependencies import is_langchain_available, is_langgraph_available, is_proto_plus_available
 
 _logger = logging.getLogger(__name__)
 
@@ -182,6 +182,23 @@ class EventSerializer(JSONEncoder):
                         return kwargs
                     return serialized
 
+            # Handle langgraph types before the generic dataclass check
+            # Command is a dataclass with __slots__, so generic dataclass handling fails
+            # Local import to avoid hard dependency on optional `langgraph`
+            if is_langgraph_available:
+                from langgraph.types import Command, Send
+
+                if isinstance(obj, Command):
+                    result = {}
+                    for slot in ("graph", "update", "resume", "goto"):
+                        value = getattr(obj, slot, None)
+                        if value is not None:
+                            result[slot] = self.default(value)
+                    return result
+
+                if isinstance(obj, Send):
+                    return {"node": self.default(obj.node), "arg": self.default(obj.arg)}
+
             if is_dataclass(obj):
                 return {self.default(k): self.default(v) for k, v in obj.__dict__.items()}
 
@@ -220,10 +237,22 @@ class EventSerializer(JSONEncoder):
             if isinstance(obj, list):
                 return [self.default(item) for item in obj]
 
-            # Important: this needs to be always checked after str and bytes types
-            # Useful for serializing protobuf messages
+            # Important: this needs to be always checked after str and bytes types.
+            # Bare protobuf messages (google.protobuf.message.Message) implement
+            # Sequence, so this branch handles them as iterables. Proto-plus
+            # messages (proto.Message) are handled separately below.
             if isinstance(obj, Sequence):
                 return [self.default(item) for item in obj]
+
+            # Handle proto-plus messages (e.g. google.cloud.aiplatform types).
+            # Their __dict__ only contains private attrs, so the generic
+            # __dict__ serialization below would produce empty objects.
+            if is_proto_plus_available:
+                # Lazy import: proto-plus is an optional dependency used by GCP tool classes (e.g. google.cloud.aiplatform)
+                import proto
+
+                if isinstance(obj, proto.Message):
+                    return self.default(proto.Message.to_dict(obj, use_integers_for_enums=False))
 
             if hasattr(obj, "__slots__") and len(obj.__slots__) > 0:
                 return self.default({slot: getattr(obj, slot, None) for slot in obj.__slots__})

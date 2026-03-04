@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.input_modality import InputModality
 from ..models.llm_integration import LLMIntegration
 from ..models.model_cost_by import ModelCostBy
 from ..types import UNSET, Unset
@@ -28,6 +29,7 @@ class Model:
         user_role (Union[None, Unset, str]):
         assistant_role (Union[None, Unset, str]):
         system_supported (Union[Unset, bool]):  Default: False.
+        input_modalities (Union[Unset, list[InputModality]]): Input modalities that the model can accept.
         alternative_names (Union[Unset, list[str]]): Alternative names for the model, used for matching with various
             current, versioned or legacy names.
         input_token_limit (Union[None, Unset, int]):
@@ -41,6 +43,8 @@ class Model:
         formatting_tokens (Union[Unset, int]):  Default: 0.
         response_prefix_tokens (Union[Unset, int]):  Default: 0.
         api_version (Union[None, Unset, str]):
+        legacy_mistral_prompt_format (Union[Unset, bool]):  Default: False.
+        max_top_p (Union[None, Unset, float]):
         params_map (Union[Unset, RunParamsMap]): Maps the internal settings parameters (left) to the serialized
             parameters (right) we want to send in the API
             requests.
@@ -54,6 +58,7 @@ class Model:
     user_role: Union[None, Unset, str] = UNSET
     assistant_role: Union[None, Unset, str] = UNSET
     system_supported: Union[Unset, bool] = False
+    input_modalities: Union[Unset, list[InputModality]] = UNSET
     alternative_names: Union[Unset, list[str]] = UNSET
     input_token_limit: Union[None, Unset, int] = UNSET
     output_token_limit: Union[None, Unset, int] = UNSET
@@ -66,6 +71,8 @@ class Model:
     formatting_tokens: Union[Unset, int] = 0
     response_prefix_tokens: Union[Unset, int] = 0
     api_version: Union[None, Unset, str] = UNSET
+    legacy_mistral_prompt_format: Union[Unset, bool] = False
+    max_top_p: Union[None, Unset, float] = UNSET
     params_map: Union[Unset, "RunParamsMap"] = UNSET
     output_map: Union["OutputMap", None, Unset] = UNSET
     input_map: Union["InputMap", None, Unset] = UNSET
@@ -90,6 +97,13 @@ class Model:
         assistant_role = UNSET if isinstance(self.assistant_role, Unset) else self.assistant_role
 
         system_supported = self.system_supported
+
+        input_modalities: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.input_modalities, Unset):
+            input_modalities = []
+            for input_modalities_item_data in self.input_modalities:
+                input_modalities_item = input_modalities_item_data.value
+                input_modalities.append(input_modalities_item)
 
         alternative_names: Union[Unset, list[str]] = UNSET
         if not isinstance(self.alternative_names, Unset):
@@ -123,6 +137,11 @@ class Model:
         api_version: Union[None, Unset, str]
         api_version = UNSET if isinstance(self.api_version, Unset) else self.api_version
 
+        legacy_mistral_prompt_format = self.legacy_mistral_prompt_format
+
+        max_top_p: Union[None, Unset, float]
+        max_top_p = UNSET if isinstance(self.max_top_p, Unset) else self.max_top_p
+
         params_map: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.params_map, Unset):
             params_map = self.params_map.to_dict()
@@ -154,6 +173,8 @@ class Model:
             field_dict["assistant_role"] = assistant_role
         if system_supported is not UNSET:
             field_dict["system_supported"] = system_supported
+        if input_modalities is not UNSET:
+            field_dict["input_modalities"] = input_modalities
         if alternative_names is not UNSET:
             field_dict["alternative_names"] = alternative_names
         if input_token_limit is not UNSET:
@@ -178,6 +199,10 @@ class Model:
             field_dict["response_prefix_tokens"] = response_prefix_tokens
         if api_version is not UNSET:
             field_dict["api_version"] = api_version
+        if legacy_mistral_prompt_format is not UNSET:
+            field_dict["legacy_mistral_prompt_format"] = legacy_mistral_prompt_format
+        if max_top_p is not UNSET:
+            field_dict["max_top_p"] = max_top_p
         if params_map is not UNSET:
             field_dict["params_map"] = params_map
         if output_map is not UNSET:
@@ -221,6 +246,13 @@ class Model:
         assistant_role = _parse_assistant_role(d.pop("assistant_role", UNSET))
 
         system_supported = d.pop("system_supported", UNSET)
+
+        input_modalities = []
+        _input_modalities = d.pop("input_modalities", UNSET)
+        for input_modalities_item_data in _input_modalities or []:
+            input_modalities_item = InputModality(input_modalities_item_data)
+
+            input_modalities.append(input_modalities_item)
 
         alternative_names = cast(list[str], d.pop("alternative_names", UNSET))
 
@@ -276,6 +308,17 @@ class Model:
 
         api_version = _parse_api_version(d.pop("api_version", UNSET))
 
+        legacy_mistral_prompt_format = d.pop("legacy_mistral_prompt_format", UNSET)
+
+        def _parse_max_top_p(data: object) -> Union[None, Unset, float]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, float], data)
+
+        max_top_p = _parse_max_top_p(d.pop("max_top_p", UNSET))
+
         _params_map = d.pop("params_map", UNSET)
         params_map: Union[Unset, RunParamsMap]
         params_map = UNSET if isinstance(_params_map, Unset) else RunParamsMap.from_dict(_params_map)
@@ -319,6 +362,7 @@ class Model:
             user_role=user_role,
             assistant_role=assistant_role,
             system_supported=system_supported,
+            input_modalities=input_modalities,
             alternative_names=alternative_names,
             input_token_limit=input_token_limit,
             output_token_limit=output_token_limit,
@@ -331,6 +375,8 @@ class Model:
             formatting_tokens=formatting_tokens,
             response_prefix_tokens=response_prefix_tokens,
             api_version=api_version,
+            legacy_mistral_prompt_format=legacy_mistral_prompt_format,
+            max_top_p=max_top_p,
             params_map=params_map,
             output_map=output_map,
             input_map=input_map,
