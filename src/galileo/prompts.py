@@ -232,7 +232,7 @@ class GlobalPromptTemplates:
                 client=self.config.api_client, template_id=template_id
             )
 
-    def load_version(self, *, template_id: str, version: int) -> Optional[PromptTemplateVersion]:
+    def get_version(self, *, template_id: str, version: int) -> Optional[PromptTemplateVersion]:
         _logger.debug(f"Get global template {template_id} version {version}")
         template_version = get_global_template_version_templates_template_id_versions_version_get.sync(
             template_id=template_id, version=version, client=self.config.api_client
