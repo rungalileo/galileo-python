@@ -144,7 +144,7 @@ class Experiments:
 
         _logger.debug(f"job: {job}")
 
-        link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        link = f"{str(self.config.console_url).rstrip('/')}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {link}"
         _logger.info(message)
 
@@ -208,7 +208,7 @@ class Experiments:
 
         _logger.info(f" {len(results)} rows processed for experiment {experiment_obj.name}.")
 
-        link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        link = f"{str(self.config.console_url).rstrip('/')}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has completed and results are available at {link}"
         _logger.info(message)
 
