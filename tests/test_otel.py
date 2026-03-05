@@ -1,7 +1,6 @@
 import json
 import os
 import re
-import uuid
 from unittest.mock import Mock, patch
 
 import pytest
@@ -80,22 +79,19 @@ class TestGalileoOTLPExporter:
     def test_init_with_env_variables(self, mock_otlp_init, mock_config, clear_env_vars):
         """Test initialization using environment variables."""
         with patch.dict(os.environ, {"GALILEO_PROJECT": "env-project", "GALILEO_LOG_STREAM": "env-logstream"}):
-            with patch("galileo.otel.uuid.uuid4") as mock_uuid:
-                exporter = GalileoOTLPExporter()
-                mock_uuid.assert_not_called()  # No UUID generation when env var provided
-                assert exporter.project == "env-project"
-                assert exporter.logstream == "env-logstream"
+            exporter = GalileoOTLPExporter()
+            assert exporter.project == "env-project"
+            assert exporter.logstream == "env-logstream"
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    @patch("galileo.otel.uuid.uuid4")
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
-    def test_init_auto_generate_project(self, mock_otlp_init, mock_uuid, mock_config, clear_env_vars):
-        """Test automatic project generation when no project is provided."""
-        mock_uuid.return_value = uuid.UUID("12345678-1234-5678-9012-123456789012")
+    def test_init_uses_default_project(self, mock_otlp_init, mock_config, clear_env_vars):
+        """Test default project name is used when no project is provided."""
         GalileoOTLPExporter()
 
         call_kwargs = mock_otlp_init.call_args[1]
-        assert call_kwargs["headers"]["project"] == "project_12345678-1234-5678-9012-123456789012"
+        assert call_kwargs["headers"]["project"] == "default"
+        assert call_kwargs["headers"]["logstream"] == "default"
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
@@ -391,7 +387,8 @@ class TestOTelContextIntegration:
         assert ("galileo.project.name", "test-project") in actual_calls
         assert ("galileo.session.id", "test-session") in actual_calls
 
-        # Test with only project set (None values should be skipped)
+        # Test that processor always sets project and logstream (using env var fallbacks)
+        # When context is None, it falls back to env vars (set in conftest.py)
         _log_stream_context.set(None)
         _experiment_id_context.set(None)
         _session_id_context.set(None)
@@ -400,8 +397,12 @@ class TestOTelContextIntegration:
         mock_span2 = Mock()
         processor2.on_start(mock_span2, None)
 
-        assert mock_span2.set_attribute.call_count == 1
-        mock_span2.set_attribute.assert_called_with("galileo.project.name", "test-project")
+        # Project and logstream are always set (env var fallbacks when context is None)
+        assert mock_span2.set_attribute.call_count == 2
+        actual_calls = {(args[0], args[1]) for args, _ in mock_span2.set_attribute.call_args_list}
+        assert ("galileo.project.name", "test-project") in actual_calls
+        # Falls back to GALILEO_LOG_STREAM env var set in conftest.py
+        assert ("galileo.logstream.name", "test-log-stream") in actual_calls
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.OTLPSpanExporter.export")

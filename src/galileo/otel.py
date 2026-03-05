@@ -1,9 +1,7 @@
 import contextvars
 import json
 import logging
-import os
 import typing
-import uuid
 from _contextvars import ContextVar
 from collections.abc import Generator
 from contextlib import contextmanager
@@ -14,6 +12,7 @@ from requests import Session
 
 from galileo.config import GalileoPythonConfig
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
+from galileo.utils.env_helpers import _get_log_stream_or_default, _get_project_or_default
 from galileo.utils.retrievers import document_adapter
 from galileo_core.schemas.logging.span import RetrieverSpan, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.span import Span as GalileoSpan
@@ -128,29 +127,12 @@ class GalileoOTLPExporter(OTLPSpanExporter):
         if not api_key:
             raise ValueError("API key is required.")
 
-        if project is not None:
-            _project_context.set(project)
-        if logstream is not None:
-            _log_stream_context.set(logstream)
+        # Resolve project and logstream: param first, then context var, then env var with default fallback
+        ctx_project = project if project is not None else _project_context.get(None)
+        ctx_logstream = logstream if logstream is not None else _log_stream_context.get(None)
 
-        # Resolve project and logstream from parameters, context, or environment variables
-        # Check context first, then environment, then generate/use defaults
-        ctx_project = _project_context.get(None)
-        ctx_logstream = _log_stream_context.get(None)
-
-        if ctx_project is not None:
-            self.project = ctx_project
-        elif "GALILEO_PROJECT" in os.environ:
-            self.project = os.environ["GALILEO_PROJECT"]
-        else:
-            self.project = f"project_{uuid.uuid4()}"
-
-        if ctx_logstream is not None:
-            self.logstream = ctx_logstream
-        elif "GALILEO_LOG_STREAM" in os.environ:
-            self.logstream = os.environ["GALILEO_LOG_STREAM"]
-        else:
-            self.logstream = "default"
+        self.project = _get_project_or_default(ctx_project)
+        self.logstream = _get_log_stream_or_default(ctx_logstream)
 
         exporter_headers = {"Galileo-API-Key": api_key, "project": self.project, "logstream": self.logstream}
 
@@ -240,13 +222,13 @@ class GalileoSpanProcessor(SpanProcessor):
                 "OpenTelemetry packages are not installed. "
                 "Install optional OpenTelemetry dependencies with: pip install galileo[otel]"
             )
-        if project is not None:
-            _project_context.set(project)
-        if logstream is not None:
-            _log_stream_context.set(logstream)
 
-        self._project = _project_context.get()
-        self._logstream = _log_stream_context.get()
+        # Resolve project and logstream: param first, then context var, then env var with default fallback
+        ctx_project = project if project is not None else _project_context.get(None)
+        ctx_logstream = logstream if logstream is not None else _log_stream_context.get(None)
+
+        self._project = _get_project_or_default(ctx_project)
+        self._logstream = _get_log_stream_or_default(ctx_logstream)
 
         # Create the exporter using the config-based approach
         self._exporter = GalileoOTLPExporter(**kwargs)
@@ -259,8 +241,9 @@ class GalileoSpanProcessor(SpanProcessor):
     def on_start(self, span: Span, parent_context: Optional[context.Context] = None) -> None:
         """Handle span start events by delegating to the underlying processor."""
         # Set Galileo context attributes on the span
-        project = _project_context.get(self._project)
-        log_stream = _log_stream_context.get(self._logstream)
+        # Use context var if set and not None, otherwise fall back to instance defaults
+        project = _project_context.get(None) or self._project
+        log_stream = _log_stream_context.get(None) or self._logstream
         experiment_id = _experiment_id_context.get(None)
         session_id = _session_id_context.get(None)
 
