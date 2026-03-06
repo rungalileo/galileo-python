@@ -271,6 +271,7 @@ class Dataset(StateManagementMixin):
         count: int = 10,
         data_types: list[str] | None = None,  # type: ignore[valid-type]
         prompt_settings: dict[str, Any] | None = None,
+        timeout_seconds: int = 300,
     ) -> list[DatasetRow]:  # type: ignore[valid-type]
         """
         Generate synthetic dataset rows.
@@ -282,10 +283,16 @@ class Dataset(StateManagementMixin):
             count (int): The number of synthetic examples to generate.
             data_types (Optional[list[str]]): The types of data to generate.
             prompt_settings (Optional[dict[str, Any]]): Settings for the prompt generation.
+            timeout_seconds (int): Maximum seconds to wait for generation to complete. Defaults to 300.
 
         Returns
         -------
             list[DatasetRow]: A list of generated dataset rows.
+
+        Raises
+        ------
+            DatasetAPIException: If generation fails, stalls with no progress for 30 seconds,
+                or does not complete within timeout_seconds.
 
         Examples
         --------
@@ -304,6 +311,7 @@ class Dataset(StateManagementMixin):
             count=count,
             data_types=data_types,
             prompt_settings=prompt_settings,
+            timeout_seconds=timeout_seconds,
         )
 
     def get_content(self) -> DatasetContent | None:
