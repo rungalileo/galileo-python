@@ -59,7 +59,7 @@ class Dataset(StateManagementMixin):
         ])
 
         # Get version history
-        history = dataset.get_version_history()
+        history = dataset.load_version_history()
 
         # Delete dataset
         dataset.delete()
@@ -364,7 +364,7 @@ class Dataset(StateManagementMixin):
             self._set_state(SyncState.FAILED_SYNC, error=e)
             raise
 
-    def get_version_history(self) -> list[dict[str, Any]]:  # type: ignore[valid-type]
+    def load_version_history(self) -> list[dict[str, Any]]:  # type: ignore[valid-type]
         """
         Get the version history of this dataset.
 
@@ -375,7 +375,7 @@ class Dataset(StateManagementMixin):
         Examples
         --------
             dataset = Dataset.get(name="my-dataset")
-            history = dataset.get_version_history()
+            history = dataset.load_version_history()
         """
         if self.id is None:
             raise ValueError("Dataset ID is not set. Cannot get version history for a local-only dataset.")
@@ -383,9 +383,9 @@ class Dataset(StateManagementMixin):
         dataset = datasets_service.get(id=self.id)
         if dataset is None:
             return []
-        return dataset.get_version_history()
+        return dataset.load_version_history()
 
-    def get_version(self, *, index: int) -> DatasetContent | None:
+    def load_version(self, *, index: int) -> DatasetContent | None:
         """
         Get a specific version of this dataset.
 
@@ -399,7 +399,7 @@ class Dataset(StateManagementMixin):
         Examples
         --------
             dataset = Dataset.get(name="my-dataset")
-            version = dataset.get_version(index=0)
+            version = dataset.load_version(index=0)
         """
         if self.id is None:
             raise ValueError("Dataset ID is not set. Cannot get version for a local-only dataset.")

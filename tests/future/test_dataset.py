@@ -157,7 +157,9 @@ class TestDatasetContent:
         assert content == mock_content
         mock_dataset.get_content.assert_called_once()
 
-    @pytest.mark.parametrize("method_name", ["get_content", "add_rows", "get_version_history", "get_version", "extend"])
+    @pytest.mark.parametrize(
+        "method_name", ["get_content", "add_rows", "load_version_history", "load_version", "extend"]
+    )
     def test_content_methods_raise_error_for_local_only(self, method_name: str, reset_configuration: None) -> None:
         """Test content methods raise ValueError for local-only dataset."""
         dataset = Dataset(name="Test Dataset")
@@ -165,8 +167,8 @@ class TestDatasetContent:
         with pytest.raises(ValueError, match="Dataset ID is not set"):
             if method_name == "add_rows":
                 dataset.add_rows([{"input": "test"}])
-            elif method_name == "get_version":
-                dataset.get_version(index=0)
+            elif method_name == "load_version":
+                dataset.load_version(index=0)
             elif method_name == "extend":
                 dataset.extend(prompt="Test", count=2)
             else:
