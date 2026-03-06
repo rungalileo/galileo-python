@@ -504,6 +504,7 @@ class Datasets:
         examples: Optional[builtins.list[str]] = None,
         data_types: Optional[builtins.list[str]] = None,
         count: int = 10,
+        timeout_seconds: int = 300,
     ) -> builtins.list[DatasetRow]:
         """
         Extends a dataset with synthetically generated data based on the provided parameters.
@@ -529,6 +530,8 @@ class Datasets:
             'Sexist Content in Query'.
         count : int, default 10
             The number of synthetic examples to generate.
+        timeout_seconds : int, default 300
+            Maximum number of seconds to wait for the job to complete before raising an exception.
 
         Returns
         -------
@@ -538,9 +541,8 @@ class Datasets:
         Raises
         ------
         DatasetAPIException
-            If the request to extend the dataset fails.
-        errors.UnexpectedStatus
-            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+            If the request to extend the dataset fails, the job stalls with no progress for 30 seconds,
+            or the job does not complete within timeout_seconds.
         httpx.TimeoutException
             If the request takes longer than Client.timeout.
         """
@@ -582,8 +584,14 @@ class Datasets:
 
         dataset_id = response.dataset_id
 
-        # Poll for job completion
-        while True:
+        # Poll for job completion.
+        # TODO: Replace stall detection with a proper status/error field once the API exposes one in JobProgress.
+        MAX_STALL_SECONDS = 30
+        elapsed = 0
+        last_steps_completed = None
+        stall_count = 0
+
+        while elapsed < timeout_seconds:
             job_progress = get_dataset_synthetic_extend_status_datasets_extend_dataset_id_get.sync(
                 dataset_id=dataset_id, client=self.config.api_client
             )
@@ -594,25 +602,34 @@ class Datasets:
             if not job_progress or not isinstance(job_progress, JobProgress):
                 raise DatasetAPIException("Invalid job progress response.")
 
-            # Check if job is complete
+            steps_done = job_progress.steps_completed
+            steps_total = job_progress.steps_total
+
+            if job_progress.progress_message:
+                logger.info(f"({steps_done}/{steps_total}) {job_progress.progress_message}")
+
             if (
-                job_progress.steps_completed is not None
-                and job_progress.steps_total is not None
-                and job_progress.steps_completed == job_progress.steps_total
+                isinstance(steps_done, int)
+                and isinstance(steps_total, int)
+                and steps_total > 0
+                and steps_done == steps_total
             ):
-                logger.info(
-                    f"({job_progress.steps_completed}/{job_progress.steps_total}) {job_progress.progress_message}"
-                )
                 break
 
-            # Log progress message if available
-            if job_progress.progress_message:
-                logger.info(
-                    f"({job_progress.steps_completed}/{job_progress.steps_total}) {job_progress.progress_message}"
-                )
+            if steps_done == last_steps_completed:
+                stall_count += 1
+                if stall_count >= MAX_STALL_SECONDS:
+                    raise DatasetAPIException(
+                        f"Dataset extension job stalled: no progress for {MAX_STALL_SECONDS} seconds."
+                    )
+            else:
+                stall_count = 0
+                last_steps_completed = steps_done
 
-            # Wait 1 second before polling again
             time.sleep(1)
+            elapsed += 1
+        else:
+            raise DatasetAPIException(f"Dataset extension job timed out after {timeout_seconds} seconds.")
 
         # Get the final dataset content
         dataset_content = get_dataset_content_datasets_dataset_id_content_get.sync(
@@ -907,6 +924,7 @@ def extend_dataset(
     examples: Optional[list[str]] = None,
     data_types: Optional[list[str]] = None,
     count: int = 10,
+    timeout_seconds: int = 300,
 ) -> list[DatasetRow]:
     """
     Extends a dataset with synthetically generated data based on the provided parameters.
@@ -932,6 +950,8 @@ def extend_dataset(
         'Sexist Content in Query'.
     count : int, default 10
         The number of synthetic examples to generate.
+    timeout_seconds : int, default 300
+        Maximum number of seconds to wait for the job to complete before raising an exception.
 
     Returns
     -------
@@ -941,9 +961,8 @@ def extend_dataset(
     Raises
     ------
     DatasetAPIException
-        If the request to extend the dataset fails.
-    errors.UnexpectedStatus
-        If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        If the request to extend the dataset fails, the job stalls with no progress for 30 seconds,
+        or the job does not complete within timeout_seconds.
     httpx.TimeoutException
         If the request takes longer than Client.timeout.
 
@@ -955,6 +974,7 @@ def extend_dataset(
         examples=examples,
         data_types=data_types,
         count=count,
+        timeout_seconds=timeout_seconds,
     )
 
 

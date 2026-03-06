@@ -588,6 +588,69 @@ def test_extend_dataset_api_failure(extend_dataset_mock: Mock) -> None:
         extend_dataset(prompt_settings={"model_alias": "GPT-4o mini"}, prompt="Test prompt", count=1)
 
 
+@patch("galileo.datasets.get_dataset_synthetic_extend_status_datasets_extend_dataset_id_get")
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+@patch("galileo.datasets.time.sleep")
+def test_extend_dataset_zero_steps_total_on_first_poll(
+    sleep_mock: Mock, extend_dataset_mock: Mock, get_extend_status_mock: Mock
+) -> None:
+    # Given: the first poll returns steps_total=0 (job not yet started), then completes normally
+    extended_dataset_id = "a8b3d8e0-5e0b-4b0f-8b3a-3b9f4b3d3b3b"
+    extend_dataset_mock.sync.return_value = SyntheticDatasetExtensionResponse(dataset_id=extended_dataset_id)
+    get_extend_status_mock.sync.side_effect = [
+        JobProgress(steps_completed=0, steps_total=0, progress_message="Queued"),
+        JobProgress(steps_completed=1, steps_total=2, progress_message="Processing"),
+        JobProgress(steps_completed=2, steps_total=2, progress_message="Done"),
+    ]
+
+    with patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get") as content_mock:
+        row = DatasetRow(index=0, row_id="row-1", values=["val"], values_dict={"col": "val"}, metadata=None)
+        content_mock.sync.return_value = DatasetContent(column_names=["col"], rows=[row])
+
+        # When: extending the dataset
+        result = extend_dataset(prompt="Test", count=2)
+
+    # Then: all three polls are made and the rows are returned (not short-circuited on the first poll)
+    assert result == [row]
+    assert get_extend_status_mock.sync.call_count == 3
+
+
+@patch("galileo.datasets.get_dataset_synthetic_extend_status_datasets_extend_dataset_id_get")
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+@patch("galileo.datasets.time.sleep")
+def test_extend_dataset_timeout(sleep_mock: Mock, extend_dataset_mock: Mock, get_extend_status_mock: Mock) -> None:
+    # Given: the job never completes within the timeout
+    extended_dataset_id = "a8b3d8e0-5e0b-4b0f-8b3a-3b9f4b3d3b3c"
+    extend_dataset_mock.sync.return_value = SyntheticDatasetExtensionResponse(dataset_id=extended_dataset_id)
+    get_extend_status_mock.sync.return_value = JobProgress(
+        steps_completed=1, steps_total=10, progress_message="Processing"
+    )
+
+    # When/Then: a timeout exception is raised after timeout_seconds
+    with pytest.raises(DatasetAPIException, match="timed out after 3 seconds"):
+        extend_dataset(prompt="Test", count=5, timeout_seconds=3)
+
+    assert get_extend_status_mock.sync.call_count == 3
+
+
+@patch("galileo.datasets.get_dataset_synthetic_extend_status_datasets_extend_dataset_id_get")
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+@patch("galileo.datasets.time.sleep")
+def test_extend_dataset_stall_detection(
+    sleep_mock: Mock, extend_dataset_mock: Mock, get_extend_status_mock: Mock
+) -> None:
+    # Given: the job starts but steps_completed stops advancing
+    extended_dataset_id = "a8b3d8e0-5e0b-4b0f-8b3a-3b9f4b3d3b3d"
+    extend_dataset_mock.sync.return_value = SyntheticDatasetExtensionResponse(dataset_id=extended_dataset_id)
+    get_extend_status_mock.sync.return_value = JobProgress(steps_completed=2, steps_total=10, progress_message="Stuck")
+
+    # When/Then: a stall exception is raised after 30 polls with no progress
+    with pytest.raises(DatasetAPIException, match="stalled"):
+        extend_dataset(prompt="Test", count=5, timeout_seconds=300)
+
+    assert get_extend_status_mock.sync.call_count == 31
+
+
 # ===================================================================
 # Project Association Tests for Dataset CRUD Operations
 # ===================================================================
