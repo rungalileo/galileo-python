@@ -195,24 +195,33 @@ class Dataset(StateManagementMixin):
         """
         Get an existing dataset by ID or name.
 
+        .. note::
+            Lookup behavior differs depending on which parameter is used:
+
+            - **By ID**: the API performs a direct lookup. If no dataset with that ID exists,
+              a ``NotFoundError`` is raised.
+            - **By name**: the API performs a filtered list query. If no dataset with that name
+              exists, ``None`` is returned (no exception is raised).
+
         Args:
             id (Optional[str]): The dataset ID.
             name (Optional[str]): The dataset name.
 
         Returns
         -------
-            Optional[Dataset]: The dataset if found, None otherwise.
+            Optional[Dataset]: The dataset if found, or ``None`` if looked up by name and no match exists.
 
         Raises
         ------
+            NotFoundError: If looked up by ID and no dataset with that ID exists.
             ValueError: If neither or both id and name are provided.
 
         Examples
         --------
-            # Get by name
+            # Get by name — returns None if not found
             dataset = Dataset.get(name="geography-questions")
 
-            # Get by ID
+            # Get by ID — raises NotFoundError if not found
             dataset = Dataset.get(id="dataset-123")
         """
         datasets_service = Datasets()
