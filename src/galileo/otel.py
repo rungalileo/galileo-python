@@ -270,16 +270,12 @@ class GalileoSpanProcessor(SpanProcessor):
             span.set_attribute("galileo.session.id", session_id)
 
         # Set dataset attributes for ground truth/reference output support
-        dataset_input = _dataset_input_context.get(None)
-        dataset_output = _dataset_output_context.get(None)
-        dataset_metadata = _dataset_metadata_context.get(None)
-
-        if dataset_input is not None:
-            span.set_attribute("galileo.dataset.input", dataset_input)
-        if dataset_output is not None:
-            span.set_attribute("galileo.dataset.output", dataset_output)
-        if dataset_metadata is not None:
-            span.set_attribute("galileo.dataset.metadata", json.dumps(dataset_metadata))
+        _apply_dataset_attributes(
+            span,
+            _dataset_input_context.get(None),
+            _dataset_output_context.get(None),
+            _dataset_metadata_context.get(None),
+        )
 
         self._processor.on_start(span, parent_context)
 
@@ -345,18 +341,19 @@ def _set_tool_span_attributes(span: trace.Span, galileo_span: ToolSpan) -> None:
         span.set_attribute("gen_ai.tool.call.id", galileo_span.tool_call_id)
 
 
-def _set_dataset_attributes(span: trace.Span, galileo_span: GalileoSpan) -> None:
-    """Set OpenTelemetry attributes for dataset fields (ground truth/reference output).
-
-    These attributes enable scorers that require ground truth data to work
-    with OTEL-ingested traces.
-    """
-    if galileo_span.dataset_input:
-        span.set_attribute("galileo.dataset.input", galileo_span.dataset_input)
-    if galileo_span.dataset_output:
-        span.set_attribute("galileo.dataset.output", galileo_span.dataset_output)
-    if galileo_span.dataset_metadata:
-        span.set_attribute("galileo.dataset.metadata", json.dumps(galileo_span.dataset_metadata))
+def _apply_dataset_attributes(
+    span: trace.Span,
+    dataset_input: Optional[str],
+    dataset_output: Optional[str],
+    dataset_metadata: Optional[dict[str, Any]],
+) -> None:
+    """Write dataset context attributes onto a span."""
+    if dataset_input is not None:
+        span.set_attribute("galileo.dataset.input", dataset_input)
+    if dataset_output is not None:
+        span.set_attribute("galileo.dataset.output", dataset_output)
+    if dataset_metadata is not None:
+        span.set_attribute("galileo.dataset.metadata", json.dumps(dataset_metadata))
 
 
 def _set_workflow_span_attributes(span: trace.Span, galileo_span: WorkflowSpan) -> None:
@@ -412,7 +409,9 @@ def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, 
         yield span
         span.set_attribute("gen_ai.system", "galileo-otel")
         # Set dataset attributes for ground truth/reference output support
-        _set_dataset_attributes(span, galileo_span)
+        _apply_dataset_attributes(
+            span, galileo_span.dataset_input, galileo_span.dataset_output, galileo_span.dataset_metadata
+        )
         if isinstance(galileo_span, RetrieverSpan):
             _set_retriever_span_attributes(span, galileo_span)
         elif isinstance(galileo_span, ToolSpan):
