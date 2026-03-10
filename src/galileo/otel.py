@@ -274,11 +274,11 @@ class GalileoSpanProcessor(SpanProcessor):
         dataset_output = _dataset_output_context.get(None)
         dataset_metadata = _dataset_metadata_context.get(None)
 
-        if dataset_input:
+        if dataset_input is not None:
             span.set_attribute("galileo.dataset.input", dataset_input)
-        if dataset_output:
+        if dataset_output is not None:
             span.set_attribute("galileo.dataset.output", dataset_output)
-        if dataset_metadata:
+        if dataset_metadata is not None:
             span.set_attribute("galileo.dataset.metadata", json.dumps(dataset_metadata))
 
         self._processor.on_start(span, parent_context)
