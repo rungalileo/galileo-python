@@ -12,6 +12,7 @@ from galileo.config import GalileoPythonConfig
 from galileo.datasets import Dataset, convert_dataset_row_to_record
 from galileo.experiment_tags import upsert_experiment_tag
 from galileo.jobs import Jobs
+from galileo.otel import galileo_dataset_context
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
 from galileo.resources.api.experiment import (
@@ -218,9 +219,12 @@ class Experiments:
 def process_row(row: DatasetRecord, process_func: Callable) -> str:
     _logger.info(f"Processing dataset row: {row}")
     try:
-        output = process_func(row.deserialized_input)
-        log = galileo_context.get_logger_instance()
-        log.conclude(output)
+        # Set dataset context for OTEL spans (ground truth for scorers)
+        # This ensures OTEL-instrumented frameworks get dataset fields attached to their spans
+        with galileo_dataset_context(dataset_input=row.input, dataset_output=row.output, dataset_metadata=row.metadata):
+            output = process_func(row.deserialized_input)
+            log = galileo_context.get_logger_instance()
+            log.conclude(output)
     except Exception as exc:
         output = f"error during executing: {process_func.__name__}: {exc}"
         _logger.error(output)
