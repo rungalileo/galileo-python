@@ -13,7 +13,11 @@ from galileo.otel import (
     OTEL_AVAILABLE,
     GalileoOTLPExporter,
     GalileoSpanProcessor,
+    _dataset_input_context,
+    _dataset_metadata_context,
+    _dataset_output_context,
     _set_tool_span_attributes,
+    galileo_dataset_context,
     start_galileo_span,
 )
 from galileo_core.schemas.logging.span import ToolSpan
@@ -740,3 +744,168 @@ class TestWorkflowSpanAttributes:
         assert mock_span.set_attribute.call_count >= 2  # gen_ai.system + at least input
         system_call = [call for call in mock_span.set_attribute.call_args_list if call[0][0] == "gen_ai.system"]
         assert len(system_call) == 1
+
+
+class TestDatasetContext:
+    """Tests for dataset context variables and galileo_dataset_context manager."""
+
+    @pytest.fixture
+    def reset_dataset_context(self):
+        """Reset dataset context variables before and after each test."""
+        _dataset_input_context.set(None)
+        _dataset_output_context.set(None)
+        _dataset_metadata_context.set(None)
+        yield
+        _dataset_input_context.set(None)
+        _dataset_output_context.set(None)
+        _dataset_metadata_context.set(None)
+
+    @pytest.fixture
+    def mock_processor_deps(self):
+        """Mock dependencies for processor tests."""
+        with (
+            patch("galileo.otel.BatchSpanProcessor") as mock_batch,
+            patch("galileo.otel.GalileoOTLPExporter") as mock_exp,
+        ):
+            mock_exp.return_value = Mock()
+            mock_batch.return_value = Mock()
+            yield {"exporter": mock_exp, "batch": mock_batch}
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_galileo_dataset_context_sets_values(self, reset_dataset_context):
+        """Test that galileo_dataset_context sets context variables correctly."""
+        # Given: dataset context is initially empty
+        assert _dataset_input_context.get(None) is None
+        assert _dataset_output_context.get(None) is None
+        assert _dataset_metadata_context.get(None) is None
+
+        # When: entering the context manager with values
+        with galileo_dataset_context(
+            dataset_input="test input", dataset_output="expected output", dataset_metadata={"key": "value"}
+        ):
+            # Then: context variables are set inside the context
+            assert _dataset_input_context.get() == "test input"
+            assert _dataset_output_context.get() == "expected output"
+            assert _dataset_metadata_context.get() == {"key": "value"}
+
+        # Then: context variables are reset after exiting
+        assert _dataset_input_context.get(None) is None
+        assert _dataset_output_context.get(None) is None
+        assert _dataset_metadata_context.get(None) is None
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_galileo_dataset_context_nested_contexts(self, reset_dataset_context):
+        """Test that nested galileo_dataset_context managers work correctly."""
+        # Given: outer context with initial values
+        with galileo_dataset_context(dataset_input="outer input", dataset_output="outer output"):
+            assert _dataset_input_context.get() == "outer input"
+            assert _dataset_output_context.get() == "outer output"
+
+            # When: entering inner context with different values
+            with galileo_dataset_context(dataset_input="inner input", dataset_output="inner output"):
+                # Then: inner context values are active
+                assert _dataset_input_context.get() == "inner input"
+                assert _dataset_output_context.get() == "inner output"
+
+            # Then: outer context values are restored
+            assert _dataset_input_context.get() == "outer input"
+            assert _dataset_output_context.get() == "outer output"
+
+        # Then: context is empty after exiting all contexts
+        assert _dataset_input_context.get(None) is None
+        assert _dataset_output_context.get(None) is None
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_galileo_dataset_context_exception_handling(self, reset_dataset_context):
+        """Test that context variables are reset even when exception occurs."""
+        # Given/When: an exception is raised inside the context
+        with pytest.raises(ValueError, match="test error"):
+            with galileo_dataset_context(dataset_input="test", dataset_output="expected"):
+                assert _dataset_input_context.get() == "test"
+                raise ValueError("test error")
+
+        # Then: context variables are still reset
+        assert _dataset_input_context.get(None) is None
+        assert _dataset_output_context.get(None) is None
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_processor_on_start_sets_dataset_attributes(self, mock_processor_deps, reset_dataset_context):
+        """Test that on_start sets dataset attributes on spans from context."""
+        # Given: dataset context variables are set
+        _dataset_input_context.set("input question")
+        _dataset_output_context.set("expected answer")
+        _dataset_metadata_context.set({"source": "test_dataset"})
+
+        processor = GalileoSpanProcessor()
+        mock_span = Mock()
+
+        # When: on_start is called
+        processor.on_start(mock_span, None)
+
+        # Then: dataset attributes are set on the span
+        actual_calls = {(args[0], args[1]) for args, _ in mock_span.set_attribute.call_args_list}
+        assert ("galileo.dataset.input", "input question") in actual_calls
+        assert ("galileo.dataset.output", "expected answer") in actual_calls
+        assert ("galileo.dataset.metadata", json.dumps({"source": "test_dataset"})) in actual_calls
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    @patch("galileo.otel.OTLPSpanExporter.export")
+    @patch("galileo.otel.Resource")
+    def test_exporter_export_merges_dataset_attributes(
+        self, mock_resource_class, mock_parent_export, reset_dataset_context
+    ):
+        """Test that export merges dataset attributes from span into resource."""
+        # Given: an exporter with mocked dependencies
+        with (
+            patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None),
+            patch("galileo.otel.GalileoPythonConfig.get") as mock_config_get,
+        ):
+            config = Mock()
+            config.api_url = "https://api.galileo.ai"
+            config.api_key = SecretStr("test-key")
+            mock_config_get.return_value = config
+
+            exporter = GalileoOTLPExporter(project="test-project", logstream="test-logstream")
+            exporter._session = Mock()
+            exporter._session.headers = {}
+
+        # Given: a span with dataset attributes (set during on_start)
+        mock_span = Mock()
+        mock_span.attributes = {
+            "galileo.project.name": "test-project",
+            "galileo.logstream.name": "test-logstream",
+            "galileo.dataset.input": "test input",
+            "galileo.dataset.output": "expected output",
+            "galileo.dataset.metadata": json.dumps({"key": "value"}),
+        }
+        mock_merged_resource = Mock()
+        mock_span.resource = Mock()
+        mock_span.resource.merge.return_value = mock_merged_resource
+        mock_new_resource = Mock()
+        mock_resource_class.return_value = mock_new_resource
+
+        # When: export is called
+        exporter.export([mock_span])
+
+        # Then: Resource is created with dataset attributes
+        resource_call_kwargs = mock_resource_class.call_args[0][0]
+        assert resource_call_kwargs["galileo.dataset.input"] == "test input"
+        assert resource_call_kwargs["galileo.dataset.output"] == "expected output"
+        assert resource_call_kwargs["galileo.dataset.metadata"] == json.dumps({"key": "value"})
+
+        # Then: resource was merged into the span
+        mock_span.resource.merge.assert_called_once_with(mock_new_resource)
+        assert mock_span._resource == mock_merged_resource
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    def test_galileo_dataset_context_partial_values(self, reset_dataset_context):
+        """Test that galileo_dataset_context works with partial values."""
+        # When: only some values are provided
+        with galileo_dataset_context(dataset_output="expected only"):
+            # Then: only provided values are set
+            assert _dataset_input_context.get(None) is None
+            assert _dataset_output_context.get() == "expected only"
+            assert _dataset_metadata_context.get(None) is None
+
+        # Then: values are reset after exit
+        assert _dataset_output_context.get(None) is None

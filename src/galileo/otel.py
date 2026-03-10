@@ -1,10 +1,9 @@
-import contextvars
 import json
 import logging
 import typing
-from _contextvars import ContextVar
 from collections.abc import Generator
 from contextlib import contextmanager
+from contextvars import ContextVar
 from typing import Any, NoReturn, Optional, Protocol, cast
 from urllib.parse import urljoin
 
@@ -18,6 +17,13 @@ from galileo_core.schemas.logging.span import RetrieverSpan, ToolSpan, WorkflowS
 from galileo_core.schemas.logging.span import Span as GalileoSpan
 
 logger = logging.getLogger(__name__)
+
+# Context variables for dataset fields (ground truth/reference output)
+# These allow setting ground truth data that will be attached to all spans
+# created within the context, enabling scorers that require reference output.
+_dataset_input_context: ContextVar[Optional[str]] = ContextVar("dataset_input_context", default=None)
+_dataset_output_context: ContextVar[Optional[str]] = ContextVar("dataset_output_context", default=None)
+_dataset_metadata_context: ContextVar[Optional[dict[str, str]]] = ContextVar("dataset_metadata_context", default=None)
 
 INSTALL_ERR_MSG = (
     "OpenTelemetry packages are not installed. "
@@ -75,9 +81,7 @@ class TracerProvider(Protocol):
     ) -> "Tracer": ...
 
 
-_TRACE_PROVIDER_CONTEXT_VAR: ContextVar[Optional[TracerProvider]] = contextvars.ContextVar(
-    "galileo_trace_provider", default=None
-)
+_TRACE_PROVIDER_CONTEXT_VAR: ContextVar[Optional[TracerProvider]] = ContextVar("galileo_trace_provider", default=None)
 
 
 class GalileoOTLPExporter(OTLPSpanExporter):
@@ -146,6 +150,9 @@ class GalileoOTLPExporter(OTLPSpanExporter):
             logstream = span.attributes.get("galileo.logstream.name")
             session_id = span.attributes.get("galileo.session.id")
             experiment_id = span.attributes.get("galileo.experiment.id")
+            dataset_input = span.attributes.get("galileo.dataset.input")
+            dataset_output = span.attributes.get("galileo.dataset.output")
+            dataset_metadata = span.attributes.get("galileo.dataset.metadata")
 
             # Build resource attributes dict, filtering out None values
             resource_attrs = {}
@@ -157,6 +164,12 @@ class GalileoOTLPExporter(OTLPSpanExporter):
                 resource_attrs["galileo.session.id"] = session_id
             if experiment_id:
                 resource_attrs["galileo.experiment.id"] = experiment_id
+            if dataset_input:
+                resource_attrs["galileo.dataset.input"] = dataset_input
+            if dataset_output:
+                resource_attrs["galileo.dataset.output"] = dataset_output
+            if dataset_metadata:
+                resource_attrs["galileo.dataset.metadata"] = dataset_metadata
 
             if resource_attrs:
                 # Merge new attributes into span's resource
@@ -256,6 +269,18 @@ class GalileoSpanProcessor(SpanProcessor):
         if session_id:
             span.set_attribute("galileo.session.id", session_id)
 
+        # Set dataset attributes for ground truth/reference output support
+        dataset_input = _dataset_input_context.get(None)
+        dataset_output = _dataset_output_context.get(None)
+        dataset_metadata = _dataset_metadata_context.get(None)
+
+        if dataset_input:
+            span.set_attribute("galileo.dataset.input", dataset_input)
+        if dataset_output:
+            span.set_attribute("galileo.dataset.output", dataset_output)
+        if dataset_metadata:
+            span.set_attribute("galileo.dataset.metadata", json.dumps(dataset_metadata))
+
         self._processor.on_start(span, parent_context)
 
     def on_end(self, span: Span) -> None:
@@ -320,6 +345,20 @@ def _set_tool_span_attributes(span: trace.Span, galileo_span: ToolSpan) -> None:
         span.set_attribute("gen_ai.tool.call.id", galileo_span.tool_call_id)
 
 
+def _set_dataset_attributes(span: trace.Span, galileo_span: GalileoSpan) -> None:
+    """Set OpenTelemetry attributes for dataset fields (ground truth/reference output).
+
+    These attributes enable scorers that require ground truth data to work
+    with OTEL-ingested traces.
+    """
+    if galileo_span.dataset_input:
+        span.set_attribute("galileo.dataset.input", galileo_span.dataset_input)
+    if galileo_span.dataset_output:
+        span.set_attribute("galileo.dataset.output", galileo_span.dataset_output)
+    if galileo_span.dataset_metadata:
+        span.set_attribute("galileo.dataset.metadata", json.dumps(galileo_span.dataset_metadata))
+
+
 def _set_workflow_span_attributes(span: trace.Span, galileo_span: WorkflowSpan) -> None:
     """Set OpenTelemetry attributes for WorkflowSpan."""
     # Handle input - Union[str, Sequence[Message]]
@@ -372,9 +411,68 @@ def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, 
     with tracer.start_as_current_span(galileo_span.name) as span:
         yield span
         span.set_attribute("gen_ai.system", "galileo-otel")
+        # Set dataset attributes for ground truth/reference output support
+        _set_dataset_attributes(span, galileo_span)
         if isinstance(galileo_span, RetrieverSpan):
             _set_retriever_span_attributes(span, galileo_span)
         elif isinstance(galileo_span, ToolSpan):
             _set_tool_span_attributes(span, galileo_span)
         elif isinstance(galileo_span, WorkflowSpan):
             _set_workflow_span_attributes(span, galileo_span)
+
+
+@contextmanager
+def galileo_dataset_context(
+    *,
+    dataset_input: Optional[str] = None,
+    dataset_output: Optional[str] = None,
+    dataset_metadata: Optional[dict[str, str]] = None,
+) -> Generator[None, None, None]:
+    """
+    Context manager to set dataset/ground truth information for OTEL spans.
+
+    Use this when working with third-party OTEL instrumentation (e.g., Microsoft Agent Framework,
+    LangChain, etc.) where you don't have direct control over span creation but need to attach
+    ground truth data for scorers that require reference output.
+
+    Parameters
+    ----------
+    dataset_input : str, optional
+        The expected input from your dataset (ground truth input).
+    dataset_output : str, optional
+        The expected output/ground truth for scoring (e.g., for BLEU, exact match scorers).
+    dataset_metadata : dict[str, str], optional
+        Additional metadata from your dataset.
+
+    Examples
+    --------
+    >>> from galileo.otel import galileo_dataset_context
+    >>>
+    >>> # Set ground truth for a single agent call
+    >>> with galileo_dataset_context(
+    ...     dataset_input="What is the capital of France?",
+    ...     dataset_output="Paris",
+    ...     dataset_metadata={"source": "geography_quiz"}
+    ... ):
+    ...     response = await agent.run("What is the capital of France?")
+    >>>
+    >>> # Use with experiment datasets
+    >>> for row in dataset:
+    ...     with galileo_dataset_context(
+    ...         dataset_input=row["input"],
+    ...         dataset_output=row["expected_output"],
+    ...     ):
+    ...         response = await agent.run(row["input"])
+    """
+    # Set new values and capture tokens for proper restoration
+    token_input = _dataset_input_context.set(dataset_input)
+    token_output = _dataset_output_context.set(dataset_output)
+    token_metadata = _dataset_metadata_context.set(dataset_metadata)
+
+    try:
+        yield
+    finally:
+        # Reset to previous values using tokens (handles nested contexts correctly)
+        _dataset_input_context.reset(token_input)
+        _dataset_output_context.reset(token_output)
+        _dataset_metadata_context.reset(token_metadata)
