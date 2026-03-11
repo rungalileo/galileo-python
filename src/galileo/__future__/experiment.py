@@ -15,7 +15,6 @@ from galileo.experiment_tags import upsert_experiment_tag
 from galileo.experiments import Experiments as ExperimentsService
 from galileo.export import ExportClient
 from galileo.job_progress import get_run_scorer_jobs, job_progress
-from galileo.jobs import Jobs
 from galileo.projects import Projects
 from galileo.prompts import PromptTemplate, get_prompt
 from galileo.resources.api.experiment import delete_experiment_projects_project_id_experiments_experiment_id_delete
@@ -32,7 +31,6 @@ from galileo.resources.models import (
     PromptRunSettings,
     RootType,
     ScorerConfig,
-    TaskType,
 )
 from galileo.resources.models.log_records_available_columns_request import LogRecordsAvailableColumnsRequest
 from galileo.resources.models.log_records_available_columns_response import LogRecordsAvailableColumnsResponse
@@ -1078,7 +1076,7 @@ class Experiment(StateManagementMixin):
             scorer_settings: list[ScorerConfig] | None = None
             local_metrics: list[LocalMetricConfig] = []
             if self.metrics is not None:
-                scorer_settings, local_metrics = create_metric_configs(project_obj.id, self.id, self.metrics)
+                scorer_settings, local_metrics = create_metric_configs(project_obj.id, None, self.metrics)
 
             experiments_service = ExperimentsService()
 
@@ -1114,41 +1112,9 @@ class Experiment(StateManagementMixin):
                         f"Experiment.run: id='{self.id}' - Loaded prompt template: {self._prompt_template is not None}"
                     )
 
-            if self._prompt_template is None:
-                # Check if this is a playground experiment
-                playground_info = ""
-                if self._experiment_response and hasattr(self._experiment_response, "playground"):
-                    playground = getattr(self._experiment_response, "playground", None)
-                    if playground and not isinstance(playground, Unset):
-                        playground_name = getattr(playground, "name", None)
-                        if playground_name:
-                            playground_info = (
-                                f"This experiment was created from playground '{playground_name}'. "
-                                "The prompt used in that playground is not automatically linked to this experiment."
-                            )
-
-                # Show debug info about what was attempted
-                debug_info = (
-                    f"\n\nDebug info:\n"
-                    f"  prompt_id: {self.prompt_id}\n"
-                    f"  prompt_name: {self.prompt_name}\n"
-                    f"  _prompt_template: {self._prompt_template}\n"
-                )
-
-                error_msg = (
-                    "A prompt template must be provided to run this experiment. "
-                    f"{playground_info}\n\n"
-                    "Please set the prompt before running:\n\n"
-                    "  experiment.set_prompt(prompt_name='your-prompt-name')\n"
-                    "  # or\n"
-                    "  experiment.set_prompt(prompt_id='your-prompt-id')\n"
-                    "  # or\n"
-                    "  from galileo.__future__ import Prompt\n"
-                    "  experiment.set_prompt(prompt=Prompt.get(name='your-prompt-name'))\n\n"
-                    "Then call experiment.run() again."
-                    f"{debug_info}"
-                )
-                raise ValueError(error_msg)
+            # prompt_template is optional — if None and dataset has generated_output,
+            # the API will use the generated output flow. If None and no generated_output,
+            # the API returns error 3512.
 
             if dataset_obj is None:
                 raise ValueError("A dataset object must be provided")
@@ -1183,35 +1149,21 @@ class Experiment(StateManagementMixin):
                     settings_dict["model_alias"] = self.model_alias
                     effective_prompt_settings = PromptRunSettings(**settings_dict)
 
-            # Execute a prompt template experiment.
-            # The __future__ module creates experiments separately, so use Jobs.create()
-            # directly instead of Experiments.run() (which now creates + triggers in one call).
+            # Execute a prompt template or generated-output experiment via trigger=True.
+            # Uses the unified single-call path: create experiment + trigger job in one API call.
             assert dataset_obj is not None  # validated above
-            assert self._experiment_response is not None  # created earlier in lifecycle
 
-            prompt_template_id = (
-                str(self._prompt_template.selected_version_id)
-                if getattr(self._prompt_template, "selected_version_id", None)
-                else None
-            )
-            Jobs().create(
-                name="playground_run",
-                project_id=project_obj.id,
-                run_id=self._experiment_response.id,
-                prompt_template_id=prompt_template_id,
-                dataset_id=dataset_obj.dataset.id,
-                task_type=TaskType.VALUE_16,
-                scorers=scorer_settings,
-                prompt_settings=effective_prompt_settings,
+            result = experiments_service.run(
+                project_obj,
+                dataset_obj,
+                self.name or "experiment",
+                self._prompt_template,
+                scorer_settings,
+                effective_prompt_settings,
             )
 
-            exp_id = self._experiment_response.id
-            link = f"{str(experiments_service.config.console_url).rstrip('/')}/project/{project_obj.id}/experiments/{exp_id}"
-            result = {
-                "experiment": self._experiment_response,
-                "link": link,
-                "message": f"Experiment started. Results at {link}",
-            }
+            # Update internal state with the newly created experiment from trigger=True
+            self._experiment_response = result["experiment"]
 
             # Store job ID for monitoring if available
             # Note: The job ID would need to be extracted from the result or stored separately
