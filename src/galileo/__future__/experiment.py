@@ -1181,15 +1181,34 @@ class Experiment(StateManagementMixin):
                     settings_dict["model_alias"] = self.model_alias
                     effective_prompt_settings = PromptRunSettings(**settings_dict)
 
-            # Execute a prompt template experiment
-            result = experiments_service.run(
-                project_obj,
-                self._experiment_response,
-                self._prompt_template,
-                dataset_obj.dataset.id,
-                scorer_settings,
-                effective_prompt_settings,
+            # Execute a prompt template experiment.
+            # The __future__ module creates experiments separately, so use Jobs.create()
+            # directly instead of Experiments.run() (which now creates + triggers in one call).
+            from galileo.jobs import Jobs
+            from galileo.resources.models import TaskType
+
+            assert dataset_obj is not None  # validated above
+            assert self._experiment_response is not None  # created earlier in lifecycle
+
+            prompt_template_id = (
+                str(self._prompt_template.selected_version_id)
+                if self._prompt_template and getattr(self._prompt_template, "selected_version_id", None)
+                else None
             )
+            job = Jobs().create(
+                name="playground_run",
+                project_id=project_obj.id,
+                run_id=self._experiment_response.id,
+                prompt_template_id=prompt_template_id,
+                dataset_id=dataset_obj.dataset.id,
+                task_type=TaskType.VALUE_16,
+                scorers=scorer_settings,
+                prompt_settings=effective_prompt_settings,
+            )
+
+            exp_id = self._experiment_response.id
+            link = f"{str(experiments_service.config.console_url).rstrip('/')}/project/{project_obj.id}/experiments/{exp_id}"
+            result = {"experiment": self._experiment_response, "link": link, "message": f"Experiment started. Results at {link}"}
 
             # Store job ID for monitoring if available
             # Note: The job ID would need to be extracted from the result or stored separately
