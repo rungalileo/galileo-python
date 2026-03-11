@@ -497,6 +497,7 @@ class TestExperimentList:
 class TestExperimentRun:
     """Test suite for Experiment.run() method."""
 
+    @patch("galileo.__future__.experiment.Jobs")
     @patch("galileo.__future__.experiment.Projects")
     @patch("galileo.__future__.experiment.ExperimentsService")
     @patch("galileo.__future__.experiment.load_dataset_and_records")
@@ -507,10 +508,11 @@ class TestExperimentRun:
         mock_load_dataset: MagicMock,
         mock_experiments_class: MagicMock,
         mock_projects_class: MagicMock,
+        mock_jobs_class: MagicMock,
         reset_configuration: None,
         mock_project: MagicMock,
     ) -> None:
-        """Test run() executes a prompt template experiment via ExperimentsService.run() (trigger=True)."""
+        """Test run() executes a prompt template experiment via Jobs.create()."""
         # Setup mocks
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
@@ -531,10 +533,10 @@ class TestExperimentRun:
         mock_exp_response.name = "Test Experiment"
         mock_exp_response.project_id = mock_project.id
 
-        result = {"link": "http://test.com", "message": "Started", "experiment": mock_exp_response}
+        mock_jobs_class.return_value.create.return_value = MagicMock()
+
         mock_experiments_service = MagicMock()
         mock_experiments_class.return_value = mock_experiments_service
-        mock_experiments_service.run.return_value = result
 
         # Create and run experiment
         experiment = Experiment._create_empty()
@@ -548,9 +550,9 @@ class TestExperimentRun:
 
         run_result = experiment.run()
 
-        # Verify: __future__ module now uses ExperimentsService.run() (trigger=True)
+        # Verify: __future__ module calls Jobs.create() directly (not Experiments.run())
         assert isinstance(run_result, ExperimentRunResult)
-        mock_experiments_service.run.assert_called_once()
+        mock_jobs_class.return_value.create.assert_called_once()
 
     @pytest.mark.skip(reason="Function-based experiments are temporarily disabled")
     @patch("galileo.__future__.experiment.Projects")
