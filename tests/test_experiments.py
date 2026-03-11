@@ -11,6 +11,7 @@ import pytest
 from time_machine import travel
 
 import galileo.experiments
+import galileo.jobs
 import galileo.utils.datasets
 from galileo import galileo_context
 from galileo.decorator import SPAN_TYPE
@@ -35,7 +36,6 @@ from galileo.resources.models import (
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 from galileo.utils.datasets import load_dataset_and_records
-from galileo_core.exceptions.http import GalileoHTTPException
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.shared.metric import MetricValueType
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client

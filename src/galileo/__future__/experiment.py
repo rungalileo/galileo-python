@@ -15,6 +15,7 @@ from galileo.experiment_tags import upsert_experiment_tag
 from galileo.experiments import Experiments as ExperimentsService
 from galileo.export import ExportClient
 from galileo.job_progress import get_run_scorer_jobs, job_progress
+from galileo.jobs import Jobs
 from galileo.projects import Projects
 from galileo.prompts import PromptTemplate, get_prompt
 from galileo.resources.api.experiment import delete_experiment_projects_project_id_experiments_experiment_id_delete
@@ -31,6 +32,7 @@ from galileo.resources.models import (
     PromptRunSettings,
     RootType,
     ScorerConfig,
+    TaskType,
 )
 from galileo.resources.models.log_records_available_columns_request import LogRecordsAvailableColumnsRequest
 from galileo.resources.models.log_records_available_columns_response import LogRecordsAvailableColumnsResponse
@@ -1184,9 +1186,6 @@ class Experiment(StateManagementMixin):
             # Execute a prompt template experiment.
             # The __future__ module creates experiments separately, so use Jobs.create()
             # directly instead of Experiments.run() (which now creates + triggers in one call).
-            from galileo.jobs import Jobs
-            from galileo.resources.models import TaskType
-
             assert dataset_obj is not None  # validated above
             assert self._experiment_response is not None  # created earlier in lifecycle
 
@@ -1195,7 +1194,7 @@ class Experiment(StateManagementMixin):
                 if self._prompt_template and getattr(self._prompt_template, "selected_version_id", None)
                 else None
             )
-            job = Jobs().create(
+            Jobs().create(
                 name="playground_run",
                 project_id=project_obj.id,
                 run_id=self._experiment_response.id,
@@ -1208,7 +1207,11 @@ class Experiment(StateManagementMixin):
 
             exp_id = self._experiment_response.id
             link = f"{str(experiments_service.config.console_url).rstrip('/')}/project/{project_obj.id}/experiments/{exp_id}"
-            result = {"experiment": self._experiment_response, "link": link, "message": f"Experiment started. Results at {link}"}
+            result = {
+                "experiment": self._experiment_response,
+                "link": link,
+                "message": f"Experiment started. Results at {link}",
+            }
 
             # Store job ID for monitoring if available
             # Note: The job ID would need to be extracted from the result or stored separately

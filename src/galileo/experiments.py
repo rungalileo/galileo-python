@@ -11,7 +11,6 @@ from galileo import galileo_context, log
 from galileo.config import GalileoPythonConfig
 from galileo.datasets import Dataset, convert_dataset_row_to_record
 from galileo.experiment_tags import upsert_experiment_tag
-from galileo.jobs import Jobs
 from galileo.otel import galileo_dataset_context
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
