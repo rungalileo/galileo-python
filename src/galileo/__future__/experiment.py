@@ -1191,7 +1191,7 @@ class Experiment(StateManagementMixin):
 
             prompt_template_id = (
                 str(self._prompt_template.selected_version_id)
-                if self._prompt_template and getattr(self._prompt_template, "selected_version_id", None)
+                if getattr(self._prompt_template, "selected_version_id", None)
                 else None
             )
             Jobs().create(
