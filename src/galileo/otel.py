@@ -144,6 +144,7 @@ class GalileoOTLPExporter(OTLPSpanExporter):
 
     def export(self, spans: typing.Sequence[Any]) -> "Any":
         """Override export to set resource attributes from span attributes before serialization."""
+        is_experiment = False
         for span in spans:
             # Read from span attributes (set during on_start when context was available)
             project = span.attributes.get("galileo.project.name")
@@ -158,12 +159,14 @@ class GalileoOTLPExporter(OTLPSpanExporter):
             resource_attrs = {}
             if project:
                 resource_attrs["galileo.project.name"] = project
-            if logstream:
+            # We can only have either logstream or experiment, if it's an experiment we want to prioritize it.
+            if logstream and not experiment_id:
                 resource_attrs["galileo.logstream.name"] = logstream
             if session_id:
                 resource_attrs["galileo.session.id"] = session_id
             if experiment_id:
                 resource_attrs["galileo.experiment.id"] = experiment_id
+                is_experiment = True
             if dataset_input:
                 resource_attrs["galileo.dataset.input"] = dataset_input
             if dataset_output:
@@ -186,6 +189,9 @@ class GalileoOTLPExporter(OTLPSpanExporter):
                     "logstream": last_span.attributes.get("galileo.logstream.name"),
                 }
             )
+            if is_experiment:
+                self._session.headers.update({"experimentid": last_span.attributes.get("galileo.experiment.id")})
+                self._session.headers.pop("logstream", None)  # Remove logstream header if experiment is present
 
         return super().export(spans)
 
@@ -262,7 +268,8 @@ class GalileoSpanProcessor(SpanProcessor):
 
         if project:
             span.set_attribute("galileo.project.name", project)
-        if log_stream:
+        # We can only have either logstream or experiment, if it's an experiment we want to prioritize it.
+        if log_stream and not experiment_id:
             span.set_attribute("galileo.logstream.name", log_stream)
         if experiment_id:
             span.set_attribute("galileo.experiment.id", experiment_id)
