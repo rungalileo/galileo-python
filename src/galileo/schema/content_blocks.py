@@ -1,0 +1,55 @@
+"""SDK-local content block types for ingestion.
+
+These types define what the SDK sends to the ingest service for multimodal content.
+They are separate from the read-side ContentPart types in galileo-core, which
+represent what the API/UI returns after storage.
+
+Ingestion blocks support inline data (base64, URLs, provider file IDs),
+while read-side ContentParts reference stored files by file_id.
+"""
+
+from typing import Annotated, Literal, Optional, Union
+
+from pydantic import BaseModel, Field, model_validator
+
+from galileo_core.schemas.shared.multimodal import ContentModality
+
+
+class TextContentBlock(BaseModel):
+    """A text segment for ingestion."""
+
+    type: Literal["text"] = "text"
+    text: str
+    index: Optional[int] = None
+    metadata: Optional[dict[str, str]] = None
+
+
+class DataContentBlock(BaseModel):
+    """A binary/media content block for ingestion.
+
+    Exactly one of base64, url, or provider_file_id must be set.
+    """
+
+    type: Literal["data"] = "data"
+    modality: ContentModality
+    mime_type: Optional[str] = None
+    base64: Optional[str] = None
+    url: Optional[str] = None
+    provider_file_id: Optional[str] = None
+    provider_name: Optional[str] = None
+    index: Optional[int] = None
+    metadata: Optional[dict[str, str]] = None
+
+    @model_validator(mode="after")
+    def _exactly_one_source(self) -> "DataContentBlock":
+        sources = sum(v is not None for v in (self.base64, self.url, self.provider_file_id))
+        if sources != 1:
+            raise ValueError("Exactly one of base64, url, or provider_file_id must be set.")
+        if self.provider_file_id is not None and self.provider_name is None:
+            raise ValueError("provider_name is required when provider_file_id is set.")
+        return self
+
+
+IngestContentBlock = Annotated[Union[TextContentBlock, DataContentBlock], Field(discriminator="type")]
+
+IngestMessageContent = Union[str, list[IngestContentBlock]]

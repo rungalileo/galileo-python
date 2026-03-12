@@ -1,0 +1,114 @@
+"""SDK-local ingestion models that widen input/output for multimodal content.
+
+These models subclass the core Trace/Span types and override only the fields
+that differ for ingestion (input, output, redacted_input, redacted_output).
+Read-side code continues to use the core types directly.
+"""
+
+from collections.abc import Sequence
+from typing import Annotated, Optional, Union
+
+from pydantic import Field
+
+from galileo.schema.message import LoggedMessage
+from galileo_core.schemas.logging.llm import Message, MessageRole
+from galileo_core.schemas.logging.span import (
+    AgentSpan,
+    LlmSpan,
+    LlmSpanAllowedInputType,
+    LlmSpanAllowedOutputType,
+    RetrieverSpan,
+    Span,  # noqa: F401  # needed for Pydantic model_rebuild to resolve forward refs
+    ToolSpan,
+    WorkflowSpan,
+)
+from galileo_core.schemas.logging.step import BaseStep
+from galileo_core.schemas.logging.trace import Trace
+from galileo_core.schemas.shared.document import Document
+
+IngestInputType = Union[str, Sequence[LoggedMessage]]
+IngestOutputType = Union[str, LoggedMessage, Sequence[Document]]
+
+_INPUT_FIELD = Field(default="", description=BaseStep.model_fields["input"].description, union_mode="left_to_right")
+_REDACTED_INPUT_FIELD = Field(
+    default=None, description=BaseStep.model_fields["redacted_input"].description, union_mode="left_to_right"
+)
+_OUTPUT_FIELD = Field(default=None, description=BaseStep.model_fields["output"].description, union_mode="left_to_right")
+_REDACTED_OUTPUT_FIELD = Field(
+    default=None, description=BaseStep.model_fields["redacted_output"].description, union_mode="left_to_right"
+)
+
+
+class LoggedTrace(Trace):
+    """Trace with widened input/output for multimodal ingestion."""
+
+    input: IngestInputType = _INPUT_FIELD
+    redacted_input: Optional[IngestInputType] = _REDACTED_INPUT_FIELD
+    output: Optional[IngestOutputType] = _OUTPUT_FIELD
+    redacted_output: Optional[IngestOutputType] = _REDACTED_OUTPUT_FIELD
+
+
+class LoggedWorkflowSpan(WorkflowSpan):
+    """WorkflowSpan with widened input/output for multimodal ingestion."""
+
+    input: IngestInputType = _INPUT_FIELD
+    redacted_input: Optional[IngestInputType] = _REDACTED_INPUT_FIELD
+    output: Optional[IngestOutputType] = _OUTPUT_FIELD
+    redacted_output: Optional[IngestOutputType] = _REDACTED_OUTPUT_FIELD
+
+
+class LoggedAgentSpan(AgentSpan):
+    """AgentSpan with widened input/output for multimodal ingestion."""
+
+    input: IngestInputType = _INPUT_FIELD
+    redacted_input: Optional[IngestInputType] = _REDACTED_INPUT_FIELD
+    output: Optional[IngestOutputType] = _OUTPUT_FIELD
+    redacted_output: Optional[IngestOutputType] = _REDACTED_OUTPUT_FIELD
+
+
+class LoggedLlmSpan(LlmSpan):
+    """LlmSpan for ingestion using LoggedMessage (supports IngestContentBlocks, not ContentParts)."""
+
+    input: Sequence[LoggedMessage] = Field(
+        default_factory=list, validate_default=True, description=BaseStep.model_fields["input"].description
+    )
+    redacted_input: Optional[Sequence[LoggedMessage]] = Field(
+        default=None, description=BaseStep.model_fields["redacted_input"].description
+    )
+    output: LoggedMessage = Field(
+        default_factory=lambda: LoggedMessage(content="", role=MessageRole.assistant),
+        validate_default=True,
+        description=BaseStep.model_fields["output"].description,
+    )
+    redacted_output: Optional[LoggedMessage] = Field(
+        default=None, description=BaseStep.model_fields["redacted_output"].description
+    )
+
+    @classmethod
+    def _to_logged_message(cls, msg: Message) -> LoggedMessage:
+        if isinstance(msg, LoggedMessage):
+            return msg
+        return LoggedMessage(
+            content=msg.content, role=msg.role, tool_call_id=msg.tool_call_id, tool_calls=msg.tool_calls
+        )
+
+    @classmethod
+    def _convert_input_to_messages(cls, value: LlmSpanAllowedInputType) -> Sequence[LoggedMessage]:
+        messages = LlmSpan._convert_input_to_messages(value)
+        return [cls._to_logged_message(m) for m in messages]
+
+    @classmethod
+    def _convert_output_to_message(cls, value: LlmSpanAllowedOutputType) -> LoggedMessage:
+        message = LlmSpan._convert_output_to_message(value)
+        return cls._to_logged_message(message)
+
+
+# RetrieverSpan and ToolSpan use plain string/document I/O and don't need multimodal widening.
+LoggedSpan = Annotated[
+    Union[LoggedAgentSpan, LoggedWorkflowSpan, LoggedLlmSpan, RetrieverSpan, ToolSpan], Field(discriminator="type")
+]
+
+LoggedTrace.model_rebuild()
+LoggedWorkflowSpan.model_rebuild()
+LoggedAgentSpan.model_rebuild()
+LoggedLlmSpan.model_rebuild()
