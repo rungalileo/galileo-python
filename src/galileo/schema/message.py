@@ -1,6 +1,9 @@
 # ruff: noqa: F401
 from typing import Any
 
+from pydantic import Field
+
+from galileo.schema.content_blocks import IngestMessageContent
 from galileo_core.schemas.logging.llm import Message as CoreMessage
 
 # These classes should not be removed. They are used to rebuild the new `Message` model
@@ -24,3 +27,16 @@ class Message(CoreMessage):
 # Without rebuilding the model, Message class we create here would not know and validate
 # constituent classes defined in core which build up message.
 Message.model_rebuild()
+
+
+class LoggedMessage(Message):
+    """Message type for ingestion that accepts IngestContentBlocks.
+
+    Unlike the read-side Message (whose content is str | List[ContentPart]),
+    this accepts str | List[IngestContentBlock] for multimodal ingestion.
+    """
+
+    content: IngestMessageContent = Field(default="")
+
+
+LoggedMessage.model_rebuild()
