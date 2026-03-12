@@ -1050,6 +1050,9 @@ class Experiment(StateManagementMixin):
         if self.id is None:
             raise ValueError("Experiment must be created before running. Call .create() first.")
 
+        if not self.project_id:
+            raise ValueError("Project ID is not set. Cannot run experiment without project_id.")
+
         if self._run_result is not None:
             return self._run_result
 
