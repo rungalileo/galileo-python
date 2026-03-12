@@ -339,9 +339,9 @@ class Experiment(StateManagementMixin):
             self.prompt_name = prompt_name
 
         # Private runtime state
-        self._experiment_response = None
-        self._job_id = None
-        self._run_result = None
+        self._experiment_response: ExperimentResponse | None = None
+        self._job_id: str | None = None
+        self._run_result: ExperimentRunResult | None = None
 
         # Set initial state
         self._set_state(SyncState.LOCAL_ONLY)
@@ -523,9 +523,9 @@ class Experiment(StateManagementMixin):
         instance._dataset_obj = None
         instance._prompt_template = None
         instance._model_obj = None
-        instance._experiment_response = None
-        instance._job_id = None
-        instance._run_result = None
+        instance._experiment_response: ExperimentResponse | None = None
+        instance._job_id: str | None = None
+        instance._run_result: ExperimentRunResult | None = None
         return instance
 
     @classmethod
