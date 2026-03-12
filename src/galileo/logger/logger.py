@@ -1008,11 +1008,13 @@ class GalileoLogger(TracesLogger):
         if self.current_parent() is not None:
             raise ValueError("A trace cannot be created within a parent trace or span, it must always be the root.")
 
+        # Trace-level I/O is serialized to string; the child LoggedLlmSpan
+        # preserves the full structured/multimodal content.
         trace = LoggedTrace(
-            input=input,
-            redacted_input=redacted_input,
-            output=output,
-            redacted_output=redacted_output,
+            input=serialize_to_str(input),
+            redacted_input=serialize_to_str(redacted_input) if redacted_input else None,
+            output=serialize_to_str(output),
+            redacted_output=serialize_to_str(redacted_output) if redacted_output else None,
             name=name,
             created_at=created_at,
             user_metadata=metadata,
