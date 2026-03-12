@@ -478,14 +478,16 @@ class Experiment(StateManagementMixin):
                 f"{str(experiments_service.config.console_url).rstrip('/')}"
                 f"/project/{self.project_id}/experiments/{self.id}"
             )
-            self._run_result = ExperimentRunResult({
-                "experiment": created_experiment,
-                "link": link,
-                "message": (
-                    f"Experiment {self.name} has started and is currently processing. "
-                    f"Results will be available at {link}"
-                ),
-            })
+            self._run_result = ExperimentRunResult(
+                {
+                    "experiment": created_experiment,
+                    "link": link,
+                    "message": (
+                        f"Experiment {self.name} has started and is currently processing. "
+                        f"Results will be available at {link}"
+                    ),
+                }
+            )
 
             # Set state to synced
             self._set_state(SyncState.SYNCED)
@@ -1056,11 +1058,13 @@ class Experiment(StateManagementMixin):
             f"{str(ExperimentsService().config.console_url).rstrip('/')}"
             f"/project/{self.project_id}/experiments/{self.id}"
         )
-        return ExperimentRunResult({
-            "experiment": self._experiment_response,
-            "link": link,
-            "message": f"Experiment {self.name} results available at {link}",
-        })
+        return ExperimentRunResult(
+            {
+                "experiment": self._experiment_response,
+                "link": link,
+                "message": f"Experiment {self.name} results available at {link}",
+            }
+        )
 
     def get_status(self) -> ExperimentStatusInfo:
         """

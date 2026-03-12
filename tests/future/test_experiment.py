@@ -593,11 +593,13 @@ class TestExperimentRun:
         experiment.id = str(uuid4())
         experiment.project_id = str(uuid4())
         experiment._experiment_response = MagicMock(spec=ExperimentResponse)
-        experiment._run_result = ExperimentRunResult({
-            "experiment": experiment._experiment_response,
-            "link": "http://test.com/results",
-            "message": "Experiment started",
-        })
+        experiment._run_result = ExperimentRunResult(
+            {
+                "experiment": experiment._experiment_response,
+                "link": "http://test.com/results",
+                "message": "Experiment started",
+            }
+        )
 
         # When: run() is called
         run_result = experiment.run()
