@@ -153,7 +153,7 @@ class Dataset:
             dataset_id=self.dataset.id, client=self.config.api_client, body=ListDatasetVersionParams()
         )
 
-    def load_version(self, version_index: int) -> DatasetContent:
+    def get_version(self, version_index: int) -> DatasetContent:
         return get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get.sync(
             dataset_id=self.dataset.id, version_index=version_index, client=self.config.api_client
         )
@@ -889,13 +889,13 @@ def get_dataset_version(
         dataset = Datasets().get(name=dataset_name)
         if dataset is None:
             raise ValueError(f"Dataset '{dataset_name}' not found")
-        return dataset.load_version(version_index)
+        return dataset.get_version(version_index)
 
     if dataset_id is not None:
         dataset = Datasets().get(id=dataset_id)
         if dataset is None:
             raise ValueError(f"Dataset '{dataset_id}' not found")
-        return dataset.load_version(version_index)
+        return dataset.get_version(version_index)
     raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
