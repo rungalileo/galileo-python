@@ -9,7 +9,6 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# Sentinel used in __setattr__ to detect unset attributes during __init__
 _SENTINEL = object()
 
 
@@ -40,15 +39,16 @@ class StateManagementMixin(ABC):
     This mixin provides state tracking and helper methods for objects that
     need to synchronize between local and remote (API) states.
 
-    Subclasses should declare ``_TRACKED_FIELDS`` as a ``frozenset[str]``
-    containing the public attribute names that should trigger a DIRTY transition
-    when modified on a SYNCED object.
+    Subclasses may declare a ``_TRACKED_FIELDS`` frozenset to enable automatic
+    dirty-tracking: any assignment to a tracked field on a SYNCED object will
+    transition it to DIRTY so that callers know a ``save()`` is needed.
 
     Attributes
     ----------
         _sync_state: Current synchronization state of the object.
         _last_error: Last error encountered during synchronization (optional).
-        _TRACKED_FIELDS: Class-level frozenset of attribute names to dirty-track.
+        _TRACKED_FIELDS: frozenset of attribute names whose mutations trigger
+            SYNCED → DIRTY transitions.
     """
 
     _TRACKED_FIELDS: frozenset[str] = frozenset()
@@ -60,59 +60,43 @@ class StateManagementMixin(ABC):
 
     def __setattr__(self, name: str, value: Any) -> None:
         """
-        Override attribute setting to track dirty state for tracked fields.
+        Override attribute setting to auto-transition SYNCED → DIRTY.
 
-        Private attributes (starting with ``_``) bypass tracking entirely.
-        Tracked public attributes (those listed in ``_TRACKED_FIELDS``) will
-        transition the object to DIRTY if it is currently SYNCED and the new
-        value differs from the current value. Same-value assignments are no-ops
-        with respect to state.
+        Only attributes listed in ``type(self)._TRACKED_FIELDS`` trigger the
+        transition, and only when the incoming value actually differs from the
+        current value (same-value assignments are no-ops).
 
         Parameters
         ----------
-        name : str
-            The attribute name being set.
-        value : Any
-            The new value.
+            name: Attribute name being set.
+            value: New value for the attribute.
         """
-        # Private attributes bypass tracking entirely
-        if name.startswith("_"):
-            object.__setattr__(self, name, value)
-            return
-
         tracked = type(self)._TRACKED_FIELDS
-        if tracked and name in tracked:
-            try:
-                current = object.__getattribute__(self, name)
-            except AttributeError:
-                current = _SENTINEL  # attribute not yet set (e.g. during __init__)
-
+        if name in tracked:
+            current = object.__getattribute__(self, name) if hasattr(self, name) else _SENTINEL
             if current is not _SENTINEL and current != value:
+                # Only transition from SYNCED; LOCAL_ONLY/DIRTY/etc. are unaffected
                 try:
-                    current_state = object.__getattribute__(self, "_sync_state")
+                    sync_state = object.__getattribute__(self, "_sync_state")
                 except AttributeError:
-                    current_state = None
-
-                if current_state == SyncState.SYNCED:
-                    self._set_state(SyncState.DIRTY)
-
+                    sync_state = None
+                if sync_state == SyncState.SYNCED:
+                    object.__setattr__(self, "_sync_state", SyncState.DIRTY)
         object.__setattr__(self, name, value)
 
     def _sync_attrs(self, **attrs: Any) -> None:
         """
         Bulk-set attributes without triggering dirty-tracking.
 
-        Use this after a successful API sync (create, refresh, save) to update
-        all local attributes from the server response without marking the object
-        as DIRTY.
+        Use this inside ``create()``, ``refresh()``, and ``save()`` to write
+        API-sourced values back onto the instance without transitioning state.
 
         Parameters
         ----------
-        **attrs : Any
-            Keyword arguments mapping attribute names to their new values.
+            **attrs: Keyword arguments mapping attribute names to their new values.
         """
-        for key, val in attrs.items():
-            object.__setattr__(self, key, val)
+        for key, value in attrs.items():
+            object.__setattr__(self, key, value)
 
     @property
     def sync_state(self) -> SyncState:
