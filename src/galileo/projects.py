@@ -14,6 +14,7 @@ from galileo.resources.api.projects import (
     get_project_projects_project_id_get,
     get_projects_projects_get,
     list_user_project_collaborators_projects_project_id_users_get,
+    update_project_projects_project_id_put,
     update_user_project_collaborator_projects_project_id_users_user_id_patch,
 )
 from galileo.resources.models.collaborator_role import CollaboratorRole
@@ -25,6 +26,8 @@ from galileo.resources.models.project_create_response import ProjectCreateRespon
 from galileo.resources.models.project_db import ProjectDB
 from galileo.resources.models.project_db_thin import ProjectDBThin
 from galileo.resources.models.project_type import ProjectType
+from galileo.resources.models.project_update import ProjectUpdate
+from galileo.resources.models.project_update_response import ProjectUpdateResponse
 from galileo.resources.models.user_collaborator import UserCollaborator
 from galileo.resources.models.user_collaborator_create import UserCollaboratorCreate
 from galileo.resources.types import UNSET, Unset
@@ -296,6 +299,49 @@ class Projects:
             raise ValueError(f"Unable to create project: {name}")
 
         return Project(project=response)
+
+    def update(self, project_id: str, *, name: Optional[str] = None) -> ProjectUpdateResponse:
+        """
+        Updates a project's properties.
+
+        Parameters
+        ----------
+        project_id : str
+            The ID of the project to update.
+        name : str, optional
+            The new name for the project.
+
+        Returns
+        -------
+        ProjectUpdateResponse
+            The updated project data returned by the API.
+
+        Raises
+        ------
+        ProjectsAPIException
+            If the server returns an error response.
+        ValueError
+            If the server returns no response.
+        """
+        body = ProjectUpdate(name=name)
+
+        detailed_response = update_project_projects_project_id_put.sync_detailed(
+            project_id=project_id, client=self.config.api_client, body=body
+        )
+
+        if detailed_response.status_code != httpx.codes.OK:
+            raise ProjectsAPIException(detailed_response.content)
+
+        response = detailed_response.parsed
+
+        if isinstance(response, HTTPValidationError):
+            _logger.error(response)
+            raise ProjectsAPIException(f"Failed to update project: {response.detail}")
+
+        if not response:
+            raise ValueError(f"Unable to update project: {project_id}")
+
+        return response
 
     def share_project_with_user(
         self, project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.VIEWER
