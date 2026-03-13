@@ -4,7 +4,8 @@ Galileo Future API.
 This package provides the next-generation object-centric API for Galileo.
 """
 
-from galileo.__future__.collaborator import Collaborator, CollaboratorRole
+from __future__ import annotations
+
 from galileo.__future__.configuration import Configuration
 from galileo.__future__.dataset import Dataset
 from galileo.__future__.experiment import Experiment
@@ -12,9 +13,12 @@ from galileo.__future__.integration import Integration
 from galileo.__future__.log_stream import LogStream
 from galileo.__future__.metric import CodeMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
 from galileo.__future__.model import Model
-from galileo.__future__.project import Project
 from galileo.__future__.prompt import Prompt
-from galileo.__future__.shared.exceptions import (
+from galileo.collaborator import Collaborator, CollaboratorRole
+from galileo.project import Project
+from galileo.schema.message import Message
+from galileo.search import RecordType
+from galileo.shared.exceptions import (
     APIError,
     ConfigurationError,
     GalileoFutureError,
@@ -22,8 +26,6 @@ from galileo.__future__.shared.exceptions import (
     ResourceNotFoundError,
     ValidationError,
 )
-from galileo.schema.message import Message
-from galileo.search import RecordType
 from galileo.utils.log_config import enable_console_logging
 from galileo_core.schemas.logging.llm import MessageRole
 from galileo_core.schemas.logging.step import StepType
