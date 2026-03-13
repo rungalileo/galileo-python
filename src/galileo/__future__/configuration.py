@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-from galileo.__future__.shared.exceptions import ConfigurationError
 from galileo.config import GalileoPythonConfig
 from galileo.constants import DEFAULT_CONSOLE_URL
+from galileo.shared.exceptions import ConfigurationError
 from galileo.utils.log_config import enable_console_logging as _enable_console_logging
 from galileo.utils.log_config import get_logger
 

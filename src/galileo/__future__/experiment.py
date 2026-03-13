@@ -5,8 +5,6 @@ import datetime
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
-from galileo.__future__.shared.base import StateManagementMixin, SyncState
-from galileo.__future__.shared.exceptions import ValidationError
 from galileo.__future__.shared.experiment_result import ExperimentRunResult, ExperimentStatusInfo
 from galileo.__future__.shared.query_result import QueryResult
 from galileo.config import GalileoPythonConfig
@@ -41,6 +39,8 @@ from galileo.resources.types import Unset
 from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
+from galileo.shared.base import StateManagementMixin, SyncState
+from galileo.shared.exceptions import ValidationError
 
 # TODO: get_records_for_dataset needed for function-based experiments
 # from galileo.utils.datasets import get_records_for_dataset, load_dataset_and_records
@@ -51,9 +51,9 @@ from galileo.utils.validations import require_exactly_one
 
 if TYPE_CHECKING:
     from galileo.__future__.dataset import Dataset
-    from galileo.__future__.project import Project
     from galileo.__future__.prompt import Prompt
     from galileo.__future__.shared.column import ColumnCollection
+    from galileo.project import Project
 
 _logger = get_logger(__name__)
 
@@ -1440,7 +1440,7 @@ class Experiment(StateManagementMixin):
     def project(self) -> Project | None:
         """Get the project this experiment belongs to."""
         # Local import to avoid circular dependency
-        from galileo.__future__.project import Project
+        from galileo.project import Project
 
         return Project.get(id=self.project_id)
 
@@ -1849,6 +1849,6 @@ class Experiment(StateManagementMixin):
 # Import at end to avoid circular import (dataset.py, prompt.py, project.py import Experiment)
 from galileo.__future__.dataset import Dataset  # noqa: E402
 from galileo.__future__.model import Model  # noqa: E402
-from galileo.__future__.project import Project  # noqa: E402
 from galileo.__future__.prompt import Prompt  # noqa: E402
 from galileo.__future__.shared.column import Column, ColumnCollection  # noqa: E402
+from galileo.project import Project  # noqa: E402

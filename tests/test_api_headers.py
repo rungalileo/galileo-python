@@ -103,7 +103,7 @@ class TestApiHeaders:
         assert header2.startswith("galileo-python/")
 
         # But they should have different method names
-        assert "list@galileo.__future__.project" in header1.lower()
+        assert "list@galileo.project" in header1.lower()
         assert "list_projects@galileo.projects" in header2
 
         # Headers should be different

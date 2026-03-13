@@ -6,7 +6,6 @@ import datetime
 from collections.abc import Iterator, Mapping
 from typing import TYPE_CHECKING, Any
 
-from galileo.__future__.shared.exceptions import ValidationError
 from galileo.__future__.shared.filter import boolean, date, number, text
 from galileo.__future__.shared.sort import sort
 from galileo.resources.models import (
@@ -18,6 +17,7 @@ from galileo.resources.models import (
     LogRecordsTextFilter,
 )
 from galileo.resources.types import Unset
+from galileo.shared.exceptions import ValidationError
 
 if TYPE_CHECKING:
     from galileo.resources.models import ColumnInfo

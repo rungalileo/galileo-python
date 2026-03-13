@@ -1,5 +1,6 @@
 """Galileo."""
 
+from galileo.collaborator import Collaborator, CollaboratorRole
 from galileo.decorator import GalileoDecorator, galileo_context, log, start_session
 from galileo.exceptions import (
     AuthenticationError,
@@ -16,6 +17,7 @@ from galileo.logger import GalileoLogger
 from galileo.protect import ainvoke_protect, invoke_protect
 from galileo.schema.message import Message
 from galileo.schema.metrics import GalileoMetrics, GalileoScorers
+from galileo.shared.base import SyncState
 from galileo.stages import (
     create_protect_stage,
     get_protect_stage,
@@ -47,12 +49,20 @@ from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
 from galileo_core.schemas.protect.stage import StageType
 
+# isort: split
+# Import Project AFTER all other galileo modules to avoid circular imports.
+# project.py → __future__/dataset.py → __future__/__init__.py → experiment.py
+# → experiments.py → prompts.py → `from galileo import Message`
+from galileo.project import Project
+
 __version__ = "1.50.1"
 
 __all__ = [
     "AgentSpan",
     "AuthenticationError",
     "BadRequestError",
+    "Collaborator",
+    "CollaboratorRole",
     "ConflictError",
     "ExecutionStatus",
     "ForbiddenError",
@@ -67,6 +77,7 @@ __all__ = [
     "MessageRole",
     "NotFoundError",
     "Payload",
+    "Project",
     "RateLimitError",
     "Request",
     "Response",
@@ -78,6 +89,7 @@ __all__ = [
     "StageType",
     "StepType",
     "StepWithChildSpans",
+    "SyncState",
     "ToolCall",
     "ToolCallFunction",
     "ToolSpan",
