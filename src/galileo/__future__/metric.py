@@ -21,18 +21,21 @@ from galileo.resources.api.data import (
     create_code_scorer_version_scorers_scorer_id_version_code_post,
     create_scorers_post,
     get_validate_code_scorer_task_result_scorers_code_validate_task_id_get,
+    update_scorers_scorer_id_patch,
     validate_code_scorer_scorers_code_validate_post,
 )
 from galileo.resources.models import (
     BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost,
     BodyValidateCodeScorerScorersCodeValidatePost,
     CreateScorerRequest,
+    HTTPValidationError,
     OutputTypeEnum,
     ScorerTypes,
     TaskResultStatus,
+    UpdateScorerRequest,
 )
 from galileo.resources.models.invalid_result import InvalidResult
-from galileo.resources.types import File, Unset
+from galileo.resources.types import UNSET, File, Unset
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 from galileo.schema.metrics import Metric as LegacyMetric
 from galileo.scorers import Scorers
@@ -408,20 +411,70 @@ class Metric(StateManagementMixin, ABC):
             else:
                 self.node_level = None
 
-    def update(self, **kwargs: Any) -> None:
+    def update(self, **kwargs: Any) -> Metric:
         """
         Update this metric's properties.
 
-        Currently not implemented as the API doesn't support updating scorers.
+        Accepts keyword arguments for any combination of the supported fields.
+        Only the fields explicitly passed are sent to the API; omitted fields
+        are left unchanged.
+
+        Parameters
+        ----------
+            name (str): New name for the metric.
+            description (str): New description for the metric.
+            tags (list[str]): New tags for the metric.
+
+        Returns
+        -------
+            Metric: This metric instance with updated attributes.
 
         Raises
         ------
-            NotImplementedError: Always raised as updates are not supported.
+            ValidationError: If this is a local metric (not server-side).
+            ValueError: If the metric has no ID set, unknown fields are passed,
+                or the API returns no response.
+            Exception: If the API call fails.
+
+        Examples
+        --------
+            metric = Metric.get(name="my-metric")
+            metric.update(name="renamed-metric", tags=["evaluation", "prod"])
         """
-        raise NotImplementedError(
-            "Updating metrics is not yet supported by the API. "
-            "Consider creating a new metric with the desired properties instead."
+        if isinstance(self, LocalMetric):
+            raise ValidationError("Local metrics don't exist on the server and can't be updated.")
+
+        if self.id is None:
+            raise ValueError("Metric ID is not set. Cannot update a local-only metric.")
+
+        valid_fields = {"name", "description", "tags"}
+        invalid_fields = set(kwargs) - valid_fields
+        if invalid_fields:
+            raise ValueError(f"Invalid update fields: {sorted(invalid_fields)!r}. Valid fields: {sorted(valid_fields)}")
+
+        body = UpdateScorerRequest(
+            name=kwargs.get("name", UNSET), description=kwargs.get("description", UNSET), tags=kwargs.get("tags", UNSET)
         )
+
+        try:
+            logger.info(f"Metric.update: id='{self.id}' name='{self.name}' - started")
+            config = GalileoPythonConfig.get()
+            response = update_scorers_scorer_id_patch.sync(scorer_id=self.id, client=config.api_client, body=body)
+
+            if isinstance(response, HTTPValidationError):
+                raise ValueError(f"Failed to update metric: {response.detail}")
+
+            if response is None:
+                raise ValueError(f"Unable to update metric: {self.id}")
+
+            self._populate_from_scorer_response(response)
+            self._set_state(SyncState.SYNCED)
+            logger.info(f"Metric.update: id='{self.id}' - completed")
+            return self
+        except Exception as e:
+            self._set_state(SyncState.FAILED_SYNC, error=e)
+            logger.error(f"Metric.update: id='{self.id}' - failed: {e}")
+            raise
 
     def delete(self) -> None:
         """
