@@ -145,6 +145,8 @@ class TestExperimentInitialization:
 class TestExperimentEnvFallback:
     """Test suite for Experiment environment variable fallback behavior."""
 
+    @patch("galileo.__future__.experiment.create_metric_configs")
+    @patch("galileo.__future__.experiment.get_prompt")
     @patch("galileo.__future__.experiment.load_dataset_and_records")
     @patch("galileo.__future__.experiment.Projects")
     @patch("galileo.__future__.experiment.ExperimentsService")
@@ -153,6 +155,8 @@ class TestExperimentEnvFallback:
         mock_experiments_class: MagicMock,
         mock_projects_class: MagicMock,
         mock_load_dataset: MagicMock,
+        mock_get_prompt: MagicMock,
+        mock_create_metrics: MagicMock,
         reset_configuration: None,
         mock_experiment_response: MagicMock,
         mock_project: MagicMock,
@@ -165,6 +169,9 @@ class TestExperimentEnvFallback:
 
         mock_dataset = MagicMock()
         mock_load_dataset.return_value = (mock_dataset, [])
+
+        mock_get_prompt.return_value = MagicMock()
+        mock_create_metrics.return_value = (None, [])
 
         mock_experiments_service = MagicMock()
         mock_experiments_class.return_value = mock_experiments_service
@@ -279,20 +286,24 @@ class TestExperimentEnvFallback:
 class TestExperimentCreate:
     """Test suite for Experiment.create() method."""
 
+    @patch("galileo.__future__.experiment.create_metric_configs")
+    @patch("galileo.__future__.experiment.get_prompt")
     @patch("galileo.__future__.experiment.load_dataset_and_records")
     @patch("galileo.__future__.experiment.Projects")
     @patch("galileo.__future__.experiment.ExperimentsService")
-    def test_create_persists_experiment_to_api(
+    def test_create_persists_and_triggers_experiment(
         self,
         mock_experiments_class: MagicMock,
         mock_projects_class: MagicMock,
         mock_load_dataset: MagicMock,
+        mock_get_prompt: MagicMock,
+        mock_create_metrics: MagicMock,
         reset_configuration: None,
         mock_experiment_response: MagicMock,
         mock_project: MagicMock,
     ) -> None:
-        """Test create() persists the experiment to the API and updates attributes."""
-        # Setup mocks
+        """Test create() persists the experiment with trigger=True and updates attributes."""
+        # Given: mocks for project, dataset, prompt, metrics
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -300,22 +311,33 @@ class TestExperimentCreate:
         mock_dataset = MagicMock()
         mock_load_dataset.return_value = (mock_dataset, [])
 
+        mock_prompt = MagicMock()
+        mock_prompt.selected_version_id = str(uuid4())
+        mock_get_prompt.return_value = mock_prompt
+
+        mock_create_metrics.return_value = (None, [])
+
         mock_experiments_service = MagicMock()
         mock_experiments_class.return_value = mock_experiments_service
-        mock_experiments_service.get.return_value = None  # No existing experiment
+        mock_experiments_service.get.return_value = None
         mock_experiments_service.create.return_value = mock_experiment_response
 
-        # Create experiment
+        # When: create experiment
         experiment = Experiment(
             name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt", project_name="Test Project"
         ).create()
 
-        # Verify
+        # Then: create called with trigger=True
         mock_experiments_service.create.assert_called_once()
+        call_kwargs = mock_experiments_service.create.call_args.kwargs
+        assert call_kwargs["trigger"] is True
+        assert call_kwargs["prompt_template"] == mock_prompt
         assert experiment.id == mock_experiment_response.id
         assert experiment.is_synced()
-        assert experiment.project_id == mock_project.id
+        assert experiment._run_result is not None
 
+    @patch("galileo.__future__.experiment.create_metric_configs")
+    @patch("galileo.__future__.experiment.get_prompt")
     @patch("galileo.__future__.experiment.load_dataset_and_records")
     @patch("galileo.__future__.experiment.Projects")
     @patch("galileo.__future__.experiment.ExperimentsService")
@@ -324,12 +346,14 @@ class TestExperimentCreate:
         mock_experiments_class: MagicMock,
         mock_projects_class: MagicMock,
         mock_load_dataset: MagicMock,
+        mock_get_prompt: MagicMock,
+        mock_create_metrics: MagicMock,
         reset_configuration: None,
         mock_experiment_response: MagicMock,
         mock_project: MagicMock,
     ) -> None:
         """Test create() adds timestamp when experiment with same name exists."""
-        # Setup mocks
+        # Given: existing experiment with same name
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -337,24 +361,29 @@ class TestExperimentCreate:
         mock_dataset = MagicMock()
         mock_load_dataset.return_value = (mock_dataset, [])
 
+        mock_get_prompt.return_value = MagicMock()
+        mock_create_metrics.return_value = (None, [])
+
         existing_experiment = MagicMock()
         existing_experiment.name = "Test Experiment"
 
         mock_experiments_service = MagicMock()
         mock_experiments_class.return_value = mock_experiments_service
-        mock_experiments_service.get.return_value = existing_experiment  # Existing experiment found
+        mock_experiments_service.get.return_value = existing_experiment
         mock_experiments_service.create.return_value = mock_experiment_response
 
-        # Create experiment
+        # When: create experiment
         Experiment(
             name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt", project_name="Test Project"
         ).create()
 
-        # Verify name was changed (should have timestamp appended)
+        # Then: name was changed (should have timestamp appended)
         call_args = mock_experiments_service.create.call_args
         assert "Test Experiment" in call_args.kwargs["name"]
-        assert call_args.kwargs["name"] != "Test Experiment"  # Name was modified
+        assert call_args.kwargs["name"] != "Test Experiment"
 
+    @patch("galileo.__future__.experiment.create_metric_configs")
+    @patch("galileo.__future__.experiment.get_prompt")
     @patch("galileo.__future__.experiment.load_dataset_and_records")
     @patch("galileo.__future__.experiment.Projects")
     @patch("galileo.__future__.experiment.ExperimentsService")
@@ -363,17 +392,22 @@ class TestExperimentCreate:
         mock_experiments_class: MagicMock,
         mock_projects_class: MagicMock,
         mock_load_dataset: MagicMock,
+        mock_get_prompt: MagicMock,
+        mock_create_metrics: MagicMock,
         reset_configuration: None,
         mock_project: MagicMock,
     ) -> None:
         """Test create() handles API failures and sets state correctly."""
-        # Setup mocks
+        # Given: API create fails
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
 
         mock_dataset = MagicMock()
         mock_load_dataset.return_value = (mock_dataset, [])
+
+        mock_get_prompt.return_value = MagicMock()
+        mock_create_metrics.return_value = (None, [])
 
         mock_experiments_service = MagicMock()
         mock_experiments_class.return_value = mock_experiments_service
@@ -384,10 +418,64 @@ class TestExperimentCreate:
             name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt", project_id="test-project-id"
         )
 
+        # When/Then: create raises error and sets failed state
         with pytest.raises(Exception, match="API Error"):
             experiment.create()
 
         assert experiment.sync_state == SyncState.FAILED_SYNC
+
+    @patch("galileo.__future__.experiment.create_metric_configs")
+    @patch("galileo.__future__.experiment.get_prompt")
+    @patch("galileo.__future__.experiment.load_dataset_and_records")
+    @patch("galileo.__future__.experiment.Projects")
+    @patch("galileo.__future__.experiment.ExperimentsService")
+    def test_create_fills_default_prompt_settings_for_prompt_template(
+        self,
+        mock_experiments_class: MagicMock,
+        mock_projects_class: MagicMock,
+        mock_load_dataset: MagicMock,
+        mock_get_prompt: MagicMock,
+        mock_create_metrics: MagicMock,
+        reset_configuration: None,
+        mock_experiment_response: MagicMock,
+        mock_project: MagicMock,
+    ) -> None:
+        """Test create() fills default PromptRunSettings when prompt template is present
+        but no prompt_settings and no model_alias are provided."""
+        # Given: prompt template resolved, no prompt_settings, no model_alias
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
+
+        mock_dataset = MagicMock()
+        mock_load_dataset.return_value = (mock_dataset, [])
+
+        mock_prompt = MagicMock()
+        mock_prompt.selected_version_id = str(uuid4())
+        mock_get_prompt.return_value = mock_prompt
+
+        mock_create_metrics.return_value = (None, [])
+
+        mock_experiments_service = MagicMock()
+        mock_experiments_class.return_value = mock_experiments_service
+        mock_experiments_service.get.return_value = None
+        mock_experiments_service.create.return_value = mock_experiment_response
+
+        # When: create experiment with prompt but no settings
+        Experiment(
+            name="Test Experiment",
+            dataset_name="test-dataset",
+            prompt_name="test-prompt",
+            project_name="Test Project",
+            # No prompt_settings, no model
+        ).create()
+
+        # Then: default prompt settings are passed (not None)
+        call_kwargs = mock_experiments_service.create.call_args.kwargs
+        assert call_kwargs["prompt_settings"] is not None
+        assert call_kwargs["prompt_settings"].model_alias == "GPT-4o"
+        assert call_kwargs["prompt_settings"].temperature == 0.8
+        assert call_kwargs["prompt_settings"].max_tokens == 256
 
 
 class TestExperimentGet:
@@ -495,120 +583,53 @@ class TestExperimentList:
 
 
 class TestExperimentRun:
-    """Test suite for Experiment.run() method."""
+    """Test suite for Experiment.run() method — now a no-op since create() triggers."""
 
-    @patch("galileo.__future__.experiment.Projects")
-    @patch("galileo.__future__.experiment.ExperimentsService")
-    @patch("galileo.__future__.experiment.load_dataset_and_records")
-    @patch("galileo.__future__.experiment.create_metric_configs")
-    def test_run_executes_prompt_template_experiment(
-        self,
-        mock_create_metrics: MagicMock,
-        mock_load_dataset: MagicMock,
-        mock_experiments_class: MagicMock,
-        mock_projects_class: MagicMock,
-        reset_configuration: None,
-        mock_project: MagicMock,
-    ) -> None:
-        """Test run() executes a prompt template experiment."""
-        # Setup mocks
-        mock_projects_service = MagicMock()
-        mock_projects_class.return_value = mock_projects_service
-        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
-
-        mock_dataset = MagicMock()
-        mock_dataset.dataset.id = str(uuid4())
-        mock_load_dataset.return_value = (mock_dataset, [])
-
-        mock_create_metrics.return_value = ([], [])
-
-        mock_prompt = MagicMock()
-        mock_prompt.selected_version_id = str(uuid4())
-        mock_prompt.name = "test-prompt"
-
-        mock_exp_response = MagicMock(spec=ExperimentResponse)
-        mock_exp_response.id = str(uuid4())
-        mock_exp_response.name = "Test Experiment"
-        mock_exp_response.project_id = mock_project.id
-
-        result = {"link": "http://test.com", "message": "Started", "experiment": mock_exp_response}
-        mock_experiments_service = MagicMock()
-        mock_experiments_class.return_value = mock_experiments_service
-        mock_experiments_service.run.return_value = result
-
-        # Create and run experiment
+    def test_run_returns_stored_result_from_create(self, reset_configuration: None) -> None:
+        """Test run() returns the ExperimentRunResult stored during create()."""
+        # Given: an experiment with _run_result set (as create() would do)
         experiment = Experiment._create_empty()
         experiment.name = "Test Experiment"
         experiment.id = str(uuid4())
-        experiment.project_id = mock_project.id
-        experiment.dataset_name = "test-dataset"
-        experiment._prompt_template = mock_prompt
-        experiment._experiment_response = MagicMock()
-        experiment._set_state(SyncState.SYNCED)
+        experiment.project_id = str(uuid4())
+        experiment._experiment_response = MagicMock(spec=ExperimentResponse)
+        experiment._run_result = ExperimentRunResult(
+            {
+                "experiment": experiment._experiment_response,
+                "link": "http://test.com/results",
+                "message": "Experiment started",
+            }
+        )
 
+        # When: run() is called
         run_result = experiment.run()
 
-        # Verify
+        # Then: returns the stored result (no API call)
         assert isinstance(run_result, ExperimentRunResult)
-        assert run_result.link == result["link"]
-        assert run_result.message == result["message"]
-        mock_experiments_service.run.assert_called_once()
+        assert run_result.link == "http://test.com/results"
 
-    @pytest.mark.skip(reason="Function-based experiments are temporarily disabled")
-    @patch("galileo.__future__.experiment.Projects")
     @patch("galileo.__future__.experiment.ExperimentsService")
-    @patch("galileo.__future__.experiment.load_dataset_and_records")
-    @patch("galileo.__future__.experiment.create_metric_configs")
-    def test_run_executes_function_experiment(
-        self,
-        mock_create_metrics: MagicMock,
-        mock_load_dataset: MagicMock,
-        mock_experiments_class: MagicMock,
-        mock_projects_class: MagicMock,
-        reset_configuration: None,
-        mock_project: MagicMock,
+    def test_run_returns_fallback_result_when_no_stored_result(
+        self, mock_experiments_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test run() executes a function-based experiment."""
-        # Setup mocks
-        mock_projects_service = MagicMock()
-        mock_projects_class.return_value = mock_projects_service
-        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
-
-        mock_records = [{"input": "test"}]
-        mock_load_dataset.return_value = (None, mock_records)
-
-        mock_create_metrics.return_value = ([], [])
-
-        mock_exp_response = MagicMock(spec=ExperimentResponse)
-        mock_exp_response.id = str(uuid4())
-        mock_exp_response.name = "Test Experiment"
-        mock_exp_response.project_id = mock_project.id
-
-        result = {"link": "http://test.com", "message": "Completed", "experiment": mock_exp_response}
+        """Test run() returns a fallback result for experiments loaded via get()."""
+        # Given: an experiment loaded via get() (no _run_result)
         mock_experiments_service = MagicMock()
         mock_experiments_class.return_value = mock_experiments_service
-        mock_experiments_service.run_with_function.return_value = result
-
-        # Create and run experiment with function
-        def test_func(row):
-            return "result"
+        mock_experiments_service.config.console_url = "http://console.test.com"
 
         experiment = Experiment._create_empty()
         experiment.name = "Test Experiment"
         experiment.id = str(uuid4())
-        experiment.project_id = mock_project.id
-        experiment.dataset_name = "test-dataset"
-        experiment.function = test_func
-        experiment._experiment_response = mock_exp_response
-        experiment._set_state(SyncState.SYNCED)
+        experiment.project_id = str(uuid4())
+        experiment._experiment_response = MagicMock(spec=ExperimentResponse)
 
+        # When: run() is called without _run_result
         run_result = experiment.run()
 
-        # Verify
+        # Then: returns a fallback result with link
         assert isinstance(run_result, ExperimentRunResult)
-        assert run_result.link == result["link"]
-        assert run_result.message == result["message"]
-        mock_experiments_service.run_with_function.assert_called_once()
+        assert experiment.id in run_result.link
 
     def test_run_raises_error_when_not_created(self, reset_configuration: None) -> None:
         """Test run() raises error when experiment hasn't been created."""

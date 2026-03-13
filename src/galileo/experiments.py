@@ -11,7 +11,6 @@ from galileo import galileo_context, log
 from galileo.config import GalileoPythonConfig
 from galileo.datasets import Dataset, convert_dataset_row_to_record
 from galileo.experiment_tags import upsert_experiment_tag
-from galileo.jobs import Jobs
 from galileo.otel import galileo_dataset_context
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
@@ -59,11 +58,35 @@ class Experiments:
     def __init__(self) -> None:
         self.config = GalileoPythonConfig.get()
 
-    def create(self, project_id: str, name: str, dataset_obj: Optional[Dataset] = None) -> ExperimentResponse:
+    def create(
+        self,
+        project_id: str,
+        name: str,
+        dataset_obj: Optional[Dataset] = None,
+        trigger: bool = False,
+        prompt_template: Optional[PromptTemplate] = None,
+        scorers: Optional[builtins.list[ScorerConfig]] = None,
+        prompt_settings: Optional[PromptRunSettings] = None,
+    ) -> ExperimentResponse:
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
+
         if dataset_obj is not None:
-            dataset = {"dataset_id": dataset_obj.dataset.id, "version_index": dataset_obj.dataset.current_version_index}
-            body.additional_properties["dataset"] = dataset
+            body.additional_properties["dataset"] = {
+                "dataset_id": str(dataset_obj.dataset.id),
+                "version_index": dataset_obj.dataset.current_version_index,
+            }
+
+        if prompt_template is not None:
+            body.additional_properties["prompt_template_version_id"] = str(prompt_template.selected_version_id)
+
+        if prompt_settings is not None:
+            body.additional_properties["prompt_settings"] = prompt_settings.to_dict()
+
+        if scorers is not None:
+            body.additional_properties["scorers"] = [s.to_dict() for s in scorers]
+
+        if trigger:
+            body.additional_properties["trigger"] = True
 
         experiment = create_experiment_projects_project_id_experiments_post.sync(
             project_id=project_id, client=self.config.api_client, body=body
@@ -105,9 +128,9 @@ class Experiments:
     def run(
         self,
         project_obj: Project,
-        experiment_obj: ExperimentResponse,
+        dataset_obj: Dataset,
+        experiment_name: str,
         prompt_template: Optional[PromptTemplate],
-        dataset_id: str,
         scorers: Optional[builtins.list[ScorerConfig]],
         prompt_settings: Optional[PromptRunSettings] = None,
     ) -> dict[str, Any]:
@@ -132,18 +155,16 @@ class Experiments:
                 frequency_penalty=0.0,
             )
 
-        job = Jobs().create(
-            name="playground_run",
+        # Single API call: create experiment + trigger job via trigger=True
+        experiment_obj = self.create(
             project_id=project_obj.id,
-            run_id=experiment_obj.id,
-            prompt_template_id=prompt_template.selected_version_id if prompt_template is not None else None,
-            dataset_id=dataset_id,
-            task_type=EXPERIMENT_TASK_TYPE,
+            name=experiment_name,
+            dataset_obj=dataset_obj,
+            trigger=True,
+            prompt_template=prompt_template,
             scorers=scorers,
             prompt_settings=prompt_settings,
         )
-
-        _logger.debug(f"job: {job}")
 
         link = f"{str(self.config.console_url).rstrip('/')}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {link}"
@@ -316,36 +337,31 @@ def run_experiment(
             raise ValueError(f"Project with Id {project_id} does not exist")
         raise ValueError(f"Project {project} does not exist")
 
-    # Create or get experiment
+    # Handle experiment name collision
     existing_experiment = Experiments().get(project_obj.id, experiment_name)
 
     if existing_experiment:
         logging.warning(f"Experiment {existing_experiment.name} already exists, adding a timestamp")
         now = datetime.datetime.now(datetime.timezone.utc)
-        # based on TS SDK implementation new Date()
-        #       .toISOString()
-        #       .replace('T', ' at ')
-        #       .replace('Z', '');
         experiment_name = f"{existing_experiment.name} {now:%Y-%m-%d} at {now:%H:%M:%S}.{now.microsecond // 1000:03d}"
 
-    experiment_obj = Experiments().create(project_obj.id, experiment_name, dataset_obj)
-
-    if experiment_tags is not None:
-        for key, value in experiment_tags.items():
-            try:
-                upsert_experiment_tag(project_obj.id, experiment_obj.id, key, value)
-                _logger.debug(f"Added tag {key}={value} to experiment {experiment_obj.id}")
-            except Exception as e:
-                _logger.warning(f"Failed to add tag {key}={value} to experiment {experiment_obj.id}: {e}")
-
-    # Set up metrics if provided
-    scorer_settings: Optional[list[ScorerConfig]] = None
-    local_metrics: list[LocalMetricConfig] = []
-    if metrics is not None:
-        scorer_settings, local_metrics = create_metric_configs(project_obj.id, experiment_obj.id, metrics)
-
-    # Execute a runner function experiment
+    # Execute a runner function experiment (custom function flow — uses logstream pipeline)
     if function is not None:
+        experiment_obj = Experiments().create(project_obj.id, experiment_name, dataset_obj)
+
+        # Set up metrics WITH run_id — custom function flow needs ScorerSettings registered
+        local_metrics: list[LocalMetricConfig] = []
+        if metrics is not None:
+            _, local_metrics = create_metric_configs(project_obj.id, experiment_obj.id, metrics)
+
+        if experiment_tags is not None:
+            for key, value in experiment_tags.items():
+                try:
+                    upsert_experiment_tag(project_obj.id, experiment_obj.id, key, value)
+                    _logger.debug(f"Added tag {key}={value} to experiment {experiment_obj.id}")
+                except Exception as e:
+                    _logger.warning(f"Failed to add tag {key}={value} to experiment {experiment_obj.id}: {e}")
+
         return Experiments().run_with_function(
             project_obj=project_obj,
             experiment_obj=experiment_obj,
@@ -358,15 +374,33 @@ def run_experiment(
     if dataset_obj is None:
         raise ValueError("A dataset object must be provided")
 
-    if local_metrics:
+    # Set up metrics WITHOUT run_id — trigger=True flow, API handles scorer registration
+    scorer_settings: Optional[list[ScorerConfig]] = None
+    local_metrics_check: list[LocalMetricConfig] = []
+    if metrics is not None:
+        scorer_settings, local_metrics_check = create_metric_configs(project_obj.id, None, metrics)
+
+    if local_metrics_check:
         raise ValueError("Local metrics can only be used with a locally run experiment, not a prompt experiment.")
 
-    # Execute a prompt template or generated-output experiment.
+    # Execute a prompt template or generated-output experiment via trigger=True.
+    # Single API call: creates experiment + triggers runner job.
     # If prompt_template is None, the API determines the flow based on the dataset contents.
     # The API will return error 3512 if the dataset has no generated_output column.
-    return Experiments().run(
-        project_obj, experiment_obj, prompt_template, dataset_obj.dataset.id, scorer_settings, prompt_settings
+    result = Experiments().run(
+        project_obj, dataset_obj, experiment_name, prompt_template, scorer_settings, prompt_settings
     )
+
+    if experiment_tags is not None:
+        experiment_obj = result["experiment"]
+        for key, value in experiment_tags.items():
+            try:
+                upsert_experiment_tag(project_obj.id, experiment_obj.id, key, value)
+                _logger.debug(f"Added tag {key}={value} to experiment {experiment_obj.id}")
+            except Exception as e:
+                _logger.warning(f"Failed to add tag {key}={value} to experiment {experiment_obj.id}: {e}")
+
+    return result
 
 
 def create_experiment(

@@ -339,8 +339,9 @@ class Experiment(StateManagementMixin):
             self.prompt_name = prompt_name
 
         # Private runtime state
-        self._experiment_response = None
-        self._job_id = None
+        self._experiment_response: ExperimentResponse | None = None
+        self._job_id: str | None = None
+        self._run_result: ExperimentRunResult | None = None
 
         # Set initial state
         self._set_state(SyncState.LOCAL_ONLY)
@@ -402,15 +403,69 @@ class Experiment(StateManagementMixin):
                 now = datetime.datetime.now(datetime.timezone.utc)
                 self.name = f"{existing_experiment.name} {now:%Y-%m-%d} at {now:%H:%M:%S}.{now.microsecond // 1000:03d}"
 
-            # Create experiment
+            # Resolve prompt template before create (needed for trigger=True)
+            if self._prompt_template is None:
+                if self.prompt_id:
+                    _logger.debug(f"Experiment.create: Loading prompt by ID: {self.prompt_id}")
+                    self._prompt_template = get_prompt(id=self.prompt_id)
+                elif self.prompt_name:
+                    _logger.debug(f"Experiment.create: Loading prompt by name: {self.prompt_name}")
+                    self._prompt_template = get_prompt(name=self.prompt_name)
+
+            # Determine effective prompt settings
+            # Priority: 1. explicit prompt_settings, 2. model parameter, 3. defaults for prompt-template flow
+            effective_prompt_settings = self.prompt_settings
+            if self.model_alias:
+                if effective_prompt_settings is None:
+                    effective_prompt_settings = PromptRunSettings(model_alias=self.model_alias)
+                    _logger.debug(
+                        f"Experiment.create: Using model '{self.model_alias}' "
+                        "from model parameter (no prompt_settings provided)"
+                    )
+                else:
+                    settings_dict = (
+                        effective_prompt_settings.to_dict() if hasattr(effective_prompt_settings, "to_dict") else {}
+                    )
+                    settings_dict["model_alias"] = self.model_alias
+                    effective_prompt_settings = PromptRunSettings(**settings_dict)
+            elif self._prompt_template is not None and effective_prompt_settings is None:
+                # Default prompt settings for prompt-template flow (same as ExperimentsService.run())
+                effective_prompt_settings = PromptRunSettings(
+                    n=1,
+                    echo=False,
+                    tools=None,
+                    top_k=40,
+                    top_p=1.0,
+                    logprobs=True,
+                    max_tokens=256,
+                    model_alias="GPT-4o",
+                    temperature=0.8,
+                    tool_choice=None,
+                    top_logprobs=5,
+                    stop_sequences=None,
+                    deployment_name=None,
+                    response_format=None,
+                    presence_penalty=0.0,
+                    frequency_penalty=0.0,
+                )
+
+            # Set up metrics if provided
+            scorer_settings: list[ScorerConfig] | None = None
+            if self.metrics is not None:
+                scorer_settings, _ = create_metric_configs(self.project_id, None, self.metrics)
+
+            # Single API call: create experiment + trigger job
             created_experiment = experiments_service.create(
-                project_id=self.project_id, name=self.name, dataset_obj=self._dataset_obj
+                project_id=self.project_id,
+                name=self.name,
+                dataset_obj=self._dataset_obj,
+                trigger=True,
+                prompt_template=self._prompt_template,
+                scorers=scorer_settings,
+                prompt_settings=effective_prompt_settings,
             )
 
             # Update attributes from response
-            # Note: prompt_id, prompt_name, and _model_obj are not updated here
-            # because they are not included in the API response. They remain as set during __init__()
-            # Note: model_alias is not in the create response, but is extracted when retrieving/refreshing
             self.id = created_experiment.id
             self.name = created_experiment.name
             self.created_at = created_experiment.created_at
@@ -418,9 +473,25 @@ class Experiment(StateManagementMixin):
             self.additional_properties = created_experiment.additional_properties
             self._experiment_response = created_experiment
 
+            # Store run result for run() no-op
+            link = (
+                f"{str(experiments_service.config.console_url).rstrip('/')}"
+                f"/project/{self.project_id}/experiments/{self.id}"
+            )
+            self._run_result = ExperimentRunResult(
+                {
+                    "experiment": created_experiment,
+                    "link": link,
+                    "message": (
+                        f"Experiment {self.name} has started and is currently processing. "
+                        f"Results will be available at {link}"
+                    ),
+                }
+            )
+
             # Set state to synced
             self._set_state(SyncState.SYNCED)
-            _logger.info(f"Experiment.create: id='{self.id}' - completed")
+            _logger.info(f"Experiment.create: id='{self.id}' - completed (triggered)")
             return self
         except Exception as e:
             self._set_state(SyncState.FAILED_SYNC, error=e)
@@ -452,8 +523,9 @@ class Experiment(StateManagementMixin):
         instance._dataset_obj = None
         instance._prompt_template = None
         instance._model_obj = None
-        instance._experiment_response = None
-        instance._job_id = None
+        instance._experiment_response: ExperimentResponse | None = None
+        instance._job_id: str | None = None
+        instance._run_result: ExperimentRunResult | None = None
         return instance
 
     @classmethod
@@ -962,40 +1034,18 @@ class Experiment(StateManagementMixin):
 
     def run(self) -> ExperimentRunResult:
         """
-        Execute this experiment.
+        Returns the experiment run result.
 
-        Currently supports running experiments with a prompt template and dataset.
-
-        Note: Function-based experiments are temporarily disabled pending validation.
+        The experiment is triggered during create() via trigger=True. This method
+        exists for backward compatibility with the create().run() call pattern.
 
         Returns
         -------
-            ExperimentRunResult: Result object with:
-                - link: URL to view results in console
-                - message: Status message
-                - status: ExperimentStatusInfo with progress details
-                - experiment_id, project_id: IDs
-                - dataset_info, prompt_info: Associated resource info
+            ExperimentRunResult: Result object with link and status.
 
         Raises
         ------
-            ValueError: If required parameters are missing or invalid.
-
-        Examples
-        --------
-            # Run an experiment with prompt template
-            experiment = Experiment(
-                name="ml-evaluation",
-                dataset_name="ml-dataset",
-                prompt_name="ml-prompt",
-                metrics=["correctness", "completeness"],
-                project_name="My AI Project"
-            ).create()
-
-            result = experiment.run()
-            print(result.link)  # URL to results
-            print(result.status)  # Human-readable status
-            print(f"Progress: {result.status.overall_progress}%")
+            ValueError: If the experiment has not been created yet.
         """
         if self.id is None:
             raise ValueError("Experiment must be created before running. Call .create() first.")
@@ -1003,203 +1053,21 @@ class Experiment(StateManagementMixin):
         if not self.project_id:
             raise ValueError("Project ID is not set. Cannot run experiment without project_id.")
 
-        # Check if experiment already has traces (immutability constraint)
-        if self.has_traces():
-            raise ValueError(
-                f"Cannot run experiment '{self.name}' - it already has traces from a previous run.\n\n"
-                "Experiments are immutable after execution. To re-run with the same configuration:\n"
-                "1. Create a new experiment with a different name\n"
-                "2. Use the same dataset, prompt, and metrics\n\n"
-                "Example:\n"
-                f"  new_experiment = Experiment(\n"
-                f"      name='{self.name}-rerun-1',\n"
-                f"      dataset_name='{self.dataset_name}',\n"
-                f"      prompt_name='{self.prompt_name}',\n"
-                f"      metrics={self.metrics},\n"
-                f"      project_name='{self.project_name}'\n"
-                "  ).create().run()"
-            )
+        if self._run_result is not None:
+            return self._run_result
 
-        # Validate dataset requirement for prompt template experiments
-        # Check if we have or will have a prompt template (need to check before loading)
-        has_prompt_template = (
-            self._prompt_template is not None or self.prompt_id is not None or self.prompt_name is not None
+        # Fallback for experiments loaded via get() that weren't created in this session
+        link = (
+            f"{str(ExperimentsService().config.console_url).rstrip('/')}"
+            f"/project/{self.project_id}/experiments/{self.id}"
         )
-
-        if has_prompt_template and not self.dataset_id and not self.dataset_name and self._dataset_obj is None:
-            raise ValueError("A dataset must be provided when running an experiment with a prompt template.")
-
-        try:
-            _logger.info(f"Experiment.run: id='{self.id}' name='{self.name}' - started")
-
-            # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-            project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
-            if not project_obj:
-                raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
-
-            # Load dataset and records (use cached if available)
-            dataset_obj: LegacyDataset | None
-            # TODO: records variable needed when function-based experiments are re-enabled
-            # records: list[DatasetRecord]
-
-            if self._dataset_obj is not None:
-                dataset_obj = self._dataset_obj
-                # TODO: records needed for function-based experiments
-                # records = get_records_for_dataset(self._dataset_obj)
-            elif self.dataset_id or self.dataset_name:
-                dataset_obj, _records = load_dataset_and_records(
-                    dataset=self.dataset_name or self.dataset_id,
-                    dataset_id=self.dataset_id,
-                    dataset_name=self.dataset_name,
-                )
-                # TODO: records needed for function-based experiments
-                # records = _records
-            else:
-                dataset_obj = None
-                # TODO: records needed for function-based experiments
-                # records = []
-
-            # Validate experiment configuration
-            if self._prompt_template and not dataset_obj:
-                raise ValueError("A dataset must be provided when a prompt_template is used")
-
-            # TODO: Function-based experiments temporarily disabled - need to validate implementation
-            # The logic below needs to be re-enabled after validating the functionality.
-            #
-            # if self.function and not records:
-            #     raise ValueError("A dataset or list of records must be provided when a function is used")
-            #
-            # if self.function and self._prompt_template:
-            #     raise ValueError("A function or prompt_template should be provided, but not both")
-
-            # Set up metrics if provided
-            scorer_settings: list[ScorerConfig] | None = None
-            local_metrics: list[LocalMetricConfig] = []
-            if self.metrics is not None:
-                scorer_settings, local_metrics = create_metric_configs(project_obj.id, self.id, self.metrics)
-
-            experiments_service = ExperimentsService()
-
-            # TODO: Function-based experiment execution temporarily disabled - need to validate implementation
-            # Execute a runner function experiment
-            # if self.function is not None:
-            #     result = experiments_service.run_with_function(
-            #         project_obj=project_obj,
-            #         experiment_obj=self._experiment_response,
-            #         records=records,
-            #         func=self.function,
-            #         local_metrics=local_metrics,
-            #     )
-            #     _logger.info(f"Experiment.run: id='{self.id}' - completed")
-            #     return ExperimentRunResult(result)
-
-            # Load prompt template if needed
-            if self._prompt_template is None:
-                _logger.debug(
-                    f"Experiment.run: id='{self.id}' - Loading prompt template: "
-                    f"prompt_id='{self.prompt_id}', prompt_name='{self.prompt_name}'"
-                )
-                if self.prompt_id:
-                    _logger.debug(f"Experiment.run: id='{self.id}' - Loading prompt by ID: {self.prompt_id}")
-                    self._prompt_template = get_prompt(id=self.prompt_id)
-                    _logger.debug(
-                        f"Experiment.run: id='{self.id}' - Loaded prompt template: {self._prompt_template is not None}"
-                    )
-                elif self.prompt_name:
-                    _logger.debug(f"Experiment.run: id='{self.id}' - Loading prompt by name: {self.prompt_name}")
-                    self._prompt_template = get_prompt(name=self.prompt_name)
-                    _logger.debug(
-                        f"Experiment.run: id='{self.id}' - Loaded prompt template: {self._prompt_template is not None}"
-                    )
-
-            if self._prompt_template is None:
-                # Check if this is a playground experiment
-                playground_info = ""
-                if self._experiment_response and hasattr(self._experiment_response, "playground"):
-                    playground = getattr(self._experiment_response, "playground", None)
-                    if playground and not isinstance(playground, Unset):
-                        playground_name = getattr(playground, "name", None)
-                        if playground_name:
-                            playground_info = (
-                                f"This experiment was created from playground '{playground_name}'. "
-                                "The prompt used in that playground is not automatically linked to this experiment."
-                            )
-
-                # Show debug info about what was attempted
-                debug_info = (
-                    f"\n\nDebug info:\n"
-                    f"  prompt_id: {self.prompt_id}\n"
-                    f"  prompt_name: {self.prompt_name}\n"
-                    f"  _prompt_template: {self._prompt_template}\n"
-                )
-
-                error_msg = (
-                    "A prompt template must be provided to run this experiment. "
-                    f"{playground_info}\n\n"
-                    "Please set the prompt before running:\n\n"
-                    "  experiment.set_prompt(prompt_name='your-prompt-name')\n"
-                    "  # or\n"
-                    "  experiment.set_prompt(prompt_id='your-prompt-id')\n"
-                    "  # or\n"
-                    "  from galileo.__future__ import Prompt\n"
-                    "  experiment.set_prompt(prompt=Prompt.get(name='your-prompt-name'))\n\n"
-                    "Then call experiment.run() again."
-                    f"{debug_info}"
-                )
-                raise ValueError(error_msg)
-
-            if dataset_obj is None:
-                raise ValueError("A dataset object must be provided")
-
-            if local_metrics:
-                raise ValueError(
-                    "Local metrics can only be used with a locally run experiment, not a prompt experiment."
-                )
-
-            # Determine effective prompt settings
-            # Priority: 1. explicit prompt_settings, 2. model parameter, 3. None
-            effective_prompt_settings = self.prompt_settings
-
-            if self.model_alias:
-                if effective_prompt_settings is None:
-                    # Create default settings with the specified model
-                    effective_prompt_settings = PromptRunSettings(model_alias=self.model_alias)
-                    _logger.debug(
-                        f"Experiment.run: id='{self.id}' - Using model '{self.model_alias}' "
-                        "from model parameter (no prompt_settings provided)"
-                    )
-                else:
-                    # Override model in provided settings
-                    _logger.debug(
-                        f"Experiment.run: id='{self.id}' - Overriding model in prompt_settings "
-                        f"with '{self.model_alias}' from model parameter"
-                    )
-                    # Create a new PromptRunSettings with the model override
-                    settings_dict = (
-                        effective_prompt_settings.to_dict() if hasattr(effective_prompt_settings, "to_dict") else {}
-                    )
-                    settings_dict["model_alias"] = self.model_alias
-                    effective_prompt_settings = PromptRunSettings(**settings_dict)
-
-            # Execute a prompt template experiment
-            result = experiments_service.run(
-                project_obj,
-                self._experiment_response,
-                self._prompt_template,
-                dataset_obj.dataset.id,
-                scorer_settings,
-                effective_prompt_settings,
-            )
-
-            # Store job ID for monitoring if available
-            # Note: The job ID would need to be extracted from the result or stored separately
-
-            _logger.info(f"Experiment.run: id='{self.id}' - completed")
-            return ExperimentRunResult(result)
-
-        except Exception as e:
-            _logger.error(f"Experiment.run: id='{self.id}' - failed: {e}")
-            raise
+        return ExperimentRunResult(
+            {
+                "experiment": self._experiment_response,
+                "link": link,
+                "message": f"Experiment {self.name} results available at {link}",
+            }
+        )
 
     def get_status(self) -> ExperimentStatusInfo:
         """

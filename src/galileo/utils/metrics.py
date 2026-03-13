@@ -35,7 +35,7 @@ def _populate_local_metric(
 
 def create_metric_configs(
     project_id: str,
-    run_id: str,  # Can be experiment_id or log_stream_id
+    run_id: Optional[str],  # Can be experiment_id, log_stream_id, or None (for trigger=True flow)
     metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]],
 ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
     """
@@ -106,7 +106,9 @@ def create_metric_configs(
                 + ", ".join(f"'{metric}'" for metric in unknown_metrics)
             )
 
-        # Register server-side metrics with Galileo
-        ScorerSettings().create(project_id=project_id, run_id=run_id, scorers=scorers)
+        # Register server-side metrics with Galileo.
+        # Skip registration when run_id is None (trigger=True flow — API handles it).
+        if run_id is not None:
+            ScorerSettings().create(project_id=project_id, run_id=run_id, scorers=scorers)
 
     return scorers, local_metric_configs
