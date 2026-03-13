@@ -324,15 +324,137 @@ class TestProjectRefresh:
         assert project.sync_state == SyncState.FAILED_SYNC
 
 
+class TestProjectSave:
+    """Test suite for Project.save() method."""
+
+    @patch("galileo.__future__.project.Projects")
+    def test_save_local_only_delegates_to_create(
+        self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
+    ) -> None:
+        # Given: a local-only project and a mocked create response
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.create.return_value = mock_project
+
+        # When: save() is called on a LOCAL_ONLY project
+        project = Project(name="Test Project")
+        result = project.save()
+
+        # Then: create() is called and the project is synced
+        mock_service.create.assert_called_once_with(name="Test Project")
+        assert result.id == mock_project.id
+        assert result.is_synced()
+
+    @patch("galileo.__future__.project.Projects")
+    def test_save_synced_is_noop(
+        self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
+    ) -> None:
+        # Given: a synced project
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.return_value = mock_project
+
+        project = Project.get(id=mock_project.id)
+        assert project.is_synced()
+
+        # When: save() is called
+        result = project.save()
+
+        # Then: no API update call is made and project remains synced
+        mock_service.update.assert_not_called()
+        assert result is project
+        assert result.is_synced()
+
+    def test_save_deleted_raises_value_error(self, reset_configuration: None) -> None:
+        # Given: a project in DELETED state
+        project = Project(name="Test Project")
+        project.id = str(uuid4())
+        project._set_state(SyncState.DELETED)
+
+        # When/Then: save() raises ValueError
+        with pytest.raises(ValueError, match="Cannot save a deleted project"):
+            project.save()
+
+    def test_save_without_id_raises_value_error(self, reset_configuration: None) -> None:
+        # Given: a project in DIRTY state but with no ID
+        project = Project(name="Test Project")
+        project._set_state(SyncState.DIRTY)
+
+        # When/Then: save() raises ValueError because there is no ID to update
+        with pytest.raises(ValueError, match="Project ID is not set"):
+            project.save()
+
+    @patch("galileo.__future__.project.Projects")
+    def test_save_dirty_calls_update_and_syncs_attributes(
+        self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
+    ) -> None:
+        # Given: a synced project that has been renamed and marked dirty
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.return_value = mock_project
+
+        updated_response = MagicMock()
+        updated_response.configure_mock(name="Renamed Project")
+        updated_response.updated_at = MagicMock()
+        mock_service.update.return_value = updated_response
+
+        project = Project.get(id=mock_project.id)
+        project.name = "Renamed Project"
+        project._set_state(SyncState.DIRTY)
+
+        # When: save() is called
+        result = project.save()
+
+        # Then: update is called with the new name and state is synced
+        mock_service.update.assert_called_once_with(mock_project.id, name="Renamed Project")
+        assert result.name == "Renamed Project"
+        assert result.is_synced()
+
+        # bookmark and permissions are NOT returned by the update endpoint,
+        # so they should retain their values from the initial get()
+        assert result.bookmark == mock_project.bookmark
+        assert result.permissions == mock_project.permissions
+
+    @patch("galileo.project.Projects")
+    def test_save_failed_sync_raises_value_error(
+        self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
+    ) -> None:
+        # Given: a project in FAILED_SYNC state (e.g., from a prior failed operation)
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.return_value = mock_project
+
+        project = Project.get(id=mock_project.id)
+        project._set_state(SyncState.FAILED_SYNC)
+
+        # When/Then: save() raises ValueError directing user to refresh()
+        with pytest.raises(ValueError, match="FAILED_SYNC"):
+            project.save()
+
+    @patch("galileo.project.GalileoPythonConfig")
+    @patch("galileo.project.update_project_projects_project_id_put")
+    @patch("galileo.project.Projects")
+    def test_save_handles_api_failure(
+        self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
+    ) -> None:
+        # Given: a dirty project and an API that raises an error
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.return_value = mock_project
+        mock_service.update.side_effect = RuntimeError("API error")
+
+        project = Project.get(id=mock_project.id)
+        project._set_state(SyncState.DIRTY)
+
+        # When/Then: the exception propagates and state is FAILED_SYNC
+        with pytest.raises(RuntimeError, match="API error"):
+            project.save()
+
+        assert project.sync_state == SyncState.FAILED_SYNC
+
+
 class TestProjectMethods:
     """Test suite for other Project methods."""
-
-    def test_save_raises_not_implemented_error(self, reset_configuration: None) -> None:
-        """Test save() raises NotImplementedError."""
-        project = Project(name="Test Project")
-
-        with pytest.raises(NotImplementedError, match="not yet implemented"):
-            project.save()
 
     def test_str_representation(self, reset_configuration: None) -> None:
         """Test __str__ returns expected format."""

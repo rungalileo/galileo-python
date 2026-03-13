@@ -186,6 +186,16 @@ class StateManagementMixin(ABC):
         """
         return self._sync_state == SyncState.DELETED
 
+    def _sync_attrs(self, **kwargs: object) -> None:
+        """
+        Set attributes from keyword arguments.
+
+        Only attributes explicitly passed are updated; absent keys leave
+        the existing local value intact.
+        """
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
     @abstractmethod
     def refresh(self) -> None:
         """
