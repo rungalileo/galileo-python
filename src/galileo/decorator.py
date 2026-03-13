@@ -1294,7 +1294,7 @@ def galileo_dataset_context(
 
     Examples
     --------
-    >>> from galileo import galileo_dataset_context
+    >>> from galileo.decorator import galileo_dataset_context
     >>>
     >>> # Set ground truth for a single agent call
     >>> with galileo_dataset_context(
