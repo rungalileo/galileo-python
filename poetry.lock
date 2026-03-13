@@ -1254,13 +1254,13 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "galileo-core"
-version = "4.1.2"
+version = "4.2.1"
 description = ""
 optional = false
 python-versions = ">=3.10.0"
 groups = ["main", "test"]
 files = [
-    {file = "galileo_core-4.1.2-py3-none-any.whl", hash = "sha256:d3d04d9a3c3d5f69c978868856b3c87d6a3bf8a978232dc561e8dbacacaa9c40"},
+    {file = "galileo_core-4.2.1-py3-none-any.whl", hash = "sha256:8db2e019222081012a27bed31d01faf97c3ce7d8f44ffb6c8cd5d166aca775dd"},
 ]
 
 [package.dependencies]
@@ -6734,4 +6734,4 @@ otel = ["opentelemetry-api", "opentelemetry-exporter-otlp", "opentelemetry-sdk"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.10,<3.15"
-content-hash = "e533f3d5e609df988881269094e79f139b07540306e2eadf44c2194d0c1e37fa"
+content-hash = "146221ede62dbf88520ed81db3c86f273a42967912812e64d58520891d15a8ea"
