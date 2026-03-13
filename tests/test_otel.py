@@ -6,18 +6,23 @@ from unittest.mock import Mock, patch
 import pytest
 from pydantic import SecretStr
 
-from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context, _session_id_context
+from galileo.decorator import (
+    _dataset_input_context,
+    _dataset_metadata_context,
+    _dataset_output_context,
+    _experiment_id_context,
+    _log_stream_context,
+    _project_context,
+    _session_id_context,
+    galileo_dataset_context,
+)
 from galileo.otel import (
     _TRACE_PROVIDER_CONTEXT_VAR,
     INSTALL_ERR_MSG,
     OTEL_AVAILABLE,
     GalileoOTLPExporter,
     GalileoSpanProcessor,
-    _dataset_input_context,
-    _dataset_metadata_context,
-    _dataset_output_context,
     _set_tool_span_attributes,
-    galileo_dataset_context,
     start_galileo_span,
 )
 from galileo_core.schemas.logging.span import ToolSpan

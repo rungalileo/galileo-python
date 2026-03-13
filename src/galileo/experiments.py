@@ -10,8 +10,8 @@ from attrs import field as _attrs_field
 from galileo import galileo_context, log
 from galileo.config import GalileoPythonConfig
 from galileo.datasets import Dataset, convert_dataset_row_to_record
+from galileo.decorator import galileo_dataset_context
 from galileo.experiment_tags import upsert_experiment_tag
-from galileo.otel import galileo_dataset_context
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
 from galileo.resources.api.experiment import (
