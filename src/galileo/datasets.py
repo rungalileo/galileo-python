@@ -17,6 +17,7 @@ from galileo.resources.api.datasets import (
     query_dataset_versions_datasets_dataset_id_versions_query_post,
     query_datasets_datasets_query_post,
     update_dataset_content_datasets_dataset_id_content_patch,
+    update_dataset_datasets_dataset_id_patch,
 )
 from galileo.resources.models import DatasetRow, ListDatasetVersionParams, ListDatasetVersionResponse
 from galileo.resources.models.body_create_dataset_datasets_post import BodyCreateDatasetDatasetsPost
@@ -38,6 +39,7 @@ from galileo.resources.models.synthetic_data_types import SyntheticDataTypes
 from galileo.resources.models.synthetic_dataset_extension_request import SyntheticDatasetExtensionRequest
 from galileo.resources.models.synthetic_dataset_extension_response import SyntheticDatasetExtensionResponse
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
+from galileo.resources.models.update_dataset_request import UpdateDatasetRequest
 from galileo.resources.types import UNSET, File, Unset
 from galileo.schema.datasets import DatasetRecord
 from galileo.utils.datasets import validate_dataset_in_project
@@ -419,6 +421,43 @@ class Datasets:
             raise ValueError(f"Dataset {name or id} not found")
 
         return delete_dataset_datasets_dataset_id_delete.sync(client=self.config.api_client, dataset_id=dataset.id)
+
+    def update(self, dataset_id: str, *, name: Optional[str] = None) -> Dataset:
+        """
+        Updates a dataset's properties.
+
+        Parameters
+        ----------
+        dataset_id : str
+            The ID of the dataset to update.
+        name : str, optional
+            The new name for the dataset.
+
+        Returns
+        -------
+        Dataset
+            The updated dataset.
+
+        Raises
+        ------
+        DatasetAPIException
+            If the API request fails.
+        ValueError
+            If the server returns no response.
+        """
+        body = UpdateDatasetRequest(name=name)
+
+        response = update_dataset_datasets_dataset_id_patch.sync(
+            dataset_id=dataset_id, client=self.config.api_client, body=body
+        )
+
+        if isinstance(response, HTTPValidationError):
+            raise DatasetAPIException(response.detail)
+
+        if not response:
+            raise ValueError(f"Unable to update dataset: {dataset_id}")
+
+        return Dataset(dataset_db=response)
 
     def create(
         self, name: str, content: DatasetType, *, project_id: Optional[str] = None, project_name: Optional[str] = None

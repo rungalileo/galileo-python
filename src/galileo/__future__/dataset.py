@@ -526,8 +526,9 @@ class Dataset(StateManagementMixin):
         """
         Save changes to this dataset.
 
-        This method is a placeholder for future functionality to update
-        dataset properties.
+        Persists any local modifications to the API. If the dataset has not been
+        created yet (LOCAL_ONLY state), this calls create() instead. If already
+        synced with no pending changes, this is a no-op.
 
         Returns
         -------
@@ -535,9 +536,42 @@ class Dataset(StateManagementMixin):
 
         Raises
         ------
-            NotImplementedError: This functionality is not yet implemented.
+            ValueError: If the dataset has been deleted or has no ID set.
+            Exception: If the API call fails.
+
+        Examples
+        --------
+            dataset = Dataset.get(name="my-dataset")
+            dataset.name = "renamed-dataset"
+            dataset._set_state(SyncState.DIRTY)
+            dataset.save()
+            assert dataset.is_synced()
         """
-        raise NotImplementedError(
-            "Dataset updates are not yet implemented. "
-            "Use add_rows() to add content or other specific methods to modify dataset state."
-        )
+        if self.sync_state == SyncState.LOCAL_ONLY:
+            return self.create()
+        if self.sync_state == SyncState.SYNCED:
+            logger.debug(f"Dataset.save: id='{self.id}' - already synced, no action needed")
+            return self
+        if self.sync_state == SyncState.DELETED:
+            raise ValueError("Cannot save a deleted dataset.")
+
+        # DIRTY or FAILED_SYNC
+        if self.id is None:
+            raise ValueError("Dataset ID is not set. Cannot update a dataset without an ID.")
+
+        try:
+            logger.info(f"Dataset.save: name='{self.name}' id='{self.id}' - started")
+            datasets_service = Datasets()
+            updated_dataset = datasets_service.update(self.id, name=self.name)
+
+            # Update attributes from response
+            self.name = updated_dataset.name
+            self.updated_at = updated_dataset.updated_at
+
+            self._set_state(SyncState.SYNCED)
+            logger.info(f"Dataset.save: id='{self.id}' - completed")
+            return self
+        except Exception as e:
+            self._set_state(SyncState.FAILED_SYNC, error=e)
+            logger.error(f"Dataset.save: id='{self.id}' - failed: {e}")
+            raise
