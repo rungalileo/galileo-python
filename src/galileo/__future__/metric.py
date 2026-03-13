@@ -13,8 +13,6 @@ if TYPE_CHECKING:
     from galileo.__future__.model import Model
 
 from galileo.__future__.configuration import Configuration
-from galileo.__future__.shared.base import StateManagementMixin, SyncState
-from galileo.__future__.shared.exceptions import ValidationError
 from galileo.config import GalileoPythonConfig
 from galileo.metrics import Metrics
 from galileo.resources.api.data import (
@@ -36,6 +34,8 @@ from galileo.resources.types import File, Unset
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 from galileo.schema.metrics import Metric as LegacyMetric
 from galileo.scorers import Scorers
+from galileo.shared.base import StateManagementMixin, SyncState
+from galileo.shared.exceptions import ValidationError
 from galileo_core.schemas.logging.span import Span
 from galileo_core.schemas.logging.step import StepType
 from galileo_core.schemas.logging.trace import Trace

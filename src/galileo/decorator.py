@@ -635,7 +635,7 @@ class GalileoDecorator:
             self._prepare_call(span_type, span_params, dataset_record)
             return True
         except Exception as e:
-            from galileo.__future__.shared.exceptions import ConfigurationError
+            from galileo.shared.exceptions import ConfigurationError
 
             if isinstance(e, ConfigurationError):
                 _logger.error("Galileo logging initialization failed: %s", e, exc_info=True)

@@ -675,7 +675,7 @@ class TestExperimentQuery:
 class TestExperimentRelationships:
     """Test suite for Experiment relationship properties."""
 
-    @patch("galileo.__future__.project.Project")
+    @patch("galileo.project.Project")
     def test_project_property_returns_project(
         self,
         mock_project_class: MagicMock,

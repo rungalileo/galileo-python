@@ -6,8 +6,6 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from galileo.__future__.shared.base import StateManagementMixin, SyncState
-from galileo.__future__.shared.exceptions import ValidationError
 from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
 from galileo.prompts import GlobalPromptTemplates
@@ -24,6 +22,8 @@ from galileo.resources.models import (
 )
 from galileo.resources.types import Unset
 from galileo.schema.message import Message
+from galileo.shared.base import StateManagementMixin, SyncState
+from galileo.shared.exceptions import ValidationError
 from galileo.utils.env_helpers import _get_project_from_env, _get_project_id_from_env
 from galileo_core.schemas.logging.llm import MessageRole
 

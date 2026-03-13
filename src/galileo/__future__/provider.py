@@ -5,8 +5,6 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any
 
-from galileo.__future__.shared.base import StateManagementMixin, SyncState
-from galileo.__future__.shared.exceptions import APIError, IntegrationNotConfiguredError, ValidationError
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.integrations import (
     create_or_update_integration_integrations_anthropic_put,
@@ -26,6 +24,8 @@ from galileo.resources.models import (
     OpenAIIntegrationCreate,
 )
 from galileo.resources.types import Unset
+from galileo.shared.base import StateManagementMixin, SyncState
+from galileo.shared.exceptions import APIError, IntegrationNotConfiguredError, ValidationError
 from galileo.utils.exceptions import APIException
 
 logger = logging.getLogger(__name__)

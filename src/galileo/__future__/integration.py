@@ -4,8 +4,6 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, cast
 
-from galileo.__future__.shared.base import StateManagementMixin, SyncState
-from galileo.__future__.shared.exceptions import APIError, ValidationError
 from galileo.__future__.shared.utils import classproperty
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.integrations import (
@@ -15,6 +13,8 @@ from galileo.resources.api.integrations import (
 from galileo.resources.models.integration_db import IntegrationDB
 from galileo.resources.models.integration_name import IntegrationName
 from galileo.resources.types import Unset
+from galileo.shared.base import StateManagementMixin, SyncState
+from galileo.shared.exceptions import APIError, ValidationError
 from galileo.utils.exceptions import APIException
 
 if TYPE_CHECKING:
