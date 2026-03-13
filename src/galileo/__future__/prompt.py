@@ -180,6 +180,9 @@ class Prompt(StateManagementMixin):
         prompt.delete()
     """
 
+    # Fields tracked for dirty-state detection (name changes → DIRTY → save() calls update())
+    _TRACKED_FIELDS: frozenset[str] = frozenset({"name"})
+
     # Type annotations for instance attributes
     id: str | None
     name: str
@@ -202,6 +205,12 @@ class Prompt(StateManagementMixin):
         """Detailed string representation of the prompt."""
         version_info = f", version={self.selected_version_number}" if self.selected_version_number else ""
         return f"Prompt(name='{self.name}', id='{self.id}', messages={len(self.messages)} messages{version_info})"
+
+    def __setattr__(self, attr_name: str, value: Any) -> None:
+        """Track mutations to name and transition to DIRTY state when synced."""
+        if attr_name in self._TRACKED_FIELDS and hasattr(self, "_sync_state") and self._sync_state == SyncState.SYNCED:
+            self._set_state(SyncState.DIRTY)
+        object.__setattr__(self, attr_name, value)
 
     def __init__(
         self,
@@ -291,7 +300,7 @@ class Prompt(StateManagementMixin):
             retrieved_prompt: The prompt data retrieved from the API.
         """
         self.id = retrieved_prompt.id
-        self.name = retrieved_prompt.name
+        object.__setattr__(self, "name", retrieved_prompt.name)
 
         # Extract messages from the selected_version template using helper
         self.messages = _parse_template_to_messages(retrieved_prompt.selected_version.template)
@@ -497,8 +506,8 @@ class Prompt(StateManagementMixin):
             logger.info(f"Prompt.update: id='{self.id}' name='{name}' - started")
             prompt_service = GlobalPromptTemplates()
             updated_prompt = prompt_service.update(template_id=self.id, name=name)
-            # Update our instance attributes
-            self.name = updated_prompt.name
+            # Update our instance attributes (bypass dirty tracking — this is an internal sync)
+            object.__setattr__(self, "name", updated_prompt.name)
             self.updated_at = updated_prompt.updated_at
             # Set state to synced after successful update
             self._set_state(SyncState.SYNCED)
@@ -773,10 +782,7 @@ class Prompt(StateManagementMixin):
         if self.sync_state == SyncState.DELETED:
             raise ValueError("Cannot save a deleted prompt.")
 
-        # DIRTY or FAILED_SYNC states
-        # For now, we don't track dirty state for prompts
-        # Users should use update() directly for changes
-        raise NotImplementedError(
-            "Saving modified prompts is not yet implemented. "
-            "Use update(name='...') to rename or create_version(messages=[...]) to create a new version."
-        )
+        # DIRTY or FAILED_SYNC: name was changed, persist it
+        if self.id is None:
+            raise ValueError("Prompt ID is not set. Cannot update a prompt without an ID.")
+        return self.update(name=self.name)
