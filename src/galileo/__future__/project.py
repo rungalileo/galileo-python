@@ -9,6 +9,7 @@ from galileo.__future__.collaborator import Collaborator, CollaboratorRole
 from galileo.__future__.shared.base import StateManagementMixin, SyncState
 from galileo.__future__.shared.exceptions import APIError, ValidationError
 from galileo.projects import Projects
+from galileo.resources.types import Unset
 
 if TYPE_CHECKING:
     from galileo.__future__.dataset import Dataset
@@ -760,8 +761,9 @@ class Project(StateManagementMixin):
         """
         Save changes to this project.
 
-        This method is a placeholder for future functionality to update
-        project properties.
+        Persists any local modifications to the API. If the project has not been
+        created yet (LOCAL_ONLY state), this calls create() instead. If already
+        synced with no pending changes, this is a no-op.
 
         Returns
         -------
@@ -769,11 +771,46 @@ class Project(StateManagementMixin):
 
         Raises
         ------
-            NotImplementedError: This functionality is not yet implemented.
+            ValueError: If the project has been deleted or has no ID set.
+            Exception: If the API call fails.
+
+        Examples
+        --------
+            project = Project.get(name="My Project")
+            project.name = "Renamed Project"
+            project._set_state(SyncState.DIRTY)
+            project.save()
+            assert project.is_synced()
         """
-        raise NotImplementedError(
-            "Project updates are not yet implemented. Use specific methods to modify project state."
-        )
+        if self.sync_state == SyncState.LOCAL_ONLY:
+            return self.create()
+        if self.sync_state == SyncState.SYNCED:
+            logger.debug(f"Project.save: id='{self.id}' - already synced, no action needed")
+            return self
+        if self.sync_state == SyncState.DELETED:
+            raise ValueError("Cannot save a deleted project.")
+
+        # DIRTY or FAILED_SYNC
+        if self.id is None:
+            raise ValueError("Project ID is not set. Cannot update a project without an ID.")
+
+        try:
+            logger.info(f"Project.save: name='{self.name}' id='{self.id}' - started")
+            projects_service = Projects()
+            updated_project = projects_service.update(self.id, name=self.name)
+
+            # Update attributes from response
+            if not isinstance(updated_project.name, Unset):
+                self.name = updated_project.name
+            self.updated_at = updated_project.updated_at
+
+            self._set_state(SyncState.SYNCED)
+            logger.info(f"Project.save: id='{self.id}' - completed")
+            return self
+        except Exception as e:
+            self._set_state(SyncState.FAILED_SYNC, error=e)
+            logger.error(f"Project.save: id='{self.id}' - failed: {e}")
+            raise
 
 
 # Import at end to avoid circular import (log_stream.py imports Project)
