@@ -21,11 +21,12 @@ from datetime import datetime
 from typing import Any
 
 from galileo_core.schemas.logging.agent import AgentType
-from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
-from galileo_core.schemas.logging.trace import Trace
+from galileo_core.schemas.logging.span import LlmMetrics, RetrieverSpan, ToolSpan
+from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 from pydantic import PrivateAttr
 
+from galileo.schema.logged import LoggedAgentSpan, LoggedLlmSpan, LoggedTrace, LoggedWorkflowSpan
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.retrievers import convert_to_documents
 
@@ -65,7 +66,7 @@ class TraceBuilder(TracesLogger):
     """
 
     # Public fields (Pydantic fields)
-    traces: list[Trace] = []
+    traces: list[LoggedTrace] = []
     session_id: str | None = None
 
     # Private attributes (use PrivateAttr for non-field attributes)
@@ -84,6 +85,46 @@ class TraceBuilder(TracesLogger):
         super().__init__(**data)
         self._ingestion_hook = ingestion_hook
         self._session_external_id = None
+
+    def add_trace(
+        self,
+        input: str,
+        redacted_input: str | None = None,
+        output: str | None = None,
+        redacted_output: str | None = None,
+        name: str | None = None,
+        created_at: datetime | None = None,
+        duration_ns: int | None = None,
+        user_metadata: dict[str, str] | None = None,
+        tags: list[str] | None = None,
+        dataset_input: str | None = None,
+        dataset_output: str | None = None,
+        dataset_metadata: dict[str, str] | None = None,
+        external_id: str | None = None,
+        id: uuid.UUID | None = None,
+    ) -> LoggedTrace:
+        if self.current_parent() is not None:
+            raise ValueError("You must conclude the existing trace before adding a new one.")
+        trace = LoggedTrace(
+            input=input,
+            redacted_input=redacted_input,
+            output=output,
+            redacted_output=redacted_output,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
+            dataset_input=dataset_input,
+            dataset_output=dataset_output,
+            dataset_metadata=dataset_metadata if dataset_metadata is not None else {},
+            external_id=external_id,
+            id=id,
+        )
+        trace._parent = None
+        self.traces.append(trace)
+        self._set_current_parent(trace)
+        return trace
 
     @staticmethod
     def _convert_metadata_value(v: Any) -> str:
@@ -107,7 +148,7 @@ class TraceBuilder(TracesLogger):
         dataset_output: str | None = None,
         dataset_metadata: dict[str, MetadataValue] | None = None,
         external_id: str | None = None,
-    ) -> Trace:
+    ) -> LoggedTrace:
         """Create a new trace and add it to the list of traces.
 
         This method mirrors GalileoLogger.start_trace() for API compatibility
@@ -184,26 +225,30 @@ class TraceBuilder(TracesLogger):
         tags: list[str] | None = None,
         step_number: int | None = None,
         status_code: int | None = None,
-    ) -> WorkflowSpan:
+    ) -> LoggedWorkflowSpan:
         """Add a workflow span to the current parent.
 
         This method wraps TracesLogger.add_workflow_span() to accept
         `metadata` parameter (for GalileoBaseHandler compatibility).
         """
-        span = super().add_workflow_span(
-            id=uuid.uuid4(),
+        parent = self.current_parent()
+        span = LoggedWorkflowSpan(
             input=input,
             redacted_input=redacted_input,
             output=output,
             redacted_output=redacted_output,
             name=name,
-            duration_ns=duration_ns,
-            created_at=created_at,
+            created_at=self._get_child_span_timestamp() if created_at is None else created_at,
             user_metadata=metadata,
             tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
+            id=uuid.uuid4(),
             step_number=step_number,
         )
-        if span is not None and status_code is not None:
+        span._parent = parent
+        self.add_child_span_to_parent(span)
+        self._set_current_parent(span)
+        if status_code is not None:
             span.status_code = status_code
         return span
 
@@ -221,27 +266,31 @@ class TraceBuilder(TracesLogger):
         agent_type: AgentType | None = None,
         step_number: int | None = None,
         status_code: int | None = None,
-    ) -> AgentSpan:
+    ) -> LoggedAgentSpan:
         """Add an agent span to the current parent.
 
         This method wraps TracesLogger.add_agent_span() to accept
         `metadata` parameter (for GalileoBaseHandler compatibility).
         """
-        span = super().add_agent_span(
-            id=uuid.uuid4(),
+        parent = self.current_parent()
+        span = LoggedAgentSpan(
             input=input,
             redacted_input=redacted_input,
             output=output,
             redacted_output=redacted_output,
             name=name,
-            duration_ns=duration_ns,
-            created_at=created_at,
+            created_at=self._get_child_span_timestamp() if created_at is None else created_at,
             user_metadata=metadata,
             tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
             agent_type=agent_type,
+            id=uuid.uuid4(),
             step_number=step_number,
         )
-        if span is not None and status_code is not None:
+        span._parent = parent
+        self.add_child_span_to_parent(span)
+        self._set_current_parent(span)
+        if status_code is not None:
             span.status_code = status_code
         return span
 
@@ -266,14 +315,13 @@ class TraceBuilder(TracesLogger):
         time_to_first_token_ns: int | None = None,
         step_number: int | None = None,
         events: list[Any] | None = None,
-    ) -> LlmSpan:
+    ) -> LoggedLlmSpan:
         """Add an LLM span to the current parent.
 
         This method wraps TracesLogger.add_llm_span() to accept
         `metadata` parameter (for GalileoBaseHandler compatibility).
         """
-        return super().add_llm_span(
-            id=uuid.uuid4(),
+        span = LoggedLlmSpan(
             input=input,
             output=output,
             model=model,
@@ -281,19 +329,24 @@ class TraceBuilder(TracesLogger):
             redacted_output=redacted_output,
             tools=tools,
             name=name,
-            created_at=created_at,
-            duration_ns=duration_ns,
+            created_at=self._get_child_span_timestamp() if created_at is None else created_at,
             user_metadata=metadata,
             tags=tags,
-            num_input_tokens=num_input_tokens,
-            num_output_tokens=num_output_tokens,
-            total_tokens=total_tokens,
+            metrics=LlmMetrics(
+                duration_ns=duration_ns,
+                num_input_tokens=num_input_tokens,
+                num_output_tokens=num_output_tokens,
+                num_total_tokens=total_tokens,
+                time_to_first_token_ns=time_to_first_token_ns,
+            ),
+            events=events,
             temperature=temperature,
             status_code=status_code,
-            time_to_first_token_ns=time_to_first_token_ns,
+            id=uuid.uuid4(),
             step_number=step_number,
-            events=events,
         )
+        self.add_child_span_to_parent(span)
+        return span
 
     def add_tool_span(
         self,
