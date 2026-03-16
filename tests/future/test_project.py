@@ -106,21 +106,42 @@ class TestProjectGet:
         with pytest.raises(APIError, match="Failed to retrieve project"):
             Project.get(name="Test Project")
 
-    def test_get_raises_validation_error_when_no_args(self, reset_configuration: None) -> None:
-        # Given: no id or name provided
-        # When/Then: ValidationError is raised (not APIError)
+    @patch("galileo.project.Projects")
+    def test_get_raises_validation_error_when_no_args(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: Projects.get raises ValueError for missing id and name
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.side_effect = ValueError("Exactly one of 'id' or 'name' must be provided.")
+
+        # When/Then: Project.get() translates it to ValidationError (not APIError)
         with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
             Project.get()
 
-    def test_get_raises_validation_error_when_both_args(self, reset_configuration: None) -> None:
-        # Given: both id and name provided
-        # When/Then: ValidationError is raised (not APIError)
+    @patch("galileo.project.Projects")
+    def test_get_raises_validation_error_when_both_args(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: Projects.get raises ValueError when both id and name are supplied
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.side_effect = ValueError("Exactly one of 'id' or 'name' must be provided.")
+
+        # When/Then: Project.get() translates it to ValidationError (not APIError)
         with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
             Project.get(id="proj-123", name="My Project")
 
-    def test_get_raises_validation_error_for_whitespace_only_args(self, reset_configuration: None) -> None:
-        # Given: only whitespace provided for both args (strips to empty)
-        # When/Then: ValidationError is raised (not APIError)
+    @patch("galileo.project.Projects")
+    def test_get_raises_validation_error_for_whitespace_only_args(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: Projects.get strips whitespace then raises ValueError (both args collapse to empty)
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.side_effect = ValueError("Exactly one of 'id' or 'name' must be provided.")
+
+        # When/Then: Project.get() translates it to ValidationError (not APIError)
         with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
             Project.get(id="   ", name="   ")
 

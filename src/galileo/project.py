@@ -241,11 +241,6 @@ class Project(StateManagementMixin):
             # Get by ID
             project = Project.get(id="project-123")
         """
-        id = id.strip() if id else None
-        name = name.strip() if name else None
-        if (not id and not name) or (id and name):
-            raise ValidationError("Exactly one of 'id' or 'name' must be provided.")
-
         try:
             projects_service = Projects()
             retrieved_project = projects_service.get(id=id, name=name)
@@ -253,6 +248,8 @@ class Project(StateManagementMixin):
                 return None
 
             return cls._from_api_response(retrieved_project)
+        except ValueError as e:
+            raise ValidationError(str(e)) from e
         except Exception as e:
             logger.error("Project.get: id='%s' name='%s' - failed: %s", id, name, str(e))
             raise APIError("Failed to retrieve project: %s", original_error=e) from e
