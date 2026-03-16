@@ -14,6 +14,7 @@ from galileo.exceptions import (
     ServerError,
 )
 from galileo.logger import GalileoLogger
+from galileo.project import Project
 from galileo.protect import ainvoke_protect, invoke_protect
 from galileo.schema.message import Message
 from galileo.schema.metrics import GalileoMetrics, GalileoScorers
@@ -48,12 +49,6 @@ from galileo_core.schemas.protect.request import Request
 from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
 from galileo_core.schemas.protect.stage import StageType
-
-# isort: split
-# Import Project AFTER all other galileo modules to avoid circular imports.
-# project.py → __future__/dataset.py → __future__/__init__.py → experiment.py
-# → experiments.py → prompts.py → `from galileo import Message`
-from galileo.project import Project
 
 __version__ = "1.50.1"
 

@@ -6,9 +6,9 @@ from collections.abc import Iterator
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from galileo import galileo_context
 from galileo.__future__.shared.query_result import QueryResult
 from galileo.config import GalileoPythonConfig
+from galileo.decorator import galileo_context
 from galileo.export import ExportClient
 from galileo.log_streams import LogStreams
 from galileo.projects import Projects

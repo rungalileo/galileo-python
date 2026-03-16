@@ -3,7 +3,6 @@ import logging
 import warnings
 from typing import Optional, Union, overload
 
-from galileo import Message
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.prompts import (
     create_global_prompt_template_templates_post,
@@ -30,6 +29,7 @@ from galileo.resources.models import (
     UpdatePromptTemplateRequest,
 )
 from galileo.resources.types import Unset
+from galileo.schema.message import Message
 from galileo.utils.exceptions import APIException
 from galileo.utils.projects import resolve_project_id
 from galileo.utils.prompts import generate_unique_name
