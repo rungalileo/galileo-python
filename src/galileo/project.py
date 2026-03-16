@@ -241,6 +241,11 @@ class Project(StateManagementMixin):
             # Get by ID
             project = Project.get(id="project-123")
         """
+        id = id.strip() if id else None
+        name = name.strip() if name else None
+        if (not id and not name) or (id and name):
+            raise ValidationError("Exactly one of 'id' or 'name' must be provided.")
+
         try:
             projects_service = Projects()
             retrieved_project = projects_service.get(id=id, name=name)

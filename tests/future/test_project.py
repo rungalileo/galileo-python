@@ -106,6 +106,24 @@ class TestProjectGet:
         with pytest.raises(APIError, match="Failed to retrieve project"):
             Project.get(name="Test Project")
 
+    def test_get_raises_validation_error_when_no_args(self, reset_configuration: None) -> None:
+        # Given: no id or name provided
+        # When/Then: ValidationError is raised (not APIError)
+        with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
+            Project.get()
+
+    def test_get_raises_validation_error_when_both_args(self, reset_configuration: None) -> None:
+        # Given: both id and name provided
+        # When/Then: ValidationError is raised (not APIError)
+        with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
+            Project.get(id="proj-123", name="My Project")
+
+    def test_get_raises_validation_error_for_whitespace_only_args(self, reset_configuration: None) -> None:
+        # Given: only whitespace provided for both args (strips to empty)
+        # When/Then: ValidationError is raised (not APIError)
+        with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
+            Project.get(id="   ", name="   ")
+
 
 class TestProjectList:
     """Test suite for Project.list() class method."""
