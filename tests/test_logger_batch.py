@@ -10,10 +10,13 @@ from uuid import UUID, uuid4
 import pytest
 
 from galileo.logger import GalileoLogger
+from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
 from galileo.schema.logged import LoggedTrace
+from galileo.schema.message import LoggedMessage
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import TracesIngestRequest
 from galileo_core.schemas.logging.agent import AgentType
+from galileo_core.schemas.logging.llm import MessageRole
 from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, Span, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
@@ -21,6 +24,7 @@ from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response, TraceMetadata
 from galileo_core.schemas.shared.document import Document
+from galileo_core.schemas.shared.multimodal import ContentModality
 from tests.testutils.setup import (
     setup_mock_experiments_client,
     setup_mock_logstreams_client,
@@ -1587,6 +1591,44 @@ def test_add_single_llm_span_trace_ingestion(
 
     assert logger.traces == []
     assert logger._parent_stack == deque()
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_multimodal_input_not_stringified_at_trace_level(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Multimodal content must be preserved at trace level, not serialized to string."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    # Given: multimodal message input with text + image content blocks
+    messages = [
+        LoggedMessage(
+            content=[
+                TextContentBlock(text="Describe this image"),
+                DataContentBlock(modality=ContentModality.image, url="https://example.com/img.png"),
+            ],
+            role=MessageRole.user,
+        )
+    ]
+    logger.start_trace(input=messages)
+    logger.add_llm_span(input=messages, output="A sunset", model="gpt-4o")
+    logger.conclude("A sunset")
+    logger.flush()
+
+    # Then: trace.input is the message list, not a stringified version
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    trace = payload.traces[0]
+    assert not isinstance(trace.input, str), "trace input should not be stringified"
+    assert isinstance(trace.input, list)
+    assert isinstance(trace.input[0], LoggedMessage)
+    assert trace.input[0].content[0].text == "Describe this image"
+    assert trace.input[0].content[1].modality == ContentModality.image
 
 
 @patch("galileo.logger.logger.LogStreams")
