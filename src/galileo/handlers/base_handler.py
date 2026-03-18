@@ -75,7 +75,7 @@ class GalileoBaseHandler:
         try:
             if self._start_new_trace:
                 self._galileo_logger.start_trace(
-                    input=serialize_to_str(root_node.span_params.get("input", "")),
+                    input=root_node.span_params.get("input", ""),
                     name=root_node.span_params.get("name"),
                     metadata=root_node.span_params.get("metadata"),
                 )
@@ -86,10 +86,7 @@ class GalileoBaseHandler:
             root_output = root_node.span_params.get("output", "")
 
             if self._start_new_trace:
-                # If we started a new trace, we need to conclude it
-                self._galileo_logger.conclude(
-                    output=serialize_to_str(root_output), status_code=root_node.span_params.get("status_code")
-                )
+                self._galileo_logger.conclude(output=root_output, status_code=root_node.span_params.get("status_code"))
 
             if self._flush_on_chain_end:
                 self._galileo_logger.flush()

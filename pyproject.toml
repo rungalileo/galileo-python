@@ -238,6 +238,7 @@ ignore = [
 "src/galileo/utils/datasets.py" = ["PLC0415"]
 "src/galileo/utils/serialization.py" = ["PLC0415"]  # Optional dependency conditional imports
 "src/galileo/handlers/crewai/handler.py" = ["PLC0415"]  # Version-specific conditional imports
+"tests/**" = ["PLC0415"]  # Tests use pytest.importorskip + post-monkeypatch imports
 
 [tool.ruff.lint.isort]
 known-first-party = ["galileo_core"]

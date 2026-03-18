@@ -923,12 +923,12 @@ class TestGalileoCallback:
         assert node is not None
         assert node.node_type == "chat"
 
-        # Check that content was properly converted from list to string
+        # Check that content was converted to IngestContentBlock list (multimodal ingest format)
         input_data = node.span_params["input"]
         assert isinstance(input_data, list)
         assert len(input_data) == 1
-        assert input_data[0]["content"] == "This is a response from the Responses API"
         assert input_data[0]["role"] == "assistant"
+        assert input_data[0]["content"] == [{"type": "text", "text": "This is a response from the Responses API"}]
 
     def test_ai_message_with_reasoning(self, callback: GalileoCallback, galileo_logger: GalileoLogger) -> None:
         """Test AIMessage serialization with reasoning in additional_kwargs"""

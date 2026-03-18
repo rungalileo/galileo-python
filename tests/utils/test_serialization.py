@@ -14,7 +14,14 @@ import pytest
 from langchain_core.messages import AIMessage
 from pydantic import BaseModel
 
-from galileo.utils.serialization import EventSerializer, convert_to_string_dict, serialize_datetime, serialize_to_str
+from galileo.utils.serialization import (
+    EventSerializer,
+    _convert_langchain_content_block,
+    _normalize_multimodal_content,
+    convert_to_string_dict,
+    serialize_datetime,
+    serialize_to_str,
+)
 
 
 class TestSerializeDateTime:
@@ -516,6 +523,103 @@ class TestConvertToStringDict:
         assert "large_int" in result
         # Should be converted to string directly, not via JSON serialization
         assert result["large_int"] == str(large_int)
+
+
+class TestConvertLangchainContentBlock:
+    """Test conversion of LangChain multimodal content blocks to Galileo IngestContentBlock shape."""
+
+    def test_text_block_passthrough(self) -> None:
+        block = {"type": "text", "text": "Hello world"}
+        result = _convert_langchain_content_block(block)
+        assert result == {"type": "text", "text": "Hello world"}
+
+    def test_responses_api_style_text_only(self) -> None:
+        # Responses API can send {"text": "..."} without "type" key
+        block = {"text": "This is a response from the Responses API"}
+        result = _convert_langchain_content_block(block)
+        assert result == {"type": "text", "text": "This is a response from the Responses API"}
+
+    def test_image_url_http(self) -> None:
+        block = {"type": "image_url", "image_url": {"url": "https://example.com/image.png"}}
+        result = _convert_langchain_content_block(block)
+        assert result == {"type": "data", "modality": "image", "url": "https://example.com/image.png"}
+
+    def test_image_url_base64_data_uri(self) -> None:
+        block = {"type": "image_url", "image_url": {"url": "data:image/png;base64,iVBORw0KGgo="}}
+        result = _convert_langchain_content_block(block)
+        assert result["type"] == "data"
+        assert result["modality"] == "image"
+        assert result["base64"] == "iVBORw0KGgo="
+        assert result.get("mime_type") == "image/png"
+
+    def test_audio_url(self) -> None:
+        block = {"type": "audio_url", "audio_url": {"url": "https://example.com/audio.mp3"}}
+        result = _convert_langchain_content_block(block)
+        assert result == {"type": "data", "modality": "audio", "url": "https://example.com/audio.mp3"}
+
+    def test_video_url(self) -> None:
+        block = {"type": "video_url", "video_url": {"url": "https://example.com/video.mp4"}}
+        result = _convert_langchain_content_block(block)
+        assert result == {"type": "data", "modality": "video", "url": "https://example.com/video.mp4"}
+
+    def test_document_url(self) -> None:
+        block = {"type": "document_url", "document_url": {"url": "https://example.com/doc.pdf"}}
+        result = _convert_langchain_content_block(block)
+        assert result == {"type": "data", "modality": "document", "url": "https://example.com/doc.pdf"}
+
+    def test_unknown_type_fallback_to_text(self) -> None:
+        block = {"type": "unknown", "data": "xyz"}
+        result = _convert_langchain_content_block(block)
+        assert result["type"] == "text"
+        assert "unknown" in result["text"] or "xyz" in result["text"]
+
+
+class TestNormalizeMultimodalContent:
+    """Test _normalize_multimodal_content for LangChain list content."""
+
+    def test_empty_list_unchanged(self) -> None:
+        assert _normalize_multimodal_content([]) == []
+
+    def test_non_list_unchanged(self) -> None:
+        assert _normalize_multimodal_content("hello") == "hello"
+        assert _normalize_multimodal_content(None) is None
+
+    def test_list_of_dicts_converted(self) -> None:
+        content = [
+            {"type": "text", "text": "Describe this"},
+            {"type": "image_url", "image_url": {"url": "https://example.com/img.png"}},
+        ]
+        result = _normalize_multimodal_content(content)
+        assert len(result) == 2
+        assert result[0] == {"type": "text", "text": "Describe this"}
+        assert result[1] == {"type": "data", "modality": "image", "url": "https://example.com/img.png"}
+
+
+class TestLangChainMultimodalSerialization:
+    """Test that AIMessage/BaseMessage with list content serialize to IngestContentBlock list."""
+
+    def test_ai_message_list_content_to_content_blocks(self) -> None:
+        pytest.importorskip("langchain_core")
+        from langchain_core.messages import AIMessage
+
+        message = AIMessage(content=[{"type": "text", "text": "The image shows a cat."}])
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+        assert result["content"] == [{"type": "text", "text": "The image shows a cat."}]
+
+    def test_human_message_multimodal_roundtrip(self) -> None:
+        pytest.importorskip("langchain_core")
+        from langchain_core.messages import HumanMessage
+
+        message = HumanMessage(
+            content=[
+                {"type": "text", "text": "What is in this image?"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/photo.png"}},
+            ]
+        )
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+        assert len(result["content"]) == 2
+        assert result["content"][0] == {"type": "text", "text": "What is in this image?"}
+        assert result["content"][1] == {"type": "data", "modality": "image", "url": "https://example.com/photo.png"}
 
 
 class TestLangChainToolCallsTransformation:
