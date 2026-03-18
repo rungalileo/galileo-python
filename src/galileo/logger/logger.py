@@ -17,6 +17,7 @@ from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.projects import Projects
+from galileo.schema.logged import IngestInputType, LoggedAgentSpan, LoggedLlmSpan, LoggedTrace, LoggedWorkflowSpan
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import (
     LogRecordsSearchFilter,
@@ -52,7 +53,7 @@ from galileo_core.helpers.execution import async_run
 from galileo_core.schemas.logging.agent import AgentType
 from galileo_core.schemas.logging.llm import Event
 from galileo_core.schemas.logging.span import (
-    AgentSpan,
+    LlmMetrics,
     LlmSpan,
     LlmSpanAllowedInputType,
     LlmSpanAllowedOutputType,
@@ -60,9 +61,8 @@ from galileo_core.schemas.logging.span import (
     Span,
     StepWithChildSpans,
     ToolSpan,
-    WorkflowSpan,
 )
-from galileo_core.schemas.logging.step import BaseStep, Metrics, StepAllowedInputType, StepType
+from galileo_core.schemas.logging.step import BaseStep, Metrics, StepType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response
@@ -376,7 +376,7 @@ class GalileoLogger(TracesLogger):
 
         Note: trace_id and span_id are already validated as UUIDs in __init__
         """
-        stub_trace = Trace(
+        stub_trace = LoggedTrace(
             input="",
             name=STUB_TRACE_NAME,
             created_at=datetime.now(),
@@ -391,7 +391,7 @@ class GalileoLogger(TracesLogger):
 
         if self.span_id:
             # If span_id is provided, also add the span (it's the immediate parent)
-            stub_span = WorkflowSpan(
+            stub_span = LoggedWorkflowSpan(
                 input="",
                 name="stub_parent_span",
                 created_at=datetime.now(),
@@ -401,6 +401,46 @@ class GalileoLogger(TracesLogger):
             # Set parent pointer and update current parent
             stub_span._parent = stub_trace
             self._set_current_parent(stub_span)
+
+    def add_trace(
+        self,
+        input: str,
+        redacted_input: Optional[str] = None,
+        output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
+        name: Optional[str] = None,
+        created_at: Optional[datetime] = None,
+        duration_ns: Optional[int] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        dataset_input: Optional[str] = None,
+        dataset_output: Optional[str] = None,
+        dataset_metadata: Optional[dict[str, str]] = None,
+        external_id: Optional[str] = None,
+        id: Optional[uuid.UUID] = None,
+    ) -> LoggedTrace:
+        if self.current_parent() is not None:
+            raise ValueError("You must conclude the existing trace before adding a new one.")
+        trace = LoggedTrace(
+            input=input,
+            redacted_input=redacted_input,
+            output=output,
+            redacted_output=redacted_output,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
+            dataset_input=dataset_input,
+            dataset_output=dataset_output,
+            dataset_metadata=dataset_metadata if dataset_metadata is not None else {},
+            external_id=external_id,
+            id=id,
+        )
+        trace._parent = None
+        self.traces.append(trace)
+        self._set_current_parent(trace)
+        return trace
 
     @staticmethod
     def _convert_metadata_value(v: Any) -> str:
@@ -655,7 +695,7 @@ class GalileoLogger(TracesLogger):
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
     def _ingest_step_streaming(self, step: StepWithChildSpans, is_complete: bool = False) -> None:
-        if isinstance(step, Trace):
+        if isinstance(step, LoggedTrace):
             self._ingest_trace_streaming(step, is_complete=is_complete)
         else:
             self._ingest_span_streaming(step)
@@ -663,7 +703,7 @@ class GalileoLogger(TracesLogger):
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
     def _update_step_streaming(self, step: StepWithChildSpans, is_complete: bool = False) -> None:
-        if isinstance(step, Trace):
+        if isinstance(step, LoggedTrace):
             self._update_trace_streaming(step, is_complete=is_complete)
         else:
             self._update_span_streaming(step)
@@ -752,8 +792,8 @@ class GalileoLogger(TracesLogger):
     @warn_catch_exception(exceptions=(Exception,))
     def start_trace(
         self,
-        input: StepAllowedInputType | dict,
-        redacted_input: Optional[StepAllowedInputType | dict] = None,
+        input: Union[IngestInputType, dict],
+        redacted_input: Optional[Union[IngestInputType, dict]] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -763,21 +803,22 @@ class GalileoLogger(TracesLogger):
         dataset_output: Optional[str] = None,
         dataset_metadata: Optional[dict[str, MetadataValue]] = None,
         external_id: Optional[str] = None,
-    ) -> Trace:
+    ) -> LoggedTrace:
         """
         Create a new trace and add it to the list of traces.
         Once this trace is complete, you can close it out by calling conclude().
 
         Parameters
         ----------
-        input: StepAllowedInputType | dict
+        input: IngestInputType | dict
             Input to the node.
-            Expected format: String, dict (auto-converted to JSON), or sequence of Message objects.
+            Expected format: String, dict (auto-converted to JSON), sequence of Message objects,
+            or sequence of LoggedMessage objects with multimodal content blocks.
             Examples -
                 - String: "User query: What is the weather today?"
                 - Dict: `{"query": "hello", "context": "world"}` (auto-converted to JSON string)
-                - Messages: `[Message(content="Hello", role=MessageRole.user)]`
-        redacted_input: Optional[StepAllowedInputType | dict]
+                - Messages: `[LoggedMessage(content="Hello", role=MessageRole.user)]`
+        redacted_input: Optional[IngestInputType | dict]
             Input that removes any sensitive information (redacted input).
             Same format as input parameter.
         name: Optional[str]
@@ -809,7 +850,7 @@ class GalileoLogger(TracesLogger):
 
         Returns
         -------
-        Trace
+        LoggedTrace
             The created trace.
         """
         # Auto-convert dict input to JSON string (addresses common user mistake)
@@ -876,7 +917,7 @@ class GalileoLogger(TracesLogger):
         dataset_output: Optional[str] = None,
         dataset_metadata: Optional[dict[str, MetadataValue]] = None,
         span_step_number: Optional[int] = None,
-    ) -> Trace:
+    ) -> LoggedTrace:
         """
         Create a new trace with a single span and add it to the list of traces.
         The trace is automatically concluded.
@@ -955,7 +996,7 @@ class GalileoLogger(TracesLogger):
 
         Returns
         -------
-        Trace
+        LoggedTrace
             The created trace.
         """
         # Auto-convert non-string metadata values to strings
@@ -964,31 +1005,53 @@ class GalileoLogger(TracesLogger):
         if dataset_metadata:
             dataset_metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in dataset_metadata.items()}
 
-        trace = super().add_single_llm_span_trace(
+        if self.current_parent() is not None:
+            raise ValueError("A trace cannot be created within a parent trace or span, it must always be the root.")
+
+        trace = LoggedTrace(
             input=input,
-            output=output,
             redacted_input=redacted_input,
+            output=output,
             redacted_output=redacted_output,
-            model=model,
-            tools=tools,
             name=name,
             created_at=created_at,
-            duration_ns=duration_ns,
             user_metadata=metadata,
             tags=tags,
-            num_input_tokens=num_input_tokens,
-            num_output_tokens=num_output_tokens,
-            total_tokens=total_tokens,
-            temperature=temperature,
-            status_code=status_code,
-            time_to_first_token_ns=time_to_first_token_ns,
             dataset_input=dataset_input,
             dataset_output=dataset_output,
-            dataset_metadata=dataset_metadata,
-            span_step_number=span_step_number,
-            trace_id=uuid.uuid4(),
-            span_id=uuid.uuid4(),
+            dataset_metadata=dataset_metadata if dataset_metadata is not None else {},
+            id=uuid.uuid4(),
         )
+        trace.add_child_span(
+            LoggedLlmSpan(
+                name=name,
+                created_at=created_at,
+                user_metadata=metadata,
+                tags=tags,
+                input=input,
+                redacted_input=redacted_input,
+                output=output,
+                redacted_output=redacted_output,
+                metrics=LlmMetrics(
+                    duration_ns=duration_ns,
+                    num_input_tokens=num_input_tokens,
+                    num_output_tokens=num_output_tokens,
+                    num_total_tokens=total_tokens,
+                    time_to_first_token_ns=time_to_first_token_ns,
+                ),
+                tools=tools,
+                model=model,
+                temperature=temperature,
+                status_code=status_code,
+                dataset_input=dataset_input,
+                dataset_output=dataset_output,
+                dataset_metadata=dataset_metadata if dataset_metadata is not None else {},
+                id=uuid.uuid4(),
+                step_number=span_step_number,
+            )
+        )
+        self.traces.append(trace)
+        self._set_current_parent(None)
 
         if self.mode == "distributed":
             self.traces = [trace]
@@ -1097,30 +1160,31 @@ class GalileoLogger(TracesLogger):
         if metadata:
             metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
 
-        kwargs = {
-            "input": input,
-            "output": output,
-            "model": model,
-            "redacted_input": redacted_input,
-            "redacted_output": redacted_output,
-            "tools": tools,
-            "name": name,
-            "created_at": created_at,
-            "duration_ns": duration_ns,
-            "user_metadata": metadata,
-            "tags": tags,
-            "num_input_tokens": num_input_tokens,
-            "num_output_tokens": num_output_tokens,
-            "total_tokens": total_tokens,
-            "temperature": temperature,
-            "status_code": status_code,
-            "time_to_first_token_ns": time_to_first_token_ns,
-            "step_number": step_number,
-            "id": uuid.uuid4(),
-            "events": events,
-        }
-
-        span = super().add_llm_span(**kwargs)
+        span = LoggedLlmSpan(
+            input=input,
+            redacted_input=redacted_input,
+            output=output,
+            redacted_output=redacted_output,
+            name=name,
+            created_at=self._get_child_span_timestamp() if created_at is None else created_at,
+            user_metadata=metadata,
+            tags=tags,
+            metrics=LlmMetrics(
+                duration_ns=duration_ns,
+                num_input_tokens=num_input_tokens,
+                num_output_tokens=num_output_tokens,
+                num_total_tokens=total_tokens,
+                time_to_first_token_ns=time_to_first_token_ns,
+            ),
+            tools=tools,
+            events=events,
+            model=model,
+            temperature=temperature,
+            status_code=status_code,
+            id=uuid.uuid4(),
+            step_number=step_number,
+        )
+        self.add_child_span_to_parent(span)
 
         if self.mode == "distributed":
             self._ingest_step_streaming(span)
@@ -1370,6 +1434,19 @@ class GalileoLogger(TracesLogger):
 
         return span
 
+    def _attach_parentable_span(
+        self, span: StepWithChildSpans, status_code: Optional[int] = None
+    ) -> StepWithChildSpans:
+        parent = self.current_parent()
+        span._parent = parent
+        self.add_child_span_to_parent(span)
+        self._set_current_parent(span)
+        if status_code is not None:
+            span.status_code = status_code
+        if self.mode == "distributed":
+            self._ingest_step_streaming(span)
+        return span
+
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
     def add_workflow_span(
@@ -1385,7 +1462,7 @@ class GalileoLogger(TracesLogger):
         tags: Optional[list[str]] = None,
         step_number: Optional[int] = None,
         status_code: Optional[int] = None,
-    ) -> WorkflowSpan:
+    ) -> LoggedWorkflowSpan:
         """
         Add a workflow span to the current parent. This is useful when you want to create a nested workflow span
         within the trace or current workflow span. The next span you add will be a child of the current parent. To
@@ -1427,35 +1504,27 @@ class GalileoLogger(TracesLogger):
 
         Returns
         -------
-        WorkflowSpan
+        LoggedWorkflowSpan
             The created span.
         """
         # Auto-convert non-string metadata values to strings
         if metadata:
             metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
 
-        kwargs = {
-            "input": input,
-            "redacted_input": redacted_input,
-            "output": output,
-            "redacted_output": redacted_output,
-            "name": name,
-            "duration_ns": duration_ns,
-            "created_at": created_at,
-            "user_metadata": metadata,
-            "tags": tags,
-            "step_number": step_number,
-            "id": uuid.uuid4(),
-        }
-        span = super().add_workflow_span(**kwargs)
-
-        if span is not None and status_code is not None:
-            span.status_code = status_code
-
-        if self.mode == "distributed":
-            self._ingest_step_streaming(span)
-
-        return span
+        span = LoggedWorkflowSpan(
+            input=input,
+            redacted_input=redacted_input,
+            output=output,
+            redacted_output=redacted_output,
+            name=name,
+            created_at=self._get_child_span_timestamp() if created_at is None else created_at,
+            user_metadata=metadata,
+            tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
+            id=uuid.uuid4(),
+            step_number=step_number,
+        )
+        return self._attach_parentable_span(span, status_code)
 
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
@@ -1473,7 +1542,7 @@ class GalileoLogger(TracesLogger):
         agent_type: Optional[AgentType] = None,
         step_number: Optional[int] = None,
         status_code: Optional[int] = None,
-    ) -> AgentSpan:
+    ) -> LoggedAgentSpan:
         """
         Add an agent type span to the current parent.
 
@@ -1517,36 +1586,28 @@ class GalileoLogger(TracesLogger):
 
         Returns
         -------
-        AgentSpan
+        LoggedAgentSpan
             The created span.
         """
         # Auto-convert non-string metadata values to strings
         if metadata:
             metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
 
-        kwargs = {
-            "input": input,
-            "redacted_input": redacted_input,
-            "output": output,
-            "redacted_output": redacted_output,
-            "name": name,
-            "duration_ns": duration_ns,
-            "created_at": created_at,
-            "user_metadata": metadata,
-            "tags": tags,
-            "agent_type": agent_type,
-            "step_number": step_number,
-            "id": uuid.uuid4(),
-        }
-        span = super().add_agent_span(**kwargs)
-
-        if span is not None and status_code is not None:
-            span.status_code = status_code
-
-        if self.mode == "distributed":
-            self._ingest_step_streaming(span)
-
-        return span
+        span = LoggedAgentSpan(
+            input=input,
+            redacted_input=redacted_input,
+            output=output,
+            redacted_output=redacted_output,
+            name=name,
+            created_at=self._get_child_span_timestamp() if created_at is None else created_at,
+            user_metadata=metadata,
+            tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
+            agent_type=agent_type,
+            id=uuid.uuid4(),
+            step_number=step_number,
+        )
+        return self._attach_parentable_span(span, status_code)
 
     @warn_catch_exception(exceptions=(Exception,))
     def _conclude(
@@ -1639,13 +1700,13 @@ class GalileoLogger(TracesLogger):
 
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
-    def flush(self) -> list[Trace]:
+    def flush(self) -> list[LoggedTrace]:
         """
         Upload all traces to Galileo.
 
         Returns
         -------
-        List[Trace]
+        list[LoggedTrace]
             The list of uploaded traces.
         """
         try:
@@ -1659,13 +1720,13 @@ class GalileoLogger(TracesLogger):
 
     @nop_async
     @async_warn_catch_exception(exceptions=(Exception,))
-    async def async_flush(self) -> list[Trace]:
+    async def async_flush(self) -> list[LoggedTrace]:
         """
         Async upload all traces to Galileo.
 
         Returns
         -------
-        List[Trace]
+        list[LoggedTrace]
             The list of uploaded traces.
         """
         try:
@@ -1777,7 +1838,7 @@ class GalileoLogger(TracesLogger):
                 self._update_trace_streaming(trace, is_complete=True)
 
     @async_warn_catch_exception(exceptions=(Exception,))
-    async def _flush_distributed(self) -> list[Trace]:
+    async def _flush_distributed(self) -> list[LoggedTrace]:
         """Flush in distributed mode: conclude traces and wait for pending tasks.
 
         In distributed mode, traces/spans are sent immediately via conclude(). This method:
@@ -1807,7 +1868,7 @@ class GalileoLogger(TracesLogger):
         return []
 
     @async_warn_catch_exception(exceptions=(Exception,))
-    async def _flush_batch(self) -> list[Trace]:
+    async def _flush_batch(self) -> list[LoggedTrace]:
         """Flush in batch mode: conclude unconcluded traces and send all traces to backend."""
         if not self.traces:
             self._logger.info("No traces to flush.")

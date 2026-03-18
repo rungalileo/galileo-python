@@ -4,9 +4,8 @@ from typing import Literal, Optional, Union
 from pydantic import UUID4, BaseModel, Field
 
 from galileo.resources.models import Document
-from galileo_core.schemas.logging.span import Span
+from galileo.schema.logged import LoggedSpan, LoggedTrace
 from galileo_core.schemas.logging.step import StepAllowedInputType, StepAllowedOutputType
-from galileo_core.schemas.logging.trace import Trace
 
 SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow", "agent"]
 
@@ -33,14 +32,14 @@ class LogRecordsIngestRequest(BaseLogStreamOrExperimentModel):
 
 
 class TracesIngestRequest(LogRecordsIngestRequest):
-    traces: list[Trace] = Field(..., description="List of traces to log.", min_length=1)
+    traces: list[LoggedTrace] = Field(..., description="List of traces to log.", min_length=1)
     session_id: Optional[UUID4] = Field(default=None, description="Session id associated with the traces.")
     session_external_id: Optional[str] = Field(default=None, description="External id for session grouping.")
     is_complete: Optional[bool] = Field(default=True, description="Is complete.")
 
 
 class SpansIngestRequest(LogRecordsIngestRequest):
-    spans: list[Span] = Field(..., description="List of spans to log.", min_length=1)
+    spans: list[LoggedSpan] = Field(..., description="List of spans to log.", min_length=1)
     trace_id: UUID4 = Field(description="Trace id associated with the spans.")
     parent_id: UUID4 = Field(description="Parent trace or span id.")
 

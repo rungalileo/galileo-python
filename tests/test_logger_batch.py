@@ -10,9 +10,13 @@ from uuid import UUID, uuid4
 import pytest
 
 from galileo.logger import GalileoLogger
+from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
+from galileo.schema.logged import LoggedTrace
+from galileo.schema.message import LoggedMessage
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import TracesIngestRequest
 from galileo_core.schemas.logging.agent import AgentType
+from galileo_core.schemas.logging.llm import MessageRole
 from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, Span, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
@@ -20,6 +24,7 @@ from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response, TraceMetadata
 from galileo_core.schemas.shared.document import Document
+from galileo_core.schemas.shared.multimodal import ContentModality
 from tests.testutils.setup import (
     setup_mock_experiments_client,
     setup_mock_logstreams_client,
@@ -104,32 +109,16 @@ def test_single_span_trace_to_galileo(
 
     mock_traces_client_instance.ingest_traces.assert_called_once()
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
-    expected_payload = TracesIngestRequest(
-        log_stream_id=None,  # TODO: fix this
-        experiment_id=None,
-        traces=[
-            Trace(
-                input="input",
-                output="output",
-                name="test-trace",
-                created_at=created_at,
-                user_metadata=metadata,
-                status_code=200,
-                spans=[span],
-                metrics=Metrics(duration_ns=1000000),
-            )
-        ],
-    )
-
     trace = payload.traces[0]
-    assert trace.input == expected_payload.traces[0].input
-    assert trace.output == expected_payload.traces[0].output
-    assert trace.name == expected_payload.traces[0].name
-    assert trace.created_at == expected_payload.traces[0].created_at
-    assert trace.user_metadata == expected_payload.traces[0].user_metadata
-    assert trace.status_code == expected_payload.traces[0].status_code
-    assert trace.spans == expected_payload.traces[0].spans
-    assert trace.metrics == expected_payload.traces[0].metrics
+    assert isinstance(trace, LoggedTrace)
+    assert trace.input == "input"
+    assert trace.output == "output"
+    assert trace.name == "test-trace"
+    assert trace.created_at == created_at
+    assert trace.user_metadata == metadata
+    assert trace.status_code == 200
+    assert trace.spans == [span]
+    assert trace.metrics == Metrics(duration_ns=1000000)
     assert logger.traces == []
     assert logger._parent_stack == deque()
 
@@ -339,31 +328,16 @@ def test_single_span_trace_to_galileo_experiment_id(
 
     mock_traces_client_instance.ingest_traces.assert_called_once()
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
-    expected_payload = TracesIngestRequest(
-        log_stream_id=None,
-        experiment_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
-        traces=[
-            Trace(
-                input="input",
-                output="output",
-                name="test-trace",
-                created_at=created_at,
-                user_metadata=metadata,
-                status_code=200,
-                spans=[],
-                metrics=Metrics(duration_ns=1000000),
-            )
-        ],
-    )
     trace = payload.traces[0]
-    assert trace.input == expected_payload.traces[0].input
-    assert trace.output == expected_payload.traces[0].output
-    assert trace.name == expected_payload.traces[0].name
-    assert trace.created_at == expected_payload.traces[0].created_at
-    assert trace.user_metadata == expected_payload.traces[0].user_metadata
-    assert trace.status_code == expected_payload.traces[0].status_code
-    assert trace.spans == expected_payload.traces[0].spans
-    assert trace.metrics == expected_payload.traces[0].metrics
+    assert isinstance(trace, LoggedTrace)
+    assert trace.input == "input"
+    assert trace.output == "output"
+    assert trace.name == "test-trace"
+    assert trace.created_at == created_at
+    assert trace.user_metadata == metadata
+    assert trace.status_code == 200
+    assert trace.spans == []
+    assert trace.metrics == Metrics(duration_ns=1000000)
     assert logger.traces == []
     assert logger._parent_stack == deque()
 
@@ -585,31 +559,16 @@ def test_multi_span_trace_to_galileo(
     logger.flush()
 
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args[0][0]
-    expected_payload = TracesIngestRequest(
-        log_stream_id=None,  # TODO: fix this
-        experiment_id=None,
-        traces=[
-            Trace(
-                input="input",
-                output="response2",
-                name="test-trace",
-                created_at=created_at,
-                user_metadata=metadata,
-                status_code=200,
-                spans=[workflow_span, second_span],
-                metrics=Metrics(duration_ns=1000000),
-            )
-        ],
-    )
     trace = payload.traces[0]
-    assert trace.input == expected_payload.traces[0].input
-    assert trace.output == expected_payload.traces[0].output
-    assert trace.name == expected_payload.traces[0].name
-    assert trace.created_at == expected_payload.traces[0].created_at
-    assert trace.user_metadata == expected_payload.traces[0].user_metadata
-    assert trace.status_code == expected_payload.traces[0].status_code
-    assert trace.spans == expected_payload.traces[0].spans
-    assert trace.metrics == expected_payload.traces[0].metrics
+    assert isinstance(trace, LoggedTrace)
+    assert trace.input == "input"
+    assert trace.output == "response2"
+    assert trace.name == "test-trace"
+    assert trace.created_at == created_at
+    assert trace.user_metadata == metadata
+    assert trace.status_code == 200
+    assert trace.spans == [workflow_span, second_span]
+    assert trace.metrics == Metrics(duration_ns=1000000)
     assert logger.traces == []
     assert logger._parent_stack == deque()
 
@@ -658,31 +617,16 @@ async def test_single_span_trace_to_galileo_with_async(
     span.metrics.length = 6
 
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args[0][0]
-    expected_payload = TracesIngestRequest(
-        log_stream_id=None,  # TODO: fix this
-        experiment_id=None,
-        traces=[
-            Trace(
-                input="input",
-                output="output",
-                name="test-trace",
-                created_at=created_at,
-                user_metadata=metadata,
-                status_code=200,
-                spans=[span],
-                metrics=Metrics(duration_ns=1000000),
-            )
-        ],
-    )
     trace = payload.traces[0]
-    assert trace.input == expected_payload.traces[0].input
-    assert trace.output == expected_payload.traces[0].output
-    assert trace.name == expected_payload.traces[0].name
-    assert trace.created_at == expected_payload.traces[0].created_at
-    assert trace.user_metadata == expected_payload.traces[0].user_metadata
-    assert trace.status_code == expected_payload.traces[0].status_code
-    assert trace.spans == expected_payload.traces[0].spans
-    assert trace.metrics == expected_payload.traces[0].metrics
+    assert isinstance(trace, LoggedTrace)
+    assert trace.input == "input"
+    assert trace.output == "output"
+    assert trace.name == "test-trace"
+    assert trace.created_at == created_at
+    assert trace.user_metadata == metadata
+    assert trace.status_code == 200
+    assert trace.spans == [span]
+    assert trace.metrics == Metrics(duration_ns=1000000)
     assert logger.traces == []
     assert logger._parent_stack == deque()
 
@@ -1546,7 +1490,7 @@ async def test_ingest_traces_methods(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
-    trace = Trace(id=uuid4(), input="input", output="output")
+    trace = LoggedTrace(id=uuid4(), input="input", output="output")
     ingest_request = TracesIngestRequest(traces=[trace])
 
     await logger.async_ingest_traces(ingest_request)
@@ -1752,6 +1696,45 @@ def test_start_trace_auto_conversion(
     payload_trace = ingestion_hook.call_args.args[0].traces[0]
     for attr, expected_value in expected.items():
         assert getattr(payload_trace, attr) == expected_value, f"payload.{attr} mismatch"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_multimodal_input_not_stringified_at_trace_level(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Multimodal content must be preserved at trace level, not serialized to string."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    # Given: multimodal message input with text + image content blocks
+    messages = [
+        LoggedMessage(
+            content=[
+                TextContentBlock(text="Describe this image"),
+                DataContentBlock(modality=ContentModality.image, url="https://example.com/img.png"),
+            ],
+            role=MessageRole.user,
+        )
+    ]
+    logger.start_trace(input=messages)
+    logger.add_llm_span(input=messages, output="A sunset", model="gpt-4o")
+    logger.conclude("A sunset")
+    logger.flush()
+
+    # Then: trace.input is the message list, not a stringified version
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    trace = payload.traces[0]
+    assert not isinstance(trace.input, str), "trace input should not be stringified"
+    assert isinstance(trace.input, list)
+    assert isinstance(trace.input[0], LoggedMessage)
+    assert trace.input[0].content[0].text == "Describe this image"
+    assert trace.input[0].content[1].modality == ContentModality.image
+    assert trace.input[0].content[1].url == "https://example.com/img.png"
 
 
 @pytest.mark.parametrize(
@@ -2134,7 +2117,7 @@ def test_ingest_traces_reuses_existing_client(
     assert logger._traces_client is not None
 
     # Given: a minimal trace payload
-    trace = Trace(
+    trace = LoggedTrace(
         input="test", name="test", created_at=datetime.datetime.now(), id=uuid4(), metrics=Metrics(duration_ns=0)
     )
     request = TracesIngestRequest(traces=[trace])
