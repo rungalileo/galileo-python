@@ -383,9 +383,13 @@ class Configuration(metaclass=ConfigurationMeta):
         """Validate configuration and connect to Galileo."""
         cls._load_env_file()
 
+        # Note: Configuration class only supports API key auth. Alternative auth methods
+        # (username/password, SSO) are only available via GalileoPythonConfig.get() directly.
         if not cls.galileo_api_key:
             raise ConfigurationError(
-                "Galileo API key is required. Set Configuration.galileo_api_key or GALILEO_API_KEY."
+                "GALILEO_API_KEY not detected. "
+                "Please set the GALILEO_API_KEY environment variable or Configuration.galileo_api_key. "
+                "See https://docs.galileo.ai for setup instructions."
             )
 
         logger.info("Validating Galileo configuration and connectivity...")
