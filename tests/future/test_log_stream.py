@@ -6,10 +6,10 @@ import pytest
 from galileo.__future__ import LogStream
 from galileo.__future__.shared.base import SyncState
 from galileo.__future__.shared.column import ColumnCollection
-from galileo.__future__.shared.exceptions import ValidationError
 from galileo.__future__.shared.query_result import QueryResult
 from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, RootType
 from galileo.search import RecordType
+from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
 
 
 class TestLogStreamInitialization:
@@ -167,8 +167,8 @@ class TestLogStreamCreate:
         log_stream.project_name = None
         log_stream._set_state(SyncState.LOCAL_ONLY)
 
-        # When/Then: create() raises ValueError with helpful message
-        with pytest.raises(ValueError, match="Project not found"):
+        # When/Then: Create() raises ResourceNotFoundError with helpful message
+        with pytest.raises(ResourceNotFoundError, match="Project not found"):
             log_stream.create()
 
 
@@ -271,8 +271,8 @@ class TestLogStreamGet:
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: calling get raises ValueError
-        with pytest.raises(ValueError, match="Project not found"):
+        # When/Then: Calling get raises ResourceNotFoundError
+        with pytest.raises(ResourceNotFoundError, match="Project not found"):
             LogStream.get(name="Test Stream")
 
     @patch("galileo.__future__.log_stream.LogStreams")
@@ -393,8 +393,8 @@ class TestLogStreamList:
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: calling list raises ValueError
-        with pytest.raises(ValueError, match="Project not found"):
+        # When/Then: Calling list raises ResourceNotFoundError
+        with pytest.raises(ResourceNotFoundError, match="Project not found"):
             LogStream.list()
 
     @patch("galileo.__future__.log_stream.LogStreams")

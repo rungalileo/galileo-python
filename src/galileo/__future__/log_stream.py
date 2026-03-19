@@ -25,7 +25,7 @@ from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import ValidationError
+from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
 
 if TYPE_CHECKING:
     from galileo.__future__.shared.column import ColumnCollection
@@ -160,7 +160,7 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the log stream name or project information is not set.
+            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
             Exception: If the API call fails.
 
         Examples
@@ -180,7 +180,9 @@ class LogStream(StateManagementMixin):
             # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
             project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
             if not project_obj:
-                raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
+                raise ResourceNotFoundError(
+                    "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
+                )
 
             # Update project info from resolved project
             self.project_id = project_obj.id
@@ -263,7 +265,7 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the project cannot be found (no explicit param and no env fallback).
+            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------
@@ -285,7 +287,9 @@ class LogStream(StateManagementMixin):
         # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
         project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
         if not project_obj:
-            raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
+            raise ResourceNotFoundError(
+                "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
+            )
 
         log_streams_service = LogStreams()
         retrieved_log_stream = log_streams_service.get(name=name, project_id=project_obj.id)
@@ -314,7 +318,7 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the project cannot be found (no explicit param and no env fallback).
+            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------
@@ -330,7 +334,9 @@ class LogStream(StateManagementMixin):
         # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
         project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
         if not project_obj:
-            raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
+            raise ResourceNotFoundError(
+                "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
+            )
 
         log_streams_service = LogStreams()
         retrieved_log_streams = log_streams_service.list(project_id=project_obj.id)

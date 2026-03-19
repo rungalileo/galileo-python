@@ -7,12 +7,12 @@ import pytest
 from galileo.__future__ import Experiment
 from galileo.__future__.shared.base import SyncState
 from galileo.__future__.shared.column import ColumnCollection
-from galileo.__future__.shared.exceptions import ValidationError
 from galileo.__future__.shared.experiment_result import ExperimentRunResult, ExperimentStatusInfo
 from galileo.__future__.shared.query_result import QueryResult
 from galileo.resources.models import ExperimentResponse
 from galileo.schema.metrics import GalileoMetrics
 from galileo.search import RecordType
+from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
 
 
 @pytest.fixture
@@ -196,9 +196,9 @@ class TestExperimentEnvFallback:
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: creating experiment raises ValueError with helpful message
+        # When/Then: creating experiment raises ResourceNotFoundError with helpful message
         experiment = Experiment(name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt")
-        with pytest.raises(ValueError, match="Project not found"):
+        with pytest.raises(ResourceNotFoundError, match="Project not found"):
             experiment.create()
 
     @patch("galileo.__future__.experiment.Projects")
@@ -238,8 +238,8 @@ class TestExperimentEnvFallback:
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: calling get() raises ValueError with helpful message
-        with pytest.raises(ValueError, match="Project not found"):
+        # When/Then: calling get() raises ResourceNotFoundError with helpful message
+        with pytest.raises(ResourceNotFoundError, match="Project not found"):
             Experiment.get(name="Test Experiment")
 
     @patch("galileo.__future__.experiment.Projects")
@@ -278,8 +278,8 @@ class TestExperimentEnvFallback:
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: calling list() raises ValueError with helpful message
-        with pytest.raises(ValueError, match="Project not found"):
+        # When/Then: calling list() raises ResourceNotFoundError with helpful message
+        with pytest.raises(ResourceNotFoundError, match="Project not found"):
             Experiment.list()
 
 

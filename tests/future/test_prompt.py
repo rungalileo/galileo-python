@@ -6,9 +6,9 @@ import pytest
 from galileo.__future__ import Prompt
 from galileo.__future__.prompt import PromptVersion, _parse_template_to_messages
 from galileo.__future__.shared.base import SyncState
-from galileo.__future__.shared.exceptions import ValidationError
 from galileo.resources.models.messages_list_item import MessagesListItem
 from galileo.schema.message import Message
+from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
 from galileo_core.schemas.logging.llm import MessageRole
 
 
@@ -155,6 +155,29 @@ class TestPromptCreate:
 
         # When/Then: create fails with an exception
         with pytest.raises(Exception, match="API Error"):
+            prompt.create()
+
+        assert prompt.sync_state == SyncState.FAILED_SYNC
+
+    @patch("galileo.__future__.prompt.Projects")
+    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    def test_create_raises_resource_not_found_when_explicit_project_cannot_be_resolved(
+        self, mock_templates_class: MagicMock, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        """Test create() raises ResourceNotFoundError when an explicit project param cannot be resolved."""
+        # Given: a prompt with an explicit project_name but the project lookup returns None
+        mock_service = MagicMock()
+        mock_templates_class.return_value = mock_service
+
+        mock_projects_instance = MagicMock()
+        mock_projects_class.return_value = mock_projects_instance
+        mock_projects_instance.get_with_env_fallbacks.return_value = None
+
+        messages = [Message(role=MessageRole.user, content="{{input}}")]
+        prompt = Prompt(name="Test Prompt", messages=messages, project_name="Nonexistent Project")
+
+        # When/Then: create() raises ResourceNotFoundError with a helpful message
+        with pytest.raises(ResourceNotFoundError, match="Project could not be resolved"):
             prompt.create()
 
         assert prompt.sync_state == SyncState.FAILED_SYNC
