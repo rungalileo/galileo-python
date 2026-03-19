@@ -7,7 +7,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
 import pytest
-from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
 from opentelemetry.sdk.trace.export.in_memory_span_exporter import InMemorySpanExporter
@@ -30,17 +29,34 @@ from galileo.__future__.a2a.propagation import inject_trace_context
 
 
 @pytest.fixture()
-def span_exporter():
-    """Set up an in-memory OTel exporter so we can inspect finished spans."""
+def _otel_provider():
+    """Create an isolated TracerProvider that does not touch the global singleton.
+
+    ``trace.set_tracer_provider()`` can only be called once per process; subsequent
+    calls are silently ignored.  Using a local provider avoids conflicts when
+    multiple test files run in the same CI worker.
+    """
     exporter = InMemorySpanExporter()
     provider = TracerProvider()
     provider.add_span_processor(SimpleSpanProcessor(exporter))
-    trace.set_tracer_provider(provider)
-    # Re-create the module-level tracer so it uses the new provider
-    _a2a_mw._tracer = trace.get_tracer("galileo.a2a")
-    yield exporter
+    _a2a_mw._tracer = provider.get_tracer("galileo.a2a")
+    yield provider, exporter
     exporter.shutdown()
     provider.shutdown()
+
+
+@pytest.fixture()
+def span_exporter(_otel_provider):
+    """Convenience fixture that yields only the exporter."""
+    _, exporter = _otel_provider
+    return exporter
+
+
+@pytest.fixture()
+def otel_provider(_otel_provider):
+    """Convenience fixture that yields only the provider."""
+    provider, _ = _otel_provider
+    return provider
 
 
 @pytest.fixture()
@@ -208,6 +224,24 @@ class TestGetAgentText:
 
         # When/Then: returns None
         assert _get_agent_text(data) is None
+
+    def test_returns_last_agent_message(self):
+        # Given: a response with multiple agent messages in history
+        data = {
+            "result": {
+                "history": [
+                    {"role": "agent", "parts": [{"text": "first reply"}]},
+                    {"role": "user", "parts": [{"text": "follow-up question"}]},
+                    {"role": "agent", "parts": [{"text": "final reply"}]},
+                ]
+            }
+        }
+
+        # When: extracting agent text
+        result = _get_agent_text(data)
+
+        # Then: the last agent message is returned
+        assert result == "final reply"
 
 
 # ---------------------------------------------------------------------------
@@ -580,6 +614,56 @@ class TestA2ASpanMiddlewareTask:
         assert attrs["error.type"] == "500"
         assert attrs["http.status_code"] == 500
 
+    @pytest.mark.asyncio
+    async def test_sets_error_type_on_json_error_response(self, make_scope, span_exporter):
+        # Given: a tasks:get request that returns 500 with a JSON error body
+        request_body = {"jsonrpc": "2.0", "method": "tasks/get", "params": {"id": "task-fail"}}
+        error_response = {"jsonrpc": "2.0", "error": {"code": -32000, "message": "Internal error"}}
+
+        async def error_app(scope, receive, send):
+            await receive()
+            await send({"type": "http.response.start", "status": 500, "headers": []})
+            await send({"type": "http.response.body", "body": json.dumps(error_response).encode()})
+
+        middleware = A2ASpanMiddleware(error_app)
+        scope = make_scope("/tasks:get")
+        receive = _make_receive(json.dumps(request_body).encode())
+        send = _make_send()
+
+        # When: the task endpoint returns a JSON error response
+        await middleware(scope, receive, send)
+
+        # Then: error.type is set even though response body is valid JSON
+        spans = span_exporter.get_finished_spans()
+        assert len(spans) == 1
+        attrs = dict(spans[0].attributes)
+        assert attrs["error.type"] == "500"
+        assert attrs["http.status_code"] == 500
+
+    @pytest.mark.asyncio
+    async def test_traces_task_subscribe(self, make_scope, span_exporter):
+        # Given: a tasks:subscribe request (not get or cancel)
+        request_body = {"jsonrpc": "2.0", "method": "tasks/subscribe", "params": {"id": "task-sub"}}
+
+        async def subscribe_app(scope, receive, send):
+            await receive()
+            await send({"type": "http.response.start", "status": 200, "headers": []})
+            await send({"type": "http.response.body", "body": b'{"result": {}}'})
+
+        middleware = A2ASpanMiddleware(subscribe_app)
+        scope = make_scope("/tasks:subscribe")
+        receive = _make_receive(json.dumps(request_body).encode())
+        send = _make_send()
+
+        # When: subscribing to a task
+        await middleware(scope, receive, send)
+
+        # Then: the span uses subscribe_task as tool name (not cancel_task)
+        spans = span_exporter.get_finished_spans()
+        assert len(spans) == 1
+        assert spans[0].name == "A2A subscribe_task"
+        assert dict(spans[0].attributes)["gen_ai.tool.name"] == "subscribe_task"
+
 
 # ---------------------------------------------------------------------------
 # Tests: trace context propagation
@@ -618,9 +702,9 @@ class TestA2ASpanMiddlewareContextPropagation:
 
 class TestInjectTraceContext:
     @pytest.mark.asyncio
-    async def test_injects_traceparent_header(self, span_exporter):
-        # Given: an active span and an httpx request
-        tracer = trace.get_tracer("test")
+    async def test_injects_traceparent_header(self, otel_provider):
+        # Given: an active span from the local provider and an httpx request
+        tracer = otel_provider.get_tracer("test")
         with tracer.start_as_current_span("test-parent"):
             request = httpx.Request("POST", "http://example.com/message:send")
 

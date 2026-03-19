@@ -156,7 +156,7 @@ class A2ASpanMiddleware:
         request_body, receive_wrapper = _wrap_receive(receive)
         response_body, status_code, send_wrapper = _wrap_send(send)
 
-        tool_name = "get_task" if "tasks:get" in path else "cancel_task"
+        tool_name = _derive_task_tool_name(path)
 
         with _tracer.start_as_current_span(f"A2A {tool_name}", context=ctx, kind=trace.SpanKind.SERVER) as span:
             _set_tool_attrs(span, tool_name, None)
@@ -187,7 +187,7 @@ class A2ASpanMiddleware:
                 span.set_attribute("gen_ai.output.messages", json.dumps([{"role": "tool", "content": result_str}]))
                 if state := result.get("status", {}).get("state"):
                     span.set_attribute("a2a.task.state", state)
-            elif status_code() >= 400:
+            if status_code() >= 400:
                 span.set_attribute("error.type", str(status_code()))
 
 
@@ -236,6 +236,15 @@ def _extract_context(scope: dict) -> Any:
 # ---------------------------------------------------------------------------
 
 
+def _derive_task_tool_name(path: str) -> str:
+    """Derive tool name from A2A task path (e.g. ``/tasks:get`` → ``get_task``)."""
+    for segment in path.split("/"):
+        if segment.startswith("tasks:"):
+            operation = segment.split(":", 1)[1]
+            return f"{operation}_task"
+    return "task_operation"
+
+
 def _set_tool_attrs(span: Any, tool_name: str, status_code: int | None) -> None:
     """Set ``gen_ai.tool.*`` semantic convention attributes on a span."""
     span.set_attribute("gen_ai.operation.name", "execute_tool")
@@ -272,9 +281,10 @@ def _get_user_text(data: dict[str, Any] | None) -> str | None:
 
 
 def _get_agent_text(data: dict[str, Any] | None) -> str | None:
-    """Extract agent response text from an A2A JSON-RPC response body."""
+    """Extract the last agent response text from an A2A JSON-RPC response body."""
     if not data:
         return None
+    last_agent_text: str | None = None
     for msg in data.get("result", {}).get("history", []):
         if msg.get("role") == "agent":
             texts: list[str] = []
@@ -283,5 +293,5 @@ def _get_agent_text(data: dict[str, Any] | None) -> str | None:
                 if "text" in root:
                     texts.append(root["text"])
             if texts:
-                return " ".join(texts)
-    return None
+                last_agent_text = " ".join(texts)
+    return last_agent_text
