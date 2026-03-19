@@ -6,11 +6,9 @@ from collections.abc import Iterator
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from galileo import galileo_context
-from galileo.__future__.shared.base import StateManagementMixin, SyncState
-from galileo.__future__.shared.exceptions import ValidationError
 from galileo.__future__.shared.query_result import QueryResult
 from galileo.config import GalileoPythonConfig
+from galileo.decorator import galileo_context
 from galileo.export import ExportClient
 from galileo.log_streams import LogStreams
 from galileo.projects import Projects
@@ -26,6 +24,8 @@ from galileo.resources.models.log_records_available_columns_response import LogR
 from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
+from galileo.shared.base import StateManagementMixin, SyncState
+from galileo.shared.exceptions import ValidationError
 
 if TYPE_CHECKING:
     from galileo.__future__.shared.column import ColumnCollection
@@ -950,9 +950,9 @@ class LogStream(StateManagementMixin):
 
 
 # Import at end to avoid circular import (project.py imports LogStream)
-from galileo.__future__.project import Project  # noqa: E402
 from galileo.__future__.shared.column import Column, ColumnCollection  # noqa: E402
 from galileo.config import GalileoConfig  # noqa: E402
+from galileo.project import Project  # noqa: E402
 from galileo.resources.api.run_scorer_settings import (  # noqa: E402
     get_settings_projects_project_id_runs_run_id_scorer_settings_get,
 )

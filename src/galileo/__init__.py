@@ -1,5 +1,6 @@
 """Galileo."""
 
+from galileo.collaborator import Collaborator, CollaboratorRole
 from galileo.decorator import GalileoDecorator, galileo_context, log, start_session
 from galileo.exceptions import (
     AuthenticationError,
@@ -13,9 +14,11 @@ from galileo.exceptions import (
     ServerError,
 )
 from galileo.logger import GalileoLogger
+from galileo.project import Project
 from galileo.protect import ainvoke_protect, invoke_protect
 from galileo.schema.message import Message
 from galileo.schema.metrics import GalileoMetrics, GalileoScorers
+from galileo.shared.base import SyncState
 from galileo.stages import (
     create_protect_stage,
     get_protect_stage,
@@ -53,6 +56,8 @@ __all__ = [
     "AgentSpan",
     "AuthenticationError",
     "BadRequestError",
+    "Collaborator",
+    "CollaboratorRole",
     "ConflictError",
     "ExecutionStatus",
     "ForbiddenError",
@@ -67,6 +72,7 @@ __all__ = [
     "MessageRole",
     "NotFoundError",
     "Payload",
+    "Project",
     "RateLimitError",
     "Request",
     "Response",
@@ -78,6 +84,7 @@ __all__ = [
     "StageType",
     "StepType",
     "StepWithChildSpans",
+    "SyncState",
     "ToolCall",
     "ToolCallFunction",
     "ToolSpan",

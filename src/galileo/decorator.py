@@ -62,6 +62,7 @@ from galileo.logger.logger import STUB_TRACE_NAME
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import SPAN_TYPE
+from galileo.shared.exceptions import ConfigurationError
 from galileo.utils import _get_timestamp
 from galileo.utils.env_helpers import _get_mode_or_default
 from galileo.utils.serialization import EventSerializer, convert_time_delta_to_ns, serialize_to_str
@@ -635,8 +636,6 @@ class GalileoDecorator:
             self._prepare_call(span_type, span_params, dataset_record)
             return True
         except Exception as e:
-            from galileo.__future__.shared.exceptions import ConfigurationError
-
             if isinstance(e, ConfigurationError):
                 _logger.error("Galileo logging initialization failed: %s", e, exc_info=True)
             else:

@@ -30,7 +30,7 @@ class TestProjectInitialization:
 class TestProjectCreate:
     """Test suite for Project.create() method."""
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_create_persists_project_to_api(
         self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
     ) -> None:
@@ -45,7 +45,7 @@ class TestProjectCreate:
         assert project.id == mock_project.id
         assert project.is_synced()
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_create_handles_api_failure(self, mock_projects_class: MagicMock, reset_configuration: None) -> None:
         """Test create() handles API failures and sets state correctly."""
         mock_service = MagicMock()
@@ -64,7 +64,7 @@ class TestProjectGet:
     """Test suite for Project.get() class method."""
 
     @pytest.mark.parametrize("lookup_key,lookup_value", [("name", "Test Project"), ("id", "test-project-id-123")])
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_get_returns_project(
         self,
         mock_projects_class: MagicMock,
@@ -85,7 +85,7 @@ class TestProjectGet:
         assert project is not None
         assert project.is_synced()
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_get_returns_none_when_not_found(self, mock_projects_class: MagicMock, reset_configuration: None) -> None:
         """Test get() returns None when project is not found."""
         mock_service = MagicMock()
@@ -96,7 +96,7 @@ class TestProjectGet:
 
         assert project is None
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_get_handles_api_error(self, mock_projects_class: MagicMock, reset_configuration: None) -> None:
         """Test get() wraps API errors in APIError."""
         mock_service = MagicMock()
@@ -106,11 +106,50 @@ class TestProjectGet:
         with pytest.raises(APIError, match="Failed to retrieve project"):
             Project.get(name="Test Project")
 
+    @patch("galileo.project.Projects")
+    def test_get_raises_validation_error_when_no_args(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: Projects.get raises ValueError for missing id and name
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.side_effect = ValueError("Exactly one of 'id' or 'name' must be provided.")
+
+        # When/Then: Project.get() translates it to ValidationError (not APIError)
+        with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
+            Project.get()
+
+    @patch("galileo.project.Projects")
+    def test_get_raises_validation_error_when_both_args(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: Projects.get raises ValueError when both id and name are supplied
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.side_effect = ValueError("Exactly one of 'id' or 'name' must be provided.")
+
+        # When/Then: Project.get() translates it to ValidationError (not APIError)
+        with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
+            Project.get(id="proj-123", name="My Project")
+
+    @patch("galileo.project.Projects")
+    def test_get_raises_validation_error_for_whitespace_only_args(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: Projects.get strips whitespace then raises ValueError (both args collapse to empty)
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.side_effect = ValueError("Exactly one of 'id' or 'name' must be provided.")
+
+        # When/Then: Project.get() translates it to ValidationError (not APIError)
+        with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
+            Project.get(id="   ", name="   ")
+
 
 class TestProjectList:
     """Test suite for Project.list() class method."""
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_list_returns_all_projects(self, mock_projects_class: MagicMock, reset_configuration: None) -> None:
         """Test list() returns a list of synced project instances."""
         mock_service = MagicMock()
@@ -143,7 +182,7 @@ class TestProjectLogStreams:
 
     @patch("galileo.__future__.log_stream.LogStreams")
     @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_create_log_stream(
         self,
         mock_projects_class: MagicMock,
@@ -182,7 +221,7 @@ class TestProjectLogStreams:
 
     @patch("galileo.__future__.log_stream.Projects")
     @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_list_log_streams(
         self,
         mock_projects_class: MagicMock,
@@ -222,7 +261,7 @@ class TestProjectLogStreams:
 class TestProjectRefresh:
     """Test suite for Project.refresh() method."""
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_refresh_updates_attributes_from_api(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -268,7 +307,7 @@ class TestProjectRefresh:
         with pytest.raises(ValueError, match="Project ID is not set"):
             project.refresh()
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_refresh_raises_error_if_project_no_longer_exists(
         self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
     ) -> None:
@@ -315,7 +354,7 @@ class TestProjectMethods:
 class TestProjectCollaborators:
     """Test suite for Project collaborator management methods."""
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_add_update_remove_collaborator(
         self,
         mock_projects_class: MagicMock,
@@ -341,7 +380,7 @@ class TestProjectCollaborators:
         project.remove_collaborator(user_id=mock_collaborator.user_id)
         mock_service.unshare_project_with_user.assert_called_once()
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_collaborators_property_returns_same_as_list_method(
         self,
         mock_projects_class: MagicMock,
@@ -483,7 +522,7 @@ class TestCollaborator:
         assert result["last_name"] is None
         assert result["permissions"] is None
 
-    @patch("galileo.__future__.collaborator.Projects")
+    @patch("galileo.collaborator.Projects")
     def test_collaborator_update_error_path(
         self, mock_projects_class: MagicMock, reset_configuration: None, mock_collaborator: MagicMock
     ) -> None:
@@ -502,7 +541,7 @@ class TestCollaborator:
         with pytest.raises(Exception, match="API Error"):
             collab.update(role=CollaboratorRole.EDITOR)
 
-    @patch("galileo.__future__.collaborator.Projects")
+    @patch("galileo.collaborator.Projects")
     def test_collaborator_remove_error_path(
         self, mock_projects_class: MagicMock, reset_configuration: None, mock_collaborator: MagicMock
     ) -> None:
