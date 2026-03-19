@@ -13,11 +13,18 @@ from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 
 @pytest.fixture(autouse=True)
 def reset_env_vars() -> None:
-    """Reset environment variables before each test."""
-    os.environ.pop("GALILEO_PROJECT", None)
-    os.environ.pop("GALILEO_PROJECT_ID", None)
-    os.environ.pop("GALILEO_LOG_STREAM", None)
-    os.environ.pop("GALILEO_LOG_STREAM_ID", None)
+    """Reset environment variables before each test, restoring originals after."""
+    saved = {}
+    keys = ["GALILEO_PROJECT", "GALILEO_PROJECT_ID", "GALILEO_LOG_STREAM", "GALILEO_LOG_STREAM_ID"]
+    for key in keys:
+        saved[key] = os.environ.get(key)
+        os.environ.pop(key, None)
+    yield
+    for key in keys:
+        if saved[key] is not None:
+            os.environ[key] = saved[key]
+        else:
+            os.environ.pop(key, None)
 
 
 @pytest.fixture
