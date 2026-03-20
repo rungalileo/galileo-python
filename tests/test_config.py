@@ -44,4 +44,4 @@ def test_alternative_auth_kwargs_bypass_api_key_check(monkeypatch) -> None:
     # When/Then: passing username= does not raise ConfigurationError (it may fail downstream, but the guard passes)
     with pytest.raises(Exception) as exc_info:
         GalileoPythonConfig.get(username="user", password="pass")
-    assert not isinstance(exc_info.value, ConfigurationError)
+    assert "GALILEO_API_KEY not detected" not in str(exc_info.value)

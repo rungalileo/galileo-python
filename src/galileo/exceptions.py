@@ -3,7 +3,6 @@
 __all__ = [
     "AuthenticationError",
     "BadRequestError",
-    "ConfigurationError",
     "ConflictError",
     "ForbiddenError",
     "GalileoAPIError",
@@ -12,10 +11,6 @@ __all__ = [
     "RateLimitError",
     "ServerError",
 ]
-
-
-class ConfigurationError(Exception):
-    """Raised when required configuration is missing or invalid (e.g. missing API key)."""
 
 
 class GalileoLoggerException(Exception):

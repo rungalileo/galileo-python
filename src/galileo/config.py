@@ -25,10 +25,10 @@ class GalileoPythonConfig(GalileoConfig):
     def get(cls, **kwargs: Any) -> "GalileoPythonConfig":
         # Check for any supported auth method before raising.
         # TODO: also check GALILEO_USERNAME / GALILEO_PASSWORD / SSO env vars once alternative auth is surfaced.
-        auth_kwargs = ("api_key", "username", "password", "sso_id_token", "sso_provider")
+        _AUTH_KWARGS = ("api_key", "username", "password", "sso_id_token", "sso_provider")
         if (
             cls._instance is None
-            and not any(kwargs.get(k) for k in auth_kwargs)
+            and not any(kwargs.get(k) for k in _AUTH_KWARGS)
             and not os.environ.get("GALILEO_API_KEY")
         ):
             raise ConfigurationError(
