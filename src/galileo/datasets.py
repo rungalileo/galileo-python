@@ -285,6 +285,14 @@ class Datasets:
 
         Optionally validates that the dataset is used in a specific project.
 
+        .. note::
+            Lookup behavior differs depending on which parameter is used:
+
+            - **By ID**: the API performs a direct lookup. If no dataset with that ID exists,
+              a ``NotFoundError`` is raised.
+            - **By name**: the API performs a filtered list query. If no dataset with that name
+              exists, ``None`` is returned (no exception is raised).
+
         Parameters
         ----------
         id : str
@@ -300,17 +308,17 @@ class Datasets:
 
         Returns
         -------
-        Dataset
-            The dataset.
+        Optional[Dataset]
+            The dataset if found, or ``None`` if looked up by name and no match exists.
 
         Raises
         ------
+        NotFoundError
+            If looked up by ID and no dataset with that ID exists.
         ValueError
             If neither or both `id` and `name` are provided, if both project_id and project_name
             are provided, or if the specified project does not exist, or if the dataset is not
             used in the specified project.
-        errors.UnexpectedStatus
-            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException
             If the request takes longer than Client.timeout.
 
@@ -666,6 +674,14 @@ def get_dataset(
 
     Optionally validates that the dataset is used in a specific project.
 
+    .. note::
+        Lookup behavior differs depending on which parameter is used:
+
+        - **By ID**: the API performs a direct lookup. If no dataset with that ID exists,
+          a ``NotFoundError`` is raised.
+        - **By name**: the API performs a filtered list query. If no dataset with that name
+          exists, ``None`` is returned (no exception is raised).
+
     Parameters
     ----------
     id : str
@@ -679,17 +695,17 @@ def get_dataset(
 
     Returns
     -------
-    Dataset
-        The dataset.
+    Optional[Dataset]
+        The dataset if found, or ``None`` if looked up by name and no match exists.
 
     Raises
     ------
+    NotFoundError
+        If looked up by ID and no dataset with that ID exists.
     ValueError
         If neither or both `id` and `name` are provided, if both project_id and project_name
         are provided, or if the specified project does not exist, or if the dataset is not
         used in the specified project.
-    errors.UnexpectedStatus
-        If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
     httpx.TimeoutException
         If the request takes longer than Client.timeout.
 
