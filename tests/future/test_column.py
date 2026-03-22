@@ -6,8 +6,6 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from galileo.__future__.shared.column import Column, ColumnCollection, _unwrap_unset
-from galileo.__future__.shared.exceptions import ValidationError
 from galileo.resources.models import (
     DataType,
     LogRecordsBooleanFilter,
@@ -20,6 +18,8 @@ from galileo.resources.models import (
     LogRecordsTextFilterOperator,
 )
 from galileo.resources.types import UNSET
+from galileo.shared.column import Column, ColumnCollection, _unwrap_unset
+from galileo.shared.exceptions import ValidationError
 
 
 def _create_mock_column_info(

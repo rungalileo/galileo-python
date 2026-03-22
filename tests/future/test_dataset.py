@@ -3,10 +3,10 @@ from uuid import uuid4
 
 import pytest
 
-from galileo.__future__ import Dataset
-from galileo.__future__.shared.base import SyncState
-from galileo.__future__.shared.exceptions import ValidationError
+from galileo.dataset import Dataset
 from galileo.resources.models.dataset_content import DatasetContent
+from galileo.shared.base import SyncState
+from galileo.shared.exceptions import ValidationError
 
 
 class TestDatasetInitialization:
@@ -37,7 +37,7 @@ class TestDatasetInitialization:
 class TestDatasetCreate:
     """Test suite for Dataset.create() method."""
 
-    @patch("galileo.__future__.dataset.Datasets")
+    @patch("galileo.dataset.Datasets")
     def test_create_persists_dataset_to_api(
         self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
     ) -> None:
@@ -53,7 +53,7 @@ class TestDatasetCreate:
         assert dataset.id == mock_dataset.id
         assert dataset.is_synced()
 
-    @patch("galileo.__future__.dataset.Datasets")
+    @patch("galileo.dataset.Datasets")
     def test_create_handles_api_failure(self, mock_datasets_class: MagicMock, reset_configuration: None) -> None:
         """Test create() handles API failures and sets state correctly."""
         mock_service = MagicMock()
@@ -72,7 +72,7 @@ class TestDatasetGet:
     """Test suite for Dataset.get() class method."""
 
     @pytest.mark.parametrize("lookup_key", ["name", "id"])
-    @patch("galileo.__future__.dataset.Datasets")
+    @patch("galileo.dataset.Datasets")
     def test_get_returns_dataset(
         self, mock_datasets_class: MagicMock, lookup_key: str, reset_configuration: None, mock_dataset: MagicMock
     ) -> None:
@@ -87,7 +87,7 @@ class TestDatasetGet:
         assert dataset is not None
         assert dataset.is_synced()
 
-    @patch("galileo.__future__.dataset.Datasets")
+    @patch("galileo.dataset.Datasets")
     def test_get_returns_none_when_not_found(self, mock_datasets_class: MagicMock, reset_configuration: None) -> None:
         """Test get() returns None when dataset is not found."""
         mock_service = MagicMock()
@@ -98,7 +98,7 @@ class TestDatasetGet:
 
         assert dataset is None
 
-    @patch("galileo.__future__.dataset.Datasets")
+    @patch("galileo.dataset.Datasets")
     def test_get_raises_error_without_id_or_name(
         self, mock_datasets_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -110,7 +110,7 @@ class TestDatasetGet:
 class TestDatasetList:
     """Test suite for Dataset.list() class method."""
 
-    @patch("galileo.__future__.dataset.Datasets")
+    @patch("galileo.dataset.Datasets")
     def test_list_returns_all_datasets(self, mock_datasets_class: MagicMock, reset_configuration: None) -> None:
         """Test list() returns a list of synced dataset instances."""
         mock_service = MagicMock()
@@ -140,7 +140,7 @@ class TestDatasetList:
 class TestDatasetContent:
     """Test suite for dataset content management."""
 
-    @patch("galileo.__future__.dataset.Datasets")
+    @patch("galileo.dataset.Datasets")
     def test_get_content(
         self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
     ) -> None:
@@ -172,7 +172,7 @@ class TestDatasetContent:
             else:
                 getattr(dataset, method_name)()
 
-    @patch("galileo.__future__.dataset.Datasets")
+    @patch("galileo.dataset.Datasets")
     def test_add_rows(self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock) -> None:
         """Test add_rows() adds rows to the dataset."""
         mock_service = MagicMock()
@@ -192,7 +192,7 @@ class TestDatasetContent:
 class TestDatasetDelete:
     """Test suite for Dataset.delete() method."""
 
-    @patch("galileo.__future__.dataset.Datasets")
+    @patch("galileo.dataset.Datasets")
     def test_delete_removes_dataset(
         self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
     ) -> None:
@@ -218,7 +218,7 @@ class TestDatasetDelete:
 class TestDatasetRefresh:
     """Test suite for Dataset.refresh() method."""
 
-    @patch("galileo.__future__.dataset.Datasets")
+    @patch("galileo.dataset.Datasets")
     def test_refresh_updates_attributes(self, mock_datasets_class: MagicMock, reset_configuration: None) -> None:
         """Test refresh() updates all attributes from the API."""
         mock_service = MagicMock()

@@ -4,10 +4,10 @@ from uuid import uuid4
 
 import pytest
 
-from galileo.__future__ import Project
-from galileo.__future__.collaborator import Collaborator, CollaboratorRole
-from galileo.__future__.shared.base import SyncState
-from galileo.__future__.shared.exceptions import APIError, ValidationError
+from galileo.collaborator import Collaborator, CollaboratorRole
+from galileo.project import Project
+from galileo.shared.base import SyncState
+from galileo.shared.exceptions import APIError, ValidationError
 
 
 class TestProjectInitialization:
@@ -180,8 +180,8 @@ class TestProjectList:
 class TestProjectLogStreams:
     """Test suite for project log stream management."""
 
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     @patch("galileo.project.Projects")
     def test_create_log_stream(
         self,
@@ -219,8 +219,8 @@ class TestProjectLogStreams:
         with pytest.raises(ValueError, match="Project ID is not set"):
             project.create_log_stream(name="Test Stream")
 
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
     @patch("galileo.project.Projects")
     def test_list_log_streams(
         self,

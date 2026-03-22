@@ -21,10 +21,9 @@ from uuid import uuid4
 import pytest
 from httpx import Request, Response
 
-from galileo.__future__ import Configuration
-from galileo.__future__.collaborator import CollaboratorRole
-from galileo.__future__.configuration import _CONFIGURATION_KEYS
+from galileo.collaborator import CollaboratorRole
 from galileo.config import GalileoPythonConfig
+from galileo.configuration import _CONFIGURATION_KEYS, Configuration
 from galileo.resources.models.messages_list_item import MessagesListItem
 from galileo_core.schemas.core.user import User
 from galileo_core.schemas.core.user_role import UserRole
