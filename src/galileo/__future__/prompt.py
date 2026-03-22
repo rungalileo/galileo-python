@@ -23,7 +23,7 @@ from galileo.resources.models import (
 from galileo.resources.types import Unset
 from galileo.schema.message import Message
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import ValidationError
+from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
 from galileo.utils.env_helpers import _get_project_from_env, _get_project_id_from_env
 from galileo_core.schemas.logging.llm import MessageRole
 
@@ -324,7 +324,7 @@ class Prompt(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If project_id or project_name was set but the project could not be resolved.
+            ResourceNotFoundError: If project_id or project_name was set but the project could not be resolved.
             Exception: If the API call fails.
 
         Examples
@@ -350,7 +350,7 @@ class Prompt(StateManagementMixin):
                     self.project_name = project_obj.name
                     logger.debug(f"Prompt.create: resolved project_id='{resolved_project_id}'")
                 elif has_explicit_project:
-                    raise ValueError(
+                    raise ResourceNotFoundError(
                         "Project could not be resolved for the given project_id or project_name. "
                         "Ensure the project exists and you have access to it."
                     )

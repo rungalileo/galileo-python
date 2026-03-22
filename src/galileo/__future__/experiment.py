@@ -40,7 +40,7 @@ from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import ValidationError
+from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
 
 # TODO: get_records_for_dataset needed for function-based experiments
 # from galileo.utils.datasets import get_records_for_dataset, load_dataset_and_records
@@ -356,7 +356,7 @@ class Experiment(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the experiment name or project information is not set.
+            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
             Exception: If the API call fails.
 
         Examples
@@ -380,7 +380,9 @@ class Experiment(StateManagementMixin):
             # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
             project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
             if not project_obj:
-                raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
+                raise ResourceNotFoundError(
+                    "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
+                )
 
             self.project_id = project_obj.id
             if self.project_name is None:
@@ -638,7 +640,7 @@ class Experiment(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the project cannot be found (no explicit param and no env fallback).
+            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------
@@ -660,7 +662,9 @@ class Experiment(StateManagementMixin):
         # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
         project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
         if not project_obj:
-            raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
+            raise ResourceNotFoundError(
+                "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
+            )
 
         experiments_service = ExperimentsService()
         retrieved_experiment = experiments_service.get(project_id=project_obj.id, experiment_name=name)
@@ -690,7 +694,7 @@ class Experiment(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the project cannot be found (no explicit param and no env fallback).
+            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------
@@ -706,7 +710,9 @@ class Experiment(StateManagementMixin):
         # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
         project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
         if not project_obj:
-            raise ValueError("Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
+            raise ResourceNotFoundError(
+                "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
+            )
 
         experiments_service = ExperimentsService()
         retrieved_experiments = experiments_service.list(project_id=project_obj.id)
