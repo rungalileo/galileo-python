@@ -607,8 +607,9 @@ class GalileoLogger(TracesLogger):
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
     def _update_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
-        # The PATCH trace API only accepts str for output, so serialize content blocks
-        output = trace.output if isinstance(trace.output, str) else serialize_to_str(trace.output)
+        output: Optional[str] = None
+        if trace.output is not None:
+            output = trace.output if isinstance(trace.output, str) else serialize_to_str(trace.output)
         trace_update_request = TraceUpdateRequest(
             trace_id=trace.id,
             log_stream_id=self.log_stream_id,
