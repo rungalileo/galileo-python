@@ -35,6 +35,10 @@ except ImportError:
     _tracer = None
 
 
+_MESSAGE_SEGMENTS = {"message:send", "message:stream"}
+_TASK_SEGMENTS = {"tasks:get", "tasks:cancel", "tasks:subscribe"}
+
+
 class A2ASpanMiddleware:
     """ASGI middleware that creates OpenTelemetry spans for A2A endpoints.
 
@@ -83,11 +87,12 @@ class A2ASpanMiddleware:
         method: str = scope.get("method", "")
         ctx = _extract_context(scope)
 
-        if ".well-known/agent-card.json" in path:
+        segment = path.rsplit("/", 1)[-1]
+        if segment == "agent-card.json":
             return await self._handle_agent_card(scope, receive, send, path, ctx)
-        if "message:" in path:
+        if segment in _MESSAGE_SEGMENTS:
             return await self._handle_message(scope, receive, send, method, path, ctx)
-        if "tasks:" in path:
+        if segment in _TASK_SEGMENTS:
             return await self._handle_task(scope, receive, send, method, path, ctx)
 
         return await self.app(scope, receive, send)
@@ -95,8 +100,15 @@ class A2ASpanMiddleware:
     async def _handle_agent_card(self, scope: dict, receive: Callable, send: Callable, path: str, ctx: Any) -> None:
         response_body, status_code, send_wrapper = _wrap_send(send)
 
+        if not _tracer:
+            return await self.app(scope, receive, send_wrapper)
+
         with _tracer.start_as_current_span("A2A fetch_agent_card", context=ctx, kind=trace.SpanKind.SERVER) as span:
-            await self.app(scope, receive, send_wrapper)
+            token = context.attach(trace.set_span_in_context(span))
+            try:
+                await self.app(scope, receive, send_wrapper)
+            finally:
+                context.detach(token)
 
             _set_tool_attrs(span, "fetch_agent_card", status_code())
             span.set_attribute("gen_ai.tool.call.arguments", json.dumps({"url": path}))
@@ -113,15 +125,18 @@ class A2ASpanMiddleware:
                 card_str = json.dumps(card)
                 span.set_attribute("gen_ai.tool.call.result", card_str)
                 span.set_attribute("gen_ai.output.messages", json.dumps([{"role": "tool", "content": card_str}]))
+        return None
 
     async def _handle_message(
         self, scope: dict, receive: Callable, send: Callable, method: str, path: str, ctx: Any
     ) -> None:
         request_body, receive_wrapper = _wrap_receive(receive)
         response_body, status_code, send_wrapper = _wrap_send(send)
+        if not _tracer:
+            return await self.app(scope, receive_wrapper, send_wrapper)
 
         with _tracer.start_as_current_span("A2A message", context=ctx, kind=trace.SpanKind.SERVER) as span:
-            span.set_attribute("http.method", method)
+            span.set_attribute("http.request.method", method)
             span.set_attribute("http.target", path)
 
             token = context.attach(trace.set_span_in_context(span))
@@ -130,7 +145,10 @@ class A2ASpanMiddleware:
             finally:
                 context.detach(token)
 
-            span.set_attribute("http.status_code", status_code())
+            span.set_attribute("http.response.status_code", status_code())
+
+            if status_code() >= 400:
+                span.set_attribute("error.type", str(status_code()))
 
             req = _parse_json(request_body())
             resp = _parse_json(response_body())
@@ -149,6 +167,7 @@ class A2ASpanMiddleware:
                     span.set_attribute("a2a.task.state", state)
                 if task_id := result.get("id"):
                     span.set_attribute("a2a.task.id", task_id)
+        return None
 
     async def _handle_task(
         self, scope: dict, receive: Callable, send: Callable, method: str, path: str, ctx: Any
@@ -157,10 +176,12 @@ class A2ASpanMiddleware:
         response_body, status_code, send_wrapper = _wrap_send(send)
 
         tool_name = _derive_task_tool_name(path)
+        if not _tracer:
+            return await self.app(scope, receive_wrapper, send_wrapper)
 
         with _tracer.start_as_current_span(f"A2A {tool_name}", context=ctx, kind=trace.SpanKind.SERVER) as span:
             _set_tool_attrs(span, tool_name, None)
-            span.set_attribute("http.method", method)
+            span.set_attribute("http.request.method", method)
 
             token = context.attach(trace.set_span_in_context(span))
             try:
@@ -168,7 +189,7 @@ class A2ASpanMiddleware:
             finally:
                 context.detach(token)
 
-            span.set_attribute("http.status_code", status_code())
+            span.set_attribute("http.response.status_code", status_code())
 
             req = _parse_json(request_body())
             if req:
@@ -189,6 +210,7 @@ class A2ASpanMiddleware:
                     span.set_attribute("a2a.task.state", state)
             if status_code() >= 400:
                 span.set_attribute("error.type", str(status_code()))
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -214,7 +236,7 @@ def _wrap_send(send: Callable) -> tuple[Callable[[], bytes], Callable[[], int], 
     body_parts: list[bytes] = []
     code: list[int] = [200]
 
-    async def wrapper(message: dict) -> None:
+    async def wrapper(message: dict) -> Any:
         if message["type"] == "http.response.start":
             code[0] = message.get("status", 200)
         elif message["type"] == "http.response.body":
@@ -226,8 +248,13 @@ def _wrap_send(send: Callable) -> tuple[Callable[[], bytes], Callable[[], int], 
 
 def _extract_context(scope: dict) -> Any:
     """Extract W3C trace context from ASGI scope headers."""
-    headers = dict(scope.get("headers", []))
-    carrier = {k.decode("utf-8"): v.decode("utf-8") for k, v in headers.items()}
+    headers = scope.get("headers", [])
+    carrier: dict[str, str] = {}
+    for k, v in headers:
+        try:
+            carrier[k.decode("utf-8")] = v.decode("utf-8")
+        except (AttributeError, UnicodeDecodeError):
+            continue
     return extract(carrier)
 
 
@@ -251,7 +278,7 @@ def _set_tool_attrs(span: Any, tool_name: str, status_code: int | None) -> None:
     span.set_attribute("gen_ai.tool.name", tool_name)
     span.set_attribute("gen_ai.tool.type", "function")
     if status_code is not None:
-        span.set_attribute("http.status_code", status_code)
+        span.set_attribute("http.response.status_code", status_code)
 
 
 # ---------------------------------------------------------------------------

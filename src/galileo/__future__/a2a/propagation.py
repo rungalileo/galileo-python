@@ -29,15 +29,13 @@ async def inject_trace_context(request: httpx.Request) -> None:
             event_hooks={"request": [inject_trace_context]}
         )
 
+    If OpenTelemetry is not installed, a warning is logged and the request
+    is left unchanged.
+
     Parameters
     ----------
     request : httpx.Request
         The outgoing httpx request to inject headers into.
-
-    Raises
-    ------
-    ImportError
-        If OpenTelemetry packages are not installed.
     """
     try:
         from opentelemetry.propagate import inject

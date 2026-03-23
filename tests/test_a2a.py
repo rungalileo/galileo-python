@@ -334,7 +334,7 @@ class TestSetToolAttrs:
         span.set_attribute.assert_any_call("gen_ai.operation.name", "execute_tool")
         span.set_attribute.assert_any_call("gen_ai.tool.name", "fetch_agent_card")
         span.set_attribute.assert_any_call("gen_ai.tool.type", "function")
-        span.set_attribute.assert_any_call("http.status_code", 200)
+        span.set_attribute.assert_any_call("http.response.status_code", 200)
 
     def test_skips_status_code_when_none(self):
         # Given: a mock span
@@ -343,8 +343,8 @@ class TestSetToolAttrs:
         # When: setting tool attributes without a status code
         _set_tool_attrs(span, "get_task", None)
 
-        # Then: http.status_code is not set
-        calls = [c for c in span.set_attribute.call_args_list if c[0][0] == "http.status_code"]
+        # Then: http.response.status_code is not set
+        calls = [c for c in span.set_attribute.call_args_list if c[0][0] == "http.response.status_code"]
         assert len(calls) == 0
 
 
@@ -488,8 +488,8 @@ class TestA2ASpanMiddlewareMessage:
         span = spans[0]
         assert span.name == "A2A message"
         attrs = dict(span.attributes)
-        assert attrs["http.method"] == "POST"
-        assert attrs["http.status_code"] == 200
+        assert attrs["http.request.method"] == "POST"
+        assert attrs["http.response.status_code"] == 200
         assert attrs["a2a.rpc.method"] == "message/send"
         assert attrs["a2a.task.state"] == "completed"
         assert attrs["a2a.task.id"] == "task-123"
@@ -612,7 +612,7 @@ class TestA2ASpanMiddlewareTask:
         assert len(spans) == 1
         attrs = dict(spans[0].attributes)
         assert attrs["error.type"] == "500"
-        assert attrs["http.status_code"] == 500
+        assert attrs["http.response.status_code"] == 500
 
     @pytest.mark.asyncio
     async def test_sets_error_type_on_json_error_response(self, make_scope, span_exporter):
@@ -638,7 +638,7 @@ class TestA2ASpanMiddlewareTask:
         assert len(spans) == 1
         attrs = dict(spans[0].attributes)
         assert attrs["error.type"] == "500"
-        assert attrs["http.status_code"] == 500
+        assert attrs["http.response.status_code"] == 500
 
     @pytest.mark.asyncio
     async def test_traces_task_subscribe(self, make_scope, span_exporter):
