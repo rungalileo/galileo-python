@@ -59,6 +59,7 @@ from typing_extensions import ParamSpec
 from galileo.constants import LoggerModeType
 from galileo.logger import GalileoLogger
 from galileo.logger.logger import STUB_TRACE_NAME
+from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import SPAN_TYPE
@@ -771,6 +772,10 @@ class GalileoDecorator:
         if isinstance(output, str):
             return output
 
+        # Preserve List[ContentBlock] as-is (shared logic with GalileoLogger._coerce_output)
+        if isinstance(output, list) and (not output or isinstance(output[0], (TextContentBlock, DataContentBlock))):
+            return output
+
         # Check if this span type needs string serialization
         if (
             # an empty span_type means it's a workflow span
@@ -780,7 +785,6 @@ class GalileoDecorator:
             # llm spans don't accept list or tuple types as output
             or (span_type == "llm" and isinstance(output, (list, tuple)))
         ):
-            # Convert output to string if needed for workflow/tool/agent spans
             return serialize_to_str(output)
         # Serialize and deserialize to ensure proper JSON serialization
         return json.loads(json.dumps(output, cls=EventSerializer))
@@ -853,9 +857,12 @@ class GalileoDecorator:
                         is_stub_trace = current_parent.name == STUB_TRACE_NAME
 
                         if not is_stub_trace:
-                            current_parent.output = output
+                            # _coerce_output preserves str and List[ContentBlock],
+                            # serializes everything else (Message, List[Document], etc.) to JSON string.
+                            if output is not None:
+                                current_parent.output = GalileoLogger._coerce_output(output)
                             if redacted_output is not None:
-                                current_parent.redacted_output = redacted_output
+                                current_parent.redacted_output = GalileoLogger._coerce_output(redacted_output)
 
                             # Update trace duration
                             # Note: In distributed mode, trace.created_at may be set by the server

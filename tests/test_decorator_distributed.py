@@ -6,10 +6,14 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from galileo import galileo_context, log
+from galileo import Message, MessageRole, galileo_context, log
 from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
 from galileo.decorator import _parent_id_context, _trace_id_context
+from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
 from galileo.schema.trace import SpanUpdateRequest, TraceUpdateRequest
+from galileo.tracing import get_tracing_headers
+from galileo_core.schemas.shared.document import Document
+from galileo_core.schemas.shared.multimodal import ContentModality
 from tests.testutils.setup import (
     setup_mock_logstreams_client,
     setup_mock_projects_client,
@@ -57,9 +61,6 @@ def test_decorator_get_tracing_headers(
 
     @log(span_type="workflow")
     def orchestrator(query: str) -> dict:
-        # Get headers to propagate to downstream service
-        from galileo.tracing import get_tracing_headers
-
         headers = get_tracing_headers()
         return {"result": query, "headers": headers}
 
@@ -540,3 +541,131 @@ def test_decorator_trace_duration_is_set_and_accumulates(
     assert second_duration >= first_duration, (
         f"Second trace duration ({second_duration}ns) should be >= first duration ({first_duration}ns)"
     )
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_distributed_content_blocks_preserved_on_trace(
+    mock_traces_client: Mock,
+    mock_projects_client: Mock,
+    mock_logstreams_client: Mock,
+    reset_context,
+    set_distributed_mode,
+):
+    """In distributed mode, List[ContentBlock] workflow output is preserved on parent trace."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    galileo_context.init(project="test-project", log_stream="test-stream")
+
+    logger = galileo_context.get_logger_instance()
+    capture = setup_thread_pool_request_capture(logger)
+
+    blocks = [
+        TextContentBlock(text="Here is the result"),
+        DataContentBlock(modality=ContentModality.image, url="https://example.com/img.png"),
+    ]
+
+    @log(span_type="workflow")
+    def workflow_with_content_blocks(query: str):
+        return blocks
+
+    # When: the workflow is invoked in distributed mode
+    workflow_with_content_blocks("analyze image")
+
+    # Then: the trace update preserves content blocks
+    captured_tasks = capture.get_all_tasks()
+    update_trace_tasks = [task for task in captured_tasks if task.function_name == "update_trace_with_backoff"]
+    assert len(update_trace_tasks) > 0
+
+    trace_request = update_trace_tasks[-1].request
+    assert isinstance(trace_request, TraceUpdateRequest)
+
+    # The PATCH trace API only accepts str, so content blocks are serialized for the update request
+    assert isinstance(trace_request.output, str)
+    assert "Here is the result" in trace_request.output
+    assert "image" in trace_request.output
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_distributed_messages_serialized_on_trace(
+    mock_traces_client: Mock,
+    mock_projects_client: Mock,
+    mock_logstreams_client: Mock,
+    reset_context,
+    set_distributed_mode,
+):
+    """In distributed mode, List[Message] workflow output is serialized to string on parent trace."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    galileo_context.init(project="test-project", log_stream="test-stream")
+
+    logger = galileo_context.get_logger_instance()
+    capture = setup_thread_pool_request_capture(logger)
+
+    @log(span_type="workflow")
+    def workflow_with_messages(query: str):
+        return [Message(content="Hello", role=MessageRole.user), Message(content="Hi!", role=MessageRole.assistant)]
+
+    # When: the workflow is invoked in distributed mode
+    workflow_with_messages("chat")
+
+    # Then: the trace update serializes messages to string
+    captured_tasks = capture.get_all_tasks()
+    update_trace_tasks = [task for task in captured_tasks if task.function_name == "update_trace_with_backoff"]
+    assert len(update_trace_tasks) > 0
+
+    trace_request = update_trace_tasks[-1].request
+    assert isinstance(trace_request, TraceUpdateRequest)
+
+    # Then: messages are serialized to string (not preserved as list)
+    assert isinstance(trace_request.output, str)
+    assert "Hello" in trace_request.output
+    assert "Hi!" in trace_request.output
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_distributed_documents_serialized_on_trace(
+    mock_traces_client: Mock,
+    mock_projects_client: Mock,
+    mock_logstreams_client: Mock,
+    reset_context,
+    set_distributed_mode,
+):
+    """In distributed mode, List[Document] workflow output is serialized to string on parent trace."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    galileo_context.init(project="test-project", log_stream="test-stream")
+
+    logger = galileo_context.get_logger_instance()
+    capture = setup_thread_pool_request_capture(logger)
+
+    @log(span_type="workflow")
+    def workflow_with_documents(query: str):
+        return [Document(content="Tokyo is the capital of Japan."), Document(content="Mount Fuji is 3776m tall.")]
+
+    # When: the workflow is invoked in distributed mode
+    workflow_with_documents("search")
+
+    # Then: the trace update serializes documents to string
+    captured_tasks = capture.get_all_tasks()
+    update_trace_tasks = [task for task in captured_tasks if task.function_name == "update_trace_with_backoff"]
+    assert len(update_trace_tasks) > 0
+
+    trace_request = update_trace_tasks[-1].request
+    assert isinstance(trace_request, TraceUpdateRequest)
+
+    # Then: documents are serialized to string (not preserved as list)
+    assert isinstance(trace_request.output, str)
+    assert "Tokyo" in trace_request.output
+    assert "Mount Fuji" in trace_request.output

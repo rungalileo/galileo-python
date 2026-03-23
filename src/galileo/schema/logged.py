@@ -11,6 +11,7 @@ from typing import Annotated, Any, Optional, Union
 
 from pydantic import Field
 
+from galileo.schema.content_blocks import IngestContentBlock, IngestMessageContent
 from galileo.schema.message import LoggedMessage
 from galileo_core.schemas.logging.llm import Message, MessageRole
 from galileo_core.schemas.logging.span import (
@@ -27,8 +28,9 @@ from galileo_core.schemas.logging.step import BaseStep
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 
-IngestInputType = Union[str, Sequence[LoggedMessage]]
-IngestOutputType = Union[str, LoggedMessage, Sequence[Document]]
+TextOrContentBlocks = IngestMessageContent
+IngestInputType = Union[str, Sequence[LoggedMessage], list[IngestContentBlock]]
+IngestOutputType = Union[str, LoggedMessage, Sequence[Document], list[IngestContentBlock]]
 
 _INPUT_FIELD = Field(default="", description=BaseStep.model_fields["input"].description, union_mode="left_to_right")
 _REDACTED_INPUT_FIELD = Field(
@@ -43,10 +45,10 @@ _REDACTED_OUTPUT_FIELD = Field(
 class LoggedTrace(Trace):
     """Trace with widened input/output for multimodal ingestion."""
 
-    input: IngestInputType = _INPUT_FIELD
-    redacted_input: Optional[IngestInputType] = _REDACTED_INPUT_FIELD
-    output: Optional[IngestOutputType] = _OUTPUT_FIELD
-    redacted_output: Optional[IngestOutputType] = _REDACTED_OUTPUT_FIELD
+    input: TextOrContentBlocks = _INPUT_FIELD
+    redacted_input: Optional[TextOrContentBlocks] = _REDACTED_INPUT_FIELD
+    output: Optional[TextOrContentBlocks] = _OUTPUT_FIELD
+    redacted_output: Optional[TextOrContentBlocks] = _REDACTED_OUTPUT_FIELD
     spans: list["LoggedSpan"] = Field(default_factory=list)
 
 

@@ -7,8 +7,10 @@ from pydantic import BaseModel
 
 from galileo import Message, MessageRole, galileo_context, log, start_session
 from galileo.decorator import _session_id_context
+from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
 from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
 from galileo_core.schemas.shared.document import Document
+from galileo_core.schemas.shared.multimodal import ContentModality
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
@@ -1062,6 +1064,73 @@ def test_decorator_agent_span_output_serialization(
     assert '"agent_response": "test query"' in span.output
     assert '"confidence": 0.95' in span.output
     assert '"actions": ["analyze", "respond"]' in span.output
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_workflow_content_blocks_output_preserved(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that List[ContentBlock] output from a workflow span is preserved, not stringified."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    blocks = [
+        TextContentBlock(text="Analysis complete"),
+        DataContentBlock(modality=ContentModality.image, url="https://example.com/chart.png"),
+    ]
+
+    @log(span_type="workflow")
+    def workflow_returning_content_blocks(query: str):
+        return blocks
+
+    # When: the workflow is executed and flushed
+    workflow_returning_content_blocks(query="analyze this")
+    galileo_context.flush()
+
+    # Then: content blocks are preserved as a list on the trace (not stringified)
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    trace_output = payload.traces[0].output
+    assert isinstance(trace_output, list)
+    assert isinstance(trace_output[0], TextContentBlock)
+    assert trace_output[0].text == "Analysis complete"
+    assert isinstance(trace_output[1], DataContentBlock)
+
+    # Then: the workflow span output is also preserved as a list
+    span_output = payload.traces[0].spans[0].output
+    assert isinstance(span_output, list)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_workflow_message_list_output_serialized(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that List[Message] output from a workflow is serialized to string on the trace."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="workflow")
+    def workflow_returning_messages(query: str):
+        return [
+            Message(content="Hello", role=MessageRole.user),
+            Message(content="Hi there!", role=MessageRole.assistant),
+        ]
+
+    # When: the workflow is executed and flushed
+    workflow_returning_messages(query="chat")
+    galileo_context.flush()
+
+    # Then: messages are serialized to string on the trace (not preserved as list)
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    trace_output = payload.traces[0].output
+    assert isinstance(trace_output, str)
+    assert "Hello" in trace_output
+    assert "Hi there!" in trace_output
 
 
 # ============================================================================

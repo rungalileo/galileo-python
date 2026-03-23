@@ -8,5 +8,6 @@ from galileo.schema.logged import (
     LoggedSpan,
     LoggedTrace,
     LoggedWorkflowSpan,
+    TextOrContentBlocks,
 )
 from galileo.schema.message import LoggedMessage

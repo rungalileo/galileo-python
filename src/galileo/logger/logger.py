@@ -17,7 +17,15 @@ from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.projects import Projects
-from galileo.schema.logged import IngestInputType, LoggedAgentSpan, LoggedLlmSpan, LoggedTrace, LoggedWorkflowSpan
+from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
+from galileo.schema.logged import (
+    IngestOutputType,
+    LoggedAgentSpan,
+    LoggedLlmSpan,
+    LoggedTrace,
+    LoggedWorkflowSpan,
+    TextOrContentBlocks,
+)
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import (
     LogRecordsSearchFilter,
@@ -461,27 +469,40 @@ class GalileoLogger(TracesLogger):
         return str(v)
 
     @staticmethod
+    def _coerce_output(value: IngestOutputType) -> TextOrContentBlocks:
+        """Coerce an output value for propagation to a parent Trace.
+
+        Only needed when the destination is a Trace (which only accepts
+        str or List[ContentBlock]). Workflow/agent spans accept Message,
+        Document, etc. natively and should NOT be coerced.
+
+        str and List[ContentBlock] are preserved as-is.
+        Everything else (Message, List[Message], List[Document], etc.)
+        is serialized to a JSON string.
+        """
+        if isinstance(value, str):
+            return value
+        # List[ContentBlock] is valid multimodal output for traces and workflow/agent spans;
+        # preserve it as-is so it doesn't get stringified.
+        if isinstance(value, list) and (not value or isinstance(value[0], (TextContentBlock, DataContentBlock))):
+            return value
+        return serialize_to_str(value)
+
+    @staticmethod
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
-    def _get_last_output(node: Union[BaseStep, None]) -> tuple[Optional[str], Optional[str]]:
-        """Get the last output of a node or its child spans recursively."""
+    def _get_last_output(node: Union[BaseStep, None]) -> tuple[Optional[IngestOutputType], Optional[IngestOutputType]]:
+        """Get the last output of a node or its child spans recursively.
+
+        Returns raw values without coercion. Callers are responsible for
+        coercing when the destination is a Trace (via _coerce_output).
+        Workflow/agent spans accept Message, Document, etc. natively.
+        """
         if not node:
             return None, None
 
-        output = None
-        if node.output:
-            output = node.output if isinstance(node.output, str) else serialize_to_str(node.output)
-
-        redacted_output = None
-        if node.redacted_output:
-            redacted_output = (
-                node.redacted_output
-                if isinstance(node.redacted_output, str)
-                else serialize_to_str(node.redacted_output)
-            )
-
-        if output or redacted_output:
-            return output, redacted_output
+        if node.output is not None or node.redacted_output is not None:
+            return node.output, node.redacted_output
 
         if isinstance(node, StepWithChildSpans) and len(node.spans):
             return GalileoLogger._get_last_output(node.spans[-1])
@@ -574,11 +595,13 @@ class GalileoLogger(TracesLogger):
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
     def _update_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
+        # The PATCH trace API only accepts str for output, so serialize content blocks
+        output = trace.output if isinstance(trace.output, str) else serialize_to_str(trace.output)
         trace_update_request = TraceUpdateRequest(
             trace_id=trace.id,
             log_stream_id=self.log_stream_id,
             experiment_id=self.experiment_id,
-            output=trace.output,
+            output=output,
             status_code=trace.status_code,
             tags=trace.tags,
             is_complete=is_complete,
@@ -792,8 +815,8 @@ class GalileoLogger(TracesLogger):
     @warn_catch_exception(exceptions=(Exception,))
     def start_trace(
         self,
-        input: Union[IngestInputType, dict],
-        redacted_input: Optional[Union[IngestInputType, dict]] = None,
+        input: Union[TextOrContentBlocks, dict],
+        redacted_input: Optional[Union[TextOrContentBlocks, dict]] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -810,15 +833,15 @@ class GalileoLogger(TracesLogger):
 
         Parameters
         ----------
-        input: IngestInputType | dict
+        input: TextOrContentBlocks | dict
             Input to the node.
-            Expected format: String, dict (auto-converted to JSON), sequence of Message objects,
-            or sequence of LoggedMessage objects with multimodal content blocks.
+            Expected format: String, dict (auto-converted to JSON),
+            or list of IngestContentBlock objects for multimodal content.
             Examples -
                 - String: "User query: What is the weather today?"
                 - Dict: `{"query": "hello", "context": "world"}` (auto-converted to JSON string)
-                - Messages: `[LoggedMessage(content="Hello", role=MessageRole.user)]`
-        redacted_input: Optional[IngestInputType | dict]
+                - Content blocks: `[TextContentBlock(text="Analyze"), DataContentBlock(...)]`
+        redacted_input: Optional[TextOrContentBlocks | dict]
             Input that removes any sensitive information (redacted input).
             Same format as input parameter.
         name: Optional[str]
@@ -1612,8 +1635,8 @@ class GalileoLogger(TracesLogger):
     @warn_catch_exception(exceptions=(Exception,))
     def _conclude(
         self,
-        output: Optional[str] = None,
-        redacted_output: Optional[str] = None,
+        output: Optional[IngestOutputType] = None,
+        redacted_output: Optional[IngestOutputType] = None,
         duration_ns: Optional[int] = None,
         status_code: Optional[int] = None,
     ) -> tuple[StepWithChildSpans, Optional[StepWithChildSpans]]:
@@ -1625,6 +1648,14 @@ class GalileoLogger(TracesLogger):
         # This ensures parent traces/spans inherit their last child's output if not explicitly set
         if output is None and redacted_output is None:
             output, redacted_output = GalileoLogger._get_last_output(current_parent)
+
+        # Traces only accept str or List[ContentBlock]; coerce everything else.
+        # Workflow/agent spans accept Message, Document, etc. natively, so skip coercion.
+        if isinstance(current_parent, Trace):
+            if output is not None:
+                output = GalileoLogger._coerce_output(output)
+            if redacted_output is not None:
+                redacted_output = GalileoLogger._coerce_output(redacted_output)
 
         # Explicitly set output if provided (even if empty string), otherwise keep existing
         if output is not None:
@@ -1645,8 +1676,8 @@ class GalileoLogger(TracesLogger):
     @warn_catch_exception(exceptions=(Exception,))
     def conclude(
         self,
-        output: Optional[str] = None,
-        redacted_output: Optional[str] = None,
+        output: Optional[IngestOutputType] = None,
+        redacted_output: Optional[IngestOutputType] = None,
         duration_ns: Optional[int] = None,
         status_code: Optional[int] = None,
         conclude_all: bool = False,
@@ -1657,9 +1688,13 @@ class GalileoLogger(TracesLogger):
 
         Parameters
         ----------
-        output: Optional[str]
+        output: Optional[IngestOutputType]
             Output of the node.
-        redacted_output: Optional[str]
+            For traces, only str or list[IngestContentBlock]
+            are stored directly; other types (Message, Sequence[Document]) are
+            auto-coerced to JSON strings.
+            For workflow/agent spans, all IngestOutputType variants are accepted as-is.
+        redacted_output: Optional[IngestOutputType]
             Output that removes any sensitive information (redacted output of the node).
         duration_ns: Optional[int]
             Duration of the node in nanoseconds.
