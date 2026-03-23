@@ -17,7 +17,7 @@ from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.projects import Projects
-from galileo.schema.logged import IngestInputType, LoggedAgentSpan, LoggedLlmSpan, LoggedTrace, LoggedWorkflowSpan
+from galileo.schema.logged import LoggedAgentSpan, LoggedLlmSpan, LoggedTrace, LoggedWorkflowSpan, TextOrContentBlocks
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import (
     LogRecordsSearchFilter,
@@ -792,8 +792,8 @@ class GalileoLogger(TracesLogger):
     @warn_catch_exception(exceptions=(Exception,))
     def start_trace(
         self,
-        input: Union[IngestInputType, dict],
-        redacted_input: Optional[Union[IngestInputType, dict]] = None,
+        input: Union[TextOrContentBlocks, dict],
+        redacted_input: Optional[Union[TextOrContentBlocks, dict]] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -810,15 +810,15 @@ class GalileoLogger(TracesLogger):
 
         Parameters
         ----------
-        input: IngestInputType | dict
+        input: TextOrContentBlocks | dict
             Input to the node.
-            Expected format: String, dict (auto-converted to JSON), sequence of Message objects,
-            or sequence of LoggedMessage objects with multimodal content blocks.
+            Expected format: String, dict (auto-converted to JSON),
+            or list of IngestContentBlock objects for multimodal content.
             Examples -
                 - String: "User query: What is the weather today?"
                 - Dict: `{"query": "hello", "context": "world"}` (auto-converted to JSON string)
-                - Messages: `[LoggedMessage(content="Hello", role=MessageRole.user)]`
-        redacted_input: Optional[IngestInputType | dict]
+                - Content blocks: `[TextContentBlock(text="Analyze"), DataContentBlock(...)]`
+        redacted_input: Optional[TextOrContentBlocks | dict]
             Input that removes any sensitive information (redacted input).
             Same format as input parameter.
         name: Optional[str]
