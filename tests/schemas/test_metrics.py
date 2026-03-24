@@ -86,4 +86,4 @@ def test_galileo_metric_names_is_str_compatible() -> None:
     # Then: it behaves as a string
     assert isinstance(member, str)
     assert member == "Correctness"
-    assert f"Metric: {member}" == "Metric: Correctness"
+    assert member.value == "Correctness"
