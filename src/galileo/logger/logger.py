@@ -17,7 +17,7 @@ from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.projects import Projects
-from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
+from galileo.schema.content_blocks import is_content_block_list
 from galileo.schema.logged import (
     IngestOutputType,
     LoggedAgentSpan,
@@ -482,9 +482,7 @@ class GalileoLogger(TracesLogger):
         """
         if isinstance(value, str):
             return value
-        # List[ContentBlock] is valid multimodal output for traces and workflow/agent spans;
-        # preserve it as-is so it doesn't get stringified.
-        if isinstance(value, list) and (not value or isinstance(value[0], (TextContentBlock, DataContentBlock))):
+        if is_content_block_list(value):
             return value
         return serialize_to_str(value)
 

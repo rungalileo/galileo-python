@@ -59,7 +59,7 @@ from typing_extensions import ParamSpec
 from galileo.constants import LoggerModeType
 from galileo.logger import GalileoLogger
 from galileo.logger.logger import STUB_TRACE_NAME
-from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
+from galileo.schema.content_blocks import is_content_block_list
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import SPAN_TYPE
@@ -772,8 +772,7 @@ class GalileoDecorator:
         if isinstance(output, str):
             return output
 
-        # Preserve List[ContentBlock] as-is (shared logic with GalileoLogger._coerce_output)
-        if isinstance(output, list) and (not output or isinstance(output[0], (TextContentBlock, DataContentBlock))):
+        if is_content_block_list(output):
             return output
 
         # Check if this span type needs string serialization
