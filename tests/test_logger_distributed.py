@@ -2374,8 +2374,6 @@ def test_conclude_workflow_span_inherits_last_child_output(
     # Conclude workflow WITHOUT providing explicit output
     logger.conclude(duration_ns=3_000_000, status_code=200)
 
-    from galileo.schema.trace import SpanUpdateRequest
-
     captured_task = capture.get_task_by_function_name("update_span_with_backoff")
     request = captured_task.request
     assert isinstance(request, SpanUpdateRequest)
@@ -2383,8 +2381,9 @@ def test_conclude_workflow_span_inherits_last_child_output(
     asyncio.run(captured_task.task_func())
     mock_traces_client_instance.update_span.assert_called_with(request)
 
-    # Verify workflow inherited the LAST child span's output (serialized to string)
-    assert request.output == '{"content": "second child output", "role": "assistant"}'
+    # Workflow spans natively accept Message, so output stays as raw Message (not coerced)
+    assert isinstance(request.output, Message)
+    assert request.output.content == "second child output"
     assert request.duration_ns == 3_000_000
 
 

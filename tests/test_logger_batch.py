@@ -11,13 +11,21 @@ import pytest
 
 from galileo.logger import GalileoLogger
 from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
-from galileo.schema.logged import LoggedTrace
+from galileo.schema.logged import LoggedTrace, LoggedWorkflowSpan
 from galileo.schema.message import LoggedMessage
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import TracesIngestRequest
 from galileo_core.schemas.logging.agent import AgentType
-from galileo_core.schemas.logging.llm import MessageRole
-from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, Span, ToolSpan, WorkflowSpan
+from galileo_core.schemas.logging.llm import Message, MessageRole
+from galileo_core.schemas.logging.span import (
+    AgentSpan,
+    LlmMetrics,
+    LlmSpan,
+    RetrieverSpan,
+    Span,
+    ToolSpan,
+    WorkflowSpan,
+)
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
@@ -933,10 +941,46 @@ def test_flush_with_conclude_all_spans(
     assert len(payload.traces[0].spans) == 1
     assert len(payload.traces[0].spans[0].spans) == 1
     assert payload.traces[0].output == '{"content": "response", "role": "assistant"}'
-    assert payload.traces[0].spans[0].output == '{"content": "response", "role": "assistant"}'
+    # Workflow span keeps raw Message (not coerced); only Trace output is coerced to string
+    assert isinstance(payload.traces[0].spans[0].output, Message)
+    assert payload.traces[0].spans[0].output.content == "response"
 
     assert logger.traces == []
     assert logger._parent_stack == deque()
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_workflow_keeps_message_trace_gets_string(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """After flush, workflow span output stays as Message but trace output is coerced to string."""
+    # Given: a trace with a workflow span containing an LLM span
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="user question", name="test-trace")
+    logger.add_workflow_span(input="user question", name="orchestrator")
+    logger.add_llm_span(input="user question", output="the answer is 42", model="gpt-4o", name="llm")
+
+    # When: flush concludes all spans and propagates output up
+    logger.flush()
+
+    # Then: trace output is coerced to string, workflow span output keeps raw Message
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    trace = payload.traces[0]
+    workflow_span = trace.spans[0]
+
+    assert isinstance(trace.output, str)
+    assert "the answer is 42" in trace.output
+    assert "assistant" in trace.output
+
+    assert isinstance(workflow_span.output, Message)
+    assert workflow_span.output.content == "the answer is 42"
+    assert workflow_span.output.role == MessageRole.assistant
 
 
 @patch("galileo.logger.logger.Projects.get")
@@ -998,7 +1042,9 @@ def test_get_last_output() -> None:
     trace.spans = [workflow_span]
 
     output, redacted_output = GalileoLogger._get_last_output(trace)
-    assert output == '{"content": "llm output", "role": "assistant"}'
+    # _get_last_output returns raw values; LlmSpan stores output as Message
+    assert isinstance(output, Message)
+    assert output.content == "llm output"
     assert redacted_output is None
 
     workflow_span_2 = WorkflowSpan(
@@ -1112,6 +1158,149 @@ def test_get_last_output_last_child_no_output() -> None:
     output, redacted_output = GalileoLogger._get_last_output(trace)
     assert output is None
     assert redacted_output is None
+
+
+def test_coerce_output_preserves_content_blocks() -> None:
+    """_coerce_output preserves List[ContentBlock] as-is for trace propagation."""
+    # Given: a list of content blocks
+    blocks = [
+        TextContentBlock(text="hello"),
+        DataContentBlock(modality=ContentModality.image, url="https://example.com/img.png"),
+    ]
+
+    # When: coercing the output
+    result = GalileoLogger._coerce_output(blocks)
+
+    # Then: the list is preserved, not serialized to string
+    assert isinstance(result, list)
+    assert result is blocks
+    assert isinstance(result[0], TextContentBlock)
+    assert isinstance(result[1], DataContentBlock)
+
+
+def test_coerce_output_serializes_messages_to_string() -> None:
+    """_coerce_output serializes List[Message] to JSON string."""
+    # Given: a list of messages (valid for workflow spans but not traces)
+    messages = [
+        LoggedMessage(content="hello", role=MessageRole.user),
+        LoggedMessage(content="hi there", role=MessageRole.assistant),
+    ]
+
+    # When: coercing the output
+    result = GalileoLogger._coerce_output(messages)
+
+    # Then: serialized to a JSON string
+    assert isinstance(result, str)
+    assert "hello" in result
+    assert "user" in result
+
+
+def test_coerce_output_serializes_single_message_to_string() -> None:
+    """_coerce_output serializes a bare Message to JSON string."""
+    # Given: a single message object
+    msg = LoggedMessage(content="response", role=MessageRole.assistant)
+
+    # When: coercing the output
+    result = GalileoLogger._coerce_output(msg)
+
+    # Then: serialized to a JSON string
+    assert isinstance(result, str)
+    assert "response" in result
+
+
+def test_coerce_output_serializes_documents_to_string() -> None:
+    """_coerce_output serializes List[Document] to JSON string."""
+    # Given: a list of documents (valid for retriever span output)
+    docs = [
+        Document(content="Tokyo is the capital of Japan.", metadata={"source": "wiki"}),
+        Document(content="Mount Fuji is 3776m tall."),
+    ]
+
+    # When: coercing the output
+    result = GalileoLogger._coerce_output(docs)
+
+    # Then: serialized to a JSON string
+    assert isinstance(result, str)
+    assert "Tokyo" in result
+    assert "Mount Fuji" in result
+
+
+def test_coerce_output_preserves_string() -> None:
+    """_coerce_output preserves plain strings."""
+    result = GalileoLogger._coerce_output("hello world")
+    assert result == "hello world"
+
+
+def test_get_last_output_retriever_span_as_last_child() -> None:
+    """_get_last_output returns raw values; coercion is the caller's responsibility."""
+    # Given: a trace whose only child is a RetrieverSpan with document output
+    trace = Trace(input="input", name="test-trace", created_at=datetime.datetime.now(), metrics=Metrics())
+    retriever_span = RetrieverSpan(
+        input="what is Tokyo?",
+        output=[
+            Document(content="Tokyo is the capital of Japan.", metadata={"source": "wiki"}),
+            Document(content="Tokyo has 13 million people."),
+        ],
+        name="retrieve_docs",
+        created_at=datetime.datetime.now(),
+        metrics=Metrics(),
+    )
+    trace.spans = [retriever_span]
+
+    # When: getting the last output
+    output, redacted_output = GalileoLogger._get_last_output(trace)
+
+    # Then: raw List[Document] is returned (caller coerces for Trace destinations)
+    assert isinstance(output, list)
+    assert isinstance(output[0], Document)
+    assert output[0].content == "Tokyo is the capital of Japan."
+    assert redacted_output is None
+
+
+def test_get_last_output_content_blocks_preserved() -> None:
+    """_get_last_output returns raw content blocks (no coercion)."""
+    # Given: a trace with a workflow span whose output is content blocks
+    trace = Trace(input="input", name="test-trace", created_at=datetime.datetime.now(), metrics=Metrics())
+    blocks = [
+        TextContentBlock(text="Here is the image analysis"),
+        DataContentBlock(modality=ContentModality.image, url="https://example.com/result.png"),
+    ]
+    workflow_span = LoggedWorkflowSpan(
+        input="analyze", output=blocks, name="wf", created_at=datetime.datetime.now(), metrics=Metrics()
+    )
+    trace.spans = [workflow_span]
+
+    # When: getting the last output
+    output, redacted_output = GalileoLogger._get_last_output(trace)
+
+    # Then: content blocks are returned as-is
+    assert isinstance(output, list)
+    assert isinstance(output[0], TextContentBlock)
+    assert output[0].text == "Here is the image analysis"
+    assert isinstance(output[1], DataContentBlock)
+    assert redacted_output is None
+
+
+def test_get_last_output_llm_message_raw() -> None:
+    """_get_last_output returns raw LLM Message output (no coercion)."""
+    # Given: a trace with an LLM span (output is a Message object)
+    trace = Trace(input="input", name="test-trace", created_at=datetime.datetime.now(), metrics=Metrics())
+    llm_span = LlmSpan(
+        input="what is 2+2?",
+        output="The answer is 4",
+        name="llm_call",
+        created_at=datetime.datetime.now(),
+        metrics=LlmMetrics(),
+    )
+    trace.spans = [llm_span]
+
+    # When: getting the last output
+    output, redacted_output = GalileoLogger._get_last_output(trace)
+
+    # Then: the raw Message is returned (caller coerces for Trace destinations)
+    assert isinstance(output, Message)
+    assert output.content == "The answer is 4"
+    assert output.role == MessageRole.assistant
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1633,8 +1822,11 @@ def test_get_last_output_with_redacted_output() -> None:
     )
     trace.spans = [llm_span]
     output, redacted_output = GalileoLogger._get_last_output(trace)
-    assert output == '{"content": "llm output", "role": "assistant"}'
-    assert redacted_output == '{"content": "redacted llm output", "role": "assistant"}'
+    # _get_last_output returns raw values; LlmSpan stores output/redacted_output as Message
+    assert isinstance(output, Message)
+    assert output.content == "llm output"
+    assert isinstance(redacted_output, Message)
+    assert redacted_output.content == "redacted llm output"
 
 
 @pytest.mark.parametrize(
@@ -1711,30 +1903,28 @@ def test_multimodal_input_not_stringified_at_trace_level(
 
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
 
-    # Given: multimodal message input with text + image content blocks
-    messages = [
-        LoggedMessage(
-            content=[
-                TextContentBlock(text="Describe this image"),
-                DataContentBlock(modality=ContentModality.image, url="https://example.com/img.png"),
-            ],
-            role=MessageRole.user,
-        )
+    # Given: multimodal content blocks as trace input (traces accept str | List[ContentBlock])
+    content_blocks = [
+        TextContentBlock(text="Describe this image"),
+        DataContentBlock(modality=ContentModality.image, url="https://example.com/img.png"),
     ]
-    logger.start_trace(input=messages)
+    # Messages for the LLM span (LLM spans still accept Sequence[Message])
+    messages = [LoggedMessage(content=content_blocks, role=MessageRole.user)]
+    logger.start_trace(input=content_blocks)
     logger.add_llm_span(input=messages, output="A sunset", model="gpt-4o")
     logger.conclude("A sunset")
     logger.flush()
 
-    # Then: trace.input is the message list, not a stringified version
+    # Then: trace.input is the content block list, not a stringified version
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
     trace = payload.traces[0]
     assert not isinstance(trace.input, str), "trace input should not be stringified"
     assert isinstance(trace.input, list)
-    assert isinstance(trace.input[0], LoggedMessage)
-    assert trace.input[0].content[0].text == "Describe this image"
-    assert trace.input[0].content[1].modality == ContentModality.image
-    assert trace.input[0].content[1].url == "https://example.com/img.png"
+    assert isinstance(trace.input[0], TextContentBlock)
+    assert trace.input[0].text == "Describe this image"
+    assert isinstance(trace.input[1], DataContentBlock)
+    assert trace.input[1].modality == ContentModality.image
+    assert trace.input[1].url == "https://example.com/img.png"
 
 
 @pytest.mark.parametrize(

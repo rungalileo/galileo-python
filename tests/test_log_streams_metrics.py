@@ -9,15 +9,22 @@ from galileo.projects import Project
 from galileo.resources.models import ProjectCreateResponse, ScorerResponse, ScorerTypes
 from galileo.resources.models.log_stream_response import LogStreamResponse
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
+from galileo.utils.metrics import create_metric_configs
 
 
 @pytest.fixture(autouse=True)
-def reset_env_vars() -> None:
-    """Reset environment variables before each test."""
-    os.environ.pop("GALILEO_PROJECT", None)
-    os.environ.pop("GALILEO_PROJECT_ID", None)
-    os.environ.pop("GALILEO_LOG_STREAM", None)
-    os.environ.pop("GALILEO_LOG_STREAM_ID", None)
+def reset_env_vars():
+    """Reset environment variables before each test and restore after."""
+    saved = {
+        k: os.environ.pop(k, None)
+        for k in ("GALILEO_PROJECT", "GALILEO_PROJECT_ID", "GALILEO_LOG_STREAM", "GALILEO_LOG_STREAM_ID")
+    }
+    yield
+    for k, v in saved.items():
+        if v is not None:
+            os.environ[k] = v
+        else:
+            os.environ.pop(k, None)
 
 
 @pytest.fixture
@@ -80,8 +87,6 @@ class TestLogStreamMetrics:
         mock_scorer_settings_class.return_value.create.return_value = None
 
         # Test with built-in metrics
-        from galileo.utils.metrics import create_metric_configs
-
         scorers, local_metrics = create_metric_configs(
             "project-123", "logstream-456", [GalileoMetrics.correctness, "completeness"]
         )
@@ -111,8 +116,6 @@ class TestLogStreamMetrics:
         local_metric = LocalMetricConfig(name="custom_metric", scorer_fn=custom_scorer)
 
         # Test with local metrics only
-        from galileo.utils.metrics import create_metric_configs
-
         scorers, local_metrics = create_metric_configs("project-123", "logstream-456", [local_metric])
 
         # Verify no scorer settings creation for local metrics
@@ -139,8 +142,6 @@ class TestLogStreamMetrics:
         local_metric = LocalMetricConfig(name="local_metric", scorer_fn=custom_scorer)
 
         # Test with mixed metrics (only valid ones to avoid decorator error handling)
-        from galileo.utils.metrics import create_metric_configs
-
         scorers, local_metrics = create_metric_configs(
             "project-123", "logstream-456", [GalileoMetrics.correctness, local_metric]
         )

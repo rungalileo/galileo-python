@@ -49,3 +49,8 @@ class DataContentBlock(BaseModel):
 IngestContentBlock = Annotated[Union[TextContentBlock, DataContentBlock], Field(discriminator="type")]
 
 IngestMessageContent = Union[str, list[IngestContentBlock]]
+
+
+def is_content_block_list(value: object) -> bool:
+    """True when value is a (possibly empty) list whose elements are content blocks."""
+    return isinstance(value, list) and all(isinstance(v, (TextContentBlock, DataContentBlock)) for v in value)
