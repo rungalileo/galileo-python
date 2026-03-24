@@ -17,7 +17,7 @@ from galileo.logger import GalileoLogger
 from galileo.project import Project
 from galileo.protect import ainvoke_protect, invoke_protect
 from galileo.schema.message import Message
-from galileo.schema.metrics import GalileoMetrics, GalileoScorers
+from galileo.schema.metrics import GalileoMetricNames, GalileoMetrics, GalileoScorers
 from galileo.shared.base import SyncState
 from galileo.stages import (
     create_protect_stage,
@@ -65,6 +65,7 @@ __all__ = [
     "GalileoDecorator",
     "GalileoLogger",
     "GalileoLoggerException",
+    "GalileoMetricNames",
     "GalileoMetrics",
     "GalileoScorers",
     "LlmSpan",

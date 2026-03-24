@@ -1,5 +1,6 @@
 import warnings
 from collections.abc import Iterator
+from enum import Enum
 from typing import Any, Callable, Generic, Optional, TypeVar, Union
 
 from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
@@ -13,6 +14,64 @@ from galileo_core.schemas.shared.scorers.scorer_name import ScorerName as _Score
 
 # Preferred, non-deprecated name for built-in scorer enum
 GalileoMetrics = _ScorerName
+
+
+class GalileoMetricNames(str, Enum):
+    """Human-readable metric labels matching the Galileo UI."""
+
+    action_advancement = "Action Advancement"
+    action_advancement_luna = "Action Advancement (SLM)"
+    action_completion = "Action Completion"
+    action_completion_luna = "Action Completion (SLM)"
+    agent_efficiency = "Agent Efficiency"
+    agent_flow = "Agent Flow"
+    bleu = "BLEU"
+    chunk_attribution_utilization = "Chunk Attribution Utilization"
+    chunk_attribution_utilization_luna = "Chunk Attribution Utilization (SLM)"
+    chunk_relevance = "Chunk Relevance"
+    completeness = "Completeness"
+    completeness_luna = "Completeness (SLM)"
+    context_adherence = "Context Adherence"
+    context_adherence_luna = "Context Adherence (SLM)"
+    context_precision = "Context Precision"
+    context_relevance = "Context Relevance"
+    context_relevance_luna = "Context Relevance (SLM)"
+    conversation_quality = "Conversation Quality"
+    correctness = "Correctness"
+    ground_truth_adherence = "Ground Truth Adherence"
+    input_pii = "Input PII (SLM)"
+    input_pii_gpt = "Input PII"
+    input_sexism = "Input Sexism"
+    input_sexism_luna = "Input Sexism (SLM)"
+    input_tone = "Input Tone (SLM)"
+    input_tone_gpt = "Input Tone"
+    input_toxicity = "Input Toxicity"
+    input_toxicity_luna = "Input Toxicity (SLM)"
+    instruction_adherence = "Instruction Adherence"
+    output_pii = "Output PII (SLM)"
+    output_pii_gpt = "Output PII"
+    output_sexism = "Output Sexism"
+    output_sexism_luna = "Output Sexism (SLM)"
+    output_tone = "Output Tone (SLM)"
+    output_tone_gpt = "Output Tone"
+    output_toxicity = "Output Toxicity"
+    output_toxicity_luna = "Output Toxicity (SLM)"
+    precision_at_k = "Precision@K"
+    prompt_injection = "Prompt Injection"
+    prompt_injection_luna = "Prompt Injection (SLM)"
+    prompt_perplexity = "Prompt Perplexity"
+    reasoning_coherence = "Reasoning Coherence"
+    rouge = "ROUGE-1"
+    sql_adherence = "SQL Adherence"
+    sql_correctness = "SQL Correctness"
+    sql_efficiency = "SQL Efficiency"
+    sql_injection = "SQL Injection"
+    tool_error_rate = "Tool Error Rate"
+    tool_error_rate_luna = "Tool Error Rate (SLM)"
+    tool_selection_quality = "Tool Selection Quality"
+    tool_selection_quality_luna = "Tool Selection Quality (SLM)"
+    uncertainty = "Uncertainty (SLM)"
+    user_intent_change = "User Intent Change"
 
 
 class _GalileoScorersProxyMeta(type):

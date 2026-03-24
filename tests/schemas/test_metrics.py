@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from galileo.schema.metrics import Metric
+from galileo.schema.metrics import GalileoMetricNames, GalileoMetrics, Metric
 from galileo_core.schemas.shared.scorers.scorer_name import ScorerName
 
 
@@ -55,3 +55,35 @@ def test_metric_validator_custom_no_version() -> None:
     # Verify the metric is created correctly
     assert metric.name == "my_custom_metric"
     assert metric.version is None
+
+
+def test_galileo_metric_names_members_exist_in_galileo_metrics() -> None:
+    """Every GalileoMetricNames member name has a corresponding GalileoMetrics member."""
+    # Given: the full set of GalileoMetricNames members
+    metric_names_members = list(GalileoMetricNames)
+
+    # When/Then: each member name resolves in GalileoMetrics (including aliases)
+    for member in metric_names_members:
+        assert member.name in GalileoMetrics.__members__, (
+            f"GalileoMetricNames.{member.name} has no corresponding GalileoMetrics member"
+        )
+
+
+def test_galileo_metric_names_values_are_nonempty_strings() -> None:
+    """All GalileoMetricNames values are non-empty human-readable strings."""
+    # Given: all members of GalileoMetricNames
+    for member in GalileoMetricNames:
+        # Then: each value is a non-empty string
+        assert isinstance(member.value, str), f"{member.name} value is not a string"
+        assert len(member.value.strip()) > 0, f"{member.name} has an empty value"
+
+
+def test_galileo_metric_names_is_str_compatible() -> None:
+    """GalileoMetricNames members are str-compatible (usable as plain strings)."""
+    # Given: an arbitrary member
+    member = GalileoMetricNames.correctness
+
+    # Then: it behaves as a string
+    assert isinstance(member, str)
+    assert member == "Correctness"
+    assert f"Metric: {member}" == "Metric: Correctness"
