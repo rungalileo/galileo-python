@@ -49,11 +49,7 @@ class TestParseUsage:
 
     def test_input_tokens_details_flattened(self) -> None:
         # Given: usage with input_tokens_details nested dict
-        usage = {
-            "input_tokens": 100,
-            "output_tokens": 50,
-            "input_tokens_details": {"cached_tokens": 80},
-        }
+        usage = {"input_tokens": 100, "output_tokens": 50, "input_tokens_details": {"cached_tokens": 80}}
 
         # When: parsing usage
         result = _parse_usage(usage)
@@ -64,11 +60,7 @@ class TestParseUsage:
 
     def test_output_tokens_details_flattened(self) -> None:
         # Given: usage with output_tokens_details nested dict
-        usage = {
-            "input_tokens": 100,
-            "output_tokens": 50,
-            "output_tokens_details": {"reasoning_tokens": 30},
-        }
+        usage = {"input_tokens": 100, "output_tokens": 50, "output_tokens_details": {"reasoning_tokens": 30}}
 
         # When: parsing usage
         result = _parse_usage(usage)
