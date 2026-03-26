@@ -105,6 +105,10 @@ class Project(StateManagementMixin):
     permissions: list[Any] | None
     type: Any | None
 
+    # Fields that trigger SYNCED → DIRTY on assignment
+    # `type` is intentionally excluded: it has complex union typing and is rarely user-modified
+    _TRACKED_FIELDS: frozenset[str] = frozenset({"name"})
+
     def __str__(self) -> str:
         """String representation of the project."""
         return f"Project(name='{self.name}', id='{self.id}')"
@@ -166,14 +170,16 @@ class Project(StateManagementMixin):
             Project: A new Project instance populated with the API data.
         """
         instance = cls._create_empty()
-        instance.created_at = retrieved_project.created_at
-        instance.created_by = retrieved_project.created_by
-        instance.id = retrieved_project.id
-        instance.updated_at = retrieved_project.updated_at
-        instance.bookmark = retrieved_project.bookmark
-        instance.name = retrieved_project.name
-        instance.permissions = retrieved_project.permissions
-        instance.type = retrieved_project.type
+        instance._sync_attrs(
+            created_at=retrieved_project.created_at,
+            created_by=retrieved_project.created_by,
+            id=retrieved_project.id,
+            updated_at=retrieved_project.updated_at,
+            bookmark=retrieved_project.bookmark,
+            name=retrieved_project.name,
+            permissions=retrieved_project.permissions,
+            type=retrieved_project.type,
+        )
         # Set state to synced since we just retrieved from API
         instance._set_state(SyncState.SYNCED)
         return instance
@@ -202,15 +208,17 @@ class Project(StateManagementMixin):
             projects_service = Projects()
             created_project = projects_service.create(name=self.name)
 
-            # Update attributes from response
-            self.created_at = created_project.created_at
-            self.created_by = created_project.created_by
-            self.id = created_project.id
-            self.updated_at = created_project.updated_at
-            self.bookmark = created_project.bookmark
-            self.name = created_project.name
-            self.permissions = created_project.permissions
-            self.type = created_project.type
+            # Update attributes from response without triggering dirty-tracking
+            self._sync_attrs(
+                created_at=created_project.created_at,
+                created_by=created_project.created_by,
+                id=created_project.id,
+                updated_at=created_project.updated_at,
+                bookmark=created_project.bookmark,
+                name=created_project.name,
+                permissions=created_project.permissions,
+                type=created_project.type,
+            )
 
             # Set state to synced
             self._set_state(SyncState.SYNCED)
@@ -701,15 +709,17 @@ class Project(StateManagementMixin):
             if retrieved_project is None:
                 raise ValueError(f"Project with id '{self.id}' no longer exists")
 
-            # Update all attributes from response
-            self.created_at = retrieved_project.created_at
-            self.created_by = retrieved_project.created_by
-            self.id = retrieved_project.id
-            self.updated_at = retrieved_project.updated_at
-            self.bookmark = retrieved_project.bookmark
-            self.name = retrieved_project.name
-            self.permissions = retrieved_project.permissions
-            self.type = retrieved_project.type
+            # Update all attributes from response without triggering dirty-tracking
+            self._sync_attrs(
+                created_at=retrieved_project.created_at,
+                created_by=retrieved_project.created_by,
+                id=retrieved_project.id,
+                updated_at=retrieved_project.updated_at,
+                bookmark=retrieved_project.bookmark,
+                name=retrieved_project.name,
+                permissions=retrieved_project.permissions,
+                type=retrieved_project.type,
+            )
 
             # Set state to synced
             self._set_state(SyncState.SYNCED)

@@ -321,30 +321,54 @@ class TestDatasetSave:
         with pytest.raises(ValueError, match="Dataset ID is not set"):
             dataset.save()
 
+    @patch("galileo.__future__.dataset.GalileoPythonConfig")
+    @patch("galileo.__future__.dataset.update_dataset_datasets_dataset_id_patch")
     @patch("galileo.__future__.dataset.Datasets")
     def test_save_dirty_calls_update_and_syncs_attributes(
-        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+        self,
+        mock_datasets_class: MagicMock,
+        mock_update_patch: MagicMock,
+        mock_config_class: MagicMock,
+        reset_configuration: None,
+        mock_dataset: MagicMock,
     ) -> None:
-        # Given: a synced dataset that has been renamed and marked dirty
+        # Given: a synced dataset and a mocked API update response with all synced fields
         mock_service = MagicMock()
         mock_datasets_class.return_value = mock_service
         mock_service.get.return_value = mock_dataset
 
+        updated_at = MagicMock()
         updated_response = MagicMock()
-        updated_response.configure_mock(name="Renamed Dataset")
-        updated_response.updated_at = MagicMock()
-        mock_service.update.return_value = updated_response
+        updated_response.id = mock_dataset.id
+        updated_response.name = "Renamed Dataset"
+        updated_response.created_at = mock_dataset.created_at
+        updated_response.updated_at = updated_at
+        updated_response.num_rows = 42
+        updated_response.column_names = ["input", "output"]
+        updated_response.draft = True
+
+        mock_detailed = MagicMock()
+        mock_detailed.status_code = 200
+        mock_detailed.parsed = updated_response
+        mock_update_patch.sync_detailed.return_value = mock_detailed
 
         dataset = Dataset.get(id=mock_dataset.id)
-        dataset.name = "Renamed Dataset"
-        dataset._set_state(SyncState.DIRTY)
+        assert dataset.is_synced()
 
-        # When: save() is called
+        # When: the name is changed (triggers SYNCED → DIRTY automatically) and save() is called
+        dataset.name = "Renamed Dataset"
+        assert dataset.is_dirty(), "name change should transition SYNCED → DIRTY"
+
         result = dataset.save()
 
-        # Then: update is called with the new name and state is synced
-        mock_service.update.assert_called_once_with(mock_dataset.id, name="Renamed Dataset")
+        # Then: the direct API call is made and ALL synced fields are updated
+        mock_update_patch.sync_detailed.assert_called_once()
         assert result.name == "Renamed Dataset"
+        assert result.updated_at == updated_at
+        assert result.num_rows == 42
+        assert result.column_names == ["input", "output"]
+        assert result.draft is True
+        assert result.id == mock_dataset.id
         assert result.is_synced()
 
     @patch("galileo.__future__.dataset.Datasets")
@@ -367,22 +391,71 @@ class TestDatasetSave:
     @patch("galileo.__future__.dataset.update_dataset_datasets_dataset_id_patch")
     @patch("galileo.__future__.dataset.Datasets")
     def test_save_handles_api_failure(
-        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+        self,
+        mock_datasets_class: MagicMock,
+        mock_update_patch: MagicMock,
+        mock_config_class: MagicMock,
+        reset_configuration: None,
+        mock_dataset: MagicMock,
     ) -> None:
-        # Given: a dirty dataset and an API that raises an error
+        # Given: a synced dataset that has been dirtied, and an API that raises an error
         mock_service = MagicMock()
         mock_datasets_class.return_value = mock_service
         mock_service.get.return_value = mock_dataset
-        mock_service.update.side_effect = RuntimeError("API error")
+        mock_update_patch.sync_detailed.side_effect = RuntimeError("API error")
 
         dataset = Dataset.get(id=mock_dataset.id)
-        dataset._set_state(SyncState.DIRTY)
+        # Trigger DIRTY via real user flow (name assignment)
+        dataset.name = "Trigger Dirty"
+        assert dataset.is_dirty()
 
         # When/Then: the exception propagates and state is FAILED_SYNC
         with pytest.raises(RuntimeError, match="API error"):
             dataset.save()
 
         assert dataset.sync_state == SyncState.FAILED_SYNC
+
+
+class TestDatasetDirtyTracking:
+    """Test suite for Dataset dirty-tracking via __setattr__."""
+
+    @patch("galileo.__future__.dataset.Datasets")
+    def test_dirty_tracking_transitions_on_name_change(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        # Given: a synced dataset
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+
+        dataset = Dataset.get(id=mock_dataset.id)
+        assert dataset.is_synced()
+
+        # When: the name is changed to a different value
+        dataset.name = "A Completely New Name"
+
+        # Then: the state transitions to DIRTY
+        assert dataset.is_dirty()
+        assert dataset.name == "A Completely New Name"
+
+    @patch("galileo.__future__.dataset.Datasets")
+    def test_dirty_tracking_noop_on_same_value(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        # Given: a synced dataset
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+
+        dataset = Dataset.get(id=mock_dataset.id)
+        original_name = dataset.name
+        assert dataset.is_synced()
+
+        # When: the name is assigned the same value
+        dataset.name = original_name
+
+        # Then: the state remains SYNCED (same-value assignment is a no-op)
+        assert dataset.is_synced()
 
 
 class TestDatasetMethods:

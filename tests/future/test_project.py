@@ -327,7 +327,7 @@ class TestProjectRefresh:
 class TestProjectSave:
     """Test suite for Project.save() method."""
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_save_local_only_delegates_to_create(
         self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
     ) -> None:
@@ -345,7 +345,7 @@ class TestProjectSave:
         assert result.id == mock_project.id
         assert result.is_synced()
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.Projects")
     def test_save_synced_is_noop(
         self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
     ) -> None:
@@ -384,30 +384,53 @@ class TestProjectSave:
         with pytest.raises(ValueError, match="Project ID is not set"):
             project.save()
 
-    @patch("galileo.__future__.project.Projects")
+    @patch("galileo.project.GalileoPythonConfig")
+    @patch("galileo.project.update_project_projects_project_id_put")
+    @patch("galileo.project.Projects")
     def test_save_dirty_calls_update_and_syncs_attributes(
-        self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
+        self,
+        mock_projects_class: MagicMock,
+        mock_update_put: MagicMock,
+        mock_config_class: MagicMock,
+        reset_configuration: None,
+        mock_project: MagicMock,
     ) -> None:
-        # Given: a synced project that has been renamed and marked dirty
+        # Given: a synced project and a mocked API update response with all synced fields
         mock_service = MagicMock()
         mock_projects_class.return_value = mock_service
         mock_service.get.return_value = mock_project
 
+        from galileo.resources.types import UNSET as RESOURCES_UNSET
+
+        updated_at = MagicMock()
         updated_response = MagicMock()
-        updated_response.configure_mock(name="Renamed Project")
-        updated_response.updated_at = MagicMock()
-        mock_service.update.return_value = updated_response
+        updated_response.id = mock_project.id
+        updated_response.name = "Renamed Project"
+        updated_response.created_at = mock_project.created_at
+        updated_response.created_by = mock_project.created_by
+        updated_response.updated_at = updated_at
+        # Use UNSET for fields not returned by the update endpoint
+        updated_response.type_ = RESOURCES_UNSET
+
+        mock_detailed = MagicMock()
+        mock_detailed.status_code = 200
+        mock_detailed.parsed = updated_response
+        mock_update_put.sync_detailed.return_value = mock_detailed
 
         project = Project.get(id=mock_project.id)
-        project.name = "Renamed Project"
-        project._set_state(SyncState.DIRTY)
+        assert project.is_synced()
 
-        # When: save() is called
+        # When: the name is changed (triggers SYNCED → DIRTY automatically) and save() is called
+        project.name = "Renamed Project"
+        assert project.is_dirty(), "name change should transition SYNCED → DIRTY"
+
         result = project.save()
 
-        # Then: update is called with the new name and state is synced
-        mock_service.update.assert_called_once_with(mock_project.id, name="Renamed Project")
+        # Then: the direct API call is made and synced fields are updated
+        mock_update_put.sync_detailed.assert_called_once()
         assert result.name == "Renamed Project"
+        assert result.updated_at == updated_at
+        assert result.id == mock_project.id
         assert result.is_synced()
 
         # bookmark and permissions are NOT returned by the update endpoint,
@@ -435,22 +458,71 @@ class TestProjectSave:
     @patch("galileo.project.update_project_projects_project_id_put")
     @patch("galileo.project.Projects")
     def test_save_handles_api_failure(
-        self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
+        self,
+        mock_projects_class: MagicMock,
+        mock_update_put: MagicMock,
+        mock_config_class: MagicMock,
+        reset_configuration: None,
+        mock_project: MagicMock,
     ) -> None:
-        # Given: a dirty project and an API that raises an error
+        # Given: a synced project that has been dirtied, and an API that raises an error
         mock_service = MagicMock()
         mock_projects_class.return_value = mock_service
         mock_service.get.return_value = mock_project
-        mock_service.update.side_effect = RuntimeError("API error")
+        mock_update_put.sync_detailed.side_effect = RuntimeError("API error")
 
         project = Project.get(id=mock_project.id)
-        project._set_state(SyncState.DIRTY)
+        # Trigger DIRTY via real user flow (name assignment)
+        project.name = "Trigger Dirty"
+        assert project.is_dirty()
 
         # When/Then: the exception propagates and state is FAILED_SYNC
         with pytest.raises(RuntimeError, match="API error"):
             project.save()
 
         assert project.sync_state == SyncState.FAILED_SYNC
+
+
+class TestProjectDirtyTracking:
+    """Test suite for Project dirty-tracking via __setattr__."""
+
+    @patch("galileo.project.Projects")
+    def test_dirty_tracking_transitions_on_name_change(
+        self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
+    ) -> None:
+        # Given: a synced project
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.return_value = mock_project
+
+        project = Project.get(id=mock_project.id)
+        assert project.is_synced()
+
+        # When: the name is changed to a different value
+        project.name = "A Completely New Name"
+
+        # Then: the state transitions to DIRTY
+        assert project.is_dirty()
+        assert project.name == "A Completely New Name"
+
+    @patch("galileo.project.Projects")
+    def test_dirty_tracking_noop_on_same_value(
+        self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
+    ) -> None:
+        # Given: a synced project
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.return_value = mock_project
+
+        project = Project.get(id=mock_project.id)
+        original_name = project.name
+        assert project.is_synced()
+
+        # When: the name is assigned the same value
+        project.name = original_name
+
+        # Then: the state remains SYNCED (same-value assignment is a no-op)
+        assert project.is_synced()
 
 
 class TestProjectMethods:

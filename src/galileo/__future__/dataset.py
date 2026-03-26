@@ -4,12 +4,16 @@ import logging
 from datetime import datetime
 from typing import Any
 
+from galileo.config import GalileoPythonConfig
 from galileo.datasets import Datasets
+from galileo.resources.api.datasets import update_dataset_datasets_dataset_id_patch
 from galileo.resources.models.dataset_content import DatasetContent
 from galileo.resources.models.dataset_row import DatasetRow
-from galileo.resources.types import Unset
+from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.update_dataset_request import UpdateDatasetRequest
+from galileo.resources.types import UNSET, Unset
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import ValidationError
+from galileo.shared.exceptions import APIError, ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +79,9 @@ class Dataset(StateManagementMixin):
     draft: bool | None
     content: list[dict[str, Any]]
 
+    # Fields that trigger SYNCED → DIRTY on assignment
+    _TRACKED_FIELDS: frozenset[str] = frozenset({"name", "draft"})
+
     def __str__(self) -> str:
         """String representation of the dataset."""
         return f"Dataset(name='{self.name}', id='{self.id}')"
@@ -137,14 +144,16 @@ class Dataset(StateManagementMixin):
             Dataset: A new Dataset instance populated with the API data.
         """
         instance = cls._create_empty()
-        instance.id = retrieved_dataset.id
-        instance.name = retrieved_dataset.name
-        instance.created_at = retrieved_dataset.created_at
-        instance.updated_at = retrieved_dataset.updated_at
-        instance.num_rows = retrieved_dataset.num_rows
-        instance.column_names = retrieved_dataset.column_names
-        instance.draft = retrieved_dataset.draft
-        instance.content = []  # Content is not loaded in get()/list(), use get_content() for that
+        instance._sync_attrs(
+            id=retrieved_dataset.id,
+            name=retrieved_dataset.name,
+            created_at=retrieved_dataset.created_at,
+            updated_at=retrieved_dataset.updated_at,
+            num_rows=retrieved_dataset.num_rows,
+            column_names=retrieved_dataset.column_names,
+            draft=retrieved_dataset.draft,
+            content=[],  # Content is not loaded in get()/list(), use get_content() for that
+        )
         # Set state to synced since we just retrieved from API
         instance._set_state(SyncState.SYNCED)
         return instance
@@ -172,14 +181,16 @@ class Dataset(StateManagementMixin):
             # Don't pass project_id at all - it defaults to None which is handled correctly
             created_dataset = datasets_service.create(name=self.name, content=self.content)
 
-            # Update attributes from response
-            self.id = created_dataset.id
-            self.name = created_dataset.name
-            self.created_at = created_dataset.created_at
-            self.updated_at = created_dataset.updated_at
-            self.num_rows = created_dataset.num_rows
-            self.column_names = created_dataset.column_names
-            self.draft = created_dataset.draft
+            # Update attributes from response without triggering dirty-tracking
+            self._sync_attrs(
+                id=created_dataset.id,
+                name=created_dataset.name,
+                created_at=created_dataset.created_at,
+                updated_at=created_dataset.updated_at,
+                num_rows=created_dataset.num_rows,
+                column_names=created_dataset.column_names,
+                draft=created_dataset.draft,
+            )
 
             # Set state to synced
             self._set_state(SyncState.SYNCED)
@@ -505,14 +516,16 @@ class Dataset(StateManagementMixin):
             if retrieved_dataset is None:
                 raise ValueError(f"Dataset with id '{self.id}' no longer exists")
 
-            # Update all attributes from response
-            self.id = retrieved_dataset.id
-            self.name = retrieved_dataset.name
-            self.created_at = retrieved_dataset.created_at
-            self.updated_at = retrieved_dataset.updated_at
-            self.num_rows = retrieved_dataset.num_rows
-            self.column_names = retrieved_dataset.column_names
-            self.draft = retrieved_dataset.draft
+            # Update all attributes from response without triggering dirty-tracking
+            self._sync_attrs(
+                id=retrieved_dataset.id,
+                name=retrieved_dataset.name,
+                created_at=retrieved_dataset.created_at,
+                updated_at=retrieved_dataset.updated_at,
+                num_rows=retrieved_dataset.num_rows,
+                column_names=retrieved_dataset.column_names,
+                draft=retrieved_dataset.draft,
+            )
 
             # Set state to synced
             self._set_state(SyncState.SYNCED)
@@ -574,19 +587,43 @@ class Dataset(StateManagementMixin):
         if self.id is None:
             raise ValueError("Dataset ID is not set. Cannot update a dataset without an ID.")
 
+        logger.info(f"Dataset.save: name='{self.name}' id='{self.id}' - started")
+        config = GalileoPythonConfig.get()
+        body = UpdateDatasetRequest(
+            name=self.name, draft=self.draft if self.draft is not None else UNSET, column_mapping=UNSET
+        )
+
         try:
-            logger.info(f"Dataset.save: name='{self.name}' id='{self.id}' - started")
-            datasets_service = Datasets()
-            updated_dataset = datasets_service.update(self.id, name=self.name)
-
-            # Update attributes from response
-            self.name = updated_dataset.name
-            self.updated_at = updated_dataset.updated_at
-
-            self._set_state(SyncState.SYNCED)
-            logger.info(f"Dataset.save: id='{self.id}' - completed")
-            return self
+            detailed_response = update_dataset_datasets_dataset_id_patch.sync_detailed(
+                dataset_id=self.id, client=config.api_client, body=body
+            )
         except Exception as e:
             self._set_state(SyncState.FAILED_SYNC, error=e)
             logger.error(f"Dataset.save: id='{self.id}' - failed: {e}")
             raise
+
+        # Response validation outside try/except — these are not sync failures
+        if detailed_response.status_code != 200:
+            raise APIError(f"Dataset update failed with status {detailed_response.status_code} for id '{self.id}'")
+
+        response = detailed_response.parsed
+
+        if isinstance(response, HTTPValidationError):
+            raise APIError(f"Dataset update validation error: {response.detail}")
+
+        if response is None:
+            raise APIError(f"Dataset update returned empty response for id '{self.id}'")
+
+        # Sync all fields back without triggering dirty-tracking
+        self._sync_attrs(
+            id=response.id,
+            name=response.name,
+            created_at=response.created_at,
+            updated_at=response.updated_at,
+            num_rows=response.num_rows,
+            column_names=response.column_names,
+            draft=response.draft,
+        )
+        self._set_state(SyncState.SYNCED)
+        logger.info(f"Dataset.save: id='{self.id}' - completed")
+        return self
