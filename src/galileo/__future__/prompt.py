@@ -180,6 +180,9 @@ class Prompt(StateManagementMixin):
         prompt.delete()
     """
 
+    # Fields tracked for dirty-state detection (name changes → DIRTY → save() calls update())
+    _TRACKED_FIELDS: frozenset[str] = frozenset({"name"})
+
     # Type annotations for instance attributes
     id: str | None
     name: str
@@ -279,8 +282,7 @@ class Prompt(StateManagementMixin):
         instance = cls._create_empty()
         instance._update_from_api_response(retrieved_prompt)
         # API does not return project association; only set on create().
-        instance.project_id = None
-        instance.project_name = None
+        instance._sync_attrs(project_id=None, project_name=None)
         return instance
 
     def _update_from_api_response(self, retrieved_prompt: Any) -> None:
@@ -290,23 +292,24 @@ class Prompt(StateManagementMixin):
         Args:
             retrieved_prompt: The prompt data retrieved from the API.
         """
-        self.id = retrieved_prompt.id
-        self.name = retrieved_prompt.name
-
-        # Extract messages from the selected_version template using helper
-        self.messages = _parse_template_to_messages(retrieved_prompt.selected_version.template)
-
-        # Version-related attributes
-        self.selected_version_number = retrieved_prompt.selected_version.version
-        self.selected_version_id = retrieved_prompt.selected_version_id
-        self.total_versions = retrieved_prompt.total_versions
-        self.all_available_versions = (
+        # Parse messages before calling _sync_attrs to keep complex logic readable
+        messages = _parse_template_to_messages(retrieved_prompt.selected_version.template)
+        all_available_versions = (
             list(retrieved_prompt.all_available_versions) if retrieved_prompt.all_available_versions else None
         )
-        self.max_version = retrieved_prompt.max_version
 
-        self.created_at = retrieved_prompt.created_at
-        self.updated_at = retrieved_prompt.updated_at
+        self._sync_attrs(
+            id=retrieved_prompt.id,
+            name=retrieved_prompt.name,
+            messages=messages,
+            selected_version_number=retrieved_prompt.selected_version.version,
+            selected_version_id=retrieved_prompt.selected_version_id,
+            total_versions=retrieved_prompt.total_versions,
+            all_available_versions=all_available_versions,
+            max_version=retrieved_prompt.max_version,
+            created_at=retrieved_prompt.created_at,
+            updated_at=retrieved_prompt.updated_at,
+        )
 
         # Set state to synced
         self._set_state(SyncState.SYNCED)
@@ -346,8 +349,7 @@ class Prompt(StateManagementMixin):
                 project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
                 if project_obj:
                     resolved_project_id = project_obj.id
-                    self.project_id = project_obj.id
-                    self.project_name = project_obj.name
+                    self._sync_attrs(project_id=project_obj.id, project_name=project_obj.name)
                     logger.debug(f"Prompt.create: resolved project_id='{resolved_project_id}'")
                 elif has_explicit_project:
                     raise ResourceNotFoundError(
@@ -497,9 +499,8 @@ class Prompt(StateManagementMixin):
             logger.info(f"Prompt.update: id='{self.id}' name='{name}' - started")
             prompt_service = GlobalPromptTemplates()
             updated_prompt = prompt_service.update(template_id=self.id, name=name)
-            # Update our instance attributes
-            self.name = updated_prompt.name
-            self.updated_at = updated_prompt.updated_at
+            # Sync updated attributes without triggering dirty tracking
+            self._sync_attrs(name=updated_prompt.name, updated_at=updated_prompt.updated_at)
             # Set state to synced after successful update
             self._set_state(SyncState.SYNCED)
             logger.info(f"Prompt.update: id='{self.id}' - completed")
@@ -745,6 +746,8 @@ class Prompt(StateManagementMixin):
         Behavior depends on the prompt's current state:
         - LOCAL_ONLY: Creates the prompt via create()
         - SYNCED: No action needed, already saved
+        - DIRTY: Persists pending field changes via update()
+        - FAILED_SYNC: Raises ValueError — use refresh() to recover or retry the original operation
         - DELETED: Raises ValueError
 
         For updating an existing prompt's messages, use create_version(messages=[...]) instead.
@@ -759,24 +762,24 @@ class Prompt(StateManagementMixin):
             prompt = Prompt(name="my-prompt", messages=[...])
             prompt.save()  # Creates the prompt
 
-            # For existing prompts, use update() for changes
+            # Mutate a field and persist the change
             prompt = Prompt.get(name="my-prompt")
-            prompt.update(name="renamed-prompt")
+            prompt.name = "renamed-prompt"  # Transitions to DIRTY
+            prompt.save()  # Persists the rename via update()
         """
         if self.sync_state == SyncState.LOCAL_ONLY:
-            # Prompt hasn't been created yet, create it
             return self.create()
         if self.sync_state == SyncState.SYNCED:
-            # Already synced, nothing to do
             logger.debug(f"Prompt.save: id='{self.id}' - already synced, no action needed")
             return self
         if self.sync_state == SyncState.DELETED:
             raise ValueError("Cannot save a deleted prompt.")
+        if self.sync_state == SyncState.FAILED_SYNC:
+            raise ValueError(
+                "Prompt is in FAILED_SYNC state from a previous operation. "
+                "Use refresh() to re-sync from the API, or retry the original operation."
+            )
 
-        # DIRTY or FAILED_SYNC states
-        # For now, we don't track dirty state for prompts
-        # Users should use update() directly for changes
-        raise NotImplementedError(
-            "Saving modified prompts is not yet implemented. "
-            "Use update(name='...') to rename or create_version(messages=[...]) to create a new version."
-        )
+        if self.id is None:
+            raise ValueError("Prompt ID is not set. Cannot update a prompt without an ID.")
+        return self.update(name=self.name)
