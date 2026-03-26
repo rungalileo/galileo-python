@@ -284,9 +284,10 @@ class TestPromptUpdate:
         # When: updating the name
         result = prompt.update(name="New Name")
 
-        # Then: the name is updated via the API and returns self for chaining
+        # Then: the name and updated_at are synced from the API response
         mock_service.update.assert_called_once_with(template_id=mock_prompt.id, name="New Name")
         assert prompt.name == "New Name"
+        assert prompt.updated_at == updated_prompt.updated_at
         assert prompt.is_synced()
         assert result is prompt
 
@@ -593,6 +594,154 @@ class TestPromptMethods:
 
         # Then: repr includes version
         assert "version=3" in repr(prompt)
+
+
+class TestPromptSave:
+    """Test suite for Prompt.save() — focused on the DIRTY branch and dirty tracking."""
+
+    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    def test_save_dirty_calls_update_and_syncs_attributes(
+        self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
+    ) -> None:
+        # Given: a synced prompt whose name was changed via attribute assignment
+        mock_service = MagicMock()
+        mock_templates_class.return_value = mock_service
+        mock_service.get.return_value = mock_prompt
+
+        updated_response = MagicMock()
+        updated_response.configure_mock(name="Renamed Prompt")
+        updated_response.updated_at = MagicMock()
+        mock_service.update.return_value = updated_response
+
+        prompt = Prompt.get(id=mock_prompt.id)
+        assert prompt.is_synced()
+
+        # When: name is reassigned (triggers DIRTY) and save() is called
+        prompt.name = "Renamed Prompt"
+        assert prompt.sync_state == SyncState.DIRTY
+
+        result = prompt.save()
+
+        # Then: update is called with the new name and all synced fields are updated
+        mock_service.update.assert_called_once_with(template_id=mock_prompt.id, name="Renamed Prompt")
+        assert result.name == "Renamed Prompt"
+        assert result.updated_at == updated_response.updated_at
+        assert result.is_synced()
+
+    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    def test_save_without_id_raises_value_error(
+        self, mock_templates_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: a prompt in DIRTY state with no ID
+        messages = [Message(role=MessageRole.user, content="{{input}}")]
+        prompt = Prompt(name="Test Prompt", messages=messages)
+        prompt._set_state(SyncState.DIRTY)
+
+        # When/Then: save() raises ValueError because there is no ID to update
+        with pytest.raises(ValueError, match="Prompt ID is not set"):
+            prompt.save()
+
+    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    def test_save_handles_api_failure(
+        self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
+    ) -> None:
+        # Given: a dirty prompt and an API that raises an error
+        mock_service = MagicMock()
+        mock_templates_class.return_value = mock_service
+        mock_service.get.return_value = mock_prompt
+        mock_service.update.side_effect = RuntimeError("API error")
+
+        prompt = Prompt.get(id=mock_prompt.id)
+        # Trigger DIRTY via real user-facing mutation (not _set_state bypass)
+        prompt.name = "Renamed Prompt"
+        assert prompt.sync_state == SyncState.DIRTY
+
+        # When/Then: the exception propagates and state is FAILED_SYNC
+        with pytest.raises(RuntimeError, match="API error"):
+            prompt.save()
+
+        assert prompt.sync_state == SyncState.FAILED_SYNC
+
+    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    def test_name_assignment_transitions_synced_to_dirty(
+        self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
+    ) -> None:
+        # Given: a synced prompt
+        mock_service = MagicMock()
+        mock_templates_class.return_value = mock_service
+        mock_service.get.return_value = mock_prompt
+
+        prompt = Prompt.get(id=mock_prompt.id)
+        assert prompt.is_synced()
+
+        # When: name is reassigned
+        prompt.name = "New Name"
+
+        # Then: state transitions to DIRTY
+        assert prompt.sync_state == SyncState.DIRTY
+
+    def test_name_assignment_during_init_stays_local_only(self, reset_configuration: None) -> None:
+        # Given/When: a prompt is created locally (name set in __init__)
+        messages = [Message(role=MessageRole.user, content="{{input}}")]
+        prompt = Prompt(name="My Prompt", messages=messages)
+
+        # Then: state is LOCAL_ONLY, not DIRTY
+        assert prompt.sync_state == SyncState.LOCAL_ONLY
+
+    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    def test_same_value_assignment_stays_synced(
+        self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
+    ) -> None:
+        # Given: a synced prompt
+        mock_service = MagicMock()
+        mock_templates_class.return_value = mock_service
+        mock_service.get.return_value = mock_prompt
+
+        prompt = Prompt.get(id=mock_prompt.id)
+        assert prompt.is_synced()
+        original_name = prompt.name
+
+        # When: name is reassigned to the same value
+        prompt.name = original_name
+
+        # Then: state stays SYNCED (no redundant API call on save)
+        assert prompt.sync_state == SyncState.SYNCED
+
+    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    def test_save_failed_sync_raises_value_error(
+        self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
+    ) -> None:
+        # Given: a prompt in FAILED_SYNC state from a failed operation (e.g. create_version)
+        mock_service = MagicMock()
+        mock_templates_class.return_value = mock_service
+        mock_service.get.return_value = mock_prompt
+
+        prompt = Prompt.get(id=mock_prompt.id)
+        prompt._set_state(SyncState.FAILED_SYNC)
+
+        # When/Then: save() raises ValueError instead of silently masking the failure
+        with pytest.raises(ValueError, match="FAILED_SYNC"):
+            prompt.save()
+
+    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    def test_refresh_does_not_trigger_dirty(
+        self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
+    ) -> None:
+        # Given: a synced prompt
+        mock_service = MagicMock()
+        mock_templates_class.return_value = mock_service
+        mock_service.get.return_value = mock_prompt
+
+        prompt = Prompt.get(id=mock_prompt.id)
+        assert prompt.is_synced()
+
+        # When: _update_from_api_response is called (as refresh() does internally)
+        mock_prompt.configure_mock(name="Updated From API")
+        prompt._update_from_api_response(mock_prompt)
+
+        # Then: state remains SYNCED (object.__setattr__ bypass works)
+        assert prompt.sync_state == SyncState.SYNCED
+        assert prompt.name == "Updated From API"
 
 
 class TestJsonTemplateParsing:
