@@ -221,8 +221,6 @@ class ConfigurationMeta(type):
             try:
                 explicit_value = super().__getattribute__(internal_name)
                 if explicit_value is not None:
-                    if key.parser:
-                        return key.parser(str(explicit_value))
                     return explicit_value
             except AttributeError:
                 pass

@@ -166,7 +166,7 @@ class TestDatasetContent:
             if method_name == "add_rows":
                 dataset.add_rows([{"input": "test"}])
             elif method_name == "get_version":
-                dataset.get_version(index=0)
+                dataset.get_version(index=1)
             elif method_name == "extend":
                 dataset.extend(prompt="Test", count=2)
             else:
