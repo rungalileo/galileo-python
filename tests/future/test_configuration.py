@@ -319,7 +319,7 @@ class TestConfigurationConnect:
             Configuration.connect()
 
         # Verify error message provides helpful guidance
-        assert "api key is required" in str(exc_info.value).lower()
+        assert "galileo api key is required" in str(exc_info.value).lower()
         assert "Configuration.galileo_api_key" in str(exc_info.value)
 
     @pytest.mark.parametrize(
