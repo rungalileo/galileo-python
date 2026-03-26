@@ -958,13 +958,13 @@ class CodeMetric(Metric):
         logger.debug(f"CodeMetric._validate_code: task_id='{task_id}' - validation started")
 
         # Step 2: Poll for validation result with time-based timeout
-        start_time = time.time()
+        start_time_seconds = time.time()
         attempt = 0
         while True:
-            elapsed = time.time() - start_time
-            timeout = Configuration.code_validation_timeout
-            if elapsed >= timeout:
-                raise ValidationError(f"Code validation timed out after {timeout:.0f} seconds")
+            elapsed_seconds = time.time() - start_time_seconds
+            timeout_seconds = Configuration.code_validation_timeout
+            if elapsed_seconds >= timeout_seconds:
+                raise ValidationError(f"Code validation timed out after {timeout_seconds:.0f} seconds")
 
             task_result = get_validate_code_scorer_task_result_scorers_code_validate_task_id_get.sync(
                 task_id=task_id, client=config.api_client
@@ -1002,7 +1002,7 @@ class CodeMetric(Metric):
 
             if task_result.status == TaskResultStatus.PENDING:
                 # Calculate delay with exponential backoff
-                delay = min(
+                delay_seconds = min(
                     Configuration.code_validation_initial_delay
                     * (Configuration.code_validation_backoff_multiplier**attempt),
                     Configuration.code_validation_max_delay,
@@ -1010,9 +1010,9 @@ class CodeMetric(Metric):
 
                 logger.debug(
                     f"CodeMetric._validate_code: task_id='{task_id}' - pending "
-                    f"(elapsed: {elapsed:.1f}s/{timeout:.0f}s, next delay: {delay:.2f}s)"
+                    f"(elapsed: {elapsed_seconds:.1f}s/{timeout_seconds:.0f}s, next delay: {delay_seconds:.2f}s)"
                 )
-                time.sleep(delay)
+                time.sleep(delay_seconds)
                 attempt += 1
             else:
                 raise ValueError(f"Unknown task status: {task_result.status}")

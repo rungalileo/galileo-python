@@ -221,6 +221,8 @@ class ConfigurationMeta(type):
             try:
                 explicit_value = super().__getattribute__(internal_name)
                 if explicit_value is not None:
+                    if key.parser:
+                        return key.parser(str(explicit_value))
                     return explicit_value
             except AttributeError:
                 pass
@@ -260,6 +262,8 @@ class ConfigurationMeta(type):
                     os.environ[key.env_var] = str(value).lower()
                 else:
                     os.environ[key.env_var] = str(value)
+            else:
+                os.environ.pop(key.env_var, None)
         else:
             super().__setattr__(name, value)
 
@@ -476,7 +480,9 @@ class Configuration(metaclass=ConfigurationMeta):
         """
         # Resolve level from parameter, config, or default
         level_str = level or cls.log_level or "INFO"
-        level_int = getattr(logging, level_str.upper(), logging.INFO)
+        level_int = getattr(logging, level_str.upper(), None)
+        if level_int is None or not isinstance(level_int, int):
+            raise ValueError(f"Invalid log level: '{level_str}'. Must be one of: DEBUG, INFO, WARNING, ERROR, CRITICAL")
 
         _enable_console_logging(level=level_int)
 

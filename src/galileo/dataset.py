@@ -65,6 +65,9 @@ class Dataset(StateManagementMixin):
         dataset.delete()
     """
 
+    # Fields that trigger SYNCED → DIRTY on assignment
+    _TRACKED_FIELDS: frozenset[str] = frozenset({"name"})
+
     # Type annotations for instance attributes
     id: str | None
     name: str
@@ -399,8 +402,10 @@ class Dataset(StateManagementMixin):
         Examples
         --------
             dataset = Dataset.get(name="my-dataset")
-            version = dataset.get_version(index=0)
+            version = dataset.get_version(index=1)
         """
+        if index < 1:
+            raise ValueError(f"Version index must be >= 1 (1-based indexing). Got: {index}")
         if self.id is None:
             raise ValueError("Dataset ID is not set. Cannot get version for a local-only dataset.")
         datasets_service = Datasets()
