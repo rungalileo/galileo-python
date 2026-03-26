@@ -5,8 +5,11 @@ from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
+
+_SENTINEL = object()
 
 
 class SyncState(Enum):
@@ -36,16 +39,64 @@ class StateManagementMixin(ABC):
     This mixin provides state tracking and helper methods for objects that
     need to synchronize between local and remote (API) states.
 
+    Subclasses may declare a ``_TRACKED_FIELDS`` frozenset to enable automatic
+    dirty-tracking: any assignment to a tracked field on a SYNCED object will
+    transition it to DIRTY so that callers know a ``save()`` is needed.
+
     Attributes
     ----------
         _sync_state: Current synchronization state of the object.
         _last_error: Last error encountered during synchronization (optional).
+        _TRACKED_FIELDS: frozenset of attribute names whose mutations trigger
+            SYNCED → DIRTY transitions.
     """
+
+    _TRACKED_FIELDS: frozenset[str] = frozenset()
 
     def __init__(self) -> None:
         """Initialize the mixin with default state."""
         self._sync_state: SyncState = SyncState.LOCAL_ONLY
         self._last_error: Exception | None = None
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """
+        Override attribute setting to auto-transition SYNCED → DIRTY.
+
+        Only attributes listed in ``type(self)._TRACKED_FIELDS`` trigger the
+        transition, and only when the incoming value actually differs from the
+        current value (same-value assignments are no-ops).
+
+        Parameters
+        ----------
+            name: Attribute name being set.
+            value: New value for the attribute.
+        """
+        tracked = type(self)._TRACKED_FIELDS
+        if name in tracked:
+            current = object.__getattribute__(self, name) if hasattr(self, name) else _SENTINEL
+            if current is not _SENTINEL and current != value:
+                # Only transition from SYNCED; LOCAL_ONLY/DIRTY/etc. are unaffected
+                try:
+                    sync_state = object.__getattribute__(self, "_sync_state")
+                except AttributeError:
+                    sync_state = None
+                if sync_state == SyncState.SYNCED:
+                    object.__setattr__(self, "_sync_state", SyncState.DIRTY)
+        object.__setattr__(self, name, value)
+
+    def _sync_attrs(self, **attrs: Any) -> None:
+        """
+        Bulk-set attributes without triggering dirty-tracking.
+
+        Use this inside ``create()``, ``refresh()``, and ``save()`` to write
+        API-sourced values back onto the instance without transitioning state.
+
+        Parameters
+        ----------
+            **attrs: Keyword arguments mapping attribute names to their new values.
+        """
+        for key, value in attrs.items():
+            object.__setattr__(self, key, value)
 
     @property
     def sync_state(self) -> SyncState:
