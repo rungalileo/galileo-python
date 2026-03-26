@@ -75,6 +75,7 @@ class StateManagementMixin(ABC):
         if name in tracked:
             current = object.__getattribute__(self, name) if hasattr(self, name) else _SENTINEL
             if current is not _SENTINEL and current != value:
+                # Only transition from SYNCED; LOCAL_ONLY/DIRTY/etc. are unaffected
                 try:
                     sync_state = object.__getattribute__(self, "_sync_state")
                 except AttributeError:
