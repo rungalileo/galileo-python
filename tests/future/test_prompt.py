@@ -598,7 +598,7 @@ class TestPromptMethods:
 class TestPromptSave:
     """Test suite for Prompt.save() — focused on the DIRTY branch and dirty tracking."""
 
-    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    @patch("galileo.prompt.GlobalPromptTemplates")
     def test_save_dirty_calls_update_and_syncs_attributes(
         self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
     ) -> None:
@@ -627,7 +627,7 @@ class TestPromptSave:
         assert result.updated_at == updated_response.updated_at
         assert result.is_synced()
 
-    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    @patch("galileo.prompt.GlobalPromptTemplates")
     def test_save_without_id_raises_value_error(
         self, mock_templates_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -640,7 +640,7 @@ class TestPromptSave:
         with pytest.raises(ValueError, match="Prompt ID is not set"):
             prompt.save()
 
-    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    @patch("galileo.prompt.GlobalPromptTemplates")
     def test_save_handles_api_failure(
         self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
     ) -> None:
@@ -661,7 +661,7 @@ class TestPromptSave:
 
         assert prompt.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    @patch("galileo.prompt.GlobalPromptTemplates")
     def test_name_assignment_transitions_synced_to_dirty(
         self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
     ) -> None:
@@ -687,7 +687,7 @@ class TestPromptSave:
         # Then: state is LOCAL_ONLY, not DIRTY
         assert prompt.sync_state == SyncState.LOCAL_ONLY
 
-    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    @patch("galileo.prompt.GlobalPromptTemplates")
     def test_same_value_assignment_stays_synced(
         self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
     ) -> None:
@@ -706,7 +706,7 @@ class TestPromptSave:
         # Then: state stays SYNCED (no redundant API call on save)
         assert prompt.sync_state == SyncState.SYNCED
 
-    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    @patch("galileo.prompt.GlobalPromptTemplates")
     def test_save_failed_sync_raises_value_error(
         self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
     ) -> None:
@@ -722,7 +722,7 @@ class TestPromptSave:
         with pytest.raises(ValueError, match="FAILED_SYNC"):
             prompt.save()
 
-    @patch("galileo.__future__.prompt.GlobalPromptTemplates")
+    @patch("galileo.prompt.GlobalPromptTemplates")
     def test_refresh_does_not_trigger_dirty(
         self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
     ) -> None:

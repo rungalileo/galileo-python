@@ -6,7 +6,12 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from galileo.collaborator import Collaborator, CollaboratorRole
+from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
+from galileo.resources.api.projects import update_project_projects_project_id_put
+from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.project_update import ProjectUpdate
+from galileo.resources.types import Unset
 from galileo.shared.base import StateManagementMixin, SyncState
 from galileo.shared.exceptions import APIError, ValidationError
 
@@ -762,20 +767,82 @@ class Project(StateManagementMixin):
         """
         Save changes to this project.
 
-        This method is a placeholder for future functionality to update
-        project properties.
+        Persists any local changes (name, type) to the remote API. If the project
+        is LOCAL_ONLY, delegates to create(). If SYNCED, returns immediately as a
+        no-op. Raises ValueError for DELETED or FAILED_SYNC states.
 
         Returns
         -------
-            Project: This project instance.
+            Project: This project instance with updated attributes from the API.
 
         Raises
         ------
-            NotImplementedError: This functionality is not yet implemented.
+            ValueError: If the project is in a DELETED or FAILED_SYNC state, or if
+                the project ID is not set.
+            APIError: If the API call fails or returns an unexpected response.
+
+        Examples
+        --------
+            project = Project.get(name="My AI Project")
+            project.name = "Renamed Project"
+            project.save()
+            assert project.is_synced()
         """
-        raise NotImplementedError(
-            "Project updates are not yet implemented. Use specific methods to modify project state."
-        )
+        if self._sync_state == SyncState.LOCAL_ONLY:
+            return self.create()
+
+        if self._sync_state == SyncState.SYNCED:
+            return self
+
+        if self._sync_state == SyncState.DELETED:
+            raise ValueError("Cannot save a deleted project. The remote resource no longer exists.")
+
+        if self._sync_state == SyncState.FAILED_SYNC:
+            raise ValueError(
+                "Project is in FAILED_SYNC state from a previous operation. "
+                "Call refresh() to reload the latest state before retrying."
+            )
+
+        # DIRTY state — send update to API
+        if self.id is None:
+            raise ValueError("Project ID is not set. Cannot save without a valid ID.")
+
+        try:
+            logger.info("Project.save: id='%s' - started", self.id)
+            config = GalileoPythonConfig.get()
+            body = ProjectUpdate(name=self.name, type_=self.type)
+            detailed_response = update_project_projects_project_id_put.sync_detailed(
+                project_id=self.id, client=config.api_client, body=body
+            )
+
+            if detailed_response.status_code != 200:
+                raise APIError(
+                    f"Project.save: API returned unexpected status {detailed_response.status_code}: "
+                    f"{detailed_response.content}"
+                )
+
+            parsed = detailed_response.parsed
+            if isinstance(parsed, HTTPValidationError):
+                raise APIError(f"Project.save: validation error from API: {parsed.detail}")
+            if parsed is None:
+                raise APIError("Project.save: API returned no response body")
+
+            # Sync fields back, guarding against Unset for optional fields
+            self._sync_attrs(
+                id=parsed.id,
+                created_at=parsed.created_at,
+                updated_at=parsed.updated_at,
+                name=parsed.name if not isinstance(parsed.name, Unset) else self.name,
+                created_by=parsed.created_by if not isinstance(parsed.created_by, Unset) else self.created_by,
+                type=parsed.type_ if not isinstance(parsed.type_, Unset) else self.type,
+            )
+            self._set_state(SyncState.SYNCED)
+            logger.info("Project.save: id='%s' - completed", self.id)
+            return self
+        except Exception as e:
+            self._set_state(SyncState.FAILED_SYNC, error=e)
+            logger.error("Project.save: id='%s' - failed: %s", self.id, e)
+            raise
 
 
 # Import at end to avoid circular import (log_stream.py imports Project)

@@ -26,6 +26,7 @@ from galileo.resources.models.project_create_response import ProjectCreateRespon
 from galileo.resources.models.project_db import ProjectDB
 from galileo.resources.models.project_db_thin import ProjectDBThin
 from galileo.resources.models.project_type import ProjectType
+from galileo.resources.models.project_update_response import ProjectUpdateResponse
 from galileo.resources.models.user_collaborator import UserCollaborator
 from galileo.resources.models.user_collaborator_create import UserCollaboratorCreate
 from galileo.resources.types import UNSET, Unset
@@ -102,13 +103,15 @@ class Project:
     permissions: Union[Unset, list["Permission"]] = UNSET
     type: Union[None, ProjectType, Unset] = UNSET
 
-    def __init__(self, project: Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse] = None) -> None:
+    def __init__(
+        self, project: Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse, ProjectUpdateResponse] = None
+    ) -> None:
         """
         Initialize a Project instance.
 
         Parameters
         ----------
-        project (Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse], optional):
+        project (Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse, ProjectUpdateResponse], optional):
             The project data to initialize from. If None, creates an empty project instance.
             Defaults to None.
         """

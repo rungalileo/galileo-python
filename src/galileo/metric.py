@@ -19,23 +19,26 @@ from galileo.resources.api.data import (
     create_code_scorer_version_scorers_scorer_id_version_code_post,
     create_scorers_post,
     get_validate_code_scorer_task_result_scorers_code_validate_task_id_get,
+    update_scorers_scorer_id_patch,
     validate_code_scorer_scorers_code_validate_post,
 )
 from galileo.resources.models import (
     BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost,
     BodyValidateCodeScorerScorersCodeValidatePost,
     CreateScorerRequest,
+    HTTPValidationError,
     OutputTypeEnum,
     ScorerTypes,
     TaskResultStatus,
+    UpdateScorerRequest,
 )
 from galileo.resources.models.invalid_result import InvalidResult
-from galileo.resources.types import File, Unset
+from galileo.resources.types import UNSET, File, Unset
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 from galileo.schema.metrics import Metric as LegacyMetric
 from galileo.scorers import Scorers
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import ValidationError
+from galileo.shared.exceptions import APIError, ValidationError
 from galileo_core.schemas.logging.span import Span
 from galileo_core.schemas.logging.step import StepType
 from galileo_core.schemas.logging.trace import Trace
@@ -350,78 +353,141 @@ class Metric(StateManagementMixin, ABC):
 
     def _populate_from_scorer_response(self, scorer_response: Any) -> None:
         """Populate instance attributes from a ScorerResponse object."""
-        # Common attributes for all metrics
-        self.id = scorer_response.id
-        self.name = scorer_response.name
-        self.scorer_type = scorer_response.scorer_type
-        self.tags = scorer_response.tags
-        self.version = None
-
-        # Handle optional common attributes
-        self.description = (
+        # Pre-compute optional common attributes
+        description = (
             ""
             if isinstance(scorer_response.description, Unset) or scorer_response.description is None
             else scorer_response.description
         )
-        self.created_at = None if isinstance(scorer_response.created_at, Unset) else scorer_response.created_at
-        self.updated_at = None if isinstance(scorer_response.updated_at, Unset) else scorer_response.updated_at
+        created_at = None if isinstance(scorer_response.created_at, Unset) else scorer_response.created_at
+        updated_at = None if isinstance(scorer_response.updated_at, Unset) else scorer_response.updated_at
 
         # Extract defaults - available for LLM and built-in Galileo metrics
         # These are returned by the API for preset scorers too
         if not isinstance(scorer_response.defaults, Unset) and scorer_response.defaults is not None:
-            self.model = (
-                scorer_response.defaults.model_name if hasattr(scorer_response.defaults, "model_name") else None
-            )
-            self.judges = (
-                scorer_response.defaults.num_judges if hasattr(scorer_response.defaults, "num_judges") else None
-            )
-            self.cot_enabled = (
+            model = scorer_response.defaults.model_name if hasattr(scorer_response.defaults, "model_name") else None
+            judges = scorer_response.defaults.num_judges if hasattr(scorer_response.defaults, "num_judges") else None
+            cot_enabled = (
                 scorer_response.defaults.cot_enabled if hasattr(scorer_response.defaults, "cot_enabled") else None
             )
         else:
-            self.model = None
-            self.judges = None
-            self.cot_enabled = None
+            model = None
+            judges = None
+            cot_enabled = None
+
+        self._sync_attrs(
+            id=scorer_response.id,
+            name=scorer_response.name,
+            scorer_type=scorer_response.scorer_type,
+            tags=scorer_response.tags,
+            version=None,
+            description=description,
+            created_at=created_at,
+            updated_at=updated_at,
+            model=model,
+            judges=judges,
+            cot_enabled=cot_enabled,
+        )
 
         # LLM-specific attributes (only set if this is an LlmMetric)
         if isinstance(self, LlmMetric):
-            self.output_type = None if isinstance(scorer_response.output_type, Unset) else scorer_response.output_type
-            self.prompt = None if isinstance(scorer_response.user_prompt, Unset) else scorer_response.user_prompt
+            output_type = None if isinstance(scorer_response.output_type, Unset) else scorer_response.output_type
+            prompt = None if isinstance(scorer_response.user_prompt, Unset) else scorer_response.user_prompt
 
             # Extract scoreable node types
             if not isinstance(scorer_response.scoreable_node_types, Unset) and scorer_response.scoreable_node_types:
                 try:
-                    self.node_level = StepType(scorer_response.scoreable_node_types[0])
+                    node_level = StepType(scorer_response.scoreable_node_types[0])
                 except (ValueError, IndexError):
-                    self.node_level = None
+                    node_level = None
             else:
-                self.node_level = None
+                node_level = None
+
+            self._sync_attrs(output_type=output_type, prompt=prompt, node_level=node_level)
 
         # Code-specific attributes (only set if this is a CodeMetric)
         if isinstance(self, CodeMetric):
             # Extract scoreable node types
             if not isinstance(scorer_response.scoreable_node_types, Unset) and scorer_response.scoreable_node_types:
                 try:
-                    self.node_level = StepType(scorer_response.scoreable_node_types[0])
+                    code_node_level = StepType(scorer_response.scoreable_node_types[0])
                 except (ValueError, IndexError):
-                    self.node_level = None
+                    code_node_level = None
             else:
-                self.node_level = None
+                code_node_level = None
 
-    def update(self, **kwargs: Any) -> None:
+            self._sync_attrs(node_level=code_node_level)
+
+    def update(self, **kwargs: Any) -> Metric:
         """
-        Update this metric's properties.
+        Update this metric's properties on the API.
 
-        Currently not implemented as the API doesn't support updating scorers.
+        Only ``name``, ``description``, and ``tags`` can be updated via this method.
+        On success the instance is updated with the API response and returned in SYNCED state.
+
+        Parameters
+        ----------
+        **kwargs : Any
+            Fields to update. Supported keys: ``name``, ``description``, ``tags``.
+
+        Returns
+        -------
+            Metric: This metric instance with updated attributes from the API.
 
         Raises
         ------
-            NotImplementedError: Always raised as updates are not supported.
+            ValidationError: If this is a local metric.
+            ValueError: If the metric ID is not set, the metric is deleted,
+                or the metric is in FAILED_SYNC state.
+            ValueError: If any unsupported fields are passed.
+            APIError: If the API returns a validation error or empty response.
+            Exception: If the API call fails (state is set to FAILED_SYNC).
+
+        Examples
+        --------
+            metric = Metric.get(name="factuality-checker")
+            metric.update(name="new-name", description="Updated description")
+            assert metric.is_synced()
         """
-        raise NotImplementedError(
-            "Updating metrics is not yet supported by the API. "
-            "Consider creating a new metric with the desired properties instead."
+        if isinstance(self, LocalMetric):
+            raise ValidationError("Local metrics don't exist on the server and can't be updated.")
+        if self.id is None:
+            raise ValueError("Metric ID is not set. Cannot update a local-only metric.")
+        if self.sync_state == SyncState.DELETED:
+            raise ValueError("Cannot update a deleted metric.")
+        if self.sync_state == SyncState.FAILED_SYNC:
+            raise ValueError(
+                "Cannot update a metric in FAILED_SYNC state. "
+                "Call refresh() to re-sync from the API, then retry your changes."
+            )
+
+        valid_fields = {"name", "description", "tags"}
+        invalid_fields = set(kwargs) - valid_fields
+        if invalid_fields:
+            raise ValueError(f"Invalid update fields: {sorted(invalid_fields)!r}. Valid fields: {sorted(valid_fields)}")
+
+        body = UpdateScorerRequest(
+            name=kwargs.get("name", UNSET), description=kwargs.get("description", UNSET), tags=kwargs.get("tags", UNSET)
         )
+
+        logger.info(f"Metric.update: id='{self.id}' name='{self.name}' - started")
+        try:
+            config = GalileoPythonConfig.get()
+            response = update_scorers_scorer_id_patch.sync(scorer_id=self.id, client=config.api_client, body=body)
+        except Exception as e:
+            self._set_state(SyncState.FAILED_SYNC, error=e)
+            logger.error(f"Metric.update: id='{self.id}' - failed: {e}")
+            raise
+
+        if isinstance(response, HTTPValidationError):
+            raise APIError(f"Metric update validation error: {response.detail}")
+        if response is None:
+            raise APIError(f"Metric update returned empty response for id '{self.id}'")
+
+        self._populate_from_scorer_response(response)
+        self._set_state(SyncState.SYNCED)
+        logger.info(f"Metric.update: id='{self.id}' - completed")
+        return self
 
     def delete(self) -> None:
         """
@@ -727,10 +793,12 @@ class LlmMetric(Metric):
                 else OutputTypeEnum.BOOLEAN,
             )
 
-            # Update attributes from response
-            self.id = str(created_version.scorer_id)
-            self.created_at = created_version.created_at
-            self.updated_at = created_version.updated_at
+            # Update attributes from response without triggering dirty-tracking
+            self._sync_attrs(
+                id=str(created_version.scorer_id),
+                created_at=created_version.created_at,
+                updated_at=created_version.updated_at,
+            )
 
             # Refresh to get full scorer details
             self.refresh()

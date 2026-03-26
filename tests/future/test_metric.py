@@ -5,12 +5,12 @@ from uuid import uuid4
 
 import pytest
 
-from galileo.metric import CodeMetric, LlmMetric, Metric
-from galileo.resources.models import OutputTypeEnum, ScorerTypes
+from galileo.metric import CodeMetric, LlmMetric, LocalMetric, Metric
+from galileo.resources.models import HTTPValidationError, OutputTypeEnum, ScorerTypes
 from galileo.resources.models.invalid_result import InvalidResult
 from galileo.resources.models.task_result_status import TaskResultStatus
 from galileo.shared.base import SyncState
-from galileo.shared.exceptions import ValidationError
+from galileo.shared.exceptions import APIError, ValidationError
 from galileo_core.schemas.logging.step import StepType
 
 # Test fixtures and helper functions
@@ -554,11 +554,149 @@ class TestMetricRefresh:
 class TestMetricUpdate:
     """Test suite for Metric.update() method."""
 
-    def test_update_raises_not_implemented_error(self, reset_configuration: None) -> None:
-        """Test update() raises NotImplementedError."""
+    def test_update_local_metric_raises_validation_error(self, reset_configuration: None) -> None:
+        # Given: a local metric instance
+        def dummy_fn(trace):
+            return 0.5
+
+        metric = LocalMetric(name="my-local", scorer_fn=dummy_fn)
+
+        # When/Then: calling update raises ValidationError
+        with pytest.raises(ValidationError, match="Local metrics don't exist"):
+            metric.update(name="new-name")
+
+    def test_update_without_id_raises_value_error(self, reset_configuration: None) -> None:
+        # Given: an LLM metric without an ID (local-only)
         metric = LlmMetric(name="Test Metric", prompt="Test prompt")
 
-        with pytest.raises(NotImplementedError, match="not yet supported"):
+        # When/Then: calling update raises ValueError about missing ID
+        with pytest.raises(ValueError, match="Metric ID is not set"):
+            metric.update(name="New Name")
+
+    def test_update_deleted_metric_raises_value_error(self, reset_configuration: None) -> None:
+        # Given: a metric in DELETED state
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
+        metric._sync_attrs(id="some-id")
+        metric._set_state(SyncState.DELETED)
+
+        # When/Then: calling update raises ValueError about deleted state
+        with pytest.raises(ValueError, match="Cannot update a deleted metric"):
+            metric.update(name="New Name")
+
+    def test_update_failed_sync_raises_value_error(self, reset_configuration: None) -> None:
+        # Given: a metric in FAILED_SYNC state
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
+        metric._sync_attrs(id="some-id")
+        metric._set_state(SyncState.FAILED_SYNC, error=RuntimeError("prior failure"))
+
+        # When/Then: calling update raises ValueError directing user to refresh
+        with pytest.raises(ValueError, match="FAILED_SYNC"):
+            metric.update(name="New Name")
+
+    def test_update_with_invalid_fields_raises_value_error(self, reset_configuration: None) -> None:
+        # Given: a synced LLM metric
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
+        metric._sync_attrs(id="some-id")
+        metric._set_state(SyncState.SYNCED)
+
+        # When/Then: passing unsupported fields raises ValueError
+        with pytest.raises(ValueError, match="Invalid update fields"):
+            metric.update(prompt="new prompt", model="gpt-4o")
+
+    @patch("galileo.metric.update_scorers_scorer_id_patch")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    def test_update_calls_api_and_syncs_attributes(
+        self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: a synced LLM metric with an ID
+        metric_id = str(uuid4())
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
+        metric._sync_attrs(id=metric_id, tags=["old-tag"], description="old desc")
+        metric._set_state(SyncState.SYNCED)
+
+        mock_config = MagicMock()
+        mock_config_get.return_value = mock_config
+
+        updated_response = MagicMock()
+        updated_response.id = metric_id
+        updated_response.name = "Test Metric"
+        updated_response.scorer_type = ScorerTypes.LLM
+        updated_response.tags = ["new-tag"]
+        updated_response.description = "new desc"
+        updated_response.created_at = MagicMock()
+        updated_response.updated_at = MagicMock()
+        updated_response.output_type = OutputTypeEnum.BOOLEAN
+        updated_response.user_prompt = "Test prompt"
+        updated_response.defaults = MagicMock()
+        updated_response.defaults.model_name = "gpt-4.1-mini"
+        updated_response.defaults.num_judges = 3
+        updated_response.defaults.cot_enabled = True
+        updated_response.scoreable_node_types = []
+        mock_update_patch.sync.return_value = updated_response
+
+        # When: calling update with valid fields
+        result = metric.update(description="new desc", tags=["new-tag"])
+
+        # Then: the API is called and attributes are synced back
+        mock_update_patch.sync.assert_called_once()
+        assert result is metric
+        assert metric.description == "new desc"
+        assert metric.tags == ["new-tag"]
+        assert metric.sync_state == SyncState.SYNCED
+
+    @patch("galileo.metric.update_scorers_scorer_id_patch")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    def test_update_handles_api_failure(
+        self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: a synced metric whose API call will fail
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
+        metric._sync_attrs(id="some-id")
+        metric._set_state(SyncState.SYNCED)
+
+        mock_config_get.return_value = MagicMock()
+        mock_update_patch.sync.side_effect = RuntimeError("network error")
+
+        # When/Then: the exception propagates and state is set to FAILED_SYNC
+        with pytest.raises(RuntimeError, match="network error"):
+            metric.update(name="New Name")
+
+        assert metric.sync_state == SyncState.FAILED_SYNC
+
+    @patch("galileo.metric.update_scorers_scorer_id_patch")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    def test_update_raises_api_error_for_validation_error_response(
+        self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: a synced metric and an API that returns an HTTPValidationError
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
+        metric._sync_attrs(id="some-id")
+        metric._set_state(SyncState.SYNCED)
+
+        mock_config_get.return_value = MagicMock()
+        validation_error_response = MagicMock(spec=HTTPValidationError)
+        validation_error_response.detail = "field required"
+        mock_update_patch.sync.return_value = validation_error_response
+
+        # When/Then: APIError is raised with the validation detail
+        with pytest.raises(APIError, match="Metric update validation error"):
+            metric.update(name="New Name")
+
+    @patch("galileo.metric.update_scorers_scorer_id_patch")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    def test_update_raises_api_error_for_none_response(
+        self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: a synced metric and an API that returns None
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
+        metric._sync_attrs(id="some-id")
+        metric._set_state(SyncState.SYNCED)
+
+        mock_config_get.return_value = MagicMock()
+        mock_update_patch.sync.return_value = None
+
+        # When/Then: APIError is raised about empty response
+        with pytest.raises(APIError, match="empty response"):
             metric.update(name="New Name")
 
 
