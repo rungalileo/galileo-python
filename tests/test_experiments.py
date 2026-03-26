@@ -1,5 +1,6 @@
 import operator
 import os
+import warnings
 from datetime import datetime
 from functools import reduce
 from statistics import mean
@@ -856,18 +857,20 @@ class TestExperiments:
         mock_scorer_settings_class: Mock,
         dataset_content: DatasetContent,
     ) -> None:
-        # Setup scorer mocks
-        mock_scorers_class.return_value.list.return_value = scorers()
+        # Setup scorer mocks — new code uses list_by_labels instead of list
+        mock_scorers_class.return_value.list_by_labels.return_value = scorers()
         mock_scorer_settings_class.return_value.create.return_value = None
 
         dataset_id = str(UUID(int=0))
-        run_experiment(
-            "test_experiment",
-            project="awesome-new-project",
-            dataset_id=dataset_id,
-            prompt_template=prompt_template(),
-            metrics=[GalileoMetrics.correctness],
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            run_experiment(
+                "test_experiment",
+                project="awesome-new-project",
+                dataset_id=dataset_id,
+                prompt_template=prompt_template(),
+                metrics=[GalileoMetrics.correctness],
+            )
 
         mock_get_project.assert_called_once_with(id=None, name="awesome-new-project")
         mock_get_experiment.assert_called_once_with(project().id, "test_experiment")
@@ -881,7 +884,7 @@ class TestExperiments:
             scorers=[ScorerConfig.from_dict(scorers()[0].to_dict())],
             prompt_settings=ANY,
         )
-        mock_scorers_class.return_value.list.assert_called_with()
+        mock_scorers_class.return_value.list_by_labels.assert_called_once()
         # ScorerSettings.create NOT called for trigger=True flow (API handles it)
         mock_scorer_settings_class.return_value.create.assert_not_called()
 
@@ -1065,9 +1068,9 @@ class TestExperiments:
     @patch("galileo.utils.metrics.Scorers")
     @patch("galileo.utils.metrics.ScorerSettings")
     def test_create_scorer_configs(self, mock_scorer_settings_class, mock_scorers_class) -> None:
-        # Setup mock return values
+        # Setup mock return values — new code uses list_by_labels instead of list
         mock_scorers_instance = mock_scorers_class.return_value
-        mock_scorers_instance.list.return_value = [
+        mock_scorers_instance.list_by_labels.return_value = [
             ScorerResponse(id="1", name="metric1", scorer_type=ScorerTypes.PRESET, tags=[]),
             ScorerResponse(id="2", name="metric2", scorer_type=ScorerTypes.PRESET, tags=[]),
         ]
@@ -1100,7 +1103,7 @@ class TestExperiments:
             ScorerResponse.from_dict({"id": "3", "name": "versionable_metric", "scorer_type": "llm", "tags": ["test"]}),
         ]
 
-        mock_scorers_instance.list.return_value = mock_scorer_responses
+        mock_scorers_instance.list_by_labels.return_value = mock_scorer_responses
 
         # Mock the get_scorer_version method
         mock_version_response = MagicMock()

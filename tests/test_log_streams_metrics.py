@@ -88,8 +88,6 @@ class TestLogStreamMetrics:
         mock_scorer_settings_class.return_value.create.return_value = None
 
         # Test with built-in metrics
-        import warnings
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
             scorers, local_metrics = create_metric_configs(
@@ -147,8 +145,6 @@ class TestLogStreamMetrics:
         local_metric = LocalMetricConfig(name="local_metric", scorer_fn=custom_scorer)
 
         # Test with mixed metrics (only valid ones to avoid decorator error handling)
-        import warnings
-
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
             scorers, local_metrics = create_metric_configs(
