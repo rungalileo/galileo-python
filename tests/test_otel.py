@@ -378,8 +378,12 @@ class TestOTelContextIntegration:
         assert processor2._logstream == "init-logstream"
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    def test_processor_on_start_sets_span_attributes(self, mock_processor_deps, reset_decorator_context):
+    def test_processor_on_start_sets_span_attributes(self, mock_processor_deps, reset_decorator_context, monkeypatch):
         """Test on_start sets context attributes on spans, handling None values."""
+        # Pin env vars for this test to avoid flakiness from parallel workers
+        monkeypatch.setenv("GALILEO_PROJECT", "test-project")
+        monkeypatch.setenv("GALILEO_LOG_STREAM", "test-log-stream")
+
         # Given: all context vars set (experiment_id takes priority over logstream)
         _project_context.set("test-project")
         _log_stream_context.set("test-logstream")

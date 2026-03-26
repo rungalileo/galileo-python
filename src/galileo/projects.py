@@ -111,7 +111,7 @@ class Project:
 
         Parameters
         ----------
-        project (Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse, ProjectUpdateResponse], optional):
+        project : Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse, ProjectUpdateResponse], optional
             The project data to initialize from. If None, creates an empty project instance.
             Defaults to None.
         """

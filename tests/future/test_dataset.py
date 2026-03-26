@@ -275,19 +275,18 @@ class TestDatasetSave:
 
         # When: save() is called on a LOCAL_ONLY dataset
         dataset = Dataset(name="Test Dataset")
-        assert dataset.sync_state == SyncState.LOCAL_ONLY
         result = dataset.save()
 
-        # Then: create() is called and the dataset transitions to SYNCED
+        # Then: create() is called and the dataset is synced
         mock_service.create.assert_called_once_with(name="Test Dataset", content=[])
-        assert result.is_synced()
         assert result.id == mock_dataset.id
+        assert result.is_synced()
 
     @patch("galileo.dataset.Datasets")
     def test_save_synced_is_noop(
         self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
     ) -> None:
-        # Given: a synced dataset (obtained via get())
+        # Given: a synced dataset
         mock_service = MagicMock()
         mock_datasets_class.return_value = mock_service
         mock_service.get.return_value = mock_dataset
@@ -295,17 +294,18 @@ class TestDatasetSave:
         dataset = Dataset.get(id=mock_dataset.id)
         assert dataset.is_synced()
 
-        # When: save() is called without any changes
+        # When: save() is called
         result = dataset.save()
 
-        # Then: no update API call is made and the dataset remains synced
+        # Then: no API update call is made and dataset remains synced
         mock_service.update.assert_not_called()
         assert result is dataset
-        assert dataset.is_synced()
+        assert result.is_synced()
 
     def test_save_deleted_raises_value_error(self, reset_configuration: None) -> None:
         # Given: a dataset in DELETED state
         dataset = Dataset(name="Test Dataset")
+        dataset.id = str(uuid4())
         dataset._set_state(SyncState.DELETED)
 
         # When/Then: save() raises ValueError
@@ -313,12 +313,11 @@ class TestDatasetSave:
             dataset.save()
 
     def test_save_without_id_raises_value_error(self, reset_configuration: None) -> None:
-        # Given: a dataset in DIRTY state but without an ID (edge case)
+        # Given: a dataset in DIRTY state with no ID
         dataset = Dataset(name="Test Dataset")
         dataset._set_state(SyncState.DIRTY)
-        # id is None
 
-        # When/Then: save() raises ValueError about missing ID
+        # When/Then: save() raises ValueError because there is no ID to update
         with pytest.raises(ValueError, match="Dataset ID is not set"):
             dataset.save()
 
@@ -331,43 +330,47 @@ class TestDatasetSave:
         mock_datasets_class.return_value = mock_service
         mock_service.get.return_value = mock_dataset
 
+        updated_at = MagicMock()
+        updated_response = MagicMock()
+        updated_response.id = mock_dataset.id
+        updated_response.name = "Renamed Dataset"
+        updated_response.created_at = mock_dataset.created_at
+        updated_response.updated_at = updated_at
+        updated_response.num_rows = 42
+        updated_response.column_names = ["input", "output"]
+        updated_response.draft = True
+        mock_service.update.return_value = updated_response
+
         dataset = Dataset.get(id=mock_dataset.id)
         assert dataset.is_synced()
 
-        # Simulate a name change and DIRTY state
-        object.__setattr__(dataset, "name", "New Name")
+        # When: the name is changed and state set to DIRTY, then save() is called
+        object.__setattr__(dataset, "name", "Renamed Dataset")
         dataset._set_state(SyncState.DIRTY)
 
-        # Mock the update response
-        updated_at_new = MagicMock()
-        updated_mock = MagicMock()
-        updated_mock.id = mock_dataset.id
-        updated_mock.name = "New Name"
-        updated_mock.created_at = mock_dataset.created_at
-        updated_mock.updated_at = updated_at_new
-        updated_mock.num_rows = mock_dataset.num_rows
-        updated_mock.column_names = mock_dataset.column_names
-        updated_mock.draft = mock_dataset.draft
-        mock_service.update.return_value = updated_mock
-
-        # When: save() is called
         result = dataset.save()
 
-        # Then: update() was called with the new name and all synced fields are updated
-        mock_service.update.assert_called_once_with(mock_dataset.id, name="New Name")
-        assert result is dataset
-        assert dataset.name == "New Name"
-        assert dataset.id == mock_dataset.id
-        assert dataset.updated_at == updated_at_new
-        assert dataset.num_rows == mock_dataset.num_rows
-        assert dataset.column_names == mock_dataset.column_names
-        assert dataset.draft == mock_dataset.draft
-        assert dataset.is_synced()
+        # Then: the update call is made and ALL synced fields are updated
+        mock_service.update.assert_called_once_with(mock_dataset.id, name="Renamed Dataset")
+        assert result.name == "Renamed Dataset"
+        assert result.updated_at == updated_at
+        assert result.num_rows == 42
+        assert result.column_names == ["input", "output"]
+        assert result.draft is True
+        assert result.id == mock_dataset.id
+        assert result.is_synced()
 
-    def test_save_failed_sync_raises_value_error(self, reset_configuration: None) -> None:
-        # Given: a dataset in FAILED_SYNC state
-        dataset = Dataset(name="Test Dataset")
-        dataset._set_state(SyncState.FAILED_SYNC, error=Exception("Previous failure"))
+    @patch("galileo.dataset.Datasets")
+    def test_save_failed_sync_raises_value_error(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        # Given: a dataset in FAILED_SYNC state (e.g., from a prior failed operation)
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+
+        dataset = Dataset.get(id=mock_dataset.id)
+        dataset._set_state(SyncState.FAILED_SYNC)
 
         # When/Then: save() raises ValueError directing user to refresh()
         with pytest.raises(ValueError, match="FAILED_SYNC"):
@@ -381,14 +384,13 @@ class TestDatasetSave:
         mock_service = MagicMock()
         mock_datasets_class.return_value = mock_service
         mock_service.get.return_value = mock_dataset
+        mock_service.update.side_effect = RuntimeError("API error")
 
         dataset = Dataset.get(id=mock_dataset.id)
         dataset._set_state(SyncState.DIRTY)
 
-        mock_service.update.side_effect = Exception("Network failure")
-
-        # When/Then: save() re-raises the exception and sets state to FAILED_SYNC
-        with pytest.raises(Exception, match="Network failure"):
+        # When/Then: the exception propagates and state is FAILED_SYNC
+        with pytest.raises(RuntimeError, match="API error"):
             dataset.save()
 
         assert dataset.sync_state == SyncState.FAILED_SYNC
