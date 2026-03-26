@@ -6,7 +6,12 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from galileo.collaborator import Collaborator, CollaboratorRole
+from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
+from galileo.resources.api.projects import update_project_projects_project_id_put
+from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.project_update import ProjectUpdate
+from galileo.resources.types import Unset
 from galileo.shared.base import StateManagementMixin, SyncState
 from galileo.shared.exceptions import APIError, ValidationError
 
@@ -100,6 +105,10 @@ class Project(StateManagementMixin):
     permissions: list[Any] | None
     type: Any | None
 
+    # Fields that trigger SYNCED → DIRTY on assignment
+    # `type` is intentionally excluded: it has complex union typing and is rarely user-modified
+    _TRACKED_FIELDS: frozenset[str] = frozenset({"name"})
+
     def __str__(self) -> str:
         """String representation of the project."""
         return f"Project(name='{self.name}', id='{self.id}')"
@@ -161,14 +170,16 @@ class Project(StateManagementMixin):
             Project: A new Project instance populated with the API data.
         """
         instance = cls._create_empty()
-        instance.created_at = retrieved_project.created_at
-        instance.created_by = retrieved_project.created_by
-        instance.id = retrieved_project.id
-        instance.updated_at = retrieved_project.updated_at
-        instance.bookmark = retrieved_project.bookmark
-        instance.name = retrieved_project.name
-        instance.permissions = retrieved_project.permissions
-        instance.type = retrieved_project.type
+        instance._sync_attrs(
+            created_at=retrieved_project.created_at,
+            created_by=retrieved_project.created_by,
+            id=retrieved_project.id,
+            updated_at=retrieved_project.updated_at,
+            bookmark=retrieved_project.bookmark,
+            name=retrieved_project.name,
+            permissions=retrieved_project.permissions,
+            type=retrieved_project.type,
+        )
         # Set state to synced since we just retrieved from API
         instance._set_state(SyncState.SYNCED)
         return instance
@@ -197,15 +208,17 @@ class Project(StateManagementMixin):
             projects_service = Projects()
             created_project = projects_service.create(name=self.name)
 
-            # Update attributes from response
-            self.created_at = created_project.created_at
-            self.created_by = created_project.created_by
-            self.id = created_project.id
-            self.updated_at = created_project.updated_at
-            self.bookmark = created_project.bookmark
-            self.name = created_project.name
-            self.permissions = created_project.permissions
-            self.type = created_project.type
+            # Update attributes from response without triggering dirty-tracking
+            self._sync_attrs(
+                created_at=created_project.created_at,
+                created_by=created_project.created_by,
+                id=created_project.id,
+                updated_at=created_project.updated_at,
+                bookmark=created_project.bookmark,
+                name=created_project.name,
+                permissions=created_project.permissions,
+                type=created_project.type,
+            )
 
             # Set state to synced
             self._set_state(SyncState.SYNCED)
@@ -696,15 +709,17 @@ class Project(StateManagementMixin):
             if retrieved_project is None:
                 raise ValueError(f"Project with id '{self.id}' no longer exists")
 
-            # Update all attributes from response
-            self.created_at = retrieved_project.created_at
-            self.created_by = retrieved_project.created_by
-            self.id = retrieved_project.id
-            self.updated_at = retrieved_project.updated_at
-            self.bookmark = retrieved_project.bookmark
-            self.name = retrieved_project.name
-            self.permissions = retrieved_project.permissions
-            self.type = retrieved_project.type
+            # Update all attributes from response without triggering dirty-tracking
+            self._sync_attrs(
+                created_at=retrieved_project.created_at,
+                created_by=retrieved_project.created_by,
+                id=retrieved_project.id,
+                updated_at=retrieved_project.updated_at,
+                bookmark=retrieved_project.bookmark,
+                name=retrieved_project.name,
+                permissions=retrieved_project.permissions,
+                type=retrieved_project.type,
+            )
 
             # Set state to synced
             self._set_state(SyncState.SYNCED)
@@ -765,17 +780,100 @@ class Project(StateManagementMixin):
         This method is a placeholder for future functionality to update
         project properties.
 
+        .. note::
+            ``ProjectUpdate`` also supports ``description``, ``labels``, and ``created_by``,
+            but these are not exposed as tracked attributes on the domain object because the
+            read endpoints (get/list) do not return them consistently. ``created_by`` is
+            server-managed.
+
+            If the project is in FAILED_SYNC state (from a prior failed operation), this
+            method raises ValueError. Call :meth:`refresh` first to re-sync, then retry.
+
         Returns
         -------
             Project: This project instance.
 
         Raises
         ------
-            NotImplementedError: This functionality is not yet implemented.
+            ValueError: If the project has been deleted, is in FAILED_SYNC state, or has no ID set.
+            Exception: If the API call fails.
+
+        Examples
+        --------
+            # Create a new project
+            project = Project(name="My Project")
+            project.save()
+
+            # Update an existing project's name via dirty-tracking
+            project = Project.get(name="My Project")
+            project.name = "Renamed Project"  # automatically marks DIRTY
+            project.save()
         """
-        raise NotImplementedError(
-            "Project updates are not yet implemented. Use specific methods to modify project state."
-        )
+        if self.sync_state == SyncState.LOCAL_ONLY:
+            return self.create()
+        if self.sync_state == SyncState.SYNCED:
+            logger.debug(f"Project.save: id='{self.id}' - already synced, no action needed")
+            return self
+        if self.sync_state == SyncState.DELETED:
+            raise ValueError("Cannot save a deleted project.")
+        if self.sync_state == SyncState.FAILED_SYNC:
+            raise ValueError(
+                "Cannot save a project in FAILED_SYNC state. "
+                "Call refresh() to re-sync from the API, then retry your changes."
+            )
+
+        if self.id is None:
+            raise ValueError("Project ID is not set. Cannot update a project without an ID.")
+
+        logger.info(f"Project.save: name='{self.name}' id='{self.id}' - started")
+        config = GalileoPythonConfig.get()
+        # ProjectUpdate also accepts `description`, `labels`, and `created_by`, but:
+        # - `description`/`labels`: not exposed on the domain object because neither the
+        #   get (ProjectDBThin) nor list endpoints return them, so round-tripping would
+        #   leave the object stale. Expand when read endpoints return these fields.
+        # - `created_by`: server-managed, not a user-modifiable field.
+        body = ProjectUpdate(name=self.name, type_=self.type)
+
+        try:
+            detailed_response = update_project_projects_project_id_put.sync_detailed(
+                project_id=self.id, client=config.api_client, body=body
+            )
+        except Exception as e:
+            self._set_state(SyncState.FAILED_SYNC, error=e)
+            logger.error(f"Project.save: id='{self.id}' - failed: {e}")
+            raise
+
+        # Response validation outside try/except — these are not sync failures
+        if detailed_response.status_code != 200:
+            raise APIError(f"Project update failed with status {detailed_response.status_code} for id '{self.id}'")
+
+        response = detailed_response.parsed
+
+        if isinstance(response, HTTPValidationError):
+            raise APIError(f"Project update validation error: {response.detail}")
+
+        if response is None:
+            raise APIError(f"Project update returned empty response for id '{self.id}'")
+
+        # Sync fields returned by the update endpoint.
+        # bookmark and permissions are NOT returned by ProjectUpdateResponse,
+        # so we intentionally preserve their current local values.
+        # created_by, name, and type_ are optional in the response; skip them if absent.
+        attrs: dict[str, object] = {
+            "created_at": response.created_at,
+            "id": response.id,
+            "updated_at": response.updated_at,
+        }
+        if not isinstance(response.created_by, Unset):
+            attrs["created_by"] = response.created_by
+        if not isinstance(response.name, Unset):
+            attrs["name"] = response.name
+        if not isinstance(response.type_, Unset):
+            attrs["type"] = response.type_
+        self._sync_attrs(**attrs)
+        self._set_state(SyncState.SYNCED)
+        logger.info(f"Project.save: id='{self.id}' - completed")
+        return self
 
 
 # Import at end to avoid circular import (log_stream.py imports Project)
