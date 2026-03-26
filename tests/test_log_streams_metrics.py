@@ -1,4 +1,5 @@
 import os
+import warnings
 from unittest.mock import ANY, patch
 from uuid import UUID
 
@@ -8,7 +9,7 @@ from galileo.log_streams import LogStream, LogStreams, enable_metrics
 from galileo.projects import Project
 from galileo.resources.models import ProjectCreateResponse, ScorerResponse, ScorerTypes
 from galileo.resources.models.log_stream_response import LogStreamResponse
-from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
+from galileo.schema.metrics import GalileoMetricNames, GalileoMetrics, LocalMetricConfig, Metric
 from galileo.utils.metrics import create_metric_configs
 
 
@@ -82,17 +83,21 @@ class TestLogStreamMetrics:
         self, mock_scorer_settings_class, mock_scorers_class, mock_scorers
     ) -> None:
         """Test create_metric_configs with built-in Galileo scorers."""
-        # Setup mocks
-        mock_scorers_class.return_value.list.return_value = mock_scorers
+        # Setup mocks — new code uses list_by_labels instead of list
+        mock_scorers_class.return_value.list_by_labels.return_value = mock_scorers
         mock_scorer_settings_class.return_value.create.return_value = None
 
         # Test with built-in metrics
-        scorers, local_metrics = create_metric_configs(
-            "project-123", "logstream-456", [GalileoMetrics.correctness, "completeness"]
-        )
+        import warnings
 
-        # Verify scorers list was called
-        mock_scorers_class.return_value.list.assert_called_once()
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            scorers, local_metrics = create_metric_configs(
+                "project-123", "logstream-456", [GalileoMetrics.correctness, "completeness"]
+            )
+
+        # Verify scorers list_by_labels was called
+        mock_scorers_class.return_value.list_by_labels.assert_called_once()
 
         # Verify scorer settings creation was called
         mock_scorer_settings_class.return_value.create.assert_called_once_with(
@@ -132,8 +137,8 @@ class TestLogStreamMetrics:
         self, mock_scorer_settings_class, mock_scorers_class, mock_scorers
     ) -> None:
         """Test create_metric_configs with mixed metric types."""
-        # Setup mocks
-        mock_scorers_class.return_value.list.return_value = mock_scorers
+        # Setup mocks — new code uses list_by_labels instead of list
+        mock_scorers_class.return_value.list_by_labels.return_value = mock_scorers
         mock_scorer_settings_class.return_value.create.return_value = None
 
         def custom_scorer(trace_or_span) -> float:
@@ -142,9 +147,13 @@ class TestLogStreamMetrics:
         local_metric = LocalMetricConfig(name="local_metric", scorer_fn=custom_scorer)
 
         # Test with mixed metrics (only valid ones to avoid decorator error handling)
-        scorers, local_metrics = create_metric_configs(
-            "project-123", "logstream-456", [GalileoMetrics.correctness, local_metric]
-        )
+        import warnings
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", DeprecationWarning)
+            scorers, local_metrics = create_metric_configs(
+                "project-123", "logstream-456", [GalileoMetrics.correctness, local_metric]
+            )
 
         # Verify local metrics
         assert len(local_metrics) == 1
@@ -371,3 +380,175 @@ class TestLogStreamMetrics:
 
             assert "Project" in str(exc_info.value)
             assert "not found" in str(exc_info.value)
+
+
+class TestCreateMetricConfigsNewTypes:
+    """Tests for the updated create_metric_configs with GalileoMetricNames, UUID, and deprecation support."""
+
+    @pytest.fixture
+    def mock_scorers_with_labels(self):
+        """Mock scorer responses with labels set (simulating preset scorers)."""
+        return [
+            ScorerResponse(
+                id=UUID(int=100),
+                name="correctness",
+                label="Correctness",
+                scorer_type=ScorerTypes.LLM,
+                description="Test correctness scorer",
+                tags=[],
+            ),
+            ScorerResponse(
+                id=UUID(int=101),
+                name="context_adherence",
+                label="Context Adherence",
+                scorer_type=ScorerTypes.LLM,
+                description="Test context adherence scorer",
+                tags=[],
+            ),
+        ]
+
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_galileo_metric_names_routes_through_list_by_labels(
+        self, mock_settings_class, mock_scorers_class, mock_scorers_with_labels
+    ) -> None:
+        # Given: scorers are resolved via list_by_labels
+        mock_scorers_class.return_value.list_by_labels.return_value = mock_scorers_with_labels
+        mock_settings_class.return_value.create.return_value = None
+
+        # When: using GalileoMetricNames enum
+        scorers, local_metrics = create_metric_configs("project-123", "run-456", [GalileoMetricNames.context_adherence])
+
+        # Then: list_by_labels is called with the label value
+        mock_scorers_class.return_value.list_by_labels.assert_called_once_with(["Context Adherence"], strict=False)
+        assert len(scorers) == 1
+
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_galileo_metrics_emits_deprecation_warning(
+        self, mock_settings_class, mock_scorers_class, mock_scorers_with_labels
+    ) -> None:
+        # Given: scorers are resolved via list_by_labels
+        mock_scorers_class.return_value.list_by_labels.return_value = mock_scorers_with_labels
+        mock_settings_class.return_value.create.return_value = None
+
+        # When: using the deprecated GalileoMetrics enum
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            create_metric_configs("project-123", "run-456", [GalileoMetrics.correctness])
+
+        # Then: a DeprecationWarning is emitted
+        deprecation_warnings = [w for w in caught if issubclass(w.category, DeprecationWarning)]
+        assert len(deprecation_warnings) >= 1
+        assert "GalileoMetricNames" in str(deprecation_warnings[0].message)
+
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_uuid_string_routes_through_list_by_ids(
+        self, mock_settings_class, mock_scorers_class, mock_scorers_with_labels
+    ) -> None:
+        # Given: a scorer resolved via list_by_ids
+        scorer_id = "00000000-0000-0000-0000-000000000064"
+        mock_scorers_class.return_value.list_by_ids.return_value = mock_scorers_with_labels[:1]
+        mock_settings_class.return_value.create.return_value = None
+
+        # When: passing a UUID string
+        scorers, _ = create_metric_configs("project-123", "run-456", [scorer_id])
+
+        # Then: list_by_ids is called with the UUID
+        mock_scorers_class.return_value.list_by_ids.assert_called_once_with([scorer_id])
+        assert len(scorers) == 1
+
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_plain_string_routes_through_list_by_labels(
+        self, mock_settings_class, mock_scorers_class, mock_scorers_with_labels
+    ) -> None:
+        # Given: a scorer resolved via list_by_labels
+        mock_scorers_class.return_value.list_by_labels.return_value = mock_scorers_with_labels
+        mock_settings_class.return_value.create.return_value = None
+
+        # When: passing a plain string
+        scorers, _ = create_metric_configs("project-123", "run-456", ["Context Adherence"])
+
+        # Then: list_by_labels is called with strict=False
+        mock_scorers_class.return_value.list_by_labels.assert_called_once_with(["Context Adherence"], strict=False)
+
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_metric_with_version_fetches_version(
+        self, mock_settings_class, mock_scorers_class, mock_scorers_with_labels
+    ) -> None:
+        # Given: scorers resolved and version available
+        mock_scorers_class.return_value.list_by_labels.return_value = mock_scorers_with_labels[:1]
+        mock_scorers_class.return_value.get_scorer_version.return_value = type(
+            "MockVersion", (), {"to_dict": lambda self: {"id": "v1", "version": 2}}
+        )()
+        mock_settings_class.return_value.create.return_value = None
+
+        # When: passing a Metric with version
+        scorers, _ = create_metric_configs("project-123", "run-456", [Metric(name="Correctness", version=2)])
+
+        # Then: get_scorer_version is called
+        mock_scorers_class.return_value.get_scorer_version.assert_called_once()
+
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_mixed_inputs(self, mock_settings_class, mock_scorers_class, mock_scorers_with_labels) -> None:
+        # Given: scorers resolved via both label and ID lookup
+        scorer_id = "00000000-0000-0000-0000-000000000064"
+        mock_scorers_class.return_value.list_by_ids.return_value = mock_scorers_with_labels[:1]
+        mock_scorers_class.return_value.list_by_labels.return_value = mock_scorers_with_labels[1:]
+        mock_settings_class.return_value.create.return_value = None
+
+        # When: passing a mix of UUID + GalileoMetricNames
+        scorers, _ = create_metric_configs("project-123", "run-456", [scorer_id, GalileoMetricNames.context_adherence])
+
+        # Then: both lookup methods are called
+        mock_scorers_class.return_value.list_by_ids.assert_called_once()
+        mock_scorers_class.return_value.list_by_labels.assert_called_once()
+        assert len(scorers) == 2
+
+    @patch("galileo.utils.metrics.Scorers")
+    def test_unknown_metric_raises_value_error(self, mock_scorers_class) -> None:
+        # Given: no scorers match
+        mock_scorers_class.return_value.list_by_labels.return_value = []
+
+        # When/Then: unknown metric raises ValueError
+        with pytest.raises(ValueError, match="non-existent metrics"):
+            create_metric_configs("project-123", "run-456", ["NonexistentMetric"])
+
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_local_metrics_still_work(self, mock_settings_class, mock_scorers_class) -> None:
+        # Given: no server-side metrics, only local
+        def custom_scorer(trace_or_span) -> float:
+            return 0.85
+
+        local_metric = LocalMetricConfig(name="custom", scorer_fn=custom_scorer)
+
+        # When: passing only a LocalMetricConfig
+        scorers, local_metrics = create_metric_configs("project-123", "run-456", [local_metric])
+
+        # Then: local metrics returned, no API calls for scorer retrieval
+        assert len(local_metrics) == 1
+        assert local_metrics[0].name == "custom"
+        assert len(scorers) == 0
+        mock_scorers_class.return_value.list_by_labels.assert_not_called()
+        mock_scorers_class.return_value.list_by_ids.assert_not_called()
+
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_run_id_none_skips_registration(
+        self, mock_settings_class, mock_scorers_class, mock_scorers_with_labels
+    ) -> None:
+        # Given: scorers resolved via labels
+        mock_scorers_class.return_value.list_by_labels.return_value = mock_scorers_with_labels
+        mock_settings_class.return_value.create.return_value = None
+
+        # When: run_id is None (trigger=True flow)
+        scorers, _ = create_metric_configs("project-123", None, [GalileoMetricNames.correctness])
+
+        # Then: ScorerSettings.create is NOT called
+        mock_settings_class.return_value.create.assert_not_called()
+        assert len(scorers) == 1

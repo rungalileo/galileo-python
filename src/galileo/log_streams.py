@@ -11,7 +11,7 @@ from galileo.resources.api.log_stream import (
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
 from galileo.resources.models.log_stream_response import LogStreamResponse
-from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
+from galileo.schema.metrics import GalileoMetricNames, GalileoMetrics, LocalMetricConfig, Metric
 from galileo.utils.env_helpers import _get_log_stream_from_env, _get_project_from_env
 from galileo.utils.log_config import get_logger
 from galileo.utils.metrics import create_metric_configs
@@ -122,7 +122,7 @@ class LogStream(LogStreamResponse):
             return
 
     def enable_metrics(
-        self, metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]
+        self, metrics: builtins.list[Union[GalileoMetrics, GalileoMetricNames, Metric, LocalMetricConfig, str]]
     ) -> builtins.list[LocalMetricConfig]:
         """
         Enable metrics directly on this log stream instance.
@@ -138,7 +138,7 @@ class LogStream(LogStreamResponse):
 
         Parameters
         ----------
-        metrics : builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]
+        metrics : builtins.list[Union[GalileoMetrics, GalileoMetricNames, Metric, LocalMetricConfig, str]]
             List of metrics to enable on this log stream. Supports multiple input formats:
 
             - **GalileoMetrics enum values**: Built-in metrics like `GalileoMetrics.correctness`
@@ -416,7 +416,7 @@ class LogStreams:
         *,
         log_stream_name: Optional[str] = None,
         project_name: Optional[str] = None,
-        metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]],
+        metrics: builtins.list[Union[GalileoMetrics, GalileoMetricNames, Metric, LocalMetricConfig, str]],
     ) -> builtins.list[LocalMetricConfig]:
         """
         Enable metrics for a log stream by configuring scorers.
@@ -433,7 +433,7 @@ class LogStreams:
             The name of the log stream. Takes precedence over the GALILEO_LOG_STREAM environment variable. Defaults to None.
         project_name : Optional[str], optional
             The name of the project. Takes precedence over the GALILEO_PROJECT environment variable. Defaults to None.
-        metrics : builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]
+        metrics : builtins.list[Union[GalileoMetrics, GalileoMetricNames, Metric, LocalMetricConfig, str]]
             List of metrics to enable. Can include:
             - GalileoMetrics enum values (e.g., GalileoMetrics.correctness)
             - Metric objects with name and optional version
@@ -604,7 +604,7 @@ def enable_metrics(
     *,
     log_stream_name: Optional[str] = None,
     project_name: Optional[str] = None,
-    metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]],
+    metrics: builtins.list[Union[GalileoMetrics, GalileoMetricNames, Metric, LocalMetricConfig, str]],
 ) -> builtins.list[LocalMetricConfig]:
     """
     Enable metrics for a log stream with flexible parameter and environment variable support.
@@ -632,7 +632,7 @@ def enable_metrics(
     project_name : Optional[str], optional
         The name of the project. Takes precedence over GALILEO_PROJECT environment variable.
         If None, will use GALILEO_PROJECT env var. Defaults to None.
-    metrics : builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]
+    metrics : builtins.list[Union[GalileoMetrics, GalileoMetricNames, Metric, LocalMetricConfig, str]]
         List of metrics to enable on the log stream. Can include:
         - GalileoMetrics enum values (e.g., GalileoMetrics.correctness)
         - Metric objects with name and optional version for custom metrics

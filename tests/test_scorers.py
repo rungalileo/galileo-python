@@ -6,6 +6,10 @@ from src.galileo.resources.models.base_scorer_version_response import BaseScorer
 from galileo.resources.models import (
     ListScorersRequest,
     ListScorersResponse,
+    ScorerIDFilter,
+    ScorerIDFilterOperator,
+    ScorerLabelFilter,
+    ScorerLabelFilterOperator,
     ScorerTypeFilter,
     ScorerTypeFilterOperator,
     ScorerTypes,
@@ -213,3 +217,91 @@ def test_list_with_multiple_types(mock_list_scorers: Mock) -> None:
     assert isinstance(type_filter, ScorerTypeFilter)
     assert type_filter.operator == ScorerTypeFilterOperator.ONE_OF
     assert type_filter.value == [ScorerTypes.LLM, ScorerTypes.CODE]
+
+
+@patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
+def test_list_by_labels_single(mock_list_scorers: Mock) -> None:
+    """Test that list_by_labels with a single label uses eq operator and case_sensitive=False."""
+    mock_list_scorers.sync.return_value = ListScorersResponse(scorers=[])
+    Scorers().list_by_labels(["Context Adherence"])
+
+    mock_list_scorers.sync.assert_called_once()
+    call_args = mock_list_scorers.sync.call_args
+    body = call_args.kwargs["body"]
+    assert len(body.filters) == 1
+    lf = body.filters[0]
+    assert isinstance(lf, ScorerLabelFilter)
+    assert lf.operator == ScorerLabelFilterOperator.EQ
+    assert lf.value == "Context Adherence"
+    assert lf.case_sensitive is False
+    assert lf.strict is False
+
+
+@patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
+def test_list_by_labels_multiple(mock_list_scorers: Mock) -> None:
+    """Test that list_by_labels with multiple labels uses one_of operator."""
+    mock_list_scorers.sync.return_value = ListScorersResponse(scorers=[])
+    Scorers().list_by_labels(["Context Adherence", "Correctness"])
+
+    call_args = mock_list_scorers.sync.call_args
+    body = call_args.kwargs["body"]
+    lf = body.filters[0]
+    assert isinstance(lf, ScorerLabelFilter)
+    assert lf.operator == ScorerLabelFilterOperator.ONE_OF
+    assert lf.value == ["Context Adherence", "Correctness"]
+    assert lf.case_sensitive is False
+    assert lf.strict is False
+
+
+@patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
+def test_list_by_labels_strict(mock_list_scorers: Mock) -> None:
+    """Test that list_by_labels with strict=True passes strict to filter."""
+    mock_list_scorers.sync.return_value = ListScorersResponse(scorers=[])
+    Scorers().list_by_labels(["Context Adherence"], strict=True)
+
+    call_args = mock_list_scorers.sync.call_args
+    body = call_args.kwargs["body"]
+    lf = body.filters[0]
+    assert isinstance(lf, ScorerLabelFilter)
+    assert lf.strict is True
+
+
+@patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
+def test_list_by_ids_single(mock_list_scorers: Mock) -> None:
+    """Test that list_by_ids with a single ID uses eq operator."""
+    mock_list_scorers.sync.return_value = ListScorersResponse(scorers=[])
+    test_id = "f7933a6d-7a65-4ce3-bfe4-b863109a04ee"
+    Scorers().list_by_ids([test_id])
+
+    call_args = mock_list_scorers.sync.call_args
+    body = call_args.kwargs["body"]
+    assert len(body.filters) == 1
+    id_filter = body.filters[0]
+    assert isinstance(id_filter, ScorerIDFilter)
+    assert id_filter.operator == ScorerIDFilterOperator.EQ
+    assert id_filter.value == test_id
+
+
+@patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
+def test_list_by_ids_multiple(mock_list_scorers: Mock) -> None:
+    """Test that list_by_ids with multiple IDs uses one_of operator."""
+    mock_list_scorers.sync.return_value = ListScorersResponse(scorers=[])
+    ids = ["f7933a6d-7a65-4ce3-bfe4-b863109a04ee", "a7933a6d-7a65-4ce3-bfe4-b863109a0412"]
+    Scorers().list_by_ids(ids)
+
+    call_args = mock_list_scorers.sync.call_args
+    body = call_args.kwargs["body"]
+    id_filter = body.filters[0]
+    assert isinstance(id_filter, ScorerIDFilter)
+    assert id_filter.operator == ScorerIDFilterOperator.ONE_OF
+    assert id_filter.value == ids
+
+
+@patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
+def test_list_refactored_still_works(mock_list_scorers: Mock) -> None:
+    """Test that the refactored list() method still works with the _list_with_filters helper."""
+    mock_list_scorers.sync.return_value = list_scorers_all()
+    results = Scorers().list()
+    assert len(results) == 2
+    actual = {r.name: r.scorer_type.name for r in results}
+    assert actual == {"agentic_workflow_success": "PRESET", "dummy_llm": "LLM"}

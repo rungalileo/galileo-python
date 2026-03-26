@@ -22,7 +22,7 @@ from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_records_available_columns_request import LogRecordsAvailableColumnsRequest
 from galileo.resources.models.log_records_available_columns_response import LogRecordsAvailableColumnsResponse
 from galileo.schema.filters import FilterType
-from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
+from galileo.schema.metrics import GalileoMetricNames, GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 from galileo.shared.base import StateManagementMixin, SyncState
 from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
@@ -431,7 +431,7 @@ class LogStream(StateManagementMixin):
         return metric_names
 
     def set_metrics(
-        self, metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str]
+        self, metrics: builtins.list[GalileoMetrics | GalileoMetricNames | Metric | LocalMetricConfig | str]
     ) -> builtins.list[LocalMetricConfig]:
         """
         Set (replace) the metrics on this log stream.

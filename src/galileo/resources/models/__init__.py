@@ -876,6 +876,8 @@ from .scorer_creator_filter import ScorerCreatorFilter
 from .scorer_creator_filter_operator import ScorerCreatorFilterOperator
 from .scorer_defaults import ScorerDefaults
 from .scorer_enabled_in_run_sort import ScorerEnabledInRunSort
+from .scorer_id_filter import ScorerIDFilter
+from .scorer_id_filter_operator import ScorerIDFilterOperator
 from .scorer_label_filter import ScorerLabelFilter
 from .scorer_label_filter_operator import ScorerLabelFilterOperator
 from .scorer_model_type_filter import ScorerModelTypeFilter
@@ -1728,6 +1730,8 @@ __all__ = (
     "ScorerCreatorFilterOperator",
     "ScorerDefaults",
     "ScorerEnabledInRunSort",
+    "ScorerIDFilter",
+    "ScorerIDFilterOperator",
     "ScorerLabelFilter",
     "ScorerLabelFilterOperator",
     "ScorerModelTypeFilter",
