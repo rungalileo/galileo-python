@@ -2,8 +2,8 @@
 
 import pytest
 
-from galileo.__future__.shared.sort import Sort, sort
 from galileo.resources.models import LogRecordsSortClause
+from galileo.shared.sort import Sort, sort
 
 
 class TestSort:

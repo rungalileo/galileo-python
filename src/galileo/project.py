@@ -16,10 +16,10 @@ from galileo.shared.base import StateManagementMixin, SyncState
 from galileo.shared.exceptions import APIError, ValidationError
 
 if TYPE_CHECKING:
-    from galileo.__future__.dataset import Dataset
-    from galileo.__future__.experiment import Experiment
-    from galileo.__future__.log_stream import LogStream
-    from galileo.__future__.prompt import Prompt
+    from galileo.dataset import Dataset
+    from galileo.experiment import Experiment
+    from galileo.log_stream import LogStream
+    from galileo.prompt import Prompt
 
 logger = logging.getLogger(__name__)
 
@@ -777,8 +777,9 @@ class Project(StateManagementMixin):
         """
         Save changes to this project.
 
-        This method is a placeholder for future functionality to update
-        project properties.
+        Persists any local changes (name, type) to the remote API. If the project
+        is LOCAL_ONLY, delegates to create(). If SYNCED, returns immediately as a
+        no-op. Raises ValueError for DELETED or FAILED_SYNC states.
 
         .. note::
             ``ProjectUpdate`` also supports ``description``, ``labels``, and ``created_by``,
@@ -791,7 +792,7 @@ class Project(StateManagementMixin):
 
         Returns
         -------
-            Project: This project instance.
+            Project: This project instance with updated attributes from the API.
 
         Raises
         ------
@@ -877,7 +878,7 @@ class Project(StateManagementMixin):
 
 
 # Import at end to avoid circular import (log_stream.py imports Project)
-from galileo.__future__.dataset import Dataset  # noqa: E402
-from galileo.__future__.experiment import Experiment  # noqa: E402
-from galileo.__future__.log_stream import LogStream  # noqa: E402
-from galileo.__future__.prompt import Prompt  # noqa: E402
+from galileo.dataset import Dataset  # noqa: E402
+from galileo.experiment import Experiment  # noqa: E402
+from galileo.log_stream import LogStream  # noqa: E402
+from galileo.prompt import Prompt  # noqa: E402

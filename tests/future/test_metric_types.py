@@ -12,9 +12,9 @@ from __future__ import annotations
 
 import pytest
 
-from galileo.__future__ import CodeMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
-from galileo.__future__.shared.exceptions import ValidationError
+from galileo.metric import CodeMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
 from galileo.resources.models import OutputTypeEnum, ScorerTypes
+from galileo.shared.exceptions import ValidationError
 from galileo_core.schemas.logging.step import StepType
 
 
@@ -243,7 +243,7 @@ class TestMetricBase:
 
     def test_metric_scorers_is_builtin_scorers(self):
         """Test that Metric.metrics is a BuiltInMetrics instance and legacy 'scorers' still exists."""
-        from galileo.__future__.metric import BuiltInMetrics
+        from galileo.metric import BuiltInMetrics
 
         assert isinstance(Metric.metrics, BuiltInMetrics)
         # Legacy alias should still exist and point to the same instance

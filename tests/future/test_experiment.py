@@ -4,15 +4,15 @@ from uuid import uuid4
 
 import pytest
 
-from galileo.__future__ import Experiment
-from galileo.__future__.shared.base import SyncState
-from galileo.__future__.shared.column import ColumnCollection
-from galileo.__future__.shared.experiment_result import ExperimentRunResult, ExperimentStatusInfo
-from galileo.__future__.shared.query_result import QueryResult
+from galileo.experiment import Experiment
 from galileo.resources.models import ExperimentResponse
 from galileo.schema.metrics import GalileoMetrics
 from galileo.search import RecordType
+from galileo.shared.base import SyncState
+from galileo.shared.column import ColumnCollection
 from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
+from galileo.shared.experiment_result import ExperimentRunResult, ExperimentStatusInfo
+from galileo.shared.query_result import QueryResult
 
 
 @pytest.fixture
@@ -145,11 +145,11 @@ class TestExperimentInitialization:
 class TestExperimentEnvFallback:
     """Test suite for Experiment environment variable fallback behavior."""
 
-    @patch("galileo.__future__.experiment.create_metric_configs")
-    @patch("galileo.__future__.experiment.get_prompt")
-    @patch("galileo.__future__.experiment.load_dataset_and_records")
-    @patch("galileo.__future__.experiment.Projects")
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.create_metric_configs")
+    @patch("galileo.experiment.get_prompt")
+    @patch("galileo.experiment.load_dataset_and_records")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
     def test_create_uses_env_fallback_when_no_project_specified(
         self,
         mock_experiments_class: MagicMock,
@@ -186,7 +186,7 @@ class TestExperimentEnvFallback:
         assert experiment.project_id == mock_project.id
         assert experiment.is_synced()
 
-    @patch("galileo.__future__.experiment.Projects")
+    @patch("galileo.experiment.Projects")
     def test_create_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -201,8 +201,8 @@ class TestExperimentEnvFallback:
         with pytest.raises(ResourceNotFoundError, match="Project not found"):
             experiment.create()
 
-    @patch("galileo.__future__.experiment.Projects")
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
     def test_get_uses_env_fallback_when_no_project_specified(
         self,
         mock_experiments_class: MagicMock,
@@ -228,7 +228,7 @@ class TestExperimentEnvFallback:
         mock_projects_service.get_with_env_fallbacks.assert_called_once()
         assert experiment.project_id == mock_project.id
 
-    @patch("galileo.__future__.experiment.Projects")
+    @patch("galileo.experiment.Projects")
     def test_get_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -242,8 +242,8 @@ class TestExperimentEnvFallback:
         with pytest.raises(ResourceNotFoundError, match="Project not found"):
             Experiment.get(name="Test Experiment")
 
-    @patch("galileo.__future__.experiment.Projects")
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
     def test_list_uses_env_fallback_when_no_project_specified(
         self,
         mock_experiments_class: MagicMock,
@@ -268,7 +268,7 @@ class TestExperimentEnvFallback:
         mock_projects_service.get_with_env_fallbacks.assert_called_once()
         assert experiments == []
 
-    @patch("galileo.__future__.experiment.Projects")
+    @patch("galileo.experiment.Projects")
     def test_list_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -286,11 +286,11 @@ class TestExperimentEnvFallback:
 class TestExperimentCreate:
     """Test suite for Experiment.create() method."""
 
-    @patch("galileo.__future__.experiment.create_metric_configs")
-    @patch("galileo.__future__.experiment.get_prompt")
-    @patch("galileo.__future__.experiment.load_dataset_and_records")
-    @patch("galileo.__future__.experiment.Projects")
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.create_metric_configs")
+    @patch("galileo.experiment.get_prompt")
+    @patch("galileo.experiment.load_dataset_and_records")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
     def test_create_persists_and_triggers_experiment(
         self,
         mock_experiments_class: MagicMock,
@@ -336,11 +336,11 @@ class TestExperimentCreate:
         assert experiment.is_synced()
         assert experiment._run_result is not None
 
-    @patch("galileo.__future__.experiment.create_metric_configs")
-    @patch("galileo.__future__.experiment.get_prompt")
-    @patch("galileo.__future__.experiment.load_dataset_and_records")
-    @patch("galileo.__future__.experiment.Projects")
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.create_metric_configs")
+    @patch("galileo.experiment.get_prompt")
+    @patch("galileo.experiment.load_dataset_and_records")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
     def test_create_handles_existing_experiment_with_timestamp(
         self,
         mock_experiments_class: MagicMock,
@@ -382,11 +382,11 @@ class TestExperimentCreate:
         assert "Test Experiment" in call_args.kwargs["name"]
         assert call_args.kwargs["name"] != "Test Experiment"
 
-    @patch("galileo.__future__.experiment.create_metric_configs")
-    @patch("galileo.__future__.experiment.get_prompt")
-    @patch("galileo.__future__.experiment.load_dataset_and_records")
-    @patch("galileo.__future__.experiment.Projects")
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.create_metric_configs")
+    @patch("galileo.experiment.get_prompt")
+    @patch("galileo.experiment.load_dataset_and_records")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
     def test_create_handles_api_failure(
         self,
         mock_experiments_class: MagicMock,
@@ -424,11 +424,11 @@ class TestExperimentCreate:
 
         assert experiment.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.__future__.experiment.create_metric_configs")
-    @patch("galileo.__future__.experiment.get_prompt")
-    @patch("galileo.__future__.experiment.load_dataset_and_records")
-    @patch("galileo.__future__.experiment.Projects")
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.create_metric_configs")
+    @patch("galileo.experiment.get_prompt")
+    @patch("galileo.experiment.load_dataset_and_records")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
     def test_create_fills_default_prompt_settings_for_prompt_template(
         self,
         mock_experiments_class: MagicMock,
@@ -481,8 +481,8 @@ class TestExperimentCreate:
 class TestExperimentGet:
     """Test suite for Experiment.get() class method."""
 
-    @patch("galileo.__future__.experiment.Projects")
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
     def test_get_retrieves_experiment_by_name(
         self,
         mock_experiments_class: MagicMock,
@@ -511,8 +511,8 @@ class TestExperimentGet:
         assert experiment.is_synced()
         assert experiment.project_id == mock_project.id
 
-    @patch("galileo.__future__.experiment.Projects")
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
     def test_get_returns_none_when_not_found(
         self,
         mock_experiments_class: MagicMock,
@@ -540,8 +540,8 @@ class TestExperimentGet:
 class TestExperimentList:
     """Test suite for Experiment.list() class method."""
 
-    @patch("galileo.__future__.experiment.Projects")
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
     def test_list_retrieves_all_experiments(
         self,
         mock_experiments_class: MagicMock,
@@ -608,7 +608,7 @@ class TestExperimentRun:
         assert isinstance(run_result, ExperimentRunResult)
         assert run_result.link == "http://test.com/results"
 
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.ExperimentsService")
     def test_run_returns_fallback_result_when_no_stored_result(
         self, mock_experiments_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -644,7 +644,7 @@ class TestExperimentRun:
 class TestExperimentQuery:
     """Test suite for Experiment query methods."""
 
-    @patch("galileo.__future__.experiment.Search")
+    @patch("galileo.experiment.Search")
     def test_query_returns_query_result(
         self, mock_search_class: MagicMock, synced_experiment: Experiment, reset_configuration: None
     ) -> None:
@@ -706,7 +706,7 @@ class TestExperimentRelationships:
 class TestExperimentLifecycle:
     """Test suite for Experiment lifecycle methods (refresh, delete)."""
 
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.ExperimentsService")
     def test_refresh_updates_attributes(
         self,
         mock_experiments_class: MagicMock,
@@ -725,8 +725,8 @@ class TestExperimentLifecycle:
         assert synced_experiment.name == mock_experiment_response.name
         assert synced_experiment.is_synced()
 
-    @patch("galileo.__future__.experiment.GalileoPythonConfig")
-    @patch("galileo.__future__.experiment.delete_experiment_projects_project_id_experiments_experiment_id_delete")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.delete_experiment_projects_project_id_experiments_experiment_id_delete")
     def test_delete_removes_experiment(
         self,
         mock_delete_api: MagicMock,
@@ -762,7 +762,7 @@ class TestExperimentQueryMethods:
         "method_name,record_type",
         [("get_traces", RecordType.TRACE), ("get_sessions", RecordType.SESSION), ("get_spans", RecordType.SPAN)],
     )
-    @patch("galileo.__future__.experiment.Search")
+    @patch("galileo.experiment.Search")
     def test_query_convenience_methods(
         self,
         mock_search_class: MagicMock,
@@ -808,7 +808,7 @@ class TestExperimentPromptMethods:
         synced_experiment.set_prompt(**kwargs)
         assert getattr(synced_experiment, expected_attr) == expected_value
 
-    @patch("galileo.__future__.experiment.get_prompt")
+    @patch("galileo.experiment.get_prompt")
     def test_get_prompt_template_settings(
         self, mock_get_prompt: MagicMock, synced_experiment: Experiment, reset_configuration: None
     ) -> None:
@@ -832,7 +832,7 @@ class TestExperimentStatusMethods:
     """Test suite for Experiment status methods."""
 
     @pytest.mark.parametrize("has_records,expected_result", [(True, True), (False, False)])
-    @patch("galileo.__future__.experiment.Search")
+    @patch("galileo.experiment.Search")
     def test_has_traces(
         self,
         mock_search_class: MagicMock,
@@ -852,7 +852,7 @@ class TestExperimentStatusMethods:
 
         assert synced_experiment.has_traces() is expected_result
 
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.ExperimentsService")
     def test_get_status_returns_status_info(
         self,
         mock_experiments_class: MagicMock,
@@ -920,8 +920,8 @@ class TestExperimentProperties:
 class TestExperimentTagging:
     """Test suite for Experiment tagging functionality."""
 
-    @patch("galileo.__future__.experiment.upsert_experiment_tag")
-    @patch("galileo.__future__.experiment.ExperimentsService")
+    @patch("galileo.experiment.upsert_experiment_tag")
+    @patch("galileo.experiment.ExperimentsService")
     def test_add_tag_upserts_tag(
         self,
         mock_experiments_class: MagicMock,
@@ -974,7 +974,7 @@ class TestExperimentColumns:
             ("session_columns", "sessions_available_columns_projects_project_id_sessions_available_columns_post"),
         ],
     )
-    @patch("galileo.__future__.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.GalileoPythonConfig")
     def test_column_properties_return_collection(
         self,
         mock_config_class: MagicMock,
@@ -988,7 +988,7 @@ class TestExperimentColumns:
         mock_config_class.get.return_value = mock_config
 
         # Patch the specific API function
-        with patch(f"galileo.__future__.experiment.{api_function}") as mock_api:
+        with patch(f"galileo.experiment.{api_function}") as mock_api:
             mock_response = MagicMock()
             mock_response.columns = []
             mock_api.sync.return_value = mock_response

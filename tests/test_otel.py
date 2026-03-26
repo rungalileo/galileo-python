@@ -409,15 +409,21 @@ class TestOTelContextIntegration:
         _experiment_id_context.set(None)
         _session_id_context.set(None)
 
-        processor2 = GalileoSpanProcessor()
-        mock_span2 = Mock()
-        processor2.on_start(mock_span2, None)
+        monkeypatch = pytest.MonkeyPatch()
+        monkeypatch.setenv("GALILEO_LOG_STREAM", "test-log-stream")
+        try:
+            processor2 = GalileoSpanProcessor()
+            mock_span2 = Mock()
+            processor2.on_start(mock_span2, None)
 
-        # Then: project and logstream are set from env var fallbacks
-        assert mock_span2.set_attribute.call_count == 2
-        actual_calls = {(args[0], args[1]) for args, _ in mock_span2.set_attribute.call_args_list}
-        assert ("galileo.project.name", "test-project") in actual_calls
-        assert ("galileo.logstream.name", "test-log-stream") in actual_calls
+            # Then: project and logstream are set from env var fallbacks
+            assert mock_span2.set_attribute.call_count == 2
+            actual_calls = {(args[0], args[1]) for args, _ in mock_span2.set_attribute.call_args_list}
+            assert ("galileo.project.name", "test-project") in actual_calls
+            # Falls back to GALILEO_LOG_STREAM env var
+            assert ("galileo.logstream.name", "test-log-stream") in actual_calls
+        finally:
+            monkeypatch.undo()
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.OTLPSpanExporter.export")

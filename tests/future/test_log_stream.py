@@ -3,13 +3,13 @@ from uuid import uuid4
 
 import pytest
 
-from galileo.__future__ import LogStream
-from galileo.__future__.shared.base import SyncState
-from galileo.__future__.shared.column import ColumnCollection
-from galileo.__future__.shared.query_result import QueryResult
+from galileo.log_stream import LogStream
 from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, RootType
 from galileo.search import RecordType
+from galileo.shared.base import SyncState
+from galileo.shared.column import ColumnCollection
 from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
+from galileo.shared.query_result import QueryResult
 
 
 class TestLogStreamInitialization:
@@ -61,8 +61,8 @@ class TestLogStreamInitialization:
 class TestLogStreamCreate:
     """Test suite for LogStream.create() method."""
 
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     def test_create_persists_log_stream_to_api_with_project_id(
         self,
         mock_projects_class: MagicMock,
@@ -91,8 +91,8 @@ class TestLogStreamCreate:
         assert log_stream.id == mock_logstream.id
         assert log_stream.is_synced()
 
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     def test_create_persists_log_stream_to_api_with_project_name(
         self,
         mock_projects_class: MagicMock,
@@ -124,8 +124,8 @@ class TestLogStreamCreate:
         assert log_stream.is_synced()
         assert log_stream.project_name == "Test Project"
 
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     def test_create_handles_api_failure(
         self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -150,7 +150,7 @@ class TestLogStreamCreate:
 
         assert log_stream.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.Projects")
     def test_create_without_project_info_raises_error(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -175,8 +175,8 @@ class TestLogStreamCreate:
 class TestLogStreamGet:
     """Test suite for LogStream.get() class method."""
 
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     def test_get_returns_log_stream_with_project_id(
         self,
         mock_projects_class: MagicMock,
@@ -206,8 +206,8 @@ class TestLogStreamGet:
         assert log_stream.project_name == "Test Project"
         mock_service.get.assert_called_once_with(name="Test Stream", project_id="test-project-id")
 
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     def test_get_returns_log_stream_with_project_name(
         self,
         mock_projects_class: MagicMock,
@@ -237,8 +237,8 @@ class TestLogStreamGet:
         assert log_stream.project_name == "Test Project"
         mock_service.get.assert_called_once_with(name="Test Stream", project_id="resolved-project-id")
 
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     def test_get_returns_none_when_not_found(
         self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -261,7 +261,7 @@ class TestLogStreamGet:
         # Then: None is returned
         assert log_stream is None
 
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.Projects")
     def test_get_raises_error_without_project_info_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -275,8 +275,8 @@ class TestLogStreamGet:
         with pytest.raises(ResourceNotFoundError, match="Project not found"):
             LogStream.get(name="Test Stream")
 
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     def test_get_uses_env_fallback_when_no_project_specified(
         self,
         mock_projects_class: MagicMock,
@@ -308,8 +308,8 @@ class TestLogStreamGet:
 class TestLogStreamList:
     """Test suite for LogStream.list() class method."""
 
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     def test_list_returns_all_log_streams_with_project_id(
         self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -349,8 +349,8 @@ class TestLogStreamList:
         assert all(ls.project_name == "Test Project" for ls in log_streams)
         mock_service.list.assert_called_once_with(project_id="test-project-id")
 
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     def test_list_returns_all_log_streams_with_project_name(
         self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -383,7 +383,7 @@ class TestLogStreamList:
         assert all(ls.project_name == "Test Project" for ls in log_streams)
         mock_service.list.assert_called_once_with(project_id="resolved-project-id")
 
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.Projects")
     def test_list_raises_error_without_project_info_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -397,8 +397,8 @@ class TestLogStreamList:
         with pytest.raises(ResourceNotFoundError, match="Project not found"):
             LogStream.list()
 
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     def test_list_uses_env_fallback_when_no_project_specified(
         self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -426,8 +426,8 @@ class TestLogStreamList:
 class TestLogStreamRefresh:
     """Test suite for LogStream.refresh() method."""
 
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
     def test_refresh_updates_attributes_from_api(
         self,
         mock_logstreams_class: MagicMock,
@@ -477,8 +477,8 @@ class TestLogStreamRefresh:
         with pytest.raises(ValueError, match="Log stream ID is not set"):
             log_stream.refresh()
 
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
+    @patch("galileo.log_stream.LogStreams")
     def test_refresh_raises_error_if_log_stream_no_longer_exists(
         self,
         mock_logstreams_class: MagicMock,
@@ -500,7 +500,7 @@ class TestLogStreamRefresh:
 
         assert log_stream.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.LogStreams")
     def test_refresh_without_project_id_raises_error(
         self, mock_logstreams_class: MagicMock, reset_configuration: None, mock_logstream: MagicMock
     ) -> None:
@@ -530,9 +530,9 @@ class TestLogStreamQuery:
             ("get_sessions", RecordType.SESSION, 10),
         ],
     )
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.log_stream.Search")
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
+    @patch("galileo.log_stream.Search")
+    @patch("galileo.log_stream.LogStreams")
     def test_query_methods(
         self,
         mock_logstreams_class: MagicMock,
@@ -585,7 +585,7 @@ class TestLogStreamQuery:
         with pytest.raises(ValueError, match="Log stream ID is not set"):
             log_stream.query(record_type=RecordType.SPAN)
 
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.LogStreams")
     def test_query_raises_error_without_project_id(
         self, mock_logstreams_class: MagicMock, reset_configuration: None, mock_logstream: MagicMock
     ) -> None:
@@ -604,9 +604,9 @@ class TestLogStreamQuery:
 class TestLogStreamExportRecords:
     """Test suite for LogStream.export_records() method."""
 
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.log_stream.ExportClient")
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
+    @patch("galileo.log_stream.ExportClient")
+    @patch("galileo.log_stream.LogStreams")
     def test_export_records_with_default_params(
         self,
         mock_logstreams_class: MagicMock,
@@ -643,9 +643,9 @@ class TestLogStreamExportRecords:
         )
         assert result == mock_iterator
 
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.log_stream.ExportClient")
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
+    @patch("galileo.log_stream.ExportClient")
+    @patch("galileo.log_stream.LogStreams")
     def test_export_records_with_custom_params(
         self,
         mock_logstreams_class: MagicMock,
@@ -695,7 +695,7 @@ class TestLogStreamExportRecords:
         with pytest.raises(ValueError, match="Log stream ID is not set"):
             log_stream.export_records()
 
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.LogStreams")
     def test_export_records_raises_error_without_project_id(
         self, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -714,9 +714,9 @@ class TestLogStreamExportRecords:
 class TestLogStreamContext:
     """Test suite for LogStream.context() method."""
 
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.log_stream.galileo_context")
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
+    @patch("galileo.log_stream.galileo_context")
+    @patch("galileo.log_stream.LogStreams")
     def test_context_returns_galileo_context(
         self,
         mock_logstreams_class: MagicMock,
@@ -736,7 +736,7 @@ class TestLogStreamContext:
         mock_galileo_context.return_value = mock_context
 
         # Mock the project property
-        with patch("galileo.__future__.log_stream.Project") as mock_project_class:
+        with patch("galileo.log_stream.Project") as mock_project_class:
             mock_project = MagicMock()
             mock_project.name = "Test Project"
             mock_project_class.get.return_value = mock_project
@@ -751,9 +751,9 @@ class TestLogStreamContext:
 class TestLogStreamProject:
     """Test suite for LogStream.project property."""
 
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.log_stream.Project")
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
+    @patch("galileo.log_stream.Project")
+    @patch("galileo.log_stream.LogStreams")
     def test_project_property_returns_project(
         self,
         mock_logstreams_class: MagicMock,
@@ -804,9 +804,9 @@ class TestLogStreamColumns:
             ),
         ],
     )
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.log_stream.GalileoPythonConfig")
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
+    @patch("galileo.log_stream.GalileoPythonConfig")
+    @patch("galileo.log_stream.LogStreams")
     def test_column_properties_return_column_collection(
         self,
         mock_logstreams_class: MagicMock,
@@ -840,7 +840,7 @@ class TestLogStreamColumns:
         mock_response = MagicMock()
         mock_response.columns = [mock_column_1, mock_column_2]
 
-        with patch(f"galileo.__future__.log_stream.{api_func_name}") as mock_api_func:
+        with patch(f"galileo.log_stream.{api_func_name}") as mock_api_func:
             mock_api_func.sync.return_value = mock_response
 
             log_stream = LogStream.get(name="Test Stream", project_id="test-project-id")
@@ -874,9 +874,9 @@ class TestLogStreamColumns:
             ("trace_columns", "traces_available_columns_projects_project_id_traces_available_columns_post"),
         ],
     )
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.log_stream.GalileoPythonConfig")
-    @patch("galileo.__future__.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
+    @patch("galileo.log_stream.GalileoPythonConfig")
+    @patch("galileo.log_stream.LogStreams")
     def test_column_properties_raise_error_on_empty_response(
         self,
         mock_logstreams_class: MagicMock,
@@ -898,7 +898,7 @@ class TestLogStreamColumns:
         mock_config = MagicMock()
         mock_config_class.get.return_value = mock_config
 
-        with patch(f"galileo.__future__.log_stream.{api_func_name}") as mock_api_func:
+        with patch(f"galileo.log_stream.{api_func_name}") as mock_api_func:
             mock_api_func.sync.return_value = None
 
             log_stream = LogStream.get(name="Test Stream", project_id="test-project-id")

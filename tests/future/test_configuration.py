@@ -6,9 +6,9 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from galileo.__future__ import Configuration, ConfigurationError
-from galileo.__future__.configuration import _CONFIGURATION_KEYS, VALID_LOG_LEVELS, parse_log_level
 from galileo.config import GalileoPythonConfig
+from galileo.configuration import _CONFIGURATION_KEYS, VALID_LOG_LEVELS, Configuration, parse_log_level
+from galileo.shared.exceptions import ConfigurationError
 
 
 class TestParseLogLevel:
@@ -331,7 +331,7 @@ class TestConfigurationConnect:
             ("generic", "Unknown error", "Configuration validation failed"),
         ],
     )
-    @patch("galileo.__future__.configuration.GalileoPythonConfig.get")
+    @patch("galileo.configuration.GalileoPythonConfig.get")
     def test_connect_handles_different_error_types(
         self,
         mock_config_get: Mock,
