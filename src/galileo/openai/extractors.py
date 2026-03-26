@@ -441,6 +441,10 @@ def _parse_usage(usage: Optional[dict] = None) -> Optional[dict]:
 
     usage_dict = usage.copy() if isinstance(usage, dict) else usage.__dict__
 
+    if "completion_tokens" in usage_dict:
+        usage_dict["output_tokens"] = usage_dict.pop("completion_tokens")
+    if "prompt_tokens" in usage_dict:
+        usage_dict["input_tokens"] = usage_dict.pop("prompt_tokens")
     if "input_tokens_details" in usage_dict:
         usage_dict.update(usage_dict.pop("input_tokens_details"))
     if "output_tokens_details" in usage_dict:
