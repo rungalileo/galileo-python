@@ -5,12 +5,12 @@ from uuid import uuid4
 
 import pytest
 
-from galileo.__future__ import CodeMetric, LlmMetric, LocalMetric, Metric
-from galileo.__future__.shared.base import SyncState
-from galileo.__future__.shared.exceptions import APIError, ValidationError
-from galileo.resources.models import OutputTypeEnum, ScorerTypes
+from galileo.metric import CodeMetric, LlmMetric, LocalMetric, Metric
+from galileo.resources.models import HTTPValidationError, OutputTypeEnum, ScorerTypes
 from galileo.resources.models.invalid_result import InvalidResult
 from galileo.resources.models.task_result_status import TaskResultStatus
+from galileo.shared.base import SyncState
+from galileo.shared.exceptions import APIError, ValidationError
 from galileo_core.schemas.logging.step import StepType
 
 # Test fixtures and helper functions
@@ -193,8 +193,8 @@ class TestMetricInitialization:
 class TestMetricCreate:
     """Test suite for Metric.create() method."""
 
-    @patch("galileo.__future__.metric.Metrics")
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.Metrics")
+    @patch("galileo.metric.Scorers")
     def test_create_persists_metric_to_api(
         self, mock_scorers_class: MagicMock, mock_metrics_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -238,7 +238,7 @@ class TestMetricCreate:
         assert metric.id == scorer_id
         assert metric.is_synced()
 
-    @patch("galileo.__future__.metric.Metrics")
+    @patch("galileo.metric.Metrics")
     def test_create_handles_api_failure(self, mock_metrics_class: MagicMock, reset_configuration: None) -> None:
         """Test create() handles API failures and sets state correctly."""
         mock_service = MagicMock()
@@ -256,7 +256,7 @@ class TestMetricCreate:
 class TestMetricGet:
     """Test suite for Metric.get() class method."""
 
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.Scorers")
     def test_get_by_name_returns_metric(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
         """Test get() with name returns a synced metric instance."""
         mock_service = MagicMock()
@@ -286,7 +286,7 @@ class TestMetricGet:
         assert metric.name == "Test Metric"
         assert metric.is_synced()
 
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.Scorers")
     def test_get_by_id_returns_metric(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
         """Test get() with id returns a synced metric instance."""
         mock_service = MagicMock()
@@ -314,7 +314,7 @@ class TestMetricGet:
         assert metric.id == metric_id
         assert metric.is_synced()
 
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.Scorers")
     def test_get_returns_none_when_not_found(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
         """Test get() returns None when metric is not found."""
         mock_service = MagicMock()
@@ -341,7 +341,7 @@ class TestMetricGet:
 class TestMetricList:
     """Test suite for Metric.list() class method."""
 
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.Scorers")
     def test_list_returns_all_metrics(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
         """Test list() returns a list of synced metric instances."""
         mock_service = MagicMock()
@@ -372,7 +372,7 @@ class TestMetricList:
         assert all(isinstance(m, Metric) for m in metrics)
         assert all(m.is_synced() for m in metrics)
 
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.Scorers")
     def test_list_with_name_filter(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
         """Test list() with name filter."""
         mock_service = MagicMock()
@@ -399,7 +399,7 @@ class TestMetricList:
         assert len(metrics) == 1
         assert metrics[0].name == "Factuality Metric"
 
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.Scorers")
     def test_list_with_scorer_types_filter(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
         """Test list() with scorer types filter."""
         mock_service = MagicMock()
@@ -414,8 +414,8 @@ class TestMetricList:
 class TestMetricDelete:
     """Test suite for Metric.delete() method."""
 
-    @patch("galileo.__future__.metric.Metrics")
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.Metrics")
+    @patch("galileo.metric.Scorers")
     def test_delete_removes_metric(
         self, mock_scorers_class: MagicMock, mock_metrics_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -459,7 +459,7 @@ class TestMetricDelete:
 class TestMetricRefresh:
     """Test suite for Metric.refresh() method."""
 
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.Scorers")
     def test_refresh_updates_attributes(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
         """Test refresh() updates all attributes from the API."""
         mock_service = MagicMock()
@@ -520,7 +520,7 @@ class TestMetricRefresh:
         with pytest.raises(ValueError, match="Metric ID is not set"):
             metric.refresh()
 
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.Scorers")
     def test_refresh_raises_error_when_metric_no_longer_exists(
         self, mock_scorers_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -555,166 +555,147 @@ class TestMetricUpdate:
     """Test suite for Metric.update() method."""
 
     def test_update_local_metric_raises_validation_error(self, reset_configuration: None) -> None:
-        # Given: a local (non-server-side) metric
-        def scorer_fn(trace):
-            return 1.0
+        # Given: a local metric instance
+        def dummy_fn(trace):
+            return 0.5
 
-        metric = LocalMetric(name="local-metric", scorer_fn=scorer_fn)
+        metric = LocalMetric(name="my-local", scorer_fn=dummy_fn)
 
-        # When/Then: update() raises ValidationError because local metrics have no server record
-        with pytest.raises(ValidationError, match="Local metrics don't exist on the server"):
-            metric.update(name="New Name")
+        # When/Then: calling update raises ValidationError
+        with pytest.raises(ValidationError, match="Local metrics don't exist"):
+            metric.update(name="new-name")
 
     def test_update_without_id_raises_value_error(self, reset_configuration: None) -> None:
-        # Given: an LlmMetric that has never been synced (no ID)
+        # Given: an LLM metric without an ID (local-only)
         metric = LlmMetric(name="Test Metric", prompt="Test prompt")
 
-        # When/Then: update() raises ValueError because there is no server ID to update
+        # When/Then: calling update raises ValueError about missing ID
         with pytest.raises(ValueError, match="Metric ID is not set"):
             metric.update(name="New Name")
 
     def test_update_deleted_metric_raises_value_error(self, reset_configuration: None) -> None:
-        # Given: a metric that has been deleted
+        # Given: a metric in DELETED state
         metric = LlmMetric(name="Test Metric", prompt="Test prompt")
-        metric.id = str(uuid4())
+        metric._sync_attrs(id="some-id")
         metric._set_state(SyncState.DELETED)
 
-        # When/Then: update() raises ValueError because the metric has been deleted
+        # When/Then: calling update raises ValueError about deleted state
         with pytest.raises(ValueError, match="Cannot update a deleted metric"):
             metric.update(name="New Name")
-
-    def test_update_with_invalid_fields_raises_value_error(self, reset_configuration: None) -> None:
-        # Given: a synced metric with an unknown kwarg
-        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
-        metric.id = str(uuid4())
-        metric._set_state(SyncState.SYNCED)
-
-        # When/Then: update() raises ValueError listing the invalid field
-        with pytest.raises(ValueError, match="Invalid update fields"):
-            metric.update(unknown_field="value")
-
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.update_scorers_scorer_id_patch")
-    def test_update_calls_api_and_syncs_attributes(
-        self, mock_patch_api: MagicMock, mock_config_get: MagicMock, reset_configuration: None
-    ) -> None:
-        # Given: a synced metric and a mocked API response with all updatable fields
-        metric_id = str(uuid4())
-        mock_config_get.return_value.api_client = MagicMock()
-
-        expected_created_at = MagicMock()
-        expected_updated_at = MagicMock()
-
-        mock_response = MagicMock()
-        mock_response.id = metric_id
-        mock_response.name = "Renamed Metric"
-        mock_response.scorer_type = ScorerTypes.LLM
-        mock_response.tags = ["eval"]
-        mock_response.description = "updated"
-        mock_response.created_at = expected_created_at
-        mock_response.updated_at = expected_updated_at
-        mock_response.defaults = MagicMock()
-        mock_response.defaults.model_name = "gpt-4o-mini"
-        mock_response.defaults.num_judges = 3
-        mock_response.defaults.cot_enabled = True
-        mock_response.output_type = OutputTypeEnum.BOOLEAN
-        mock_response.user_prompt = "Test prompt"
-        mock_response.scoreable_node_types = ["llm"]
-        mock_patch_api.sync.return_value = mock_response
-
-        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
-        metric.id = metric_id
-        metric._set_state(SyncState.SYNCED)
-
-        # When: update() is called with a new name and tags
-        result = metric.update(name="Renamed Metric", tags=["eval"])
-
-        # Then: the API is called with the correct body and ALL synced fields are updated
-        mock_patch_api.sync.assert_called_once()
-        call_kwargs = mock_patch_api.sync.call_args.kwargs
-        assert call_kwargs["scorer_id"] == metric_id
-        assert call_kwargs["body"].name == "Renamed Metric"
-        assert call_kwargs["body"].tags == ["eval"]
-        assert result.id == metric_id
-        assert result.name == "Renamed Metric"
-        assert result.description == "updated"
-        assert result.tags == ["eval"]
-        assert result.created_at == expected_created_at
-        assert result.updated_at == expected_updated_at
-        assert result.scorer_type == ScorerTypes.LLM
-        assert result.model == "gpt-4o-mini"
-        assert result.judges == 3
-        assert result.cot_enabled is True
-        # LlmMetric-specific fields synced by _populate_from_scorer_response
-        assert result.prompt == "Test prompt"
-        assert result.output_type == OutputTypeEnum.BOOLEAN
-        assert result.node_level == StepType.llm
-        assert result.is_synced()
-
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.update_scorers_scorer_id_patch")
-    def test_update_handles_api_failure(
-        self, mock_patch_api: MagicMock, mock_config_get: MagicMock, reset_configuration: None
-    ) -> None:
-        # Given: a synced metric and an API that raises an error
-        mock_config_get.return_value.api_client = MagicMock()
-        mock_patch_api.sync.side_effect = RuntimeError("API error")
-
-        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
-        metric.id = str(uuid4())
-        metric._set_state(SyncState.SYNCED)
-
-        # When/Then: the exception propagates and state is FAILED_SYNC
-        with pytest.raises(RuntimeError, match="API error"):
-            metric.update(name="New Name")
-
-        assert metric.sync_state == SyncState.FAILED_SYNC
 
     def test_update_failed_sync_raises_value_error(self, reset_configuration: None) -> None:
         # Given: a metric in FAILED_SYNC state
         metric = LlmMetric(name="Test Metric", prompt="Test prompt")
-        metric.id = str(uuid4())
-        metric._set_state(SyncState.FAILED_SYNC)
+        metric._sync_attrs(id="some-id")
+        metric._set_state(SyncState.FAILED_SYNC, error=RuntimeError("prior failure"))
 
-        # When/Then: update() raises ValueError directing user to refresh()
+        # When/Then: calling update raises ValueError directing user to refresh
         with pytest.raises(ValueError, match="FAILED_SYNC"):
             metric.update(name="New Name")
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.update_scorers_scorer_id_patch")
-    def test_update_raises_api_error_for_validation_error_response(
-        self, mock_patch_api: MagicMock, mock_config_get: MagicMock, reset_configuration: None
-    ) -> None:
-        # Given: a synced metric and an API that returns HTTPValidationError
-        from galileo.resources.models import HTTPValidationError as HTTPValError
-
-        mock_config_get.return_value.api_client = MagicMock()
-        mock_response = MagicMock(spec=HTTPValError)
-        mock_response.detail = "name: field required"
-        mock_patch_api.sync.return_value = mock_response
-
+    def test_update_with_invalid_fields_raises_value_error(self, reset_configuration: None) -> None:
+        # Given: a synced LLM metric
         metric = LlmMetric(name="Test Metric", prompt="Test prompt")
-        metric.id = str(uuid4())
+        metric._sync_attrs(id="some-id")
         metric._set_state(SyncState.SYNCED)
 
-        # When/Then: update() raises APIError for validation failure
-        with pytest.raises(APIError, match="validation error"):
+        # When/Then: passing unsupported fields raises ValueError
+        with pytest.raises(ValueError, match="Invalid update fields"):
+            metric.update(prompt="new prompt", model="gpt-4o")
+
+    @patch("galileo.metric.update_scorers_scorer_id_patch")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    def test_update_calls_api_and_syncs_attributes(
+        self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: a synced LLM metric with an ID
+        metric_id = str(uuid4())
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
+        metric._sync_attrs(id=metric_id, tags=["old-tag"], description="old desc")
+        metric._set_state(SyncState.SYNCED)
+
+        mock_config = MagicMock()
+        mock_config_get.return_value = mock_config
+
+        updated_response = MagicMock()
+        updated_response.id = metric_id
+        updated_response.name = "Test Metric"
+        updated_response.scorer_type = ScorerTypes.LLM
+        updated_response.tags = ["new-tag"]
+        updated_response.description = "new desc"
+        updated_response.created_at = MagicMock()
+        updated_response.updated_at = MagicMock()
+        updated_response.output_type = OutputTypeEnum.BOOLEAN
+        updated_response.user_prompt = "Test prompt"
+        updated_response.defaults = MagicMock()
+        updated_response.defaults.model_name = "gpt-4.1-mini"
+        updated_response.defaults.num_judges = 3
+        updated_response.defaults.cot_enabled = True
+        updated_response.scoreable_node_types = []
+        mock_update_patch.sync.return_value = updated_response
+
+        # When: calling update with valid fields
+        result = metric.update(description="new desc", tags=["new-tag"])
+
+        # Then: the API is called and attributes are synced back
+        mock_update_patch.sync.assert_called_once()
+        assert result is metric
+        assert metric.description == "new desc"
+        assert metric.tags == ["new-tag"]
+        assert metric.sync_state == SyncState.SYNCED
+
+    @patch("galileo.metric.update_scorers_scorer_id_patch")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    def test_update_handles_api_failure(
+        self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: a synced metric whose API call will fail
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
+        metric._sync_attrs(id="some-id")
+        metric._set_state(SyncState.SYNCED)
+
+        mock_config_get.return_value = MagicMock()
+        mock_update_patch.sync.side_effect = RuntimeError("network error")
+
+        # When/Then: the exception propagates and state is set to FAILED_SYNC
+        with pytest.raises(RuntimeError, match="network error"):
             metric.update(name="New Name")
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.update_scorers_scorer_id_patch")
-    def test_update_raises_api_error_for_none_response(
-        self, mock_patch_api: MagicMock, mock_config_get: MagicMock, reset_configuration: None
-    ) -> None:
-        # Given: a synced metric and an API that returns None
-        mock_config_get.return_value.api_client = MagicMock()
-        mock_patch_api.sync.return_value = None
+        assert metric.sync_state == SyncState.FAILED_SYNC
 
+    @patch("galileo.metric.update_scorers_scorer_id_patch")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    def test_update_raises_api_error_for_validation_error_response(
+        self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: a synced metric and an API that returns an HTTPValidationError
         metric = LlmMetric(name="Test Metric", prompt="Test prompt")
-        metric.id = str(uuid4())
+        metric._sync_attrs(id="some-id")
         metric._set_state(SyncState.SYNCED)
 
-        # When/Then: update() raises APIError because the response is empty
+        mock_config_get.return_value = MagicMock()
+        validation_error_response = MagicMock(spec=HTTPValidationError)
+        validation_error_response.detail = "field required"
+        mock_update_patch.sync.return_value = validation_error_response
+
+        # When/Then: APIError is raised with the validation detail
+        with pytest.raises(APIError, match="Metric update validation error"):
+            metric.update(name="New Name")
+
+    @patch("galileo.metric.update_scorers_scorer_id_patch")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    def test_update_raises_api_error_for_none_response(
+        self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: a synced metric and an API that returns None
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
+        metric._sync_attrs(id="some-id")
+        metric._set_state(SyncState.SYNCED)
+
+        mock_config_get.return_value = MagicMock()
+        mock_update_patch.sync.return_value = None
+
+        # When/Then: APIError is raised about empty response
         with pytest.raises(APIError, match="empty response"):
             metric.update(name="New Name")
 
@@ -730,7 +711,7 @@ class TestMetricMethods:
         assert str(metric) == "LlmMetric(name='Test Metric', id='test-id-123', scorer_type='llm')"
         assert "model=" in repr(metric) and "judges=" in repr(metric)
 
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.Scorers")
     def test_populate_from_scorer_response_handles_unset_values(
         self, mock_scorers_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -803,12 +784,12 @@ class TestCodeMetricInitialization:
 class TestCodeMetricCreate:
     """Test suite for CodeMetric.create() method."""
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
-    @patch("galileo.__future__.metric.create_scorers_post")
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.metric.create_scorers_post")
+    @patch("galileo.metric.Scorers")
     def test_create_persists_code_metric_to_api(
         self,
         mock_scorers_class: MagicMock,
@@ -887,10 +868,10 @@ class TestCodeMetricCreate:
         assert metric.id == scorer_id
         assert metric.is_synced()
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.create_scorers_post")
     def test_create_handles_scorer_creation_failure(
         self,
         mock_create_scorers: MagicMock,
@@ -924,11 +905,11 @@ class TestCodeMetricCreate:
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
-    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.metric.create_scorers_post")
     def test_create_handles_version_creation_failure(
         self,
         mock_create_scorers: MagicMock,
@@ -968,12 +949,12 @@ class TestCodeMetricCreate:
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
-    @patch("galileo.__future__.metric.create_scorers_post")
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.metric.create_scorers_post")
+    @patch("galileo.metric.Scorers")
     def test_create_with_different_node_levels(
         self,
         mock_scorers_class: MagicMock,
@@ -1029,12 +1010,12 @@ class TestCodeMetricCreate:
             # Verify the node_level is set on the metric itself
             assert metric.node_level == node_level
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
-    @patch("galileo.__future__.metric.create_scorers_post")
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.metric.create_scorers_post")
+    @patch("galileo.metric.Scorers")
     def test_create_with_required_metrics(
         self,
         mock_scorers_class: MagicMock,
@@ -1096,7 +1077,7 @@ class TestCodeMetricCreate:
         create_scorer_call = mock_create_scorers.sync.call_args
         assert create_scorer_call.kwargs["body"].required_scorers == required_metrics
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.GalileoPythonConfig.get")
     def test_create_reads_code_file_correctly(
         self,
         mock_config: MagicMock,
@@ -1123,15 +1104,15 @@ def score(trace):
         code_file = create_temp_code_file(filename="complex_scorer.py", content=expected_content)
 
         with (
-            patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post") as mock_validate_post,
+            patch("galileo.metric.validate_code_scorer_scorers_code_validate_post") as mock_validate_post,
             patch(
-                "galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get"
+                "galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get"
             ) as mock_validate_get,
-            patch("galileo.__future__.metric.create_scorers_post") as mock_create_scorers,
+            patch("galileo.metric.create_scorers_post") as mock_create_scorers,
             patch(
-                "galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post"
+                "galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post"
             ) as mock_create_version,
-            patch("galileo.__future__.metric.Scorers") as mock_scorers_class,
+            patch("galileo.metric.Scorers") as mock_scorers_class,
         ):
             # Mock validation flow
             mock_validate_post.sync.return_value = mock_validation_response()
@@ -1156,8 +1137,8 @@ def score(trace):
             assert hasattr(body, "file")
             assert hasattr(body.file, "payload")
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.create_scorers_post")
     def test_load_code_with_nonexistent_file_raises_validation_error(
         self,
         mock_create_scorers: MagicMock,
@@ -1176,10 +1157,10 @@ def score(trace):
         with pytest.raises(ValidationError, match="Code file not found"):
             metric.load_code("/nonexistent/file.py").create()
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.create_scorers_post")
     def test_create_handles_none_scorer_response(
         self,
         mock_create_scorers: MagicMock,
@@ -1213,11 +1194,11 @@ def score(trace):
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
-    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.metric.create_scorers_post")
     def test_create_handles_none_version_response(
         self,
         mock_create_scorers: MagicMock,
@@ -1257,10 +1238,10 @@ def score(trace):
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.create_scorers_post")
     def test_create_propagates_validation_error(
         self,
         mock_create_scorers: MagicMock,
@@ -1294,10 +1275,10 @@ def score(trace):
         with pytest.raises(ValidationError, match="Invalid configuration"):
             metric.load_code(str(code_file)).create()
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.create_scorers_post")
     def test_create_sets_failed_sync_state_on_general_exception(
         self,
         mock_create_scorers: MagicMock,
@@ -1334,9 +1315,9 @@ def score(trace):
         assert metric.sync_state == SyncState.FAILED_SYNC
         assert metric._last_error == runtime_error
 
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     def test_create_handles_validation_failure(
         self,
         mock_validate_post: MagicMock,
@@ -1364,13 +1345,13 @@ def score(trace):
         with pytest.raises(ValidationError, match="Code validation failed"):
             metric.load_code(str(code_file)).create()
 
-    @patch("galileo.__future__.metric.time.sleep")
-    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
-    @patch("galileo.__future__.metric.create_scorers_post")
-    @patch("galileo.__future__.metric.Scorers")
+    @patch("galileo.metric.time.sleep")
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.metric.create_scorers_post")
+    @patch("galileo.metric.Scorers")
     def test_create_polls_until_validation_complete(
         self,
         mock_scorers_class: MagicMock,
@@ -1423,11 +1404,11 @@ def score(trace):
         assert mock_sleep.call_count == 2
         assert metric.is_synced()
 
-    @patch("galileo.__future__.metric.time.time")
-    @patch("galileo.__future__.metric.time.sleep")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.time.time")
+    @patch("galileo.metric.time.sleep")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_create_validation_timeout(
         self,
         mock_config,
@@ -1457,9 +1438,9 @@ def score(trace):
         with pytest.raises(ValidationError, match="Code validation timed out"):
             metric.create()
 
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_create_validation_post_returns_none(
         self, mock_config, mock_validate_post, mock_validate_get, create_temp_code_file, mock_api_client
     ) -> None:
@@ -1475,9 +1456,9 @@ def score(trace):
         with pytest.raises(ValueError, match="Failed to validate code: No response from API"):
             metric.create()
 
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_create_validation_get_returns_none(
         self,
         mock_config,
@@ -1500,9 +1481,9 @@ def score(trace):
         with pytest.raises(ValueError, match="Failed to get validation result: No response from API"):
             metric.create()
 
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_create_validation_unknown_status(
         self,
         mock_config,
@@ -1528,9 +1509,9 @@ def score(trace):
         with pytest.raises(ValueError, match="Unknown task status"):
             metric.create()
 
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_create_validation_failed_status(
         self,
         mock_config,
@@ -1556,9 +1537,9 @@ def score(trace):
         with pytest.raises(ValidationError, match="Code validation failed: Syntax error in code"):
             metric.create()
 
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_create_validation_failed_status_no_message(
         self,
         mock_config,
@@ -1584,9 +1565,9 @@ def score(trace):
         with pytest.raises(ValidationError, match="Code validation failed"):
             metric.create()
 
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_create_validation_invalid_result(
         self,
         mock_config,
@@ -1628,12 +1609,12 @@ def score(trace):
         with pytest.raises(ValidationError, match="Code validation failed: Missing required function: evaluate"):
             metric.create()
 
-    @patch("galileo.__future__.metric.Scorers")
-    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
-    @patch("galileo.__future__.metric.create_scorers_post")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.Scorers")
+    @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.metric.create_scorers_post")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_create_validation_result_as_string(
         self,
         mock_config,
@@ -1681,11 +1662,11 @@ def score(trace):
 class TestCodeMetricValidationConfiguration:
     """Test suite for CodeMetric validation configuration parameters."""
 
-    @patch("galileo.__future__.metric.time.time")
-    @patch("galileo.__future__.metric.time.sleep")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.time.time")
+    @patch("galileo.metric.time.sleep")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_custom_timeout_value_is_respected(
         self,
         mock_config,
@@ -1700,7 +1681,7 @@ class TestCodeMetricValidationConfiguration:
         mock_validation_task_result,
     ) -> None:
         """Test that Configuration.code_validation_timeout is respected."""
-        from galileo.__future__ import Configuration
+        from galileo.configuration import Configuration
 
         # Set a custom timeout of 30 seconds
         Configuration.code_validation_timeout = 30.0
@@ -1719,11 +1700,11 @@ class TestCodeMetricValidationConfiguration:
         with pytest.raises(ValidationError, match="Code validation timed out after 30 seconds"):
             metric.create()
 
-    @patch("galileo.__future__.metric.time.time")
-    @patch("galileo.__future__.metric.time.sleep")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.time.time")
+    @patch("galileo.metric.time.sleep")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_custom_initial_delay_is_used(
         self,
         mock_config,
@@ -1738,7 +1719,7 @@ class TestCodeMetricValidationConfiguration:
         mock_validation_task_result,
     ) -> None:
         """Test that Configuration.code_validation_initial_delay is used for first sleep."""
-        from galileo.__future__ import Configuration
+        from galileo.configuration import Configuration
 
         # Set custom initial delay
         Configuration.code_validation_initial_delay = 2.0
@@ -1770,11 +1751,11 @@ class TestCodeMetricValidationConfiguration:
             first_sleep_call = mock_sleep.call_args_list[0]
             assert first_sleep_call[0][0] == 2.0
 
-    @patch("galileo.__future__.metric.time.time")
-    @patch("galileo.__future__.metric.time.sleep")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.time.time")
+    @patch("galileo.metric.time.sleep")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_custom_max_delay_caps_backoff(
         self,
         mock_config,
@@ -1789,7 +1770,7 @@ class TestCodeMetricValidationConfiguration:
         mock_validation_task_result,
     ) -> None:
         """Test that Configuration.code_validation_max_delay caps the exponential backoff."""
-        from galileo.__future__ import Configuration
+        from galileo.configuration import Configuration
 
         # Set custom delays: initial=10, max=15, multiplier=2 (so 10*2=20 > 15, should cap at 15)
         Configuration.code_validation_initial_delay = 10.0
@@ -1823,11 +1804,11 @@ class TestCodeMetricValidationConfiguration:
             second_sleep_call = mock_sleep.call_args_list[1]
             assert second_sleep_call[0][0] == 15.0  # Capped at max_delay
 
-    @patch("galileo.__future__.metric.time.time")
-    @patch("galileo.__future__.metric.time.sleep")
-    @patch("galileo.__future__.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
-    @patch("galileo.__future__.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.__future__.metric.GalileoPythonConfig")
+    @patch("galileo.metric.time.time")
+    @patch("galileo.metric.time.sleep")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.GalileoPythonConfig")
     def test_custom_backoff_multiplier_is_applied(
         self,
         mock_config,
@@ -1842,7 +1823,7 @@ class TestCodeMetricValidationConfiguration:
         mock_validation_task_result,
     ) -> None:
         """Test that Configuration.code_validation_backoff_multiplier is applied correctly."""
-        from galileo.__future__ import Configuration
+        from galileo.configuration import Configuration
 
         # Set custom delays: initial=1, max=100, multiplier=3 (so second delay = 1*3=3)
         Configuration.code_validation_initial_delay = 1.0
@@ -1880,7 +1861,7 @@ class TestCodeMetricValidationConfiguration:
 
     def test_configuration_defaults_are_correct(self, reset_configuration: None) -> None:
         """Test that Configuration defaults for code validation are correct."""
-        from galileo.__future__ import Configuration
+        from galileo.configuration import Configuration
 
         assert Configuration.code_validation_timeout == 60.0
         assert Configuration.code_validation_initial_delay == 5.0
@@ -1889,7 +1870,7 @@ class TestCodeMetricValidationConfiguration:
 
     def test_configuration_values_can_be_set(self, reset_configuration: None) -> None:
         """Test that Configuration values for code validation can be set."""
-        from galileo.__future__ import Configuration
+        from galileo.configuration import Configuration
 
         Configuration.code_validation_timeout = 120.0
         Configuration.code_validation_initial_delay = 2.0
@@ -1903,7 +1884,7 @@ class TestCodeMetricValidationConfiguration:
 
     def test_configuration_from_env_vars(self, reset_configuration: None, monkeypatch: pytest.MonkeyPatch) -> None:
         """Test that Configuration values can be set via environment variables."""
-        from galileo.__future__ import Configuration
+        from galileo.configuration import Configuration
 
         monkeypatch.setenv("GALILEO_CODE_VALIDATION_TIMEOUT", "90.0")
         monkeypatch.setenv("GALILEO_CODE_VALIDATION_INITIAL_DELAY", "3.0")

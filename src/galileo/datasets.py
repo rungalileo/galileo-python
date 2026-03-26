@@ -17,6 +17,7 @@ from galileo.resources.api.datasets import (
     query_dataset_versions_datasets_dataset_id_versions_query_post,
     query_datasets_datasets_query_post,
     update_dataset_content_datasets_dataset_id_content_patch,
+    update_dataset_datasets_dataset_id_patch,
 )
 from galileo.resources.models import DatasetRow, ListDatasetVersionParams, ListDatasetVersionResponse
 from galileo.resources.models.body_create_dataset_datasets_post import BodyCreateDatasetDatasetsPost
@@ -38,6 +39,7 @@ from galileo.resources.models.synthetic_data_types import SyntheticDataTypes
 from galileo.resources.models.synthetic_dataset_extension_request import SyntheticDatasetExtensionRequest
 from galileo.resources.models.synthetic_dataset_extension_response import SyntheticDatasetExtensionResponse
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
+from galileo.resources.models.update_dataset_request import UpdateDatasetRequest
 from galileo.resources.types import UNSET, File, Unset
 from galileo.schema.datasets import DatasetRecord
 from galileo.utils.datasets import validate_dataset_in_project
@@ -493,6 +495,37 @@ class Datasets:
         if not detailed_response.parsed or isinstance(detailed_response.parsed, HTTPValidationError):
             raise DatasetAPIException(detailed_response.content)
 
+        return Dataset(dataset_db=detailed_response.parsed)
+
+    def update(self, id: str, *, name: str) -> "Dataset":
+        """
+        Update a dataset's metadata.
+
+        Parameters
+        ----------
+        id : str
+            The ID of the dataset to update.
+        name : str
+            The new name for the dataset.
+
+        Returns
+        -------
+        Dataset
+            The updated dataset.
+
+        Raises
+        ------
+        DatasetAPIException
+            If the API call fails or returns a validation error.
+        """
+        logger.info("Datasets.update: id=%s - started", id)
+        body = UpdateDatasetRequest(name=name)
+        detailed_response = update_dataset_datasets_dataset_id_patch.sync_detailed(
+            dataset_id=id, client=self.config.api_client, body=body
+        )
+        if not detailed_response.parsed or isinstance(detailed_response.parsed, HTTPValidationError):
+            raise DatasetAPIException(detailed_response.content)
+        logger.info("Datasets.update: id=%s - completed", id)
         return Dataset(dataset_db=detailed_response.parsed)
 
     def extend(

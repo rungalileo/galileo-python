@@ -4,8 +4,8 @@ from uuid import uuid4
 
 import pytest
 
-from galileo.__future__ import Integration
-from galileo.__future__.provider import (
+from galileo.integration import Integration
+from galileo.provider import (
     AnthropicProvider,
     AzureProvider,
     BedrockProvider,
@@ -13,10 +13,10 @@ from galileo.__future__.provider import (
     Provider,
     UnconfiguredProvider,
 )
-from galileo.__future__.shared.exceptions import IntegrationNotConfiguredError, ValidationError
 from galileo.resources.models.available_integrations import AvailableIntegrations
 from galileo.resources.models.integration_db import IntegrationDB
 from galileo.resources.models.integration_name import IntegrationName
+from galileo.shared.exceptions import IntegrationNotConfiguredError, ValidationError
 
 # Test data
 INTEGRATION_TYPES = [
@@ -52,8 +52,8 @@ class TestIntegrationInit:
 class TestIntegrationList:
     """Test Integration.list() methods."""
 
-    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
-    @patch("galileo.__future__.integration.list_available_integrations_integrations_available_get")
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_available_integrations_integrations_available_get")
     def test_list_all_returns_strings(self, mock_available, mock_config):
         """list(all=True) returns list of string type names."""
         mock_response = MagicMock(spec=AvailableIntegrations)
@@ -68,8 +68,8 @@ class TestIntegrationList:
         assert "anthropic" in result
         assert "azure" in result
 
-    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
-    @patch("galileo.__future__.integration.list_integrations_integrations_get")
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
     def test_list_returns_providers(self, mock_list, mock_config):
         """list() returns Provider objects."""
         mock_list.sync.return_value = [
@@ -87,8 +87,8 @@ class TestIntegrationList:
         assert result[1].name == "anthropic"
         assert result[1].is_selected is False
 
-    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
-    @patch("galileo.__future__.integration.list_integrations_integrations_get")
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
     def test_list_empty_returns_empty_list(self, mock_list, mock_config):
         """list() returns empty list when no integrations."""
         mock_list.sync.return_value = []
@@ -97,8 +97,8 @@ class TestIntegrationList:
 
         assert result == []
 
-    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
-    @patch("galileo.__future__.integration.list_integrations_integrations_get")
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
     @pytest.mark.parametrize("name,enum_name,provider_class", INTEGRATION_TYPES)
     def test_list_creates_correct_provider_type(self, mock_list, mock_config, name, enum_name, provider_class):
         """list() creates correct Provider subclass for each type."""
@@ -114,8 +114,8 @@ class TestIntegrationList:
 class TestIntegrationRefresh:
     """Test Integration.refresh() method."""
 
-    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
-    @patch("galileo.__future__.integration.list_integrations_integrations_get")
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
     def test_refresh_updates_attributes(self, mock_list, mock_config):
         """refresh() updates integration attributes from API."""
         mock_integration = create_mock_integration(IntegrationName.OPENAI)
@@ -144,8 +144,8 @@ class TestIntegrationRefresh:
 class TestIntegrationConvenienceProperties:
     """Test Integration convenience properties (openai, azure, etc)."""
 
-    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
-    @patch("galileo.__future__.integration.list_integrations_integrations_get")
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
     def test_property_returns_configured_integration(self, mock_list, mock_config):
         """Integration.openai returns OpenAI provider if configured."""
         mock_list.sync.return_value = [create_mock_integration(IntegrationName.OPENAI)]
@@ -155,8 +155,8 @@ class TestIntegrationConvenienceProperties:
         assert isinstance(result, OpenAIProvider)
         assert result.name == "openai"
 
-    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
-    @patch("galileo.__future__.integration.list_integrations_integrations_get")
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
     def test_property_returns_unconfigured_provider_when_not_configured(self, mock_list, mock_config):
         """Integration.azure returns UnconfiguredProvider if not configured."""
         mock_list.sync.return_value = []
@@ -165,8 +165,8 @@ class TestIntegrationConvenienceProperties:
 
         assert isinstance(result, UnconfiguredProvider)
 
-    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
-    @patch("galileo.__future__.integration.list_integrations_integrations_get")
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
     def test_property_prefers_selected_integration(self, mock_list, mock_config):
         """Property returns selected integration when multiple exist."""
         mock1 = create_mock_integration(IntegrationName.OPENAI, is_selected=False)
@@ -182,8 +182,8 @@ class TestIntegrationConvenienceProperties:
 class TestIntegrationFactoryMethods:
     """Test Integration factory methods."""
 
-    @patch("galileo.__future__.provider.GalileoPythonConfig.get")
-    @patch("galileo.__future__.provider.create_or_update_integration_integrations_openai_put")
+    @patch("galileo.provider.GalileoPythonConfig.get")
+    @patch("galileo.provider.create_or_update_integration_integrations_openai_put")
     def test_create_openai_returns_provider(self, mock_create, mock_config):
         """create_openai() returns OpenAIProvider."""
         mock_response = create_mock_integration(IntegrationName.OPENAI)
@@ -194,8 +194,8 @@ class TestIntegrationFactoryMethods:
         assert isinstance(result, OpenAIProvider)
         assert result.id == str(mock_response.id)
 
-    @patch("galileo.__future__.provider.GalileoPythonConfig.get")
-    @patch("galileo.__future__.provider.create_or_update_integration_integrations_azure_put")
+    @patch("galileo.provider.GalileoPythonConfig.get")
+    @patch("galileo.provider.create_or_update_integration_integrations_azure_put")
     def test_create_azure_returns_provider(self, mock_create, mock_config):
         """create_azure() returns AzureProvider."""
         mock_response = create_mock_integration(IntegrationName.AZURE)
@@ -206,8 +206,8 @@ class TestIntegrationFactoryMethods:
         assert isinstance(result, AzureProvider)
         assert result.id == str(mock_response.id)
 
-    @patch("galileo.__future__.provider.GalileoPythonConfig.get")
-    @patch("galileo.__future__.provider.create_or_update_integration_integrations_aws_bedrock_put")
+    @patch("galileo.provider.GalileoPythonConfig.get")
+    @patch("galileo.provider.create_or_update_integration_integrations_aws_bedrock_put")
     def test_create_bedrock_returns_provider(self, mock_create, mock_config):
         """create_bedrock() returns BedrockProvider."""
         mock_response = create_mock_integration(IntegrationName.AWS_BEDROCK)
@@ -218,8 +218,8 @@ class TestIntegrationFactoryMethods:
         assert isinstance(result, BedrockProvider)
         assert result.id == str(mock_response.id)
 
-    @patch("galileo.__future__.provider.GalileoPythonConfig.get")
-    @patch("galileo.__future__.provider.create_or_update_integration_integrations_anthropic_put")
+    @patch("galileo.provider.GalileoPythonConfig.get")
+    @patch("galileo.provider.create_or_update_integration_integrations_anthropic_put")
     def test_create_anthropic_returns_provider(self, mock_create, mock_config):
         """create_anthropic() returns AnthropicProvider."""
         mock_response = create_mock_integration(IntegrationName.ANTHROPIC)
@@ -322,8 +322,8 @@ class TestUnconfiguredProvider:
         assert "UnconfiguredProvider" in repr(provider)
         assert integration_name in str(provider)
 
-    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
-    @patch("galileo.__future__.integration.list_integrations_integrations_get")
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
     def test_integration_property_returns_unconfigured_provider(self, mock_list, mock_config):
         """Integration properties return UnconfiguredProvider when not configured."""
         mock_list.sync.return_value = []
@@ -334,8 +334,8 @@ class TestUnconfiguredProvider:
         assert isinstance(Integration.bedrock, UnconfiguredProvider)
         assert isinstance(Integration.anthropic, UnconfiguredProvider)
 
-    @patch("galileo.__future__.integration.GalileoPythonConfig.get")
-    @patch("galileo.__future__.integration.list_integrations_integrations_get")
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
     def test_unconfigured_provider_works_with_if_statement(self, mock_list, mock_config):
         """UnconfiguredProvider works correctly in if statements."""
         mock_list.sync.return_value = []
@@ -356,8 +356,8 @@ class TestUnconfiguredProvider:
 class TestProviderModels:
     """Test Provider.models property."""
 
-    @patch("galileo.__future__.provider.GalileoPythonConfig.get")
-    @patch("galileo.__future__.provider.get_available_models_llm_integrations_llm_integration_models_get")
+    @patch("galileo.provider.GalileoPythonConfig.get")
+    @patch("galileo.provider.get_available_models_llm_integrations_llm_integration_models_get")
     def test_models_returns_model_list(self, mock_get_models, mock_config):
         """models property returns list of Model objects."""
         # Create a synced provider
@@ -380,8 +380,8 @@ class TestProviderModels:
         assert models[0].provider_name == "openai"
         assert str(models[0]) == "gpt-4o"
 
-    @patch("galileo.__future__.provider.GalileoPythonConfig.get")
-    @patch("galileo.__future__.provider.get_available_models_llm_integrations_llm_integration_models_get")
+    @patch("galileo.provider.GalileoPythonConfig.get")
+    @patch("galileo.provider.get_available_models_llm_integrations_llm_integration_models_get")
     def test_models_raises_error_when_not_synced(self, mock_get_models, mock_config):
         """models property raises ValidationError when provider not synced."""
         # Create a non-synced provider
@@ -391,8 +391,8 @@ class TestProviderModels:
         with pytest.raises(ValidationError, match="Cannot get models for provider without syncing"):
             _ = provider.models
 
-    @patch("galileo.__future__.provider.GalileoPythonConfig.get")
-    @patch("galileo.__future__.provider.get_available_models_llm_integrations_llm_integration_models_get")
+    @patch("galileo.provider.GalileoPythonConfig.get")
+    @patch("galileo.provider.get_available_models_llm_integrations_llm_integration_models_get")
     def test_models_works_for_different_provider_types(self, mock_get_models, mock_config):
         """models property works for different provider types."""
         # Test multiple provider types

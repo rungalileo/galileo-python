@@ -4,7 +4,15 @@ import datetime
 
 import pytest
 
-from galileo.__future__.shared.filter import (
+from galileo.resources.models import (
+    LogRecordsDateFilter,
+    LogRecordsDateFilterOperator,
+    LogRecordsNumberFilter,
+    LogRecordsNumberFilterOperator,
+    LogRecordsTextFilter,
+    LogRecordsTextFilterOperator,
+)
+from galileo.shared.filter import (
     BooleanFilter,
     DateFilter,
     Filter,
@@ -14,14 +22,6 @@ from galileo.__future__.shared.filter import (
     date,
     number,
     text,
-)
-from galileo.resources.models import (
-    LogRecordsDateFilter,
-    LogRecordsDateFilterOperator,
-    LogRecordsNumberFilter,
-    LogRecordsNumberFilterOperator,
-    LogRecordsTextFilter,
-    LogRecordsTextFilterOperator,
 )
 
 

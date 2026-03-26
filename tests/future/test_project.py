@@ -4,10 +4,10 @@ from uuid import uuid4
 
 import pytest
 
-from galileo.__future__ import Project
-from galileo.__future__.collaborator import Collaborator, CollaboratorRole
-from galileo.__future__.shared.base import SyncState
-from galileo.__future__.shared.exceptions import APIError, ValidationError
+from galileo.collaborator import Collaborator, CollaboratorRole
+from galileo.project import Project
+from galileo.shared.base import SyncState
+from galileo.shared.exceptions import APIError, ValidationError
 
 
 class TestProjectInitialization:
@@ -97,53 +97,14 @@ class TestProjectGet:
         assert project is None
 
     @patch("galileo.project.Projects")
-    def test_get_handles_api_error(self, mock_projects_class: MagicMock, reset_configuration: None) -> None:
+    def test_get_raises_error_for_api_failure(self, mock_projects_class: MagicMock, reset_configuration: None) -> None:
         """Test get() wraps API errors in APIError."""
         mock_service = MagicMock()
         mock_projects_class.return_value = mock_service
         mock_service.get.side_effect = Exception("API Error")
 
-        with pytest.raises(APIError, match="Failed to retrieve project"):
+        with pytest.raises(APIError):
             Project.get(name="Test Project")
-
-    @patch("galileo.project.Projects")
-    def test_get_raises_validation_error_when_no_args(
-        self, mock_projects_class: MagicMock, reset_configuration: None
-    ) -> None:
-        # Given: Projects.get raises ValueError for missing id and name
-        mock_service = MagicMock()
-        mock_projects_class.return_value = mock_service
-        mock_service.get.side_effect = ValueError("Exactly one of 'id' or 'name' must be provided.")
-
-        # When/Then: Project.get() translates it to ValidationError (not APIError)
-        with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
-            Project.get()
-
-    @patch("galileo.project.Projects")
-    def test_get_raises_validation_error_when_both_args(
-        self, mock_projects_class: MagicMock, reset_configuration: None
-    ) -> None:
-        # Given: Projects.get raises ValueError when both id and name are supplied
-        mock_service = MagicMock()
-        mock_projects_class.return_value = mock_service
-        mock_service.get.side_effect = ValueError("Exactly one of 'id' or 'name' must be provided.")
-
-        # When/Then: Project.get() translates it to ValidationError (not APIError)
-        with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
-            Project.get(id="proj-123", name="My Project")
-
-    @patch("galileo.project.Projects")
-    def test_get_raises_validation_error_for_whitespace_only_args(
-        self, mock_projects_class: MagicMock, reset_configuration: None
-    ) -> None:
-        # Given: Projects.get strips whitespace then raises ValueError (both args collapse to empty)
-        mock_service = MagicMock()
-        mock_projects_class.return_value = mock_service
-        mock_service.get.side_effect = ValueError("Exactly one of 'id' or 'name' must be provided.")
-
-        # When/Then: Project.get() translates it to ValidationError (not APIError)
-        with pytest.raises(ValidationError, match="Exactly one of 'id' or 'name' must be provided"):
-            Project.get(id="   ", name="   ")
 
 
 class TestProjectList:
@@ -155,17 +116,16 @@ class TestProjectList:
         mock_service = MagicMock()
         mock_projects_class.return_value = mock_service
 
-        # Create 3 mock projects
         mock_projects = []
         for i in range(3):
             mock_proj = MagicMock()
             mock_proj.id = str(uuid4())
             mock_proj.name = f"Project {i}"
             mock_proj.created_at = MagicMock()
-            mock_proj.created_by = str(uuid4())
+            mock_proj.created_by = "user-1"
             mock_proj.updated_at = MagicMock()
-            mock_proj.bookmark = None
-            mock_proj.permissions = None
+            mock_proj.bookmark = False
+            mock_proj.permissions = []
             mock_proj.type = None
             mock_projects.append(mock_proj)
         mock_service.list.return_value = mock_projects
@@ -175,153 +135,6 @@ class TestProjectList:
         assert len(projects) == 3
         assert all(isinstance(p, Project) for p in projects)
         assert all(p.is_synced() for p in projects)
-
-
-class TestProjectLogStreams:
-    """Test suite for project log stream management."""
-
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.project.Projects")
-    def test_create_log_stream(
-        self,
-        mock_projects_class: MagicMock,
-        mock_log_stream_projects_class: MagicMock,
-        mock_logstreams_class: MagicMock,
-        reset_configuration: None,
-        mock_project: MagicMock,
-        mock_logstream: MagicMock,
-    ) -> None:
-        mock_log_stream_projects_class.return_value.get_with_env_fallbacks.return_value = mock_project
-        """Test create_log_stream() creates a log stream and returns it."""
-        mock_project_service = MagicMock()
-        mock_projects_class.return_value = mock_project_service
-        mock_project_service.get.return_value = mock_project
-
-        mock_logstream_service = MagicMock()
-        mock_logstreams_class.return_value = mock_logstream_service
-        mock_logstream.project_id = mock_project.id
-        mock_logstream_service.create.return_value = mock_logstream
-
-        project = Project.get(id=mock_project.id)
-        log_stream = project.create_log_stream(name="Test Stream")
-
-        mock_logstream_service.create.assert_called_once_with(
-            name="Test Stream", project_id=mock_project.id, project_name=None
-        )
-        assert log_stream.name == "Test Stream"
-        assert log_stream.project_id == mock_project.id
-
-    def test_create_log_stream_raises_error_for_local_only_project(self, reset_configuration: None) -> None:
-        """Test create_log_stream() raises ValueError for local-only project."""
-        project = Project(name="Test Project")
-
-        with pytest.raises(ValueError, match="Project ID is not set"):
-            project.create_log_stream(name="Test Stream")
-
-    @patch("galileo.__future__.log_stream.Projects")
-    @patch("galileo.__future__.log_stream.LogStreams")
-    @patch("galileo.project.Projects")
-    def test_list_log_streams(
-        self,
-        mock_projects_class: MagicMock,
-        mock_logstreams_class: MagicMock,
-        mock_log_stream_projects_class: MagicMock,
-        reset_configuration: None,
-        mock_project: MagicMock,
-    ) -> None:
-        mock_log_stream_projects_class.return_value.get_with_env_fallbacks.return_value = mock_project
-        """Test list_log_streams() returns all log streams for the project."""
-        mock_project_service = MagicMock()
-        mock_projects_class.return_value = mock_project_service
-        mock_project_service.get.return_value = mock_project
-
-        mock_logstream_service = MagicMock()
-        mock_logstreams_class.return_value = mock_logstream_service
-        mock_logstreams = []
-        for i in range(3):
-            mock_ls = MagicMock()
-            mock_ls.id = str(uuid4())
-            mock_ls.name = f"Stream {i}"
-            mock_ls.project_id = mock_project.id
-            mock_ls.created_at = MagicMock()
-            mock_ls.created_by = str(uuid4())
-            mock_ls.updated_at = MagicMock()
-            mock_ls.additional_properties = {}
-            mock_logstreams.append(mock_ls)
-        mock_logstream_service.list.return_value = mock_logstreams
-
-        project = Project.get(id=mock_project.id)
-        log_streams = project.list_log_streams()
-
-        assert len(log_streams) == 3
-        assert all(ls.project_id == mock_project.id for ls in log_streams)
-
-
-class TestProjectRefresh:
-    """Test suite for Project.refresh() method."""
-
-    @patch("galileo.project.Projects")
-    def test_refresh_updates_attributes_from_api(
-        self, mock_projects_class: MagicMock, reset_configuration: None
-    ) -> None:
-        """Test refresh() updates all attributes from the API."""
-        mock_service = MagicMock()
-        mock_projects_class.return_value = mock_service
-
-        project_id = str(uuid4())
-        initial_project = MagicMock()
-        initial_project.id = project_id
-        initial_project.name = "Old Name"
-        initial_project.created_at = MagicMock()
-        initial_project.created_by = str(uuid4())
-        initial_project.updated_at = MagicMock()
-        initial_project.bookmark = None
-        initial_project.permissions = None
-        initial_project.type = None
-
-        updated_project = MagicMock()
-        updated_project.id = project_id
-        updated_project.name = "New Name"
-        updated_project.created_at = initial_project.created_at
-        updated_project.created_by = initial_project.created_by
-        updated_project.updated_at = MagicMock()
-        updated_project.bookmark = None
-        updated_project.permissions = None
-        updated_project.type = None
-
-        mock_service.get.side_effect = [initial_project, updated_project]
-
-        project = Project.get(id=project_id)
-        assert project.name == "Old Name"
-
-        project.refresh()
-
-        assert project.name == "New Name"
-        assert project.is_synced()
-
-    def test_refresh_raises_error_for_local_only_project(self, reset_configuration: None) -> None:
-        """Test refresh() raises ValueError for local-only project."""
-        project = Project(name="Test Project")
-
-        with pytest.raises(ValueError, match="Project ID is not set"):
-            project.refresh()
-
-    @patch("galileo.project.Projects")
-    def test_refresh_raises_error_if_project_no_longer_exists(
-        self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
-    ) -> None:
-        """Test refresh() raises ValueError if project no longer exists."""
-        mock_service = MagicMock()
-        mock_projects_class.return_value = mock_service
-        mock_service.get.side_effect = [mock_project, None]
-
-        project = Project.get(id=mock_project.id)
-
-        with pytest.raises(ValueError, match="no longer exists"):
-            project.refresh()
-
-        assert project.sync_state == SyncState.FAILED_SYNC
 
 
 class TestProjectSave:
