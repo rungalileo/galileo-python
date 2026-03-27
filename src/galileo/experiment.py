@@ -7,13 +7,17 @@ from typing import TYPE_CHECKING, Any
 
 from galileo.config import GalileoPythonConfig
 from galileo.datasets import Dataset as LegacyDataset
+from galileo.exceptions import NotFoundError
 from galileo.experiment_tags import upsert_experiment_tag
 from galileo.experiments import Experiments as ExperimentsService
 from galileo.export import ExportClient
 from galileo.job_progress import get_run_scorer_jobs, job_progress
 from galileo.projects import Projects
 from galileo.prompts import PromptTemplate, get_prompt
-from galileo.resources.api.experiment import delete_experiment_projects_project_id_experiments_experiment_id_delete
+from galileo.resources.api.experiment import (
+    delete_experiment_projects_project_id_experiments_experiment_id_delete,
+    get_experiment_projects_project_id_experiments_experiment_id_get,
+)
 from galileo.resources.api.trace import (
     sessions_available_columns_projects_project_id_sessions_available_columns_post,
     spans_available_columns_projects_project_id_spans_available_columns_post,
@@ -342,6 +346,7 @@ class Experiment(StateManagementMixin):
         self._experiment_response: ExperimentResponse | None = None
         self._job_id: str | None = None
         self._run_result: ExperimentRunResult | None = None
+        self._run_result_consumed: bool = False
 
         # Set initial state
         self._set_state(SyncState.LOCAL_ONLY)
@@ -398,7 +403,10 @@ class Experiment(StateManagementMixin):
 
             # Check for existing experiment with same name
             experiments_service = ExperimentsService()
-            existing_experiment = experiments_service.get(self.project_id, self.name)
+            try:
+                existing_experiment = experiments_service.get(self.project_id, self.name)
+            except NotFoundError:
+                existing_experiment = None
 
             if existing_experiment:
                 _logger.warning(f"Experiment {existing_experiment.name} already exists, adding a timestamp")
@@ -419,7 +427,25 @@ class Experiment(StateManagementMixin):
             effective_prompt_settings = self.prompt_settings
             if self.model_alias:
                 if effective_prompt_settings is None:
-                    effective_prompt_settings = PromptRunSettings(model_alias=self.model_alias)
+                    # TODO: extract shared default settings to _default_prompt_settings() helper
+                    effective_prompt_settings = PromptRunSettings(
+                        n=1,
+                        echo=False,
+                        tools=None,
+                        top_k=40,
+                        top_p=1.0,
+                        logprobs=True,
+                        max_tokens=256,
+                        model_alias=self.model_alias,
+                        temperature=0.8,
+                        tool_choice=None,
+                        top_logprobs=5,
+                        stop_sequences=None,
+                        deployment_name=None,
+                        response_format=None,
+                        presence_penalty=0.0,
+                        frequency_penalty=0.0,
+                    )
                     _logger.debug(
                         f"Experiment.create: Using model '{self.model_alias}' "
                         "from model parameter (no prompt_settings provided)"
@@ -528,6 +554,7 @@ class Experiment(StateManagementMixin):
         instance._experiment_response: ExperimentResponse | None = None
         instance._job_id: str | None = None
         instance._run_result: ExperimentRunResult | None = None
+        instance._run_result_consumed: bool = False
         return instance
 
     @classmethod
@@ -736,8 +763,9 @@ class Experiment(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the experiment ID or project_id is not set.
-            Exception: If the API call fails or the experiment no longer exists.
+            ValueError: If the experiment ID or project_id is not set, or if the experiment no longer exists.
+            NotFoundError: If the experiment does not exist on the server (404 from the API).
+            Exception: If the API call fails.
 
         Examples
         --------
@@ -752,10 +780,12 @@ class Experiment(StateManagementMixin):
 
         try:
             _logger.debug(f"Experiment.refresh: id='{self.id}' - started")
-            experiments_service = ExperimentsService()
-            retrieved_experiment = experiments_service.get(project_id=self.project_id, experiment_name=self.name)
+            config = GalileoPythonConfig.get()
+            retrieved_experiment = get_experiment_projects_project_id_experiments_experiment_id_get.sync(
+                project_id=self.project_id, experiment_id=self.id, client=config.api_client
+            )
 
-            if retrieved_experiment is None:
+            if retrieved_experiment is None or isinstance(retrieved_experiment, HTTPValidationError):
                 raise ValueError(f"Experiment with id '{self.id}' no longer exists")
 
             # Update all top-level attributes from response
@@ -1060,7 +1090,13 @@ class Experiment(StateManagementMixin):
             raise ValueError("Project ID is not set. Cannot run experiment without project_id.")
 
         if self._run_result is not None:
-            return self._run_result
+            result = self._run_result
+            self._run_result = None
+            self._run_result_consumed = True
+            return result
+
+        if self._run_result_consumed:
+            raise ValueError(f"Experiment '{self.name}' has already been run. Call .create() to start a new run.")
 
         # Fallback for experiments loaded via get() that weren't created in this session
         link = (

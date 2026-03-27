@@ -174,6 +174,33 @@ class TestExperiments:
         galileo_resources_api_create_experiment.sync.assert_called_once_with(project_id="test", client=ANY, body=ANY)
 
     @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    def test_create_with_dict_prompt_settings(self, galileo_resources_api_create_experiment: Mock) -> None:
+        """Test create() passes dict prompt_settings as-is (not via .to_dict())."""
+        # Given: a dict prompt_settings and a mocked API response
+        now = datetime(2020, 1, 1).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        galileo_resources_api_create_experiment.sync = Mock(
+            return_value=ExperimentResponse.from_dict(
+                {
+                    "id": "test",
+                    "name": "test_experiment",
+                    "project_id": "test",
+                    "created_at": now,
+                    "updated_at": now,
+                    "task_type": TaskType.VALUE_16,
+                }
+            )
+        )
+        dict_settings = {"model_alias": "GPT-4o", "temperature": 0.8}
+
+        # When: creating an experiment with prompt_settings as a plain dict
+        Experiments().create(project_id="test", name="test_experiment", prompt_settings=dict_settings)
+
+        # Then: the dict is passed as-is to additional_properties (not via .to_dict())
+        galileo_resources_api_create_experiment.sync.assert_called_once_with(project_id="test", client=ANY, body=ANY)
+        call_body = galileo_resources_api_create_experiment.sync.call_args.kwargs["body"]
+        assert call_body.additional_properties["prompt_settings"] is dict_settings
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
     @patch("galileo.experiments.Projects.get_with_env_fallbacks")
     def test_create_experiment_with_project_id(
         self, mock_get_with_env_fallbacks: Mock, galileo_resources_api_create_experiment: Mock

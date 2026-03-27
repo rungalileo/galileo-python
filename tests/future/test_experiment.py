@@ -4,6 +4,7 @@ from uuid import uuid4
 
 import pytest
 
+from galileo.exceptions import NotFoundError
 from galileo.experiment import Experiment
 from galileo.resources.models import ExperimentResponse
 from galileo.schema.metrics import GalileoMetrics
@@ -24,6 +25,10 @@ def mock_experiment_response() -> MagicMock:
     mock_response.created_at = datetime.now(timezone.utc)
     mock_response.updated_at = datetime.now(timezone.utc)
     mock_response.additional_properties = {}
+    mock_response.dataset = None
+    mock_response.prompt = None
+    mock_response.prompt_run_settings = None
+    mock_response.prompt_model = None
     return mock_response
 
 
@@ -477,6 +482,56 @@ class TestExperimentCreate:
         assert call_kwargs["prompt_settings"].temperature == 0.8
         assert call_kwargs["prompt_settings"].max_tokens == 256
 
+    @patch("galileo.experiment.create_metric_configs")
+    @patch("galileo.experiment.get_prompt")
+    @patch("galileo.experiment.load_dataset_and_records")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
+    def test_create_treats_not_found_as_no_existing_experiment(
+        self,
+        mock_experiments_class: MagicMock,
+        mock_projects_class: MagicMock,
+        mock_load_dataset: MagicMock,
+        mock_get_prompt: MagicMock,
+        mock_create_metrics: MagicMock,
+        reset_configuration: None,
+        mock_experiment_response: MagicMock,
+        mock_project: MagicMock,
+    ) -> None:
+        """Test create() succeeds when experiments_service.get() raises NotFoundError (no existing experiment)."""
+        # Given: get() raises NotFoundError (experiment with that name doesn't exist yet)
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
+
+        mock_dataset = MagicMock()
+        mock_load_dataset.return_value = (mock_dataset, [])
+
+        mock_prompt = MagicMock()
+        mock_prompt.selected_version_id = str(uuid4())
+        mock_get_prompt.return_value = mock_prompt
+
+        mock_create_metrics.return_value = (None, [])
+
+        mock_experiments_service = MagicMock()
+        mock_experiments_class.return_value = mock_experiments_service
+        mock_experiments_service.get.side_effect = NotFoundError(404, b"Not Found")
+        mock_experiments_service.create.return_value = mock_experiment_response
+
+        # When: creating the experiment
+        experiment = Experiment(
+            name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt", project_name="Test Project"
+        ).create()
+
+        # Then: create() treats NotFoundError as "no existing experiment" and proceeds
+        mock_experiments_service.create.assert_called_once()
+        assert experiment.id == mock_experiment_response.id
+        assert experiment.name == mock_experiment_response.name
+        assert experiment.created_at == mock_experiment_response.created_at
+        assert experiment.updated_at == mock_experiment_response.updated_at
+        assert experiment.additional_properties == mock_experiment_response.additional_properties
+        assert experiment.is_synced()
+
 
 class TestExperimentGet:
     """Test suite for Experiment.get() class method."""
@@ -640,6 +695,56 @@ class TestExperimentRun:
         with pytest.raises(ValueError, match="Experiment must be created before running"):
             experiment.run()
 
+    @patch("galileo.experiment.create_metric_configs")
+    @patch("galileo.experiment.get_prompt")
+    @patch("galileo.experiment.load_dataset_and_records")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
+    def test_run_raises_error_on_second_call_after_result_consumed(
+        self,
+        mock_experiments_class: MagicMock,
+        mock_projects_class: MagicMock,
+        mock_load_dataset: MagicMock,
+        mock_get_prompt: MagicMock,
+        mock_create_metrics: MagicMock,
+        reset_configuration: None,
+        mock_experiment_response: MagicMock,
+        mock_project: MagicMock,
+    ) -> None:
+        """Test run() raises ValueError when called a second time after the cached result has been consumed."""
+        # Given: an experiment created via the normal create() flow
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
+
+        mock_dataset = MagicMock()
+        mock_load_dataset.return_value = (mock_dataset, [])
+
+        mock_prompt = MagicMock()
+        mock_prompt.selected_version_id = str(uuid4())
+        mock_get_prompt.return_value = mock_prompt
+
+        mock_create_metrics.return_value = (None, [])
+
+        mock_experiments_service = MagicMock()
+        mock_experiments_class.return_value = mock_experiments_service
+        mock_experiments_service.get.return_value = None
+        mock_experiments_service.create.return_value = mock_experiment_response
+        mock_experiments_service.config.console_url = "http://console.test.com"
+
+        experiment = Experiment(
+            name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt", project_name="Test Project"
+        ).create()
+        assert experiment._run_result is not None
+
+        # When: run() is called the first time — consumes the cached result
+        first_result = experiment.run()
+        assert isinstance(first_result, ExperimentRunResult)
+
+        # Then: run() called a second time raises ValueError with "has already been run"
+        with pytest.raises(ValueError, match="has already been run"):
+            experiment.run()
+
 
 class TestExperimentQuery:
     """Test suite for Experiment query methods."""
@@ -706,24 +811,72 @@ class TestExperimentRelationships:
 class TestExperimentLifecycle:
     """Test suite for Experiment lifecycle methods (refresh, delete)."""
 
-    @patch("galileo.experiment.ExperimentsService")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.get_experiment_projects_project_id_experiments_experiment_id_get")
     def test_refresh_updates_attributes(
         self,
-        mock_experiments_class: MagicMock,
+        mock_get_experiment_api: MagicMock,
+        mock_config_class: MagicMock,
         synced_experiment: Experiment,
         mock_experiment_response: MagicMock,
         reset_configuration: None,
     ) -> None:
-        """Test refresh() updates attributes from API."""
-        mock_experiments_service = MagicMock()
-        mock_experiments_class.return_value = mock_experiments_service
-        mock_experiments_service.get.return_value = mock_experiment_response
+        """Test refresh() updates all synced attributes from API."""
+        # Given: a synced experiment with a stale name and mocked GET-by-ID API response
+        mock_config = MagicMock()
+        mock_config_class.get.return_value = mock_config
+        mock_get_experiment_api.sync.return_value = mock_experiment_response
 
         synced_experiment.name = "Old Name"
+        original_project_id = synced_experiment.project_id
+        original_experiment_id = synced_experiment.id
+
+        # When: refresh() is called
         synced_experiment.refresh()
 
+        # Then: GET-by-ID called with correct project_id and experiment_id
+        mock_get_experiment_api.sync.assert_called_once_with(
+            project_id=original_project_id, experiment_id=original_experiment_id, client=mock_config.api_client
+        )
+        # Then: all top-level attributes are updated from API response
+        assert synced_experiment.id == mock_experiment_response.id
         assert synced_experiment.name == mock_experiment_response.name
+        assert synced_experiment.created_at == mock_experiment_response.created_at
+        assert synced_experiment.updated_at == mock_experiment_response.updated_at
+        assert synced_experiment.additional_properties == mock_experiment_response.additional_properties
+        # dataset is None in the response — fields cleared
+        assert synced_experiment.dataset_id is None
+        assert synced_experiment.dataset_name is None
+        # prompt is None in the response — locally-set values are preserved
+        assert synced_experiment.prompt_id is None
+        assert synced_experiment.prompt_name is None
+        # prompt_run_settings is None — prompt_settings and model_alias cleared
+        assert synced_experiment.prompt_settings is None
+        assert synced_experiment.model_alias is None
+        # cached API response is updated
+        assert synced_experiment._experiment_response is mock_experiment_response
         assert synced_experiment.is_synced()
+
+    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.get_experiment_projects_project_id_experiments_experiment_id_get")
+    def test_refresh_sets_failed_sync_on_not_found(
+        self,
+        mock_get_experiment_api: MagicMock,
+        mock_config_class: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        """Test refresh() transitions to FAILED_SYNC when the GET-by-ID endpoint raises NotFoundError."""
+        # Given: a synced experiment and the API raises NotFoundError (404)
+        mock_config = MagicMock()
+        mock_config_class.get.return_value = mock_config
+        mock_get_experiment_api.sync.side_effect = NotFoundError(404, b"Not Found")
+
+        # When/Then: refresh() raises NotFoundError and sets FAILED_SYNC
+        with pytest.raises(NotFoundError):
+            synced_experiment.refresh()
+
+        assert synced_experiment.sync_state == SyncState.FAILED_SYNC
 
     @patch("galileo.experiment.GalileoPythonConfig")
     @patch("galileo.experiment.delete_experiment_projects_project_id_experiments_experiment_id_delete")
@@ -852,22 +1005,28 @@ class TestExperimentStatusMethods:
 
         assert synced_experiment.has_traces() is expected_result
 
-    @patch("galileo.experiment.ExperimentsService")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.get_experiment_projects_project_id_experiments_experiment_id_get")
     def test_get_status_returns_status_info(
         self,
-        mock_experiments_class: MagicMock,
+        mock_get_experiment_api: MagicMock,
+        mock_config_class: MagicMock,
         synced_experiment: Experiment,
         mock_experiment_response: MagicMock,
         reset_configuration: None,
     ) -> None:
         """Test get_status() returns ExperimentStatusInfo."""
-        mock_experiments_service = MagicMock()
-        mock_experiments_class.return_value = mock_experiments_service
-        mock_experiments_service.get.return_value = mock_experiment_response
+        # Given: a synced experiment and mocked GET-by-ID response
+        mock_config = MagicMock()
+        mock_config_class.get.return_value = mock_config
+        mock_get_experiment_api.sync.return_value = mock_experiment_response
 
         synced_experiment._experiment_response = mock_experiment_response
+
+        # When: get_status() is called (internally calls refresh())
         status = synced_experiment.get_status()
 
+        # Then: returns ExperimentStatusInfo
         assert isinstance(status, ExperimentStatusInfo)
 
 
@@ -920,27 +1079,28 @@ class TestExperimentProperties:
 class TestExperimentTagging:
     """Test suite for Experiment tagging functionality."""
 
+    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.get_experiment_projects_project_id_experiments_experiment_id_get")
     @patch("galileo.experiment.upsert_experiment_tag")
-    @patch("galileo.experiment.ExperimentsService")
     def test_add_tag_upserts_tag(
         self,
-        mock_experiments_class: MagicMock,
         mock_upsert_tag: MagicMock,
+        mock_get_experiment_api: MagicMock,
+        mock_config_class: MagicMock,
         reset_configuration: None,
         mock_experiment_response: MagicMock,
     ) -> None:
         """Test add_tag() upserts tag via API."""
-        # Store the IDs before refresh
+        # Given: a synced experiment with known IDs and mocked refresh API
         exp_id = str(uuid4())
         proj_id = str(uuid4())
 
-        # Configure the mock experiment response to have the same IDs
         mock_experiment_response.id = exp_id
         mock_experiment_response.name = "Test"
 
-        mock_experiments_service = MagicMock()
-        mock_experiments_class.return_value = mock_experiments_service
-        mock_experiments_service.get.return_value = mock_experiment_response
+        mock_config = MagicMock()
+        mock_config_class.get.return_value = mock_config
+        mock_get_experiment_api.sync.return_value = mock_experiment_response
 
         experiment = Experiment._create_empty()
         experiment.id = exp_id
@@ -948,8 +1108,10 @@ class TestExperimentTagging:
         experiment.name = "Test"
         experiment._set_state(SyncState.SYNCED)
 
+        # When: adding a tag
         experiment.add_tag("environment", "production")
 
+        # Then: the tag is upserted via API
         mock_upsert_tag.assert_called_once_with(proj_id, exp_id, "environment", "production", "generic")
 
     def test_add_tag_raises_error_when_not_created(self, reset_configuration: None) -> None:

@@ -79,7 +79,9 @@ class Experiments:
             body.additional_properties["prompt_template_version_id"] = str(prompt_template.selected_version_id)
 
         if prompt_settings is not None:
-            body.additional_properties["prompt_settings"] = prompt_settings.to_dict()
+            body.additional_properties["prompt_settings"] = (
+                prompt_settings if isinstance(prompt_settings, dict) else prompt_settings.to_dict()
+            )
 
         if scorers is not None:
             body.additional_properties["scorers"] = [s.to_dict() for s in scorers]
