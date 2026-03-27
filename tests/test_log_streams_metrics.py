@@ -371,3 +371,102 @@ class TestLogStreamMetrics:
 
             assert "Project" in str(exc_info.value)
             assert "not found" in str(exc_info.value)
+
+
+class TestCreateMetricConfigsRouting:
+    """Tests for metric type routing in create_metric_configs."""
+
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_uuid_string_routes_through_list_by_ids(self, mock_settings_class, mock_scorers_class) -> None:
+        """UUID strings are routed through list_by_ids, not list_by_labels."""
+        # Given: a scorer resolved via list_by_ids
+        scorer_id = "00000000-0000-0000-0000-000000000064"
+        mock_scorers_class.return_value.list_by_ids.return_value = [
+            ScorerResponse(
+                id=UUID(scorer_id),
+                name="correctness",
+                label="Correctness",
+                scorer_type=ScorerTypes.LLM,
+                description="Test scorer",
+                tags=[],
+            )
+        ]
+        mock_settings_class.return_value.create.return_value = None
+
+        # When: passing a UUID string
+        scorers, _ = create_metric_configs("project-123", "run-456", [scorer_id])
+
+        # Then: list_by_ids is called, list_by_labels is not
+        mock_scorers_class.return_value.list_by_ids.assert_called_once_with([scorer_id])
+        mock_scorers_class.return_value.list_by_labels.assert_not_called()
+        assert len(scorers) == 1
+
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_mixed_uuid_and_label(self, mock_settings_class, mock_scorers_class) -> None:
+        """Mix of UUID + enum routes through both list_by_ids and list_by_labels."""
+        # Given: scorers resolved via both lookup methods
+        scorer_id = "00000000-0000-0000-0000-000000000064"
+        mock_scorers_class.return_value.list_by_ids.return_value = [
+            ScorerResponse(
+                id=UUID(scorer_id),
+                name="correctness",
+                label="Correctness",
+                scorer_type=ScorerTypes.LLM,
+                description="Test scorer",
+                tags=[],
+            )
+        ]
+        mock_scorers_class.return_value.list_by_labels.return_value = [
+            ScorerResponse(
+                id=UUID(int=101),
+                name="completeness",
+                label="Completeness",
+                scorer_type=ScorerTypes.LLM,
+                description="Test scorer",
+                tags=[],
+            )
+        ]
+        mock_settings_class.return_value.create.return_value = None
+
+        # When: passing both a UUID and an enum
+        scorers, _ = create_metric_configs("project-123", "run-456", [scorer_id, GalileoMetrics.completeness])
+
+        # Then: both lookup methods are called
+        mock_scorers_class.return_value.list_by_ids.assert_called_once()
+        mock_scorers_class.return_value.list_by_labels.assert_called_once()
+        assert len(scorers) == 2
+
+    @patch("galileo.utils.metrics.Scorers")
+    def test_unknown_uuid_raises_value_error(self, mock_scorers_class) -> None:
+        """UUID string that doesn't match any scorer raises ValueError."""
+        # Given: no scorers match the UUID
+        mock_scorers_class.return_value.list_by_ids.return_value = []
+
+        # When/Then: unknown UUID raises ValueError
+        with pytest.raises(ValueError, match="non-existent"):
+            create_metric_configs("project-123", "run-456", ["00000000-0000-0000-0000-000000000099"])
+
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_run_id_none_skips_registration(self, mock_settings_class, mock_scorers_class) -> None:
+        """When run_id is None (trigger=True flow), ScorerSettings.create is not called."""
+        # Given: scorers resolved via labels
+        mock_scorers_class.return_value.list_by_labels.return_value = [
+            ScorerResponse(
+                id=UUID(int=100),
+                name="correctness",
+                label="Correctness",
+                scorer_type=ScorerTypes.LLM,
+                description="Test scorer",
+                tags=[],
+            )
+        ]
+
+        # When: run_id is None
+        scorers, _ = create_metric_configs("project-123", None, [GalileoMetrics.correctness])
+
+        # Then: scorers are returned but registration is skipped
+        mock_settings_class.return_value.create.assert_not_called()
+        assert len(scorers) == 1
