@@ -29,6 +29,8 @@ _LANGCHAIN_TYPE_TO_MODALITY = {
     "input_audio": "audio",
 }
 
+_MIME_PREFIX_TO_MODALITY = {"image": "image", "audio": "audio", "video": "video", "application": "document"}
+
 _DATA_URI_PREFIX = re.compile(r"^data:([^;]+)?(?:;base64)?,")
 
 
@@ -43,6 +45,19 @@ def _convert_langchain_content_block(block: dict) -> dict[str, Any]:
     if kind == "text" or (kind is None and "text" in block):
         text = block.get("text", "")
         return {"type": "text", "text": text if isinstance(text, str) else str(text)}
+    # {"type": "file", "file": {"filename": "x.pdf", "file_data": "data:mime;base64,..."}}
+    if kind == "file":
+        inner = block.get("file") or {}
+        file_data = inner.get("file_data", "") if isinstance(inner, dict) else ""
+        if isinstance(file_data, str):
+            match = _DATA_URI_PREFIX.match(file_data)
+            if match:
+                b64_payload = file_data[match.end() :].strip()
+                mime = match.group(1).strip() if match.group(1) else None
+                modality = _MIME_PREFIX_TO_MODALITY.get((mime or "").split("/")[0], "document")
+                return {"type": "data", "modality": modality, "base64": b64_payload, "mime_type": mime or None}
+        return {"type": "text", "text": json.dumps(block)}
+
     if kind in _LANGCHAIN_TYPE_TO_MODALITY:
         modality = _LANGCHAIN_TYPE_TO_MODALITY[kind]
         url_val = None
@@ -54,9 +69,16 @@ def _convert_langchain_content_block(block: dict) -> dict[str, Any]:
                 (block.get("input_image") or {}).get("url") if isinstance(block.get("input_image"), dict) else None
             )
         elif kind == "input_audio":
-            url_val = block.get("url") or (
-                (block.get("input_audio") or {}).get("url") if isinstance(block.get("input_audio"), dict) else None
-            )
+            inner = block.get("input_audio") or {}
+            if isinstance(inner, dict):
+                # OpenAI-style: {"data": "<b64>", "format": "wav"}
+                raw_b64 = inner.get("data")
+                if raw_b64 and isinstance(raw_b64, str) and not raw_b64.startswith(("http://", "https://")):
+                    fmt = inner.get("format", "wav")
+                    return {"type": "data", "modality": "audio", "base64": raw_b64, "mime_type": f"audio/{fmt}"}
+                url_val = inner.get("url")
+            else:
+                url_val = block.get("url")
         if not url_val or not isinstance(url_val, str):
             return {"type": "text", "text": ""}
         match = _DATA_URI_PREFIX.match(url_val)
