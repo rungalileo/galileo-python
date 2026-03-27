@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
     from ..models.scorer_creator_filter import ScorerCreatorFilter
     from ..models.scorer_enabled_in_run_sort import ScorerEnabledInRunSort
+    from ..models.scorer_id_filter import ScorerIDFilter
     from ..models.scorer_label_filter import ScorerLabelFilter
     from ..models.scorer_model_type_filter import ScorerModelTypeFilter
     from ..models.scorer_name_filter import ScorerNameFilter
@@ -27,9 +28,9 @@ class ListScorersRequest:
     """
     Attributes
     ----------
-        filters (Union[Unset, list[Union['ScorerCreatedAtFilter', 'ScorerCreatorFilter', 'ScorerLabelFilter',
-            'ScorerModelTypeFilter', 'ScorerNameFilter', 'ScorerTagsFilter', 'ScorerTypeFilter',
-            'ScorerUpdatedAtFilter']]]):
+        filters (Union[Unset, list[Union['ScorerCreatedAtFilter', 'ScorerCreatorFilter', 'ScorerIDFilter',
+            'ScorerLabelFilter', 'ScorerModelTypeFilter', 'ScorerNameFilter',
+            'ScorerTagsFilter', 'ScorerTypeFilter', 'ScorerUpdatedAtFilter']]]):
         sort (Union['ScorerEnabledInRunSort', 'ScorerNameSort', None, Unset]):
     """
 
@@ -39,6 +40,7 @@ class ListScorersRequest:
             Union[
                 "ScorerCreatedAtFilter",
                 "ScorerCreatorFilter",
+                "ScorerIDFilter",
                 "ScorerLabelFilter",
                 "ScorerModelTypeFilter",
                 "ScorerNameFilter",
@@ -55,6 +57,7 @@ class ListScorersRequest:
         from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
         from ..models.scorer_creator_filter import ScorerCreatorFilter
         from ..models.scorer_enabled_in_run_sort import ScorerEnabledInRunSort
+        from ..models.scorer_label_filter import ScorerLabelFilter
         from ..models.scorer_model_type_filter import ScorerModelTypeFilter
         from ..models.scorer_name_filter import ScorerNameFilter
         from ..models.scorer_name_sort import ScorerNameSort
@@ -77,6 +80,7 @@ class ListScorersRequest:
                         ScorerCreatorFilter,
                         ScorerCreatedAtFilter,
                         ScorerUpdatedAtFilter,
+                        ScorerLabelFilter,
                     ),
                 ):
                     filters_item = filters_item_data.to_dict()
@@ -108,6 +112,7 @@ class ListScorersRequest:
         from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
         from ..models.scorer_creator_filter import ScorerCreatorFilter
         from ..models.scorer_enabled_in_run_sort import ScorerEnabledInRunSort
+        from ..models.scorer_id_filter import ScorerIDFilter
         from ..models.scorer_label_filter import ScorerLabelFilter
         from ..models.scorer_model_type_filter import ScorerModelTypeFilter
         from ..models.scorer_name_filter import ScorerNameFilter
@@ -126,6 +131,7 @@ class ListScorersRequest:
             ) -> Union[
                 "ScorerCreatedAtFilter",
                 "ScorerCreatorFilter",
+                "ScorerIDFilter",
                 "ScorerLabelFilter",
                 "ScorerModelTypeFilter",
                 "ScorerNameFilter",
@@ -182,15 +188,24 @@ class ListScorersRequest:
 
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return ScorerLabelFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ScorerLabelFilter.from_dict(data)
+                return ScorerIDFilter.from_dict(data)
 
             filters_item = _parse_filters_item(filters_item_data)
 
             filters.append(filters_item)
 
-        def _parse_sort(data: object) -> Union["ScorerEnabledInRunSort", "ScorerNameSort", None, Unset]:
+        def _parse_sort(
+            data: object,
+        ) -> Union["ScorerEnabledInRunSort", "ScorerNameSort", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -209,7 +224,9 @@ class ListScorersRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["ScorerEnabledInRunSort", "ScorerNameSort", None, Unset], data)
+            return cast(
+                Union["ScorerEnabledInRunSort", "ScorerNameSort", None, Unset], data
+            )
 
         sort = _parse_sort(d.pop("sort", UNSET))
 
