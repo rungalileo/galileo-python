@@ -1,4 +1,5 @@
 import logging
+from threading import local
 from typing import Any, Optional
 from uuid import UUID
 
@@ -189,7 +190,14 @@ class IngestTraces:
             "Galileo-API-Key": api_key,
             "X-Galileo-SDK": get_sdk_header(),
         }
-        self._client = httpx.AsyncClient(timeout=60)
+        self._thread_local = local()
+
+    @property
+    def _client(self) -> httpx.AsyncClient:
+        """Per-thread AsyncClient to avoid cross-event-loop errors."""
+        if not hasattr(self._thread_local, "client"):
+            self._thread_local.client = httpx.AsyncClient(timeout=60)
+        return self._thread_local.client
 
     @async_warn_catch_exception(logger=_logger)
     async def ingest_traces(self, traces_ingest_request: TracesIngestRequest) -> dict[str, Any]:
