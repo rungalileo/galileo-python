@@ -54,11 +54,12 @@ def mock_log_stream():
 
 @pytest.fixture
 def mock_scorers():
-    """Mock scorer responses."""
+    """Mock scorer responses with labels matching the UI."""
     return [
         ScorerResponse(
             id=UUID(int=100),
             name="correctness",
+            label="Correctness",
             scorer_type=ScorerTypes.LLM,
             description="Test correctness scorer",
             tags=[],
@@ -66,6 +67,7 @@ def mock_scorers():
         ScorerResponse(
             id=UUID(int=101),
             name="completeness",
+            label="Completeness",
             scorer_type=ScorerTypes.LLM,
             description="Test completeness scorer",
             tags=[],
@@ -82,8 +84,8 @@ class TestLogStreamMetrics:
         self, mock_scorer_settings_class, mock_scorers_class, mock_scorers
     ) -> None:
         """Test create_metric_configs with built-in Galileo scorers."""
-        # Setup mocks
-        mock_scorers_class.return_value.list.return_value = mock_scorers
+        # Setup mocks — new code uses list_by_labels instead of list
+        mock_scorers_class.return_value.list_by_labels.return_value = mock_scorers
         mock_scorer_settings_class.return_value.create.return_value = None
 
         # Test with built-in metrics
@@ -91,8 +93,8 @@ class TestLogStreamMetrics:
             "project-123", "logstream-456", [GalileoMetrics.correctness, "completeness"]
         )
 
-        # Verify scorers list was called
-        mock_scorers_class.return_value.list.assert_called_once()
+        # Verify scorers list_by_labels was called
+        mock_scorers_class.return_value.list_by_labels.assert_called_once()
 
         # Verify scorer settings creation was called
         mock_scorer_settings_class.return_value.create.assert_called_once_with(
@@ -106,8 +108,6 @@ class TestLogStreamMetrics:
     @patch("galileo.utils.metrics.ScorerSettings")
     def test_create_metric_configs_with_local_metrics(self, mock_scorer_settings, mock_scorers_class) -> None:
         """Test create_metric_configs with local metric configs."""
-        # Setup mocks
-        mock_scorers_class.return_value.list.return_value = []
 
         # Define local metric
         def custom_scorer(trace_or_span) -> float:
@@ -132,8 +132,8 @@ class TestLogStreamMetrics:
         self, mock_scorer_settings_class, mock_scorers_class, mock_scorers
     ) -> None:
         """Test create_metric_configs with mixed metric types."""
-        # Setup mocks
-        mock_scorers_class.return_value.list.return_value = mock_scorers
+        # Setup mocks — new code uses list_by_labels
+        mock_scorers_class.return_value.list_by_labels.return_value = mock_scorers
         mock_scorer_settings_class.return_value.create.return_value = None
 
         def custom_scorer(trace_or_span) -> float:
