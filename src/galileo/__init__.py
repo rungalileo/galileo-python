@@ -26,7 +26,7 @@ from galileo.prompt import Prompt
 from galileo.protect import ainvoke_protect, invoke_protect
 from galileo.provider import AnthropicProvider, AzureProvider, BedrockProvider, OpenAIProvider, Provider
 from galileo.schema.message import Message
-from galileo.schema.metrics import GalileoMetrics, GalileoScorers
+from galileo.schema.metrics import GalileoMetrics
 from galileo.shared.base import SyncState
 from galileo.shared.exceptions import (
     APIError,
@@ -95,7 +95,6 @@ __all__ = [
     "GalileoLoggerException",
     "GalileoMetric",
     "GalileoMetrics",
-    "GalileoScorers",
     "Integration",
     "LlmMetric",
     "LlmSpan",
