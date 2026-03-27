@@ -2,6 +2,7 @@ import datetime as dt
 import enum
 import json
 import logging
+import re
 from asyncio import Queue
 from collections.abc import Sequence
 from dataclasses import is_dataclass
@@ -16,6 +17,89 @@ from pydantic import BaseModel
 from galileo.utils.dependencies import is_langchain_available, is_langgraph_available, is_proto_plus_available
 
 _logger = logging.getLogger(__name__)
+
+# LangChain multimodal message format mapping.
+# See https://python.langchain.com/docs/concepts/multimodality/
+_LANGCHAIN_TYPE_TO_MODALITY = {
+    "image_url": "image",
+    "audio_url": "audio",
+    "video_url": "video",
+    "document_url": "document",
+    "input_image": "image",
+    "input_audio": "audio",
+}
+
+_MIME_PREFIX_TO_MODALITY = {"image": "image", "audio": "audio", "video": "video", "application": "document"}
+
+_DATA_URI_PREFIX = re.compile(r"^data:([^;]+)?(?:;base64)?,")
+
+
+def _convert_langchain_content_block(block: dict) -> dict[str, Any]:
+    """Convert a single LangChain content block dict to Galileo IngestContentBlock shape.
+
+    LangChain uses {"type": "text", "text": "..."} or
+    {"type": "image_url", "image_url": {"url": "..."}}. We map these to
+    TextContentBlock or DataContentBlock (type="data", modality=...) for ingest.
+    """
+    kind = block.get("type")
+    if kind == "text" or (kind is None and "text" in block):
+        text = block.get("text", "")
+        return {"type": "text", "text": text if isinstance(text, str) else str(text)}
+    # {"type": "file", "file": {"filename": "x.pdf", "file_data": "data:mime;base64,..."}}
+    if kind == "file":
+        inner = block.get("file") or {}
+        file_data = inner.get("file_data", "") if isinstance(inner, dict) else ""
+        if isinstance(file_data, str):
+            match = _DATA_URI_PREFIX.match(file_data)
+            if match:
+                b64_payload = file_data[match.end() :].strip()
+                mime = match.group(1).strip() if match.group(1) else None
+                modality = _MIME_PREFIX_TO_MODALITY.get((mime or "").split("/")[0], "document")
+                return {"type": "data", "modality": modality, "base64": b64_payload, "mime_type": mime or None}
+        return {"type": "text", "text": json.dumps(block)}
+
+    if kind in _LANGCHAIN_TYPE_TO_MODALITY:
+        modality = _LANGCHAIN_TYPE_TO_MODALITY[kind]
+        url_val = None
+        if kind in ("image_url", "audio_url", "video_url", "document_url"):
+            inner = block.get(kind) or block.get("image_url") or {}
+            url_val = inner.get("url") if isinstance(inner, dict) else None
+        elif kind == "input_image":
+            url_val = block.get("url") or (
+                (block.get("input_image") or {}).get("url") if isinstance(block.get("input_image"), dict) else None
+            )
+        elif kind == "input_audio":
+            inner = block.get("input_audio") or {}
+            if isinstance(inner, dict):
+                # OpenAI-style: {"data": "<b64>", "format": "wav"}
+                raw_b64 = inner.get("data")
+                if raw_b64 and isinstance(raw_b64, str) and not raw_b64.startswith(("http://", "https://")):
+                    fmt = inner.get("format", "wav")
+                    return {"type": "data", "modality": "audio", "base64": raw_b64, "mime_type": f"audio/{fmt}"}
+                url_val = inner.get("url")
+            else:
+                url_val = block.get("url")
+        if not url_val or not isinstance(url_val, str):
+            return {"type": "text", "text": ""}
+        match = _DATA_URI_PREFIX.match(url_val)
+        if match:
+            b64_payload = url_val[match.end() :].strip()
+            mime = match.group(1).strip() if match.group(1) else None
+            return {"type": "data", "modality": modality, "base64": b64_payload, "mime_type": mime or None}
+        return {"type": "data", "modality": modality, "url": url_val}
+    return {"type": "text", "text": json.dumps(block)}
+
+
+def _normalize_multimodal_content(content: Any) -> Any:
+    """Convert LangChain list-of-dict message content to IngestContentBlock list."""
+    if not isinstance(content, list) or not content:
+        return content
+    if not isinstance(content[0], dict):
+        return content
+    return [
+        _convert_langchain_content_block(item) if isinstance(item, dict) else {"type": "text", "text": str(item)}
+        for item in content
+    ]
 
 
 def serialize_datetime(v: dt.datetime) -> str:
@@ -106,11 +190,8 @@ class EventSerializer(JSONEncoder):
                         # Fallback to using the dict method if model_dump is not available i.e pydantic v1
                         dumped = obj.dict(include={"content", "type", "additional_kwargs", "tool_calls"})
                     content = dumped.get("content")
-                    if isinstance(content, list):
-                        # Responses API returns content as a list of dicts
-                        # Convert list content to string format for consistency
-                        if content and isinstance(content[0], dict):
-                            dumped["content"] = content[0].get("text", "")
+                    if isinstance(content, list) and content and isinstance(content[0], dict):
+                        dumped["content"] = _normalize_multimodal_content(content)
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     additional_kwargs = dumped.pop("additional_kwargs", {})
                     # Check both direct attribute and additional_kwargs for tool_calls
@@ -156,6 +237,9 @@ class EventSerializer(JSONEncoder):
                     else:
                         # Fallback to using the dict method if model_dump is not available i.e pydantic v1
                         dumped = obj.dict(include={"content", "type", "status", "tool_call_id"})
+                    content = dumped.get("content")
+                    if isinstance(content, list) and content and isinstance(content[0], dict):
+                        dumped["content"] = _normalize_multimodal_content(content)
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     return dumped
                 if isinstance(obj, BaseMessage):
@@ -165,6 +249,9 @@ class EventSerializer(JSONEncoder):
                     else:
                         # Fallback to using the dict method if model_dump is not available i.e pydantic v1
                         dumped = obj.dict(include={"content", "type"})
+                    content = dumped.get("content")
+                    if isinstance(content, list) and content and isinstance(content[0], dict):
+                        dumped["content"] = _normalize_multimodal_content(content)
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     return dumped
 

@@ -208,11 +208,20 @@ class GalileoCallback(BaseCallbackHandler):
         temperature = invocation_params.get("temperature", 0.0)
         tools = invocation_params.get("tools")
 
-        # Serialize messages safely
+        # Serialize messages safely (EventSerializer converts LangChain multimodal list content to IngestContentBlock list)
         try:
             flattened_messages = [message for batch in messages for message in batch]
             serialized_messages = json.loads(json.dumps(flattened_messages, cls=EventSerializer))
-        except Exception as e:
+            multimodal_count = sum(
+                1 for m in serialized_messages if isinstance(m.get("content"), list) and len(m.get("content", [])) > 0
+            )
+            if multimodal_count:
+                _logger.debug(
+                    "Chat model start: %d message(s) with multimodal content blocks",
+                    multimodal_count,
+                    extra={"run_id": str(run_id), "num_messages": len(serialized_messages)},
+                )
+        except (TypeError, ValueError, OverflowError) as e:
             _logger.warning(f"Failed to serialize chat messages: {e}")
             serialized_messages = str(messages)
 

@@ -4,6 +4,7 @@ import copy
 import inspect
 import json
 import logging
+import os
 import time
 import uuid
 from datetime import datetime
@@ -39,7 +40,7 @@ from galileo.schema.trace import (
     TracesIngestRequest,
     TraceUpdateRequest,
 )
-from galileo.traces import Traces
+from galileo.traces import GALILEO_INGEST_URL_ENV, IngestTraces, Traces
 from galileo.utils.decorators import (
     async_warn_catch_exception,
     nop_async,
@@ -160,7 +161,7 @@ class GalileoLogger(TracesLogger):
     _session_external_id: Optional[str] = None
 
     _logger = logging.getLogger("galileo.logger")
-    _traces_client: Optional["Traces"] = None
+    _traces_client: Optional[Union["Traces", "IngestTraces"]] = None
     _task_handler: ThreadPoolTaskHandler
     _trace_completion_submitted: bool
 
@@ -309,10 +310,7 @@ class GalileoLogger(TracesLogger):
             if not (self.log_stream_id or self.experiment_id):
                 self._init_log_stream()
 
-            if self.log_stream_id:
-                self._traces_client = Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)
-            elif self.experiment_id:
-                self._traces_client = Traces(project_id=self.project_id, experiment_id=self.experiment_id)
+            self._traces_client = self._create_traces_client()
         else:
             # ingestion_hook path: Traces client not created eagerly.
             # If the user later calls ingest_traces(), it will be created lazily.
@@ -356,13 +354,29 @@ class GalileoLogger(TracesLogger):
         else:
             self.log_stream_id = log_stream_obj.id
 
-    def _create_traces_client(self) -> Traces:
-        """Lazily create a Traces client when needed (e.g. ingestion_hook users calling ingest_traces)."""
-        self._logger.info("Creating Traces client lazily for explicit ingest_traces call.")
+    def _create_traces_client(self) -> Union[Traces, IngestTraces]:
+        """Create the appropriate traces client.
+
+        If GALILEO_INGEST_URL is set, routes ingestion to the dedicated Go
+        ingest service via IngestTraces. Otherwise uses the standard API client.
+        """
         if not self.project_id:
             self._init_project()
         if not (self.log_stream_id or self.experiment_id):
             self._init_log_stream()
+
+        ingest_url = os.environ.get(GALILEO_INGEST_URL_ENV)
+        if ingest_url:
+            api_key = os.environ.get("GALILEO_API_KEY", "")
+            self._logger.info("Using dedicated ingest service at %s for project %s", ingest_url, self.project_id)
+            return IngestTraces(
+                project_id=self.project_id,
+                base_url=ingest_url,
+                api_key=api_key,
+                log_stream_id=self.log_stream_id,
+                experiment_id=self.experiment_id,
+            )
+
         if self.log_stream_id:
             return Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)
         if self.experiment_id:
@@ -593,8 +607,9 @@ class GalileoLogger(TracesLogger):
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
     def _update_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
-        # The PATCH trace API only accepts str for output, so serialize content blocks
-        output = trace.output if isinstance(trace.output, str) else serialize_to_str(trace.output)
+        output: Optional[str] = None
+        if trace.output is not None:
+            output = trace.output if isinstance(trace.output, str) else serialize_to_str(trace.output)
         trace_update_request = TraceUpdateRequest(
             trace_id=trace.id,
             log_stream_id=self.log_stream_id,

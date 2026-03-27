@@ -11,10 +11,12 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 from langchain_core.outputs import ChatGeneration, LLMResult
 
 from galileo import Message, MessageRole, galileo_context
-from galileo.handlers.langchain import GalileoCallback
+from galileo.config import GalileoPythonConfig
+from galileo.handlers.langchain import GalileoAsyncCallback, GalileoCallback
 from galileo.handlers.langchain.utils import parse_llm_result, update_root_to_agent
 from galileo.logger.logger import GalileoLogger
 from galileo.schema.handlers import Node
+from galileo.utils.singleton import GalileoLoggerSingleton
 from galileo.utils.uuid_utils import uuid7_to_uuid4
 from galileo_core.schemas.shared.document import Document as GalileoDocument
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
@@ -923,12 +925,12 @@ class TestGalileoCallback:
         assert node is not None
         assert node.node_type == "chat"
 
-        # Check that content was properly converted from list to string
+        # Check that content was converted to IngestContentBlock list (multimodal ingest format)
         input_data = node.span_params["input"]
         assert isinstance(input_data, list)
         assert len(input_data) == 1
-        assert input_data[0]["content"] == "This is a response from the Responses API"
         assert input_data[0]["role"] == "assistant"
+        assert input_data[0]["content"] == [{"type": "text", "text": "This is a response from the Responses API"}]
 
     def test_ai_message_with_reasoning(self, callback: GalileoCallback, galileo_logger: GalileoLogger) -> None:
         """Test AIMessage serialization with reasoning in additional_kwargs"""
@@ -1307,9 +1309,6 @@ class TestGalileoCallbackIngestionHookWithoutCredentials:
     @pytest.fixture(autouse=True)
     def clear_galileo_config(self, monkeypatch):
         """Remove Galileo credentials and reset config to simulate no-API-key scenario."""
-        from galileo.config import GalileoPythonConfig
-        from galileo.utils.singleton import GalileoLoggerSingleton
-
         # Given: no Galileo API credentials are configured
         monkeypatch.delenv("GALILEO_API_KEY", raising=False)
         monkeypatch.delenv("GALILEO_PROJECT", raising=False)
@@ -1338,8 +1337,6 @@ class TestGalileoCallbackIngestionHookWithoutCredentials:
 
     def test_async_callback_with_ingestion_hook_no_credentials(self):
         """GalileoAsyncCallback(ingestion_hook=...) should not require API credentials."""
-        from galileo.handlers.langchain import GalileoAsyncCallback
-
         # Given: an async ingestion hook
         mock_hook = Mock()
 
