@@ -28,6 +28,12 @@ _logger = get_logger(__name__)
 
 EXPERIMENT_TASK_TYPE: TaskType = 16
 
+
+def _default_prompt_settings(model_alias: str = "GPT-4o") -> PromptRunSettings:
+    """Return a PromptRunSettings with only model_alias set, letting the API apply its documented defaults."""
+    return PromptRunSettings(model_alias=model_alias)
+
+
 MAX_REQUEST_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_INGEST_BATCH_SIZE = 128
 DATASET_CONTENT_PAGE_SIZE = 1000
@@ -65,7 +71,7 @@ class Experiments:
         trigger: bool = False,
         prompt_template: Optional[PromptTemplate] = None,
         scorers: Optional[builtins.list[ScorerConfig]] = None,
-        prompt_settings: Optional[PromptRunSettings] = None,
+        prompt_settings: Optional[Union[PromptRunSettings, dict]] = None,
     ) -> ExperimentResponse:
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
 
@@ -137,24 +143,7 @@ class Experiments:
     ) -> dict[str, Any]:
         # Only set default prompt_settings for prompt-driven flow (when a template is provided)
         if prompt_template is not None and prompt_settings is None:
-            prompt_settings = PromptRunSettings(
-                n=1,
-                echo=False,
-                tools=None,
-                top_k=40,
-                top_p=1.0,
-                logprobs=True,
-                max_tokens=256,
-                model_alias="GPT-4o",
-                temperature=0.8,
-                tool_choice=None,
-                top_logprobs=5,
-                stop_sequences=None,
-                deployment_name=None,
-                response_format=None,
-                presence_penalty=0.0,
-                frequency_penalty=0.0,
-            )
+            prompt_settings = _default_prompt_settings()
 
         # Single API call: create experiment + trigger job via trigger=True
         experiment_obj = self.create(
