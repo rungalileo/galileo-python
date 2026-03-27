@@ -6,17 +6,27 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from ..models.content_modality import ContentModality
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.document import Document
     from ..models.extended_agent_span_record_with_children import ExtendedAgentSpanRecordWithChildren
     from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+    from ..models.extended_retriever_span_record_with_children_annotation_aggregates import (
+        ExtendedRetrieverSpanRecordWithChildrenAnnotationAggregates,
+    )
+    from ..models.extended_retriever_span_record_with_children_annotations import (
+        ExtendedRetrieverSpanRecordWithChildrenAnnotations,
+    )
     from ..models.extended_retriever_span_record_with_children_dataset_metadata import (
         ExtendedRetrieverSpanRecordWithChildrenDatasetMetadata,
     )
     from ..models.extended_retriever_span_record_with_children_feedback_rating_info import (
         ExtendedRetrieverSpanRecordWithChildrenFeedbackRatingInfo,
+    )
+    from ..models.extended_retriever_span_record_with_children_files_type_0 import (
+        ExtendedRetrieverSpanRecordWithChildrenFilesType0,
     )
     from ..models.extended_retriever_span_record_with_children_metric_info_type_0 import (
         ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0,
@@ -71,8 +81,17 @@ class ExtendedRetrieverSpanRecordWithChildren:
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         feedback_rating_info (Union[Unset, ExtendedRetrieverSpanRecordWithChildrenFeedbackRatingInfo]): Feedback
             information related to the record
+        annotations (Union[Unset, ExtendedRetrieverSpanRecordWithChildrenAnnotations]): Annotations keyed by template ID
+            and annotator ID
+        file_ids (Union[Unset, list[str]]): IDs of files associated with this record
+        file_modalities (Union[Unset, list[ContentModality]]): Modalities of files associated with this record
+        annotation_aggregates (Union[Unset, ExtendedRetrieverSpanRecordWithChildrenAnnotationAggregates]): Annotation
+            aggregate information keyed by template ID
+        annotation_queue_ids (Union[Unset, list[str]]): IDs of annotation queues this record is in
         metric_info (Union['ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0', None, Unset]): Detailed information
             about the metrics associated with this trace or span
+        files (Union['ExtendedRetrieverSpanRecordWithChildrenFilesType0', None, Unset]): File metadata keyed by file ID
+            for files associated with this record
         is_complete (Union[Unset, bool]): Whether the parent trace is complete or not Default: True.
         step_number (Union[None, Unset, int]): Topological step number of the span.
     """
@@ -115,7 +134,13 @@ class ExtendedRetrieverSpanRecordWithChildren:
     metrics_batch_id: Union[None, Unset, str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
     feedback_rating_info: Union[Unset, "ExtendedRetrieverSpanRecordWithChildrenFeedbackRatingInfo"] = UNSET
+    annotations: Union[Unset, "ExtendedRetrieverSpanRecordWithChildrenAnnotations"] = UNSET
+    file_ids: Union[Unset, list[str]] = UNSET
+    file_modalities: Union[Unset, list[ContentModality]] = UNSET
+    annotation_aggregates: Union[Unset, "ExtendedRetrieverSpanRecordWithChildrenAnnotationAggregates"] = UNSET
+    annotation_queue_ids: Union[Unset, list[str]] = UNSET
     metric_info: Union["ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0", None, Unset] = UNSET
+    files: Union["ExtendedRetrieverSpanRecordWithChildrenFilesType0", None, Unset] = UNSET
     is_complete: Union[Unset, bool] = True
     step_number: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -123,6 +148,9 @@ class ExtendedRetrieverSpanRecordWithChildren:
     def to_dict(self) -> dict[str, Any]:
         from ..models.extended_agent_span_record_with_children import ExtendedAgentSpanRecordWithChildren
         from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+        from ..models.extended_retriever_span_record_with_children_files_type_0 import (
+            ExtendedRetrieverSpanRecordWithChildrenFilesType0,
+        )
         from ..models.extended_retriever_span_record_with_children_metric_info_type_0 import (
             ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0,
         )
@@ -243,6 +271,29 @@ class ExtendedRetrieverSpanRecordWithChildren:
         if not isinstance(self.feedback_rating_info, Unset):
             feedback_rating_info = self.feedback_rating_info.to_dict()
 
+        annotations: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.annotations, Unset):
+            annotations = self.annotations.to_dict()
+
+        file_ids: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.file_ids, Unset):
+            file_ids = self.file_ids
+
+        file_modalities: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.file_modalities, Unset):
+            file_modalities = []
+            for file_modalities_item_data in self.file_modalities:
+                file_modalities_item = file_modalities_item_data.value
+                file_modalities.append(file_modalities_item)
+
+        annotation_aggregates: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.annotation_aggregates, Unset):
+            annotation_aggregates = self.annotation_aggregates.to_dict()
+
+        annotation_queue_ids: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.annotation_queue_ids, Unset):
+            annotation_queue_ids = self.annotation_queue_ids
+
         metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
@@ -250,6 +301,14 @@ class ExtendedRetrieverSpanRecordWithChildren:
             metric_info = self.metric_info.to_dict()
         else:
             metric_info = self.metric_info
+
+        files: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.files, Unset):
+            files = UNSET
+        elif isinstance(self.files, ExtendedRetrieverSpanRecordWithChildrenFilesType0):
+            files = self.files.to_dict()
+        else:
+            files = self.files
 
         is_complete = self.is_complete
 
@@ -305,8 +364,20 @@ class ExtendedRetrieverSpanRecordWithChildren:
             field_dict["session_batch_id"] = session_batch_id
         if feedback_rating_info is not UNSET:
             field_dict["feedback_rating_info"] = feedback_rating_info
+        if annotations is not UNSET:
+            field_dict["annotations"] = annotations
+        if file_ids is not UNSET:
+            field_dict["file_ids"] = file_ids
+        if file_modalities is not UNSET:
+            field_dict["file_modalities"] = file_modalities
+        if annotation_aggregates is not UNSET:
+            field_dict["annotation_aggregates"] = annotation_aggregates
+        if annotation_queue_ids is not UNSET:
+            field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
+        if files is not UNSET:
+            field_dict["files"] = files
         if is_complete is not UNSET:
             field_dict["is_complete"] = is_complete
         if step_number is not UNSET:
@@ -318,11 +389,20 @@ class ExtendedRetrieverSpanRecordWithChildren:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.document import Document
         from ..models.extended_agent_span_record_with_children import ExtendedAgentSpanRecordWithChildren
+        from ..models.extended_retriever_span_record_with_children_annotation_aggregates import (
+            ExtendedRetrieverSpanRecordWithChildrenAnnotationAggregates,
+        )
+        from ..models.extended_retriever_span_record_with_children_annotations import (
+            ExtendedRetrieverSpanRecordWithChildrenAnnotations,
+        )
         from ..models.extended_retriever_span_record_with_children_dataset_metadata import (
             ExtendedRetrieverSpanRecordWithChildrenDatasetMetadata,
         )
         from ..models.extended_retriever_span_record_with_children_feedback_rating_info import (
             ExtendedRetrieverSpanRecordWithChildrenFeedbackRatingInfo,
+        )
+        from ..models.extended_retriever_span_record_with_children_files_type_0 import (
+            ExtendedRetrieverSpanRecordWithChildrenFilesType0,
         )
         from ..models.extended_retriever_span_record_with_children_metric_info_type_0 import (
             ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0,
@@ -624,6 +704,33 @@ class ExtendedRetrieverSpanRecordWithChildren:
                 _feedback_rating_info
             )
 
+        _annotations = d.pop("annotations", UNSET)
+        annotations: Union[Unset, ExtendedRetrieverSpanRecordWithChildrenAnnotations]
+        if isinstance(_annotations, Unset):
+            annotations = UNSET
+        else:
+            annotations = ExtendedRetrieverSpanRecordWithChildrenAnnotations.from_dict(_annotations)
+
+        file_ids = cast(list[str], d.pop("file_ids", UNSET))
+
+        file_modalities = []
+        _file_modalities = d.pop("file_modalities", UNSET)
+        for file_modalities_item_data in _file_modalities or []:
+            file_modalities_item = ContentModality(file_modalities_item_data)
+
+            file_modalities.append(file_modalities_item)
+
+        _annotation_aggregates = d.pop("annotation_aggregates", UNSET)
+        annotation_aggregates: Union[Unset, ExtendedRetrieverSpanRecordWithChildrenAnnotationAggregates]
+        if isinstance(_annotation_aggregates, Unset):
+            annotation_aggregates = UNSET
+        else:
+            annotation_aggregates = ExtendedRetrieverSpanRecordWithChildrenAnnotationAggregates.from_dict(
+                _annotation_aggregates
+            )
+
+        annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
+
         def _parse_metric_info(
             data: object,
         ) -> Union["ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0", None, Unset]:
@@ -698,6 +805,78 @@ class ExtendedRetrieverSpanRecordWithChildren:
 
         metric_info = _parse_metric_info(d.pop("metric_info", UNSET))
 
+        def _parse_files(data: object) -> Union["ExtendedRetrieverSpanRecordWithChildrenFilesType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            # Discriminator-aware parsing for Extended*Record types
+            if isinstance(data, dict) and "type" in data:
+                type_value = data.get("type")
+
+                # Hardcoded discriminator mapping for Extended*Record types
+                if type_value == "trace":
+                    try:
+                        from ..models.extended_trace_record import ExtendedTraceRecord
+
+                        return ExtendedTraceRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "agent":
+                    try:
+                        from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+
+                        return ExtendedAgentSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "workflow":
+                    try:
+                        from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
+
+                        return ExtendedWorkflowSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "llm":
+                    try:
+                        from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+
+                        return ExtendedLlmSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "tool":
+                    try:
+                        from ..models.extended_tool_span_record import ExtendedToolSpanRecord
+
+                        return ExtendedToolSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "retriever":
+                    try:
+                        from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
+
+                        return ExtendedRetrieverSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "session":
+                    try:
+                        from ..models.extended_session_record import ExtendedSessionRecord
+
+                        return ExtendedSessionRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+
+            # Fallback to standard union parsing
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ExtendedRetrieverSpanRecordWithChildrenFilesType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["ExtendedRetrieverSpanRecordWithChildrenFilesType0", None, Unset], data)
+
+        files = _parse_files(d.pop("files", UNSET))
+
         is_complete = d.pop("is_complete", UNSET)
 
         def _parse_step_number(data: object) -> Union[None, Unset, int]:
@@ -737,7 +916,13 @@ class ExtendedRetrieverSpanRecordWithChildren:
             metrics_batch_id=metrics_batch_id,
             session_batch_id=session_batch_id,
             feedback_rating_info=feedback_rating_info,
+            annotations=annotations,
+            file_ids=file_ids,
+            file_modalities=file_modalities,
+            annotation_aggregates=annotation_aggregates,
+            annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
+            files=files,
             is_complete=is_complete,
             step_number=step_number,
         )

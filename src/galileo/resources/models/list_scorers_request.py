@@ -9,12 +9,14 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
     from ..models.scorer_creator_filter import ScorerCreatorFilter
+    from ..models.scorer_enabled_in_playground_sort import ScorerEnabledInPlaygroundSort
     from ..models.scorer_enabled_in_run_sort import ScorerEnabledInRunSort
     from ..models.scorer_id_filter import ScorerIDFilter
     from ..models.scorer_label_filter import ScorerLabelFilter
     from ..models.scorer_model_type_filter import ScorerModelTypeFilter
     from ..models.scorer_name_filter import ScorerNameFilter
     from ..models.scorer_name_sort import ScorerNameSort
+    from ..models.scorer_scoreable_node_types_filter import ScorerScoreableNodeTypesFilter
     from ..models.scorer_tags_filter import ScorerTagsFilter
     from ..models.scorer_type_filter import ScorerTypeFilter
     from ..models.scorer_updated_at_filter import ScorerUpdatedAtFilter
@@ -29,9 +31,9 @@ class ListScorersRequest:
     Attributes
     ----------
         filters (Union[Unset, list[Union['ScorerCreatedAtFilter', 'ScorerCreatorFilter', 'ScorerIDFilter',
-            'ScorerLabelFilter', 'ScorerModelTypeFilter', 'ScorerNameFilter',
+            'ScorerLabelFilter', 'ScorerModelTypeFilter', 'ScorerNameFilter', 'ScorerScoreableNodeTypesFilter',
             'ScorerTagsFilter', 'ScorerTypeFilter', 'ScorerUpdatedAtFilter']]]):
-        sort (Union['ScorerEnabledInRunSort', 'ScorerNameSort', None, Unset]):
+        sort (Union['ScorerEnabledInPlaygroundSort', 'ScorerEnabledInRunSort', 'ScorerNameSort', None, Unset]):
     """
 
     filters: Union[
@@ -44,23 +46,26 @@ class ListScorersRequest:
                 "ScorerLabelFilter",
                 "ScorerModelTypeFilter",
                 "ScorerNameFilter",
+                "ScorerScoreableNodeTypesFilter",
                 "ScorerTagsFilter",
                 "ScorerTypeFilter",
                 "ScorerUpdatedAtFilter",
             ]
         ],
     ] = UNSET
-    sort: Union["ScorerEnabledInRunSort", "ScorerNameSort", None, Unset] = UNSET
+    sort: Union["ScorerEnabledInPlaygroundSort", "ScorerEnabledInRunSort", "ScorerNameSort", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
         from ..models.scorer_creator_filter import ScorerCreatorFilter
+        from ..models.scorer_enabled_in_playground_sort import ScorerEnabledInPlaygroundSort
         from ..models.scorer_enabled_in_run_sort import ScorerEnabledInRunSort
         from ..models.scorer_label_filter import ScorerLabelFilter
         from ..models.scorer_model_type_filter import ScorerModelTypeFilter
         from ..models.scorer_name_filter import ScorerNameFilter
         from ..models.scorer_name_sort import ScorerNameSort
+        from ..models.scorer_scoreable_node_types_filter import ScorerScoreableNodeTypesFilter
         from ..models.scorer_tags_filter import ScorerTagsFilter
         from ..models.scorer_type_filter import ScorerTypeFilter
         from ..models.scorer_updated_at_filter import ScorerUpdatedAtFilter
@@ -81,6 +86,7 @@ class ListScorersRequest:
                         ScorerCreatedAtFilter,
                         ScorerUpdatedAtFilter,
                         ScorerLabelFilter,
+                        ScorerScoreableNodeTypesFilter,
                     ),
                 ):
                     filters_item = filters_item_data.to_dict()
@@ -92,7 +98,7 @@ class ListScorersRequest:
         sort: Union[None, Unset, dict[str, Any]]
         if isinstance(self.sort, Unset):
             sort = UNSET
-        elif isinstance(self.sort, (ScorerNameSort, ScorerEnabledInRunSort)):
+        elif isinstance(self.sort, (ScorerNameSort, ScorerEnabledInRunSort, ScorerEnabledInPlaygroundSort)):
             sort = self.sort.to_dict()
         else:
             sort = self.sort
@@ -111,12 +117,14 @@ class ListScorersRequest:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
         from ..models.scorer_creator_filter import ScorerCreatorFilter
+        from ..models.scorer_enabled_in_playground_sort import ScorerEnabledInPlaygroundSort
         from ..models.scorer_enabled_in_run_sort import ScorerEnabledInRunSort
         from ..models.scorer_id_filter import ScorerIDFilter
         from ..models.scorer_label_filter import ScorerLabelFilter
         from ..models.scorer_model_type_filter import ScorerModelTypeFilter
         from ..models.scorer_name_filter import ScorerNameFilter
         from ..models.scorer_name_sort import ScorerNameSort
+        from ..models.scorer_scoreable_node_types_filter import ScorerScoreableNodeTypesFilter
         from ..models.scorer_tags_filter import ScorerTagsFilter
         from ..models.scorer_type_filter import ScorerTypeFilter
         from ..models.scorer_updated_at_filter import ScorerUpdatedAtFilter
@@ -135,6 +143,7 @@ class ListScorersRequest:
                 "ScorerLabelFilter",
                 "ScorerModelTypeFilter",
                 "ScorerNameFilter",
+                "ScorerScoreableNodeTypesFilter",
                 "ScorerTagsFilter",
                 "ScorerTypeFilter",
                 "ScorerUpdatedAtFilter",
@@ -195,6 +204,13 @@ class ListScorersRequest:
 
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return ScorerScoreableNodeTypesFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
                 return ScorerIDFilter.from_dict(data)
@@ -205,7 +221,7 @@ class ListScorersRequest:
 
         def _parse_sort(
             data: object,
-        ) -> Union["ScorerEnabledInRunSort", "ScorerNameSort", None, Unset]:
+        ) -> Union["ScorerEnabledInPlaygroundSort", "ScorerEnabledInRunSort", "ScorerNameSort", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -224,8 +240,15 @@ class ListScorersRequest:
 
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ScorerEnabledInPlaygroundSort.from_dict(data)
+
+            except:  # noqa: E722
+                pass
             return cast(
-                Union["ScorerEnabledInRunSort", "ScorerNameSort", None, Unset], data
+                Union["ScorerEnabledInPlaygroundSort", "ScorerEnabledInRunSort", "ScorerNameSort", None, Unset], data
             )
 
         sort = _parse_sort(d.pop("sort", UNSET))

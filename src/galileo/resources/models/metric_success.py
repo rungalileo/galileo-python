@@ -40,6 +40,9 @@ class MetricSuccess:
         cost (Union[None, Unset, float]):
         model_alias (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
+        input_tokens (Union[None, Unset, int]):
+        output_tokens (Union[None, Unset, int]):
+        total_tokens (Union[None, Unset, int]):
         critique (Union['MetricCritiqueColumnar', None, Unset]):
         display_value (Union[None, Unset, str]):
         rationale (Union[None, Unset, str]):
@@ -119,6 +122,9 @@ class MetricSuccess:
     cost: Union[None, Unset, float] = UNSET
     model_alias: Union[None, Unset, str] = UNSET
     num_judges: Union[None, Unset, int] = UNSET
+    input_tokens: Union[None, Unset, int] = UNSET
+    output_tokens: Union[None, Unset, int] = UNSET
+    total_tokens: Union[None, Unset, int] = UNSET
     critique: Union["MetricCritiqueColumnar", None, Unset] = UNSET
     display_value: Union[None, Unset, str] = UNSET
     rationale: Union[None, Unset, str] = UNSET
@@ -237,6 +243,15 @@ class MetricSuccess:
         num_judges: Union[None, Unset, int]
         num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
+        input_tokens: Union[None, Unset, int]
+        input_tokens = UNSET if isinstance(self.input_tokens, Unset) else self.input_tokens
+
+        output_tokens: Union[None, Unset, int]
+        output_tokens = UNSET if isinstance(self.output_tokens, Unset) else self.output_tokens
+
+        total_tokens: Union[None, Unset, int]
+        total_tokens = UNSET if isinstance(self.total_tokens, Unset) else self.total_tokens
+
         critique: Union[None, Unset, dict[str, Any]]
         if isinstance(self.critique, Unset):
             critique = UNSET
@@ -266,6 +281,12 @@ class MetricSuccess:
             field_dict["model_alias"] = model_alias
         if num_judges is not UNSET:
             field_dict["num_judges"] = num_judges
+        if input_tokens is not UNSET:
+            field_dict["input_tokens"] = input_tokens
+        if output_tokens is not UNSET:
+            field_dict["output_tokens"] = output_tokens
+        if total_tokens is not UNSET:
+            field_dict["total_tokens"] = total_tokens
         if critique is not UNSET:
             field_dict["critique"] = critique
         if display_value is not UNSET:
@@ -851,6 +872,33 @@ class MetricSuccess:
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
+        def _parse_input_tokens(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        input_tokens = _parse_input_tokens(d.pop("input_tokens", UNSET))
+
+        def _parse_output_tokens(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        output_tokens = _parse_output_tokens(d.pop("output_tokens", UNSET))
+
+        def _parse_total_tokens(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        total_tokens = _parse_total_tokens(d.pop("total_tokens", UNSET))
+
         def _parse_critique(data: object) -> Union["MetricCritiqueColumnar", None, Unset]:
             if data is None:
                 return data
@@ -893,6 +941,9 @@ class MetricSuccess:
             cost=cost,
             model_alias=model_alias,
             num_judges=num_judges,
+            input_tokens=input_tokens,
+            output_tokens=output_tokens,
+            total_tokens=total_tokens,
             critique=critique,
             display_value=display_value,
             rationale=rationale,

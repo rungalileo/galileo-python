@@ -21,7 +21,17 @@ from .aggregated_trace_view_node_metrics import AggregatedTraceViewNodeMetrics
 from .aggregated_trace_view_request import AggregatedTraceViewRequest
 from .aggregated_trace_view_response import AggregatedTraceViewResponse
 from .and_node_log_records_filter import AndNodeLogRecordsFilter
+from .annotation_aggregate import AnnotationAggregate
+from .annotation_like_dislike_aggregate import AnnotationLikeDislikeAggregate
 from .annotation_queue_action import AnnotationQueueAction
+from .annotation_rating_info import AnnotationRatingInfo
+from .annotation_score_aggregate import AnnotationScoreAggregate
+from .annotation_star_aggregate import AnnotationStarAggregate
+from .annotation_star_aggregate_counts import AnnotationStarAggregateCounts
+from .annotation_tags_aggregate import AnnotationTagsAggregate
+from .annotation_tags_aggregate_counts import AnnotationTagsAggregateCounts
+from .annotation_text_aggregate import AnnotationTextAggregate
+from .annotation_type import AnnotationType
 from .anthropic_authentication_type import AnthropicAuthenticationType
 from .anthropic_integration import AnthropicIntegration
 from .anthropic_integration_create import AnthropicIntegrationCreate
@@ -90,6 +100,7 @@ from .body_validate_code_scorer_log_record_scorers_code_validate_log_record_post
     BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost,
 )
 from .body_validate_code_scorer_scorers_code_validate_post import BodyValidateCodeScorerScorersCodeValidatePost
+from .boolean_color_constraint import BooleanColorConstraint
 from .bucketed_metric import BucketedMetric
 from .bucketed_metric_buckets import BucketedMetricBuckets
 from .bucketed_metrics import BucketedMetrics
@@ -97,6 +108,8 @@ from .bulk_delete_datasets_request import BulkDeleteDatasetsRequest
 from .bulk_delete_datasets_response import BulkDeleteDatasetsResponse
 from .bulk_delete_failure import BulkDeleteFailure
 from .bulk_delete_prompt_templates_request import BulkDeletePromptTemplatesRequest
+from .categorical_color_constraint import CategoricalColorConstraint
+from .categorical_color_constraint_operator import CategoricalColorConstraintOperator
 from .categorical_roll_up_method import CategoricalRollUpMethod
 from .chain_aggregation_strategy import ChainAggregationStrategy
 from .chain_poll_template import ChainPollTemplate
@@ -118,6 +131,7 @@ from .completeness_scorer import CompletenessScorer
 from .completeness_scorer_type import CompletenessScorerType
 from .completeness_template import CompletenessTemplate
 from .completeness_template_response_schema_type_0 import CompletenessTemplateResponseSchemaType0
+from .content_modality import ContentModality
 from .context_adherence_scorer import ContextAdherenceScorer
 from .context_adherence_scorer_type import ContextAdherenceScorerType
 from .context_relevance_scorer import ContextRelevanceScorer
@@ -133,9 +147,6 @@ from .create_scorer_request import CreateScorerRequest
 from .create_scorer_version_request import CreateScorerVersionRequest
 from .create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
 from .custom_authentication_type import CustomAuthenticationType
-from .custom_integration import CustomIntegration
-from .custom_integration_create import CustomIntegrationCreate
-from .custom_integration_extra_type_0 import CustomIntegrationExtraType0
 from .custom_llm_config import CustomLLMConfig
 from .custom_llm_config_init_kwargs_type_0 import CustomLLMConfigInitKwargsType0
 from .customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
@@ -290,29 +301,9 @@ from .customized_toxicity_gpt_scorer_extra_type_0 import CustomizedToxicityGPTSc
 from .data_type import DataType
 from .data_type_options import DataTypeOptions
 from .data_unit import DataUnit
-from .databricks_edit_export_request import DatabricksEditExportRequest
-from .databricks_edit_export_request_col_mapping_type_0 import DatabricksEditExportRequestColMappingType0
-from .databricks_edit_export_response import DatabricksEditExportResponse
-from .databricks_edit_export_response_col_mapping_type_0 import DatabricksEditExportResponseColMappingType0
-from .databricks_export_request import DatabricksExportRequest
-from .databricks_export_request_col_mapping_type_0 import DatabricksExportRequestColMappingType0
-from .databricks_export_response import DatabricksExportResponse
-from .databricks_export_response_col_mapping_type_0 import DatabricksExportResponseColMappingType0
 from .databricks_integration import DatabricksIntegration
 from .databricks_integration_create import DatabricksIntegrationCreate
 from .databricks_integration_extra_type_0 import DatabricksIntegrationExtraType0
-from .databricks_unity_catalog_edit_export_request import DatabricksUnityCatalogEditExportRequest
-from .databricks_unity_catalog_edit_export_request_col_mapping_type_0 import (
-    DatabricksUnityCatalogEditExportRequestColMappingType0,
-)
-from .databricks_unity_catalog_export_edits_response import DatabricksUnityCatalogExportEditsResponse
-from .databricks_unity_catalog_export_edits_response_col_mapping_type_0 import (
-    DatabricksUnityCatalogExportEditsResponseColMappingType0,
-)
-from .databricks_unity_catalog_export_response import DatabricksUnityCatalogExportResponse
-from .databricks_unity_catalog_export_response_col_mapping_type_0 import (
-    DatabricksUnityCatalogExportResponseColMappingType0,
-)
 from .dataset_action import DatasetAction
 from .dataset_append_row import DatasetAppendRow
 from .dataset_append_row_values import DatasetAppendRowValues
@@ -361,10 +352,8 @@ from .delete_run_response import DeleteRunResponse
 from .delete_scorer_response import DeleteScorerResponse
 from .document import Document
 from .document_metadata import DocumentMetadata
-from .edit_action import EditAction
-from .edit_override import EditOverride
-from .edit_override_edit_spans_type_0 import EditOverrideEditSpansType0
-from .edit_span import EditSpan
+from .error_severity import ErrorSeverity
+from .error_type import ErrorType
 from .event_status import EventStatus
 from .execution_status import ExecutionStatus
 from .experiment_create_request import ExperimentCreateRequest
@@ -387,39 +376,71 @@ from .experiment_status import ExperimentStatus
 from .experiment_update_request import ExperimentUpdateRequest
 from .experiments_available_columns_response import ExperimentsAvailableColumnsResponse
 from .extended_agent_span_record import ExtendedAgentSpanRecord
+from .extended_agent_span_record_annotation_aggregates import ExtendedAgentSpanRecordAnnotationAggregates
+from .extended_agent_span_record_annotations import ExtendedAgentSpanRecordAnnotations
+from .extended_agent_span_record_annotations_additional_property import (
+    ExtendedAgentSpanRecordAnnotationsAdditionalProperty,
+)
 from .extended_agent_span_record_dataset_metadata import ExtendedAgentSpanRecordDatasetMetadata
 from .extended_agent_span_record_feedback_rating_info import ExtendedAgentSpanRecordFeedbackRatingInfo
+from .extended_agent_span_record_files_type_0 import ExtendedAgentSpanRecordFilesType0
 from .extended_agent_span_record_metric_info_type_0 import ExtendedAgentSpanRecordMetricInfoType0
 from .extended_agent_span_record_user_metadata import ExtendedAgentSpanRecordUserMetadata
 from .extended_agent_span_record_with_children import ExtendedAgentSpanRecordWithChildren
+from .extended_agent_span_record_with_children_annotation_aggregates import (
+    ExtendedAgentSpanRecordWithChildrenAnnotationAggregates,
+)
+from .extended_agent_span_record_with_children_annotations import ExtendedAgentSpanRecordWithChildrenAnnotations
+from .extended_agent_span_record_with_children_annotations_additional_property import (
+    ExtendedAgentSpanRecordWithChildrenAnnotationsAdditionalProperty,
+)
 from .extended_agent_span_record_with_children_dataset_metadata import (
     ExtendedAgentSpanRecordWithChildrenDatasetMetadata,
 )
 from .extended_agent_span_record_with_children_feedback_rating_info import (
     ExtendedAgentSpanRecordWithChildrenFeedbackRatingInfo,
 )
+from .extended_agent_span_record_with_children_files_type_0 import ExtendedAgentSpanRecordWithChildrenFilesType0
 from .extended_agent_span_record_with_children_metric_info_type_0 import (
     ExtendedAgentSpanRecordWithChildrenMetricInfoType0,
 )
 from .extended_agent_span_record_with_children_user_metadata import ExtendedAgentSpanRecordWithChildrenUserMetadata
 from .extended_llm_span_record import ExtendedLlmSpanRecord
+from .extended_llm_span_record_annotation_aggregates import ExtendedLlmSpanRecordAnnotationAggregates
+from .extended_llm_span_record_annotations import ExtendedLlmSpanRecordAnnotations
+from .extended_llm_span_record_annotations_additional_property import ExtendedLlmSpanRecordAnnotationsAdditionalProperty
 from .extended_llm_span_record_dataset_metadata import ExtendedLlmSpanRecordDatasetMetadata
 from .extended_llm_span_record_feedback_rating_info import ExtendedLlmSpanRecordFeedbackRatingInfo
+from .extended_llm_span_record_files_type_0 import ExtendedLlmSpanRecordFilesType0
 from .extended_llm_span_record_metric_info_type_0 import ExtendedLlmSpanRecordMetricInfoType0
 from .extended_llm_span_record_tools_type_0_item import ExtendedLlmSpanRecordToolsType0Item
 from .extended_llm_span_record_user_metadata import ExtendedLlmSpanRecordUserMetadata
 from .extended_retriever_span_record import ExtendedRetrieverSpanRecord
+from .extended_retriever_span_record_annotation_aggregates import ExtendedRetrieverSpanRecordAnnotationAggregates
+from .extended_retriever_span_record_annotations import ExtendedRetrieverSpanRecordAnnotations
+from .extended_retriever_span_record_annotations_additional_property import (
+    ExtendedRetrieverSpanRecordAnnotationsAdditionalProperty,
+)
 from .extended_retriever_span_record_dataset_metadata import ExtendedRetrieverSpanRecordDatasetMetadata
 from .extended_retriever_span_record_feedback_rating_info import ExtendedRetrieverSpanRecordFeedbackRatingInfo
+from .extended_retriever_span_record_files_type_0 import ExtendedRetrieverSpanRecordFilesType0
 from .extended_retriever_span_record_metric_info_type_0 import ExtendedRetrieverSpanRecordMetricInfoType0
 from .extended_retriever_span_record_user_metadata import ExtendedRetrieverSpanRecordUserMetadata
 from .extended_retriever_span_record_with_children import ExtendedRetrieverSpanRecordWithChildren
+from .extended_retriever_span_record_with_children_annotation_aggregates import (
+    ExtendedRetrieverSpanRecordWithChildrenAnnotationAggregates,
+)
+from .extended_retriever_span_record_with_children_annotations import ExtendedRetrieverSpanRecordWithChildrenAnnotations
+from .extended_retriever_span_record_with_children_annotations_additional_property import (
+    ExtendedRetrieverSpanRecordWithChildrenAnnotationsAdditionalProperty,
+)
 from .extended_retriever_span_record_with_children_dataset_metadata import (
     ExtendedRetrieverSpanRecordWithChildrenDatasetMetadata,
 )
 from .extended_retriever_span_record_with_children_feedback_rating_info import (
     ExtendedRetrieverSpanRecordWithChildrenFeedbackRatingInfo,
 )
+from .extended_retriever_span_record_with_children_files_type_0 import ExtendedRetrieverSpanRecordWithChildrenFilesType0
 from .extended_retriever_span_record_with_children_metric_info_type_0 import (
     ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0,
 )
@@ -427,53 +448,105 @@ from .extended_retriever_span_record_with_children_user_metadata import (
     ExtendedRetrieverSpanRecordWithChildrenUserMetadata,
 )
 from .extended_session_record import ExtendedSessionRecord
+from .extended_session_record_annotation_aggregates import ExtendedSessionRecordAnnotationAggregates
+from .extended_session_record_annotations import ExtendedSessionRecordAnnotations
+from .extended_session_record_annotations_additional_property import ExtendedSessionRecordAnnotationsAdditionalProperty
 from .extended_session_record_dataset_metadata import ExtendedSessionRecordDatasetMetadata
 from .extended_session_record_feedback_rating_info import ExtendedSessionRecordFeedbackRatingInfo
+from .extended_session_record_files_type_0 import ExtendedSessionRecordFilesType0
 from .extended_session_record_metric_info_type_0 import ExtendedSessionRecordMetricInfoType0
 from .extended_session_record_user_metadata import ExtendedSessionRecordUserMetadata
 from .extended_session_record_with_children import ExtendedSessionRecordWithChildren
+from .extended_session_record_with_children_annotation_aggregates import (
+    ExtendedSessionRecordWithChildrenAnnotationAggregates,
+)
+from .extended_session_record_with_children_annotations import ExtendedSessionRecordWithChildrenAnnotations
+from .extended_session_record_with_children_annotations_additional_property import (
+    ExtendedSessionRecordWithChildrenAnnotationsAdditionalProperty,
+)
 from .extended_session_record_with_children_dataset_metadata import ExtendedSessionRecordWithChildrenDatasetMetadata
 from .extended_session_record_with_children_feedback_rating_info import (
     ExtendedSessionRecordWithChildrenFeedbackRatingInfo,
 )
+from .extended_session_record_with_children_files_type_0 import ExtendedSessionRecordWithChildrenFilesType0
 from .extended_session_record_with_children_metric_info_type_0 import ExtendedSessionRecordWithChildrenMetricInfoType0
 from .extended_session_record_with_children_user_metadata import ExtendedSessionRecordWithChildrenUserMetadata
 from .extended_tool_span_record import ExtendedToolSpanRecord
+from .extended_tool_span_record_annotation_aggregates import ExtendedToolSpanRecordAnnotationAggregates
+from .extended_tool_span_record_annotations import ExtendedToolSpanRecordAnnotations
+from .extended_tool_span_record_annotations_additional_property import (
+    ExtendedToolSpanRecordAnnotationsAdditionalProperty,
+)
 from .extended_tool_span_record_dataset_metadata import ExtendedToolSpanRecordDatasetMetadata
 from .extended_tool_span_record_feedback_rating_info import ExtendedToolSpanRecordFeedbackRatingInfo
+from .extended_tool_span_record_files_type_0 import ExtendedToolSpanRecordFilesType0
 from .extended_tool_span_record_metric_info_type_0 import ExtendedToolSpanRecordMetricInfoType0
 from .extended_tool_span_record_user_metadata import ExtendedToolSpanRecordUserMetadata
 from .extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
+from .extended_tool_span_record_with_children_annotation_aggregates import (
+    ExtendedToolSpanRecordWithChildrenAnnotationAggregates,
+)
+from .extended_tool_span_record_with_children_annotations import ExtendedToolSpanRecordWithChildrenAnnotations
+from .extended_tool_span_record_with_children_annotations_additional_property import (
+    ExtendedToolSpanRecordWithChildrenAnnotationsAdditionalProperty,
+)
 from .extended_tool_span_record_with_children_dataset_metadata import ExtendedToolSpanRecordWithChildrenDatasetMetadata
 from .extended_tool_span_record_with_children_feedback_rating_info import (
     ExtendedToolSpanRecordWithChildrenFeedbackRatingInfo,
 )
+from .extended_tool_span_record_with_children_files_type_0 import ExtendedToolSpanRecordWithChildrenFilesType0
 from .extended_tool_span_record_with_children_metric_info_type_0 import (
     ExtendedToolSpanRecordWithChildrenMetricInfoType0,
 )
 from .extended_tool_span_record_with_children_user_metadata import ExtendedToolSpanRecordWithChildrenUserMetadata
 from .extended_trace_record import ExtendedTraceRecord
+from .extended_trace_record_annotation_aggregates import ExtendedTraceRecordAnnotationAggregates
+from .extended_trace_record_annotations import ExtendedTraceRecordAnnotations
+from .extended_trace_record_annotations_additional_property import ExtendedTraceRecordAnnotationsAdditionalProperty
 from .extended_trace_record_dataset_metadata import ExtendedTraceRecordDatasetMetadata
 from .extended_trace_record_feedback_rating_info import ExtendedTraceRecordFeedbackRatingInfo
+from .extended_trace_record_files_type_0 import ExtendedTraceRecordFilesType0
 from .extended_trace_record_metric_info_type_0 import ExtendedTraceRecordMetricInfoType0
 from .extended_trace_record_user_metadata import ExtendedTraceRecordUserMetadata
 from .extended_trace_record_with_children import ExtendedTraceRecordWithChildren
+from .extended_trace_record_with_children_annotation_aggregates import (
+    ExtendedTraceRecordWithChildrenAnnotationAggregates,
+)
+from .extended_trace_record_with_children_annotations import ExtendedTraceRecordWithChildrenAnnotations
+from .extended_trace_record_with_children_annotations_additional_property import (
+    ExtendedTraceRecordWithChildrenAnnotationsAdditionalProperty,
+)
 from .extended_trace_record_with_children_dataset_metadata import ExtendedTraceRecordWithChildrenDatasetMetadata
 from .extended_trace_record_with_children_feedback_rating_info import ExtendedTraceRecordWithChildrenFeedbackRatingInfo
+from .extended_trace_record_with_children_files_type_0 import ExtendedTraceRecordWithChildrenFilesType0
 from .extended_trace_record_with_children_metric_info_type_0 import ExtendedTraceRecordWithChildrenMetricInfoType0
 from .extended_trace_record_with_children_user_metadata import ExtendedTraceRecordWithChildrenUserMetadata
 from .extended_workflow_span_record import ExtendedWorkflowSpanRecord
+from .extended_workflow_span_record_annotation_aggregates import ExtendedWorkflowSpanRecordAnnotationAggregates
+from .extended_workflow_span_record_annotations import ExtendedWorkflowSpanRecordAnnotations
+from .extended_workflow_span_record_annotations_additional_property import (
+    ExtendedWorkflowSpanRecordAnnotationsAdditionalProperty,
+)
 from .extended_workflow_span_record_dataset_metadata import ExtendedWorkflowSpanRecordDatasetMetadata
 from .extended_workflow_span_record_feedback_rating_info import ExtendedWorkflowSpanRecordFeedbackRatingInfo
+from .extended_workflow_span_record_files_type_0 import ExtendedWorkflowSpanRecordFilesType0
 from .extended_workflow_span_record_metric_info_type_0 import ExtendedWorkflowSpanRecordMetricInfoType0
 from .extended_workflow_span_record_user_metadata import ExtendedWorkflowSpanRecordUserMetadata
 from .extended_workflow_span_record_with_children import ExtendedWorkflowSpanRecordWithChildren
+from .extended_workflow_span_record_with_children_annotation_aggregates import (
+    ExtendedWorkflowSpanRecordWithChildrenAnnotationAggregates,
+)
+from .extended_workflow_span_record_with_children_annotations import ExtendedWorkflowSpanRecordWithChildrenAnnotations
+from .extended_workflow_span_record_with_children_annotations_additional_property import (
+    ExtendedWorkflowSpanRecordWithChildrenAnnotationsAdditionalProperty,
+)
 from .extended_workflow_span_record_with_children_dataset_metadata import (
     ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata,
 )
 from .extended_workflow_span_record_with_children_feedback_rating_info import (
     ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo,
 )
+from .extended_workflow_span_record_with_children_files_type_0 import ExtendedWorkflowSpanRecordWithChildrenFilesType0
 from .extended_workflow_span_record_with_children_metric_info_type_0 import (
     ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0,
 )
@@ -487,9 +560,11 @@ from .feedback_rating_db import FeedbackRatingDB
 from .feedback_rating_info import FeedbackRatingInfo
 from .feedback_type import FeedbackType
 from .few_shot_example import FewShotExample
-from .file_type import FileType
+from .file_content_part import FileContentPart
+from .file_metadata import FileMetadata
+from .file_source import FileSource
+from .file_status import FileStatus
 from .filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
-from .filter_params import FilterParams
 from .fine_tuned_scorer import FineTunedScorer
 from .fine_tuned_scorer_action import FineTunedScorerAction
 from .fine_tuned_scorer_response import FineTunedScorerResponse
@@ -530,7 +605,6 @@ from .image_generation_event import ImageGenerationEvent
 from .image_generation_event_images_type_0_item import ImageGenerationEventImagesType0Item
 from .image_generation_event_metadata_type_0 import ImageGenerationEventMetadataType0
 from .input_map import InputMap
-from .input_modality import InputModality
 from .input_pii_scorer import InputPIIScorer
 from .input_sexist_scorer import InputSexistScorer
 from .input_sexist_scorer_type import InputSexistScorerType
@@ -551,6 +625,7 @@ from .instruction_adherence_template_response_schema_type_0 import InstructionAd
 from .integration_action import IntegrationAction
 from .integration_db import IntegrationDB
 from .integration_models_response import IntegrationModelsResponse
+from .integration_models_response_recommended_models import IntegrationModelsResponseRecommendedModels
 from .integration_name import IntegrationName
 from .internal_tool_call import InternalToolCall
 from .internal_tool_call_input_type_0 import InternalToolCallInputType0
@@ -564,12 +639,6 @@ from .invoke_response_metric_results import InvokeResponseMetricResults
 from .job_db import JobDB
 from .job_db_request_data import JobDBRequestData
 from .job_progress import JobProgress
-from .label_studio_export_request import LabelStudioExportRequest
-from .label_studio_integration import LabelStudioIntegration
-from .label_studio_integration_create import LabelStudioIntegrationCreate
-from .label_studio_integration_extra_type_0 import LabelStudioIntegrationExtraType0
-from .label_studio_project import LabelStudioProject
-from .lasso_selection import LassoSelection
 from .like_dislike_aggregate import LikeDislikeAggregate
 from .like_dislike_rating import LikeDislikeRating
 from .list_dataset_params import ListDatasetParams
@@ -604,6 +673,7 @@ from .log_records_collection_filter import LogRecordsCollectionFilter
 from .log_records_collection_filter_operator import LogRecordsCollectionFilterOperator
 from .log_records_column_info import LogRecordsColumnInfo
 from .log_records_column_info_label_color_type_0 import LogRecordsColumnInfoLabelColorType0
+from .log_records_custom_metrics_query_request import LogRecordsCustomMetricsQueryRequest
 from .log_records_date_filter import LogRecordsDateFilter
 from .log_records_date_filter_operator import LogRecordsDateFilterOperator
 from .log_records_delete_request import LogRecordsDeleteRequest
@@ -615,7 +685,11 @@ from .log_records_id_filter_operator import LogRecordsIDFilterOperator
 from .log_records_metrics_query_request import LogRecordsMetricsQueryRequest
 from .log_records_metrics_response import LogRecordsMetricsResponse
 from .log_records_metrics_response_aggregate_metrics import LogRecordsMetricsResponseAggregateMetrics
+from .log_records_metrics_response_aggregate_metrics_additional_property_type_2 import (
+    LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2,
+)
 from .log_records_metrics_response_bucketed_metrics import LogRecordsMetricsResponseBucketedMetrics
+from .log_records_metrics_response_standard_errors_type_0 import LogRecordsMetricsResponseStandardErrorsType0
 from .log_records_number_filter import LogRecordsNumberFilter
 from .log_records_number_filter_operator import LogRecordsNumberFilterOperator
 from .log_records_partial_query_request import LogRecordsPartialQueryRequest
@@ -659,9 +733,15 @@ from .message_event_metadata_type_0 import MessageEventMetadataType0
 from .message_role import MessageRole
 from .messages_list_item import MessagesListItem
 from .messages_list_item_role import MessagesListItemRole
-from .meta_filter import MetaFilter
 from .metadata_filter import MetadataFilter
 from .metadata_filter_operator import MetadataFilterOperator
+from .metric_aggregation import MetricAggregation
+from .metric_aggregation_detail import MetricAggregationDetail
+from .metric_color import MetricColor
+from .metric_color_picker_boolean import MetricColorPickerBoolean
+from .metric_color_picker_categorical import MetricColorPickerCategorical
+from .metric_color_picker_multi_label import MetricColorPickerMultiLabel
+from .metric_color_picker_numeric import MetricColorPickerNumeric
 from .metric_computation import MetricComputation
 from .metric_computation_status import MetricComputationStatus
 from .metric_computation_value_type_4 import MetricComputationValueType4
@@ -687,15 +767,21 @@ from .metrics_testing_available_columns_request import MetricsTestingAvailableCo
 from .mistral_integration import MistralIntegration
 from .mistral_integration_create import MistralIntegrationCreate
 from .mistral_integration_extra_type_0 import MistralIntegrationExtraType0
+from .modality_filter import ModalityFilter
+from .modality_filter_operator import ModalityFilterOperator
 from .model import Model
 from .model_cost_by import ModelCostBy
+from .model_properties import ModelProperties
 from .model_type import ModelType
 from .multi_modal_model_integration_config import MultiModalModelIntegrationConfig
+from .multimodal_capability import MultimodalCapability
 from .name import Name
 from .node_name_filter import NodeNameFilter
 from .node_name_filter_operator import NodeNameFilterOperator
 from .node_type import NodeType
 from .not_node_log_records_filter import NotNodeLogRecordsFilter
+from .numeric_color_constraint import NumericColorConstraint
+from .numeric_color_constraint_operator import NumericColorConstraintOperator
 from .numeric_roll_up_method import NumericRollUpMethod
 from .nvidia_integration import NvidiaIntegration
 from .nvidia_integration_create import NvidiaIntegrationCreate
@@ -717,43 +803,89 @@ from .output_toxicity_scorer_type import OutputToxicityScorerType
 from .output_type_enum import OutputTypeEnum
 from .override_action import OverrideAction
 from .partial_extended_agent_span_record import PartialExtendedAgentSpanRecord
+from .partial_extended_agent_span_record_annotation_aggregates import PartialExtendedAgentSpanRecordAnnotationAggregates
+from .partial_extended_agent_span_record_annotations import PartialExtendedAgentSpanRecordAnnotations
+from .partial_extended_agent_span_record_annotations_additional_property import (
+    PartialExtendedAgentSpanRecordAnnotationsAdditionalProperty,
+)
 from .partial_extended_agent_span_record_dataset_metadata import PartialExtendedAgentSpanRecordDatasetMetadata
 from .partial_extended_agent_span_record_feedback_rating_info import PartialExtendedAgentSpanRecordFeedbackRatingInfo
+from .partial_extended_agent_span_record_files_type_0 import PartialExtendedAgentSpanRecordFilesType0
 from .partial_extended_agent_span_record_metric_info_type_0 import PartialExtendedAgentSpanRecordMetricInfoType0
 from .partial_extended_agent_span_record_user_metadata import PartialExtendedAgentSpanRecordUserMetadata
 from .partial_extended_llm_span_record import PartialExtendedLlmSpanRecord
+from .partial_extended_llm_span_record_annotation_aggregates import PartialExtendedLlmSpanRecordAnnotationAggregates
+from .partial_extended_llm_span_record_annotations import PartialExtendedLlmSpanRecordAnnotations
+from .partial_extended_llm_span_record_annotations_additional_property import (
+    PartialExtendedLlmSpanRecordAnnotationsAdditionalProperty,
+)
 from .partial_extended_llm_span_record_dataset_metadata import PartialExtendedLlmSpanRecordDatasetMetadata
 from .partial_extended_llm_span_record_feedback_rating_info import PartialExtendedLlmSpanRecordFeedbackRatingInfo
+from .partial_extended_llm_span_record_files_type_0 import PartialExtendedLlmSpanRecordFilesType0
 from .partial_extended_llm_span_record_metric_info_type_0 import PartialExtendedLlmSpanRecordMetricInfoType0
 from .partial_extended_llm_span_record_tools_type_0_item import PartialExtendedLlmSpanRecordToolsType0Item
 from .partial_extended_llm_span_record_user_metadata import PartialExtendedLlmSpanRecordUserMetadata
 from .partial_extended_retriever_span_record import PartialExtendedRetrieverSpanRecord
+from .partial_extended_retriever_span_record_annotation_aggregates import (
+    PartialExtendedRetrieverSpanRecordAnnotationAggregates,
+)
+from .partial_extended_retriever_span_record_annotations import PartialExtendedRetrieverSpanRecordAnnotations
+from .partial_extended_retriever_span_record_annotations_additional_property import (
+    PartialExtendedRetrieverSpanRecordAnnotationsAdditionalProperty,
+)
 from .partial_extended_retriever_span_record_dataset_metadata import PartialExtendedRetrieverSpanRecordDatasetMetadata
 from .partial_extended_retriever_span_record_feedback_rating_info import (
     PartialExtendedRetrieverSpanRecordFeedbackRatingInfo,
 )
+from .partial_extended_retriever_span_record_files_type_0 import PartialExtendedRetrieverSpanRecordFilesType0
 from .partial_extended_retriever_span_record_metric_info_type_0 import PartialExtendedRetrieverSpanRecordMetricInfoType0
 from .partial_extended_retriever_span_record_user_metadata import PartialExtendedRetrieverSpanRecordUserMetadata
 from .partial_extended_session_record import PartialExtendedSessionRecord
+from .partial_extended_session_record_annotation_aggregates import PartialExtendedSessionRecordAnnotationAggregates
+from .partial_extended_session_record_annotations import PartialExtendedSessionRecordAnnotations
+from .partial_extended_session_record_annotations_additional_property import (
+    PartialExtendedSessionRecordAnnotationsAdditionalProperty,
+)
 from .partial_extended_session_record_dataset_metadata import PartialExtendedSessionRecordDatasetMetadata
 from .partial_extended_session_record_feedback_rating_info import PartialExtendedSessionRecordFeedbackRatingInfo
+from .partial_extended_session_record_files_type_0 import PartialExtendedSessionRecordFilesType0
 from .partial_extended_session_record_metric_info_type_0 import PartialExtendedSessionRecordMetricInfoType0
 from .partial_extended_session_record_user_metadata import PartialExtendedSessionRecordUserMetadata
 from .partial_extended_tool_span_record import PartialExtendedToolSpanRecord
+from .partial_extended_tool_span_record_annotation_aggregates import PartialExtendedToolSpanRecordAnnotationAggregates
+from .partial_extended_tool_span_record_annotations import PartialExtendedToolSpanRecordAnnotations
+from .partial_extended_tool_span_record_annotations_additional_property import (
+    PartialExtendedToolSpanRecordAnnotationsAdditionalProperty,
+)
 from .partial_extended_tool_span_record_dataset_metadata import PartialExtendedToolSpanRecordDatasetMetadata
 from .partial_extended_tool_span_record_feedback_rating_info import PartialExtendedToolSpanRecordFeedbackRatingInfo
+from .partial_extended_tool_span_record_files_type_0 import PartialExtendedToolSpanRecordFilesType0
 from .partial_extended_tool_span_record_metric_info_type_0 import PartialExtendedToolSpanRecordMetricInfoType0
 from .partial_extended_tool_span_record_user_metadata import PartialExtendedToolSpanRecordUserMetadata
 from .partial_extended_trace_record import PartialExtendedTraceRecord
+from .partial_extended_trace_record_annotation_aggregates import PartialExtendedTraceRecordAnnotationAggregates
+from .partial_extended_trace_record_annotations import PartialExtendedTraceRecordAnnotations
+from .partial_extended_trace_record_annotations_additional_property import (
+    PartialExtendedTraceRecordAnnotationsAdditionalProperty,
+)
 from .partial_extended_trace_record_dataset_metadata import PartialExtendedTraceRecordDatasetMetadata
 from .partial_extended_trace_record_feedback_rating_info import PartialExtendedTraceRecordFeedbackRatingInfo
+from .partial_extended_trace_record_files_type_0 import PartialExtendedTraceRecordFilesType0
 from .partial_extended_trace_record_metric_info_type_0 import PartialExtendedTraceRecordMetricInfoType0
 from .partial_extended_trace_record_user_metadata import PartialExtendedTraceRecordUserMetadata
 from .partial_extended_workflow_span_record import PartialExtendedWorkflowSpanRecord
+from .partial_extended_workflow_span_record_annotation_aggregates import (
+    PartialExtendedWorkflowSpanRecordAnnotationAggregates,
+)
+from .partial_extended_workflow_span_record_annotations import PartialExtendedWorkflowSpanRecordAnnotations
+from .partial_extended_workflow_span_record_annotations_additional_property import (
+    PartialExtendedWorkflowSpanRecordAnnotationsAdditionalProperty,
+)
 from .partial_extended_workflow_span_record_dataset_metadata import PartialExtendedWorkflowSpanRecordDatasetMetadata
 from .partial_extended_workflow_span_record_feedback_rating_info import (
     PartialExtendedWorkflowSpanRecordFeedbackRatingInfo,
 )
+from .partial_extended_workflow_span_record_files_type_0 import PartialExtendedWorkflowSpanRecordFilesType0
 from .partial_extended_workflow_span_record_metric_info_type_0 import PartialExtendedWorkflowSpanRecordMetricInfoType0
 from .partial_extended_workflow_span_record_user_metadata import PartialExtendedWorkflowSpanRecordUserMetadata
 from .passthrough_action import PassthroughAction
@@ -823,6 +955,7 @@ from .query_dataset_params import QueryDatasetParams
 from .reasoning_event import ReasoningEvent
 from .reasoning_event_metadata_type_0 import ReasoningEventMetadataType0
 from .reasoning_event_summary_type_1_item import ReasoningEventSummaryType1Item
+from .recommended_model_purpose import RecommendedModelPurpose
 from .recompute_log_records_metrics_request import RecomputeLogRecordsMetricsRequest
 from .recompute_settings_log_stream import RecomputeSettingsLogStream
 from .recompute_settings_observe import RecomputeSettingsObserve
@@ -868,6 +1001,7 @@ from .run_updated_at_filter import RunUpdatedAtFilter
 from .run_updated_at_filter_operator import RunUpdatedAtFilterOperator
 from .run_updated_at_sort import RunUpdatedAtSort
 from .score_aggregate import ScoreAggregate
+from .score_bucket import ScoreBucket
 from .score_rating import ScoreRating
 from .scorer_config import ScorerConfig
 from .scorer_created_at_filter import ScorerCreatedAtFilter
@@ -875,6 +1009,7 @@ from .scorer_created_at_filter_operator import ScorerCreatedAtFilterOperator
 from .scorer_creator_filter import ScorerCreatorFilter
 from .scorer_creator_filter_operator import ScorerCreatorFilterOperator
 from .scorer_defaults import ScorerDefaults
+from .scorer_enabled_in_playground_sort import ScorerEnabledInPlaygroundSort
 from .scorer_enabled_in_run_sort import ScorerEnabledInRunSort
 from .scorer_id_filter import ScorerIDFilter
 from .scorer_id_filter_operator import ScorerIDFilterOperator
@@ -886,6 +1021,8 @@ from .scorer_name_filter import ScorerNameFilter
 from .scorer_name_filter_operator import ScorerNameFilterOperator
 from .scorer_name_sort import ScorerNameSort
 from .scorer_response import ScorerResponse
+from .scorer_scoreable_node_types_filter import ScorerScoreableNodeTypesFilter
+from .scorer_scoreable_node_types_filter_operator import ScorerScoreableNodeTypesFilterOperator
 from .scorer_tags_filter import ScorerTagsFilter
 from .scorer_tags_filter_operator import ScorerTagsFilterOperator
 from .scorer_type import ScorerType
@@ -899,14 +1036,16 @@ from .segment import Segment
 from .segment_filter import SegmentFilter
 from .select_columns import SelectColumns
 from .session_create_request import SessionCreateRequest
+from .session_create_request_user_metadata_type_0 import SessionCreateRequestUserMetadataType0
 from .session_create_response import SessionCreateResponse
 from .sexist_template import SexistTemplate
 from .sexist_template_response_schema_type_0 import SexistTemplateResponseSchemaType0
-from .split import Split
 from .stage_db import StageDB
 from .stage_metadata import StageMetadata
 from .stage_type import StageType
 from .stage_with_rulesets import StageWithRulesets
+from .standard_error import StandardError
+from .standard_error_context import StandardErrorContext
 from .star_aggregate import StarAggregate
 from .star_aggregate_counts import StarAggregateCounts
 from .star_rating import StarRating
@@ -918,7 +1057,6 @@ from .synthetic_data_types import SyntheticDataTypes
 from .synthetic_dataset_extension_request import SyntheticDatasetExtensionRequest
 from .synthetic_dataset_extension_response import SyntheticDatasetExtensionResponse
 from .system_metric_info import SystemMetricInfo
-from .tagging_schema import TaggingSchema
 from .tags_aggregate import TagsAggregate
 from .tags_aggregate_counts import TagsAggregateCounts
 from .tags_rating import TagsRating
@@ -928,6 +1066,7 @@ from .task_type import TaskType
 from .template_stub_request import TemplateStubRequest
 from .test_score import TestScore
 from .text_aggregate import TextAggregate
+from .text_content_part import TextContentPart
 from .text_rating import TextRating
 from .token import Token
 from .tool_call import ToolCall
@@ -975,6 +1114,8 @@ from .vegas_gateway_integration_extra_type_0 import VegasGatewayIntegrationExtra
 from .vertex_ai_integration import VertexAIIntegration
 from .vertex_ai_integration_create import VertexAIIntegrationCreate
 from .vertex_ai_integration_extra_type_0 import VertexAIIntegrationExtraType0
+from .vertex_aigcs_config import VertexAIGCSConfig
+from .vertex_aigcs_config_response import VertexAIGCSConfigResponse
 from .web_search_action import WebSearchAction
 from .web_search_call_event import WebSearchCallEvent
 from .web_search_call_event_metadata_type_0 import WebSearchCallEventMetadataType0
@@ -1007,7 +1148,17 @@ __all__ = (
     "AggregatedTraceViewRequest",
     "AggregatedTraceViewResponse",
     "AndNodeLogRecordsFilter",
+    "AnnotationAggregate",
+    "AnnotationLikeDislikeAggregate",
     "AnnotationQueueAction",
+    "AnnotationRatingInfo",
+    "AnnotationScoreAggregate",
+    "AnnotationStarAggregate",
+    "AnnotationStarAggregateCounts",
+    "AnnotationTagsAggregate",
+    "AnnotationTagsAggregateCounts",
+    "AnnotationTextAggregate",
+    "AnnotationType",
     "AnthropicAuthenticationType",
     "AnthropicIntegration",
     "AnthropicIntegrationCreate",
@@ -1066,6 +1217,7 @@ __all__ = (
     "BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost",
     "BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost",
     "BodyValidateCodeScorerScorersCodeValidatePost",
+    "BooleanColorConstraint",
     "BucketedMetric",
     "BucketedMetricBuckets",
     "BucketedMetrics",
@@ -1073,6 +1225,8 @@ __all__ = (
     "BulkDeleteDatasetsResponse",
     "BulkDeleteFailure",
     "BulkDeletePromptTemplatesRequest",
+    "CategoricalColorConstraint",
+    "CategoricalColorConstraintOperator",
     "CategoricalRollUpMethod",
     "ChainAggregationStrategy",
     "ChainPollTemplate",
@@ -1092,6 +1246,7 @@ __all__ = (
     "CompletenessScorerType",
     "CompletenessTemplate",
     "CompletenessTemplateResponseSchemaType0",
+    "ContentModality",
     "ContextAdherenceScorer",
     "ContextAdherenceScorerType",
     "ContextRelevanceScorer",
@@ -1107,9 +1262,6 @@ __all__ = (
     "CreateScorerVersionRequest",
     "CreateUpdateRegisteredScorerResponse",
     "CustomAuthenticationType",
-    "CustomIntegration",
-    "CustomIntegrationCreate",
-    "CustomIntegrationExtraType0",
     "CustomLLMConfig",
     "CustomLLMConfigInitKwargsType0",
     "CustomizedAgenticSessionSuccessGPTScorer",
@@ -1190,23 +1342,9 @@ __all__ = (
     "DataType",
     "DataTypeOptions",
     "DataUnit",
-    "DatabricksEditExportRequest",
-    "DatabricksEditExportRequestColMappingType0",
-    "DatabricksEditExportResponse",
-    "DatabricksEditExportResponseColMappingType0",
-    "DatabricksExportRequest",
-    "DatabricksExportRequestColMappingType0",
-    "DatabricksExportResponse",
-    "DatabricksExportResponseColMappingType0",
     "DatabricksIntegration",
     "DatabricksIntegrationCreate",
     "DatabricksIntegrationExtraType0",
-    "DatabricksUnityCatalogEditExportRequest",
-    "DatabricksUnityCatalogEditExportRequestColMappingType0",
-    "DatabricksUnityCatalogExportEditsResponse",
-    "DatabricksUnityCatalogExportEditsResponseColMappingType0",
-    "DatabricksUnityCatalogExportResponse",
-    "DatabricksUnityCatalogExportResponseColMappingType0",
     "DatasetAction",
     "DatasetAppendRow",
     "DatasetAppendRowValues",
@@ -1255,10 +1393,8 @@ __all__ = (
     "DeleteScorerResponse",
     "Document",
     "DocumentMetadata",
-    "EditAction",
-    "EditOverride",
-    "EditOverrideEditSpansType0",
-    "EditSpan",
+    "ErrorSeverity",
+    "ErrorType",
     "EventStatus",
     "ExecutionStatus",
     "ExperimentCreateRequest",
@@ -1279,69 +1415,121 @@ __all__ = (
     "ExperimentUpdateRequest",
     "ExperimentsAvailableColumnsResponse",
     "ExtendedAgentSpanRecord",
+    "ExtendedAgentSpanRecordAnnotationAggregates",
+    "ExtendedAgentSpanRecordAnnotations",
+    "ExtendedAgentSpanRecordAnnotationsAdditionalProperty",
     "ExtendedAgentSpanRecordDatasetMetadata",
     "ExtendedAgentSpanRecordFeedbackRatingInfo",
+    "ExtendedAgentSpanRecordFilesType0",
     "ExtendedAgentSpanRecordMetricInfoType0",
     "ExtendedAgentSpanRecordUserMetadata",
     "ExtendedAgentSpanRecordWithChildren",
+    "ExtendedAgentSpanRecordWithChildrenAnnotationAggregates",
+    "ExtendedAgentSpanRecordWithChildrenAnnotations",
+    "ExtendedAgentSpanRecordWithChildrenAnnotationsAdditionalProperty",
     "ExtendedAgentSpanRecordWithChildrenDatasetMetadata",
     "ExtendedAgentSpanRecordWithChildrenFeedbackRatingInfo",
+    "ExtendedAgentSpanRecordWithChildrenFilesType0",
     "ExtendedAgentSpanRecordWithChildrenMetricInfoType0",
     "ExtendedAgentSpanRecordWithChildrenUserMetadata",
     "ExtendedLlmSpanRecord",
+    "ExtendedLlmSpanRecordAnnotationAggregates",
+    "ExtendedLlmSpanRecordAnnotations",
+    "ExtendedLlmSpanRecordAnnotationsAdditionalProperty",
     "ExtendedLlmSpanRecordDatasetMetadata",
     "ExtendedLlmSpanRecordFeedbackRatingInfo",
+    "ExtendedLlmSpanRecordFilesType0",
     "ExtendedLlmSpanRecordMetricInfoType0",
     "ExtendedLlmSpanRecordToolsType0Item",
     "ExtendedLlmSpanRecordUserMetadata",
     "ExtendedRetrieverSpanRecord",
+    "ExtendedRetrieverSpanRecordAnnotationAggregates",
+    "ExtendedRetrieverSpanRecordAnnotations",
+    "ExtendedRetrieverSpanRecordAnnotationsAdditionalProperty",
     "ExtendedRetrieverSpanRecordDatasetMetadata",
     "ExtendedRetrieverSpanRecordFeedbackRatingInfo",
+    "ExtendedRetrieverSpanRecordFilesType0",
     "ExtendedRetrieverSpanRecordMetricInfoType0",
     "ExtendedRetrieverSpanRecordUserMetadata",
     "ExtendedRetrieverSpanRecordWithChildren",
+    "ExtendedRetrieverSpanRecordWithChildrenAnnotationAggregates",
+    "ExtendedRetrieverSpanRecordWithChildrenAnnotations",
+    "ExtendedRetrieverSpanRecordWithChildrenAnnotationsAdditionalProperty",
     "ExtendedRetrieverSpanRecordWithChildrenDatasetMetadata",
     "ExtendedRetrieverSpanRecordWithChildrenFeedbackRatingInfo",
+    "ExtendedRetrieverSpanRecordWithChildrenFilesType0",
     "ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0",
     "ExtendedRetrieverSpanRecordWithChildrenUserMetadata",
     "ExtendedSessionRecord",
+    "ExtendedSessionRecordAnnotationAggregates",
+    "ExtendedSessionRecordAnnotations",
+    "ExtendedSessionRecordAnnotationsAdditionalProperty",
     "ExtendedSessionRecordDatasetMetadata",
     "ExtendedSessionRecordFeedbackRatingInfo",
+    "ExtendedSessionRecordFilesType0",
     "ExtendedSessionRecordMetricInfoType0",
     "ExtendedSessionRecordUserMetadata",
     "ExtendedSessionRecordWithChildren",
+    "ExtendedSessionRecordWithChildrenAnnotationAggregates",
+    "ExtendedSessionRecordWithChildrenAnnotations",
+    "ExtendedSessionRecordWithChildrenAnnotationsAdditionalProperty",
     "ExtendedSessionRecordWithChildrenDatasetMetadata",
     "ExtendedSessionRecordWithChildrenFeedbackRatingInfo",
+    "ExtendedSessionRecordWithChildrenFilesType0",
     "ExtendedSessionRecordWithChildrenMetricInfoType0",
     "ExtendedSessionRecordWithChildrenUserMetadata",
     "ExtendedToolSpanRecord",
+    "ExtendedToolSpanRecordAnnotationAggregates",
+    "ExtendedToolSpanRecordAnnotations",
+    "ExtendedToolSpanRecordAnnotationsAdditionalProperty",
     "ExtendedToolSpanRecordDatasetMetadata",
     "ExtendedToolSpanRecordFeedbackRatingInfo",
+    "ExtendedToolSpanRecordFilesType0",
     "ExtendedToolSpanRecordMetricInfoType0",
     "ExtendedToolSpanRecordUserMetadata",
     "ExtendedToolSpanRecordWithChildren",
+    "ExtendedToolSpanRecordWithChildrenAnnotationAggregates",
+    "ExtendedToolSpanRecordWithChildrenAnnotations",
+    "ExtendedToolSpanRecordWithChildrenAnnotationsAdditionalProperty",
     "ExtendedToolSpanRecordWithChildrenDatasetMetadata",
     "ExtendedToolSpanRecordWithChildrenFeedbackRatingInfo",
+    "ExtendedToolSpanRecordWithChildrenFilesType0",
     "ExtendedToolSpanRecordWithChildrenMetricInfoType0",
     "ExtendedToolSpanRecordWithChildrenUserMetadata",
     "ExtendedTraceRecord",
+    "ExtendedTraceRecordAnnotationAggregates",
+    "ExtendedTraceRecordAnnotations",
+    "ExtendedTraceRecordAnnotationsAdditionalProperty",
     "ExtendedTraceRecordDatasetMetadata",
     "ExtendedTraceRecordFeedbackRatingInfo",
+    "ExtendedTraceRecordFilesType0",
     "ExtendedTraceRecordMetricInfoType0",
     "ExtendedTraceRecordUserMetadata",
     "ExtendedTraceRecordWithChildren",
+    "ExtendedTraceRecordWithChildrenAnnotationAggregates",
+    "ExtendedTraceRecordWithChildrenAnnotations",
+    "ExtendedTraceRecordWithChildrenAnnotationsAdditionalProperty",
     "ExtendedTraceRecordWithChildrenDatasetMetadata",
     "ExtendedTraceRecordWithChildrenFeedbackRatingInfo",
+    "ExtendedTraceRecordWithChildrenFilesType0",
     "ExtendedTraceRecordWithChildrenMetricInfoType0",
     "ExtendedTraceRecordWithChildrenUserMetadata",
     "ExtendedWorkflowSpanRecord",
+    "ExtendedWorkflowSpanRecordAnnotationAggregates",
+    "ExtendedWorkflowSpanRecordAnnotations",
+    "ExtendedWorkflowSpanRecordAnnotationsAdditionalProperty",
     "ExtendedWorkflowSpanRecordDatasetMetadata",
     "ExtendedWorkflowSpanRecordFeedbackRatingInfo",
+    "ExtendedWorkflowSpanRecordFilesType0",
     "ExtendedWorkflowSpanRecordMetricInfoType0",
     "ExtendedWorkflowSpanRecordUserMetadata",
     "ExtendedWorkflowSpanRecordWithChildren",
+    "ExtendedWorkflowSpanRecordWithChildrenAnnotationAggregates",
+    "ExtendedWorkflowSpanRecordWithChildrenAnnotations",
+    "ExtendedWorkflowSpanRecordWithChildrenAnnotationsAdditionalProperty",
     "ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata",
     "ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo",
+    "ExtendedWorkflowSpanRecordWithChildrenFilesType0",
     "ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0",
     "ExtendedWorkflowSpanRecordWithChildrenUserMetadata",
     "FactualityTemplate",
@@ -1351,9 +1539,11 @@ __all__ = (
     "FeedbackRatingInfo",
     "FeedbackType",
     "FewShotExample",
-    "FileType",
+    "FileContentPart",
+    "FileMetadata",
+    "FileSource",
+    "FileStatus",
     "FilterLeafLogRecordsFilter",
-    "FilterParams",
     "FineTunedScorer",
     "FineTunedScorerAction",
     "FineTunedScorerResponse",
@@ -1388,7 +1578,6 @@ __all__ = (
     "ImageGenerationEventImagesType0Item",
     "ImageGenerationEventMetadataType0",
     "InputMap",
-    "InputModality",
     "InputPIIScorer",
     "InputSexistScorer",
     "InputSexistScorerType",
@@ -1409,6 +1598,7 @@ __all__ = (
     "IntegrationAction",
     "IntegrationDB",
     "IntegrationModelsResponse",
+    "IntegrationModelsResponseRecommendedModels",
     "IntegrationName",
     "InternalToolCall",
     "InternalToolCallInputType0",
@@ -1424,12 +1614,6 @@ __all__ = (
     "JobProgress",
     "LLMExportFormat",
     "LLMIntegration",
-    "LabelStudioExportRequest",
-    "LabelStudioIntegration",
-    "LabelStudioIntegrationCreate",
-    "LabelStudioIntegrationExtraType0",
-    "LabelStudioProject",
-    "LassoSelection",
     "LikeDislikeAggregate",
     "LikeDislikeRating",
     "ListDatasetParams",
@@ -1462,6 +1646,7 @@ __all__ = (
     "LogRecordsCollectionFilterOperator",
     "LogRecordsColumnInfo",
     "LogRecordsColumnInfoLabelColorType0",
+    "LogRecordsCustomMetricsQueryRequest",
     "LogRecordsDateFilter",
     "LogRecordsDateFilterOperator",
     "LogRecordsDeleteRequest",
@@ -1473,7 +1658,9 @@ __all__ = (
     "LogRecordsMetricsQueryRequest",
     "LogRecordsMetricsResponse",
     "LogRecordsMetricsResponseAggregateMetrics",
+    "LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2",
     "LogRecordsMetricsResponseBucketedMetrics",
+    "LogRecordsMetricsResponseStandardErrorsType0",
     "LogRecordsNumberFilter",
     "LogRecordsNumberFilterOperator",
     "LogRecordsPartialQueryRequest",
@@ -1517,9 +1704,15 @@ __all__ = (
     "MessageRole",
     "MessagesListItem",
     "MessagesListItemRole",
-    "MetaFilter",
     "MetadataFilter",
     "MetadataFilterOperator",
+    "MetricAggregation",
+    "MetricAggregationDetail",
+    "MetricColor",
+    "MetricColorPickerBoolean",
+    "MetricColorPickerCategorical",
+    "MetricColorPickerMultiLabel",
+    "MetricColorPickerNumeric",
     "MetricComputation",
     "MetricComputationStatus",
     "MetricComputationValueType4",
@@ -1545,15 +1738,21 @@ __all__ = (
     "MistralIntegration",
     "MistralIntegrationCreate",
     "MistralIntegrationExtraType0",
+    "ModalityFilter",
+    "ModalityFilterOperator",
     "Model",
     "ModelCostBy",
+    "ModelProperties",
     "ModelType",
     "MultiModalModelIntegrationConfig",
+    "MultimodalCapability",
     "Name",
     "NodeNameFilter",
     "NodeNameFilterOperator",
     "NodeType",
     "NotNodeLogRecordsFilter",
+    "NumericColorConstraint",
+    "NumericColorConstraintOperator",
     "NumericRollUpMethod",
     "NvidiaIntegration",
     "NvidiaIntegrationCreate",
@@ -1575,39 +1774,67 @@ __all__ = (
     "OutputTypeEnum",
     "OverrideAction",
     "PartialExtendedAgentSpanRecord",
+    "PartialExtendedAgentSpanRecordAnnotationAggregates",
+    "PartialExtendedAgentSpanRecordAnnotations",
+    "PartialExtendedAgentSpanRecordAnnotationsAdditionalProperty",
     "PartialExtendedAgentSpanRecordDatasetMetadata",
     "PartialExtendedAgentSpanRecordFeedbackRatingInfo",
+    "PartialExtendedAgentSpanRecordFilesType0",
     "PartialExtendedAgentSpanRecordMetricInfoType0",
     "PartialExtendedAgentSpanRecordUserMetadata",
     "PartialExtendedLlmSpanRecord",
+    "PartialExtendedLlmSpanRecordAnnotationAggregates",
+    "PartialExtendedLlmSpanRecordAnnotations",
+    "PartialExtendedLlmSpanRecordAnnotationsAdditionalProperty",
     "PartialExtendedLlmSpanRecordDatasetMetadata",
     "PartialExtendedLlmSpanRecordFeedbackRatingInfo",
+    "PartialExtendedLlmSpanRecordFilesType0",
     "PartialExtendedLlmSpanRecordMetricInfoType0",
     "PartialExtendedLlmSpanRecordToolsType0Item",
     "PartialExtendedLlmSpanRecordUserMetadata",
     "PartialExtendedRetrieverSpanRecord",
+    "PartialExtendedRetrieverSpanRecordAnnotationAggregates",
+    "PartialExtendedRetrieverSpanRecordAnnotations",
+    "PartialExtendedRetrieverSpanRecordAnnotationsAdditionalProperty",
     "PartialExtendedRetrieverSpanRecordDatasetMetadata",
     "PartialExtendedRetrieverSpanRecordFeedbackRatingInfo",
+    "PartialExtendedRetrieverSpanRecordFilesType0",
     "PartialExtendedRetrieverSpanRecordMetricInfoType0",
     "PartialExtendedRetrieverSpanRecordUserMetadata",
     "PartialExtendedSessionRecord",
+    "PartialExtendedSessionRecordAnnotationAggregates",
+    "PartialExtendedSessionRecordAnnotations",
+    "PartialExtendedSessionRecordAnnotationsAdditionalProperty",
     "PartialExtendedSessionRecordDatasetMetadata",
     "PartialExtendedSessionRecordFeedbackRatingInfo",
+    "PartialExtendedSessionRecordFilesType0",
     "PartialExtendedSessionRecordMetricInfoType0",
     "PartialExtendedSessionRecordUserMetadata",
     "PartialExtendedToolSpanRecord",
+    "PartialExtendedToolSpanRecordAnnotationAggregates",
+    "PartialExtendedToolSpanRecordAnnotations",
+    "PartialExtendedToolSpanRecordAnnotationsAdditionalProperty",
     "PartialExtendedToolSpanRecordDatasetMetadata",
     "PartialExtendedToolSpanRecordFeedbackRatingInfo",
+    "PartialExtendedToolSpanRecordFilesType0",
     "PartialExtendedToolSpanRecordMetricInfoType0",
     "PartialExtendedToolSpanRecordUserMetadata",
     "PartialExtendedTraceRecord",
+    "PartialExtendedTraceRecordAnnotationAggregates",
+    "PartialExtendedTraceRecordAnnotations",
+    "PartialExtendedTraceRecordAnnotationsAdditionalProperty",
     "PartialExtendedTraceRecordDatasetMetadata",
     "PartialExtendedTraceRecordFeedbackRatingInfo",
+    "PartialExtendedTraceRecordFilesType0",
     "PartialExtendedTraceRecordMetricInfoType0",
     "PartialExtendedTraceRecordUserMetadata",
     "PartialExtendedWorkflowSpanRecord",
+    "PartialExtendedWorkflowSpanRecordAnnotationAggregates",
+    "PartialExtendedWorkflowSpanRecordAnnotations",
+    "PartialExtendedWorkflowSpanRecordAnnotationsAdditionalProperty",
     "PartialExtendedWorkflowSpanRecordDatasetMetadata",
     "PartialExtendedWorkflowSpanRecordFeedbackRatingInfo",
+    "PartialExtendedWorkflowSpanRecordFilesType0",
     "PartialExtendedWorkflowSpanRecordMetricInfoType0",
     "PartialExtendedWorkflowSpanRecordUserMetadata",
     "PassthroughAction",
@@ -1677,6 +1904,7 @@ __all__ = (
     "ReasoningEvent",
     "ReasoningEventMetadataType0",
     "ReasoningEventSummaryType1Item",
+    "RecommendedModelPurpose",
     "RecomputeLogRecordsMetricsRequest",
     "RecomputeSettingsLogStream",
     "RecomputeSettingsObserve",
@@ -1722,6 +1950,7 @@ __all__ = (
     "RunUpdatedAtFilterOperator",
     "RunUpdatedAtSort",
     "ScoreAggregate",
+    "ScoreBucket",
     "ScoreRating",
     "ScorerConfig",
     "ScorerCreatedAtFilter",
@@ -1729,6 +1958,7 @@ __all__ = (
     "ScorerCreatorFilter",
     "ScorerCreatorFilterOperator",
     "ScorerDefaults",
+    "ScorerEnabledInPlaygroundSort",
     "ScorerEnabledInRunSort",
     "ScorerIDFilter",
     "ScorerIDFilterOperator",
@@ -1740,6 +1970,8 @@ __all__ = (
     "ScorerNameFilterOperator",
     "ScorerNameSort",
     "ScorerResponse",
+    "ScorerScoreableNodeTypesFilter",
+    "ScorerScoreableNodeTypesFilterOperator",
     "ScorerTagsFilter",
     "ScorerTagsFilterOperator",
     "ScorerType",
@@ -1753,14 +1985,16 @@ __all__ = (
     "SegmentFilter",
     "SelectColumns",
     "SessionCreateRequest",
+    "SessionCreateRequestUserMetadataType0",
     "SessionCreateResponse",
     "SexistTemplate",
     "SexistTemplateResponseSchemaType0",
-    "Split",
     "StageDB",
     "StageMetadata",
     "StageType",
     "StageWithRulesets",
+    "StandardError",
+    "StandardErrorContext",
     "StarAggregate",
     "StarAggregateCounts",
     "StarRating",
@@ -1772,7 +2006,6 @@ __all__ = (
     "SyntheticDatasetExtensionRequest",
     "SyntheticDatasetExtensionResponse",
     "SystemMetricInfo",
-    "TaggingSchema",
     "TagsAggregate",
     "TagsAggregateCounts",
     "TagsRating",
@@ -1782,6 +2015,7 @@ __all__ = (
     "TemplateStubRequest",
     "TestScore",
     "TextAggregate",
+    "TextContentPart",
     "TextRating",
     "Token",
     "ToolCall",
@@ -1826,6 +2060,8 @@ __all__ = (
     "VegasGatewayIntegration",
     "VegasGatewayIntegrationCreate",
     "VegasGatewayIntegrationExtraType0",
+    "VertexAIGCSConfig",
+    "VertexAIGCSConfigResponse",
     "VertexAIIntegration",
     "VertexAIIntegrationCreate",
     "VertexAIIntegrationExtraType0",
