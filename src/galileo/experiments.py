@@ -79,7 +79,9 @@ class Experiments:
             body.additional_properties["prompt_template_version_id"] = str(prompt_template.selected_version_id)
 
         if prompt_settings is not None:
-            body.additional_properties["prompt_settings"] = prompt_settings.to_dict()
+            body.additional_properties["prompt_settings"] = (
+                prompt_settings.to_dict() if hasattr(prompt_settings, "to_dict") else prompt_settings
+            )
 
         if scorers is not None:
             body.additional_properties["scorers"] = [s.to_dict() for s in scorers]
@@ -255,7 +257,7 @@ def run_experiment(
     experiment_name: str,
     *,
     prompt_template: Optional[PromptTemplate] = None,
-    prompt_settings: Optional[PromptRunSettings] = None,
+    prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
     project: Optional[str] = None,
     project_id: Optional[str] = None,
     dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]] = None,
