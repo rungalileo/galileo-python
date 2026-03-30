@@ -1,6 +1,8 @@
 import builtins
 from typing import Optional, Union, overload
 
+from typing_extensions import deprecated
+
 from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
 from galileo.resources.api.log_stream import (
@@ -516,6 +518,7 @@ class LogStreams:
 #
 
 
+@deprecated("Use galileo.log_stream.LogStream.get() instead.")
 def get_log_stream(
     *, name: Optional[str] = None, project_id: Optional[str] = None, project_name: Optional[str] = None
 ) -> Optional[LogStream]:
@@ -548,6 +551,7 @@ def get_log_stream(
     return LogStreams().get(name=name, project_id=project_id, project_name=project_name)
 
 
+@deprecated("Use galileo.log_stream.LogStream.list() instead.")
 def list_log_streams(*, project_id: Optional[str] = None, project_name: Optional[str] = None) -> list[LogStream]:
     """
     Lists all log streams. Exactly one of `project_id` or `project_name` must be provided.
@@ -575,6 +579,7 @@ def list_log_streams(*, project_id: Optional[str] = None, project_name: Optional
     return LogStreams().list(project_id=project_id, project_name=project_name)
 
 
+@deprecated("Use galileo.log_stream.LogStream(name=...).create() instead.")
 def create_log_stream(name: str, project_id: Optional[str] = None, project_name: Optional[str] = None) -> LogStream:
     """
     Creates a new log stream. Exactly one of `project_id` or `project_name` must be provided.
@@ -600,6 +605,7 @@ def create_log_stream(name: str, project_id: Optional[str] = None, project_name:
     return LogStreams().create(name=name, project_id=project_id, project_name=project_name)
 
 
+@deprecated("Use log_stream.set_metrics() instead.")
 def enable_metrics(
     *,
     log_stream_name: Optional[str] = None,

@@ -3,6 +3,8 @@ import mimetypes
 import time
 from typing import Any, Optional, Union, overload
 
+from typing_extensions import deprecated
+
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.datasets import (
     create_dataset_datasets_post,
@@ -687,6 +689,7 @@ def get_dataset(*, name: str, project_id: str) -> Optional[Dataset]: ...
 def get_dataset(*, name: str, project_name: str) -> Optional[Dataset]: ...
 
 
+@deprecated("Use galileo.dataset.Dataset.get() instead.")
 def get_dataset(
     *,
     id: Optional[str] = None,
@@ -730,6 +733,7 @@ def get_dataset(
     return Datasets().get(id=id, name=name, project_id=project_id, project_name=project_name)  # type: ignore[call-overload]
 
 
+@deprecated("Use galileo.dataset.Dataset.list() instead.")
 def list_datasets(
     limit: Union[Unset, int] = 100, *, project_id: Optional[str] = None, project_name: Optional[str] = None
 ) -> list[Dataset]:
@@ -788,6 +792,7 @@ def delete_dataset(*, name: str, project_id: str) -> None: ...
 def delete_dataset(*, name: str, project_name: str) -> None: ...
 
 
+@deprecated("Use dataset.delete() instead.")
 def delete_dataset(
     *,
     id: Optional[str] = None,
@@ -828,6 +833,7 @@ def delete_dataset(
     return Datasets().delete(id=id, name=name, project_id=project_id, project_name=project_name)  # type: ignore[call-overload]
 
 
+@deprecated("Use galileo.dataset.Dataset(name=..., content=...).create() instead.")
 def create_dataset(
     name: str, content: DatasetType, *, project_id: Optional[str] = None, project_name: Optional[str] = None
 ) -> Dataset:
@@ -863,6 +869,7 @@ def create_dataset(
     return Datasets().create(name=name, content=content, project_id=project_id, project_name=project_name)
 
 
+@deprecated("Use dataset.get_version_history() instead.")
 def get_dataset_version_history(
     *, dataset_name: Optional[str] = None, dataset_id: Optional[str] = None
 ) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
@@ -897,6 +904,7 @@ def get_dataset_version_history(
     raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
+@deprecated("Use dataset.get_version() instead.")
 def get_dataset_version(
     *, version_index: int, dataset_name: Optional[str] = None, dataset_id: Optional[str] = None
 ) -> Optional[DatasetContent]:
@@ -932,6 +940,7 @@ def get_dataset_version(
     raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
+@deprecated("Use dataset.extend() instead.")
 def extend_dataset(
     *,
     prompt_settings: Optional[dict[str, Any]] = None,
@@ -991,6 +1000,7 @@ def extend_dataset(
     )
 
 
+@deprecated("Use galileo.project.Project.list() instead.")
 def list_dataset_projects(
     *, dataset_id: Optional[str] = None, dataset_name: Optional[str] = None, limit: Union[Unset, int] = 100
 ) -> list:
