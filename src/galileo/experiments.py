@@ -30,8 +30,29 @@ EXPERIMENT_TASK_TYPE: TaskType = 16
 
 
 def _default_prompt_settings(model_alias: str = "GPT-4o") -> PromptRunSettings:
-    """Return a PromptRunSettings with only model_alias set, letting the API apply its documented defaults."""
-    return PromptRunSettings(model_alias=model_alias)
+    """Return a PromptRunSettings with complete defaults for prompt-driven experiment flows.
+
+    The server requires a fully populated settings object to start the experiment runner job.
+    Omitting fields (relying on server defaults) causes the job to silently never start.
+    """
+    return PromptRunSettings(
+        n=1,
+        echo=False,
+        tools=None,
+        top_k=40,
+        top_p=1.0,
+        logprobs=True,
+        max_tokens=256,
+        model_alias=model_alias,
+        temperature=0.8,
+        tool_choice=None,
+        top_logprobs=5,
+        stop_sequences=None,
+        deployment_name=None,
+        response_format=None,
+        presence_penalty=0.0,
+        frequency_penalty=0.0,
+    )
 
 
 MAX_REQUEST_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB

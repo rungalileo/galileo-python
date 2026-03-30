@@ -10,6 +10,7 @@ from galileo.datasets import Dataset as LegacyDataset
 from galileo.exceptions import NotFoundError
 from galileo.experiment_tags import upsert_experiment_tag
 from galileo.experiments import Experiments as ExperimentsService
+from galileo.experiments import _default_prompt_settings
 from galileo.export import ExportClient
 from galileo.job_progress import get_run_scorer_jobs, job_progress
 from galileo.projects import Projects
@@ -427,25 +428,7 @@ class Experiment(StateManagementMixin):
             effective_prompt_settings = self.prompt_settings
             if self.model_alias:
                 if effective_prompt_settings is None:
-                    # TODO: extract shared default settings to _default_prompt_settings() helper
-                    effective_prompt_settings = PromptRunSettings(
-                        n=1,
-                        echo=False,
-                        tools=None,
-                        top_k=40,
-                        top_p=1.0,
-                        logprobs=True,
-                        max_tokens=256,
-                        model_alias=self.model_alias,
-                        temperature=0.8,
-                        tool_choice=None,
-                        top_logprobs=5,
-                        stop_sequences=None,
-                        deployment_name=None,
-                        response_format=None,
-                        presence_penalty=0.0,
-                        frequency_penalty=0.0,
-                    )
+                    effective_prompt_settings = _default_prompt_settings(model_alias=self.model_alias)
                     _logger.debug(
                         f"Experiment.create: Using model '{self.model_alias}' "
                         "from model parameter (no prompt_settings provided)"
@@ -458,24 +441,7 @@ class Experiment(StateManagementMixin):
                     effective_prompt_settings = PromptRunSettings(**settings_dict)
             elif self._prompt_template is not None and effective_prompt_settings is None:
                 # Default prompt settings for prompt-template flow (same as ExperimentsService.run())
-                effective_prompt_settings = PromptRunSettings(
-                    n=1,
-                    echo=False,
-                    tools=None,
-                    top_k=40,
-                    top_p=1.0,
-                    logprobs=True,
-                    max_tokens=256,
-                    model_alias="GPT-4o",
-                    temperature=0.8,
-                    tool_choice=None,
-                    top_logprobs=5,
-                    stop_sequences=None,
-                    deployment_name=None,
-                    response_format=None,
-                    presence_penalty=0.0,
-                    frequency_penalty=0.0,
-                )
+                effective_prompt_settings = _default_prompt_settings()
 
             # Set up metrics if provided
             scorer_settings: list[ScorerConfig] | None = None

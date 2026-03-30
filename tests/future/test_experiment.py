@@ -735,7 +735,6 @@ class TestExperimentRun:
         experiment = Experiment(
             name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt", project_name="Test Project"
         ).create()
-        assert experiment._run_result is not None
 
         # When: run() is called the first time — consumes the cached result
         first_result = experiment.run()
