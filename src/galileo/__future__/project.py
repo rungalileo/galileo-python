@@ -1,5 +1,13 @@
-"""Re-export from galileo.project — will be deprecated once all __future__ modules are migrated."""
+"""Deprecated: use galileo.project instead of galileo.__future__.project."""
 
-from galileo.project import Project
+import warnings
+
+warnings.warn(
+    "Importing from galileo.__future__.project is deprecated. Use galileo.project instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+from galileo.project import Project  # noqa: E402
 
 __all__ = ["Project"]

@@ -1,6 +1,14 @@
-"""Re-export from galileo.provider — will be deprecated once all __future__ modules are migrated."""
+"""Deprecated: use galileo.provider instead of galileo.__future__.provider."""
 
-from galileo.provider import (
+import warnings
+
+warnings.warn(
+    "Importing from galileo.__future__.provider is deprecated. Use galileo.provider instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+from galileo.provider import (  # noqa: E402
     AnthropicProvider,
     AzureProvider,
     BedrockProvider,

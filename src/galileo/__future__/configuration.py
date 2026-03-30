@@ -1,6 +1,14 @@
-"""Re-export from galileo.configuration — will be deprecated once all __future__ modules are migrated."""
+"""Deprecated: use galileo.configuration instead of galileo.__future__.configuration."""
 
-from galileo.configuration import (
+import warnings
+
+warnings.warn(
+    "Importing from galileo.__future__.configuration is deprecated. Use galileo.configuration instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+from galileo.configuration import (  # noqa: E402
     _CONFIGURATION_KEYS,
     _KEYS_BY_NAME,
     VALID_LOG_LEVELS,
