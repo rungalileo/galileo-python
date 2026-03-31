@@ -927,10 +927,10 @@ class TestExperiments:
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_with_prompt_settings_as_dict(
         self,
-        mock_get_project: Mock,
+        mock_get_with_env_fallbacks: Mock,
         mock_get_experiment: Mock,
         mock_create_experiment: Mock,
-        mock_get_dataset: Mock,
+        mock_get_datasets: Mock,
         dataset_content: DatasetContent,
     ) -> None:
         # Given: a project, dataset, prompt template, and prompt_settings passed as a plain dict
@@ -958,13 +958,22 @@ class TestExperiments:
             prompt_settings=settings_dict,
         )
 
-        # Then: no AttributeError; create receives a PromptRunSettings instance with correct values
+        # Then: no AttributeError; create receives a PromptRunSettings instance with all values preserved
         mock_create_experiment.assert_called_once()
         call_kwargs = mock_create_experiment.call_args.kwargs
-        assert isinstance(call_kwargs["prompt_settings"], PromptRunSettings)
-        assert call_kwargs["prompt_settings"].n == 1
-        assert call_kwargs["prompt_settings"].model_alias == "GPT-4o"
-        assert call_kwargs["prompt_settings"].max_tokens == 128
+        ps = call_kwargs["prompt_settings"]
+        assert isinstance(ps, PromptRunSettings)
+        assert ps.n == 1
+        assert ps.echo is True
+        assert ps.top_k == 10
+        assert ps.top_p == 1.0
+        assert ps.logprobs is True
+        assert ps.max_tokens == 128
+        assert ps.model_alias == "GPT-4o"
+        assert ps.temperature == 0.8
+        assert ps.top_logprobs == 10
+        assert ps.presence_penalty == 0.0
+        assert ps.frequency_penalty == 0.0
 
     @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
     def test_experiments_create_with_prompt_settings_as_dict(
@@ -996,8 +1005,10 @@ class TestExperiments:
         call_kwargs = galileo_resources_api_create_experiment.sync.call_args.kwargs
         body = call_kwargs["body"]
         assert "prompt_settings" in body.additional_properties
-        assert body.additional_properties["prompt_settings"]["model_alias"] == "GPT-4o"
-        assert body.additional_properties["prompt_settings"]["temperature"] == 0.5
+        ps_dict = body.additional_properties["prompt_settings"]
+        assert ps_dict["model_alias"] == "GPT-4o"
+        assert ps_dict["temperature"] == 0.5
+        assert ps_dict["max_tokens"] == 256
 
     @travel(datetime(2012, 1, 1), tick=False)
     @patch("galileo.logger.logger.LogStreams")
