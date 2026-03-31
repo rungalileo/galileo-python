@@ -65,8 +65,12 @@ class Experiments:
         trigger: bool = False,
         prompt_template: Optional[PromptTemplate] = None,
         scorers: Optional[builtins.list[ScorerConfig]] = None,
-        prompt_settings: Optional[PromptRunSettings] = None,
+        prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
     ) -> ExperimentResponse:
+        resolved_settings: Optional[PromptRunSettings] = (
+            PromptRunSettings.from_dict(prompt_settings) if isinstance(prompt_settings, dict) else prompt_settings
+        )
+
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
 
         if dataset_obj is not None:
@@ -78,8 +82,8 @@ class Experiments:
         if prompt_template is not None:
             body.additional_properties["prompt_template_version_id"] = str(prompt_template.selected_version_id)
 
-        if prompt_settings is not None:
-            body.additional_properties["prompt_settings"] = prompt_settings.to_dict()
+        if resolved_settings is not None:
+            body.additional_properties["prompt_settings"] = resolved_settings.to_dict()
 
         if scorers is not None:
             body.additional_properties["scorers"] = [s.to_dict() for s in scorers]
@@ -131,7 +135,7 @@ class Experiments:
         experiment_name: str,
         prompt_template: Optional[PromptTemplate],
         scorers: Optional[builtins.list[ScorerConfig]],
-        prompt_settings: Optional[PromptRunSettings] = None,
+        prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
     ) -> dict[str, Any]:
         # Only set default prompt_settings for prompt-driven flow (when a template is provided)
         if prompt_template is not None and prompt_settings is None:
@@ -255,7 +259,7 @@ def run_experiment(
     experiment_name: str,
     *,
     prompt_template: Optional[PromptTemplate] = None,
-    prompt_settings: Optional[PromptRunSettings] = None,
+    prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
     project: Optional[str] = None,
     project_id: Optional[str] = None,
     dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]] = None,
@@ -283,7 +287,8 @@ def run_experiment(
     prompt_template
         Template for prompts
     prompt_settings
-        Settings for prompt runs
+        Settings for prompt runs. Accepts a ``PromptRunSettings`` instance or a plain ``dict``
+        with matching field names, which will be coerced to ``PromptRunSettings`` automatically.
     project
         Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
     project_id
@@ -310,6 +315,9 @@ def run_experiment(
     ValueError
         If required parameters are missing or invalid
     """
+    if isinstance(prompt_settings, dict):
+        prompt_settings = PromptRunSettings.from_dict(prompt_settings)
+
     # Load dataset and records
     dataset_obj = load_dataset(dataset, dataset_id, dataset_name)
 
