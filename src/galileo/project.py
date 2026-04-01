@@ -265,7 +265,7 @@ class Project(StateManagementMixin):
             raise ValidationError(str(e)) from e
         except Exception as e:
             logger.error("Project.get: id='%s' name='%s' - failed: %s", id, name, str(e))
-            raise APIError("Failed to retrieve project: %s", original_error=e) from e
+            raise APIError(f"Failed to retrieve project: {e}", original_error=e) from e
 
     @classmethod
     def list(cls) -> builtins.list[Project]:
