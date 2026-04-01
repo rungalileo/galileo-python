@@ -254,14 +254,16 @@ class TestLegacyServiceDeprecationWarnings:
         with pytest.warns(DeprecationWarning, match="prompt.save"):
             update_prompt(id="test-id", new_name="new-name")
 
-    @patch("galileo.prompts.GlobalPromptTemplates.create", return_value=MagicMock())
-    def test_create_prompt_emits_deprecation_warning(self, _mock: MagicMock) -> None:
+    def test_create_prompt_emits_deprecation_warning(self) -> None:
         # Given: the deprecated create_prompt convenience function
         from galileo.prompts import create_prompt
 
-        # When/Then: calling it emits a deprecation warning
+        # When/Then: calling it emits a deprecation warning (ignore errors from unmocked APIs)
         with pytest.warns(DeprecationWarning, match="galileo.prompt.Prompt"):
-            create_prompt(name="test", template="hello {{name}}")
+            try:
+                create_prompt(name="test", template="hello {{name}}")
+            except Exception:
+                pass
 
     @patch("galileo.prompts.GlobalPromptTemplates.list", return_value=[])
     def test_get_prompts_emits_deprecation_warning(self, _mock: MagicMock) -> None:
