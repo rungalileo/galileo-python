@@ -1010,6 +1010,30 @@ class TestExperiments:
         assert ps_dict["temperature"] == 0.5
         assert ps_dict["max_tokens"] == 256
 
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    def test_experiments_run_with_prompt_settings_as_dict(self, mock_create: Mock) -> None:
+        # Given: a project, dataset, and prompt_settings passed as a plain dict
+        settings_dict = {"model_alias": "GPT-4o", "temperature": 0.5, "max_tokens": 256}
+
+        # When: Experiments().run() is called with prompt_settings as a plain dict
+        Experiments().run(
+            project_obj=project(),
+            dataset_obj=Mock(spec=galileo.datasets.Dataset),
+            experiment_name="test_experiment",
+            prompt_template=prompt_template(),
+            scorers=None,
+            prompt_settings=settings_dict,
+        )
+
+        # Then: create receives a PromptRunSettings instance, not a dict
+        mock_create.assert_called_once()
+        call_kwargs = mock_create.call_args.kwargs
+        ps = call_kwargs["prompt_settings"]
+        assert isinstance(ps, PromptRunSettings)
+        assert ps.model_alias == "GPT-4o"
+        assert ps.temperature == 0.5
+        assert ps.max_tokens == 256
+
     @travel(datetime(2012, 1, 1), tick=False)
     @patch("galileo.logger.logger.LogStreams")
     @patch("galileo.logger.logger.Projects")
