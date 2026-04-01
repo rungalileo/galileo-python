@@ -306,7 +306,11 @@ class TestConfigurationConnect:
         assert Configuration.console_url == "https://app.galileo.ai/"
 
     def test_connect_fails_without_api_key(
-        self, monkeypatch: pytest.MonkeyPatch, reset_configuration: None, capture_logs: tuple[logging.Logger, StringIO]
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+        clean_env: None,
+        reset_configuration: None,
+        capture_logs: tuple[logging.Logger, StringIO],
     ) -> None:
         """Test connect() raises ConfigurationError when API key is missing."""
         _, log_stream = capture_logs

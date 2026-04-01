@@ -571,7 +571,8 @@ class Datasets:
         Raises
         ------
         DatasetAPIException
-            If the request to extend the dataset fails.
+            If the request to extend the dataset fails, or if the completed job reports
+            an "Unexpected error" in its progress message.
         errors.UnexpectedStatus
             If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException
@@ -646,6 +647,12 @@ class Datasets:
 
             # Wait 1 second before polling again
             time.sleep(1)
+
+        if (
+            isinstance(job_progress.progress_message, str)
+            and "unexpected error" in job_progress.progress_message.lower()
+        ):
+            raise DatasetAPIException(f"Dataset extension job failed: {job_progress.progress_message}")
 
         # Get the final dataset content
         dataset_content = get_dataset_content_datasets_dataset_id_content_get.sync(
