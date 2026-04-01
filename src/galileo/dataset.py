@@ -2,14 +2,20 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Any
+from typing import Any, TypeAlias
 
 from galileo.datasets import Datasets
 from galileo.resources.models.dataset_content import DatasetContent
 from galileo.resources.models.dataset_row import DatasetRow
+from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.list_dataset_version_response import ListDatasetVersionResponse
 from galileo.resources.types import Unset
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import ValidationError
+from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
+
+#: Type alias for clarity: ``get_version_content`` returns the content of a specific
+#: dataset version. The underlying auto-generated type is ``DatasetContent``.
+DatasetVersionContent: TypeAlias = DatasetContent
 
 logger = logging.getLogger(__name__)
 
@@ -58,8 +64,8 @@ class Dataset(StateManagementMixin):
             {"input": "Egypt", "output": "Africa"},
         ])
 
-        # Get version history
-        history = dataset.get_version_history()
+        # Get dataset versions
+        versions = dataset.get_versions()
 
         # Delete dataset
         dataset.delete()
@@ -367,51 +373,71 @@ class Dataset(StateManagementMixin):
             self._set_state(SyncState.FAILED_SYNC, error=e)
             raise
 
-    def get_version_history(self) -> list[dict[str, Any]]:  # type: ignore[valid-type]
+    def get_versions(self) -> ListDatasetVersionResponse:
         """
-        Get the version history of this dataset.
+        Get a list of versions for this dataset.
 
         Returns
         -------
-            list[dict[str, Any]]: The version history of the dataset.
+            ListDatasetVersionResponse: The list of dataset versions, including version
+                metadata such as version_index, num_rows, column_names, and created_at.
+                Access the versions list via the `.versions` attribute.
+
+        Raises
+        ------
+            ValueError: If the dataset has no ID (local-only state) or if the API
+                returns a validation error.
+            ResourceNotFoundError: If the dataset is not found on the server.
 
         Examples
         --------
             dataset = Dataset.get(name="my-dataset")
-            history = dataset.get_version_history()
+            versions = dataset.get_versions()
+            for v in versions.versions:
+                print(v.version_index, v.num_rows)
         """
         if self.id is None:
-            raise ValueError("Dataset ID is not set. Cannot get version history for a local-only dataset.")
+            raise ValueError("Dataset ID is not set. Cannot get versions for a local-only dataset.")
         datasets_service = Datasets()
         dataset = datasets_service.get(id=self.id)
         if dataset is None:
-            return []
-        return dataset.get_version_history()
+            raise ResourceNotFoundError(f"Dataset with id={self.id!r} was not found.")
+        result = dataset.get_version_history()
+        if isinstance(result, HTTPValidationError):
+            raise ValueError(f"Failed to retrieve dataset versions: {result}")
+        if result is None:
+            raise ValueError("Unexpected empty response from dataset versions API")
+        return result
 
-    def get_version(self, *, index: int) -> DatasetContent | None:
+    def get_version_content(self, *, index: int) -> DatasetVersionContent:
         """
-        Get a specific version of this dataset.
+        Get the content of a specific version of this dataset.
 
         Args:
-            index (int): The version index to retrieve.
+            index (int): The 1-based version index to retrieve. Must be >= 1.
 
         Returns
         -------
-            Optional[DatasetContent]: The dataset content for the specified version.
+            DatasetVersionContent: The content for the specified version.
+
+        Raises
+        ------
+            ValueError: If the dataset has no ID (local-only state) or if index < 1.
+            ResourceNotFoundError: If the dataset is not found on the server.
 
         Examples
         --------
             dataset = Dataset.get(name="my-dataset")
-            version = dataset.get_version(index=1)
+            content = dataset.get_version_content(index=1)
         """
         if index < 1:
             raise ValueError(f"Version index must be >= 1 (1-based indexing). Got: {index}")
         if self.id is None:
-            raise ValueError("Dataset ID is not set. Cannot get version for a local-only dataset.")
+            raise ValueError("Dataset ID is not set. Cannot get version content for a local-only dataset.")
         datasets_service = Datasets()
         dataset = datasets_service.get(id=self.id)
         if dataset is None:
-            return None
+            raise ResourceNotFoundError(f"Dataset with id={self.id!r} was not found.")
         return dataset.load_version(index)
 
     def extend(
