@@ -588,6 +588,80 @@ def test_extend_dataset_api_failure(extend_dataset_mock: Mock) -> None:
         extend_dataset(prompt_settings={"model_alias": "GPT-4o mini"}, prompt="Test prompt", count=1)
 
 
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+@patch("galileo.datasets.get_dataset_synthetic_extend_status_datasets_extend_dataset_id_get")
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+@patch("galileo.datasets.time.sleep")
+def test_extend_dataset_unexpected_error_in_progress_message(
+    sleep_mock: Mock, extend_dataset_mock: Mock, get_extend_status_mock: Mock, get_dataset_content_mock: Mock
+) -> None:
+    """Test that extend_dataset raises DatasetAPIException when the job completes with an unexpected error message."""
+
+    # Given: the API returns a completed job whose progress_message signals failure
+    extended_dataset_id = "abc-123"
+    extend_dataset_mock.sync.return_value = SyntheticDatasetExtensionResponse(dataset_id=extended_dataset_id)
+    get_extend_status_mock.sync.return_value = JobProgress(
+        steps_completed=3, steps_total=3, progress_message="Unexpected error"
+    )
+
+    # When/Then: calling extend_dataset raises DatasetAPIException with the error message
+    with pytest.raises(DatasetAPIException, match="Unexpected error"):
+        extend_dataset(prompt_settings={"model_alias": "GPT-4o mini"}, prompt="Test prompt", count=3)
+
+    # Then: the content fetch is never attempted
+    get_dataset_content_mock.sync.assert_not_called()
+
+
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+@patch("galileo.datasets.get_dataset_synthetic_extend_status_datasets_extend_dataset_id_get")
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+@patch("galileo.datasets.time.sleep")
+def test_extend_dataset_unexpected_error_case_insensitive(
+    sleep_mock: Mock, extend_dataset_mock: Mock, get_extend_status_mock: Mock, get_dataset_content_mock: Mock
+) -> None:
+    """Test that the unexpected error check is case-insensitive."""
+
+    # Given: the API returns a completed job whose progress_message is uppercase
+    extended_dataset_id = "abc-123"
+    extend_dataset_mock.sync.return_value = SyntheticDatasetExtensionResponse(dataset_id=extended_dataset_id)
+    get_extend_status_mock.sync.return_value = JobProgress(
+        steps_completed=3, steps_total=3, progress_message="UNEXPECTED ERROR"
+    )
+
+    # When/Then: calling extend_dataset raises DatasetAPIException regardless of case
+    with pytest.raises(DatasetAPIException, match="UNEXPECTED ERROR"):
+        extend_dataset(prompt_settings={"model_alias": "GPT-4o mini"}, prompt="Test prompt", count=3)
+
+    # Then: the content fetch is never attempted
+    get_dataset_content_mock.sync.assert_not_called()
+
+
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+@patch("galileo.datasets.get_dataset_synthetic_extend_status_datasets_extend_dataset_id_get")
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+@patch("galileo.datasets.time.sleep")
+def test_dataset_generate_propagates_unexpected_error(
+    sleep_mock: Mock, extend_dataset_mock: Mock, get_extend_status_mock: Mock, get_dataset_content_mock: Mock
+) -> None:
+    """Test that Dataset.generate propagates DatasetAPIException from extend when a job fails."""
+    from galileo.dataset import Dataset as FutureDataset
+
+    # Given: the underlying extend job signals failure via progress_message
+    extended_dataset_id = "abc-123"
+    extend_dataset_mock.sync.return_value = SyntheticDatasetExtensionResponse(dataset_id=extended_dataset_id)
+    get_extend_status_mock.sync.return_value = JobProgress(
+        steps_completed=3, steps_total=3, progress_message="Unexpected error occurred during generation"
+    )
+
+    # When: calling Dataset.generate, which delegates to Datasets.extend
+    # Then: DatasetAPIException propagates to the caller
+    with pytest.raises(DatasetAPIException, match="Unexpected error occurred during generation"):
+        FutureDataset.generate(prompt="Test prompt", count=3)
+
+    # Then: the content fetch is never attempted
+    get_dataset_content_mock.sync.assert_not_called()
+
+
 # ===================================================================
 # Project Association Tests for Dataset CRUD Operations
 # ===================================================================

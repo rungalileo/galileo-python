@@ -33,12 +33,20 @@ del _os  # Clean up temporary import
 import datetime  # noqa: E402
 import logging  # noqa: E402
 from collections.abc import Generator  # noqa: E402
+from io import StringIO  # noqa: E402
+from pathlib import Path  # noqa: E402
 from typing import Callable  # noqa: E402
-from unittest.mock import MagicMock, patch  # noqa: E402
+from unittest.mock import AsyncMock, MagicMock, patch  # noqa: E402
 from uuid import uuid4  # noqa: E402
 
+from httpx import Request  # noqa: E402
+from httpx import Response as HttpxResponse  # noqa: E402
+
+from galileo.collaborator import CollaboratorRole  # noqa: E402
 from galileo.config import GalileoPythonConfig  # noqa: E402
+from galileo.configuration import _CONFIGURATION_KEYS, Configuration  # noqa: E402
 from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict  # noqa: E402
+from galileo.resources.models.messages_list_item import MessagesListItem  # noqa: E402
 from galileo_core.constants.request_method import RequestMethod  # noqa: E402
 from galileo_core.constants.routes import Routes as CoreRoutes  # noqa: E402
 from galileo_core.schemas.core.user import User  # noqa: E402
@@ -318,3 +326,207 @@ def enable_galileo_logging():
         # Restore original settings
         galileo_logger.setLevel(original_level)
         galileo_logger.propagate = original_propagate
+
+
+# ---------------------------------------------------------------------------
+# Fixtures migrated from tests/future/conftest.py
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def clean_env(monkeypatch: pytest.MonkeyPatch) -> Generator[None, None, None]:
+    """Remove all Galileo-related env vars for tests that need a clean environment.
+
+    autouse=False — declare this fixture explicitly in tests that require it.
+    Useful for tests that verify behaviour when config keys are absent, e.g.
+    test_connect_fails_without_api_key.
+    """
+    for key in _CONFIGURATION_KEYS:
+        monkeypatch.delenv(key.env_var, raising=False)
+    # Also clear OPENAI_API_KEY which root conftest sets at import time
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    yield
+
+
+@pytest.fixture
+def reset_configuration() -> Generator[None, None, None]:
+    """Reset Configuration state before and after each test."""
+    Configuration.reset()
+    yield
+    Configuration.reset()
+
+
+@pytest.fixture
+def mock_env_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Create a temporary directory and return a .env file path inside it.
+
+    The working directory is changed to ``tmp_path`` so that Configuration's
+    env-file discovery finds the file automatically.
+    """
+    env_file = tmp_path / ".env"
+    monkeypatch.chdir(tmp_path)
+    return env_file
+
+
+@pytest.fixture
+def capture_logs() -> Generator[tuple[logging.Logger, StringIO], None, None]:
+    """Capture log messages emitted by the galileo logger for assertion."""
+    logger = logging.getLogger("galileo")
+    original_level = logger.level
+    original_handlers = logger.handlers[:]
+    original_propagate = logger.propagate
+
+    log_stream = StringIO()
+    handler = logging.StreamHandler(log_stream)
+    handler.setFormatter(logging.Formatter("%(levelname)s - %(name)s - %(message)s"))
+
+    logger.handlers = [handler]
+    logger.setLevel(logging.DEBUG)
+    logger.propagate = False
+
+    try:
+        yield logger, log_stream
+    finally:
+        logger.handlers = original_handlers
+        logger.setLevel(original_level)
+        logger.propagate = original_propagate
+
+
+@pytest.fixture
+def mock_api_endpoints() -> Generator[MagicMock, None, None]:
+    """Mock all API endpoints needed for Configuration.connect() by patching httpx.
+
+    Mocks:
+    - Healthcheck endpoint
+    - API key login endpoint
+    - Current user endpoint
+    - JWT token validation
+    """
+    user_data = User.model_validate(
+        {"id": str(uuid4()), "email": "user@example.com", "role": UserRole.user}
+    ).model_dump(mode="json")
+
+    async def _mock_request(method, url, **kwargs):
+        url_str = str(url)
+        request = Request(method, url)
+
+        if "/healthcheck" in url_str:
+            return HttpxResponse(200, json={"status": "ok"}, request=request)
+        if "/login/api_key" in url_str:
+            return HttpxResponse(200, json={"access_token": "secret_jwt_token"}, request=request)
+        if "/current_user" in url_str:
+            return HttpxResponse(200, json=user_data, request=request)
+        return HttpxResponse(200, json={}, request=request)
+
+    with patch("galileo_core.schemas.base_config.jwt_decode") as mock_jwt:
+        mock_jwt.return_value = {"exp": float("inf")}
+        with patch("httpx.AsyncClient.request", new=AsyncMock(side_effect=_mock_request)):
+            yield mock_jwt
+
+
+@pytest.fixture
+def mock_project() -> MagicMock:
+    """Create a mock project API response object for testing."""
+    mock_proj = MagicMock()
+    mock_proj.id = str(uuid4())
+    mock_proj.name = "Test Project"
+    mock_proj.created_at = MagicMock()
+    mock_proj.created_by = str(uuid4())
+    mock_proj.updated_at = MagicMock()
+    mock_proj.bookmark = None
+    mock_proj.permissions = None
+    mock_proj.type = None
+    return mock_proj
+
+
+@pytest.fixture
+def mock_dataset() -> MagicMock:
+    """Create a mock dataset API response object for testing."""
+    mock_ds = MagicMock()
+    mock_ds.id = str(uuid4())
+    mock_ds.name = "Test Dataset"
+    mock_ds.created_at = MagicMock()
+    mock_ds.updated_at = MagicMock()
+    mock_ds.num_rows = 10
+    mock_ds.column_names = ["input", "output"]
+    mock_ds.draft = False
+    return mock_ds
+
+
+@pytest.fixture
+def mock_prompt() -> MagicMock:
+    """Create a mock prompt API response object for testing."""
+    version_id = str(uuid4())
+
+    mock_version = MagicMock()
+    mock_version.template = [MessagesListItem(role="user", content="{{input}}")]
+    mock_version.version = 1
+    mock_version.id = version_id
+
+    mock_pmt = MagicMock()
+    mock_pmt.id = str(uuid4())
+    mock_pmt.name = "Test Prompt"
+    mock_pmt.created_at = MagicMock()
+    mock_pmt.updated_at = MagicMock()
+    mock_pmt.selected_version = mock_version
+    mock_pmt.selected_version_id = version_id
+    mock_pmt.total_versions = 1
+    mock_pmt.all_available_versions = [1]
+    mock_pmt.max_version = 1
+    return mock_pmt
+
+
+@pytest.fixture
+def mock_prompt_version() -> MagicMock:
+    """Create a mock prompt version API response object for testing."""
+    mock_version = MagicMock()
+    mock_version.id = str(uuid4())
+    mock_version.version = 1
+    mock_version.template = [MessagesListItem(role="user", content="{{input}}")]
+    mock_version.settings = MagicMock()
+    mock_version.created_at = MagicMock()
+    mock_version.updated_at = MagicMock()
+    return mock_version
+
+
+@pytest.fixture
+def mock_logstream() -> MagicMock:
+    """Create a mock log stream API response object for testing."""
+    mock_ls = MagicMock()
+    mock_ls.id = str(uuid4())
+    mock_ls.name = "Test Stream"
+    mock_ls.project_id = str(uuid4())
+    mock_ls.created_at = MagicMock()
+    mock_ls.created_by = str(uuid4())
+    mock_ls.updated_at = MagicMock()
+    mock_ls.additional_properties = {}
+    return mock_ls
+
+
+@pytest.fixture
+def mock_integration() -> MagicMock:
+    """Create a mock integration API response object for testing."""
+    mock_int = MagicMock()
+    mock_int.id = str(uuid4())
+    mock_int.name = "openai"
+    mock_int.created_at = MagicMock()
+    mock_int.updated_at = MagicMock()
+    mock_int.created_by = str(uuid4())
+    mock_int.is_selected = True
+    mock_int.permissions = ["read", "update"]
+    return mock_int
+
+
+@pytest.fixture
+def mock_collaborator() -> MagicMock:
+    """Create a mock collaborator API response object for testing."""
+    mock_collab = MagicMock()
+    mock_collab.id = str(uuid4())
+    mock_collab.user_id = str(uuid4())
+    mock_collab.role = CollaboratorRole.VIEWER
+    mock_collab.created_at = None
+    mock_collab.email = "collaborator@test.com"
+    mock_collab.first_name = "Test"
+    mock_collab.last_name = "Collaborator"
+    mock_collab.permissions = []
+    return mock_collab

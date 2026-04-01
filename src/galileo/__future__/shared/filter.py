@@ -1,6 +1,14 @@
-"""Re-export from galileo.shared.filter — will be deprecated once all __future__ modules are migrated."""
+"""Deprecated: use galileo.shared.filter instead of galileo.__future__.shared.filter."""
 
-from galileo.shared.filter import (
+import warnings
+
+warnings.warn(
+    "Importing from galileo.__future__.shared.filter is deprecated. Use galileo.shared.filter instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+from galileo.shared.filter import (  # noqa: E402
     BooleanFilter,
     DateFilter,
     Filter,
