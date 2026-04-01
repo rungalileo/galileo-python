@@ -1,5 +1,13 @@
-"""Re-export from galileo.dataset — will be deprecated once all __future__ modules are migrated."""
+"""Deprecated: use galileo.dataset instead of galileo.__future__.dataset."""
 
-from galileo.dataset import Dataset
+import warnings
+
+warnings.warn(
+    "Importing from galileo.__future__.dataset is deprecated. Use galileo.dataset instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+from galileo.dataset import Dataset  # noqa: E402
 
 __all__ = ["Dataset"]

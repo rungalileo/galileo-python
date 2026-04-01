@@ -1,6 +1,14 @@
-"""Re-export from galileo.shared.exceptions — will be deprecated once all __future__ modules are migrated."""
+"""Deprecated: use galileo.shared.exceptions instead of galileo.__future__.shared.exceptions."""
 
-from galileo.shared.exceptions import (
+import warnings
+
+warnings.warn(
+    "Importing from galileo.__future__.shared.exceptions is deprecated. Use galileo.shared.exceptions instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+from galileo.shared.exceptions import (  # noqa: E402
     APIError,
     ConfigurationError,
     GalileoFutureError,

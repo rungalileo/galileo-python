@@ -1,5 +1,13 @@
-"""Re-export from galileo.types — will be deprecated once all __future__ modules are migrated."""
+"""Deprecated: use galileo.types instead of galileo.__future__.types."""
 
-from galileo.types import MetricSpec
+import warnings
+
+warnings.warn(
+    "Importing from galileo.__future__.types is deprecated. Use galileo.types instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+from galileo.types import MetricSpec  # noqa: E402
 
 __all__ = ["MetricSpec"]
