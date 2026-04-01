@@ -386,10 +386,12 @@ class GlobalPromptTemplates:
         return response.parsed
 
 
+@deprecated("Use galileo.prompt.Prompt.get() instead.")
 @overload
 def get_prompt(*, id: str) -> Optional[PromptTemplate]: ...
 
 
+@deprecated("Use galileo.prompt.Prompt.get() instead.")
 @overload
 def get_prompt(*, name: str) -> Optional[PromptTemplate]: ...
 
@@ -452,10 +454,12 @@ def get_prompt(
     return PromptTemplate(prompt_template=prompt_template)
 
 
+@deprecated("Use prompt.delete() instead.")
 @overload
 def delete_prompt(*, id: str) -> None: ...
 
 
+@deprecated("Use prompt.delete() instead.")
 @overload
 def delete_prompt(*, name: str) -> None: ...
 
@@ -508,10 +512,12 @@ def delete_prompt(
     return GlobalPromptTemplates().delete(template_id=id, name=name)  # type: ignore[call-overload]
 
 
+@deprecated("Use prompt.save() instead.")
 @overload
 def update_prompt(*, id: str, new_name: str) -> PromptTemplate: ...
 
 
+@deprecated("Use prompt.save() instead.")
 @overload
 def update_prompt(*, name: str, new_name: str) -> PromptTemplate: ...
 

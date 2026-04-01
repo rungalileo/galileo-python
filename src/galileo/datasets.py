@@ -672,26 +672,32 @@ class Datasets:
 #
 
 
+@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, id: str) -> Optional[Dataset]: ...
 
 
+@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, id: str, project_id: str) -> Optional[Dataset]: ...
 
 
+@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, id: str, project_name: str) -> Optional[Dataset]: ...
 
 
+@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, name: str) -> Optional[Dataset]: ...
 
 
+@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, name: str, project_id: str) -> Optional[Dataset]: ...
 
 
+@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, name: str, project_name: str) -> Optional[Dataset]: ...
 
@@ -775,26 +781,32 @@ def list_datasets(
     return Datasets().list(limit=limit, project_id=project_id, project_name=project_name)
 
 
+@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, id: str) -> None: ...
 
 
+@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, id: str, project_id: str) -> None: ...
 
 
+@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, id: str, project_name: str) -> None: ...
 
 
+@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, name: str) -> None: ...
 
 
+@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, name: str, project_id: str) -> None: ...
 
 
+@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, name: str, project_name: str) -> None: ...
 
