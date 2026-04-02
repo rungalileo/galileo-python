@@ -137,6 +137,9 @@ class Experiments:
         scorers: Optional[builtins.list[ScorerConfig]],
         prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
     ) -> dict[str, Any]:
+        if isinstance(prompt_settings, dict):
+            prompt_settings = PromptRunSettings.from_dict(prompt_settings)
+
         # Only set default prompt_settings for prompt-driven flow (when a template is provided)
         if prompt_template is not None and prompt_settings is None:
             prompt_settings = PromptRunSettings(
