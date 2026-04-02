@@ -9,7 +9,9 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.document import Document
+    from ..models.file_content_part import FileContentPart
     from ..models.message import Message
+    from ..models.text_content_part import TextContentPart
 
 
 T = TypeVar("T", bound="LogSpanUpdateRequest")
@@ -31,9 +33,10 @@ class LogSpanUpdateRequest:
             immediately before verifying that the traces have been successfully ingested, and no error message will be
             returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or
             return an error message if there is an ingestion failure. Default: True.
-        input_ (Union[None, Unset, list['Message'], str]): Input of the span. Overwrites previous value if present.
-        output (Union['Message', None, Unset, list['Document'], str]): Output of the span. Overwrites previous value if
-            present.
+        input_ (Union[None, Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]): Input of
+            the span. Overwrites previous value if present.
+        output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart', 'TextContentPart']],
+            str]): Output of the span. Overwrites previous value if present.
         tags (Union[None, Unset, list[str]]): Tags to add to the span.
         status_code (Union[None, Unset, int]): Status code of the span. Overwrites previous value if present.
         duration_ns (Union[None, Unset, int]): Duration in nanoseconds. Overwrites previous value if present.
@@ -46,8 +49,10 @@ class LogSpanUpdateRequest:
     logging_method: Union[Unset, LoggingMethod] = UNSET
     client_version: Union[None, Unset, str] = UNSET
     reliable: Union[Unset, bool] = True
-    input_: Union[None, Unset, list["Message"], str] = UNSET
-    output: Union["Message", None, Unset, list["Document"], str] = UNSET
+    input_: Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
+    output: Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str] = (
+        UNSET
+    )
     tags: Union[None, Unset, list[str]] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     duration_ns: Union[None, Unset, int] = UNSET
@@ -55,6 +60,7 @@ class LogSpanUpdateRequest:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.message import Message
+        from ..models.text_content_part import TextContentPart
 
         span_id = self.span_id
 
@@ -85,6 +91,17 @@ class LogSpanUpdateRequest:
                 input_type_1_item = input_type_1_item_data.to_dict()
                 input_.append(input_type_1_item)
 
+        elif isinstance(self.input_, list):
+            input_ = []
+            for input_type_2_item_data in self.input_:
+                input_type_2_item: dict[str, Any]
+                if isinstance(input_type_2_item_data, TextContentPart):
+                    input_type_2_item = input_type_2_item_data.to_dict()
+                else:
+                    input_type_2_item = input_type_2_item_data.to_dict()
+
+                input_.append(input_type_2_item)
+
         else:
             input_ = self.input_
 
@@ -98,6 +115,17 @@ class LogSpanUpdateRequest:
             for output_type_2_item_data in self.output:
                 output_type_2_item = output_type_2_item_data.to_dict()
                 output.append(output_type_2_item)
+
+        elif isinstance(self.output, list):
+            output = []
+            for output_type_3_item_data in self.output:
+                output_type_3_item: dict[str, Any]
+                if isinstance(output_type_3_item_data, TextContentPart):
+                    output_type_3_item = output_type_3_item_data.to_dict()
+                else:
+                    output_type_3_item = output_type_3_item_data.to_dict()
+
+                output.append(output_type_3_item)
 
         else:
             output = self.output
@@ -148,7 +176,9 @@ class LogSpanUpdateRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.document import Document
+        from ..models.file_content_part import FileContentPart
         from ..models.message import Message
+        from ..models.text_content_part import TextContentPart
 
         d = dict(src_dict)
         span_id = d.pop("span_id")
@@ -195,7 +225,9 @@ class LogSpanUpdateRequest:
 
         reliable = d.pop("reliable", UNSET)
 
-        def _parse_input_(data: object) -> Union[None, Unset, list["Message"], str]:
+        def _parse_input_(
+            data: object,
+        ) -> Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -213,11 +245,41 @@ class LogSpanUpdateRequest:
                 return input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["Message"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                input_type_2 = []
+                _input_type_2 = data
+                for input_type_2_item_data in _input_type_2:
+
+                    def _parse_input_type_2_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    input_type_2_item = _parse_input_type_2_item(input_type_2_item_data)
+
+                    input_type_2.append(input_type_2_item)
+
+                return input_type_2
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data
+            )
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
-        def _parse_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
+        def _parse_output(
+            data: object,
+        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -242,7 +304,36 @@ class LogSpanUpdateRequest:
                 return output_type_2
             except:  # noqa: E722
                 pass
-            return cast(Union["Message", None, Unset, list["Document"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                output_type_3 = []
+                _output_type_3 = data
+                for output_type_3_item_data in _output_type_3:
+
+                    def _parse_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    output_type_3_item = _parse_output_type_3_item(output_type_3_item_data)
+
+                    output_type_3.append(output_type_3_item)
+
+                return output_type_3
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                data,
+            )
 
         output = _parse_output(d.pop("output", UNSET))
 

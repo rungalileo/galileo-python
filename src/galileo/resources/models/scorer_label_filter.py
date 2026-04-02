@@ -19,12 +19,14 @@ class ScorerLabelFilter:
         value (Union[list[str], str]):
         name (Union[Literal['label'], Unset]):  Default: 'label'.
         case_sensitive (Union[Unset, bool]):  Default: True.
+        strict (Union[Unset, bool]):  Default: True.
     """
 
     operator: ScorerLabelFilterOperator
     value: Union[list[str], str]
     name: Union[Literal["label"], Unset] = "label"
     case_sensitive: Union[Unset, bool] = True
+    strict: Union[Unset, bool] = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -37,6 +39,8 @@ class ScorerLabelFilter:
 
         case_sensitive = self.case_sensitive
 
+        strict = self.strict
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"operator": operator, "value": value})
@@ -44,6 +48,8 @@ class ScorerLabelFilter:
             field_dict["name"] = name
         if case_sensitive is not UNSET:
             field_dict["case_sensitive"] = case_sensitive
+        if strict is not UNSET:
+            field_dict["strict"] = strict
 
         return field_dict
 
@@ -70,7 +76,11 @@ class ScorerLabelFilter:
 
         case_sensitive = d.pop("case_sensitive", UNSET)
 
-        scorer_label_filter = cls(operator=operator, value=value, name=name, case_sensitive=case_sensitive)
+        strict = d.pop("strict", UNSET)
+
+        scorer_label_filter = cls(
+            operator=operator, value=value, name=name, case_sensitive=case_sensitive, strict=strict
+        )
 
         scorer_label_filter.additional_properties = d
         return scorer_label_filter

@@ -7,16 +7,22 @@ from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
 from ..models.agent_type import AgentType
+from ..models.content_modality import ContentModality
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.document import Document
+    from ..models.extended_agent_span_record_annotation_aggregates import ExtendedAgentSpanRecordAnnotationAggregates
+    from ..models.extended_agent_span_record_annotations import ExtendedAgentSpanRecordAnnotations
     from ..models.extended_agent_span_record_dataset_metadata import ExtendedAgentSpanRecordDatasetMetadata
     from ..models.extended_agent_span_record_feedback_rating_info import ExtendedAgentSpanRecordFeedbackRatingInfo
+    from ..models.extended_agent_span_record_files_type_0 import ExtendedAgentSpanRecordFilesType0
     from ..models.extended_agent_span_record_metric_info_type_0 import ExtendedAgentSpanRecordMetricInfoType0
     from ..models.extended_agent_span_record_user_metadata import ExtendedAgentSpanRecordUserMetadata
+    from ..models.file_content_part import FileContentPart
     from ..models.message import Message
     from ..models.metrics import Metrics
+    from ..models.text_content_part import TextContentPart
 
 
 T = TypeVar("T", bound="ExtendedAgentSpanRecord")
@@ -33,10 +39,14 @@ class ExtendedAgentSpanRecord:
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
         parent_id (str): Galileo ID of the parent of this span
         type_ (Union[Literal['agent'], Unset]): Type of the trace, span or session. Default: 'agent'.
-        input_ (Union[Unset, list['Message'], str]): Input to the trace or span. Default: ''.
-        redacted_input (Union[None, Unset, list['Message'], str]): Redacted input of the trace or span.
-        output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
-        redacted_output (Union['Message', None, Unset, list['Document'], str]): Redacted output of the trace or span.
+        input_ (Union[Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]): Input to the
+            trace or span. Default: ''.
+        redacted_input (Union[None, Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]):
+            Redacted input of the trace or span.
+        output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart', 'TextContentPart']],
+            str]): Output of the trace or span.
+        redacted_output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart',
+            'TextContentPart']], str]): Redacted output of the trace or span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         user_metadata (Union[Unset, ExtendedAgentSpanRecordUserMetadata]): Metadata associated with this trace or span.
@@ -57,8 +67,17 @@ class ExtendedAgentSpanRecord:
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         feedback_rating_info (Union[Unset, ExtendedAgentSpanRecordFeedbackRatingInfo]): Feedback information related to
             the record
+        annotations (Union[Unset, ExtendedAgentSpanRecordAnnotations]): Annotations keyed by template ID and annotator
+            ID
+        file_ids (Union[Unset, list[str]]): IDs of files associated with this record
+        file_modalities (Union[Unset, list[ContentModality]]): Modalities of files associated with this record
+        annotation_aggregates (Union[Unset, ExtendedAgentSpanRecordAnnotationAggregates]): Annotation aggregate
+            information keyed by template ID
+        annotation_queue_ids (Union[Unset, list[str]]): IDs of annotation queues this record is in
         metric_info (Union['ExtendedAgentSpanRecordMetricInfoType0', None, Unset]): Detailed information about the
             metrics associated with this trace or span
+        files (Union['ExtendedAgentSpanRecordFilesType0', None, Unset]): File metadata keyed by file ID for files
+            associated with this record
         is_complete (Union[Unset, bool]): Whether the parent trace is complete or not Default: True.
         step_number (Union[None, Unset, int]): Topological step number of the span.
         agent_type (Union[Unset, AgentType]):
@@ -70,10 +89,14 @@ class ExtendedAgentSpanRecord:
     run_id: str
     parent_id: str
     type_: Union[Literal["agent"], Unset] = "agent"
-    input_: Union[Unset, list["Message"], str] = ""
-    redacted_input: Union[None, Unset, list["Message"], str] = UNSET
-    output: Union["Message", None, Unset, list["Document"], str] = UNSET
-    redacted_output: Union["Message", None, Unset, list["Document"], str] = UNSET
+    input_: Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = ""
+    redacted_input: Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
+    output: Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str] = (
+        UNSET
+    )
+    redacted_output: Union[
+        "Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str
+    ] = UNSET
     name: Union[Unset, str] = ""
     created_at: Union[Unset, datetime.datetime] = UNSET
     user_metadata: Union[Unset, "ExtendedAgentSpanRecordUserMetadata"] = UNSET
@@ -90,15 +113,23 @@ class ExtendedAgentSpanRecord:
     metrics_batch_id: Union[None, Unset, str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
     feedback_rating_info: Union[Unset, "ExtendedAgentSpanRecordFeedbackRatingInfo"] = UNSET
+    annotations: Union[Unset, "ExtendedAgentSpanRecordAnnotations"] = UNSET
+    file_ids: Union[Unset, list[str]] = UNSET
+    file_modalities: Union[Unset, list[ContentModality]] = UNSET
+    annotation_aggregates: Union[Unset, "ExtendedAgentSpanRecordAnnotationAggregates"] = UNSET
+    annotation_queue_ids: Union[Unset, list[str]] = UNSET
     metric_info: Union["ExtendedAgentSpanRecordMetricInfoType0", None, Unset] = UNSET
+    files: Union["ExtendedAgentSpanRecordFilesType0", None, Unset] = UNSET
     is_complete: Union[Unset, bool] = True
     step_number: Union[None, Unset, int] = UNSET
     agent_type: Union[Unset, AgentType] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.extended_agent_span_record_files_type_0 import ExtendedAgentSpanRecordFilesType0
         from ..models.extended_agent_span_record_metric_info_type_0 import ExtendedAgentSpanRecordMetricInfoType0
         from ..models.message import Message
+        from ..models.text_content_part import TextContentPart
 
         id = self.id
 
@@ -121,6 +152,17 @@ class ExtendedAgentSpanRecord:
                 input_type_1_item = input_type_1_item_data.to_dict()
                 input_.append(input_type_1_item)
 
+        elif isinstance(self.input_, list):
+            input_ = []
+            for input_type_2_item_data in self.input_:
+                input_type_2_item: dict[str, Any]
+                if isinstance(input_type_2_item_data, TextContentPart):
+                    input_type_2_item = input_type_2_item_data.to_dict()
+                else:
+                    input_type_2_item = input_type_2_item_data.to_dict()
+
+                input_.append(input_type_2_item)
+
         else:
             input_ = self.input_
 
@@ -132,6 +174,17 @@ class ExtendedAgentSpanRecord:
             for redacted_input_type_1_item_data in self.redacted_input:
                 redacted_input_type_1_item = redacted_input_type_1_item_data.to_dict()
                 redacted_input.append(redacted_input_type_1_item)
+
+        elif isinstance(self.redacted_input, list):
+            redacted_input = []
+            for redacted_input_type_2_item_data in self.redacted_input:
+                redacted_input_type_2_item: dict[str, Any]
+                if isinstance(redacted_input_type_2_item_data, TextContentPart):
+                    redacted_input_type_2_item = redacted_input_type_2_item_data.to_dict()
+                else:
+                    redacted_input_type_2_item = redacted_input_type_2_item_data.to_dict()
+
+                redacted_input.append(redacted_input_type_2_item)
 
         else:
             redacted_input = self.redacted_input
@@ -147,6 +200,17 @@ class ExtendedAgentSpanRecord:
                 output_type_2_item = output_type_2_item_data.to_dict()
                 output.append(output_type_2_item)
 
+        elif isinstance(self.output, list):
+            output = []
+            for output_type_3_item_data in self.output:
+                output_type_3_item: dict[str, Any]
+                if isinstance(output_type_3_item_data, TextContentPart):
+                    output_type_3_item = output_type_3_item_data.to_dict()
+                else:
+                    output_type_3_item = output_type_3_item_data.to_dict()
+
+                output.append(output_type_3_item)
+
         else:
             output = self.output
 
@@ -160,6 +224,17 @@ class ExtendedAgentSpanRecord:
             for redacted_output_type_2_item_data in self.redacted_output:
                 redacted_output_type_2_item = redacted_output_type_2_item_data.to_dict()
                 redacted_output.append(redacted_output_type_2_item)
+
+        elif isinstance(self.redacted_output, list):
+            redacted_output = []
+            for redacted_output_type_3_item_data in self.redacted_output:
+                redacted_output_type_3_item: dict[str, Any]
+                if isinstance(redacted_output_type_3_item_data, TextContentPart):
+                    redacted_output_type_3_item = redacted_output_type_3_item_data.to_dict()
+                else:
+                    redacted_output_type_3_item = redacted_output_type_3_item_data.to_dict()
+
+                redacted_output.append(redacted_output_type_3_item)
 
         else:
             redacted_output = self.redacted_output
@@ -222,6 +297,29 @@ class ExtendedAgentSpanRecord:
         if not isinstance(self.feedback_rating_info, Unset):
             feedback_rating_info = self.feedback_rating_info.to_dict()
 
+        annotations: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.annotations, Unset):
+            annotations = self.annotations.to_dict()
+
+        file_ids: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.file_ids, Unset):
+            file_ids = self.file_ids
+
+        file_modalities: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.file_modalities, Unset):
+            file_modalities = []
+            for file_modalities_item_data in self.file_modalities:
+                file_modalities_item = file_modalities_item_data.value
+                file_modalities.append(file_modalities_item)
+
+        annotation_aggregates: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.annotation_aggregates, Unset):
+            annotation_aggregates = self.annotation_aggregates.to_dict()
+
+        annotation_queue_ids: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.annotation_queue_ids, Unset):
+            annotation_queue_ids = self.annotation_queue_ids
+
         metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
@@ -229,6 +327,14 @@ class ExtendedAgentSpanRecord:
             metric_info = self.metric_info.to_dict()
         else:
             metric_info = self.metric_info
+
+        files: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.files, Unset):
+            files = UNSET
+        elif isinstance(self.files, ExtendedAgentSpanRecordFilesType0):
+            files = self.files.to_dict()
+        else:
+            files = self.files
 
         is_complete = self.is_complete
 
@@ -286,8 +392,20 @@ class ExtendedAgentSpanRecord:
             field_dict["session_batch_id"] = session_batch_id
         if feedback_rating_info is not UNSET:
             field_dict["feedback_rating_info"] = feedback_rating_info
+        if annotations is not UNSET:
+            field_dict["annotations"] = annotations
+        if file_ids is not UNSET:
+            field_dict["file_ids"] = file_ids
+        if file_modalities is not UNSET:
+            field_dict["file_modalities"] = file_modalities
+        if annotation_aggregates is not UNSET:
+            field_dict["annotation_aggregates"] = annotation_aggregates
+        if annotation_queue_ids is not UNSET:
+            field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
+        if files is not UNSET:
+            field_dict["files"] = files
         if is_complete is not UNSET:
             field_dict["is_complete"] = is_complete
         if step_number is not UNSET:
@@ -300,12 +418,19 @@ class ExtendedAgentSpanRecord:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.document import Document
+        from ..models.extended_agent_span_record_annotation_aggregates import (
+            ExtendedAgentSpanRecordAnnotationAggregates,
+        )
+        from ..models.extended_agent_span_record_annotations import ExtendedAgentSpanRecordAnnotations
         from ..models.extended_agent_span_record_dataset_metadata import ExtendedAgentSpanRecordDatasetMetadata
         from ..models.extended_agent_span_record_feedback_rating_info import ExtendedAgentSpanRecordFeedbackRatingInfo
+        from ..models.extended_agent_span_record_files_type_0 import ExtendedAgentSpanRecordFilesType0
         from ..models.extended_agent_span_record_metric_info_type_0 import ExtendedAgentSpanRecordMetricInfoType0
         from ..models.extended_agent_span_record_user_metadata import ExtendedAgentSpanRecordUserMetadata
+        from ..models.file_content_part import FileContentPart
         from ..models.message import Message
         from ..models.metrics import Metrics
+        from ..models.text_content_part import TextContentPart
 
         d = dict(src_dict)
         id = d.pop("id")
@@ -322,7 +447,9 @@ class ExtendedAgentSpanRecord:
         if type_ != "agent" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'agent', got '{type_}'")
 
-        def _parse_input_(data: object) -> Union[Unset, list["Message"], str]:
+        def _parse_input_(
+            data: object,
+        ) -> Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if isinstance(data, Unset):
                 return data
             try:
@@ -338,11 +465,39 @@ class ExtendedAgentSpanRecord:
                 return input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[Unset, list["Message"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                input_type_2 = []
+                _input_type_2 = data
+                for input_type_2_item_data in _input_type_2:
+
+                    def _parse_input_type_2_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    input_type_2_item = _parse_input_type_2_item(input_type_2_item_data)
+
+                    input_type_2.append(input_type_2_item)
+
+                return input_type_2
+            except:  # noqa: E722
+                pass
+            return cast(Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
-        def _parse_redacted_input(data: object) -> Union[None, Unset, list["Message"], str]:
+        def _parse_redacted_input(
+            data: object,
+        ) -> Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -360,11 +515,41 @@ class ExtendedAgentSpanRecord:
                 return redacted_input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["Message"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_input_type_2 = []
+                _redacted_input_type_2 = data
+                for redacted_input_type_2_item_data in _redacted_input_type_2:
+
+                    def _parse_redacted_input_type_2_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    redacted_input_type_2_item = _parse_redacted_input_type_2_item(redacted_input_type_2_item_data)
+
+                    redacted_input_type_2.append(redacted_input_type_2_item)
+
+                return redacted_input_type_2
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data
+            )
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
-        def _parse_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
+        def _parse_output(
+            data: object,
+        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -389,11 +574,42 @@ class ExtendedAgentSpanRecord:
                 return output_type_2
             except:  # noqa: E722
                 pass
-            return cast(Union["Message", None, Unset, list["Document"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                output_type_3 = []
+                _output_type_3 = data
+                for output_type_3_item_data in _output_type_3:
+
+                    def _parse_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    output_type_3_item = _parse_output_type_3_item(output_type_3_item_data)
+
+                    output_type_3.append(output_type_3_item)
+
+                return output_type_3
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                data,
+            )
 
         output = _parse_output(d.pop("output", UNSET))
 
-        def _parse_redacted_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
+        def _parse_redacted_output(
+            data: object,
+        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -418,7 +634,36 @@ class ExtendedAgentSpanRecord:
                 return redacted_output_type_2
             except:  # noqa: E722
                 pass
-            return cast(Union["Message", None, Unset, list["Document"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_output_type_3 = []
+                _redacted_output_type_3 = data
+                for redacted_output_type_3_item_data in _redacted_output_type_3:
+
+                    def _parse_redacted_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    redacted_output_type_3_item = _parse_redacted_output_type_3_item(redacted_output_type_3_item_data)
+
+                    redacted_output_type_3.append(redacted_output_type_3_item)
+
+                return redacted_output_type_3
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                data,
+            )
 
         redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
 
@@ -543,6 +788,31 @@ class ExtendedAgentSpanRecord:
         else:
             feedback_rating_info = ExtendedAgentSpanRecordFeedbackRatingInfo.from_dict(_feedback_rating_info)
 
+        _annotations = d.pop("annotations", UNSET)
+        annotations: Union[Unset, ExtendedAgentSpanRecordAnnotations]
+        if isinstance(_annotations, Unset):
+            annotations = UNSET
+        else:
+            annotations = ExtendedAgentSpanRecordAnnotations.from_dict(_annotations)
+
+        file_ids = cast(list[str], d.pop("file_ids", UNSET))
+
+        file_modalities = []
+        _file_modalities = d.pop("file_modalities", UNSET)
+        for file_modalities_item_data in _file_modalities or []:
+            file_modalities_item = ContentModality(file_modalities_item_data)
+
+            file_modalities.append(file_modalities_item)
+
+        _annotation_aggregates = d.pop("annotation_aggregates", UNSET)
+        annotation_aggregates: Union[Unset, ExtendedAgentSpanRecordAnnotationAggregates]
+        if isinstance(_annotation_aggregates, Unset):
+            annotation_aggregates = UNSET
+        else:
+            annotation_aggregates = ExtendedAgentSpanRecordAnnotationAggregates.from_dict(_annotation_aggregates)
+
+        annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
+
         def _parse_metric_info(data: object) -> Union["ExtendedAgentSpanRecordMetricInfoType0", None, Unset]:
             if data is None:
                 return data
@@ -615,6 +885,78 @@ class ExtendedAgentSpanRecord:
 
         metric_info = _parse_metric_info(d.pop("metric_info", UNSET))
 
+        def _parse_files(data: object) -> Union["ExtendedAgentSpanRecordFilesType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            # Discriminator-aware parsing for Extended*Record types
+            if isinstance(data, dict) and "type" in data:
+                type_value = data.get("type")
+
+                # Hardcoded discriminator mapping for Extended*Record types
+                if type_value == "trace":
+                    try:
+                        from ..models.extended_trace_record import ExtendedTraceRecord
+
+                        return ExtendedTraceRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "agent":
+                    try:
+                        from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+
+                        return ExtendedAgentSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "workflow":
+                    try:
+                        from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
+
+                        return ExtendedWorkflowSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "llm":
+                    try:
+                        from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+
+                        return ExtendedLlmSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "tool":
+                    try:
+                        from ..models.extended_tool_span_record import ExtendedToolSpanRecord
+
+                        return ExtendedToolSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "retriever":
+                    try:
+                        from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
+
+                        return ExtendedRetrieverSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "session":
+                    try:
+                        from ..models.extended_session_record import ExtendedSessionRecord
+
+                        return ExtendedSessionRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+
+            # Fallback to standard union parsing
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ExtendedAgentSpanRecordFilesType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["ExtendedAgentSpanRecordFilesType0", None, Unset], data)
+
+        files = _parse_files(d.pop("files", UNSET))
+
         is_complete = d.pop("is_complete", UNSET)
 
         def _parse_step_number(data: object) -> Union[None, Unset, int]:
@@ -657,7 +999,13 @@ class ExtendedAgentSpanRecord:
             metrics_batch_id=metrics_batch_id,
             session_batch_id=session_batch_id,
             feedback_rating_info=feedback_rating_info,
+            annotations=annotations,
+            file_ids=file_ids,
+            file_modalities=file_modalities,
+            annotation_aggregates=annotation_aggregates,
+            annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
+            files=files,
             is_complete=is_complete,
             step_number=step_number,
             agent_type=agent_type,

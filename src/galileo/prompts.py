@@ -591,7 +591,6 @@ def create_prompt_template(name: str, project: str, messages: builtins.list[Mess
     ValueError
         If project doesn't exist.
     """
-    warnings.warn("create_prompt_template is deprecated, use create_prompt instead.", DeprecationWarning, stacklevel=2)
     return create_prompt(name=name, project_name=project, template=messages)
 
 
@@ -757,7 +756,6 @@ def list_prompt_templates(project: str) -> builtins.list[PromptTemplate]:
     list[PromptTemplate]
         List of prompt templates associated with the project.
     """
-    warnings.warn("list_prompt_templates is deprecated, use get_prompts instead.", DeprecationWarning, stacklevel=2)
     return get_prompts(project_name=project)
 
 
@@ -783,7 +781,6 @@ def get_prompt_template(name: str, project: str) -> Optional[PromptTemplate]:
     Optional[PromptTemplate]
         The template if found, None otherwise.
     """
-    warnings.warn("get_prompt_template is deprecated, use get_prompt instead.", DeprecationWarning, stacklevel=2)
     return get_prompt(name=name)
 
 

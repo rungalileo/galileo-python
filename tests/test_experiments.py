@@ -107,6 +107,7 @@ def scorers():
             {
                 "id": "aed89cbc-5515-43c3-87ae-39c3c44c043e",
                 "name": "correctness",
+                "label": "Correctness",
                 "scorer_type": "preset",
                 "tags": ["preset", "factuality", "output quality"],
                 "created_at": "2025-03-11T00:00:28.497645+00:00",
@@ -857,7 +858,7 @@ class TestExperiments:
         dataset_content: DatasetContent,
     ) -> None:
         # Setup scorer mocks
-        mock_scorers_class.return_value.list.return_value = scorers()
+        mock_scorers_class.return_value.list_by_labels.return_value = scorers()
         mock_scorer_settings_class.return_value.create.return_value = None
 
         dataset_id = str(UUID(int=0))
@@ -881,7 +882,7 @@ class TestExperiments:
             scorers=[ScorerConfig.from_dict(scorers()[0].to_dict())],
             prompt_settings=ANY,
         )
-        mock_scorers_class.return_value.list.assert_called_with()
+        mock_scorers_class.return_value.list_by_labels.assert_called_once()
         # ScorerSettings.create NOT called for trigger=True flow (API handles it)
         mock_scorer_settings_class.return_value.create.assert_not_called()
 
@@ -1065,11 +1066,11 @@ class TestExperiments:
     @patch("galileo.utils.metrics.Scorers")
     @patch("galileo.utils.metrics.ScorerSettings")
     def test_create_scorer_configs(self, mock_scorer_settings_class, mock_scorers_class) -> None:
-        # Setup mock return values
+        # Setup mock return values — new code uses list_by_labels
         mock_scorers_instance = mock_scorers_class.return_value
-        mock_scorers_instance.list.return_value = [
-            ScorerResponse(id="1", name="metric1", scorer_type=ScorerTypes.PRESET, tags=[]),
-            ScorerResponse(id="2", name="metric2", scorer_type=ScorerTypes.PRESET, tags=[]),
+        mock_scorers_instance.list_by_labels.return_value = [
+            ScorerResponse(id="1", name="metric1", label="metric1", scorer_type=ScorerTypes.PRESET, tags=[]),
+            ScorerResponse(id="2", name="metric2", label="metric2", scorer_type=ScorerTypes.PRESET, tags=[]),
         ]
         mock_scorer_settings_class.return_value.create = MagicMock()
 
@@ -1083,6 +1084,7 @@ class TestExperiments:
         assert len(local_scorers) == 1  # Should return one local scorer
 
         # Test unknown metrics
+        mock_scorers_instance.list_by_labels.return_value = []
         with pytest.raises(ValueError):
             create_metric_configs("project_id", "experiment_id", ["unknown_metric"])
 
@@ -1100,7 +1102,7 @@ class TestExperiments:
             ScorerResponse.from_dict({"id": "3", "name": "versionable_metric", "scorer_type": "llm", "tags": ["test"]}),
         ]
 
-        mock_scorers_instance.list.return_value = mock_scorer_responses
+        mock_scorers_instance.list_by_labels.return_value = mock_scorer_responses
 
         # Mock the get_scorer_version method
         mock_version_response = MagicMock()

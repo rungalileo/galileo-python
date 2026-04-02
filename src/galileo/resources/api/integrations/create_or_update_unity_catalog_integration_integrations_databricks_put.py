@@ -81,7 +81,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: DatabricksIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Unity Catalog Integration.
+    """Create or update Databricks integration.
 
      Create or update a databricks integration for this user from Galileo.
 
@@ -107,7 +107,7 @@ def sync_detailed(
 def sync(
     *, client: ApiClient, body: DatabricksIntegrationCreate
 ) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Unity Catalog Integration.
+    """Create or update Databricks integration.
 
      Create or update a databricks integration for this user from Galileo.
 
@@ -129,7 +129,7 @@ def sync(
 async def asyncio_detailed(
     *, client: ApiClient, body: DatabricksIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Unity Catalog Integration.
+    """Create or update Databricks integration.
 
      Create or update a databricks integration for this user from Galileo.
 
@@ -155,7 +155,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: ApiClient, body: DatabricksIntegrationCreate
 ) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Unity Catalog Integration.
+    """Create or update Databricks integration.
 
      Create or update a databricks integration for this user from Galileo.
 

@@ -13,10 +13,12 @@ if TYPE_CHECKING:
     from ..models.agent_span_dataset_metadata import AgentSpanDatasetMetadata
     from ..models.agent_span_user_metadata import AgentSpanUserMetadata
     from ..models.document import Document
+    from ..models.file_content_part import FileContentPart
     from ..models.llm_span import LlmSpan
     from ..models.message import Message
     from ..models.metrics import Metrics
     from ..models.retriever_span import RetrieverSpan
+    from ..models.text_content_part import TextContentPart
     from ..models.tool_span import ToolSpan
     from ..models.workflow_span import WorkflowSpan
 
@@ -30,10 +32,14 @@ class AgentSpan:
     Attributes
     ----------
         type_ (Union[Literal['agent'], Unset]): Type of the trace, span or session. Default: 'agent'.
-        input_ (Union[Unset, list['Message'], str]): Input to the trace or span. Default: ''.
-        redacted_input (Union[None, Unset, list['Message'], str]): Redacted input of the trace or span.
-        output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
-        redacted_output (Union['Message', None, Unset, list['Document'], str]): Redacted output of the trace or span.
+        input_ (Union[Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]): Input to the
+            trace or span. Default: ''.
+        redacted_input (Union[None, Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]):
+            Redacted input of the trace or span.
+        output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart', 'TextContentPart']],
+            str]): Output of the trace or span.
+        redacted_output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart',
+            'TextContentPart']], str]): Redacted output of the trace or span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         user_metadata (Union[Unset, AgentSpanUserMetadata]): Metadata associated with this trace or span.
@@ -57,10 +63,14 @@ class AgentSpan:
     """
 
     type_: Union[Literal["agent"], Unset] = "agent"
-    input_: Union[Unset, list["Message"], str] = ""
-    redacted_input: Union[None, Unset, list["Message"], str] = UNSET
-    output: Union["Message", None, Unset, list["Document"], str] = UNSET
-    redacted_output: Union["Message", None, Unset, list["Document"], str] = UNSET
+    input_: Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = ""
+    redacted_input: Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
+    output: Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str] = (
+        UNSET
+    )
+    redacted_output: Union[
+        "Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str
+    ] = UNSET
     name: Union[Unset, str] = ""
     created_at: Union[Unset, datetime.datetime] = UNSET
     user_metadata: Union[Unset, "AgentSpanUserMetadata"] = UNSET
@@ -84,6 +94,7 @@ class AgentSpan:
         from ..models.llm_span import LlmSpan
         from ..models.message import Message
         from ..models.retriever_span import RetrieverSpan
+        from ..models.text_content_part import TextContentPart
         from ..models.workflow_span import WorkflowSpan
 
         type_ = self.type_
@@ -97,6 +108,17 @@ class AgentSpan:
                 input_type_1_item = input_type_1_item_data.to_dict()
                 input_.append(input_type_1_item)
 
+        elif isinstance(self.input_, list):
+            input_ = []
+            for input_type_2_item_data in self.input_:
+                input_type_2_item: dict[str, Any]
+                if isinstance(input_type_2_item_data, TextContentPart):
+                    input_type_2_item = input_type_2_item_data.to_dict()
+                else:
+                    input_type_2_item = input_type_2_item_data.to_dict()
+
+                input_.append(input_type_2_item)
+
         else:
             input_ = self.input_
 
@@ -108,6 +130,17 @@ class AgentSpan:
             for redacted_input_type_1_item_data in self.redacted_input:
                 redacted_input_type_1_item = redacted_input_type_1_item_data.to_dict()
                 redacted_input.append(redacted_input_type_1_item)
+
+        elif isinstance(self.redacted_input, list):
+            redacted_input = []
+            for redacted_input_type_2_item_data in self.redacted_input:
+                redacted_input_type_2_item: dict[str, Any]
+                if isinstance(redacted_input_type_2_item_data, TextContentPart):
+                    redacted_input_type_2_item = redacted_input_type_2_item_data.to_dict()
+                else:
+                    redacted_input_type_2_item = redacted_input_type_2_item_data.to_dict()
+
+                redacted_input.append(redacted_input_type_2_item)
 
         else:
             redacted_input = self.redacted_input
@@ -123,6 +156,17 @@ class AgentSpan:
                 output_type_2_item = output_type_2_item_data.to_dict()
                 output.append(output_type_2_item)
 
+        elif isinstance(self.output, list):
+            output = []
+            for output_type_3_item_data in self.output:
+                output_type_3_item: dict[str, Any]
+                if isinstance(output_type_3_item_data, TextContentPart):
+                    output_type_3_item = output_type_3_item_data.to_dict()
+                else:
+                    output_type_3_item = output_type_3_item_data.to_dict()
+
+                output.append(output_type_3_item)
+
         else:
             output = self.output
 
@@ -136,6 +180,17 @@ class AgentSpan:
             for redacted_output_type_2_item_data in self.redacted_output:
                 redacted_output_type_2_item = redacted_output_type_2_item_data.to_dict()
                 redacted_output.append(redacted_output_type_2_item)
+
+        elif isinstance(self.redacted_output, list):
+            redacted_output = []
+            for redacted_output_type_3_item_data in self.redacted_output:
+                redacted_output_type_3_item: dict[str, Any]
+                if isinstance(redacted_output_type_3_item_data, TextContentPart):
+                    redacted_output_type_3_item = redacted_output_type_3_item_data.to_dict()
+                else:
+                    redacted_output_type_3_item = redacted_output_type_3_item_data.to_dict()
+
+                redacted_output.append(redacted_output_type_3_item)
 
         else:
             redacted_output = self.redacted_output
@@ -260,10 +315,12 @@ class AgentSpan:
         from ..models.agent_span_dataset_metadata import AgentSpanDatasetMetadata
         from ..models.agent_span_user_metadata import AgentSpanUserMetadata
         from ..models.document import Document
+        from ..models.file_content_part import FileContentPart
         from ..models.llm_span import LlmSpan
         from ..models.message import Message
         from ..models.metrics import Metrics
         from ..models.retriever_span import RetrieverSpan
+        from ..models.text_content_part import TextContentPart
         from ..models.tool_span import ToolSpan
         from ..models.workflow_span import WorkflowSpan
 
@@ -272,7 +329,9 @@ class AgentSpan:
         if type_ != "agent" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'agent', got '{type_}'")
 
-        def _parse_input_(data: object) -> Union[Unset, list["Message"], str]:
+        def _parse_input_(
+            data: object,
+        ) -> Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if isinstance(data, Unset):
                 return data
             try:
@@ -288,11 +347,39 @@ class AgentSpan:
                 return input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[Unset, list["Message"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                input_type_2 = []
+                _input_type_2 = data
+                for input_type_2_item_data in _input_type_2:
+
+                    def _parse_input_type_2_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    input_type_2_item = _parse_input_type_2_item(input_type_2_item_data)
+
+                    input_type_2.append(input_type_2_item)
+
+                return input_type_2
+            except:  # noqa: E722
+                pass
+            return cast(Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
-        def _parse_redacted_input(data: object) -> Union[None, Unset, list["Message"], str]:
+        def _parse_redacted_input(
+            data: object,
+        ) -> Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -310,11 +397,41 @@ class AgentSpan:
                 return redacted_input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["Message"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_input_type_2 = []
+                _redacted_input_type_2 = data
+                for redacted_input_type_2_item_data in _redacted_input_type_2:
+
+                    def _parse_redacted_input_type_2_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    redacted_input_type_2_item = _parse_redacted_input_type_2_item(redacted_input_type_2_item_data)
+
+                    redacted_input_type_2.append(redacted_input_type_2_item)
+
+                return redacted_input_type_2
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data
+            )
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
-        def _parse_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
+        def _parse_output(
+            data: object,
+        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -339,11 +456,42 @@ class AgentSpan:
                 return output_type_2
             except:  # noqa: E722
                 pass
-            return cast(Union["Message", None, Unset, list["Document"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                output_type_3 = []
+                _output_type_3 = data
+                for output_type_3_item_data in _output_type_3:
+
+                    def _parse_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    output_type_3_item = _parse_output_type_3_item(output_type_3_item_data)
+
+                    output_type_3.append(output_type_3_item)
+
+                return output_type_3
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                data,
+            )
 
         output = _parse_output(d.pop("output", UNSET))
 
-        def _parse_redacted_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
+        def _parse_redacted_output(
+            data: object,
+        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -368,7 +516,36 @@ class AgentSpan:
                 return redacted_output_type_2
             except:  # noqa: E722
                 pass
-            return cast(Union["Message", None, Unset, list["Document"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_output_type_3 = []
+                _redacted_output_type_3 = data
+                for redacted_output_type_3_item_data in _redacted_output_type_3:
+
+                    def _parse_redacted_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    redacted_output_type_3_item = _parse_redacted_output_type_3_item(redacted_output_type_3_item_data)
+
+                    redacted_output_type_3.append(redacted_output_type_3_item)
+
+                return redacted_output_type_3
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                data,
+            )
 
         redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
 

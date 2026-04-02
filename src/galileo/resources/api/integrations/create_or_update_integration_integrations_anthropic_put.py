@@ -81,7 +81,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: AnthropicIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Anthropic integration.
 
      Create or update an Anthropic integration for this user from Galileo.
 
@@ -105,7 +105,7 @@ def sync_detailed(
 
 
 def sync(*, client: ApiClient, body: AnthropicIntegrationCreate) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Anthropic integration.
 
      Create or update an Anthropic integration for this user from Galileo.
 
@@ -127,7 +127,7 @@ def sync(*, client: ApiClient, body: AnthropicIntegrationCreate) -> Optional[Uni
 async def asyncio_detailed(
     *, client: ApiClient, body: AnthropicIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Anthropic integration.
 
      Create or update an Anthropic integration for this user from Galileo.
 
@@ -153,7 +153,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: ApiClient, body: AnthropicIntegrationCreate
 ) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Anthropic integration.
 
      Create or update an Anthropic integration for this user from Galileo.
 
