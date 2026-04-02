@@ -20,14 +20,12 @@ class MetadataFilter:
         key (str):
         value (Union[list[str], str]):
         name (Union[Literal['metadata'], Unset]):  Default: 'metadata'.
-        filter_type (Union[Literal['map'], Unset]):  Default: 'map'.
     """
 
     operator: MetadataFilterOperator
     key: str
     value: Union[list[str], str]
     name: Union[Literal["metadata"], Unset] = "metadata"
-    filter_type: Union[Literal["map"], Unset] = "map"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,15 +38,11 @@ class MetadataFilter:
 
         name = self.name
 
-        filter_type = self.filter_type
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"operator": operator, "key": key, "value": value})
         if name is not UNSET:
             field_dict["name"] = name
-        if filter_type is not UNSET:
-            field_dict["filter_type"] = filter_type
 
         return field_dict
 
@@ -75,11 +69,7 @@ class MetadataFilter:
         if name != "metadata" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'metadata', got '{name}'")
 
-        filter_type = cast(Union[Literal["map"], Unset], d.pop("filter_type", UNSET))
-        if filter_type != "map" and not isinstance(filter_type, Unset):
-            raise ValueError(f"filter_type must match const 'map', got '{filter_type}'")
-
-        metadata_filter = cls(operator=operator, key=key, value=value, name=name, filter_type=filter_type)
+        metadata_filter = cls(operator=operator, key=key, value=value, name=name)
 
         metadata_filter.additional_properties = d
         return metadata_filter

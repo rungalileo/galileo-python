@@ -30,7 +30,7 @@ class PromptRunSettings:
         verbosity (Union[Unset, str]):  Default: 'medium'.
         deployment_name (Union[None, Unset, str]):
         model_alias (Union[Unset, str]):  Default: 'gpt-5.1'.
-        temperature (Union[Unset, float]):  Default: 1.0.
+        temperature (Union[None, Unset, float]):
         max_tokens (Union[Unset, int]):  Default: 4096.
         stop_sequences (Union[None, Unset, list[str]]):
         top_p (Union[Unset, float]):  Default: 1.0.
@@ -51,7 +51,7 @@ class PromptRunSettings:
     verbosity: Union[Unset, str] = "medium"
     deployment_name: Union[None, Unset, str] = UNSET
     model_alias: Union[Unset, str] = "gpt-5.1"
-    temperature: Union[Unset, float] = 1.0
+    temperature: Union[None, Unset, float] = UNSET
     max_tokens: Union[Unset, int] = 4096
     stop_sequences: Union[None, Unset, list[str]] = UNSET
     top_p: Union[Unset, float] = 1.0
@@ -85,7 +85,8 @@ class PromptRunSettings:
 
         model_alias = self.model_alias
 
-        temperature = self.temperature
+        temperature: Union[None, Unset, float]
+        temperature = UNSET if isinstance(self.temperature, Unset) else self.temperature
 
         max_tokens = self.max_tokens
 
@@ -216,7 +217,14 @@ class PromptRunSettings:
 
         model_alias = d.pop("model_alias", UNSET)
 
-        temperature = d.pop("temperature", UNSET)
+        def _parse_temperature(data: object) -> Union[None, Unset, float]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, float], data)
+
+        temperature = _parse_temperature(d.pop("temperature", UNSET))
 
         max_tokens = d.pop("max_tokens", UNSET)
 

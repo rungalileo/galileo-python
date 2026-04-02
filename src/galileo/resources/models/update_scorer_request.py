@@ -6,11 +6,16 @@ from attrs import field as _attrs_field
 
 from ..models.input_type_enum import InputTypeEnum
 from ..models.model_type import ModelType
+from ..models.multimodal_capability import MultimodalCapability
 from ..models.numeric_roll_up_method import NumericRollUpMethod
 from ..models.output_type_enum import OutputTypeEnum
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.metric_color_picker_boolean import MetricColorPickerBoolean
+    from ..models.metric_color_picker_categorical import MetricColorPickerCategorical
+    from ..models.metric_color_picker_multi_label import MetricColorPickerMultiLabel
+    from ..models.metric_color_picker_numeric import MetricColorPickerNumeric
     from ..models.scorer_defaults import ScorerDefaults
 
 
@@ -33,8 +38,11 @@ class UpdateScorerRequest:
         scoreable_node_types (Union[None, Unset, list[str]]):
         output_type (Union[None, OutputTypeEnum, Unset]):
         input_type (Union[InputTypeEnum, None, Unset]):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
         required_scorers (Union[None, Unset, list[str]]):
         roll_up_method (Union[None, NumericRollUpMethod, Unset]):
+        metric_color_picker_config (Union['MetricColorPickerBoolean', 'MetricColorPickerCategorical',
+            'MetricColorPickerMultiLabel', 'MetricColorPickerNumeric', None, Unset]):
     """
 
     name: Union[None, Unset, str] = UNSET
@@ -48,11 +56,24 @@ class UpdateScorerRequest:
     scoreable_node_types: Union[None, Unset, list[str]] = UNSET
     output_type: Union[None, OutputTypeEnum, Unset] = UNSET
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
     required_scorers: Union[None, Unset, list[str]] = UNSET
     roll_up_method: Union[None, NumericRollUpMethod, Unset] = UNSET
+    metric_color_picker_config: Union[
+        "MetricColorPickerBoolean",
+        "MetricColorPickerCategorical",
+        "MetricColorPickerMultiLabel",
+        "MetricColorPickerNumeric",
+        None,
+        Unset,
+    ] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.metric_color_picker_boolean import MetricColorPickerBoolean
+        from ..models.metric_color_picker_categorical import MetricColorPickerCategorical
+        from ..models.metric_color_picker_multi_label import MetricColorPickerMultiLabel
+        from ..models.metric_color_picker_numeric import MetricColorPickerNumeric
         from ..models.scorer_defaults import ScorerDefaults
 
         name: Union[None, Unset, str]
@@ -120,6 +141,18 @@ class UpdateScorerRequest:
         else:
             input_type = self.input_type
 
+        multimodal_capabilities: Union[None, Unset, list[str]]
+        if isinstance(self.multimodal_capabilities, Unset):
+            multimodal_capabilities = UNSET
+        elif isinstance(self.multimodal_capabilities, list):
+            multimodal_capabilities = []
+            for multimodal_capabilities_type_0_item_data in self.multimodal_capabilities:
+                multimodal_capabilities_type_0_item = multimodal_capabilities_type_0_item_data.value
+                multimodal_capabilities.append(multimodal_capabilities_type_0_item)
+
+        else:
+            multimodal_capabilities = self.multimodal_capabilities
+
         required_scorers: Union[None, Unset, list[str]]
         if isinstance(self.required_scorers, Unset):
             required_scorers = UNSET
@@ -136,6 +169,22 @@ class UpdateScorerRequest:
             roll_up_method = self.roll_up_method.value
         else:
             roll_up_method = self.roll_up_method
+
+        metric_color_picker_config: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.metric_color_picker_config, Unset):
+            metric_color_picker_config = UNSET
+        elif isinstance(
+            self.metric_color_picker_config,
+            (
+                MetricColorPickerNumeric,
+                MetricColorPickerBoolean,
+                MetricColorPickerCategorical,
+                MetricColorPickerMultiLabel,
+            ),
+        ):
+            metric_color_picker_config = self.metric_color_picker_config.to_dict()
+        else:
+            metric_color_picker_config = self.metric_color_picker_config
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -162,15 +211,23 @@ class UpdateScorerRequest:
             field_dict["output_type"] = output_type
         if input_type is not UNSET:
             field_dict["input_type"] = input_type
+        if multimodal_capabilities is not UNSET:
+            field_dict["multimodal_capabilities"] = multimodal_capabilities
         if required_scorers is not UNSET:
             field_dict["required_scorers"] = required_scorers
         if roll_up_method is not UNSET:
             field_dict["roll_up_method"] = roll_up_method
+        if metric_color_picker_config is not UNSET:
+            field_dict["metric_color_picker_config"] = metric_color_picker_config
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.metric_color_picker_boolean import MetricColorPickerBoolean
+        from ..models.metric_color_picker_categorical import MetricColorPickerCategorical
+        from ..models.metric_color_picker_multi_label import MetricColorPickerMultiLabel
+        from ..models.metric_color_picker_numeric import MetricColorPickerNumeric
         from ..models.scorer_defaults import ScorerDefaults
 
         d = dict(src_dict)
@@ -316,6 +373,28 @@ class UpdateScorerRequest:
 
         input_type = _parse_input_type(d.pop("input_type", UNSET))
 
+        def _parse_multimodal_capabilities(data: object) -> Union[None, Unset, list[MultimodalCapability]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                multimodal_capabilities_type_0 = []
+                _multimodal_capabilities_type_0 = data
+                for multimodal_capabilities_type_0_item_data in _multimodal_capabilities_type_0:
+                    multimodal_capabilities_type_0_item = MultimodalCapability(multimodal_capabilities_type_0_item_data)
+
+                    multimodal_capabilities_type_0.append(multimodal_capabilities_type_0_item)
+
+                return multimodal_capabilities_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[MultimodalCapability]], data)
+
+        multimodal_capabilities = _parse_multimodal_capabilities(d.pop("multimodal_capabilities", UNSET))
+
         def _parse_required_scorers(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
@@ -348,6 +427,62 @@ class UpdateScorerRequest:
 
         roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
 
+        def _parse_metric_color_picker_config(
+            data: object,
+        ) -> Union[
+            "MetricColorPickerBoolean",
+            "MetricColorPickerCategorical",
+            "MetricColorPickerMultiLabel",
+            "MetricColorPickerNumeric",
+            None,
+            Unset,
+        ]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return MetricColorPickerNumeric.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return MetricColorPickerBoolean.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return MetricColorPickerCategorical.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return MetricColorPickerMultiLabel.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union[
+                    "MetricColorPickerBoolean",
+                    "MetricColorPickerCategorical",
+                    "MetricColorPickerMultiLabel",
+                    "MetricColorPickerNumeric",
+                    None,
+                    Unset,
+                ],
+                data,
+            )
+
+        metric_color_picker_config = _parse_metric_color_picker_config(d.pop("metric_color_picker_config", UNSET))
+
         update_scorer_request = cls(
             name=name,
             description=description,
@@ -360,8 +495,10 @@ class UpdateScorerRequest:
             scoreable_node_types=scoreable_node_types,
             output_type=output_type,
             input_type=input_type,
+            multimodal_capabilities=multimodal_capabilities,
             required_scorers=required_scorers,
             roll_up_method=roll_up_method,
+            metric_color_picker_config=metric_color_picker_config,
         )
 
         update_scorer_request.additional_properties = d

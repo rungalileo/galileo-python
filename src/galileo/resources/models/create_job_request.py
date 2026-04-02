@@ -122,9 +122,11 @@ class CreateJobRequest:
         prompt_optimization_configuration (Union['PromptOptimizationConfiguration', None, Unset]):
         epoch (Union[Unset, int]):  Default: 0.
         metric_critique_configuration (Union['MetricCritiqueJobConfiguration', None, Unset]):
+        is_session (Union[None, Unset, bool]):
         upload_data_in_separate_task (Union[Unset, bool]):  Default: True.
-        log_metric_computing_records (Union[Unset, bool]):  Default: False.
+        log_metric_computing_records (Union[Unset, bool]):  Default: True.
         stream_metrics (Union[Unset, bool]):  Default: False.
+        multijudge_average_boolean_metrics (Union[Unset, bool]):  Default: False.
     """
 
     project_id: str
@@ -219,9 +221,11 @@ class CreateJobRequest:
     prompt_optimization_configuration: Union["PromptOptimizationConfiguration", None, Unset] = UNSET
     epoch: Union[Unset, int] = 0
     metric_critique_configuration: Union["MetricCritiqueJobConfiguration", None, Unset] = UNSET
+    is_session: Union[None, Unset, bool] = UNSET
     upload_data_in_separate_task: Union[Unset, bool] = True
-    log_metric_computing_records: Union[Unset, bool] = False
+    log_metric_computing_records: Union[Unset, bool] = True
     stream_metrics: Union[Unset, bool] = False
+    multijudge_average_boolean_metrics: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -583,11 +587,16 @@ class CreateJobRequest:
         else:
             metric_critique_configuration = self.metric_critique_configuration
 
+        is_session: Union[None, Unset, bool]
+        is_session = UNSET if isinstance(self.is_session, Unset) else self.is_session
+
         upload_data_in_separate_task = self.upload_data_in_separate_task
 
         log_metric_computing_records = self.log_metric_computing_records
 
         stream_metrics = self.stream_metrics
+
+        multijudge_average_boolean_metrics = self.multijudge_average_boolean_metrics
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -664,12 +673,16 @@ class CreateJobRequest:
             field_dict["epoch"] = epoch
         if metric_critique_configuration is not UNSET:
             field_dict["metric_critique_configuration"] = metric_critique_configuration
+        if is_session is not UNSET:
+            field_dict["is_session"] = is_session
         if upload_data_in_separate_task is not UNSET:
             field_dict["upload_data_in_separate_task"] = upload_data_in_separate_task
         if log_metric_computing_records is not UNSET:
             field_dict["log_metric_computing_records"] = log_metric_computing_records
         if stream_metrics is not UNSET:
             field_dict["stream_metrics"] = stream_metrics
+        if multijudge_average_boolean_metrics is not UNSET:
+            field_dict["multijudge_average_boolean_metrics"] = multijudge_average_boolean_metrics
 
         return field_dict
 
@@ -1664,11 +1677,22 @@ class CreateJobRequest:
             d.pop("metric_critique_configuration", UNSET)
         )
 
+        def _parse_is_session(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        is_session = _parse_is_session(d.pop("is_session", UNSET))
+
         upload_data_in_separate_task = d.pop("upload_data_in_separate_task", UNSET)
 
         log_metric_computing_records = d.pop("log_metric_computing_records", UNSET)
 
         stream_metrics = d.pop("stream_metrics", UNSET)
+
+        multijudge_average_boolean_metrics = d.pop("multijudge_average_boolean_metrics", UNSET)
 
         create_job_request = cls(
             project_id=project_id,
@@ -1709,9 +1733,11 @@ class CreateJobRequest:
             prompt_optimization_configuration=prompt_optimization_configuration,
             epoch=epoch,
             metric_critique_configuration=metric_critique_configuration,
+            is_session=is_session,
             upload_data_in_separate_task=upload_data_in_separate_task,
             log_metric_computing_records=log_metric_computing_records,
             stream_metrics=stream_metrics,
+            multijudge_average_boolean_metrics=multijudge_average_boolean_metrics,
         )
 
         create_job_request.additional_properties = d

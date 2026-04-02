@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.input_modality import InputModality
+from ..models.content_modality import ContentModality
 from ..models.llm_integration import LLMIntegration
 from ..models.model_cost_by import ModelCostBy
 from ..types import UNSET, Unset
@@ -29,7 +29,7 @@ class Model:
         user_role (Union[None, Unset, str]):
         assistant_role (Union[None, Unset, str]):
         system_supported (Union[Unset, bool]):  Default: False.
-        input_modalities (Union[Unset, list[InputModality]]): Input modalities that the model can accept.
+        input_modalities (Union[Unset, list[ContentModality]]): Input modalities that the model can accept.
         alternative_names (Union[Unset, list[str]]): Alternative names for the model, used for matching with various
             current, versioned or legacy names.
         input_token_limit (Union[None, Unset, int]):
@@ -44,6 +44,7 @@ class Model:
         response_prefix_tokens (Union[Unset, int]):  Default: 0.
         api_version (Union[None, Unset, str]):
         legacy_mistral_prompt_format (Union[Unset, bool]):  Default: False.
+        requires_max_tokens (Union[Unset, bool]):  Default: False.
         max_top_p (Union[None, Unset, float]):
         params_map (Union[Unset, RunParamsMap]): Maps the internal settings parameters (left) to the serialized
             parameters (right) we want to send in the API
@@ -58,7 +59,7 @@ class Model:
     user_role: Union[None, Unset, str] = UNSET
     assistant_role: Union[None, Unset, str] = UNSET
     system_supported: Union[Unset, bool] = False
-    input_modalities: Union[Unset, list[InputModality]] = UNSET
+    input_modalities: Union[Unset, list[ContentModality]] = UNSET
     alternative_names: Union[Unset, list[str]] = UNSET
     input_token_limit: Union[None, Unset, int] = UNSET
     output_token_limit: Union[None, Unset, int] = UNSET
@@ -72,6 +73,7 @@ class Model:
     response_prefix_tokens: Union[Unset, int] = 0
     api_version: Union[None, Unset, str] = UNSET
     legacy_mistral_prompt_format: Union[Unset, bool] = False
+    requires_max_tokens: Union[Unset, bool] = False
     max_top_p: Union[None, Unset, float] = UNSET
     params_map: Union[Unset, "RunParamsMap"] = UNSET
     output_map: Union["OutputMap", None, Unset] = UNSET
@@ -139,6 +141,8 @@ class Model:
 
         legacy_mistral_prompt_format = self.legacy_mistral_prompt_format
 
+        requires_max_tokens = self.requires_max_tokens
+
         max_top_p: Union[None, Unset, float]
         max_top_p = UNSET if isinstance(self.max_top_p, Unset) else self.max_top_p
 
@@ -201,6 +205,8 @@ class Model:
             field_dict["api_version"] = api_version
         if legacy_mistral_prompt_format is not UNSET:
             field_dict["legacy_mistral_prompt_format"] = legacy_mistral_prompt_format
+        if requires_max_tokens is not UNSET:
+            field_dict["requires_max_tokens"] = requires_max_tokens
         if max_top_p is not UNSET:
             field_dict["max_top_p"] = max_top_p
         if params_map is not UNSET:
@@ -250,7 +256,7 @@ class Model:
         input_modalities = []
         _input_modalities = d.pop("input_modalities", UNSET)
         for input_modalities_item_data in _input_modalities or []:
-            input_modalities_item = InputModality(input_modalities_item_data)
+            input_modalities_item = ContentModality(input_modalities_item_data)
 
             input_modalities.append(input_modalities_item)
 
@@ -309,6 +315,8 @@ class Model:
         api_version = _parse_api_version(d.pop("api_version", UNSET))
 
         legacy_mistral_prompt_format = d.pop("legacy_mistral_prompt_format", UNSET)
+
+        requires_max_tokens = d.pop("requires_max_tokens", UNSET)
 
         def _parse_max_top_p(data: object) -> Union[None, Unset, float]:
             if data is None:
@@ -376,6 +384,7 @@ class Model:
             response_prefix_tokens=response_prefix_tokens,
             api_version=api_version,
             legacy_mistral_prompt_format=legacy_mistral_prompt_format,
+            requires_max_tokens=requires_max_tokens,
             max_top_p=max_top_p,
             params_map=params_map,
             output_map=output_map,
