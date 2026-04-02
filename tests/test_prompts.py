@@ -1423,7 +1423,7 @@ def test_list_prompt_templates_deprecated(mock_projects_get: Mock, query_templat
     )
 
     # Should work but emit deprecation warning
-    with pytest.warns(DeprecationWarning, match="list_prompt_templates is deprecated, use get_prompts instead"):
+    with pytest.warns(DeprecationWarning, match="Use galileo.prompt.Prompt.list"):
         templates = list_prompt_templates(project="My Project")
 
     assert len(templates) == 1
@@ -1456,7 +1456,7 @@ def test_get_prompt_template_deprecated(query_templates_mock: Mock, get_template
     get_template_mock.sync.return_value = template
 
     # Should work but emit deprecation warning
-    with pytest.warns(DeprecationWarning, match="get_prompt_template is deprecated, use get_prompt instead"):
+    with pytest.warns(DeprecationWarning, match="Use galileo.prompt.Prompt.get"):
         result = get_prompt_template(name="my-template", project="My Project")
 
     assert result is not None
@@ -1573,7 +1573,7 @@ def test_create_prompt_template_still_works(
     )
 
     # Should work but emit deprecation warning
-    with pytest.warns(DeprecationWarning, match="create_prompt_template is deprecated, use create_prompt instead"):
+    with pytest.warns(DeprecationWarning, match="Use galileo.prompt.Prompt"):
         template = create_prompt_template(
             name="test-template", project="My Project", messages=[Message(role=MessageRole.system, content="test")]
         )
