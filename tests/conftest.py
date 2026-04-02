@@ -530,3 +530,43 @@ def mock_collaborator() -> MagicMock:
     mock_collab.last_name = "Collaborator"
     mock_collab.permissions = []
     return mock_collab
+
+
+# ---------------------------------------------------------------------------
+# Test visibility & logger teardown (SC-60512)
+# ---------------------------------------------------------------------------
+
+
+def pytest_runtest_logstart(nodeid: str, location: tuple) -> None:
+    """Log when a test starts, so CI logs identify which test hangs."""
+    print(f"\n[TEST START] {nodeid}", flush=True)
+
+
+def pytest_runtest_logfinish(nodeid: str, location: tuple) -> None:
+    """Log when a test finishes."""
+    print(f"[TEST FINISH] {nodeid}", flush=True)
+
+
+@pytest.fixture(autouse=True)
+def terminate_galileo_loggers(monkeypatch: pytest.MonkeyPatch) -> Generator[None, None, None]:
+    """Track all GalileoLogger instances created during a test and terminate them afterward.
+
+    Prevents atexit handlers from running 90-second busy-poll loops when background
+    thread pool tasks are blocked by --disable-socket. See SC-60512.
+    """
+    from galileo.logger.logger import GalileoLogger
+
+    created_loggers: list[GalileoLogger] = []
+    original_init = GalileoLogger.__init__
+
+    def tracking_init(self: GalileoLogger, *args: object, **kwargs: object) -> None:
+        original_init(self, *args, **kwargs)
+        created_loggers.append(self)
+
+    monkeypatch.setattr(GalileoLogger, "__init__", tracking_init)
+    yield
+    for logger_instance in reversed(created_loggers):
+        try:
+            logger_instance.terminate()
+        except Exception:
+            pass  # terminate() is already resilient; belt-and-suspenders
