@@ -6,6 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from ..models.content_modality import ContentModality
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -13,18 +14,25 @@ if TYPE_CHECKING:
     from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
     from ..models.extended_retriever_span_record_with_children import ExtendedRetrieverSpanRecordWithChildren
     from ..models.extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
+    from ..models.extended_trace_record_with_children_annotation_aggregates import (
+        ExtendedTraceRecordWithChildrenAnnotationAggregates,
+    )
+    from ..models.extended_trace_record_with_children_annotations import ExtendedTraceRecordWithChildrenAnnotations
     from ..models.extended_trace_record_with_children_dataset_metadata import (
         ExtendedTraceRecordWithChildrenDatasetMetadata,
     )
     from ..models.extended_trace_record_with_children_feedback_rating_info import (
         ExtendedTraceRecordWithChildrenFeedbackRatingInfo,
     )
+    from ..models.extended_trace_record_with_children_files_type_0 import ExtendedTraceRecordWithChildrenFilesType0
     from ..models.extended_trace_record_with_children_metric_info_type_0 import (
         ExtendedTraceRecordWithChildrenMetricInfoType0,
     )
     from ..models.extended_trace_record_with_children_user_metadata import ExtendedTraceRecordWithChildrenUserMetadata
     from ..models.extended_workflow_span_record_with_children import ExtendedWorkflowSpanRecordWithChildren
+    from ..models.file_content_part import FileContentPart
     from ..models.metrics import Metrics
+    from ..models.text_content_part import TextContentPart
 
 
 T = TypeVar("T", bound="ExtendedTraceRecordWithChildren")
@@ -44,10 +52,14 @@ class ExtendedTraceRecordWithChildren:
             'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren',
             'ExtendedWorkflowSpanRecordWithChildren']]]):
         type_ (Union[Literal['trace'], Unset]): Type of the trace, span or session. Default: 'trace'.
-        input_ (Union[Unset, str]): Input to the trace or span. Default: ''.
-        redacted_input (Union[None, Unset, str]): Redacted input of the trace or span.
-        output (Union[None, Unset, str]): Output of the trace or span.
-        redacted_output (Union[None, Unset, str]): Redacted output of the trace or span.
+        input_ (Union[Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Input to the trace or span.
+            Default: ''.
+        redacted_input (Union[None, Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Redacted input of
+            the trace or span.
+        output (Union[None, Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Output of the trace or
+            span.
+        redacted_output (Union[None, Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Redacted output of
+            the trace or span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         user_metadata (Union[Unset, ExtendedTraceRecordWithChildrenUserMetadata]): Metadata associated with this trace
@@ -67,8 +79,17 @@ class ExtendedTraceRecordWithChildren:
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         feedback_rating_info (Union[Unset, ExtendedTraceRecordWithChildrenFeedbackRatingInfo]): Feedback information
             related to the record
+        annotations (Union[Unset, ExtendedTraceRecordWithChildrenAnnotations]): Annotations keyed by template ID and
+            annotator ID
+        file_ids (Union[Unset, list[str]]): IDs of files associated with this record
+        file_modalities (Union[Unset, list[ContentModality]]): Modalities of files associated with this record
+        annotation_aggregates (Union[Unset, ExtendedTraceRecordWithChildrenAnnotationAggregates]): Annotation aggregate
+            information keyed by template ID
+        annotation_queue_ids (Union[Unset, list[str]]): IDs of annotation queues this record is in
         metric_info (Union['ExtendedTraceRecordWithChildrenMetricInfoType0', None, Unset]): Detailed information about
             the metrics associated with this trace or span
+        files (Union['ExtendedTraceRecordWithChildrenFilesType0', None, Unset]): File metadata keyed by file ID for
+            files associated with this record
         is_complete (Union[Unset, bool]): Whether the trace is complete or not Default: True.
         num_spans (Union[None, Unset, int]):
     """
@@ -91,10 +112,10 @@ class ExtendedTraceRecordWithChildren:
         ],
     ] = UNSET
     type_: Union[Literal["trace"], Unset] = "trace"
-    input_: Union[Unset, str] = ""
-    redacted_input: Union[None, Unset, str] = UNSET
-    output: Union[None, Unset, str] = UNSET
-    redacted_output: Union[None, Unset, str] = UNSET
+    input_: Union[Unset, list[Union["FileContentPart", "TextContentPart"]], str] = ""
+    redacted_input: Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
+    output: Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
+    redacted_output: Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
     name: Union[Unset, str] = ""
     created_at: Union[Unset, datetime.datetime] = UNSET
     user_metadata: Union[Unset, "ExtendedTraceRecordWithChildrenUserMetadata"] = UNSET
@@ -110,7 +131,13 @@ class ExtendedTraceRecordWithChildren:
     metrics_batch_id: Union[None, Unset, str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
     feedback_rating_info: Union[Unset, "ExtendedTraceRecordWithChildrenFeedbackRatingInfo"] = UNSET
+    annotations: Union[Unset, "ExtendedTraceRecordWithChildrenAnnotations"] = UNSET
+    file_ids: Union[Unset, list[str]] = UNSET
+    file_modalities: Union[Unset, list[ContentModality]] = UNSET
+    annotation_aggregates: Union[Unset, "ExtendedTraceRecordWithChildrenAnnotationAggregates"] = UNSET
+    annotation_queue_ids: Union[Unset, list[str]] = UNSET
     metric_info: Union["ExtendedTraceRecordWithChildrenMetricInfoType0", None, Unset] = UNSET
+    files: Union["ExtendedTraceRecordWithChildrenFilesType0", None, Unset] = UNSET
     is_complete: Union[Unset, bool] = True
     num_spans: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -119,10 +146,12 @@ class ExtendedTraceRecordWithChildren:
         from ..models.extended_agent_span_record_with_children import ExtendedAgentSpanRecordWithChildren
         from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
         from ..models.extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
+        from ..models.extended_trace_record_with_children_files_type_0 import ExtendedTraceRecordWithChildrenFilesType0
         from ..models.extended_trace_record_with_children_metric_info_type_0 import (
             ExtendedTraceRecordWithChildrenMetricInfoType0,
         )
         from ..models.extended_workflow_span_record_with_children import ExtendedWorkflowSpanRecordWithChildren
+        from ..models.text_content_part import TextContentPart
 
         id = self.id
 
@@ -156,16 +185,73 @@ class ExtendedTraceRecordWithChildren:
 
         type_ = self.type_
 
-        input_ = self.input_
+        input_: Union[Unset, list[dict[str, Any]], str]
+        if isinstance(self.input_, Unset):
+            input_ = UNSET
+        elif isinstance(self.input_, list):
+            input_ = []
+            for input_type_1_item_data in self.input_:
+                input_type_1_item: dict[str, Any]
+                if isinstance(input_type_1_item_data, TextContentPart):
+                    input_type_1_item = input_type_1_item_data.to_dict()
+                else:
+                    input_type_1_item = input_type_1_item_data.to_dict()
 
-        redacted_input: Union[None, Unset, str]
-        redacted_input = UNSET if isinstance(self.redacted_input, Unset) else self.redacted_input
+                input_.append(input_type_1_item)
 
-        output: Union[None, Unset, str]
-        output = UNSET if isinstance(self.output, Unset) else self.output
+        else:
+            input_ = self.input_
 
-        redacted_output: Union[None, Unset, str]
-        redacted_output = UNSET if isinstance(self.redacted_output, Unset) else self.redacted_output
+        redacted_input: Union[None, Unset, list[dict[str, Any]], str]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        elif isinstance(self.redacted_input, list):
+            redacted_input = []
+            for redacted_input_type_1_item_data in self.redacted_input:
+                redacted_input_type_1_item: dict[str, Any]
+                if isinstance(redacted_input_type_1_item_data, TextContentPart):
+                    redacted_input_type_1_item = redacted_input_type_1_item_data.to_dict()
+                else:
+                    redacted_input_type_1_item = redacted_input_type_1_item_data.to_dict()
+
+                redacted_input.append(redacted_input_type_1_item)
+
+        else:
+            redacted_input = self.redacted_input
+
+        output: Union[None, Unset, list[dict[str, Any]], str]
+        if isinstance(self.output, Unset):
+            output = UNSET
+        elif isinstance(self.output, list):
+            output = []
+            for output_type_1_item_data in self.output:
+                output_type_1_item: dict[str, Any]
+                if isinstance(output_type_1_item_data, TextContentPart):
+                    output_type_1_item = output_type_1_item_data.to_dict()
+                else:
+                    output_type_1_item = output_type_1_item_data.to_dict()
+
+                output.append(output_type_1_item)
+
+        else:
+            output = self.output
+
+        redacted_output: Union[None, Unset, list[dict[str, Any]], str]
+        if isinstance(self.redacted_output, Unset):
+            redacted_output = UNSET
+        elif isinstance(self.redacted_output, list):
+            redacted_output = []
+            for redacted_output_type_1_item_data in self.redacted_output:
+                redacted_output_type_1_item: dict[str, Any]
+                if isinstance(redacted_output_type_1_item_data, TextContentPart):
+                    redacted_output_type_1_item = redacted_output_type_1_item_data.to_dict()
+                else:
+                    redacted_output_type_1_item = redacted_output_type_1_item_data.to_dict()
+
+                redacted_output.append(redacted_output_type_1_item)
+
+        else:
+            redacted_output = self.redacted_output
 
         name = self.name
 
@@ -222,6 +308,29 @@ class ExtendedTraceRecordWithChildren:
         if not isinstance(self.feedback_rating_info, Unset):
             feedback_rating_info = self.feedback_rating_info.to_dict()
 
+        annotations: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.annotations, Unset):
+            annotations = self.annotations.to_dict()
+
+        file_ids: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.file_ids, Unset):
+            file_ids = self.file_ids
+
+        file_modalities: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.file_modalities, Unset):
+            file_modalities = []
+            for file_modalities_item_data in self.file_modalities:
+                file_modalities_item = file_modalities_item_data.value
+                file_modalities.append(file_modalities_item)
+
+        annotation_aggregates: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.annotation_aggregates, Unset):
+            annotation_aggregates = self.annotation_aggregates.to_dict()
+
+        annotation_queue_ids: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.annotation_queue_ids, Unset):
+            annotation_queue_ids = self.annotation_queue_ids
+
         metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
@@ -229,6 +338,14 @@ class ExtendedTraceRecordWithChildren:
             metric_info = self.metric_info.to_dict()
         else:
             metric_info = self.metric_info
+
+        files: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.files, Unset):
+            files = UNSET
+        elif isinstance(self.files, ExtendedTraceRecordWithChildrenFilesType0):
+            files = self.files.to_dict()
+        else:
+            files = self.files
 
         is_complete = self.is_complete
 
@@ -282,8 +399,20 @@ class ExtendedTraceRecordWithChildren:
             field_dict["session_batch_id"] = session_batch_id
         if feedback_rating_info is not UNSET:
             field_dict["feedback_rating_info"] = feedback_rating_info
+        if annotations is not UNSET:
+            field_dict["annotations"] = annotations
+        if file_ids is not UNSET:
+            field_dict["file_ids"] = file_ids
+        if file_modalities is not UNSET:
+            field_dict["file_modalities"] = file_modalities
+        if annotation_aggregates is not UNSET:
+            field_dict["annotation_aggregates"] = annotation_aggregates
+        if annotation_queue_ids is not UNSET:
+            field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
+        if files is not UNSET:
+            field_dict["files"] = files
         if is_complete is not UNSET:
             field_dict["is_complete"] = is_complete
         if num_spans is not UNSET:
@@ -296,12 +425,17 @@ class ExtendedTraceRecordWithChildren:
         from ..models.extended_agent_span_record_with_children import ExtendedAgentSpanRecordWithChildren
         from ..models.extended_retriever_span_record_with_children import ExtendedRetrieverSpanRecordWithChildren
         from ..models.extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
+        from ..models.extended_trace_record_with_children_annotation_aggregates import (
+            ExtendedTraceRecordWithChildrenAnnotationAggregates,
+        )
+        from ..models.extended_trace_record_with_children_annotations import ExtendedTraceRecordWithChildrenAnnotations
         from ..models.extended_trace_record_with_children_dataset_metadata import (
             ExtendedTraceRecordWithChildrenDatasetMetadata,
         )
         from ..models.extended_trace_record_with_children_feedback_rating_info import (
             ExtendedTraceRecordWithChildrenFeedbackRatingInfo,
         )
+        from ..models.extended_trace_record_with_children_files_type_0 import ExtendedTraceRecordWithChildrenFilesType0
         from ..models.extended_trace_record_with_children_metric_info_type_0 import (
             ExtendedTraceRecordWithChildrenMetricInfoType0,
         )
@@ -309,7 +443,9 @@ class ExtendedTraceRecordWithChildren:
             ExtendedTraceRecordWithChildrenUserMetadata,
         )
         from ..models.extended_workflow_span_record_with_children import ExtendedWorkflowSpanRecordWithChildren
+        from ..models.file_content_part import FileContentPart
         from ..models.metrics import Metrics
+        from ..models.text_content_part import TextContentPart
 
         d = dict(src_dict)
         id = d.pop("id")
@@ -438,32 +574,145 @@ class ExtendedTraceRecordWithChildren:
         if type_ != "trace" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'trace', got '{type_}'")
 
-        input_ = d.pop("input", UNSET)
+        def _parse_input_(data: object) -> Union[Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                input_type_1 = []
+                _input_type_1 = data
+                for input_type_1_item_data in _input_type_1:
 
-        def _parse_redacted_input(data: object) -> Union[None, Unset, str]:
+                    def _parse_input_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    input_type_1_item = _parse_input_type_1_item(input_type_1_item_data)
+
+                    input_type_1.append(input_type_1_item)
+
+                return input_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
+
+        input_ = _parse_input_(d.pop("input", UNSET))
+
+        def _parse_redacted_input(
+            data: object,
+        ) -> Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_input_type_1 = []
+                _redacted_input_type_1 = data
+                for redacted_input_type_1_item_data in _redacted_input_type_1:
+
+                    def _parse_redacted_input_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    redacted_input_type_1_item = _parse_redacted_input_type_1_item(redacted_input_type_1_item_data)
+
+                    redacted_input_type_1.append(redacted_input_type_1_item)
+
+                return redacted_input_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
-        def _parse_output(data: object) -> Union[None, Unset, str]:
+        def _parse_output(data: object) -> Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                output_type_1 = []
+                _output_type_1 = data
+                for output_type_1_item_data in _output_type_1:
+
+                    def _parse_output_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    output_type_1_item = _parse_output_type_1_item(output_type_1_item_data)
+
+                    output_type_1.append(output_type_1_item)
+
+                return output_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         output = _parse_output(d.pop("output", UNSET))
 
-        def _parse_redacted_output(data: object) -> Union[None, Unset, str]:
+        def _parse_redacted_output(
+            data: object,
+        ) -> Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_output_type_1 = []
+                _redacted_output_type_1 = data
+                for redacted_output_type_1_item_data in _redacted_output_type_1:
+
+                    def _parse_redacted_output_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    redacted_output_type_1_item = _parse_redacted_output_type_1_item(redacted_output_type_1_item_data)
+
+                    redacted_output_type_1.append(redacted_output_type_1_item)
+
+                return redacted_output_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
 
@@ -579,6 +828,33 @@ class ExtendedTraceRecordWithChildren:
         else:
             feedback_rating_info = ExtendedTraceRecordWithChildrenFeedbackRatingInfo.from_dict(_feedback_rating_info)
 
+        _annotations = d.pop("annotations", UNSET)
+        annotations: Union[Unset, ExtendedTraceRecordWithChildrenAnnotations]
+        if isinstance(_annotations, Unset):
+            annotations = UNSET
+        else:
+            annotations = ExtendedTraceRecordWithChildrenAnnotations.from_dict(_annotations)
+
+        file_ids = cast(list[str], d.pop("file_ids", UNSET))
+
+        file_modalities = []
+        _file_modalities = d.pop("file_modalities", UNSET)
+        for file_modalities_item_data in _file_modalities or []:
+            file_modalities_item = ContentModality(file_modalities_item_data)
+
+            file_modalities.append(file_modalities_item)
+
+        _annotation_aggregates = d.pop("annotation_aggregates", UNSET)
+        annotation_aggregates: Union[Unset, ExtendedTraceRecordWithChildrenAnnotationAggregates]
+        if isinstance(_annotation_aggregates, Unset):
+            annotation_aggregates = UNSET
+        else:
+            annotation_aggregates = ExtendedTraceRecordWithChildrenAnnotationAggregates.from_dict(
+                _annotation_aggregates
+            )
+
+        annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
+
         def _parse_metric_info(data: object) -> Union["ExtendedTraceRecordWithChildrenMetricInfoType0", None, Unset]:
             if data is None:
                 return data
@@ -651,6 +927,78 @@ class ExtendedTraceRecordWithChildren:
 
         metric_info = _parse_metric_info(d.pop("metric_info", UNSET))
 
+        def _parse_files(data: object) -> Union["ExtendedTraceRecordWithChildrenFilesType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            # Discriminator-aware parsing for Extended*Record types
+            if isinstance(data, dict) and "type" in data:
+                type_value = data.get("type")
+
+                # Hardcoded discriminator mapping for Extended*Record types
+                if type_value == "trace":
+                    try:
+                        from ..models.extended_trace_record import ExtendedTraceRecord
+
+                        return ExtendedTraceRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "agent":
+                    try:
+                        from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+
+                        return ExtendedAgentSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "workflow":
+                    try:
+                        from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
+
+                        return ExtendedWorkflowSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "llm":
+                    try:
+                        from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+
+                        return ExtendedLlmSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "tool":
+                    try:
+                        from ..models.extended_tool_span_record import ExtendedToolSpanRecord
+
+                        return ExtendedToolSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "retriever":
+                    try:
+                        from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
+
+                        return ExtendedRetrieverSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                elif type_value == "session":
+                    try:
+                        from ..models.extended_session_record import ExtendedSessionRecord
+
+                        return ExtendedSessionRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+
+            # Fallback to standard union parsing
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ExtendedTraceRecordWithChildrenFilesType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["ExtendedTraceRecordWithChildrenFilesType0", None, Unset], data)
+
+        files = _parse_files(d.pop("files", UNSET))
+
         is_complete = d.pop("is_complete", UNSET)
 
         def _parse_num_spans(data: object) -> Union[None, Unset, int]:
@@ -689,7 +1037,13 @@ class ExtendedTraceRecordWithChildren:
             metrics_batch_id=metrics_batch_id,
             session_batch_id=session_batch_id,
             feedback_rating_info=feedback_rating_info,
+            annotations=annotations,
+            file_ids=file_ids,
+            file_modalities=file_modalities,
+            annotation_aggregates=annotation_aggregates,
+            annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
+            files=files,
             is_complete=is_complete,
             num_spans=num_spans,
         )

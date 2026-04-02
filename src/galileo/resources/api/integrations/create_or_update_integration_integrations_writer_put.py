@@ -77,7 +77,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: WriterIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Writer integration.
 
      Create or update a Writer integration for a user.
 
@@ -101,7 +101,7 @@ def sync_detailed(
 
 
 def sync(*, client: ApiClient, body: WriterIntegrationCreate) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Writer integration.
 
      Create or update a Writer integration for a user.
 
@@ -123,7 +123,7 @@ def sync(*, client: ApiClient, body: WriterIntegrationCreate) -> Optional[Union[
 async def asyncio_detailed(
     *, client: ApiClient, body: WriterIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Writer integration.
 
      Create or update a Writer integration for a user.
 
@@ -149,7 +149,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: ApiClient, body: WriterIntegrationCreate
 ) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Writer integration.
 
      Create or update a Writer integration for a user.
 

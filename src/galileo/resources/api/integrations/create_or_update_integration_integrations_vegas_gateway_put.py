@@ -81,7 +81,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: VegasGatewayIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Vegas Gateway integration.
 
      Create or update a Vegas Gateway integration for this user from Galileo.
 
@@ -107,7 +107,7 @@ def sync_detailed(
 def sync(
     *, client: ApiClient, body: VegasGatewayIntegrationCreate
 ) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Vegas Gateway integration.
 
      Create or update a Vegas Gateway integration for this user from Galileo.
 
@@ -129,7 +129,7 @@ def sync(
 async def asyncio_detailed(
     *, client: ApiClient, body: VegasGatewayIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Vegas Gateway integration.
 
      Create or update a Vegas Gateway integration for this user from Galileo.
 
@@ -155,7 +155,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: ApiClient, body: VegasGatewayIntegrationCreate
 ) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Vegas Gateway integration.
 
      Create or update a Vegas Gateway integration for this user from Galileo.
 

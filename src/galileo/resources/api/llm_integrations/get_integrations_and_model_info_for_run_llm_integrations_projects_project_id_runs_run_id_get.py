@@ -21,16 +21,37 @@ from ...models.get_integrations_and_model_info_for_run_llm_integrations_projects
     GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
 )
 from ...models.http_validation_error import HTTPValidationError
-from ...types import Response
+from ...models.multimodal_capability import MultimodalCapability
+from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(project_id: str, run_id: str) -> dict[str, Any]:
+def _get_kwargs(
+    project_id: str, run_id: str, *, multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+
+    params: dict[str, Any] = {}
+
+    json_multimodal_capabilities: Union[None, Unset, list[str]]
+    if isinstance(multimodal_capabilities, Unset):
+        json_multimodal_capabilities = UNSET
+    elif isinstance(multimodal_capabilities, list):
+        json_multimodal_capabilities = []
+        for multimodal_capabilities_type_0_item_data in multimodal_capabilities:
+            multimodal_capabilities_type_0_item = multimodal_capabilities_type_0_item_data.value
+            json_multimodal_capabilities.append(multimodal_capabilities_type_0_item)
+
+    else:
+        json_multimodal_capabilities = multimodal_capabilities
+    params["multimodal_capabilities"] = json_multimodal_capabilities
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
         "path": f"/llm_integrations/projects/{project_id}/runs/{run_id}",
+        "params": params,
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -88,7 +109,11 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, run_id: str, *, client: ApiClient
+    project_id: str,
+    run_id: str,
+    *,
+    client: ApiClient,
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
 ) -> Response[
     Union[
         GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
@@ -102,6 +127,7 @@ def sync_detailed(
     Args:
         project_id (str):
         run_id (str):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -112,7 +138,7 @@ def sync_detailed(
     -------
         Response[Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]]
     """
-    kwargs = _get_kwargs(project_id=project_id, run_id=run_id)
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, multimodal_capabilities=multimodal_capabilities)
 
     response = client.request(**kwargs)
 
@@ -120,7 +146,11 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str, run_id: str, *, client: ApiClient
+    project_id: str,
+    run_id: str,
+    *,
+    client: ApiClient,
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
 ) -> Optional[
     Union[
         GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
@@ -134,6 +164,7 @@ def sync(
     Args:
         project_id (str):
         run_id (str):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -144,11 +175,17 @@ def sync(
     -------
         Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]
     """
-    return sync_detailed(project_id=project_id, run_id=run_id, client=client).parsed
+    return sync_detailed(
+        project_id=project_id, run_id=run_id, client=client, multimodal_capabilities=multimodal_capabilities
+    ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, run_id: str, *, client: ApiClient
+    project_id: str,
+    run_id: str,
+    *,
+    client: ApiClient,
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
 ) -> Response[
     Union[
         GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
@@ -162,6 +199,7 @@ async def asyncio_detailed(
     Args:
         project_id (str):
         run_id (str):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -172,7 +210,7 @@ async def asyncio_detailed(
     -------
         Response[Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]]
     """
-    kwargs = _get_kwargs(project_id=project_id, run_id=run_id)
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, multimodal_capabilities=multimodal_capabilities)
 
     response = await client.arequest(**kwargs)
 
@@ -180,7 +218,11 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, run_id: str, *, client: ApiClient
+    project_id: str,
+    run_id: str,
+    *,
+    client: ApiClient,
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
 ) -> Optional[
     Union[
         GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
@@ -194,6 +236,7 @@ async def asyncio(
     Args:
         project_id (str):
         run_id (str):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -204,4 +247,8 @@ async def asyncio(
     -------
         Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]
     """
-    return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client)).parsed
+    return (
+        await asyncio_detailed(
+            project_id=project_id, run_id=run_id, client=client, multimodal_capabilities=multimodal_capabilities
+        )
+    ).parsed
