@@ -7,6 +7,7 @@
 # 1. Tests never accidentally use real credentials from developer's environment
 # 2. Test isolation - all tests see the same predictable values
 # 3. Security - prevents real API keys from leaking into test logs
+import atexit
 import os as _os
 
 import pytest
@@ -567,6 +568,11 @@ def terminate_galileo_loggers(monkeypatch: pytest.MonkeyPatch) -> Generator[None
     yield
     for logger_instance in reversed(created_loggers):
         try:
-            logger_instance.terminate()
+            # Don't call terminate() because it calls flush(), which may attempt
+            # real network calls after @patch decorators have been unwound.
+            # Instead, just unregister the atexit handler and clear state.
+            atexit.unregister(logger_instance.terminate)
+            logger_instance.traces = []
+            logger_instance._set_current_parent(None)
         except Exception:
-            pass  # terminate() is already resilient; belt-and-suspenders
+            pass  # belt-and-suspenders
