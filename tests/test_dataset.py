@@ -527,6 +527,40 @@ class TestDatasetGetVersionContent:
         with pytest.raises(ResourceNotFoundError, match="not found"):
             dataset.get_version_content(index=1)
 
+    @patch("galileo.dataset.Datasets")
+    def test_get_version_content_raises_on_http_validation_error(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test get_version_content() raises ValueError on HTTPValidationError response."""
+        # Given: a mocked service where load_version returns an HTTPValidationError
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+        mock_dataset.load_version.return_value = MagicMock(spec=HTTPValidationError)
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When/Then: get_version_content() raises ValueError
+        with pytest.raises(ValueError, match="Failed to retrieve version content"):
+            dataset.get_version_content(index=1)
+
+    @patch("galileo.dataset.Datasets")
+    def test_get_version_content_raises_on_none_response(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test get_version_content() raises ValueError when API returns None."""
+        # Given: a mocked service where load_version returns None
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+        mock_dataset.load_version.return_value = None
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When/Then: get_version_content() raises ValueError for unexpected None
+        with pytest.raises(ValueError, match="Unexpected empty response"):
+            dataset.get_version_content(index=1)
+
     def test_get_version_content_raises_for_index_less_than_one(self, reset_configuration: None) -> None:
         """Test get_version_content() raises ValueError for index < 1."""
         # Given: a dataset with an ID set

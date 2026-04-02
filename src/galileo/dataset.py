@@ -422,7 +422,8 @@ class Dataset(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the dataset has no ID (local-only state) or if index < 1.
+            ValueError: If the dataset has no ID (local-only state), if index < 1,
+                or if the API returns a validation error or unexpected empty response.
             ResourceNotFoundError: If the dataset is not found on the server.
 
         Examples
@@ -438,7 +439,12 @@ class Dataset(StateManagementMixin):
         dataset = datasets_service.get(id=self.id)
         if dataset is None:
             raise ResourceNotFoundError(f"Dataset with id={self.id!r} was not found.")
-        return dataset.load_version(index)
+        result = dataset.load_version(index)
+        if isinstance(result, HTTPValidationError):
+            raise ValueError(f"Failed to retrieve version content: {result}")
+        if result is None:
+            raise ValueError("Unexpected empty response from version content API")
+        return result
 
     def extend(
         self,
