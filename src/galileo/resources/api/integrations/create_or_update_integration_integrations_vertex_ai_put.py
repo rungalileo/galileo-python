@@ -81,7 +81,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: VertexAIIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Vertex AI integration.
 
      Create or update a Google Vertex AI integration for a user.
 
@@ -105,7 +105,7 @@ def sync_detailed(
 
 
 def sync(*, client: ApiClient, body: VertexAIIntegrationCreate) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Vertex AI integration.
 
      Create or update a Google Vertex AI integration for a user.
 
@@ -127,7 +127,7 @@ def sync(*, client: ApiClient, body: VertexAIIntegrationCreate) -> Optional[Unio
 async def asyncio_detailed(
     *, client: ApiClient, body: VertexAIIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Vertex AI integration.
 
      Create or update a Google Vertex AI integration for a user.
 
@@ -153,7 +153,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: ApiClient, body: VertexAIIntegrationCreate
 ) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Vertex AI integration.
 
      Create or update a Google Vertex AI integration for a user.
 

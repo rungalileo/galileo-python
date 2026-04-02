@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.metadata_filter import MetadataFilter
+    from ..models.modality_filter import ModalityFilter
     from ..models.node_name_filter import NodeNameFilter
 
 
@@ -21,15 +22,16 @@ class FineTunedScorer:
     ----------
         id (Union[None, Unset, str]):
         name (Union[None, Unset, str]):
-        filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
+        filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]):
     """
 
     id: Union[None, Unset, str] = UNSET
     name: Union[None, Unset, str] = UNSET
-    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
+    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
         id: Union[None, Unset, str]
@@ -45,7 +47,7 @@ class FineTunedScorer:
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, NodeNameFilter):
+                if isinstance(filters_type_0_item_data, (NodeNameFilter, MetadataFilter)):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -70,6 +72,7 @@ class FineTunedScorer:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metadata_filter import MetadataFilter
+        from ..models.modality_filter import ModalityFilter
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
@@ -92,7 +95,9 @@ class FineTunedScorer:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
+        def _parse_filters(
+            data: object,
+        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -104,7 +109,9 @@ class FineTunedScorer:
                 _filters_type_0 = data
                 for filters_type_0_item_data in _filters_type_0:
 
-                    def _parse_filters_type_0_item(data: object) -> Union["MetadataFilter", "NodeNameFilter"]:
+                    def _parse_filters_type_0_item(
+                        data: object,
+                    ) -> Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -112,9 +119,16 @@ class FineTunedScorer:
 
                         except:  # noqa: E722
                             pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return MetadataFilter.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return MetadataFilter.from_dict(data)
+                        return ModalityFilter.from_dict(data)
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -123,7 +137,7 @@ class FineTunedScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]], data)
+            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 

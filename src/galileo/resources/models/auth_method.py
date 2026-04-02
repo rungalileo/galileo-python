@@ -8,6 +8,7 @@ class AuthMethod(str, Enum):
     GITHUB = "github"
     GOOGLE = "google"
     OKTA = "okta"
+    SAML = "saml"
 
     def __str__(self) -> str:
         return str(self.value)

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -20,13 +20,37 @@ from ... import errors
 from ...models.get_integrations_and_model_info_llm_integrations_get_response_get_integrations_and_model_info_llm_integrations_get import (
     GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet,
 )
-from ...types import Response
+from ...models.http_validation_error import HTTPValidationError
+from ...models.multimodal_capability import MultimodalCapability
+from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs() -> dict[str, Any]:
+def _get_kwargs(*, multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": RequestMethod.GET, "return_raw_response": True, "path": "/llm_integrations"}
+    params: dict[str, Any] = {}
+
+    json_multimodal_capabilities: Union[None, Unset, list[str]]
+    if isinstance(multimodal_capabilities, Unset):
+        json_multimodal_capabilities = UNSET
+    elif isinstance(multimodal_capabilities, list):
+        json_multimodal_capabilities = []
+        for multimodal_capabilities_type_0_item_data in multimodal_capabilities:
+            multimodal_capabilities_type_0_item = multimodal_capabilities_type_0_item_data.value
+            json_multimodal_capabilities.append(multimodal_capabilities_type_0_item)
+
+    else:
+        json_multimodal_capabilities = multimodal_capabilities
+    params["multimodal_capabilities"] = json_multimodal_capabilities
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.GET,
+        "return_raw_response": True,
+        "path": "/llm_integrations",
+        "params": params,
+    }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
 
@@ -36,11 +60,17 @@ def _get_kwargs() -> dict[str, Any]:
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet:
+) -> Union[
+    GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet,
+    HTTPValidationError,
+]:
     if response.status_code == 200:
         return GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet.from_dict(
             response.json()
         )
+
+    if response.status_code == 422:
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -62,7 +92,12 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet]:
+) -> Response[
+    Union[
+        GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet,
+        HTTPValidationError,
+    ]
+]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -72,11 +107,19 @@ def _build_response(
 
 
 def sync_detailed(
-    *, client: ApiClient
-) -> Response[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet]:
+    *, client: ApiClient, multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
+) -> Response[
+    Union[
+        GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet,
+        HTTPValidationError,
+    ]
+]:
     """Get Integrations And Model Info.
 
      Get the list of supported scorer models for the user's llm integrations.
+
+    Args:
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -85,9 +128,9 @@ def sync_detailed(
 
     Returns
     -------
-        Response[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet]
+        Response[Union[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet, HTTPValidationError]]
     """
-    kwargs = _get_kwargs()
+    kwargs = _get_kwargs(multimodal_capabilities=multimodal_capabilities)
 
     response = client.request(**kwargs)
 
@@ -95,11 +138,19 @@ def sync_detailed(
 
 
 def sync(
-    *, client: ApiClient
-) -> Optional[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet]:
+    *, client: ApiClient, multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
+) -> Optional[
+    Union[
+        GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet,
+        HTTPValidationError,
+    ]
+]:
     """Get Integrations And Model Info.
 
      Get the list of supported scorer models for the user's llm integrations.
+
+    Args:
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -108,17 +159,25 @@ def sync(
 
     Returns
     -------
-        GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet
+        Union[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet, HTTPValidationError]
     """
-    return sync_detailed(client=client).parsed
+    return sync_detailed(client=client, multimodal_capabilities=multimodal_capabilities).parsed
 
 
 async def asyncio_detailed(
-    *, client: ApiClient
-) -> Response[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet]:
+    *, client: ApiClient, multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
+) -> Response[
+    Union[
+        GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet,
+        HTTPValidationError,
+    ]
+]:
     """Get Integrations And Model Info.
 
      Get the list of supported scorer models for the user's llm integrations.
+
+    Args:
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -127,9 +186,9 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet]
+        Response[Union[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet, HTTPValidationError]]
     """
-    kwargs = _get_kwargs()
+    kwargs = _get_kwargs(multimodal_capabilities=multimodal_capabilities)
 
     response = await client.arequest(**kwargs)
 
@@ -137,11 +196,19 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *, client: ApiClient
-) -> Optional[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet]:
+    *, client: ApiClient, multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
+) -> Optional[
+    Union[
+        GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet,
+        HTTPValidationError,
+    ]
+]:
     """Get Integrations And Model Info.
 
      Get the list of supported scorer models for the user's llm integrations.
+
+    Args:
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -150,6 +217,6 @@ async def asyncio(
 
     Returns
     -------
-        GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet
+        Union[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet, HTTPValidationError]
     """
-    return (await asyncio_detailed(client=client)).parsed
+    return (await asyncio_detailed(client=client, multimodal_capabilities=multimodal_capabilities)).parsed

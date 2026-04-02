@@ -27,7 +27,10 @@ class LogRecordsExportRequest:
 
     Attributes
     ----------
-        root_type (RootType):
+        root_type (RootType): The root-level type of a logged step hierarchy.
+
+            Maps fine-grained StepType values to the three top-level categories
+            used throughout the platform: session, trace, and span.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.

@@ -1,0 +1,86 @@
+from collections.abc import Mapping
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+
+from attrs import define as _attrs_define
+from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.annotation_star_aggregate_counts import AnnotationStarAggregateCounts
+
+
+T = TypeVar("T", bound="AnnotationStarAggregate")
+
+
+@_attrs_define
+class AnnotationStarAggregate:
+    """
+    Attributes
+    ----------
+        average (float):
+        counts (AnnotationStarAggregateCounts):
+        unrated_count (int):
+        annotation_type (Union[Literal['star'], Unset]):  Default: 'star'.
+    """
+
+    average: float
+    counts: "AnnotationStarAggregateCounts"
+    unrated_count: int
+    annotation_type: Union[Literal["star"], Unset] = "star"
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        average = self.average
+
+        counts = self.counts.to_dict()
+
+        unrated_count = self.unrated_count
+
+        annotation_type = self.annotation_type
+
+        field_dict: dict[str, Any] = {}
+        field_dict.update(self.additional_properties)
+        field_dict.update({"average": average, "counts": counts, "unrated_count": unrated_count})
+        if annotation_type is not UNSET:
+            field_dict["annotation_type"] = annotation_type
+
+        return field_dict
+
+    @classmethod
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.annotation_star_aggregate_counts import AnnotationStarAggregateCounts
+
+        d = dict(src_dict)
+        average = d.pop("average")
+
+        counts = AnnotationStarAggregateCounts.from_dict(d.pop("counts"))
+
+        unrated_count = d.pop("unrated_count")
+
+        annotation_type = cast(Union[Literal["star"], Unset], d.pop("annotation_type", UNSET))
+        if annotation_type != "star" and not isinstance(annotation_type, Unset):
+            raise ValueError(f"annotation_type must match const 'star', got '{annotation_type}'")
+
+        annotation_star_aggregate = cls(
+            average=average, counts=counts, unrated_count=unrated_count, annotation_type=annotation_type
+        )
+
+        annotation_star_aggregate.additional_properties = d
+        return annotation_star_aggregate
+
+    @property
+    def additional_keys(self) -> list[str]:
+        return list(self.additional_properties.keys())
+
+    def __getitem__(self, key: str) -> Any:
+        return self.additional_properties[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self.additional_properties[key] = value
+
+    def __delitem__(self, key: str) -> None:
+        del self.additional_properties[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self.additional_properties

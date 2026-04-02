@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -17,21 +17,8 @@ from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
 
 from ... import errors
-from ...models.anthropic_integration import AnthropicIntegration
-from ...models.aws_bedrock_integration import AwsBedrockIntegration
-from ...models.aws_sage_maker_integration import AwsSageMakerIntegration
-from ...models.azure_integration import AzureIntegration
-from ...models.custom_integration import CustomIntegration
-from ...models.databricks_integration import DatabricksIntegration
 from ...models.http_validation_error import HTTPValidationError
 from ...models.integration_name import IntegrationName
-from ...models.label_studio_integration import LabelStudioIntegration
-from ...models.mistral_integration import MistralIntegration
-from ...models.nvidia_integration import NvidiaIntegration
-from ...models.open_ai_integration import OpenAIIntegration
-from ...models.vegas_gateway_integration import VegasGatewayIntegration
-from ...models.vertex_ai_integration import VertexAIIntegration
-from ...models.writer_integration import WriterIntegration
 from ...types import Response
 
 
@@ -50,135 +37,7 @@ def _get_kwargs(name: IntegrationName) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[
-    HTTPValidationError,
-    Union[
-        "AnthropicIntegration",
-        "AwsBedrockIntegration",
-        "AwsSageMakerIntegration",
-        "AzureIntegration",
-        "CustomIntegration",
-        "DatabricksIntegration",
-        "LabelStudioIntegration",
-        "MistralIntegration",
-        "NvidiaIntegration",
-        "OpenAIIntegration",
-        "VegasGatewayIntegration",
-        "VertexAIIntegration",
-        "WriterIntegration",
-    ],
-]:
-    if response.status_code == 200:
-
-        def _parse_response_200(
-            data: object,
-        ) -> Union[
-            "AnthropicIntegration",
-            "AwsBedrockIntegration",
-            "AwsSageMakerIntegration",
-            "AzureIntegration",
-            "CustomIntegration",
-            "DatabricksIntegration",
-            "LabelStudioIntegration",
-            "MistralIntegration",
-            "NvidiaIntegration",
-            "OpenAIIntegration",
-            "VegasGatewayIntegration",
-            "VertexAIIntegration",
-            "WriterIntegration",
-        ]:
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return AwsBedrockIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return AwsSageMakerIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return AzureIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return AnthropicIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return CustomIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return DatabricksIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return LabelStudioIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return MistralIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return NvidiaIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return OpenAIIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return VegasGatewayIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return VertexAIIntegration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            if not isinstance(data, dict):
-                raise TypeError()
-            return WriterIntegration.from_dict(data)
-
-        return _parse_response_200(response.json())
-
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError:
     if response.status_code == 422:
         return HTTPValidationError.from_dict(response.json())
 
@@ -200,28 +59,7 @@ def _parse_response(
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[
-    Union[
-        HTTPValidationError,
-        Union[
-            "AnthropicIntegration",
-            "AwsBedrockIntegration",
-            "AwsSageMakerIntegration",
-            "AzureIntegration",
-            "CustomIntegration",
-            "DatabricksIntegration",
-            "LabelStudioIntegration",
-            "MistralIntegration",
-            "NvidiaIntegration",
-            "OpenAIIntegration",
-            "VegasGatewayIntegration",
-            "VertexAIIntegration",
-            "WriterIntegration",
-        ],
-    ]
-]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -230,28 +68,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    name: IntegrationName, *, client: ApiClient
-) -> Response[
-    Union[
-        HTTPValidationError,
-        Union[
-            "AnthropicIntegration",
-            "AwsBedrockIntegration",
-            "AwsSageMakerIntegration",
-            "AzureIntegration",
-            "CustomIntegration",
-            "DatabricksIntegration",
-            "LabelStudioIntegration",
-            "MistralIntegration",
-            "NvidiaIntegration",
-            "OpenAIIntegration",
-            "VegasGatewayIntegration",
-            "VertexAIIntegration",
-            "WriterIntegration",
-        ],
-    ]
-]:
+def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[HTTPValidationError]:
     """Get Integration.
 
      Gets the integration data formatted for the specified integration.
@@ -266,7 +83,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, Union['AnthropicIntegration', 'AwsBedrockIntegration', 'AwsSageMakerIntegration', 'AzureIntegration', 'CustomIntegration', 'DatabricksIntegration', 'LabelStudioIntegration', 'MistralIntegration', 'NvidiaIntegration', 'OpenAIIntegration', 'VegasGatewayIntegration', 'VertexAIIntegration', 'WriterIntegration']]]
+        Response[HTTPValidationError]
     """
     kwargs = _get_kwargs(name=name)
 
@@ -275,28 +92,7 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(
-    name: IntegrationName, *, client: ApiClient
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        Union[
-            "AnthropicIntegration",
-            "AwsBedrockIntegration",
-            "AwsSageMakerIntegration",
-            "AzureIntegration",
-            "CustomIntegration",
-            "DatabricksIntegration",
-            "LabelStudioIntegration",
-            "MistralIntegration",
-            "NvidiaIntegration",
-            "OpenAIIntegration",
-            "VegasGatewayIntegration",
-            "VertexAIIntegration",
-            "WriterIntegration",
-        ],
-    ]
-]:
+def sync(name: IntegrationName, *, client: ApiClient) -> Optional[HTTPValidationError]:
     """Get Integration.
 
      Gets the integration data formatted for the specified integration.
@@ -311,33 +107,12 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, Union['AnthropicIntegration', 'AwsBedrockIntegration', 'AwsSageMakerIntegration', 'AzureIntegration', 'CustomIntegration', 'DatabricksIntegration', 'LabelStudioIntegration', 'MistralIntegration', 'NvidiaIntegration', 'OpenAIIntegration', 'VegasGatewayIntegration', 'VertexAIIntegration', 'WriterIntegration']]
+        HTTPValidationError
     """
     return sync_detailed(name=name, client=client).parsed
 
 
-async def asyncio_detailed(
-    name: IntegrationName, *, client: ApiClient
-) -> Response[
-    Union[
-        HTTPValidationError,
-        Union[
-            "AnthropicIntegration",
-            "AwsBedrockIntegration",
-            "AwsSageMakerIntegration",
-            "AzureIntegration",
-            "CustomIntegration",
-            "DatabricksIntegration",
-            "LabelStudioIntegration",
-            "MistralIntegration",
-            "NvidiaIntegration",
-            "OpenAIIntegration",
-            "VegasGatewayIntegration",
-            "VertexAIIntegration",
-            "WriterIntegration",
-        ],
-    ]
-]:
+async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Response[HTTPValidationError]:
     """Get Integration.
 
      Gets the integration data formatted for the specified integration.
@@ -352,7 +127,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, Union['AnthropicIntegration', 'AwsBedrockIntegration', 'AwsSageMakerIntegration', 'AzureIntegration', 'CustomIntegration', 'DatabricksIntegration', 'LabelStudioIntegration', 'MistralIntegration', 'NvidiaIntegration', 'OpenAIIntegration', 'VegasGatewayIntegration', 'VertexAIIntegration', 'WriterIntegration']]]
+        Response[HTTPValidationError]
     """
     kwargs = _get_kwargs(name=name)
 
@@ -361,28 +136,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    name: IntegrationName, *, client: ApiClient
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        Union[
-            "AnthropicIntegration",
-            "AwsBedrockIntegration",
-            "AwsSageMakerIntegration",
-            "AzureIntegration",
-            "CustomIntegration",
-            "DatabricksIntegration",
-            "LabelStudioIntegration",
-            "MistralIntegration",
-            "NvidiaIntegration",
-            "OpenAIIntegration",
-            "VegasGatewayIntegration",
-            "VertexAIIntegration",
-            "WriterIntegration",
-        ],
-    ]
-]:
+async def asyncio(name: IntegrationName, *, client: ApiClient) -> Optional[HTTPValidationError]:
     """Get Integration.
 
      Gets the integration data formatted for the specified integration.
@@ -397,6 +151,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, Union['AnthropicIntegration', 'AwsBedrockIntegration', 'AwsSageMakerIntegration', 'AzureIntegration', 'CustomIntegration', 'DatabricksIntegration', 'LabelStudioIntegration', 'MistralIntegration', 'NvidiaIntegration', 'OpenAIIntegration', 'VegasGatewayIntegration', 'VertexAIIntegration', 'WriterIntegration']]
+        HTTPValidationError
     """
     return (await asyncio_detailed(name=name, client=client)).parsed
