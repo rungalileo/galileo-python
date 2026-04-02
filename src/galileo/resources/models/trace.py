@@ -10,9 +10,11 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.agent_span import AgentSpan
+    from ..models.file_content_part import FileContentPart
     from ..models.llm_span import LlmSpan
     from ..models.metrics import Metrics
     from ..models.retriever_span import RetrieverSpan
+    from ..models.text_content_part import TextContentPart
     from ..models.tool_span import ToolSpan
     from ..models.trace_dataset_metadata import TraceDatasetMetadata
     from ..models.trace_user_metadata import TraceUserMetadata
@@ -28,10 +30,14 @@ class Trace:
     Attributes
     ----------
         type_ (Union[Literal['trace'], Unset]): Type of the trace, span or session. Default: 'trace'.
-        input_ (Union[Unset, str]): Input to the trace or span. Default: ''.
-        redacted_input (Union[None, Unset, str]): Redacted input of the trace or span.
-        output (Union[None, Unset, str]): Output of the trace or span.
-        redacted_output (Union[None, Unset, str]): Redacted output of the trace or span.
+        input_ (Union[Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Input to the trace or span.
+            Default: ''.
+        redacted_input (Union[None, Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Redacted input of
+            the trace or span.
+        output (Union[None, Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Output of the trace or
+            span.
+        redacted_output (Union[None, Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Redacted output of
+            the trace or span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         user_metadata (Union[Unset, TraceUserMetadata]): Metadata associated with this trace or span.
@@ -54,10 +60,10 @@ class Trace:
     """
 
     type_: Union[Literal["trace"], Unset] = "trace"
-    input_: Union[Unset, str] = ""
-    redacted_input: Union[None, Unset, str] = UNSET
-    output: Union[None, Unset, str] = UNSET
-    redacted_output: Union[None, Unset, str] = UNSET
+    input_: Union[Unset, list[Union["FileContentPart", "TextContentPart"]], str] = ""
+    redacted_input: Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
+    output: Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
+    redacted_output: Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
     name: Union[Unset, str] = ""
     created_at: Union[Unset, datetime.datetime] = UNSET
     user_metadata: Union[Unset, "TraceUserMetadata"] = UNSET
@@ -80,20 +86,78 @@ class Trace:
         from ..models.agent_span import AgentSpan
         from ..models.llm_span import LlmSpan
         from ..models.retriever_span import RetrieverSpan
+        from ..models.text_content_part import TextContentPart
         from ..models.workflow_span import WorkflowSpan
 
         type_ = self.type_
 
-        input_ = self.input_
+        input_: Union[Unset, list[dict[str, Any]], str]
+        if isinstance(self.input_, Unset):
+            input_ = UNSET
+        elif isinstance(self.input_, list):
+            input_ = []
+            for input_type_1_item_data in self.input_:
+                input_type_1_item: dict[str, Any]
+                if isinstance(input_type_1_item_data, TextContentPart):
+                    input_type_1_item = input_type_1_item_data.to_dict()
+                else:
+                    input_type_1_item = input_type_1_item_data.to_dict()
 
-        redacted_input: Union[None, Unset, str]
-        redacted_input = UNSET if isinstance(self.redacted_input, Unset) else self.redacted_input
+                input_.append(input_type_1_item)
 
-        output: Union[None, Unset, str]
-        output = UNSET if isinstance(self.output, Unset) else self.output
+        else:
+            input_ = self.input_
 
-        redacted_output: Union[None, Unset, str]
-        redacted_output = UNSET if isinstance(self.redacted_output, Unset) else self.redacted_output
+        redacted_input: Union[None, Unset, list[dict[str, Any]], str]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        elif isinstance(self.redacted_input, list):
+            redacted_input = []
+            for redacted_input_type_1_item_data in self.redacted_input:
+                redacted_input_type_1_item: dict[str, Any]
+                if isinstance(redacted_input_type_1_item_data, TextContentPart):
+                    redacted_input_type_1_item = redacted_input_type_1_item_data.to_dict()
+                else:
+                    redacted_input_type_1_item = redacted_input_type_1_item_data.to_dict()
+
+                redacted_input.append(redacted_input_type_1_item)
+
+        else:
+            redacted_input = self.redacted_input
+
+        output: Union[None, Unset, list[dict[str, Any]], str]
+        if isinstance(self.output, Unset):
+            output = UNSET
+        elif isinstance(self.output, list):
+            output = []
+            for output_type_1_item_data in self.output:
+                output_type_1_item: dict[str, Any]
+                if isinstance(output_type_1_item_data, TextContentPart):
+                    output_type_1_item = output_type_1_item_data.to_dict()
+                else:
+                    output_type_1_item = output_type_1_item_data.to_dict()
+
+                output.append(output_type_1_item)
+
+        else:
+            output = self.output
+
+        redacted_output: Union[None, Unset, list[dict[str, Any]], str]
+        if isinstance(self.redacted_output, Unset):
+            redacted_output = UNSET
+        elif isinstance(self.redacted_output, list):
+            redacted_output = []
+            for redacted_output_type_1_item_data in self.redacted_output:
+                redacted_output_type_1_item: dict[str, Any]
+                if isinstance(redacted_output_type_1_item_data, TextContentPart):
+                    redacted_output_type_1_item = redacted_output_type_1_item_data.to_dict()
+                else:
+                    redacted_output_type_1_item = redacted_output_type_1_item_data.to_dict()
+
+                redacted_output.append(redacted_output_type_1_item)
+
+        else:
+            redacted_output = self.redacted_output
 
         name = self.name
 
@@ -207,9 +271,11 @@ class Trace:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.agent_span import AgentSpan
+        from ..models.file_content_part import FileContentPart
         from ..models.llm_span import LlmSpan
         from ..models.metrics import Metrics
         from ..models.retriever_span import RetrieverSpan
+        from ..models.text_content_part import TextContentPart
         from ..models.tool_span import ToolSpan
         from ..models.trace_dataset_metadata import TraceDatasetMetadata
         from ..models.trace_user_metadata import TraceUserMetadata
@@ -220,32 +286,145 @@ class Trace:
         if type_ != "trace" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'trace', got '{type_}'")
 
-        input_ = d.pop("input", UNSET)
+        def _parse_input_(data: object) -> Union[Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                input_type_1 = []
+                _input_type_1 = data
+                for input_type_1_item_data in _input_type_1:
 
-        def _parse_redacted_input(data: object) -> Union[None, Unset, str]:
+                    def _parse_input_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    input_type_1_item = _parse_input_type_1_item(input_type_1_item_data)
+
+                    input_type_1.append(input_type_1_item)
+
+                return input_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
+
+        input_ = _parse_input_(d.pop("input", UNSET))
+
+        def _parse_redacted_input(
+            data: object,
+        ) -> Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_input_type_1 = []
+                _redacted_input_type_1 = data
+                for redacted_input_type_1_item_data in _redacted_input_type_1:
+
+                    def _parse_redacted_input_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    redacted_input_type_1_item = _parse_redacted_input_type_1_item(redacted_input_type_1_item_data)
+
+                    redacted_input_type_1.append(redacted_input_type_1_item)
+
+                return redacted_input_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
-        def _parse_output(data: object) -> Union[None, Unset, str]:
+        def _parse_output(data: object) -> Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                output_type_1 = []
+                _output_type_1 = data
+                for output_type_1_item_data in _output_type_1:
+
+                    def _parse_output_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    output_type_1_item = _parse_output_type_1_item(output_type_1_item_data)
+
+                    output_type_1.append(output_type_1_item)
+
+                return output_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         output = _parse_output(d.pop("output", UNSET))
 
-        def _parse_redacted_output(data: object) -> Union[None, Unset, str]:
+        def _parse_redacted_output(
+            data: object,
+        ) -> Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_output_type_1 = []
+                _redacted_output_type_1 = data
+                for redacted_output_type_1_item_data in _redacted_output_type_1:
+
+                    def _parse_redacted_output_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    redacted_output_type_1_item = _parse_redacted_output_type_1_item(redacted_output_type_1_item_data)
+
+                    redacted_output_type_1.append(redacted_output_type_1_item)
+
+                return redacted_output_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
 

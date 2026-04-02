@@ -267,7 +267,7 @@ def run_experiment(
     experiment_name: str,
     *,
     prompt_template: Optional[PromptTemplate] = None,
-    prompt_settings: Optional[PromptRunSettings] = None,
+    prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
     project: Optional[str] = None,
     project_id: Optional[str] = None,
     dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]] = None,

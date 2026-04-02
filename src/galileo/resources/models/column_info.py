@@ -35,6 +35,8 @@ class ColumnInfo:
         complex_ (Union[Unset, bool]): Whether the column requires special handling in the UI. Setting this to True will
             hide the column in the UI until the UI adds support for it. Default: False.
         is_optional (Union[Unset, bool]): Whether the column is optional. Default: False.
+        roll_up_method (Union[None, Unset, str]): Default roll-up aggregation method for this metric (e.g., 'sum',
+            'average').
     """
 
     id: str
@@ -52,6 +54,7 @@ class ColumnInfo:
     applicable_types: Union[Unset, list[StepType]] = UNSET
     complex_: Union[Unset, bool] = False
     is_optional: Union[Unset, bool] = False
+    roll_up_method: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -107,6 +110,9 @@ class ColumnInfo:
 
         is_optional = self.is_optional
 
+        roll_up_method: Union[None, Unset, str]
+        roll_up_method = UNSET if isinstance(self.roll_up_method, Unset) else self.roll_up_method
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"id": id, "category": category, "data_type": data_type})
@@ -134,6 +140,8 @@ class ColumnInfo:
             field_dict["complex"] = complex_
         if is_optional is not UNSET:
             field_dict["is_optional"] = is_optional
+        if roll_up_method is not UNSET:
+            field_dict["roll_up_method"] = roll_up_method
 
         return field_dict
 
@@ -236,6 +244,15 @@ class ColumnInfo:
 
         is_optional = d.pop("is_optional", UNSET)
 
+        def _parse_roll_up_method(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
+
         column_info = cls(
             id=id,
             category=category,
@@ -252,6 +269,7 @@ class ColumnInfo:
             applicable_types=applicable_types,
             complex_=complex_,
             is_optional=is_optional,
+            roll_up_method=roll_up_method,
         )
 
         column_info.additional_properties = d

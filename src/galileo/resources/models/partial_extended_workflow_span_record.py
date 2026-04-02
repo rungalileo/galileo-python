@@ -7,24 +7,32 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from ..models.content_modality import ContentModality
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.document import Document
+    from ..models.file_content_part import FileContentPart
     from ..models.message import Message
     from ..models.metrics import Metrics
+    from ..models.partial_extended_workflow_span_record_annotation_aggregates import (
+        PartialExtendedWorkflowSpanRecordAnnotationAggregates,
+    )
+    from ..models.partial_extended_workflow_span_record_annotations import PartialExtendedWorkflowSpanRecordAnnotations
     from ..models.partial_extended_workflow_span_record_dataset_metadata import (
         PartialExtendedWorkflowSpanRecordDatasetMetadata,
     )
     from ..models.partial_extended_workflow_span_record_feedback_rating_info import (
         PartialExtendedWorkflowSpanRecordFeedbackRatingInfo,
     )
+    from ..models.partial_extended_workflow_span_record_files_type_0 import PartialExtendedWorkflowSpanRecordFilesType0
     from ..models.partial_extended_workflow_span_record_metric_info_type_0 import (
         PartialExtendedWorkflowSpanRecordMetricInfoType0,
     )
     from ..models.partial_extended_workflow_span_record_user_metadata import (
         PartialExtendedWorkflowSpanRecordUserMetadata,
     )
+    from ..models.text_content_part import TextContentPart
 
 
 T = TypeVar("T", bound="PartialExtendedWorkflowSpanRecord")
@@ -36,10 +44,14 @@ class PartialExtendedWorkflowSpanRecord:
     Attributes
     ----------
         type_ (Union[Literal['workflow'], Unset]): Type of the trace, span or session. Default: 'workflow'.
-        input_ (Union[Unset, list['Message'], str]): Input to the trace or span. Default: ''.
-        redacted_input (Union[None, Unset, list['Message'], str]): Redacted input of the trace or span.
-        output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
-        redacted_output (Union['Message', None, Unset, list['Document'], str]): Redacted output of the trace or span.
+        input_ (Union[Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]): Input to the
+            trace or span. Default: ''.
+        redacted_input (Union[None, Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]):
+            Redacted input of the trace or span.
+        output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart', 'TextContentPart']],
+            str]): Output of the trace or span.
+        redacted_output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart',
+            'TextContentPart']], str]): Redacted output of the trace or span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         user_metadata (Union[Unset, PartialExtendedWorkflowSpanRecordUserMetadata]): Metadata associated with this trace
@@ -67,18 +79,31 @@ class PartialExtendedWorkflowSpanRecord:
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         feedback_rating_info (Union[Unset, PartialExtendedWorkflowSpanRecordFeedbackRatingInfo]): Feedback information
             related to the record
+        annotations (Union[Unset, PartialExtendedWorkflowSpanRecordAnnotations]): Annotations keyed by template ID and
+            annotator ID
+        file_ids (Union[Unset, list[str]]): IDs of files associated with this record
+        file_modalities (Union[Unset, list[ContentModality]]): Modalities of files associated with this record
+        annotation_aggregates (Union[Unset, PartialExtendedWorkflowSpanRecordAnnotationAggregates]): Annotation
+            aggregate information keyed by template ID
+        annotation_queue_ids (Union[Unset, list[str]]): IDs of annotation queues this record is in
         metric_info (Union['PartialExtendedWorkflowSpanRecordMetricInfoType0', None, Unset]): Detailed information about
             the metrics associated with this trace or span
+        files (Union['PartialExtendedWorkflowSpanRecordFilesType0', None, Unset]): File metadata keyed by file ID for
+            files associated with this record
         parent_id (Union[None, UUID, Unset]): Galileo ID of the parent of this span
         is_complete (Union[Unset, bool]): Whether the parent trace is complete or not Default: True.
         step_number (Union[None, Unset, int]): Topological step number of the span.
     """
 
     type_: Union[Literal["workflow"], Unset] = "workflow"
-    input_: Union[Unset, list["Message"], str] = ""
-    redacted_input: Union[None, Unset, list["Message"], str] = UNSET
-    output: Union["Message", None, Unset, list["Document"], str] = UNSET
-    redacted_output: Union["Message", None, Unset, list["Document"], str] = UNSET
+    input_: Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = ""
+    redacted_input: Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
+    output: Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str] = (
+        UNSET
+    )
+    redacted_output: Union[
+        "Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str
+    ] = UNSET
     name: Union[Unset, str] = ""
     created_at: Union[Unset, datetime.datetime] = UNSET
     user_metadata: Union[Unset, "PartialExtendedWorkflowSpanRecordUserMetadata"] = UNSET
@@ -99,7 +124,13 @@ class PartialExtendedWorkflowSpanRecord:
     metrics_batch_id: Union[None, Unset, str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
     feedback_rating_info: Union[Unset, "PartialExtendedWorkflowSpanRecordFeedbackRatingInfo"] = UNSET
+    annotations: Union[Unset, "PartialExtendedWorkflowSpanRecordAnnotations"] = UNSET
+    file_ids: Union[Unset, list[str]] = UNSET
+    file_modalities: Union[Unset, list[ContentModality]] = UNSET
+    annotation_aggregates: Union[Unset, "PartialExtendedWorkflowSpanRecordAnnotationAggregates"] = UNSET
+    annotation_queue_ids: Union[Unset, list[str]] = UNSET
     metric_info: Union["PartialExtendedWorkflowSpanRecordMetricInfoType0", None, Unset] = UNSET
+    files: Union["PartialExtendedWorkflowSpanRecordFilesType0", None, Unset] = UNSET
     parent_id: Union[None, UUID, Unset] = UNSET
     is_complete: Union[Unset, bool] = True
     step_number: Union[None, Unset, int] = UNSET
@@ -107,9 +138,13 @@ class PartialExtendedWorkflowSpanRecord:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.message import Message
+        from ..models.partial_extended_workflow_span_record_files_type_0 import (
+            PartialExtendedWorkflowSpanRecordFilesType0,
+        )
         from ..models.partial_extended_workflow_span_record_metric_info_type_0 import (
             PartialExtendedWorkflowSpanRecordMetricInfoType0,
         )
+        from ..models.text_content_part import TextContentPart
 
         type_ = self.type_
 
@@ -122,6 +157,17 @@ class PartialExtendedWorkflowSpanRecord:
                 input_type_1_item = input_type_1_item_data.to_dict()
                 input_.append(input_type_1_item)
 
+        elif isinstance(self.input_, list):
+            input_ = []
+            for input_type_2_item_data in self.input_:
+                input_type_2_item: dict[str, Any]
+                if isinstance(input_type_2_item_data, TextContentPart):
+                    input_type_2_item = input_type_2_item_data.to_dict()
+                else:
+                    input_type_2_item = input_type_2_item_data.to_dict()
+
+                input_.append(input_type_2_item)
+
         else:
             input_ = self.input_
 
@@ -133,6 +179,17 @@ class PartialExtendedWorkflowSpanRecord:
             for redacted_input_type_1_item_data in self.redacted_input:
                 redacted_input_type_1_item = redacted_input_type_1_item_data.to_dict()
                 redacted_input.append(redacted_input_type_1_item)
+
+        elif isinstance(self.redacted_input, list):
+            redacted_input = []
+            for redacted_input_type_2_item_data in self.redacted_input:
+                redacted_input_type_2_item: dict[str, Any]
+                if isinstance(redacted_input_type_2_item_data, TextContentPart):
+                    redacted_input_type_2_item = redacted_input_type_2_item_data.to_dict()
+                else:
+                    redacted_input_type_2_item = redacted_input_type_2_item_data.to_dict()
+
+                redacted_input.append(redacted_input_type_2_item)
 
         else:
             redacted_input = self.redacted_input
@@ -148,6 +205,17 @@ class PartialExtendedWorkflowSpanRecord:
                 output_type_2_item = output_type_2_item_data.to_dict()
                 output.append(output_type_2_item)
 
+        elif isinstance(self.output, list):
+            output = []
+            for output_type_3_item_data in self.output:
+                output_type_3_item: dict[str, Any]
+                if isinstance(output_type_3_item_data, TextContentPart):
+                    output_type_3_item = output_type_3_item_data.to_dict()
+                else:
+                    output_type_3_item = output_type_3_item_data.to_dict()
+
+                output.append(output_type_3_item)
+
         else:
             output = self.output
 
@@ -161,6 +229,17 @@ class PartialExtendedWorkflowSpanRecord:
             for redacted_output_type_2_item_data in self.redacted_output:
                 redacted_output_type_2_item = redacted_output_type_2_item_data.to_dict()
                 redacted_output.append(redacted_output_type_2_item)
+
+        elif isinstance(self.redacted_output, list):
+            redacted_output = []
+            for redacted_output_type_3_item_data in self.redacted_output:
+                redacted_output_type_3_item: dict[str, Any]
+                if isinstance(redacted_output_type_3_item_data, TextContentPart):
+                    redacted_output_type_3_item = redacted_output_type_3_item_data.to_dict()
+                else:
+                    redacted_output_type_3_item = redacted_output_type_3_item_data.to_dict()
+
+                redacted_output.append(redacted_output_type_3_item)
 
         else:
             redacted_output = self.redacted_output
@@ -255,6 +334,29 @@ class PartialExtendedWorkflowSpanRecord:
         if not isinstance(self.feedback_rating_info, Unset):
             feedback_rating_info = self.feedback_rating_info.to_dict()
 
+        annotations: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.annotations, Unset):
+            annotations = self.annotations.to_dict()
+
+        file_ids: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.file_ids, Unset):
+            file_ids = self.file_ids
+
+        file_modalities: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.file_modalities, Unset):
+            file_modalities = []
+            for file_modalities_item_data in self.file_modalities:
+                file_modalities_item = file_modalities_item_data.value
+                file_modalities.append(file_modalities_item)
+
+        annotation_aggregates: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.annotation_aggregates, Unset):
+            annotation_aggregates = self.annotation_aggregates.to_dict()
+
+        annotation_queue_ids: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.annotation_queue_ids, Unset):
+            annotation_queue_ids = self.annotation_queue_ids
+
         metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
@@ -262,6 +364,14 @@ class PartialExtendedWorkflowSpanRecord:
             metric_info = self.metric_info.to_dict()
         else:
             metric_info = self.metric_info
+
+        files: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.files, Unset):
+            files = UNSET
+        elif isinstance(self.files, PartialExtendedWorkflowSpanRecordFilesType0):
+            files = self.files.to_dict()
+        else:
+            files = self.files
 
         parent_id: Union[None, Unset, str]
         if isinstance(self.parent_id, Unset):
@@ -329,8 +439,20 @@ class PartialExtendedWorkflowSpanRecord:
             field_dict["session_batch_id"] = session_batch_id
         if feedback_rating_info is not UNSET:
             field_dict["feedback_rating_info"] = feedback_rating_info
+        if annotations is not UNSET:
+            field_dict["annotations"] = annotations
+        if file_ids is not UNSET:
+            field_dict["file_ids"] = file_ids
+        if file_modalities is not UNSET:
+            field_dict["file_modalities"] = file_modalities
+        if annotation_aggregates is not UNSET:
+            field_dict["annotation_aggregates"] = annotation_aggregates
+        if annotation_queue_ids is not UNSET:
+            field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
+        if files is not UNSET:
+            field_dict["files"] = files
         if parent_id is not UNSET:
             field_dict["parent_id"] = parent_id
         if is_complete is not UNSET:
@@ -343,13 +465,23 @@ class PartialExtendedWorkflowSpanRecord:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.document import Document
+        from ..models.file_content_part import FileContentPart
         from ..models.message import Message
         from ..models.metrics import Metrics
+        from ..models.partial_extended_workflow_span_record_annotation_aggregates import (
+            PartialExtendedWorkflowSpanRecordAnnotationAggregates,
+        )
+        from ..models.partial_extended_workflow_span_record_annotations import (
+            PartialExtendedWorkflowSpanRecordAnnotations,
+        )
         from ..models.partial_extended_workflow_span_record_dataset_metadata import (
             PartialExtendedWorkflowSpanRecordDatasetMetadata,
         )
         from ..models.partial_extended_workflow_span_record_feedback_rating_info import (
             PartialExtendedWorkflowSpanRecordFeedbackRatingInfo,
+        )
+        from ..models.partial_extended_workflow_span_record_files_type_0 import (
+            PartialExtendedWorkflowSpanRecordFilesType0,
         )
         from ..models.partial_extended_workflow_span_record_metric_info_type_0 import (
             PartialExtendedWorkflowSpanRecordMetricInfoType0,
@@ -357,13 +489,16 @@ class PartialExtendedWorkflowSpanRecord:
         from ..models.partial_extended_workflow_span_record_user_metadata import (
             PartialExtendedWorkflowSpanRecordUserMetadata,
         )
+        from ..models.text_content_part import TextContentPart
 
         d = dict(src_dict)
         type_ = cast(Union[Literal["workflow"], Unset], d.pop("type", UNSET))
         if type_ != "workflow" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'workflow', got '{type_}'")
 
-        def _parse_input_(data: object) -> Union[Unset, list["Message"], str]:
+        def _parse_input_(
+            data: object,
+        ) -> Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if isinstance(data, Unset):
                 return data
             try:
@@ -379,11 +514,39 @@ class PartialExtendedWorkflowSpanRecord:
                 return input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[Unset, list["Message"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                input_type_2 = []
+                _input_type_2 = data
+                for input_type_2_item_data in _input_type_2:
+
+                    def _parse_input_type_2_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    input_type_2_item = _parse_input_type_2_item(input_type_2_item_data)
+
+                    input_type_2.append(input_type_2_item)
+
+                return input_type_2
+            except:  # noqa: E722
+                pass
+            return cast(Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
-        def _parse_redacted_input(data: object) -> Union[None, Unset, list["Message"], str]:
+        def _parse_redacted_input(
+            data: object,
+        ) -> Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -401,11 +564,41 @@ class PartialExtendedWorkflowSpanRecord:
                 return redacted_input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["Message"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_input_type_2 = []
+                _redacted_input_type_2 = data
+                for redacted_input_type_2_item_data in _redacted_input_type_2:
+
+                    def _parse_redacted_input_type_2_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    redacted_input_type_2_item = _parse_redacted_input_type_2_item(redacted_input_type_2_item_data)
+
+                    redacted_input_type_2.append(redacted_input_type_2_item)
+
+                return redacted_input_type_2
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data
+            )
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
-        def _parse_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
+        def _parse_output(
+            data: object,
+        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -430,11 +623,42 @@ class PartialExtendedWorkflowSpanRecord:
                 return output_type_2
             except:  # noqa: E722
                 pass
-            return cast(Union["Message", None, Unset, list["Document"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                output_type_3 = []
+                _output_type_3 = data
+                for output_type_3_item_data in _output_type_3:
+
+                    def _parse_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    output_type_3_item = _parse_output_type_3_item(output_type_3_item_data)
+
+                    output_type_3.append(output_type_3_item)
+
+                return output_type_3
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                data,
+            )
 
         output = _parse_output(d.pop("output", UNSET))
 
-        def _parse_redacted_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
+        def _parse_redacted_output(
+            data: object,
+        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -459,7 +683,36 @@ class PartialExtendedWorkflowSpanRecord:
                 return redacted_output_type_2
             except:  # noqa: E722
                 pass
-            return cast(Union["Message", None, Unset, list["Document"], str], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_output_type_3 = []
+                _redacted_output_type_3 = data
+                for redacted_output_type_3_item_data in _redacted_output_type_3:
+
+                    def _parse_redacted_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    redacted_output_type_3_item = _parse_redacted_output_type_3_item(redacted_output_type_3_item_data)
+
+                    redacted_output_type_3.append(redacted_output_type_3_item)
+
+                return redacted_output_type_3
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                data,
+            )
 
         redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
 
@@ -648,6 +901,33 @@ class PartialExtendedWorkflowSpanRecord:
         else:
             feedback_rating_info = PartialExtendedWorkflowSpanRecordFeedbackRatingInfo.from_dict(_feedback_rating_info)
 
+        _annotations = d.pop("annotations", UNSET)
+        annotations: Union[Unset, PartialExtendedWorkflowSpanRecordAnnotations]
+        if isinstance(_annotations, Unset):
+            annotations = UNSET
+        else:
+            annotations = PartialExtendedWorkflowSpanRecordAnnotations.from_dict(_annotations)
+
+        file_ids = cast(list[str], d.pop("file_ids", UNSET))
+
+        file_modalities = []
+        _file_modalities = d.pop("file_modalities", UNSET)
+        for file_modalities_item_data in _file_modalities or []:
+            file_modalities_item = ContentModality(file_modalities_item_data)
+
+            file_modalities.append(file_modalities_item)
+
+        _annotation_aggregates = d.pop("annotation_aggregates", UNSET)
+        annotation_aggregates: Union[Unset, PartialExtendedWorkflowSpanRecordAnnotationAggregates]
+        if isinstance(_annotation_aggregates, Unset):
+            annotation_aggregates = UNSET
+        else:
+            annotation_aggregates = PartialExtendedWorkflowSpanRecordAnnotationAggregates.from_dict(
+                _annotation_aggregates
+            )
+
+        annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
+
         def _parse_metric_info(data: object) -> Union["PartialExtendedWorkflowSpanRecordMetricInfoType0", None, Unset]:
             if data is None:
                 return data
@@ -663,6 +943,22 @@ class PartialExtendedWorkflowSpanRecord:
             return cast(Union["PartialExtendedWorkflowSpanRecordMetricInfoType0", None, Unset], data)
 
         metric_info = _parse_metric_info(d.pop("metric_info", UNSET))
+
+        def _parse_files(data: object) -> Union["PartialExtendedWorkflowSpanRecordFilesType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return PartialExtendedWorkflowSpanRecordFilesType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["PartialExtendedWorkflowSpanRecordFilesType0", None, Unset], data)
+
+        files = _parse_files(d.pop("files", UNSET))
 
         def _parse_parent_id(data: object) -> Union[None, UUID, Unset]:
             if data is None:
@@ -717,7 +1013,13 @@ class PartialExtendedWorkflowSpanRecord:
             metrics_batch_id=metrics_batch_id,
             session_batch_id=session_batch_id,
             feedback_rating_info=feedback_rating_info,
+            annotations=annotations,
+            file_ids=file_ids,
+            file_modalities=file_modalities,
+            annotation_aggregates=annotation_aggregates,
+            annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
+            files=files,
             parent_id=parent_id,
             is_complete=is_complete,
             step_number=step_number,

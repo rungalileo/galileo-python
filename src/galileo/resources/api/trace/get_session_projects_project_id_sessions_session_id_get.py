@@ -19,16 +19,25 @@ from galileo_core.helpers.api_client import ApiClient
 from ... import errors
 from ...models.extended_session_record_with_children import ExtendedSessionRecordWithChildren
 from ...models.http_validation_error import HTTPValidationError
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(project_id: str, session_id: str) -> dict[str, Any]:
+def _get_kwargs(
+    project_id: str, session_id: str, *, include_presigned_urls: Union[Unset, bool] = False
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+
+    params: dict[str, Any] = {}
+
+    params["include_presigned_urls"] = include_presigned_urls
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
         "path": f"/projects/{project_id}/sessions/{session_id}",
+        "params": params,
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -76,13 +85,14 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, session_id: str, *, client: ApiClient
+    project_id: str, session_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
 ) -> Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
     """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -93,7 +103,7 @@ def sync_detailed(
     -------
         Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]
     """
-    kwargs = _get_kwargs(project_id=project_id, session_id=session_id)
+    kwargs = _get_kwargs(project_id=project_id, session_id=session_id, include_presigned_urls=include_presigned_urls)
 
     response = client.request(**kwargs)
 
@@ -101,13 +111,14 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str, session_id: str, *, client: ApiClient
+    project_id: str, session_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
 ) -> Optional[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
     """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -118,17 +129,20 @@ def sync(
     -------
         Union[ExtendedSessionRecordWithChildren, HTTPValidationError]
     """
-    return sync_detailed(project_id=project_id, session_id=session_id, client=client).parsed
+    return sync_detailed(
+        project_id=project_id, session_id=session_id, client=client, include_presigned_urls=include_presigned_urls
+    ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, session_id: str, *, client: ApiClient
+    project_id: str, session_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
 ) -> Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
     """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -139,7 +153,7 @@ async def asyncio_detailed(
     -------
         Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]
     """
-    kwargs = _get_kwargs(project_id=project_id, session_id=session_id)
+    kwargs = _get_kwargs(project_id=project_id, session_id=session_id, include_presigned_urls=include_presigned_urls)
 
     response = await client.arequest(**kwargs)
 
@@ -147,13 +161,14 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, session_id: str, *, client: ApiClient
+    project_id: str, session_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
 ) -> Optional[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
     """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -164,4 +179,8 @@ async def asyncio(
     -------
         Union[ExtendedSessionRecordWithChildren, HTTPValidationError]
     """
-    return (await asyncio_detailed(project_id=project_id, session_id=session_id, client=client)).parsed
+    return (
+        await asyncio_detailed(
+            project_id=project_id, session_id=session_id, client=client, include_presigned_urls=include_presigned_urls
+        )
+    ).parsed
