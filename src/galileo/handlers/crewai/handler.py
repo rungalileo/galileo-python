@@ -77,6 +77,7 @@ class CrewAIEventListener:
             galileo_logger=galileo_logger,
             integration="crewai",
         )
+        self._active_tool_run_id: Optional[UUID] = None
 
         if CREWAI_AVAILABLE:
             # Register with the event bus directly instead of inheriting from
@@ -337,9 +338,12 @@ class CrewAIEventListener:
             return self._hash_to_uuid(f"{tool_name}_{tool_args}_{agent_id}")
 
         # 6. event.agent.id — Agent events in crewAI >= 1.0 (source no longer has .id)
+        # Include task ID to generate unique run IDs when the same agent handles
+        # multiple tasks (e.g. manager agent in hierarchical crews).
         event_agent = getattr(event, "agent", None)
         if event_agent is not None and getattr(event_agent, "id", None):
-            return event_agent.id
+            task_id = getattr(getattr(event, "task", None), "id", "")
+            return self._hash_to_uuid(f"{event_agent.id}_{task_id}")
 
         # 7. dict messages — lite_llm callback
         if isinstance(event, dict) and "messages" in event:
@@ -427,6 +431,11 @@ class CrewAIEventListener:
         run_id = self._generate_run_id(source, event)
         event_task = getattr(event, "task", None)
         parent_run_id = self._to_uuid(getattr(event_task, "id", None)) if event_task else None
+
+        # When a delegation tool creates a temporary task, that task has no node.
+        # Fall back to the active tool node so the worker agent is linked correctly.
+        if parent_run_id and str(parent_run_id) not in self._handler.get_nodes() and self._active_tool_run_id:
+            parent_run_id = self._active_tool_run_id
         role = "Unknown Agent"
         metadata = self._extract_metadata(event)
 
@@ -519,11 +528,17 @@ class CrewAIEventListener:
     def _handle_tool_usage_started(self, source: Any, event: Any) -> None:
         """Handle tool usage start."""
         run_id = self._generate_run_id(source, event)
-        event_agent = getattr(event, "agent", None)
-        parent_run_id = self._to_uuid(getattr(event_agent, "id", None)) if event_agent else None
-        # Fallback: crewAI >= 1.0 may provide agent_id as a top-level string field instead of agent.id
-        if not parent_run_id:
-            parent_run_id = self._to_uuid(getattr(event, "agent_id", None))
+        # Compute parent using the same hash as _generate_run_id step 6
+        # so the tool links to the correct agent node.
+        agent_id = getattr(event, "agent_id", None) or str(getattr(getattr(event, "agent", None), "id", ""))
+        task_id = getattr(event, "task_id", "")
+        if agent_id and task_id:
+            parent_run_id: Optional[UUID] = self._hash_to_uuid(f"{agent_id}_{task_id}")
+        else:
+            event_agent = getattr(event, "agent", None)
+            parent_run_id = self._to_uuid(getattr(event_agent, "id", None)) if event_agent else None
+            if not parent_run_id:
+                parent_run_id = self._to_uuid(getattr(event, "agent_id", None))
         input = getattr(event, "tool_args", {})
         tool_name = getattr(event, "tool_name", "Unknown Tool")
 
@@ -540,11 +555,13 @@ class CrewAIEventListener:
             input=serialize_to_str(input) if input else "-",
             metadata=metadata,
         )
+        self._active_tool_run_id = run_id
 
     def _handle_tool_usage_finished(self, source: Any, event: Any) -> None:
         """Handle tool usage completion."""
         run_id = self._generate_run_id(source, event)
         self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(event, "output", "")))
+        self._active_tool_run_id = None
 
     def _handle_tool_usage_error(self, source: Any, event: Any) -> None:
         """Handle tool usage error."""
@@ -555,6 +572,7 @@ class CrewAIEventListener:
         self._handler.end_node(
             run_id=run_id, output=f"Error: {getattr(event, 'error', 'Unknown error')}", metadata=metadata
         )
+        self._active_tool_run_id = None
 
     def _to_uuid(self, id: Union[str, None, UUID]) -> Union[UUID, None]:
         if isinstance(id, UUID):
