@@ -6,6 +6,7 @@ from typing import Any, Callable, Optional, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+from typing_extensions import deprecated
 
 from galileo.config import GalileoPythonConfig
 from galileo.datasets import Dataset, convert_dataset_row_to_record
@@ -258,6 +259,7 @@ def process_row(row: DatasetRecord, process_func: Callable) -> str:
     return output
 
 
+@deprecated("Use galileo.experiment.Experiment(name=..., ...).create() instead.")
 def run_experiment(
     experiment_name: str,
     *,
@@ -413,6 +415,7 @@ def run_experiment(
     return result
 
 
+@deprecated("Use galileo.experiment.Experiment(name=..., ...).create() instead.")
 def create_experiment(
     project_id: Optional[str] = None, experiment_name: Optional[str] = None, project_name: Optional[str] = None
 ) -> ExperimentResponse:
@@ -457,6 +460,7 @@ def create_experiment(
     return Experiments().create(project_obj.id, experiment_name)
 
 
+@deprecated("Use galileo.experiment.Experiment.get() instead.")
 def get_experiment(
     project_id: Optional[str] = None, experiment_name: Optional[str] = None, project_name: Optional[str] = None
 ) -> Optional[ExperimentResponse]:
@@ -500,6 +504,7 @@ def get_experiment(
     return Experiments().get(project_obj.id, experiment_name)
 
 
+@deprecated("Use galileo.experiment.Experiment.list() instead.")
 def get_experiments(
     project_id: Optional[str] = None, project_name: Optional[str] = None
 ) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]:

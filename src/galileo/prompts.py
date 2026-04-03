@@ -3,6 +3,8 @@ import logging
 import warnings
 from typing import Optional, Union, overload
 
+from typing_extensions import deprecated
+
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.prompts import (
     create_global_prompt_template_templates_post,
@@ -384,14 +386,17 @@ class GlobalPromptTemplates:
         return response.parsed
 
 
+@deprecated("Use galileo.prompt.Prompt.get() instead.")
 @overload
 def get_prompt(*, id: str) -> Optional[PromptTemplate]: ...
 
 
+@deprecated("Use galileo.prompt.Prompt.get() instead.")
 @overload
 def get_prompt(*, name: str) -> Optional[PromptTemplate]: ...
 
 
+@deprecated("Use galileo.prompt.Prompt.get() instead.")
 def get_prompt(
     *,
     id: Optional[str] = None,
@@ -449,14 +454,17 @@ def get_prompt(
     return PromptTemplate(prompt_template=prompt_template)
 
 
+@deprecated("Use prompt.delete() instead.")
 @overload
 def delete_prompt(*, id: str) -> None: ...
 
 
+@deprecated("Use prompt.delete() instead.")
 @overload
 def delete_prompt(*, name: str) -> None: ...
 
 
+@deprecated("Use prompt.delete() instead.")
 def delete_prompt(
     *,
     id: Optional[str] = None,
@@ -504,14 +512,17 @@ def delete_prompt(
     return GlobalPromptTemplates().delete(template_id=id, name=name)  # type: ignore[call-overload]
 
 
+@deprecated("Use prompt.save() instead.")
 @overload
 def update_prompt(*, id: str, new_name: str) -> PromptTemplate: ...
 
 
+@deprecated("Use prompt.save() instead.")
 @overload
 def update_prompt(*, name: str, new_name: str) -> PromptTemplate: ...
 
 
+@deprecated("Use prompt.save() instead.")
 def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_name: str) -> PromptTemplate:
     """
     Update a global prompt template by ID or name.
@@ -551,6 +562,7 @@ def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_n
     raise ValueError("Invalid state: neither id nor name is provided")
 
 
+@deprecated("Use galileo.prompt.Prompt(name=..., ...).create() instead.")
 def create_prompt_template(name: str, project: str, messages: builtins.list[Message]) -> PromptTemplate:
     """
     Create a new global prompt template.
@@ -579,10 +591,10 @@ def create_prompt_template(name: str, project: str, messages: builtins.list[Mess
     ValueError
         If project doesn't exist.
     """
-    warnings.warn("create_prompt_template is deprecated, use create_prompt instead.", DeprecationWarning, stacklevel=2)
     return create_prompt(name=name, project_name=project, template=messages)
 
 
+@deprecated("Use galileo.prompt.Prompt(name=..., ...).create() instead.")
 def create_prompt(
     name: str,
     template: Union[builtins.list[Message], str],
@@ -635,6 +647,7 @@ def create_prompt(
     )
 
 
+@deprecated("Use galileo.prompt.Prompt.list() instead.")
 def get_prompts(
     name_filter: Optional[str] = None,
     project_id: Optional[str] = None,
@@ -724,6 +737,7 @@ def render_template(
 # ================================
 
 
+@deprecated("Use galileo.prompt.Prompt.list() instead.")
 def list_prompt_templates(project: str) -> builtins.list[PromptTemplate]:
     """
     List prompt templates for a project.
@@ -742,10 +756,10 @@ def list_prompt_templates(project: str) -> builtins.list[PromptTemplate]:
     list[PromptTemplate]
         List of prompt templates associated with the project.
     """
-    warnings.warn("list_prompt_templates is deprecated, use get_prompts instead.", DeprecationWarning, stacklevel=2)
     return get_prompts(project_name=project)
 
 
+@deprecated("Use galileo.prompt.Prompt.get() instead.")
 def get_prompt_template(name: str, project: str) -> Optional[PromptTemplate]:
     """
     Get a prompt template by name from a specific project.
@@ -767,7 +781,6 @@ def get_prompt_template(name: str, project: str) -> Optional[PromptTemplate]:
     Optional[PromptTemplate]
         The template if found, None otherwise.
     """
-    warnings.warn("get_prompt_template is deprecated, use get_prompt instead.", DeprecationWarning, stacklevel=2)
     return get_prompt(name=name)
 
 
