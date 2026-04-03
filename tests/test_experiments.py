@@ -949,6 +949,120 @@ class TestExperiments:
         )
 
     @travel(datetime(2012, 1, 1), tick=False)
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_with_prompt_settings_as_dict(
+        self,
+        mock_get_with_env_fallbacks: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_get_datasets: Mock,
+        dataset_content: DatasetContent,
+    ) -> None:
+        # Given: a project, dataset, prompt template, and prompt_settings passed as a plain dict
+        dataset_id = str(UUID(int=0))
+        settings_dict = {
+            "n": 1,
+            "echo": True,
+            "top_k": 10,
+            "top_p": 1.0,
+            "logprobs": True,
+            "max_tokens": 128,
+            "model_alias": "GPT-4o",
+            "temperature": 0.8,
+            "top_logprobs": 10,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+        }
+
+        # When: run_experiment() is called with prompt_settings as a plain dict
+        run_experiment(
+            "test_experiment",
+            project="awesome-new-project",
+            dataset_id=dataset_id,
+            prompt_template=prompt_template(),
+            prompt_settings=settings_dict,
+        )
+
+        # Then: no AttributeError; create receives a PromptRunSettings instance with all values preserved
+        mock_create_experiment.assert_called_once()
+        call_kwargs = mock_create_experiment.call_args.kwargs
+        ps = call_kwargs["prompt_settings"]
+        assert isinstance(ps, PromptRunSettings)
+        assert ps.n == 1
+        assert ps.echo is True
+        assert ps.top_k == 10
+        assert ps.top_p == 1.0
+        assert ps.logprobs is True
+        assert ps.max_tokens == 128
+        assert ps.model_alias == "GPT-4o"
+        assert ps.temperature == 0.8
+        assert ps.top_logprobs == 10
+        assert ps.presence_penalty == 0.0
+        assert ps.frequency_penalty == 0.0
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    def test_experiments_create_with_prompt_settings_as_dict(
+        self, galileo_resources_api_create_experiment: Mock
+    ) -> None:
+        # Given: Experiments.create() called directly with prompt_settings as a dict
+        now = datetime(2020, 1, 1).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        galileo_resources_api_create_experiment.sync = Mock(
+            return_value=ExperimentResponse.from_dict(
+                {
+                    "id": "test-exp-id",
+                    "name": "test_experiment",
+                    "project_id": "test-project-id",
+                    "created_at": now,
+                    "updated_at": now,
+                    "task_type": TaskType.VALUE_16,
+                }
+            )
+        )
+        settings_dict = {"model_alias": "GPT-4o", "temperature": 0.5, "max_tokens": 256}
+
+        # When: create() is invoked with prompt_settings as a dict
+        experiment = Experiments().create(
+            project_id="test-project-id", name="test_experiment", prompt_settings=settings_dict
+        )
+
+        # Then: the dict is coerced to PromptRunSettings and to_dict() is called without error
+        assert experiment.name == "test_experiment"
+        call_kwargs = galileo_resources_api_create_experiment.sync.call_args.kwargs
+        body = call_kwargs["body"]
+        assert "prompt_settings" in body.additional_properties
+        ps_dict = body.additional_properties["prompt_settings"]
+        assert ps_dict["model_alias"] == "GPT-4o"
+        assert ps_dict["temperature"] == 0.5
+        assert ps_dict["max_tokens"] == 256
+
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    def test_experiments_run_with_prompt_settings_as_dict(self, mock_create: Mock) -> None:
+        # Given: a project, dataset, and prompt_settings passed as a plain dict
+        settings_dict = {"model_alias": "GPT-4o", "temperature": 0.5, "max_tokens": 256}
+
+        # When: Experiments().run() is called with prompt_settings as a plain dict
+        Experiments().run(
+            project_obj=project(),
+            dataset_obj=Mock(spec=galileo.datasets.Dataset),
+            experiment_name="test_experiment",
+            prompt_template=prompt_template(),
+            scorers=None,
+            prompt_settings=settings_dict,
+        )
+
+        # Then: create receives a PromptRunSettings instance, not a dict
+        mock_create.assert_called_once()
+        call_kwargs = mock_create.call_args.kwargs
+        ps = call_kwargs["prompt_settings"]
+        assert isinstance(ps, PromptRunSettings)
+        assert ps.model_alias == "GPT-4o"
+        assert ps.temperature == 0.5
+        assert ps.max_tokens == 256
+
+    @travel(datetime(2012, 1, 1), tick=False)
     @patch("galileo.logger.logger.LogStreams")
     @patch("galileo.logger.logger.Projects")
     @patch("galileo.logger.logger.Traces")
