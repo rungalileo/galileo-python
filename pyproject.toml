@@ -42,6 +42,7 @@ pytest-asyncio = "^1.0.0"
 requests-mock = "^1.11.0"
 galileo-core = { extras = ["testing"], version = "^4.3.0" }
 
+pytest-timeout = "^2.3"
 pytest-env = "^1.1.5"
 langchain-core = ">=0.3.68"
 pytest-sugar = "^1.0.0"
@@ -88,6 +89,9 @@ addopts = [
     "--disable-socket",
     # Enable local socket access.
     "--allow-hosts=127.0.0.1,localhost",
+    # Per-test timeout to prevent CI hangs (SC-60512).
+    "--timeout=30",
+    "--timeout-method=thread",
 ]
 asyncio_default_fixture_loop_scope = "function"
 
