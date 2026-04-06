@@ -1,5 +1,3 @@
-from typing import Union
-
 from galileo.resources.models import (
     LogRecordsBooleanFilter,
     LogRecordsDateFilter,
@@ -8,6 +6,6 @@ from galileo.resources.models import (
     LogRecordsTextFilter,
 )
 
-FilterType = Union[
-    LogRecordsBooleanFilter, LogRecordsDateFilter, LogRecordsIDFilter, LogRecordsNumberFilter, LogRecordsTextFilter
-]
+FilterType = (
+    LogRecordsBooleanFilter | LogRecordsDateFilter | LogRecordsIDFilter | LogRecordsNumberFilter | LogRecordsTextFilter
+)
