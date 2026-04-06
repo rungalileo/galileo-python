@@ -3,7 +3,6 @@ import json
 import logging
 import uuid
 from collections import deque
-from typing import Union
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import UUID, uuid4
 
@@ -595,7 +594,7 @@ async def test_single_span_trace_to_galileo_with_async(
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
 
-    def local_scorer(step: Union[Trace, Span]) -> int:
+    def local_scorer(step: Trace | Span) -> int:
         return len(step.input)
 
     logger = GalileoLogger(
