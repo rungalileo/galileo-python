@@ -1,5 +1,6 @@
 import asyncio
 import atexit
+import contextlib
 import copy
 import inspect
 import json
@@ -1731,10 +1732,17 @@ class GalileoLogger(TracesLogger):
         return current_parent
 
     @nop_sync
-    @warn_catch_exception(exceptions=(Exception,))
-    def flush(self) -> list[LoggedTrace]:
+    def flush(self, on_error: Callable[[Exception], None] | None = None) -> list[LoggedTrace]:
         """
         Upload all traces to Galileo.
+
+        Parameters
+        ----------
+        on_error : Optional[Callable[[Exception], None]]
+            Callback invoked when a flush error occurs. When provided the exception
+            is passed to the callback instead of being logged as a warning. The
+            callback itself is protected: if it raises the exception is swallowed.
+            Defaults to None (swallow and log warning).
 
         Returns
         -------
@@ -1742,13 +1750,21 @@ class GalileoLogger(TracesLogger):
             The list of uploaded traces.
         """
         try:
-            if self.mode == "distributed":
-                return async_run(self._flush_distributed())
-            return async_run(self._flush_batch())
-        finally:
-            # Reset parent tracking in the main thread (async_run uses thread pool).
-            # Using finally ensures cleanup even if ingestion fails.
-            self._set_current_parent(None)
+            try:
+                if self.mode == "distributed":
+                    return async_run(self._flush_distributed())
+                return async_run(self._flush_batch())
+            finally:
+                # Reset parent tracking in the main thread (async_run uses thread pool).
+                # Using finally ensures cleanup even if ingestion fails.
+                self._set_current_parent(None)
+        except Exception as e:
+            if on_error is not None:
+                with contextlib.suppress(Exception):
+                    on_error(e)
+            else:
+                self._logger.warning(f"Ingestion error in flush: {e}")
+            return []
 
     @nop_async
     @async_warn_catch_exception(exceptions=(Exception,))
@@ -1869,7 +1885,6 @@ class GalileoLogger(TracesLogger):
                 self._wait_for_pending_span_ingests(timeout_seconds=DISTRIBUTED_FLUSH_TIMEOUT_SECONDS)
                 self._update_trace_streaming(trace, is_complete=True)
 
-    @async_warn_catch_exception(exceptions=(Exception,))
     async def _flush_distributed(self) -> list[LoggedTrace]:
         """Flush in distributed mode: conclude traces and wait for pending tasks.
 
@@ -1899,7 +1914,6 @@ class GalileoLogger(TracesLogger):
 
         return []
 
-    @async_warn_catch_exception(exceptions=(Exception,))
     async def _flush_batch(self) -> list[LoggedTrace]:
         """Flush in batch mode: conclude unconcluded traces and send all traces to backend."""
         if not self.traces:

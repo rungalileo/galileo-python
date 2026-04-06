@@ -163,6 +163,7 @@ class Experiments:
         prompt_template: PromptTemplate | None,
         scorers: builtins.list[ScorerConfig] | None,
         prompt_settings: PromptRunSettings | dict[str, Any] | None = None,
+        on_error: Callable[[Exception], None] | None = None,
     ) -> dict[str, Any]:
         if isinstance(prompt_settings, dict):
             prompt_settings = PromptRunSettings.from_dict(prompt_settings)
@@ -172,15 +173,25 @@ class Experiments:
             prompt_settings = _default_prompt_settings()
 
         # Single API call: create experiment + trigger job via trigger=True
-        experiment_obj = self.create(
-            project_id=project_obj.id,
-            name=experiment_name,
-            dataset_obj=dataset_obj,
-            trigger=True,
-            prompt_template=prompt_template,
-            scorers=scorers,
-            prompt_settings=prompt_settings,
-        )
+        try:
+            experiment_obj = self.create(
+                project_id=project_obj.id,
+                name=experiment_name,
+                dataset_obj=dataset_obj,
+                trigger=True,
+                prompt_template=prompt_template,
+                scorers=scorers,
+                prompt_settings=prompt_settings,
+            )
+        except Exception as e:
+            if on_error is not None:
+                _logger.debug(f"Experiment.run: name={experiment_name!r} - failed: {e}")
+                try:
+                    on_error(e)
+                except Exception as cb_exc:
+                    _logger.warning(f"Experiment.run: on_error callback raised: {cb_exc} (original error: {e})")
+                return {}
+            raise
 
         link = f"{str(self.config.console_url).rstrip('/')}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {link}"
@@ -196,6 +207,7 @@ class Experiments:
         records: builtins.list[DatasetRecord] | None,
         func: Callable,
         local_metrics: builtins.list[LocalMetricConfig],
+        on_error: Callable[[Exception], None] | None = None,
     ) -> dict[str, Any]:
         if dataset_obj is None and records is None:
             raise ValueError("Either dataset_obj or records must be provided")
@@ -213,7 +225,7 @@ class Experiments:
                 galileo_context.reset_trace_context()
                 if getsizeof(results) > MAX_REQUEST_SIZE_BYTES or len(results) >= MAX_INGEST_BATCH_SIZE:
                     _logger.info("Flushing logger due to size limit")
-                    galileo_context.flush()
+                    galileo_context.flush(on_error=on_error)
                     results = []
         # For dataset object, paginate through content
         elif dataset_obj is not None:
@@ -236,13 +248,13 @@ class Experiments:
                         galileo_context.reset_trace_context()
                         if getsizeof(results) > MAX_REQUEST_SIZE_BYTES or len(results) >= MAX_INGEST_BATCH_SIZE:
                             _logger.info("Flushing logger due to size limit")
-                            galileo_context.flush()
+                            galileo_context.flush(on_error=on_error)
                             results = []
 
                     starting_token += len(batch_records)
 
         # flush the logger
-        galileo_context.flush()
+        galileo_context.flush(on_error=on_error)
 
         _logger.info(f" {len(results)} rows processed for experiment {experiment_obj.name}.")
 
@@ -282,6 +294,7 @@ def run_experiment(
     metrics: list[GalileoMetrics | Metric | LocalMetricConfig | str] | None = None,
     function: Callable | None = None,
     experiment_tags: dict[str, str] | None = None,
+    on_error: Callable[[Exception], None] | None = None,
 ) -> Any:
     """
     Run an experiment with the specified parameters.
@@ -319,6 +332,10 @@ def run_experiment(
         Optional function to run with the experiment
     experiment_tags
         Optional dictionary of key-value pairs to tag the experiment with
+    on_error
+        Optional callback invoked with the exception when an error occurs during experiment
+        creation or a flush. If None, creation errors are raised and flush errors are logged
+        as warnings. Defaults to None.
 
     Returns
     -------
@@ -390,6 +407,7 @@ def run_experiment(
             records=records,
             func=function,
             local_metrics=local_metrics,
+            on_error=on_error,
         )
 
     if dataset_obj is None:
@@ -409,8 +427,11 @@ def run_experiment(
     # If prompt_template is None, the API determines the flow based on the dataset contents.
     # The API will return error 3512 if the dataset has no generated_output column.
     result = Experiments().run(
-        project_obj, dataset_obj, experiment_name, prompt_template, scorer_settings, prompt_settings
+        project_obj, dataset_obj, experiment_name, prompt_template, scorer_settings, prompt_settings, on_error=on_error
     )
+
+    if not result or "experiment" not in result:
+        return result
 
     if experiment_tags is not None:
         experiment_obj = result["experiment"]
