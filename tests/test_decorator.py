@@ -1552,3 +1552,121 @@ def test_start_session_overrides_context_session(
         new_session_id = galileo_context.start_session(name="new-session")
         assert galileo_context.get_logger_instance().session_id == new_session_id
         assert _session_id_context.get() == new_session_id
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_on_error_called_when_flush_raises(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    # Given: the logger's flush raises and an on_error callback is provided
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    flush_error = RuntimeError("network error")
+    mock_traces_client_instance.ingest_traces.side_effect = flush_error
+
+    on_error = Mock()
+
+    galileo_context.init(project="project-X", log_stream="log-stream-X")
+
+    @log(span_type="llm")
+    def llm_call(query: str) -> str:
+        return "response"
+
+    llm_call(query="input")
+
+    # When: flush is called with on_error
+    galileo_context.flush(on_error=on_error)
+
+    # Then: on_error is invoked with the exception; no warning is raised
+    on_error.assert_called_once()
+    assert isinstance(on_error.call_args[0][0], Exception)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_warns_when_flush_raises_without_on_error(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    # Given: the logger's flush raises and no on_error callback is provided
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    mock_traces_client_instance.ingest_traces.side_effect = RuntimeError("network error")
+
+    galileo_context.init(project="project-X", log_stream="log-stream-X")
+
+    @log(span_type="llm")
+    def llm_call(query: str) -> str:
+        return "response"
+
+    llm_call(query="input")
+
+    # When/Then: flush does not raise; a warning is logged instead
+
+    with patch("galileo.decorator._logger") as mock_logger:
+        galileo_context.flush()
+        mock_logger.warning.assert_called_once()
+        assert "flush failed" in mock_logger.warning.call_args[0][0]
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_on_error_callback_raises_is_swallowed(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    # Given: the logger's flush raises, on_error is provided but also raises
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    mock_traces_client_instance.ingest_traces.side_effect = RuntimeError("network error")
+
+    def bad_callback(exc: Exception) -> None:
+        raise ValueError("callback failed")
+
+    galileo_context.init(project="project-X", log_stream="log-stream-X")
+
+    @log(span_type="llm")
+    def llm_call(query: str) -> str:
+        return "response"
+
+    llm_call(query="input")
+
+    # When/Then: flush does not raise even though the callback raises
+    with patch("galileo.decorator._logger") as mock_logger:
+        galileo_context.flush(on_error=bad_callback)  # must not raise
+        mock_logger.warning.assert_called_once()
+        assert "on_error callback raised" in mock_logger.warning.call_args[0][0]
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_on_error_logs_at_debug_not_warning(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    # Given: the logger's flush raises and an on_error callback is provided
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    mock_traces_client_instance.ingest_traces.side_effect = RuntimeError("network error")
+
+    galileo_context.init(project="project-X", log_stream="log-stream-X")
+
+    @log(span_type="llm")
+    def llm_call(query: str) -> str:
+        return "response"
+
+    llm_call(query="input")
+
+    # When: flush is called with on_error
+    with patch("galileo.decorator._logger") as mock_logger:
+        galileo_context.flush(on_error=Mock())
+
+        # Then: debug is called, not warning
+        mock_logger.debug.assert_called_once()
+        mock_logger.warning.assert_not_called()

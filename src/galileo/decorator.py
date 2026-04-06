@@ -1089,6 +1089,7 @@ class GalileoDecorator:
         log_stream: str | None = None,
         experiment_id: str | None = None,
         mode: str | None = None,
+        on_error: Callable[[Exception], None] | None = None,
     ) -> None:
         """
         Upload all captured traces under a project and log stream context to Galileo.
@@ -1105,14 +1106,29 @@ class GalileoDecorator:
             The experiment ID. Defaults to None.
         mode
             The logger mode. Defaults to None.
+        on_error
+            Optional callback invoked with the exception when a flush error occurs. If None,
+            a warning is logged instead. Defaults to None.
         """
-        # Telemetry initialization errors should not crash user code
+
+        # Build a wrapper that logs via this module's logger (so callers can patch
+        # "galileo.decorator._logger") and then forwards to the user callback.
+        def _on_flush_error(exc: Exception) -> None:
+            if on_error is not None:
+                _logger.debug(f"Galileo flush failed, continuing without flushing: {exc}")
+                try:
+                    on_error(exc)
+                except Exception as cb_exc:
+                    _logger.warning(f"Galileo flush on_error callback raised: {cb_exc}")
+            else:
+                _logger.warning(f"Galileo flush failed, continuing without flushing: {exc}")
+
         try:
             self.get_logger_instance(
                 project=project, log_stream=log_stream, experiment_id=experiment_id, mode=mode
-            ).flush()
+            ).flush(on_error=_on_flush_error)
         except Exception as e:
-            _logger.warning(f"Galileo flush failed, continuing without flushing: {e}")
+            _on_flush_error(e)
 
         # Reset trace state if we're flushing the current context
         current_mode = _get_mode_or_default(mode) if mode is not None else _mode_context.get()
