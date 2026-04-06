@@ -1,8 +1,14 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+if TYPE_CHECKING:
+    from ..models.log_records_metrics_response_aggregate_metrics_additional_property_type_2 import (
+        LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2,
+    )
+
 
 T = TypeVar("T", bound="LogRecordsMetricsResponseAggregateMetrics")
 
@@ -11,25 +17,47 @@ T = TypeVar("T", bound="LogRecordsMetricsResponseAggregateMetrics")
 class LogRecordsMetricsResponseAggregateMetrics:
     """ """
 
-    additional_properties: dict[str, Union[float, int]] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[
+        str, Union["LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2", float, int]
+    ] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.log_records_metrics_response_aggregate_metrics_additional_property_type_2 import (
+            LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2,
+        )
+
         field_dict: dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
-            field_dict[prop_name] = prop
+            if isinstance(prop, LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2):
+                field_dict[prop_name] = prop.to_dict()
+            else:
+                field_dict[prop_name] = prop
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.log_records_metrics_response_aggregate_metrics_additional_property_type_2 import (
+            LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2,
+        )
+
         d = dict(src_dict)
         log_records_metrics_response_aggregate_metrics = cls()
 
         additional_properties = {}
         for prop_name, prop_dict in d.items():
 
-            def _parse_additional_property(data: object) -> Union[float, int]:
-                return cast(Union[float, int], data)
+            def _parse_additional_property(
+                data: object,
+            ) -> Union["LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2", float, int]:
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
+                return cast(Union["LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2", float, int], data)
 
             additional_property = _parse_additional_property(prop_dict)
 
@@ -42,10 +70,14 @@ class LogRecordsMetricsResponseAggregateMetrics:
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> Union[float, int]:
+    def __getitem__(
+        self, key: str
+    ) -> Union["LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2", float, int]:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: Union[float, int]) -> None:
+    def __setitem__(
+        self, key: str, value: Union["LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2", float, int]
+    ) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

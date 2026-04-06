@@ -77,7 +77,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: AzureIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Azure integration.
 
      Create or update an Azure integration for this user from Galileo.
 
@@ -101,7 +101,7 @@ def sync_detailed(
 
 
 def sync(*, client: ApiClient, body: AzureIntegrationCreate) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Azure integration.
 
      Create or update an Azure integration for this user from Galileo.
 
@@ -123,7 +123,7 @@ def sync(*, client: ApiClient, body: AzureIntegrationCreate) -> Optional[Union[H
 async def asyncio_detailed(
     *, client: ApiClient, body: AzureIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Azure integration.
 
      Create or update an Azure integration for this user from Galileo.
 
@@ -149,7 +149,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: ApiClient, body: AzureIntegrationCreate
 ) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Azure integration.
 
      Create or update an Azure integration for this user from Galileo.
 

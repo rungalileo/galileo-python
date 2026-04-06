@@ -107,6 +107,7 @@ def scorers():
             {
                 "id": "aed89cbc-5515-43c3-87ae-39c3c44c043e",
                 "name": "correctness",
+                "label": "Correctness",
                 "scorer_type": "preset",
                 "tags": ["preset", "factuality", "output quality"],
                 "created_at": "2025-03-11T00:00:28.497645+00:00",
@@ -172,6 +173,35 @@ class TestExperiments:
         assert experiment.name == "test_experiment"
         assert experiment.project_id == "test"
         galileo_resources_api_create_experiment.sync.assert_called_once_with(project_id="test", client=ANY, body=ANY)
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    def test_create_with_dict_prompt_settings(self, galileo_resources_api_create_experiment: Mock) -> None:
+        """Test create() converts dict prompt_settings via PromptRunSettings roundtrip."""
+        # Given: a dict prompt_settings and a mocked API response
+        now = datetime(2020, 1, 1).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        galileo_resources_api_create_experiment.sync = Mock(
+            return_value=ExperimentResponse.from_dict(
+                {
+                    "id": "test",
+                    "name": "test_experiment",
+                    "project_id": "test",
+                    "created_at": now,
+                    "updated_at": now,
+                    "task_type": TaskType.VALUE_16,
+                }
+            )
+        )
+        dict_settings = {"model_alias": "GPT-4o", "temperature": 0.8}
+
+        # When: creating an experiment with prompt_settings as a plain dict
+        Experiments().create(project_id="test", name="test_experiment", prompt_settings=dict_settings)
+
+        # Then: the dict is roundtripped through PromptRunSettings and the original values are preserved
+        galileo_resources_api_create_experiment.sync.assert_called_once_with(project_id="test", client=ANY, body=ANY)
+        call_body = galileo_resources_api_create_experiment.sync.call_args.kwargs["body"]
+        actual_settings = call_body.additional_properties["prompt_settings"]
+        assert actual_settings["model_alias"] == "GPT-4o"
+        assert actual_settings["temperature"] == 0.8
 
     @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
     @patch("galileo.experiments.Projects.get_with_env_fallbacks")
@@ -857,7 +887,7 @@ class TestExperiments:
         dataset_content: DatasetContent,
     ) -> None:
         # Setup scorer mocks
-        mock_scorers_class.return_value.list.return_value = scorers()
+        mock_scorers_class.return_value.list_by_labels.return_value = scorers()
         mock_scorer_settings_class.return_value.create.return_value = None
 
         dataset_id = str(UUID(int=0))
@@ -881,7 +911,7 @@ class TestExperiments:
             scorers=[ScorerConfig.from_dict(scorers()[0].to_dict())],
             prompt_settings=ANY,
         )
-        mock_scorers_class.return_value.list.assert_called_with()
+        mock_scorers_class.return_value.list_by_labels.assert_called_once()
         # ScorerSettings.create NOT called for trigger=True flow (API handles it)
         mock_scorer_settings_class.return_value.create.assert_not_called()
 
@@ -919,6 +949,120 @@ class TestExperiments:
             scorers=None,
             prompt_settings=prompt_run_settings(),
         )
+
+    @travel(datetime(2012, 1, 1), tick=False)
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_with_prompt_settings_as_dict(
+        self,
+        mock_get_with_env_fallbacks: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_get_datasets: Mock,
+        dataset_content: DatasetContent,
+    ) -> None:
+        # Given: a project, dataset, prompt template, and prompt_settings passed as a plain dict
+        dataset_id = str(UUID(int=0))
+        settings_dict = {
+            "n": 1,
+            "echo": True,
+            "top_k": 10,
+            "top_p": 1.0,
+            "logprobs": True,
+            "max_tokens": 128,
+            "model_alias": "GPT-4o",
+            "temperature": 0.8,
+            "top_logprobs": 10,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+        }
+
+        # When: run_experiment() is called with prompt_settings as a plain dict
+        run_experiment(
+            "test_experiment",
+            project="awesome-new-project",
+            dataset_id=dataset_id,
+            prompt_template=prompt_template(),
+            prompt_settings=settings_dict,
+        )
+
+        # Then: no AttributeError; create receives a PromptRunSettings instance with all values preserved
+        mock_create_experiment.assert_called_once()
+        call_kwargs = mock_create_experiment.call_args.kwargs
+        ps = call_kwargs["prompt_settings"]
+        assert isinstance(ps, PromptRunSettings)
+        assert ps.n == 1
+        assert ps.echo is True
+        assert ps.top_k == 10
+        assert ps.top_p == 1.0
+        assert ps.logprobs is True
+        assert ps.max_tokens == 128
+        assert ps.model_alias == "GPT-4o"
+        assert ps.temperature == 0.8
+        assert ps.top_logprobs == 10
+        assert ps.presence_penalty == 0.0
+        assert ps.frequency_penalty == 0.0
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    def test_experiments_create_with_prompt_settings_as_dict(
+        self, galileo_resources_api_create_experiment: Mock
+    ) -> None:
+        # Given: Experiments.create() called directly with prompt_settings as a dict
+        now = datetime(2020, 1, 1).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        galileo_resources_api_create_experiment.sync = Mock(
+            return_value=ExperimentResponse.from_dict(
+                {
+                    "id": "test-exp-id",
+                    "name": "test_experiment",
+                    "project_id": "test-project-id",
+                    "created_at": now,
+                    "updated_at": now,
+                    "task_type": TaskType.VALUE_16,
+                }
+            )
+        )
+        settings_dict = {"model_alias": "GPT-4o", "temperature": 0.5, "max_tokens": 256}
+
+        # When: create() is invoked with prompt_settings as a dict
+        experiment = Experiments().create(
+            project_id="test-project-id", name="test_experiment", prompt_settings=settings_dict
+        )
+
+        # Then: the dict is coerced to PromptRunSettings and to_dict() is called without error
+        assert experiment.name == "test_experiment"
+        call_kwargs = galileo_resources_api_create_experiment.sync.call_args.kwargs
+        body = call_kwargs["body"]
+        assert "prompt_settings" in body.additional_properties
+        ps_dict = body.additional_properties["prompt_settings"]
+        assert ps_dict["model_alias"] == "GPT-4o"
+        assert ps_dict["temperature"] == 0.5
+        assert ps_dict["max_tokens"] == 256
+
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    def test_experiments_run_with_prompt_settings_as_dict(self, mock_create: Mock) -> None:
+        # Given: a project, dataset, and prompt_settings passed as a plain dict
+        settings_dict = {"model_alias": "GPT-4o", "temperature": 0.5, "max_tokens": 256}
+
+        # When: Experiments().run() is called with prompt_settings as a plain dict
+        Experiments().run(
+            project_obj=project(),
+            dataset_obj=Mock(spec=galileo.datasets.Dataset),
+            experiment_name="test_experiment",
+            prompt_template=prompt_template(),
+            scorers=None,
+            prompt_settings=settings_dict,
+        )
+
+        # Then: create receives a PromptRunSettings instance, not a dict
+        mock_create.assert_called_once()
+        call_kwargs = mock_create.call_args.kwargs
+        ps = call_kwargs["prompt_settings"]
+        assert isinstance(ps, PromptRunSettings)
+        assert ps.model_alias == "GPT-4o"
+        assert ps.temperature == 0.5
+        assert ps.max_tokens == 256
 
     @travel(datetime(2012, 1, 1), tick=False)
     @patch("galileo.logger.logger.LogStreams")
@@ -1065,11 +1209,11 @@ class TestExperiments:
     @patch("galileo.utils.metrics.Scorers")
     @patch("galileo.utils.metrics.ScorerSettings")
     def test_create_scorer_configs(self, mock_scorer_settings_class, mock_scorers_class) -> None:
-        # Setup mock return values
+        # Setup mock return values — new code uses list_by_labels
         mock_scorers_instance = mock_scorers_class.return_value
-        mock_scorers_instance.list.return_value = [
-            ScorerResponse(id="1", name="metric1", scorer_type=ScorerTypes.PRESET, tags=[]),
-            ScorerResponse(id="2", name="metric2", scorer_type=ScorerTypes.PRESET, tags=[]),
+        mock_scorers_instance.list_by_labels.return_value = [
+            ScorerResponse(id="1", name="metric1", label="metric1", scorer_type=ScorerTypes.PRESET, tags=[]),
+            ScorerResponse(id="2", name="metric2", label="metric2", scorer_type=ScorerTypes.PRESET, tags=[]),
         ]
         mock_scorer_settings_class.return_value.create = MagicMock()
 
@@ -1083,6 +1227,7 @@ class TestExperiments:
         assert len(local_scorers) == 1  # Should return one local scorer
 
         # Test unknown metrics
+        mock_scorers_instance.list_by_labels.return_value = []
         with pytest.raises(ValueError):
             create_metric_configs("project_id", "experiment_id", ["unknown_metric"])
 
@@ -1100,7 +1245,7 @@ class TestExperiments:
             ScorerResponse.from_dict({"id": "3", "name": "versionable_metric", "scorer_type": "llm", "tags": ["test"]}),
         ]
 
-        mock_scorers_instance.list.return_value = mock_scorer_responses
+        mock_scorers_instance.list_by_labels.return_value = mock_scorer_responses
 
         # Mock the get_scorer_version method
         mock_version_response = MagicMock()

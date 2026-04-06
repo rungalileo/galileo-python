@@ -2,7 +2,7 @@
 
 from unittest.mock import patch
 
-from galileo.__future__ import Project
+from galileo.project import Project
 from galileo.projects import list_projects
 from galileo.resources.api.datasets.get_dataset_datasets_dataset_id_get import _get_kwargs as dataset_get_kwargs
 from galileo.resources.api.health.healthcheck_healthcheck_get import _get_kwargs as healthcheck_get_kwargs
@@ -78,7 +78,7 @@ class TestApiHeaders:
         with patch.object(
             get_all_projects_projects_all_get, "_get_kwargs", side_effect=capture_and_call
         ) as mock_get_kwargs:
-            # Test 1: galileo.__future__.Project.list()
+            # Test 1: galileo.project.Project.list()
             try:
                 Project.list()
             except Exception:

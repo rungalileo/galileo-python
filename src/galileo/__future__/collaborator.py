@@ -1,5 +1,13 @@
-"""Re-export from galileo.collaborator — will be deprecated once all __future__ modules are migrated."""
+"""Deprecated: use galileo.collaborator instead of galileo.__future__.collaborator."""
 
-from galileo.collaborator import Collaborator, CollaboratorRole
+import warnings
+
+warnings.warn(
+    "Importing from galileo.__future__.collaborator is deprecated. Use galileo.collaborator instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
+
+from galileo.collaborator import Collaborator, CollaboratorRole  # noqa: E402
 
 __all__ = ["Collaborator", "CollaboratorRole"]

@@ -26,7 +26,7 @@ class ExperimentCreateRequest:
         prompt_template_version_id (Union[None, Unset, str]):
         dataset (Union['ExperimentDatasetRequest', None, Unset]):
         playground_prompt_id (Union[None, Unset, str]):
-        prompt_settings (Union[Unset, PromptRunSettings]): Prompt run settings.
+        prompt_settings (Union['PromptRunSettings', None, Unset]):
         scorers (Union[Unset, list['ScorerConfig']]):
         trigger (Union[Unset, bool]):  Default: False.
     """
@@ -37,13 +37,14 @@ class ExperimentCreateRequest:
     prompt_template_version_id: Union[None, Unset, str] = UNSET
     dataset: Union["ExperimentDatasetRequest", None, Unset] = UNSET
     playground_prompt_id: Union[None, Unset, str] = UNSET
-    prompt_settings: Union[Unset, "PromptRunSettings"] = UNSET
+    prompt_settings: Union["PromptRunSettings", None, Unset] = UNSET
     scorers: Union[Unset, list["ScorerConfig"]] = UNSET
     trigger: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.experiment_dataset_request import ExperimentDatasetRequest
+        from ..models.prompt_run_settings import PromptRunSettings
 
         name = self.name
 
@@ -70,9 +71,13 @@ class ExperimentCreateRequest:
         playground_prompt_id: Union[None, Unset, str]
         playground_prompt_id = UNSET if isinstance(self.playground_prompt_id, Unset) else self.playground_prompt_id
 
-        prompt_settings: Union[Unset, dict[str, Any]] = UNSET
-        if not isinstance(self.prompt_settings, Unset):
+        prompt_settings: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.prompt_settings, Unset):
+            prompt_settings = UNSET
+        elif isinstance(self.prompt_settings, PromptRunSettings):
             prompt_settings = self.prompt_settings.to_dict()
+        else:
+            prompt_settings = self.prompt_settings
 
         scorers: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.scorers, Unset):
@@ -171,12 +176,21 @@ class ExperimentCreateRequest:
 
         playground_prompt_id = _parse_playground_prompt_id(d.pop("playground_prompt_id", UNSET))
 
-        _prompt_settings = d.pop("prompt_settings", UNSET)
-        prompt_settings: Union[Unset, PromptRunSettings]
-        if isinstance(_prompt_settings, Unset):
-            prompt_settings = UNSET
-        else:
-            prompt_settings = PromptRunSettings.from_dict(_prompt_settings)
+        def _parse_prompt_settings(data: object) -> Union["PromptRunSettings", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return PromptRunSettings.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["PromptRunSettings", None, Unset], data)
+
+        prompt_settings = _parse_prompt_settings(d.pop("prompt_settings", UNSET))
 
         scorers = []
         _scorers = d.pop("scorers", UNSET)

@@ -1,10 +1,15 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..models.messages_list_item_role import MessagesListItemRole
+
+if TYPE_CHECKING:
+    from ..models.file_content_part import FileContentPart
+    from ..models.text_content_part import TextContentPart
+
 
 T = TypeVar("T", bound="MessagesListItem")
 
@@ -14,16 +19,31 @@ class MessagesListItem:
     """
     Attributes
     ----------
-        content (str):
+        content (Union[list[Union['FileContentPart', 'TextContentPart']], str]):
         role (Union[MessagesListItemRole, str]):
     """
 
-    content: str
+    content: Union[list[Union["FileContentPart", "TextContentPart"]], str]
     role: Union[MessagesListItemRole, str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        content = self.content
+        from ..models.text_content_part import TextContentPart
+
+        content: Union[list[dict[str, Any]], str]
+        if isinstance(self.content, list):
+            content = []
+            for content_type_1_item_data in self.content:
+                content_type_1_item: dict[str, Any]
+                if isinstance(content_type_1_item_data, TextContentPart):
+                    content_type_1_item = content_type_1_item_data.to_dict()
+                else:
+                    content_type_1_item = content_type_1_item_data.to_dict()
+
+                content.append(content_type_1_item)
+
+        else:
+            content = self.content
 
         role: str
         role = self.role.value if isinstance(self.role, MessagesListItemRole) else self.role
@@ -36,8 +56,41 @@ class MessagesListItem:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.file_content_part import FileContentPart
+        from ..models.text_content_part import TextContentPart
+
         d = dict(src_dict)
-        content = d.pop("content")
+
+        def _parse_content(data: object) -> Union[list[Union["FileContentPart", "TextContentPart"]], str]:
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                content_type_1 = []
+                _content_type_1 = data
+                for content_type_1_item_data in _content_type_1:
+
+                    def _parse_content_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    content_type_1_item = _parse_content_type_1_item(content_type_1_item_data)
+
+                    content_type_1.append(content_type_1_item)
+
+                return content_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[list[Union["FileContentPart", "TextContentPart"]], str], data)
+
+        content = _parse_content(d.pop("content"))
 
         def _parse_role(data: object) -> Union[MessagesListItemRole, str]:
             try:

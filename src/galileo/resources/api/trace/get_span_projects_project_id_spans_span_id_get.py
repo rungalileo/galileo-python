@@ -23,16 +23,23 @@ from ...models.extended_retriever_span_record_with_children import ExtendedRetri
 from ...models.extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
 from ...models.extended_workflow_span_record_with_children import ExtendedWorkflowSpanRecordWithChildren
 from ...models.http_validation_error import HTTPValidationError
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(project_id: str, span_id: str) -> dict[str, Any]:
+def _get_kwargs(project_id: str, span_id: str, *, include_presigned_urls: Union[Unset, bool] = False) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+
+    params: dict[str, Any] = {}
+
+    params["include_presigned_urls"] = include_presigned_urls
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
         "path": f"/projects/{project_id}/spans/{span_id}",
+        "params": params,
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -205,7 +212,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, span_id: str, *, client: ApiClient
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
 ) -> Response[
     Union[
         HTTPValidationError,
@@ -223,6 +230,7 @@ def sync_detailed(
     Args:
         project_id (str):
         span_id (str):
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -233,7 +241,7 @@ def sync_detailed(
     -------
         Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
     """
-    kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
+    kwargs = _get_kwargs(project_id=project_id, span_id=span_id, include_presigned_urls=include_presigned_urls)
 
     response = client.request(**kwargs)
 
@@ -241,7 +249,7 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str, span_id: str, *, client: ApiClient
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
 ) -> Optional[
     Union[
         HTTPValidationError,
@@ -259,6 +267,7 @@ def sync(
     Args:
         project_id (str):
         span_id (str):
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -269,11 +278,13 @@ def sync(
     -------
         Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
     """
-    return sync_detailed(project_id=project_id, span_id=span_id, client=client).parsed
+    return sync_detailed(
+        project_id=project_id, span_id=span_id, client=client, include_presigned_urls=include_presigned_urls
+    ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, span_id: str, *, client: ApiClient
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
 ) -> Response[
     Union[
         HTTPValidationError,
@@ -291,6 +302,7 @@ async def asyncio_detailed(
     Args:
         project_id (str):
         span_id (str):
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -301,7 +313,7 @@ async def asyncio_detailed(
     -------
         Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
     """
-    kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
+    kwargs = _get_kwargs(project_id=project_id, span_id=span_id, include_presigned_urls=include_presigned_urls)
 
     response = await client.arequest(**kwargs)
 
@@ -309,7 +321,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, span_id: str, *, client: ApiClient
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
 ) -> Optional[
     Union[
         HTTPValidationError,
@@ -327,6 +339,7 @@ async def asyncio(
     Args:
         project_id (str):
         span_id (str):
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -337,4 +350,8 @@ async def asyncio(
     -------
         Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
     """
-    return (await asyncio_detailed(project_id=project_id, span_id=span_id, client=client)).parsed
+    return (
+        await asyncio_detailed(
+            project_id=project_id, span_id=span_id, client=client, include_presigned_urls=include_presigned_urls
+        )
+    ).parsed

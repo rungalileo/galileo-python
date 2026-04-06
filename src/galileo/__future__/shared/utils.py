@@ -1,15 +1,13 @@
-from typing import Any, Callable
+"""Deprecated: use galileo.shared.utils instead of galileo.__future__.shared.utils."""
 
+import warnings
 
-class classproperty:
-    """Decorator for class-level properties."""
+warnings.warn(
+    "Importing from galileo.__future__.shared.utils is deprecated. Use galileo.shared.utils instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
-    def __init__(self, func: Callable[[Any], Any]) -> None:
-        self.func = func
-        self.__doc__ = func.__doc__
+from galileo.shared.utils import classproperty  # noqa: E402
 
-    def __get__(self, obj: Any, owner: Any) -> Any:
-        return self.func(owner)
-
-    def __set__(self, obj: Any, value: Any) -> None:
-        raise AttributeError("can't set attribute")
+__all__ = ["classproperty"]

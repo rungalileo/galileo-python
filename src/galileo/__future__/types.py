@@ -1,21 +1,13 @@
-"""
-Unified type definitions for the Galileo Future API.
+"""Deprecated: use galileo.types instead of galileo.__future__.types."""
 
-This module provides type aliases that reduce friction when working with metrics
-and other Galileo objects.
-"""
+import warnings
 
-from typing import Union
+warnings.warn(
+    "Importing from galileo.__future__.types is deprecated. Use galileo.types instead.",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
-from galileo.__future__.metric import Metric
-from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
-
-# Unified metric type that accepts all valid metric specifications
-MetricSpec = Union[
-    GalileoMetrics,  # Built-in scorer enum (e.g., GalileoMetrics.correctness)
-    Metric,  # Custom or local metric object
-    LocalMetricConfig,  # Legacy local metric config
-    str,  # String name of built-in metric (e.g., "correctness")
-]
+from galileo.types import MetricSpec  # noqa: E402
 
 __all__ = ["MetricSpec"]

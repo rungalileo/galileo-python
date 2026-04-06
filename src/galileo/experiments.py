@@ -6,6 +6,7 @@ from typing import Any, Callable, Optional, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+from typing_extensions import deprecated
 
 from galileo.config import GalileoPythonConfig
 from galileo.datasets import Dataset, convert_dataset_row_to_record
@@ -27,6 +28,33 @@ from galileo.utils.metrics import create_metric_configs
 _logger = get_logger(__name__)
 
 EXPERIMENT_TASK_TYPE: TaskType = 16
+
+
+def _default_prompt_settings(model_alias: str = "GPT-4o") -> PromptRunSettings:
+    """Return a PromptRunSettings with complete defaults for prompt-driven experiment flows.
+
+    The server requires a fully populated settings object to start the experiment runner job.
+    Omitting fields (relying on server defaults) causes the job to silently never start.
+    """
+    return PromptRunSettings(
+        n=1,
+        echo=False,
+        tools=None,
+        top_k=40,
+        top_p=1.0,
+        logprobs=True,
+        max_tokens=256,
+        model_alias=model_alias,
+        temperature=0.8,
+        tool_choice=None,
+        top_logprobs=5,
+        stop_sequences=None,
+        deployment_name=None,
+        response_format=None,
+        presence_penalty=0.0,
+        frequency_penalty=0.0,
+    )
+
 
 MAX_REQUEST_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_INGEST_BATCH_SIZE = 128
@@ -65,8 +93,12 @@ class Experiments:
         trigger: bool = False,
         prompt_template: Optional[PromptTemplate] = None,
         scorers: Optional[builtins.list[ScorerConfig]] = None,
-        prompt_settings: Optional[PromptRunSettings] = None,
+        prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
     ) -> ExperimentResponse:
+        resolved_settings: Optional[PromptRunSettings] = (
+            PromptRunSettings.from_dict(prompt_settings) if isinstance(prompt_settings, dict) else prompt_settings
+        )
+
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
 
         if dataset_obj is not None:
@@ -78,8 +110,8 @@ class Experiments:
         if prompt_template is not None:
             body.additional_properties["prompt_template_version_id"] = str(prompt_template.selected_version_id)
 
-        if prompt_settings is not None:
-            body.additional_properties["prompt_settings"] = prompt_settings.to_dict()
+        if resolved_settings is not None:
+            body.additional_properties["prompt_settings"] = resolved_settings.to_dict()
 
         if scorers is not None:
             body.additional_properties["scorers"] = [s.to_dict() for s in scorers]
@@ -131,28 +163,14 @@ class Experiments:
         experiment_name: str,
         prompt_template: Optional[PromptTemplate],
         scorers: Optional[builtins.list[ScorerConfig]],
-        prompt_settings: Optional[PromptRunSettings] = None,
+        prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
     ) -> dict[str, Any]:
+        if isinstance(prompt_settings, dict):
+            prompt_settings = PromptRunSettings.from_dict(prompt_settings)
+
         # Only set default prompt_settings for prompt-driven flow (when a template is provided)
         if prompt_template is not None and prompt_settings is None:
-            prompt_settings = PromptRunSettings(
-                n=1,
-                echo=False,
-                tools=None,
-                top_k=40,
-                top_p=1.0,
-                logprobs=True,
-                max_tokens=256,
-                model_alias="GPT-4o",
-                temperature=0.8,
-                tool_choice=None,
-                top_logprobs=5,
-                stop_sequences=None,
-                deployment_name=None,
-                response_format=None,
-                presence_penalty=0.0,
-                frequency_penalty=0.0,
-            )
+            prompt_settings = _default_prompt_settings()
 
         # Single API call: create experiment + trigger job via trigger=True
         experiment_obj = self.create(
@@ -251,11 +269,12 @@ def process_row(row: DatasetRecord, process_func: Callable) -> str:
     return output
 
 
+@deprecated("Use galileo.experiment.Experiment(name=..., ...).create() instead.")
 def run_experiment(
     experiment_name: str,
     *,
     prompt_template: Optional[PromptTemplate] = None,
-    prompt_settings: Optional[PromptRunSettings] = None,
+    prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
     project: Optional[str] = None,
     project_id: Optional[str] = None,
     dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]] = None,
@@ -283,7 +302,8 @@ def run_experiment(
     prompt_template
         Template for prompts
     prompt_settings
-        Settings for prompt runs
+        Settings for prompt runs. Accepts a ``PromptRunSettings`` instance or a plain ``dict``
+        with matching field names, which will be coerced to ``PromptRunSettings`` automatically.
     project
         Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
     project_id
@@ -310,6 +330,9 @@ def run_experiment(
     ValueError
         If required parameters are missing or invalid
     """
+    if isinstance(prompt_settings, dict):
+        prompt_settings = PromptRunSettings.from_dict(prompt_settings)
+
     # Load dataset and records
     dataset_obj = load_dataset(dataset, dataset_id, dataset_name)
 
@@ -402,6 +425,7 @@ def run_experiment(
     return result
 
 
+@deprecated("Use galileo.experiment.Experiment(name=..., ...).create() instead.")
 def create_experiment(
     project_id: Optional[str] = None, experiment_name: Optional[str] = None, project_name: Optional[str] = None
 ) -> ExperimentResponse:
@@ -446,6 +470,7 @@ def create_experiment(
     return Experiments().create(project_obj.id, experiment_name)
 
 
+@deprecated("Use galileo.experiment.Experiment.get() instead.")
 def get_experiment(
     project_id: Optional[str] = None, experiment_name: Optional[str] = None, project_name: Optional[str] = None
 ) -> Optional[ExperimentResponse]:
@@ -489,6 +514,7 @@ def get_experiment(
     return Experiments().get(project_obj.id, experiment_name)
 
 
+@deprecated("Use galileo.experiment.Experiment.list() instead.")
 def get_experiments(
     project_id: Optional[str] = None, project_name: Optional[str] = None
 ) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]:

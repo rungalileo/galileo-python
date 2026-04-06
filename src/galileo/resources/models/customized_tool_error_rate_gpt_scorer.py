@@ -8,6 +8,7 @@ from ..models.categorical_roll_up_method import CategoricalRollUpMethod
 from ..models.input_type_enum import InputTypeEnum
 from ..models.luna_input_type_enum import LunaInputTypeEnum
 from ..models.luna_output_type_enum import LunaOutputTypeEnum
+from ..models.multimodal_capability import MultimodalCapability
 from ..models.node_type import NodeType
 from ..models.numeric_roll_up_method import NumericRollUpMethod
 from ..models.output_type_enum import OutputTypeEnum
@@ -27,6 +28,7 @@ if TYPE_CHECKING:
     )
     from ..models.customized_tool_error_rate_gpt_scorer_extra_type_0 import CustomizedToolErrorRateGPTScorerExtraType0
     from ..models.metadata_filter import MetadataFilter
+    from ..models.modality_filter import ModalityFilter
     from ..models.node_name_filter import NodeNameFilter
     from ..models.tool_error_rate_template import ToolErrorRateTemplate
 
@@ -49,7 +51,7 @@ class CustomizedToolErrorRateGPTScorer:
         aggregate_keys (Union[Unset, list[str]]):
         extra (Union['CustomizedToolErrorRateGPTScorerExtraType0', None, Unset]):
         sub_scorers (Union[Unset, list[ScorerName]]):
-        filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
+        filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]):
         metric_name (Union[None, Unset, str]):
         description (Union[None, Unset, str]):
         chainpoll_template (Union[Unset, ToolErrorRateTemplate]): Template for the tool error rate metric,
@@ -66,6 +68,7 @@ class CustomizedToolErrorRateGPTScorer:
         cot_enabled (Union[None, Unset, bool]):
         output_type (Union[None, OutputTypeEnum, Unset]):
         input_type (Union[InputTypeEnum, None, Unset]):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
         required_scorers (Union[None, Unset, list[str]]):
         roll_up_strategy (Union[None, RollUpStrategy, Unset]):
         roll_up_methods (Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]]):
@@ -88,7 +91,7 @@ class CustomizedToolErrorRateGPTScorer:
     aggregate_keys: Union[Unset, list[str]] = UNSET
     extra: Union["CustomizedToolErrorRateGPTScorerExtraType0", None, Unset] = UNSET
     sub_scorers: Union[Unset, list[ScorerName]] = UNSET
-    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
+    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
     description: Union[None, Unset, str] = UNSET
     chainpoll_template: Union[Unset, "ToolErrorRateTemplate"] = UNSET
@@ -104,6 +107,7 @@ class CustomizedToolErrorRateGPTScorer:
     cot_enabled: Union[None, Unset, bool] = UNSET
     output_type: Union[None, OutputTypeEnum, Unset] = UNSET
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
     required_scorers: Union[None, Unset, list[str]] = UNSET
     roll_up_strategy: Union[None, RollUpStrategy, Unset] = UNSET
     roll_up_methods: Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]] = UNSET
@@ -133,6 +137,7 @@ class CustomizedToolErrorRateGPTScorer:
         from ..models.customized_tool_error_rate_gpt_scorer_extra_type_0 import (
             CustomizedToolErrorRateGPTScorerExtraType0,
         )
+        from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
         scorer_name = self.scorer_name
@@ -195,7 +200,7 @@ class CustomizedToolErrorRateGPTScorer:
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, NodeNameFilter):
+                if isinstance(filters_type_0_item_data, (NodeNameFilter, MetadataFilter)):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -268,6 +273,18 @@ class CustomizedToolErrorRateGPTScorer:
             input_type = self.input_type.value
         else:
             input_type = self.input_type
+
+        multimodal_capabilities: Union[None, Unset, list[str]]
+        if isinstance(self.multimodal_capabilities, Unset):
+            multimodal_capabilities = UNSET
+        elif isinstance(self.multimodal_capabilities, list):
+            multimodal_capabilities = []
+            for multimodal_capabilities_type_0_item_data in self.multimodal_capabilities:
+                multimodal_capabilities_type_0_item = multimodal_capabilities_type_0_item_data.value
+                multimodal_capabilities.append(multimodal_capabilities_type_0_item)
+
+        else:
+            multimodal_capabilities = self.multimodal_capabilities
 
         required_scorers: Union[None, Unset, list[str]]
         if isinstance(self.required_scorers, Unset):
@@ -398,6 +415,8 @@ class CustomizedToolErrorRateGPTScorer:
             field_dict["output_type"] = output_type
         if input_type is not UNSET:
             field_dict["input_type"] = input_type
+        if multimodal_capabilities is not UNSET:
+            field_dict["multimodal_capabilities"] = multimodal_capabilities
         if required_scorers is not UNSET:
             field_dict["required_scorers"] = required_scorers
         if roll_up_strategy is not UNSET:
@@ -434,6 +453,7 @@ class CustomizedToolErrorRateGPTScorer:
             CustomizedToolErrorRateGPTScorerExtraType0,
         )
         from ..models.metadata_filter import MetadataFilter
+        from ..models.modality_filter import ModalityFilter
         from ..models.node_name_filter import NodeNameFilter
         from ..models.tool_error_rate_template import ToolErrorRateTemplate
 
@@ -523,7 +543,9 @@ class CustomizedToolErrorRateGPTScorer:
 
             sub_scorers.append(sub_scorers_item)
 
-        def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
+        def _parse_filters(
+            data: object,
+        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -535,7 +557,9 @@ class CustomizedToolErrorRateGPTScorer:
                 _filters_type_0 = data
                 for filters_type_0_item_data in _filters_type_0:
 
-                    def _parse_filters_type_0_item(data: object) -> Union["MetadataFilter", "NodeNameFilter"]:
+                    def _parse_filters_type_0_item(
+                        data: object,
+                    ) -> Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -543,9 +567,16 @@ class CustomizedToolErrorRateGPTScorer:
 
                         except:  # noqa: E722
                             pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return MetadataFilter.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return MetadataFilter.from_dict(data)
+                        return ModalityFilter.from_dict(data)
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -554,7 +585,7 @@ class CustomizedToolErrorRateGPTScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]], data)
+            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
@@ -710,6 +741,28 @@ class CustomizedToolErrorRateGPTScorer:
             return cast(Union[InputTypeEnum, None, Unset], data)
 
         input_type = _parse_input_type(d.pop("input_type", UNSET))
+
+        def _parse_multimodal_capabilities(data: object) -> Union[None, Unset, list[MultimodalCapability]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                multimodal_capabilities_type_0 = []
+                _multimodal_capabilities_type_0 = data
+                for multimodal_capabilities_type_0_item_data in _multimodal_capabilities_type_0:
+                    multimodal_capabilities_type_0_item = MultimodalCapability(multimodal_capabilities_type_0_item_data)
+
+                    multimodal_capabilities_type_0.append(multimodal_capabilities_type_0_item)
+
+                return multimodal_capabilities_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[MultimodalCapability]], data)
+
+        multimodal_capabilities = _parse_multimodal_capabilities(d.pop("multimodal_capabilities", UNSET))
 
         def _parse_required_scorers(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
@@ -904,6 +957,7 @@ class CustomizedToolErrorRateGPTScorer:
             cot_enabled=cot_enabled,
             output_type=output_type,
             input_type=input_type,
+            multimodal_capabilities=multimodal_capabilities,
             required_scorers=required_scorers,
             roll_up_strategy=roll_up_strategy,
             roll_up_methods=roll_up_methods,

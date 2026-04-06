@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.metadata_filter import MetadataFilter
+    from ..models.modality_filter import ModalityFilter
     from ..models.node_name_filter import NodeNameFilter
 
 
@@ -20,18 +21,19 @@ class SegmentFilter:
     Attributes
     ----------
         sample_rate (float): The fraction of the data to sample. Must be between 0 and 1, inclusive.
-        filter_ (Union['MetadataFilter', 'NodeNameFilter', None, Unset]): Filter to apply to the segment. By default
-            sample on all data.
+        filter_ (Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter', None, Unset]): Filter to apply to the
+            segment. By default sample on all data.
         llm_scorers (Union[Unset, bool]): Whether to sample only on LLM scorers. Default: False.
     """
 
     sample_rate: float
-    filter_: Union["MetadataFilter", "NodeNameFilter", None, Unset] = UNSET
+    filter_: Union["MetadataFilter", "ModalityFilter", "NodeNameFilter", None, Unset] = UNSET
     llm_scorers: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.metadata_filter import MetadataFilter
+        from ..models.modality_filter import ModalityFilter
         from ..models.node_name_filter import NodeNameFilter
 
         sample_rate = self.sample_rate
@@ -39,7 +41,7 @@ class SegmentFilter:
         filter_: Union[None, Unset, dict[str, Any]]
         if isinstance(self.filter_, Unset):
             filter_ = UNSET
-        elif isinstance(self.filter_, (NodeNameFilter, MetadataFilter)):
+        elif isinstance(self.filter_, (NodeNameFilter, MetadataFilter, ModalityFilter)):
             filter_ = self.filter_.to_dict()
         else:
             filter_ = self.filter_
@@ -59,12 +61,13 @@ class SegmentFilter:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metadata_filter import MetadataFilter
+        from ..models.modality_filter import ModalityFilter
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
         sample_rate = d.pop("sample_rate")
 
-        def _parse_filter_(data: object) -> Union["MetadataFilter", "NodeNameFilter", None, Unset]:
+        def _parse_filter_(data: object) -> Union["MetadataFilter", "ModalityFilter", "NodeNameFilter", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -83,7 +86,14 @@ class SegmentFilter:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["MetadataFilter", "NodeNameFilter", None, Unset], data)
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ModalityFilter.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["MetadataFilter", "ModalityFilter", "NodeNameFilter", None, Unset], data)
 
         filter_ = _parse_filter_(d.pop("filter", UNSET))
 

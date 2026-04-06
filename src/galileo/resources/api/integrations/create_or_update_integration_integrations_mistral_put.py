@@ -81,7 +81,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: MistralIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Mistral integration.
 
      Create or update an Mistral integration for this user from Galileo.
 
@@ -105,7 +105,7 @@ def sync_detailed(
 
 
 def sync(*, client: ApiClient, body: MistralIntegrationCreate) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Mistral integration.
 
      Create or update an Mistral integration for this user from Galileo.
 
@@ -127,7 +127,7 @@ def sync(*, client: ApiClient, body: MistralIntegrationCreate) -> Optional[Union
 async def asyncio_detailed(
     *, client: ApiClient, body: MistralIntegrationCreate
 ) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Mistral integration.
 
      Create or update an Mistral integration for this user from Galileo.
 
@@ -153,7 +153,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: ApiClient, body: MistralIntegrationCreate
 ) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create Or Update Integration.
+    """Create or update Mistral integration.
 
      Create or update an Mistral integration for this user from Galileo.
 

@@ -378,8 +378,12 @@ class TestOTelContextIntegration:
         assert processor2._logstream == "init-logstream"
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    def test_processor_on_start_sets_span_attributes(self, mock_processor_deps, reset_decorator_context):
+    def test_processor_on_start_sets_span_attributes(self, mock_processor_deps, reset_decorator_context, monkeypatch):
         """Test on_start sets context attributes on spans, handling None values."""
+        # Pin env vars for this test to avoid flakiness from parallel workers
+        monkeypatch.setenv("GALILEO_PROJECT", "test-project")
+        monkeypatch.setenv("GALILEO_LOG_STREAM", "test-log-stream")
+
         # Given: all context vars set (experiment_id takes priority over logstream)
         _project_context.set("test-project")
         _log_stream_context.set("test-logstream")
@@ -400,21 +404,26 @@ class TestOTelContextIntegration:
         assert ("galileo.experiment.id", "test-experiment") in actual_calls
         assert ("galileo.logstream.name", "test-logstream") not in actual_calls
 
-        # Given: context vars are None, falling back to env vars (set in conftest.py)
+        # Given: context vars are None, falling back to env vars
         _log_stream_context.set(None)
         _experiment_id_context.set(None)
         _session_id_context.set(None)
 
-        processor2 = GalileoSpanProcessor()
-        mock_span2 = Mock()
-        processor2.on_start(mock_span2, None)
+        monkeypatch = pytest.MonkeyPatch()
+        monkeypatch.setenv("GALILEO_LOG_STREAM", "test-log-stream")
+        try:
+            processor2 = GalileoSpanProcessor()
+            mock_span2 = Mock()
+            processor2.on_start(mock_span2, None)
 
-        # Then: project and logstream are set from env var fallbacks
-        assert mock_span2.set_attribute.call_count == 2
-        actual_calls = {(args[0], args[1]) for args, _ in mock_span2.set_attribute.call_args_list}
-        assert ("galileo.project.name", "test-project") in actual_calls
-        # Falls back to GALILEO_LOG_STREAM env var set in conftest.py
-        assert ("galileo.logstream.name", "test-log-stream") in actual_calls
+            # Then: project and logstream are set from env var fallbacks
+            assert mock_span2.set_attribute.call_count == 2
+            actual_calls = {(args[0], args[1]) for args, _ in mock_span2.set_attribute.call_args_list}
+            assert ("galileo.project.name", "test-project") in actual_calls
+            # Falls back to GALILEO_LOG_STREAM env var
+            assert ("galileo.logstream.name", "test-log-stream") in actual_calls
+        finally:
+            monkeypatch.undo()
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.OTLPSpanExporter.export")

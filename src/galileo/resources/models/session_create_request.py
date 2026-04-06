@@ -1,11 +1,15 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..models.logging_method import LoggingMethod
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.session_create_request_user_metadata_type_0 import SessionCreateRequestUserMetadataType0
+
 
 T = TypeVar("T", bound="SessionCreateRequest")
 
@@ -27,6 +31,7 @@ class SessionCreateRequest:
         name (Union[None, Unset, str]): Name of the session.
         previous_session_id (Union[None, Unset, str]): Id of the previous session.
         external_id (Union[None, Unset, str]): External id of the session.
+        user_metadata (Union['SessionCreateRequestUserMetadataType0', None, Unset]): User metadata for the session.
     """
 
     log_stream_id: Union[None, Unset, str] = UNSET
@@ -38,9 +43,12 @@ class SessionCreateRequest:
     name: Union[None, Unset, str] = UNSET
     previous_session_id: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
+    user_metadata: Union["SessionCreateRequestUserMetadataType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.session_create_request_user_metadata_type_0 import SessionCreateRequestUserMetadataType0
+
         log_stream_id: Union[None, Unset, str]
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
@@ -68,6 +76,14 @@ class SessionCreateRequest:
         external_id: Union[None, Unset, str]
         external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
+        user_metadata: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.user_metadata, Unset):
+            user_metadata = UNSET
+        elif isinstance(self.user_metadata, SessionCreateRequestUserMetadataType0):
+            user_metadata = self.user_metadata.to_dict()
+        else:
+            user_metadata = self.user_metadata
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -89,11 +105,15 @@ class SessionCreateRequest:
             field_dict["previous_session_id"] = previous_session_id
         if external_id is not UNSET:
             field_dict["external_id"] = external_id
+        if user_metadata is not UNSET:
+            field_dict["user_metadata"] = user_metadata
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.session_create_request_user_metadata_type_0 import SessionCreateRequestUserMetadataType0
+
         d = dict(src_dict)
 
         def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
@@ -165,6 +185,22 @@ class SessionCreateRequest:
 
         external_id = _parse_external_id(d.pop("external_id", UNSET))
 
+        def _parse_user_metadata(data: object) -> Union["SessionCreateRequestUserMetadataType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return SessionCreateRequestUserMetadataType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["SessionCreateRequestUserMetadataType0", None, Unset], data)
+
+        user_metadata = _parse_user_metadata(d.pop("user_metadata", UNSET))
+
         session_create_request = cls(
             log_stream_id=log_stream_id,
             experiment_id=experiment_id,
@@ -175,6 +211,7 @@ class SessionCreateRequest:
             name=name,
             previous_session_id=previous_session_id,
             external_id=external_id,
+            user_metadata=user_metadata,
         )
 
         session_create_request.additional_properties = d
