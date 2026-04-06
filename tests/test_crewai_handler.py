@@ -934,7 +934,7 @@ def test_generate_run_id_with_call_id(crewai_callback) -> None:
 
 
 def test_generate_run_id_agent_event_no_source_id(crewai_callback) -> None:
-    """Test agent events use event.agent.id when source has no .id (crewAI >= 1.0)."""
+    """Test agent events use event.agent.id + task.id when source has no .id (crewAI >= 1.0)."""
     # Given: an event with agent.id but source without .id
     agent_id = uuid.uuid4()
     agent = MockAgent(agent_id=agent_id)
@@ -944,8 +944,9 @@ def test_generate_run_id_agent_event_no_source_id(crewai_callback) -> None:
     # When: generating run_id
     result = crewai_callback._generate_run_id(source, event)
 
-    # Then: it uses agent.id from the event
-    assert result == agent_id
+    # Then: it hashes agent.id with task context (empty when no task)
+    expected = crewai_callback._hash_to_uuid(f"{agent_id}_")
+    assert result == expected
 
 
 def test_llm_call_lifecycle_crewai_v1(crewai_callback) -> None:

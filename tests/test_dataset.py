@@ -3,10 +3,11 @@ from uuid import uuid4
 
 import pytest
 
-from galileo.dataset import Dataset
-from galileo.resources.models.dataset_content import DatasetContent
+from galileo.dataset import Dataset, DatasetVersionContent
+from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.list_dataset_version_response import ListDatasetVersionResponse
 from galileo.shared.base import SyncState
-from galileo.shared.exceptions import ValidationError
+from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
 
 
 class TestDatasetInitialization:
@@ -147,7 +148,7 @@ class TestDatasetContent:
         """Test get_content() returns the dataset content."""
         mock_service = MagicMock()
         mock_datasets_class.return_value = mock_service
-        mock_content = MagicMock(spec=DatasetContent)
+        mock_content = MagicMock(spec=DatasetVersionContent)
         mock_dataset.get_content.return_value = mock_content
         mock_service.get.return_value = mock_dataset
 
@@ -157,7 +158,9 @@ class TestDatasetContent:
         assert content == mock_content
         mock_dataset.get_content.assert_called_once()
 
-    @pytest.mark.parametrize("method_name", ["get_content", "add_rows", "get_version_history", "get_version", "extend"])
+    @pytest.mark.parametrize(
+        "method_name", ["get_content", "add_rows", "get_versions", "get_version_content", "extend"]
+    )
     def test_content_methods_raise_error_for_local_only(self, method_name: str, reset_configuration: None) -> None:
         """Test content methods raise ValueError for local-only dataset."""
         dataset = Dataset(name="Test Dataset")
@@ -165,8 +168,8 @@ class TestDatasetContent:
         with pytest.raises(ValueError, match="Dataset ID is not set"):
             if method_name == "add_rows":
                 dataset.add_rows([{"input": "test"}])
-            elif method_name == "get_version":
-                dataset.get_version(index=1)
+            elif method_name == "get_version_content":
+                dataset.get_version_content(index=1)
             elif method_name == "extend":
                 dataset.extend(prompt="Test", count=2)
             else:
@@ -407,3 +410,163 @@ class TestDatasetMethods:
 
         assert str(dataset) == "Dataset(name='Test Dataset', id='test-id-123')"
         assert "rows=42" in repr(dataset)
+
+
+class TestDatasetGetVersions:
+    """Test suite for Dataset.get_versions() method."""
+
+    @patch("galileo.dataset.Datasets")
+    def test_get_versions_returns_response(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test get_versions() returns ListDatasetVersionResponse."""
+        # Given: a synced dataset and a mocked version history response
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+        mock_versions = MagicMock(spec=ListDatasetVersionResponse)
+        mock_dataset.get_version_history.return_value = mock_versions
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When: get_versions() is called
+        result = dataset.get_versions()
+
+        # Then: the ListDatasetVersionResponse is returned
+        assert result == mock_versions
+        mock_dataset.get_version_history.assert_called_once()
+
+    @patch("galileo.dataset.Datasets")
+    def test_get_versions_raises_when_dataset_not_found(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test get_versions() raises ResourceNotFoundError when dataset not found on server."""
+        # Given: a dataset ID that resolves to None on second lookup
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.side_effect = [mock_dataset, None]
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When/Then: get_versions() raises ResourceNotFoundError
+        with pytest.raises(ResourceNotFoundError, match="not found"):
+            dataset.get_versions()
+
+    @patch("galileo.dataset.Datasets")
+    def test_get_versions_raises_on_http_validation_error(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test get_versions() raises ValueError on HTTPValidationError response."""
+        # Given: a mocked service that returns an HTTPValidationError
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+        mock_dataset.get_version_history.return_value = MagicMock(spec=HTTPValidationError)
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When/Then: get_versions() raises ValueError
+        with pytest.raises(ValueError, match="Failed to retrieve dataset versions"):
+            dataset.get_versions()
+
+    @patch("galileo.dataset.Datasets")
+    def test_get_versions_raises_on_none_response(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test get_versions() raises ValueError when API returns None."""
+        # Given: a mocked service where get_version_history returns None
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+        mock_dataset.get_version_history.return_value = None
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When/Then: get_versions() raises ValueError for unexpected None
+        with pytest.raises(ValueError, match="Unexpected empty response"):
+            dataset.get_versions()
+
+
+class TestDatasetGetVersionContent:
+    """Test suite for Dataset.get_version_content() method."""
+
+    @patch("galileo.dataset.Datasets")
+    def test_get_version_content_returns_content(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test get_version_content() returns DatasetVersionContent for a valid index."""
+        # Given: a synced dataset and a mocked version content response
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+        mock_content = MagicMock(spec=DatasetVersionContent)
+        mock_dataset.load_version.return_value = mock_content
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When: get_version_content() is called with a valid index
+        result = dataset.get_version_content(index=1)
+
+        # Then: the DatasetVersionContent is returned
+        assert result == mock_content
+        mock_dataset.load_version.assert_called_once_with(1)
+
+    @patch("galileo.dataset.Datasets")
+    def test_get_version_content_raises_when_dataset_not_found(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test get_version_content() raises ResourceNotFoundError when dataset not found on server."""
+        # Given: a dataset ID that resolves to None on second lookup
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.side_effect = [mock_dataset, None]
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When/Then: get_version_content() raises ResourceNotFoundError
+        with pytest.raises(ResourceNotFoundError, match="not found"):
+            dataset.get_version_content(index=1)
+
+    @patch("galileo.dataset.Datasets")
+    def test_get_version_content_raises_on_http_validation_error(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test get_version_content() raises ValueError on HTTPValidationError response."""
+        # Given: a mocked service where load_version returns an HTTPValidationError
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+        mock_dataset.load_version.return_value = MagicMock(spec=HTTPValidationError)
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When/Then: get_version_content() raises ValueError
+        with pytest.raises(ValueError, match="Failed to retrieve version content"):
+            dataset.get_version_content(index=1)
+
+    @patch("galileo.dataset.Datasets")
+    def test_get_version_content_raises_on_none_response(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test get_version_content() raises ValueError when API returns None."""
+        # Given: a mocked service where load_version returns None
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+        mock_dataset.load_version.return_value = None
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When/Then: get_version_content() raises ValueError for unexpected None
+        with pytest.raises(ValueError, match="Unexpected empty response"):
+            dataset.get_version_content(index=1)
+
+    def test_get_version_content_raises_for_index_less_than_one(self, reset_configuration: None) -> None:
+        """Test get_version_content() raises ValueError for index < 1."""
+        # Given: a dataset with an ID set
+        dataset = Dataset(name="Test Dataset")
+        dataset.id = str(uuid4())
+
+        # When/Then: index 0 raises ValueError (1-based indexing)
+        with pytest.raises(ValueError, match="Version index must be >= 1"):
+            dataset.get_version_content(index=0)

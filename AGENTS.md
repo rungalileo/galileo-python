@@ -413,10 +413,10 @@ Configuration exists in three places:
 API uses **1-based** version indexing, not 0-based:
 ```python
 # Correct: first version is index 1
-version_content = dataset.get_version(index=1)
+version_content = dataset.get_version_content(index=1)
 
 # Wrong: index 0 doesn't exist
-version_content = dataset.get_version(index=0)  # Returns None
+version_content = dataset.get_version_content(index=0)  # Raises ValueError
 ```
 
 ### 5. Experiment-Playground Conflation
