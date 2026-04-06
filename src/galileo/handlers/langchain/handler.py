@@ -1,7 +1,8 @@
 import json
 import logging
 import time
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 from uuid import UUID
 
 from galileo.handlers.base_handler import GalileoBaseHandler
@@ -42,10 +43,10 @@ class GalileoCallback(BaseCallbackHandler):
 
     def __init__(
         self,
-        galileo_logger: Optional[GalileoLogger] = None,
+        galileo_logger: GalileoLogger | None = None,
         start_new_trace: bool = True,
         flush_on_chain_end: bool = True,
-        ingestion_hook: Optional[Callable[[TracesIngestRequest], None]] = None,
+        ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
     ):
         self._handler = GalileoBaseHandler(
             flush_on_chain_end=flush_on_chain_end,
@@ -57,9 +58,7 @@ class GalileoCallback(BaseCallbackHandler):
 
     @staticmethod
     def _get_node_name(
-        node_type: LANGCHAIN_NODE_TYPE,
-        serialized: Optional[dict[str, Any]] = None,
-        kwargs: Optional[dict[str, Any]] = None,
+        node_type: LANGCHAIN_NODE_TYPE, serialized: dict[str, Any] | None = None, kwargs: dict[str, Any] | None = None
     ) -> str:
         try:
             node_name = None
@@ -90,8 +89,8 @@ class GalileoCallback(BaseCallbackHandler):
         inputs: dict[str, Any],
         *,
         run_id: UUID,
-        parent_run_id: Optional[UUID] = None,
-        tags: Optional[list[str]] = None,
+        parent_run_id: UUID | None = None,
+        tags: list[str] | None = None,
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a chain starts."""
@@ -118,7 +117,7 @@ class GalileoCallback(BaseCallbackHandler):
         self._handler.start_node(node_type, parent_run_id, run_id, input=serialize_to_str(inputs), tags=tags, **kwargs)
 
     def on_chain_end(
-        self, outputs: dict[str, Any], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+        self, outputs: dict[str, Any], *, run_id: UUID, parent_run_id: UUID | None = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a chain ends."""
         # Convert UUID7 to UUID4 if needed
@@ -137,9 +136,9 @@ class GalileoCallback(BaseCallbackHandler):
         prompts: list[str],
         *,
         run_id: UUID,
-        parent_run_id: Optional[UUID] = None,
-        tags: Optional[list[str]] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        parent_run_id: UUID | None = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> Any:
         """
@@ -191,9 +190,9 @@ class GalileoCallback(BaseCallbackHandler):
         messages: list[list[BaseMessage]],
         *,
         run_id: UUID,
-        parent_run_id: Optional[UUID] = None,
-        tags: Optional[list[str]] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        parent_run_id: UUID | None = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a chat model starts."""
@@ -230,9 +229,7 @@ class GalileoCallback(BaseCallbackHandler):
             time_to_first_token_ns=None,
         )
 
-    def on_llm_end(
-        self, response: LLMResult, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
-    ) -> Any:
+    def on_llm_end(self, response: LLMResult, *, run_id: UUID, parent_run_id: UUID | None = None, **kwargs: Any) -> Any:
         """Langchain callback when an LLM node ends."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
@@ -253,9 +250,9 @@ class GalileoCallback(BaseCallbackHandler):
         input_str: str,
         *,
         run_id: UUID,
-        parent_run_id: Optional[UUID] = None,
-        tags: Optional[list[str]] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        parent_run_id: UUID | None = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a tool node starts."""
@@ -278,7 +275,7 @@ class GalileoCallback(BaseCallbackHandler):
         )
 
     @staticmethod
-    def _find_tool_message(obj: Any) -> Optional[ToolMessage]:
+    def _find_tool_message(obj: Any) -> ToolMessage | None:
         """
         Look for a ToolMessage in the output passed to langchain's on_tool_end callback.
         If found, return the ToolMessage. Otherwise, return None.
@@ -308,7 +305,7 @@ class GalileoCallback(BaseCallbackHandler):
                 return update_messages[-1]
         return None
 
-    def on_tool_end(self, output: Any, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any) -> Any:
+    def on_tool_end(self, output: Any, *, run_id: UUID, parent_run_id: UUID | None = None, **kwargs: Any) -> Any:
         """Langchain callback when a tool node ends."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
@@ -338,9 +335,9 @@ class GalileoCallback(BaseCallbackHandler):
         query: str,
         *,
         run_id: UUID,
-        parent_run_id: Optional[UUID] = None,
-        tags: Optional[list[str]] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        parent_run_id: UUID | None = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a retriever node starts."""
@@ -361,7 +358,7 @@ class GalileoCallback(BaseCallbackHandler):
         )
 
     def on_retriever_end(
-        self, documents: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+        self, documents: list[Document], *, run_id: UUID, parent_run_id: UUID | None = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a retriever node ends."""
         # Convert UUID7 to UUID4 if needed
@@ -375,7 +372,7 @@ class GalileoCallback(BaseCallbackHandler):
 
         self._handler.end_node(run_id, output=serialized_response, status_code=200)
 
-    def _get_agent_name(self, parent_run_id: Optional[UUID], node_name: str) -> str:
+    def _get_agent_name(self, parent_run_id: UUID | None, node_name: str) -> str:
         if parent_run_id is not None:
             # Convert UUID7 to UUID4 if needed
             parent_run_id = convert_uuid_if_uuid7(parent_run_id) or parent_run_id
@@ -385,31 +382,27 @@ class GalileoCallback(BaseCallbackHandler):
         return node_name
 
     def on_chain_error(
-        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+        self, error: Exception, *, run_id: UUID, parent_run_id: UUID | None = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a chain errors."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
         self._handler.end_node(run_id, output=f"Error: {error!s}", status_code=400)
 
-    def on_llm_error(
-        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
-    ) -> Any:
+    def on_llm_error(self, error: Exception, *, run_id: UUID, parent_run_id: UUID | None = None, **kwargs: Any) -> Any:
         """Langchain callback when an LLM errors."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
         self._handler.end_node(run_id, output=f"Error: {error!s}", status_code=400)
 
-    def on_tool_error(
-        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
-    ) -> Any:
+    def on_tool_error(self, error: Exception, *, run_id: UUID, parent_run_id: UUID | None = None, **kwargs: Any) -> Any:
         """Langchain callback when a tool errors."""
         # Convert UUID7 to UUID4 if needed
         run_id = convert_uuid_if_uuid7(run_id) or run_id
         self._handler.end_node(run_id, output=f"Error: {error!s}", status_code=400)
 
     def on_retriever_error(
-        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+        self, error: Exception, *, run_id: UUID, parent_run_id: UUID | None = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a retriever errors."""
         # Convert UUID7 to UUID4 if needed

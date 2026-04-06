@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.run_scorer_settings import (
@@ -27,7 +26,7 @@ class Runs:
         project_id: str,
         run_id: str,
         scorers: list[ScorerConfig],
-        segment_filters: Optional[list[SegmentFilter]] = None,
+        segment_filters: list[SegmentFilter] | None = None,
     ) -> RunScorerSettingsResponse:
         body = RunScorerSettingsPatchRequest(run_id=str(run_id), scorers=scorers, segment_filters=segment_filters)
 
@@ -44,7 +43,7 @@ class Runs:
 
 
 def update_scorer_settings(
-    project_id: str, run_id: str, scorers: list[ScorerConfig], segment_filters: Optional[list[SegmentFilter]] = None
+    project_id: str, run_id: str, scorers: list[ScorerConfig], segment_filters: list[SegmentFilter] | None = None
 ) -> RunScorerSettingsResponse:
     """Updates the scorer settings for a specific run.
 

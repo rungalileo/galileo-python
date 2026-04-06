@@ -1,6 +1,6 @@
 from collections.abc import Generator
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Any
 
 from galileo import GalileoLogger
 from galileo.openai.extractors import (
@@ -49,7 +49,7 @@ class ResponseGeneratorSync:
         self,
         *,
         resource: OpenAiModuleDefinition,
-        response: Union[Generator, openai.Stream],
+        response: Generator | openai.Stream,
         input_data: OpenAiInputData,
         logger: GalileoLogger,
         should_complete_trace: bool,
@@ -61,7 +61,7 @@ class ResponseGeneratorSync:
         self.input_data = input_data
         self.logger = logger
         self.should_complete_trace = should_complete_trace
-        self.completion_start_time: Optional[datetime] = None
+        self.completion_start_time: datetime | None = None
         self.status_code = status_code
 
     def __iter__(self):

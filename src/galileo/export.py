@@ -3,7 +3,7 @@ import json
 import logging
 import sys
 from collections.abc import Iterator
-from typing import Any, Optional
+from typing import Any
 
 from galileo.config import GalileoPythonConfig
 from galileo.log_streams import LogStreams
@@ -33,12 +33,12 @@ class ExportClient:
         self,
         project_id: str,
         root_type: RootType = RootType.TRACE,
-        filters: Optional[list[FilterType]] = None,
+        filters: list[FilterType] | None = None,
         sort: LogRecordsSortClause = LogRecordsSortClause(column_id="created_at", ascending=False),
         export_format: LLMExportFormat = LLMExportFormat.JSONL,
-        log_stream_id: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        column_ids: Optional[list[str]] = None,
+        log_stream_id: str | None = None,
+        experiment_id: str | None = None,
+        column_ids: list[str] | None = None,
         redact: bool = True,
     ) -> Iterator[dict[str, Any]]:
         if filters is None:
@@ -71,12 +71,12 @@ class ExportClient:
 def export_records(
     project_id: str,
     root_type: RootType = RootType.TRACE,
-    filters: Optional[list[FilterType]] = None,
+    filters: list[FilterType] | None = None,
     sort: LogRecordsSortClause = LogRecordsSortClause(column_id="created_at", ascending=False),
     export_format: LLMExportFormat = LLMExportFormat.JSONL,
-    log_stream_id: Optional[str] = None,
-    experiment_id: Optional[str] = None,
-    column_ids: Optional[list[str]] = None,
+    log_stream_id: str | None = None,
+    experiment_id: str | None = None,
+    column_ids: list[str] | None = None,
     redact: bool = True,
 ) -> Iterator[dict[str, Any]]:
     """Exports records from a Galileo project.

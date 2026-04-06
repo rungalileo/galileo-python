@@ -1,10 +1,10 @@
 import datetime
 from dataclasses import dataclass
-from typing import Any, Optional, Union
+from typing import Any
 
 # Type for OpenAI input data - can be a string, list of strings (completion prompts),
 # or list of message dicts (chat messages, response API input items)
-OpenAiInputType = Union[str, list[Union[str, dict[str, Any]]]]
+OpenAiInputType = str | list[str | dict[str, Any]]
 
 
 @dataclass
@@ -14,7 +14,7 @@ class OpenAiModuleDefinition:
     method: str
     type: str
     sync: bool
-    min_version: Optional[str] = None
+    min_version: str | None = None
 
 
 @dataclass
@@ -24,6 +24,6 @@ class OpenAiInputData:
     start_time: datetime.datetime
     input: OpenAiInputType
     model_parameters: dict
-    model: Optional[str]
+    model: str | None
     temperature: float
-    tools: Optional[list[dict]]
+    tools: list[dict] | None

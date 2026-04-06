@@ -1,6 +1,5 @@
 import builtins
 import datetime
-from typing import Optional, Union
 
 import httpx
 from typing_extensions import deprecated
@@ -98,13 +97,13 @@ class Project:
     created_by: str
     id: str
     updated_at: datetime.datetime
-    bookmark: Union[Unset, bool] = False
-    name: Union[None, Unset, str] = UNSET
-    permissions: Union[Unset, list["Permission"]] = UNSET
-    type: Union[None, ProjectType, Unset] = UNSET
+    bookmark: Unset | bool = False
+    name: None | Unset | str = UNSET
+    permissions: Unset | list["Permission"] = UNSET
+    type: None | ProjectType | Unset = UNSET
 
     def __init__(
-        self, project: Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse, ProjectUpdateResponse] = None
+        self, project: None | ProjectDBThin | ProjectDB | ProjectCreateResponse | ProjectUpdateResponse = None
     ) -> None:
         """
         Initialize a Project instance.
@@ -125,7 +124,7 @@ class Project:
         self.name = project.name
         self.type = project.type_
 
-        if isinstance(project, (ProjectDBThin, ProjectDB)):
+        if isinstance(project, ProjectDBThin | ProjectDB):
             self.bookmark = project.bookmark
             self.permissions = project.permissions
 
@@ -158,7 +157,7 @@ class Projects:
         )
         return [Project(project=project) for project in projects] if projects else []
 
-    def get_with_env_fallbacks(self, *, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Project]:
+    def get_with_env_fallbacks(self, *, id: str | None = None, name: str | None = None) -> Project | None:
         """
         Retrieves a project by id or name.
 
@@ -197,7 +196,7 @@ class Projects:
 
         return self.get(id=id, name=name)
 
-    def get(self, *, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Project]:
+    def get(self, *, id: str | None = None, name: str | None = None) -> Project | None:
         """
         Retrieves a project by id or name (exactly one of `id` or `name` must be provided).
 
@@ -230,7 +229,7 @@ class Projects:
         if (not name and not id) or (name and id):
             raise ValueError("Exactly one of 'id' or 'name' must be provided.")
 
-        project: Optional[Project] = None
+        project: Project | None = None
 
         if id:
             detailed_response = get_project_projects_project_id_get.sync_detailed(
@@ -325,7 +324,7 @@ class Projects:
 
     def list_user_project_collaborators(self, project_id: str) -> builtins.list[UserCollaborator]:
         all_collaborators: list[UserCollaborator] = []
-        starting_token: Optional[int] = 0
+        starting_token: int | None = 0
 
         while starting_token is not None:
             response = list_user_project_collaborators_projects_project_id_users_get.sync(
@@ -358,7 +357,7 @@ class Projects:
             raise ValueError(f"Failed to update collaborator for project {project_id}")
         return response
 
-    def delete_project(self, id: Optional[str] = None, name: Optional[str] = None) -> bool:
+    def delete_project(self, id: str | None = None, name: str | None = None) -> bool:
         """Internal method to handle project deletion logic."""
         name = name.strip() if name else None
         id = id.strip() if id else None
@@ -402,7 +401,7 @@ class Projects:
 
 
 @deprecated("Use galileo.project.Project.get() instead.")
-def get_project(*, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Project]:
+def get_project(*, id: str | None = None, name: str | None = None) -> Project | None:
     """
     Retrieves a project by id or name (exactly one of `id` or `name` must be provided).
 
@@ -567,7 +566,7 @@ def update_user_project_collaborator(
 
 
 @deprecated("Use galileo.project.Project.get(name=...).delete() instead.")
-def delete_project(*, id: Optional[str] = None, name: Optional[str] = None) -> bool:
+def delete_project(*, id: str | None = None, name: str | None = None) -> bool:
     """
     Deletes a gen_ai project by ID or name (exactly one of `id` or `name` must be provided).
 

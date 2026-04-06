@@ -1,6 +1,6 @@
 import inspect
 from importlib.metadata import PackageNotFoundError, version
-from typing import Any, Optional
+from typing import Any
 
 
 def get_package_version() -> str:
@@ -39,7 +39,7 @@ def get_method_name() -> str:
             temp_frame = temp_frame.f_back
 
         # Find the entry point into galileo package (traversing from bottom to top)
-        entry_point: Optional[dict[str, Any]] = None
+        entry_point: dict[str, Any] | None = None
         for i in range(len(frames_info) - 1, -1, -1):
             frame_info = frames_info[i]
             module_name = str(frame_info["module"])  # Explicitly cast to string

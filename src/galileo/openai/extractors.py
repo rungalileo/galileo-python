@@ -2,10 +2,10 @@ import json
 import logging
 import types
 from collections import defaultdict
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 from datetime import datetime
 from inspect import isclass
-from typing import Any, Callable, Optional, Union
+from typing import Any
 
 from openai.types.responses import ResponseOutputMessage, ResponseReasoningItem
 from packaging.version import Version
@@ -181,7 +181,7 @@ TOOL_SPAN_TYPES = frozenset(TOOL_EXTRACTORS.keys())
 
 
 class OpenAiArgsExtractor:
-    def __init__(self, name: Optional[str] = None, metadata: Optional[dict] = None, **kwargs: Any) -> None:
+    def __init__(self, name: str | None = None, metadata: dict | None = None, **kwargs: Any) -> None:
         self.args = {
             "name": name,
             "metadata": (
@@ -375,7 +375,7 @@ def extract_input_data_from_kwargs(
     parsed_tool_choice = kwargs.get("tool_choice") if not isinstance(kwargs.get("tool_choice"), NotGiven) else None
 
     # Extract reasoning parameters for Responses API
-    reasoning: Optional[Union[Reasoning, dict]] = kwargs.get("reasoning") if resource.type == "response" else None
+    reasoning: Reasoning | dict | None = kwargs.get("reasoning") if resource.type == "response" else None
     if reasoning:
         # Handle both Reasoning object and dict types
         if isinstance(reasoning, Reasoning):
@@ -435,7 +435,7 @@ def extract_input_data_from_kwargs(
     )
 
 
-def _parse_usage(usage: Optional[dict] = None) -> Optional[dict]:
+def _parse_usage(usage: dict | None = None) -> dict | None:
     if usage is None:
         return None
 
@@ -538,12 +538,12 @@ def process_function_call_outputs(input_items: list, galileo_logger: GalileoLogg
 def process_output_items(
     output_items: list,
     galileo_logger: GalileoLogger,
-    model: Optional[str] = None,
-    original_input: Optional[list] = None,
-    model_parameters: Optional[dict] = None,
+    model: str | None = None,
+    original_input: list | None = None,
+    model_parameters: dict | None = None,
     status_code: int = 200,
-    tools: Optional[list] = None,
-    usage: Optional[dict] = None,
+    tools: list | None = None,
+    usage: dict | None = None,
 ) -> list:
     """
     The responses API returns an array of output items. This function processes output items sequentially,
@@ -746,7 +746,7 @@ def has_pending_function_calls(output_items: list) -> bool:
     return has_function_call and not has_final_message
 
 
-def extract_data_from_default_response(resource: OpenAiModuleDefinition, response: Optional[dict[str, Any]]) -> Any:
+def extract_data_from_default_response(resource: OpenAiModuleDefinition, response: dict[str, Any] | None) -> Any:
     if response is None:
         return None, "<NoneType response returned from OpenAI>", None
 

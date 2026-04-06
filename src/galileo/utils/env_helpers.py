@@ -1,13 +1,12 @@
 """Utilities for reading environment variables with defaults."""
 
 from os import getenv
-from typing import Optional
 
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_MODE, DEFAULT_PROJECT_NAME, LoggerModeType
 from galileo.exceptions import GalileoLoggerException
 
 
-def _get_mode_or_default(mode: Optional[str]) -> LoggerModeType:
+def _get_mode_or_default(mode: str | None) -> LoggerModeType:
     """
     Validates the mode value. If the environment variable contains
     an invalid value, falls back to default.
@@ -37,7 +36,7 @@ def _get_mode_or_default(mode: Optional[str]) -> LoggerModeType:
     return mode  # type: ignore[return-value]
 
 
-def _get_project_or_default(project: Optional[str]) -> str:
+def _get_project_or_default(project: str | None) -> str:
     """
     Get the project name, falling back to GALILEO_PROJECT env var or default.
 
@@ -56,7 +55,7 @@ def _get_project_or_default(project: Optional[str]) -> str:
     return project
 
 
-def _get_log_stream_or_default(log_stream: Optional[str]) -> str:
+def _get_log_stream_or_default(log_stream: str | None) -> str:
     """
     Get the log stream name, falling back to GALILEO_LOG_STREAM env var or default.
 
@@ -75,7 +74,7 @@ def _get_log_stream_or_default(log_stream: Optional[str]) -> str:
     return log_stream
 
 
-def _get_project_from_env() -> Optional[str]:
+def _get_project_from_env() -> str | None:
     """
     Get the project name from GALILEO_PROJECT environment variable.
 
@@ -87,7 +86,7 @@ def _get_project_from_env() -> Optional[str]:
     return getenv("GALILEO_PROJECT")
 
 
-def _get_project_id_from_env() -> Optional[str]:
+def _get_project_id_from_env() -> str | None:
     """
     Get the project ID from GALILEO_PROJECT_ID environment variable.
 
@@ -99,7 +98,7 @@ def _get_project_id_from_env() -> Optional[str]:
     return getenv("GALILEO_PROJECT_ID")
 
 
-def _get_log_stream_from_env() -> Optional[str]:
+def _get_log_stream_from_env() -> str | None:
     """
     Get the log stream name from GALILEO_LOG_STREAM environment variable.
 
@@ -111,7 +110,7 @@ def _get_log_stream_from_env() -> Optional[str]:
     return getenv("GALILEO_LOG_STREAM")
 
 
-def _get_log_stream_id_from_env() -> Optional[str]:
+def _get_log_stream_id_from_env() -> str | None:
     """
     Get the log stream ID from GALILEO_LOG_STREAM_ID environment variable.
 

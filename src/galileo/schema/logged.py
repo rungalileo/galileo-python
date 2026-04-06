@@ -7,7 +7,7 @@ Read-side code continues to use the core types directly.
 
 from collections.abc import Sequence
 from json import dumps
-from typing import Annotated, Any, Optional, Union
+from typing import Annotated, Any
 
 from pydantic import Field
 
@@ -29,8 +29,8 @@ from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 
 TextOrContentBlocks = IngestMessageContent
-IngestInputType = Union[str, Sequence[LoggedMessage], list[IngestContentBlock]]
-IngestOutputType = Union[str, LoggedMessage, Sequence[Document], list[IngestContentBlock]]
+IngestInputType = str | Sequence[LoggedMessage] | list[IngestContentBlock]
+IngestOutputType = str | LoggedMessage | Sequence[Document] | list[IngestContentBlock]
 
 _INPUT_FIELD = Field(default="", description=BaseStep.model_fields["input"].description, union_mode="left_to_right")
 _REDACTED_INPUT_FIELD = Field(
@@ -46,9 +46,9 @@ class LoggedTrace(Trace):
     """Trace with widened input/output for multimodal ingestion."""
 
     input: TextOrContentBlocks = _INPUT_FIELD
-    redacted_input: Optional[TextOrContentBlocks] = _REDACTED_INPUT_FIELD
-    output: Optional[TextOrContentBlocks] = _OUTPUT_FIELD
-    redacted_output: Optional[TextOrContentBlocks] = _REDACTED_OUTPUT_FIELD
+    redacted_input: TextOrContentBlocks | None = _REDACTED_INPUT_FIELD
+    output: TextOrContentBlocks | None = _OUTPUT_FIELD
+    redacted_output: TextOrContentBlocks | None = _REDACTED_OUTPUT_FIELD
     spans: list["LoggedSpan"] = Field(default_factory=list)
 
 
@@ -56,9 +56,9 @@ class LoggedWorkflowSpan(WorkflowSpan):
     """WorkflowSpan with widened input/output for multimodal ingestion."""
 
     input: IngestInputType = _INPUT_FIELD
-    redacted_input: Optional[IngestInputType] = _REDACTED_INPUT_FIELD
-    output: Optional[IngestOutputType] = _OUTPUT_FIELD
-    redacted_output: Optional[IngestOutputType] = _REDACTED_OUTPUT_FIELD
+    redacted_input: IngestInputType | None = _REDACTED_INPUT_FIELD
+    output: IngestOutputType | None = _OUTPUT_FIELD
+    redacted_output: IngestOutputType | None = _REDACTED_OUTPUT_FIELD
     spans: list["LoggedSpan"] = Field(default_factory=list)
 
 
@@ -66,9 +66,9 @@ class LoggedAgentSpan(AgentSpan):
     """AgentSpan with widened input/output for multimodal ingestion."""
 
     input: IngestInputType = _INPUT_FIELD
-    redacted_input: Optional[IngestInputType] = _REDACTED_INPUT_FIELD
-    output: Optional[IngestOutputType] = _OUTPUT_FIELD
-    redacted_output: Optional[IngestOutputType] = _REDACTED_OUTPUT_FIELD
+    redacted_input: IngestInputType | None = _REDACTED_INPUT_FIELD
+    output: IngestOutputType | None = _OUTPUT_FIELD
+    redacted_output: IngestOutputType | None = _REDACTED_OUTPUT_FIELD
     spans: list["LoggedSpan"] = Field(default_factory=list)
 
 
@@ -78,7 +78,7 @@ class LoggedLlmSpan(LlmSpan):
     input: Sequence[LoggedMessage] = Field(
         default_factory=list, validate_default=True, description=BaseStep.model_fields["input"].description
     )
-    redacted_input: Optional[Sequence[LoggedMessage]] = Field(
+    redacted_input: Sequence[LoggedMessage] | None = Field(
         default=None, description=BaseStep.model_fields["redacted_input"].description
     )
     output: LoggedMessage = Field(
@@ -86,7 +86,7 @@ class LoggedLlmSpan(LlmSpan):
         validate_default=True,
         description=BaseStep.model_fields["output"].description,
     )
-    redacted_output: Optional[LoggedMessage] = Field(
+    redacted_output: LoggedMessage | None = Field(
         default=None, description=BaseStep.model_fields["redacted_output"].description
     )
 
@@ -120,7 +120,7 @@ class LoggedLlmSpan(LlmSpan):
 
 # RetrieverSpan and ToolSpan use plain string/document I/O and don't need multimodal widening.
 LoggedSpan = Annotated[
-    Union[LoggedAgentSpan, LoggedWorkflowSpan, LoggedLlmSpan, RetrieverSpan, ToolSpan], Field(discriminator="type")
+    LoggedAgentSpan | LoggedWorkflowSpan | LoggedLlmSpan | RetrieverSpan | ToolSpan, Field(discriminator="type")
 ]
 
 LoggedTrace.model_rebuild()
