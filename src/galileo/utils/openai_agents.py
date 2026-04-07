@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Literal, Optional, Union
+from typing import Any, Literal
 
 from agents import (
     AgentSpanData,
@@ -30,17 +30,15 @@ class GalileoCustomSpan(CustomSpanData):
         return "galileo_custom"
 
 
-def _map_span_type(
-    span_data: SpanData, span: Optional[Span[Any]] = None
-) -> Union[SPAN_TYPE, Literal["galileo_custom"]]:
+def _map_span_type(span_data: SpanData, span: Span[Any] | None = None) -> SPAN_TYPE | Literal["galileo_custom"]:
     """Determine the Galileo span type based on the OpenAI Agent span data."""
-    if isinstance(span_data, (GenerationSpanData, ResponseSpanData)):
+    if isinstance(span_data, GenerationSpanData | ResponseSpanData):
         return "llm"
-    if isinstance(span_data, (FunctionSpanData, GuardrailSpanData)):
+    if isinstance(span_data, FunctionSpanData | GuardrailSpanData):
         return "tool"
     if isinstance(span_data, GalileoCustomSpan):
         return span_data.type
-    if isinstance(span_data, (AgentSpanData, HandoffSpanData, CustomSpanData)):
+    if isinstance(span_data, AgentSpanData | HandoffSpanData | CustomSpanData):
         return "workflow"
 
     if hasattr(span_data, "type") and span_data.type:
@@ -76,7 +74,7 @@ def _map_span_name(span: Span[Any]) -> str:
     return "Unknown Span"
 
 
-def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Any]:
+def _parse_usage(usage_data: dict | Any | None) -> dict[str, Any]:
     """
     Safely parse usage data into a standardized dictionary with detailed token breakdowns.
 
@@ -156,7 +154,7 @@ def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Any]:
     return parsed
 
 
-def _extract_llm_data(span_data: Union[GenerationSpanData, ResponseSpanData]) -> dict[str, Any]:
+def _extract_llm_data(span_data: GenerationSpanData | ResponseSpanData) -> dict[str, Any]:
     """Extract data specific to LLM spans (Generation, Response)."""
     data: dict[str, Any] = {
         "input": None,
@@ -289,7 +287,7 @@ def _extract_llm_data(span_data: Union[GenerationSpanData, ResponseSpanData]) ->
     return {k: v for k, v in data.items() if v is not None or k in ["input", "output", "metadata", "model_parameters"]}
 
 
-def _extract_tool_data(span_data: Union[FunctionSpanData, GuardrailSpanData]) -> dict[str, Any]:
+def _extract_tool_data(span_data: FunctionSpanData | GuardrailSpanData) -> dict[str, Any]:
     """Extract data specific to Tool spans (Function, Guardrail)."""
     data: dict[str, Any] = {
         "input": None,
@@ -313,7 +311,7 @@ def _extract_tool_data(span_data: Union[FunctionSpanData, GuardrailSpanData]) ->
     return {k: v for k, v in data.items() if v is not None or k in ["input", "output", "metadata"]}
 
 
-def _extract_workflow_data(span_data: Union[AgentSpanData, HandoffSpanData, CustomSpanData]) -> dict[str, Any]:
+def _extract_workflow_data(span_data: AgentSpanData | HandoffSpanData | CustomSpanData) -> dict[str, Any]:
     """Extract data specific to Workflow spans (Agent, Handoff, Custom)."""
     data: dict[str, Any] = {
         "input": None,

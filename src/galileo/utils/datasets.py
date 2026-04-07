@@ -25,9 +25,7 @@ def validate_dataset_in_project(
 
 
 def load_dataset(
-    dataset: Union["Dataset", list[Union[dict[str, Any], str]], str, None],
-    dataset_id: Optional[str],
-    dataset_name: Optional[str],
+    dataset: Union["Dataset", list[dict[str, Any] | str], str, None], dataset_id: str | None, dataset_name: str | None
 ) -> Optional["Dataset"]:
     """
     Load dataset based on provided parameters.
@@ -58,7 +56,7 @@ def load_dataset(
         return get_dataset(name=dataset_name)
     if dataset and isinstance(dataset, str):
         return get_dataset(name=dataset)
-    if dataset and not isinstance(dataset, (str, list)):
+    if dataset and not isinstance(dataset, str | list):
         # Must be a Dataset object
         return dataset
     if dataset and isinstance(dataset, list):
@@ -67,9 +65,7 @@ def load_dataset(
 
 
 def load_dataset_and_records(
-    dataset: Union["Dataset", list[Union[dict[str, Any], str]], str, None],
-    dataset_id: Optional[str],
-    dataset_name: Optional[str],
+    dataset: Union["Dataset", list[dict[str, Any] | str], str, None], dataset_id: str | None, dataset_name: str | None
 ) -> tuple[Optional["Dataset"], list[DatasetRecord]]:
     """
     Load dataset and records based on provided parameters.
@@ -98,7 +94,7 @@ def load_dataset_and_records(
         return get_dataset_and_records(name=dataset_name)
     if dataset and isinstance(dataset, str):
         return get_dataset_and_records(name=dataset)
-    if dataset and not isinstance(dataset, (str, list)):
+    if dataset and not isinstance(dataset, str | list):
         # Must be a Dataset object
         return dataset, get_records_for_dataset(dataset)
     if dataset and isinstance(dataset, list):
@@ -106,9 +102,7 @@ def load_dataset_and_records(
     raise ValueError("To load dataset records, dataset, dataset_name, or dataset_id must be provided")
 
 
-def get_dataset_and_records(
-    id: Optional[str] = None, name: Optional[str] = None
-) -> tuple["Dataset", list[DatasetRecord]]:
+def get_dataset_and_records(id: str | None = None, name: str | None = None) -> tuple["Dataset", list[DatasetRecord]]:
     from galileo.datasets import get_dataset
 
     if id:
@@ -134,7 +128,7 @@ def get_records_for_dataset(dataset: "Dataset") -> list[DatasetRecord]:
     return [convert_dataset_row_to_record(row) for row in content.rows]
 
 
-def create_rows_from_records(records: list[Union[dict[str, Any], str]]) -> list[DatasetRecord]:
+def create_rows_from_records(records: list[dict[str, Any] | str]) -> list[DatasetRecord]:
     result = []
     for record in records:
         if isinstance(record, dict) and "input" in record:

@@ -1,6 +1,5 @@
 import datetime
 import logging
-from typing import Optional
 
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.data import (
@@ -55,7 +54,7 @@ class Metrics:
         model_name: str = "gpt-4.1-mini",
         num_judges: int = 3,
         description: str = "",
-        tags: Optional[list[str]] = None,
+        tags: list[str] | None = None,
         output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN,
     ) -> BaseScorerVersionResponse:
         """
@@ -115,10 +114,10 @@ class Metrics:
         project_id: str,
         start_time: datetime.datetime,
         end_time: datetime.datetime,
-        experiment_id: Optional[str] = None,
-        log_stream_id: Optional[str] = None,
-        filters: Optional[list[FilterType]] = None,
-        group_by: Optional[str] = None,
+        experiment_id: str | None = None,
+        log_stream_id: str | None = None,
+        filters: list[FilterType] | None = None,
+        group_by: str | None = None,
         interval: int = 5,
     ) -> LogRecordsMetricsResponse:
         body = LogRecordsMetricsQueryRequest(
@@ -152,7 +151,7 @@ def create_custom_llm_metric(
     model_name: str = "gpt-4.1-mini",
     num_judges: int = 3,
     description: str = "",
-    tags: Optional[list[str]] = None,
+    tags: list[str] | None = None,
     output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN,
 ) -> BaseScorerVersionResponse:
     """
@@ -195,10 +194,10 @@ def get_metrics(
     project_id: str,
     start_time: datetime.datetime,
     end_time: datetime.datetime,
-    experiment_id: Optional[str] = None,
-    log_stream_id: Optional[str] = None,
-    filters: Optional[list[FilterType]] = None,
-    group_by: Optional[str] = None,
+    experiment_id: str | None = None,
+    log_stream_id: str | None = None,
+    filters: list[FilterType] | None = None,
+    group_by: str | None = None,
     interval: int = 5,
 ) -> LogRecordsMetricsResponse:
     """Queries for metrics in a project.

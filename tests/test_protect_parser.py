@@ -1,6 +1,6 @@
 import logging
 from json import dumps
-from typing import Any, Optional
+from typing import Any
 from unittest.mock import patch
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
@@ -27,8 +27,8 @@ class ProtectLLM(LLM):
     def _call(
         self,
         prompt: str,
-        stop: Optional[list[str]] = None,
-        run_manager: Optional[CallbackManagerForLLMRun] = None,
+        stop: list[str] | None = None,
+        run_manager: CallbackManagerForLLMRun | None = None,
         **kwargs: Any,
     ) -> str:
         return prompt

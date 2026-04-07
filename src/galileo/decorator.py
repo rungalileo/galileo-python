@@ -47,12 +47,12 @@ import asyncio
 import inspect
 import json
 import logging
-from collections.abc import AsyncGenerator, Generator
+from collections.abc import AsyncGenerator, Callable, Generator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from functools import wraps
 from types import TracebackType
-from typing import Any, Callable, Optional, TypeVar, Union, cast, overload
+from typing import Any, TypeVar, cast, overload
 
 from typing_extensions import ParamSpec
 
@@ -85,33 +85,33 @@ R = TypeVar("R")
 
 # TODO: We should have the context variables store valid values not optional values.
 # Context variables for current values
-_project_context: ContextVar[Optional[str]] = ContextVar("project_context", default=None)
-_log_stream_context: ContextVar[Optional[str]] = ContextVar("log_stream_context", default=None)
-_trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", default=None)
-_experiment_id_context: ContextVar[Optional[str]] = ContextVar("experiment_id_context", default=None)
-_span_stack_context: ContextVar[Optional[list[WorkflowSpan]]] = ContextVar("span_stack_context", default=None)
-_mode_context: ContextVar[Optional[LoggerModeType]] = ContextVar("mode_context", default=None)
-_session_id_context: ContextVar[Optional[str]] = ContextVar("session_id_context", default=None)
+_project_context: ContextVar[str | None] = ContextVar("project_context", default=None)
+_log_stream_context: ContextVar[str | None] = ContextVar("log_stream_context", default=None)
+_trace_context: ContextVar[Trace | None] = ContextVar("trace_context", default=None)
+_experiment_id_context: ContextVar[str | None] = ContextVar("experiment_id_context", default=None)
+_span_stack_context: ContextVar[list[WorkflowSpan] | None] = ContextVar("span_stack_context", default=None)
+_mode_context: ContextVar[LoggerModeType | None] = ContextVar("mode_context", default=None)
+_session_id_context: ContextVar[str | None] = ContextVar("session_id_context", default=None)
 
 # Distributed tracing context variables (for middleware)
-_trace_id_context: ContextVar[Optional[str]] = ContextVar("trace_id_context", default=None)
-_parent_id_context: ContextVar[Optional[str]] = ContextVar("parent_id_context", default=None)
+_trace_id_context: ContextVar[str | None] = ContextVar("trace_id_context", default=None)
+_parent_id_context: ContextVar[str | None] = ContextVar("parent_id_context", default=None)
 
 # Context variables for dataset fields (ground truth/reference output)
 # These allow setting ground truth data that will be attached to all spans
 # created within the context, enabling scorers that require reference output.
-_dataset_input_context: ContextVar[Optional[str]] = ContextVar("dataset_input_context", default=None)
-_dataset_output_context: ContextVar[Optional[str]] = ContextVar("dataset_output_context", default=None)
-_dataset_metadata_context: ContextVar[Optional[dict[str, str]]] = ContextVar("dataset_metadata_context", default=None)
+_dataset_input_context: ContextVar[str | None] = ContextVar("dataset_input_context", default=None)
+_dataset_output_context: ContextVar[str | None] = ContextVar("dataset_output_context", default=None)
+_dataset_metadata_context: ContextVar[dict[str, str] | None] = ContextVar("dataset_metadata_context", default=None)
 
 # Stack variables for storing previous values (for proper nesting)
-_project_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("project_stack", default=None)
-_log_stream_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("log_stream_stack", default=None)
-_trace_stack: ContextVar[Optional[list[Optional[Trace]]]] = ContextVar("trace_stack", default=None)
-_experiment_id_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("experiment_id_stack", default=None)
-_session_id_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("session_id_stack", default=None)
-_mode_stack: ContextVar[Optional[list[LoggerModeType]]] = ContextVar("mode_stack", default=None)
-_span_stack_stack: ContextVar[Optional[list[list[WorkflowSpan]]]] = ContextVar("span_stack_stack", default=None)
+_project_stack: ContextVar[list[str | None] | None] = ContextVar("project_stack", default=None)
+_log_stream_stack: ContextVar[list[str | None] | None] = ContextVar("log_stream_stack", default=None)
+_trace_stack: ContextVar[list[Trace | None] | None] = ContextVar("trace_stack", default=None)
+_experiment_id_stack: ContextVar[list[str | None] | None] = ContextVar("experiment_id_stack", default=None)
+_session_id_stack: ContextVar[list[str | None] | None] = ContextVar("session_id_stack", default=None)
+_mode_stack: ContextVar[list[LoggerModeType] | None] = ContextVar("mode_stack", default=None)
+_span_stack_stack: ContextVar[list[list[WorkflowSpan]] | None] = ContextVar("span_stack_stack", default=None)
 
 
 def _get_or_init_list(context_var: ContextVar, default_factory: Callable = list) -> list:
@@ -146,7 +146,7 @@ class GalileoDecorator:
         return self  # Allows `as galileo` usage
 
     def __exit__(
-        self, exc_type: Optional[BaseException], exc_value: Optional[BaseException], traceback: Optional[TracebackType]
+        self, exc_type: BaseException | None, exc_value: BaseException | None, traceback: TracebackType | None
     ) -> None:
         """
         Exit point for the context manager.
@@ -183,11 +183,11 @@ class GalileoDecorator:
     def __call__(
         self,
         *,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        mode: Optional[str] = None,
-        session_id: Optional[str] = None,
+        project: str | None = None,
+        log_stream: str | None = None,
+        experiment_id: str | None = None,
+        mode: str | None = None,
+        session_id: str | None = None,
     ) -> "GalileoDecorator":
         """
         Call method to use the decorator as a context manager.
@@ -263,19 +263,19 @@ class GalileoDecorator:
         self,
         func: None = None,
         *,
-        name: Optional[str] = None,
-        span_type: Optional[SPAN_TYPE] = None,
-        params: Optional[dict[str, Union[str, Callable]]] = None,
+        name: str | None = None,
+        span_type: SPAN_TYPE | None = None,
+        params: dict[str, str | Callable] | None = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]: ...
 
     def log(
         self,
-        func: Optional[Callable[P, R]] = None,
+        func: Callable[P, R] | None = None,
         *,
-        name: Optional[str] = None,
-        span_type: Optional[SPAN_TYPE] = None,
-        params: Optional[dict[str, Union[str, Callable]]] = None,
-        dataset_record: Optional[DatasetRecord] = None,
+        name: str | None = None,
+        span_type: SPAN_TYPE | None = None,
+        params: dict[str, str | Callable] | None = None,
+        dataset_record: DatasetRecord | None = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]:
         """
         Main decorator function for logging function calls.
@@ -319,10 +319,10 @@ class GalileoDecorator:
         self,
         func: F,
         *,
-        name: Optional[str],
-        span_type: Optional[SPAN_TYPE],
-        params: Optional[dict[str, Union[str, Callable]]] = None,
-        dataset_record: Optional[DatasetRecord] = None,
+        name: str | None,
+        span_type: SPAN_TYPE | None,
+        params: dict[str, str | Callable] | None = None,
+        dataset_record: DatasetRecord | None = None,
     ) -> F:
         """
         Internal method to handle logging for async functions.
@@ -384,10 +384,10 @@ class GalileoDecorator:
         self,
         func: F,
         *,
-        name: Optional[str],
-        span_type: Optional[SPAN_TYPE],
-        params: Optional[dict[str, Union[str, Callable]]] = None,
-        dataset_record: Optional[DatasetRecord] = None,
+        name: str | None,
+        span_type: SPAN_TYPE | None,
+        params: dict[str, str | Callable] | None = None,
+        dataset_record: DatasetRecord | None = None,
     ) -> F:
         """
         Internal method to handle logging for synchronous functions.
@@ -457,12 +457,12 @@ class GalileoDecorator:
         *,
         func: Callable,
         name: str,
-        span_type: Optional[SPAN_TYPE],
-        params: Optional[dict[str, Union[str, Callable]]] = None,
+        span_type: SPAN_TYPE | None,
+        params: dict[str, str | Callable] | None = None,
         is_method: bool = False,
         func_args: tuple = (),
-        func_kwargs: Optional[dict] = None,
-    ) -> Optional[dict[str, Any]]:
+        func_kwargs: dict | None = None,
+    ) -> dict[str, Any] | None:
         """
         Prepare the input parameters for logging.
 
@@ -573,7 +573,7 @@ class GalileoDecorator:
 
             # Create dictionary of positional args
             param_names = [name for name in sig.parameters if name not in ("self", "cls")]
-            for param_name, value in zip(param_names, func_args[1:] if is_method else func_args):
+            for param_name, value in zip(param_names, func_args[1:] if is_method else func_args, strict=False):
                 merged[param_name] = value
 
             # Update with provided keyword arguments
@@ -609,7 +609,7 @@ class GalileoDecorator:
         return span_params.get(span_type, common_params)
 
     def _safe_prepare_call(
-        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], dataset_record: Optional[DatasetRecord]
+        self, span_type: SPAN_TYPE | None, span_params: dict[str, Any], dataset_record: DatasetRecord | None
     ) -> bool:
         """
         Safely prepare telemetry, returning False if initialization fails.
@@ -644,7 +644,7 @@ class GalileoDecorator:
             return False
 
     def _prepare_call(
-        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], dataset_record: Optional[DatasetRecord]
+        self, span_type: SPAN_TYPE | None, span_params: dict[str, Any], dataset_record: DatasetRecord | None
     ) -> None:
         """
         Prepare the call for logging by setting up trace and span contexts.
@@ -699,7 +699,7 @@ class GalileoDecorator:
             _get_or_init_list(_span_stack_context).append(span)
 
     def _get_input_from_func_args(
-        self, *, is_method: bool = False, func_args: tuple = (), func_kwargs: Optional[dict] = None
+        self, *, is_method: bool = False, func_args: tuple = (), func_kwargs: dict | None = None
     ) -> Any:
         """
         Extract input from function arguments.
@@ -727,8 +727,8 @@ class GalileoDecorator:
         return json.loads(json.dumps(raw_input, cls=EventSerializer))
 
     def _finalize_call(
-        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], result: Any
-    ) -> Union[Generator, AsyncGenerator, Any]:
+        self, span_type: SPAN_TYPE | None, span_params: dict[str, Any], result: Any
+    ) -> Generator | AsyncGenerator | Any:
         """
         Finalize the call logging by handling the result appropriately.
 
@@ -754,7 +754,7 @@ class GalileoDecorator:
             return self._wrap_async_generator_result(span_type, span_params, result)
         return self._handle_call_result(span_type, span_params, result)
 
-    def _serialize_output(self, output: Any, span_type: Optional[SPAN_TYPE]) -> Any:
+    def _serialize_output(self, output: Any, span_type: SPAN_TYPE | None) -> Any:
         """
         Serialize output value for logging.
 
@@ -782,13 +782,13 @@ class GalileoDecorator:
             # textual spans are spans with string-based input and output
             or is_textual_span_type(span_type)
             # llm spans don't accept list or tuple types as output
-            or (span_type == "llm" and isinstance(output, (list, tuple)))
+            or (span_type == "llm" and isinstance(output, list | tuple))
         ):
             return serialize_to_str(output)
         # Serialize and deserialize to ensure proper JSON serialization
         return json.loads(json.dumps(output, cls=EventSerializer))
 
-    def _handle_call_result(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], result: Any) -> Any:
+    def _handle_call_result(self, span_type: SPAN_TYPE | None, span_params: dict[str, Any], result: Any) -> Any:
         """
         Handle the result of a function call for logging.
 
@@ -908,7 +908,7 @@ class GalileoDecorator:
         return result
 
     def _wrap_sync_generator_result(
-        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], generator: Generator
+        self, span_type: SPAN_TYPE | None, span_params: dict[str, Any], generator: Generator
     ) -> Generator:
         """
         Wrap a synchronous generator to log its results.
@@ -947,7 +947,7 @@ class GalileoDecorator:
             self._handle_call_result(span_type, span_params, output)
 
     async def _wrap_async_generator_result(
-        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], generator: AsyncGenerator
+        self, span_type: SPAN_TYPE | None, span_params: dict[str, Any], generator: AsyncGenerator
     ) -> AsyncGenerator:
         """
         Wrap an asynchronous generator to log its results.
@@ -987,11 +987,11 @@ class GalileoDecorator:
 
     def get_logger_instance(
         self,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        mode: Optional[str] = None,
-        ingestion_hook: Optional[Callable] = None,
+        project: str | None = None,
+        log_stream: str | None = None,
+        experiment_id: str | None = None,
+        mode: str | None = None,
+        ingestion_hook: Callable | None = None,
     ) -> GalileoLogger:
         """
         Get the Galileo Logger instance for the current decorator context.
@@ -1028,7 +1028,7 @@ class GalileoDecorator:
 
         return GalileoLoggerSingleton().get(**kwargs)
 
-    def get_current_project(self) -> Optional[str]:
+    def get_current_project(self) -> str | None:
         """
         Retrieve the current project name from context.
 
@@ -1039,7 +1039,7 @@ class GalileoDecorator:
         """
         return _project_context.get()
 
-    def get_current_log_stream(self) -> Optional[str]:
+    def get_current_log_stream(self) -> str | None:
         """
         Retrieve the current log stream name from context.
 
@@ -1061,7 +1061,7 @@ class GalileoDecorator:
         """
         return _get_or_init_list(_span_stack_context)
 
-    def get_current_trace(self) -> Optional[Trace]:
+    def get_current_trace(self) -> Trace | None:
         """
         Retrieve the current trace from context.
 
@@ -1072,7 +1072,7 @@ class GalileoDecorator:
         """
         return _trace_context.get()
 
-    def get_current_mode(self) -> Optional[LoggerModeType]:
+    def get_current_mode(self) -> LoggerModeType | None:
         """
         Retrieve the current mode from context.
 
@@ -1085,10 +1085,10 @@ class GalileoDecorator:
 
     def flush(
         self,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        mode: Optional[str] = None,
+        project: str | None = None,
+        log_stream: str | None = None,
+        experiment_id: str | None = None,
+        mode: str | None = None,
     ) -> None:
         """
         Upload all captured traces under a project and log stream context to Galileo.
@@ -1178,11 +1178,11 @@ class GalileoDecorator:
 
     def init(
         self,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        local_metrics: Optional[list[LocalMetricConfig]] = None,
-        mode: Optional[str] = None,
+        project: str | None = None,
+        log_stream: str | None = None,
+        experiment_id: str | None = None,
+        local_metrics: list[LocalMetricConfig] | None = None,
+        mode: str | None = None,
     ) -> None:
         """
         Initialize the context with a project and log stream. Optionally, it can also be used
@@ -1222,10 +1222,10 @@ class GalileoDecorator:
 
     def start_session(
         self,
-        name: Optional[str] = None,
-        previous_session_id: Optional[str] = None,
-        external_id: Optional[str] = None,
-        metadata: Optional[dict[str, str]] = None,
+        name: str | None = None,
+        previous_session_id: str | None = None,
+        external_id: str | None = None,
+        metadata: dict[str, str] | None = None,
     ) -> str:
         """
         Start a session in the active context logger instance.
@@ -1277,9 +1277,9 @@ start_session = galileo_context.start_session
 @contextmanager
 def galileo_dataset_context(
     *,
-    dataset_input: Optional[str] = None,
-    dataset_output: Optional[str] = None,
-    dataset_metadata: Optional[dict[str, str]] = None,
+    dataset_input: str | None = None,
+    dataset_output: str | None = None,
+    dataset_metadata: dict[str, str] | None = None,
 ) -> Generator[None, None, None]:
     """
     Context manager to set dataset/ground truth information for spans.

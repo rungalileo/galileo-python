@@ -1,9 +1,9 @@
 import operator
 import os
+from collections.abc import Callable
 from datetime import datetime
 from functools import reduce
 from statistics import mean
-from typing import Callable, Union
 from unittest.mock import ANY, MagicMock, Mock, patch
 from uuid import UUID
 
@@ -794,7 +794,7 @@ class TestExperiments:
         reset_context,
         dataset_content: DatasetContent,
         function: Callable,
-        metrics: list[Union[str, LocalMetricConfig]],
+        metrics: list[str | LocalMetricConfig],
         num_spans: int,
         span_type: SPAN_TYPE,
         results: list[MetricValueType],
@@ -844,7 +844,7 @@ class TestExperiments:
         assert trace.dataset_output == "Europe"
         assert trace.dataset_metadata == {"meta": "data"}
 
-        for metric, metric_result in zip(metrics, aggregate_results):
+        for metric, metric_result in zip(metrics, aggregate_results, strict=False):
             assert hasattr(trace.metrics, metric.name)
             assert getattr(trace.metrics, metric.name) == metric_result
 
@@ -854,7 +854,7 @@ class TestExperiments:
             assert span.dataset_output == "Europe"
             assert span.dataset_metadata == {"meta": "data"}
 
-            for metric, metric_result in zip(metrics, results):
+            for metric, metric_result in zip(metrics, results, strict=False):
                 if span.type == span_type:
                     assert hasattr(span.metrics, metric.name)
                     assert getattr(span.metrics, metric.name) == metric_result

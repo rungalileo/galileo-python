@@ -1,6 +1,5 @@
 import logging
 import re
-from typing import Optional
 from unittest.mock import ANY, Mock, patch
 from uuid import uuid4
 
@@ -20,11 +19,11 @@ def _job_db_factory(
     *,
     project_id: str = FIXED_PROJECT_ID,
     run_id: str = FIXED_RUN_ID,
-    job_id: Optional[str] = None,
+    job_id: str | None = None,
     job_name: str = "test-job",
     status: JobStatus = JobStatus.completed,
-    request_data: Optional[dict] = None,
-    error_message: Optional[str] = None,
+    request_data: dict | None = None,
+    error_message: str | None = None,
     steps_total: int = 100,
     steps_completed: int = 100,
     progress_message: str = "Done",

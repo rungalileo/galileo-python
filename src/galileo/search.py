@@ -1,6 +1,5 @@
 import logging
 from enum import Enum
-from typing import Optional
 
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.trace import (
@@ -35,10 +34,10 @@ class Search:
         self,
         project_id: str,
         record_type: RecordType,
-        experiment_id: Optional[str] = None,
-        log_stream_id: Optional[str] = None,
-        filters: Optional[list[FilterType]] = None,
-        sort: Optional[LogRecordsSortClause] = None,
+        experiment_id: str | None = None,
+        log_stream_id: str | None = None,
+        filters: list[FilterType] | None = None,
+        sort: LogRecordsSortClause | None = None,
         limit: int = 100,
         starting_token: int = 0,
     ) -> LogRecordsQueryResponse:
@@ -71,10 +70,10 @@ class Search:
 
 def get_spans(
     project_id: str,
-    experiment_id: Optional[str] = None,
-    log_stream_id: Optional[str] = None,
-    filters: Optional[list[FilterType]] = None,
-    sort: Optional[LogRecordsSortClause] = None,
+    experiment_id: str | None = None,
+    log_stream_id: str | None = None,
+    filters: list[FilterType] | None = None,
+    sort: LogRecordsSortClause | None = None,
     limit: int = 100,
     starting_token: int = 0,
 ) -> LogRecordsQueryResponse:
@@ -115,10 +114,10 @@ def get_spans(
 
 def get_traces(
     project_id: str,
-    experiment_id: Optional[str] = None,
-    log_stream_id: Optional[str] = None,
-    filters: Optional[list[FilterType]] = None,
-    sort: Optional[LogRecordsSortClause] = None,
+    experiment_id: str | None = None,
+    log_stream_id: str | None = None,
+    filters: list[FilterType] | None = None,
+    sort: LogRecordsSortClause | None = None,
     limit: int = 100,
     starting_token: int = 0,
 ) -> LogRecordsQueryResponse:
@@ -159,10 +158,10 @@ def get_traces(
 
 def get_sessions(
     project_id: str,
-    experiment_id: Optional[str] = None,
-    log_stream_id: Optional[str] = None,
-    filters: Optional[list[FilterType]] = None,
-    sort: Optional[LogRecordsSortClause] = None,
+    experiment_id: str | None = None,
+    log_stream_id: str | None = None,
+    filters: list[FilterType] | None = None,
+    sort: LogRecordsSortClause | None = None,
     limit: int = 100,
     starting_token: int = 0,
 ) -> LogRecordsQueryResponse:

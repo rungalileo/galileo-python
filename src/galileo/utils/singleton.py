@@ -1,6 +1,7 @@
 import logging
 import threading
-from typing import Callable, ClassVar, Optional
+from collections.abc import Callable
+from typing import ClassVar
 
 from galileo.logger import GalileoLogger
 from galileo.schema.metrics import LocalMetricConfig
@@ -44,13 +45,13 @@ class GalileoLoggerSingleton:
 
     @staticmethod
     def _get_key(
-        project: Optional[str],
-        log_stream: Optional[str],
+        project: str | None,
+        log_stream: str | None,
         mode: str,
-        experiment_id: Optional[str] = None,
-        trace_id: Optional[str] = None,
-        span_id: Optional[str] = None,
-        ingestion_hook_id: Optional[int] = None,
+        experiment_id: str | None = None,
+        trace_id: str | None = None,
+        span_id: str | None = None,
+        ingestion_hook_id: int | None = None,
     ) -> tuple[str, ...]:
         """
         Generate a key tuple based on project, log_stream, and tracing parameters.
@@ -108,14 +109,14 @@ class GalileoLoggerSingleton:
     def get(
         self,
         *,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        mode: Optional[str] = None,
-        local_metrics: Optional[list[LocalMetricConfig]] = None,
-        trace_id: Optional[str] = None,
-        span_id: Optional[str] = None,
-        ingestion_hook: Optional[Callable] = None,
+        project: str | None = None,
+        log_stream: str | None = None,
+        experiment_id: str | None = None,
+        mode: str | None = None,
+        local_metrics: list[LocalMetricConfig] | None = None,
+        trace_id: str | None = None,
+        span_id: str | None = None,
+        ingestion_hook: Callable | None = None,
     ) -> GalileoLogger:
         """
         Retrieve an existing GalileoLogger or create a new one if it does not exist.
@@ -186,10 +187,10 @@ class GalileoLoggerSingleton:
 
     def reset(
         self,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        mode: Optional[str] = None,
+        project: str | None = None,
+        log_stream: str | None = None,
+        experiment_id: str | None = None,
+        mode: str | None = None,
     ) -> None:
         """
         Reset (terminate and remove) one or all GalileoLogger instances.
@@ -226,10 +227,10 @@ class GalileoLoggerSingleton:
 
     def flush(
         self,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        mode: Optional[str] = None,
+        project: str | None = None,
+        log_stream: str | None = None,
+        experiment_id: str | None = None,
+        mode: str | None = None,
     ) -> None:
         """
         Flush (upload and clear) a GalileoLogger instance.

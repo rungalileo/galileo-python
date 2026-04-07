@@ -1,7 +1,7 @@
 import logging
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from agents import Span, Trace, TracingProcessor
 from agents.tracing import ResponseSpanData, get_current_span, get_trace_provider
@@ -41,7 +41,7 @@ class GalileoTracingProcessor(TracingProcessor):
         Stores Node objects keyed by their OpenAI span_id or trace_id (for root).
     """
 
-    def __init__(self, galileo_logger: Optional[GalileoLogger] = None, flush_on_trace_end: bool = True):
+    def __init__(self, galileo_logger: GalileoLogger | None = None, flush_on_trace_end: bool = True):
         """
         OpenAI Agents TracingProcessor for logging traces to Galileo.
 
@@ -56,7 +56,7 @@ class GalileoTracingProcessor(TracingProcessor):
         self._flush_on_trace_end: bool = flush_on_trace_end
         self._nodes: dict[str, Node] = {}
         self._last_output: Any = None
-        self._last_status_code: Optional[int] = None
+        self._last_status_code: int | None = None
         self._first_input: Any = None
 
     def on_trace_start(self, trace: Trace) -> None:

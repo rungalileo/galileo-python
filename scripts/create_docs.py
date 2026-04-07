@@ -12,7 +12,7 @@ import fnmatch
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from docstring_parser import parse as parse_docstring
 
@@ -35,8 +35,8 @@ class DocumentedItem:
     """
 
     name: str
-    doc: Optional[Any]
-    signature: Optional[str] = None
+    doc: Any | None
+    signature: str | None = None
     methods: list["DocumentedItem"] = field(default_factory=list)
 
 
@@ -80,7 +80,7 @@ def extract_docstrings_from_file(path: Path) -> FileDoc:
     text = path.read_text(encoding="utf-8")
     tree = ast.parse(text, filename=str(path))
 
-    def _parse_text(txt: Optional[str]) -> Optional[dict[str, Any]]:
+    def _parse_text(txt: str | None) -> dict[str, Any] | None:
         if not txt:
             return None
 
@@ -180,7 +180,7 @@ def extract_docstrings_from_file(path: Path) -> FileDoc:
     classes: list[DocumentedItem] = []
     functions: list[DocumentedItem] = []
 
-    def _make_signature_for_callable(node: Any) -> Optional[str]:
+    def _make_signature_for_callable(node: Any) -> str | None:
         """
         Return a formatted signature string for a FunctionDef/AsyncFunctionDef node.
 
@@ -279,7 +279,7 @@ def extract_docstrings_from_file(path: Path) -> FileDoc:
             # Collect methods defined directly on the class
             methods: list[DocumentedItem] = []
             for child in node.body:
-                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if isinstance(child, ast.FunctionDef | ast.AsyncFunctionDef):
                     # skip private methods
                     if child.name.startswith("_"):
                         continue
@@ -288,7 +288,7 @@ def extract_docstrings_from_file(path: Path) -> FileDoc:
                     methods.append(DocumentedItem(name=child.name, doc=mdoc, signature=m_sig))
 
             classes.append(DocumentedItem(name=node.name, doc=doc, signature=sig, methods=methods))
-        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        elif isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef):
             # top-level functions only
             if node.name.startswith("_"):
                 continue
@@ -299,7 +299,7 @@ def extract_docstrings_from_file(path: Path) -> FileDoc:
     return FileDoc(path=str(path), module=module_item, classes=classes, functions=functions)
 
 
-def parse_docstring_text(txt: Optional[str]) -> Optional[dict[str, Any]]:
+def parse_docstring_text(txt: str | None) -> dict[str, Any] | None:
     """
     Parse and normalize a single docstring text.
 
@@ -359,7 +359,7 @@ def parse_docstring_text(txt: Optional[str]) -> Optional[dict[str, Any]]:
     return out
 
 
-def parse_source(root: str, to_ignore: Optional[list[str]] = None) -> list[FileDoc]:
+def parse_source(root: str, to_ignore: list[str] | None = None) -> list[FileDoc]:
     """
     Parse all .py files under `root` and return files_docs.
 

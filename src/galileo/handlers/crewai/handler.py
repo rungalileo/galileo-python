@@ -2,7 +2,7 @@ import hashlib
 import json
 import logging
 from datetime import datetime
-from typing import Any, Optional, Union
+from typing import Any
 from uuid import UUID
 
 from packaging.version import Version
@@ -65,7 +65,7 @@ class CrewAIEventListener:
 
     def __init__(
         self,
-        galileo_logger: Optional[GalileoLogger] = None,
+        galileo_logger: GalileoLogger | None = None,
         start_new_trace: bool = True,
         flush_on_crew_completed: bool = True,
     ):
@@ -77,7 +77,7 @@ class CrewAIEventListener:
             galileo_logger=galileo_logger,
             integration="crewai",
         )
-        self._active_tool_run_id: Optional[UUID] = None
+        self._active_tool_run_id: UUID | None = None
 
         if CREWAI_AVAILABLE:
             # Register with the event bus directly instead of inheriting from
@@ -533,7 +533,7 @@ class CrewAIEventListener:
         agent_id = getattr(event, "agent_id", None) or str(getattr(getattr(event, "agent", None), "id", ""))
         task_id = getattr(event, "task_id", "")
         if agent_id and task_id:
-            parent_run_id: Optional[UUID] = self._hash_to_uuid(f"{agent_id}_{task_id}")
+            parent_run_id: UUID | None = self._hash_to_uuid(f"{agent_id}_{task_id}")
         else:
             event_agent = getattr(event, "agent", None)
             parent_run_id = self._to_uuid(getattr(event_agent, "id", None)) if event_agent else None
@@ -574,7 +574,7 @@ class CrewAIEventListener:
         )
         self._active_tool_run_id = None
 
-    def _to_uuid(self, id: Union[str, None, UUID]) -> Union[UUID, None]:
+    def _to_uuid(self, id: str | None | UUID) -> UUID | None:
         if isinstance(id, UUID):
             return id
         if isinstance(id, str):

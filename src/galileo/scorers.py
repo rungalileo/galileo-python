@@ -1,5 +1,4 @@
 import builtins
-from typing import Optional, Union
 from uuid import UUID
 
 from galileo.config import GalileoPythonConfig
@@ -62,7 +61,7 @@ class Scorers:
 
         return all_scorers
 
-    def list(self, name: Optional[str] = None, types: Optional[list[ScorerTypes]] = None) -> list[ScorerResponse]:
+    def list(self, name: str | None = None, types: list[ScorerTypes] | None = None) -> list[ScorerResponse]:
         """
         Lists scorers, optionally filtering by name and/or type.
 
@@ -138,7 +137,7 @@ class Scorers:
             id_filter = ScorerIDFilter(value=scorer_ids, operator=ScorerIDFilterOperator.ONE_OF)
         return self._list_with_filters([id_filter])
 
-    def get_scorer_version(self, scorer_id: UUID, version: int) -> Union[Unset, BaseScorerVersionResponse]:
+    def get_scorer_version(self, scorer_id: UUID, version: int) -> Unset | BaseScorerVersionResponse:
         """
         Parameters
         ----------
@@ -164,7 +163,7 @@ class ScorerSettings:
 
     def create(
         self, project_id: str, run_id: str, scorers: list[ScorerConfig]
-    ) -> Optional[Union[HTTPValidationError, RunScorerSettingsResponse]]:
+    ) -> HTTPValidationError | RunScorerSettingsResponse | None:
         """
         Parameters
         ----------

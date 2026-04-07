@@ -6,8 +6,9 @@ import logging
 import os
 import time
 from abc import ABC
+from collections.abc import Callable
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from galileo.model import Model

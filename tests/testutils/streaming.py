@@ -1,6 +1,6 @@
 import json
 from collections.abc import Generator
-from typing import Any, Optional
+from typing import Any
 
 from openai import BaseModel
 from openai.types.chat import ChatCompletionChunk
@@ -24,9 +24,9 @@ def model_dict(m: BaseModel, **kwargs: Any) -> dict[str, Any]:
 
 class EventStream:
     @staticmethod
-    def _dump_event(event) -> tuple[Optional[bytes], Optional[bytes]]:
+    def _dump_event(event) -> tuple[bytes | None, bytes | None]:
         if hasattr(event, "event") and hasattr(event, "data"):
-            event_type: Optional[str] = getattr(event, "event", None)
+            event_type: str | None = getattr(event, "event", None)
             data = getattr(event, "data", None)
             if event_type is not None and data is not None:
                 encoded_event = f"event: {event_type}\n".encode()
@@ -83,7 +83,7 @@ class EventStream:
 
 class ResponsesEventStream:
     @staticmethod
-    def _dump_event(event) -> tuple[Optional[bytes], Optional[bytes]]:
+    def _dump_event(event) -> tuple[bytes | None, bytes | None]:
         """Format Responses API events for HTTP streaming."""
         encoded_data = f"data: {json.dumps(model_dict(event))}\n\n".encode()
         return None, encoded_data
