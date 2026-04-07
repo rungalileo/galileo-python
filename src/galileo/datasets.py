@@ -52,6 +52,7 @@ from galileo_core.utils.dataset import DatasetType, parse_dataset
 
 logger = get_logger(__name__)
 MAX_DATASET_ROWS = 100000
+DEFAULT_EXTEND_MODEL_ALIAS = "GPT-4o mini"
 
 
 class DatasetAPIException(APIException):
@@ -581,7 +582,11 @@ class Datasets:
             If the request takes longer than Client.timeout.
         """
         # Convert prompt_settings dict to PromptRunSettings if provided
-        model_alias = prompt_settings.get("model_alias", "gpt-4o-mini") if prompt_settings else "gpt-4o-mini"
+        model_alias = (
+            prompt_settings.get("model_alias", DEFAULT_EXTEND_MODEL_ALIAS)
+            if prompt_settings
+            else DEFAULT_EXTEND_MODEL_ALIAS
+        )
         prompt_run_settings = PromptRunSettings(model_alias=model_alias)
 
         # Convert data_types strings to SyntheticDataTypes enum if provided
