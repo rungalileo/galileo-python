@@ -18,7 +18,7 @@ from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.projects import Projects
-from galileo.schema.content_blocks import is_content_block_list
+from galileo.schema.content_blocks import DataContentBlock, TextContentBlock, is_content_block_list
 from galileo.schema.logged import (
     IngestOutputType,
     LoggedAgentSpan,
@@ -354,6 +354,7 @@ class GalileoLogger(TracesLogger):
         else:
             self.log_stream_id = log_stream_obj.id
 
+    @nop_sync
     def _create_traces_client(self) -> Union[Traces, IngestTraces]:
         """Create the appropriate traces client.
 
@@ -483,21 +484,66 @@ class GalileoLogger(TracesLogger):
         return str(v)
 
     @staticmethod
+    def _messages_to_content_blocks(messages: list) -> list[TextContentBlock | DataContentBlock] | None:
+        """Flatten a list of Message objects or message-like dicts to a List[IngestContentBlock].
+
+        Returns None if the list does not look like messages (so the caller can
+        fall back to string serialization for other list types like List[Document]).
+        """
+        from galileo_core.schemas.logging.llm import Message
+
+        blocks: list[TextContentBlock | DataContentBlock] = []
+        for item in messages:
+            if isinstance(item, Message):
+                content = item.content
+            elif isinstance(item, dict) and ("role" in item or "content" in item):
+                content = item.get("content", "")
+            else:
+                return None  # Not a message — don't try to flatten (e.g. List[Document])
+
+            if isinstance(content, str):
+                if content:
+                    blocks.append(TextContentBlock(text=content))
+            elif isinstance(content, list):
+                for block in content:
+                    if isinstance(block, TextContentBlock):
+                        blocks.append(block)
+                    elif isinstance(block, DataContentBlock):
+                        blocks.append(block)
+                    elif isinstance(block, dict):
+                        block_type = block.get("type")
+                        if block_type == "text":
+                            blocks.append(TextContentBlock(text=block.get("text", "")))
+                        elif block_type == "data":
+                            try:
+                                blocks.append(DataContentBlock.model_validate(block))
+                            except Exception:
+                                pass  # Skip malformed data blocks
+        return blocks
+
+    @staticmethod
     def _coerce_output(value: IngestOutputType) -> TextOrContentBlocks:
-        """Coerce an output value for propagation to a parent Trace.
+        """Coerce a value for use as a Trace input or output.
 
         Only needed when the destination is a Trace (which only accepts
         str or List[ContentBlock]). Workflow/agent spans accept Message,
         Document, etc. natively and should NOT be coerced.
 
         str and List[ContentBlock] are preserved as-is.
-        Everything else (Message, List[Message], List[Document], etc.)
-        is serialized to a JSON string.
+        List[Message] (or list of message-like dicts) is flattened to
+        List[ContentBlock] so multimodal content blocks are preserved and
+        can be processed by the ingest service.
+        Everything else (bare Message, List[Document], etc.) is serialized
+        to a JSON string.
         """
         if isinstance(value, str):
             return value
         if is_content_block_list(value):
             return value
+        if isinstance(value, list) and value:
+            blocks = GalileoLogger._messages_to_content_blocks(value)
+            if blocks is not None:
+                return blocks
         return serialize_to_str(value)
 
     @staticmethod
