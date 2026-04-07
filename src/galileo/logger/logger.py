@@ -1,5 +1,6 @@
 import asyncio
 import atexit
+import contextlib
 import copy
 import inspect
 import json
@@ -506,19 +507,15 @@ class GalileoLogger(TracesLogger):
                     blocks.append(TextContentBlock(text=content))
             elif isinstance(content, list):
                 for block in content:
-                    if isinstance(block, TextContentBlock):
-                        blocks.append(block)
-                    elif isinstance(block, DataContentBlock):
+                    if isinstance(block, (TextContentBlock, DataContentBlock)):
                         blocks.append(block)
                     elif isinstance(block, dict):
                         block_type = block.get("type")
                         if block_type == "text":
                             blocks.append(TextContentBlock(text=block.get("text", "")))
                         elif block_type == "data":
-                            try:
+                            with contextlib.suppress(Exception):
                                 blocks.append(DataContentBlock.model_validate(block))
-                            except Exception:
-                                pass  # Skip malformed data blocks
         return blocks
 
     @staticmethod

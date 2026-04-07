@@ -339,7 +339,7 @@ class TestSerializeToStr:
 
     def test_serialize_non_serializable_class(self) -> None:
         # Test with non-serializable object
-        from openai import OpenAI  # noqa: PLC0415
+        from openai import OpenAI
 
         client = OpenAI(api_key="test")
 
@@ -371,7 +371,7 @@ def test_serialize_complex_example_with_dataclasses() -> None:
         supports_tool_calling: bool = False
         max_tokens: int = 1024
 
-    from openai import OpenAI  # noqa: PLC0415
+    from openai import OpenAI
 
     client = OpenAI(api_key="test")
 
@@ -748,7 +748,7 @@ class TestLangGraphTypesSerialization:
     def test_command_serialization(self) -> None:
         """Test that Command objects are properly serialized."""
         pytest.importorskip("langgraph")
-        from langgraph.types import Command  # noqa: PLC0415
+        from langgraph.types import Command
 
         # Given: a Command object with update and goto values
         command = Command(update={"messages": ["test message"]}, goto="next_node")
@@ -765,7 +765,7 @@ class TestLangGraphTypesSerialization:
     def test_command_serialization_with_default_values(self) -> None:
         """Test that Command with minimal values serializes correctly."""
         pytest.importorskip("langgraph")
-        from langgraph.types import Command  # noqa: PLC0415
+        from langgraph.types import Command
 
         # Given: a Command object with only an update value
         command = Command(update={"key": "value"})
@@ -782,7 +782,7 @@ class TestLangGraphTypesSerialization:
     def test_send_serialization(self) -> None:
         """Test that Send objects are properly serialized."""
         pytest.importorskip("langgraph")
-        from langgraph.types import Send  # noqa: PLC0415
+        from langgraph.types import Send
 
         # Given: a Send object with node and arg values
         send = Send(node="target_node", arg={"data": "test"})
@@ -797,7 +797,7 @@ class TestLangGraphTypesSerialization:
     def test_command_with_send_goto(self) -> None:
         """Test Command with Send as goto value."""
         pytest.importorskip("langgraph")
-        from langgraph.types import Command, Send  # noqa: PLC0415
+        from langgraph.types import Command, Send
 
         # Given: a Command with a Send object as the goto value
         send = Send(node="target", arg={"key": "value"})
@@ -814,7 +814,7 @@ class TestLangGraphTypesSerialization:
     def test_command_with_list_of_sends_goto(self) -> None:
         """Test Command with list of Send objects as goto value."""
         pytest.importorskip("langgraph")
-        from langgraph.types import Command, Send  # noqa: PLC0415
+        from langgraph.types import Command, Send
 
         # Given: a Command with a list of Send objects as goto
         sends = [Send(node="node1", arg={"a": 1}), Send(node="node2", arg={"b": 2})]
