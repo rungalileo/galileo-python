@@ -1177,9 +1177,9 @@ def test_coerce_output_preserves_content_blocks() -> None:
     assert isinstance(result[1], DataContentBlock)
 
 
-def test_coerce_output_serializes_messages_to_string() -> None:
-    """_coerce_output serializes List[Message] to JSON string."""
-    # Given: a list of messages (valid for workflow spans but not traces)
+def test_coerce_output_flattens_messages_to_content_blocks() -> None:
+    """_coerce_output flattens List[Message] to List[ContentBlock] for trace compatibility."""
+    # Given: a list of messages (valid for workflow spans but not trace input/output)
     messages = [
         LoggedMessage(content="hello", role=MessageRole.user),
         LoggedMessage(content="hi there", role=MessageRole.assistant),
@@ -1188,10 +1188,39 @@ def test_coerce_output_serializes_messages_to_string() -> None:
     # When: coercing the output
     result = GalileoLogger._coerce_output(messages)
 
-    # Then: serialized to a JSON string
-    assert isinstance(result, str)
-    assert "hello" in result
-    assert "user" in result
+    # Then: flattened to content blocks (not a JSON string)
+    assert isinstance(result, list)
+    assert len(result) == 2
+    assert isinstance(result[0], TextContentBlock)
+    assert result[0].text == "hello"
+    assert isinstance(result[1], TextContentBlock)
+    assert result[1].text == "hi there"
+
+
+def test_coerce_output_flattens_multimodal_messages_to_content_blocks() -> None:
+    """_coerce_output preserves DataContentBlocks when flattening multimodal messages."""
+    # Given: a message dict (as produced by EventSerializer) with mixed content blocks
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "What's in this image?"},
+                {"type": "data", "modality": "image", "url": "https://example.com/img.jpg"},
+            ],
+        }
+    ]
+
+    # When: coercing the output
+    result = GalileoLogger._coerce_output(messages)
+
+    # Then: returns List[IngestContentBlock] preserving the data block
+    assert isinstance(result, list)
+    assert len(result) == 2
+    assert isinstance(result[0], TextContentBlock)
+    assert result[0].text == "What's in this image?"
+    assert isinstance(result[1], DataContentBlock)
+    assert result[1].modality == ContentModality.image
+    assert result[1].url == "https://example.com/img.jpg"
 
 
 def test_coerce_output_serializes_single_message_to_string() -> None:

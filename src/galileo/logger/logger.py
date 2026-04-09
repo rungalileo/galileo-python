@@ -1,24 +1,33 @@
 import asyncio
 import atexit
+import contextlib
 import copy
 import inspect
 import json
 import logging
+import os
 import time
 import uuid
 from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Union
 
 import backoff
+import httpx
 
+from galileo.config import GalileoPythonConfig
 from galileo.constants import LoggerModeType
 from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
 from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.projects import Projects
-from galileo.schema.content_blocks import is_content_block_list, normalize_content_block_list
+from galileo.schema.content_blocks import (
+    DataContentBlock,
+    TextContentBlock,
+    is_content_block_list,
+    normalize_content_block_list,
+)
 from galileo.schema.logged import (
     IngestOutputType,
     LoggedAgentSpan,
@@ -40,7 +49,7 @@ from galileo.schema.trace import (
     TracesIngestRequest,
     TraceUpdateRequest,
 )
-from galileo.traces import Traces
+from galileo.traces import IngestTraces, Traces
 from galileo.utils.decorators import (
     async_warn_catch_exception,
     nop_async,
@@ -84,6 +93,10 @@ STREAMING_MAX_RETRIES = 5
 STREAMING_MAX_TIME_SECONDS = 70  # Maximum time to spend retrying a single request
 DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 90  # Timeout for waiting on background trace/span update tasks
 STUB_TRACE_NAME = "stub_trace"  # Name for stub traces created from distributed tracing headers
+
+# Cached result of the ingest service healthz probe. Key "result" is absent until first check.
+_ingest_service_cache: dict[str, bool] = {}
+_logger = logging.getLogger("galileo.logger")
 
 
 class GalileoLogger(TracesLogger):
@@ -161,7 +174,7 @@ class GalileoLogger(TracesLogger):
     _session_external_id: str | None = None
 
     _logger = logging.getLogger("galileo.logger")
-    _traces_client: Optional["Traces"] = None
+    _traces_client: Union["Traces", "IngestTraces"] | None = None
     _task_handler: ThreadPoolTaskHandler
     _trace_completion_submitted: bool
 
@@ -310,10 +323,7 @@ class GalileoLogger(TracesLogger):
             if not (self.log_stream_id or self.experiment_id):
                 self._init_log_stream()
 
-            if self.log_stream_id:
-                self._traces_client = Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)
-            elif self.experiment_id:
-                self._traces_client = Traces(project_id=self.project_id, experiment_id=self.experiment_id)
+            self._traces_client = self._create_traces_client()
         else:
             # ingestion_hook path: Traces client not created eagerly.
             # If the user later calls ingest_traces(), it will be created lazily.
@@ -357,13 +367,55 @@ class GalileoLogger(TracesLogger):
         else:
             self.log_stream_id = log_stream_obj.id
 
-    def _create_traces_client(self) -> Traces:
-        """Lazily create a Traces client when needed (e.g. ingestion_hook users calling ingest_traces)."""
-        self._logger.info("Creating Traces client lazily for explicit ingest_traces call.")
+    @classmethod
+    def _is_ingest_service_available(cls) -> bool:
+        """Check whether the ingest service is reachable, caching the result for the process lifetime.
+
+        The cache is bypassed (and cleared) whenever GALILEO_INGEST_BETA_DISABLED is set so that
+        toggling the flag within the same process takes effect immediately.
+        """
+        if os.environ.get("GALILEO_INGEST_BETA_DISABLED", "").lower() in ("1", "true", "yes"):
+            _ingest_service_cache.clear()
+            return False
+
+        if "result" not in _ingest_service_cache:
+            try:
+                api_url = str(GalileoPythonConfig.get().api_url).rstrip("/")
+                resp = httpx.get(f"{api_url}/ingest/healthz", timeout=2.0)
+                _ingest_service_cache["result"] = resp.is_success
+                if _ingest_service_cache["result"]:
+                    _logger.info("Ingest service healthy at %s, using IngestTraces client", api_url)
+                else:
+                    _logger.debug("Ingest service healthz returned %s, using standard client", resp.status_code)
+            except Exception:
+                _ingest_service_cache["result"] = False
+                _logger.debug("Ingest service healthz check failed, using standard client")
+        return _ingest_service_cache["result"]
+
+    @nop_sync
+    def _create_traces_client(self) -> Traces | IngestTraces:
+        """Create the appropriate traces client.
+
+        Uses the dedicated Go ingest service (IngestTraces) when available,
+        detected by probing {api_url}/ingest/healthz. Falls back to the standard
+        API client if the healthz check fails or if GALILEO_INGEST_BETA_DISABLED is set.
+        """
         if not self.project_id:
             self._init_project()
         if not (self.log_stream_id or self.experiment_id):
             self._init_log_stream()
+
+        if self._is_ingest_service_available():
+            api_url = str(GalileoPythonConfig.get().api_url).rstrip("/")
+            api_key = os.environ.get("GALILEO_API_KEY", "")
+            return IngestTraces(
+                project_id=self.project_id,
+                base_url=api_url,
+                api_key=api_key,
+                log_stream_id=self.log_stream_id,
+                experiment_id=self.experiment_id,
+            )
+
         if self.log_stream_id:
             return Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)
         if self.experiment_id:
@@ -470,21 +522,62 @@ class GalileoLogger(TracesLogger):
         return str(v)
 
     @staticmethod
+    def _messages_to_content_blocks(messages: list) -> list[TextContentBlock | DataContentBlock] | None:
+        """Flatten a list of Message objects or message-like dicts to a List[IngestContentBlock].
+
+        Returns None if the list does not look like messages (so the caller can
+        fall back to string serialization for other list types like List[Document]).
+        """
+        from galileo_core.schemas.logging.llm import Message
+
+        blocks: list[TextContentBlock | DataContentBlock] = []
+        for item in messages:
+            if isinstance(item, Message):
+                content = item.content
+            elif isinstance(item, dict) and ("role" in item or "content" in item):
+                content = item.get("content", "")
+            else:
+                return None  # Not a message — don't try to flatten (e.g. List[Document])
+
+            if isinstance(content, str):
+                if content:
+                    blocks.append(TextContentBlock(text=content))
+            elif isinstance(content, list):
+                for block in content:
+                    if isinstance(block, TextContentBlock | DataContentBlock):
+                        blocks.append(block)
+                    elif isinstance(block, dict):
+                        block_type = block.get("type")
+                        if block_type == "text":
+                            blocks.append(TextContentBlock(text=block.get("text", "")))
+                        elif block_type == "data":
+                            with contextlib.suppress(Exception):
+                                blocks.append(DataContentBlock.model_validate(block))
+        return blocks
+
+    @staticmethod
     def _coerce_output(value: IngestOutputType) -> TextOrContentBlocks:
-        """Coerce an output value for propagation to a parent Trace.
+        """Coerce a value for use as a Trace input or output.
 
         Only needed when the destination is a Trace (which only accepts
         str or List[ContentBlock]). Workflow/agent spans accept Message,
         Document, etc. natively and should NOT be coerced.
 
         str and List[ContentBlock] are preserved as-is.
-        Everything else (Message, List[Message], List[Document], etc.)
-        is serialized to a JSON string.
+        List[Message] (or list of message-like dicts) is flattened to
+        List[ContentBlock] so multimodal content blocks are preserved and
+        can be processed by the ingest service.
+        Everything else (bare Message, List[Document], etc.) is serialized
+        to a JSON string.
         """
         if isinstance(value, str):
             return value
         if is_content_block_list(value):
             return value
+        if isinstance(value, list) and value:
+            blocks = GalileoLogger._messages_to_content_blocks(value)
+            if blocks is not None:
+                return blocks
         return serialize_to_str(value)
 
     @staticmethod
@@ -633,8 +726,9 @@ class GalileoLogger(TracesLogger):
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
     def _update_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
-        # The PATCH trace API only accepts str for output, so serialize content blocks
-        output = trace.output if isinstance(trace.output, str) else serialize_to_str(trace.output)
+        output: str | None = None
+        if trace.output is not None:
+            output = trace.output if isinstance(trace.output, str) else serialize_to_str(trace.output)
         trace_update_request = TraceUpdateRequest(
             trace_id=trace.id,
             log_stream_id=self.log_stream_id,

@@ -1,6 +1,9 @@
 import logging
+from threading import local
 from typing import Any
 from uuid import UUID
+
+import httpx
 
 from galileo.config import GalileoPythonConfig
 from galileo.constants.routes import Routes
@@ -159,3 +162,65 @@ class Traces:
         return await self._make_async_request(
             RequestMethod.GET, endpoint=Routes.span.format(project_id=self.project_id, span_id=span_id)
         )
+
+
+class IngestTraces:
+    """Client that sends traces/spans directly to the Galileo ingest service.
+
+    Used when the ingest service healthz check succeeds, posting to the dedicated
+    Go ingest service instead of the standard API client.
+    """
+
+    def __init__(
+        self,
+        project_id: str,
+        base_url: str,
+        api_key: str,
+        log_stream_id: str | None = None,
+        experiment_id: str | None = None,
+    ) -> None:
+        self.project_id = project_id
+        self.log_stream_id = log_stream_id
+        self.experiment_id = experiment_id
+        self.base_url = base_url.rstrip("/")
+        self._headers = {
+            "Content-Type": "application/json",
+            "Galileo-API-Key": api_key,
+            "X-Galileo-SDK": get_sdk_header(),
+        }
+        self._thread_local = local()
+
+    @property
+    def _client(self) -> httpx.AsyncClient:
+        """Per-thread AsyncClient to avoid cross-event-loop errors."""
+        if not hasattr(self._thread_local, "client"):
+            self._thread_local.client = httpx.AsyncClient(timeout=60)
+        return self._thread_local.client
+
+    @async_warn_catch_exception(logger=_logger)
+    async def ingest_traces(self, traces_ingest_request: TracesIngestRequest) -> dict[str, Any]:
+        if self.experiment_id:
+            traces_ingest_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
+
+        url = f"{self.base_url}{Routes.ingest_traces.format(project_id=self.project_id)}"
+        payload = traces_ingest_request.model_dump(mode="json", exclude_none=True)
+        _logger.info("IngestTraces: posting %d trace(s) to %s", len(traces_ingest_request.traces), url)
+        resp = await self._client.post(url, json=payload, headers=self._headers)
+        resp.raise_for_status()
+        return resp.json()
+
+    @async_warn_catch_exception(logger=_logger)
+    async def ingest_spans(self, spans_ingest_request: SpansIngestRequest) -> dict[str, Any]:
+        if self.experiment_id:
+            spans_ingest_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            spans_ingest_request.log_stream_id = UUID(self.log_stream_id)
+
+        url = f"{self.base_url}{Routes.ingest_spans.format(project_id=self.project_id)}"
+        payload = spans_ingest_request.model_dump(mode="json", exclude_none=True)
+        _logger.info("IngestTraces: posting %d span(s) to %s", len(spans_ingest_request.spans), url)
+        resp = await self._client.post(url, json=payload, headers=self._headers)
+        resp.raise_for_status()
+        return resp.json()
