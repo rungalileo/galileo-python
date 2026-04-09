@@ -18,7 +18,7 @@ from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.projects import Projects
-from galileo.schema.content_blocks import is_content_block_list
+from galileo.schema.content_blocks import is_content_block_list, normalize_content_block_list
 from galileo.schema.logged import (
     IngestOutputType,
     LoggedAgentSpan,
@@ -488,6 +488,45 @@ class GalileoLogger(TracesLogger):
         return serialize_to_str(value)
 
     @staticmethod
+    def _coerce_trace_input(param_name: str, value: object) -> TextOrContentBlocks | None:
+        """Validate and normalize a ``start_trace`` input/redacted_input value.
+
+        Accepted types and their treatment:
+
+        - ``None`` or ``str``: returned as-is.
+        - ``dict``: serialized to a JSON string (common user mistake).
+        - ``list`` of content block model instances or matching dicts: coerced to
+          a list of ``TextContentBlock``/``DataContentBlock`` model instances.
+        - ``list[dict]`` whose elements don't match the content block schema
+          (message-like lists): serialized to a JSON string.
+
+        Raises ``TypeError`` for any other type or a list with mixed/unsupported
+        element types.
+        """
+        if value is None:
+            return None
+        if isinstance(value, str):
+            return value
+        if isinstance(value, dict):
+            return json.dumps(value)
+        if isinstance(value, list):
+            normalized = normalize_content_block_list(value)
+            if normalized is not None:
+                return normalized
+            if all(isinstance(i, dict) for i in value):
+                # Message-like list[dict]: serialize to JSON
+                return json.dumps(value)
+            raise TypeError(
+                f"start_trace() argument '{param_name}' must be str, dict, list[dict], or "
+                f"list[TextContentBlock | DataContentBlock]; "
+                f"got list with mixed or unsupported element types"
+            )
+        raise TypeError(
+            f"start_trace() argument '{param_name}' must be str, dict, list[dict], or "
+            f"list[TextContentBlock | DataContentBlock]; got {type(value).__name__}"
+        )
+
+    @staticmethod
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
     def _get_last_output(node: BaseStep | None) -> tuple[IngestOutputType | None, IngestOutputType | None]:
@@ -811,7 +850,7 @@ class GalileoLogger(TracesLogger):
         return headers
 
     @nop_sync
-    @warn_catch_exception(exceptions=(Exception,))
+    @warn_catch_exception()
     def start_trace(
         self,
         input: TextOrContentBlocks | dict,
@@ -875,11 +914,9 @@ class GalileoLogger(TracesLogger):
         LoggedTrace
             The created trace.
         """
-        # Auto-convert dict input to JSON string (addresses common user mistake)
-        if isinstance(input, dict):
-            input = json.dumps(input)
-        if isinstance(redacted_input, dict):
-            redacted_input = json.dumps(redacted_input)
+        # Validate and normalize input types (dict→JSON, list[dict]→JSON or content blocks)
+        input = GalileoLogger._coerce_trace_input("input", input)
+        redacted_input = GalileoLogger._coerce_trace_input("redacted_input", redacted_input)
 
         # Auto-convert non-string metadata values to strings
         # Note: Must use class name, not self, because DecorateAllMethods removes @staticmethod
