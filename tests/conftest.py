@@ -557,27 +557,19 @@ def mock_collaborator() -> MagicMock:
 #   2. `GalileoLogger.terminate()` now also calls
 #      `_task_handler.terminate()` to actually stop the EventLoopThreadPool
 #      after the wait, instead of leaving the daemon threads dangling.
-#   3. The hooks below print `[TEST START]/[TEST FINISH]` so a hung test is
-#      immediately identifiable in CI logs, and `pytest_sessionfinish`
-#      surfaces any leaked logger atexit handlers so we can attribute leaks
-#      back to specific tests.
+#   3. `pytest_sessionfinish` below surfaces any leaked logger atexit handlers
+#      so we can attribute leaks back to specific tests.
+#   4. `--timeout=120` in `pyproject.toml` bounds any individual test (for
+#      example if a test_protect parametrization hits an unmocked code path
+#      on a slow runner). We deliberately rely on pytest-timeout's default
+#      method (SIGALRM on Linux/macOS); see the `pyproject.toml` comment for
+#      why `--timeout-method=thread` is unsafe.
 #
-# Note: an earlier iteration of this fix also enabled `pytest-timeout` with
-# `--timeout-method=thread`. That was removed because the thread method
-# interrupts async code mid-`await` via `PyThreadState_SetAsyncExc`, which
-# orphans coroutines, triggers "coroutine was never awaited" warnings, and
-# corrupts xdist worker state. The root-cause atexit fix above is sufficient;
-# the CI job-level timeout is the backstop for catastrophic regressions.
-
-
-def pytest_runtest_logstart(nodeid: str, location: tuple) -> None:
-    """Log when a test starts, so CI logs identify which test hangs."""
-    print(f"\n[TEST START] {nodeid}", flush=True)
-
-
-def pytest_runtest_logfinish(nodeid: str, location: tuple) -> None:
-    """Log when a test finishes."""
-    print(f"[TEST FINISH] {nodeid}", flush=True)
+# Note: we intentionally do NOT add per-test `pytest_runtest_logstart` /
+# `logfinish` print hooks. `invoke test-report-xml` runs pytest with `-vvv`
+# and pytest-sugar already prints full test nodeids as every test runs, so
+# extra prints are pure overhead on slow runners — they force stdout flushes
+# that serialize all xdist workers through the master.
 
 
 def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
