@@ -1,6 +1,6 @@
 import logging
 from threading import local
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 import httpx
@@ -21,8 +21,6 @@ from galileo_core.constants.http_headers import HttpHeaders
 from galileo_core.constants.request_method import RequestMethod
 
 _logger = logging.getLogger(__name__)
-
-GALILEO_INGEST_URL_ENV = "GALILEO_INGEST_URL"
 
 
 class Traces:
@@ -169,8 +167,8 @@ class Traces:
 class IngestTraces:
     """Client that sends traces/spans directly to the Galileo ingest service.
 
-    Used when GALILEO_INGEST_URL is set, bypassing the main API and posting
-    to the dedicated Go ingest service instead.
+    Used when the ingest service healthz check succeeds, posting to the dedicated
+    Go ingest service instead of the standard API client.
     """
 
     def __init__(
@@ -178,8 +176,8 @@ class IngestTraces:
         project_id: str,
         base_url: str,
         api_key: str,
-        log_stream_id: Optional[str] = None,
-        experiment_id: Optional[str] = None,
+        log_stream_id: str | None = None,
+        experiment_id: str | None = None,
     ) -> None:
         self.project_id = project_id
         self.log_stream_id = log_stream_id
