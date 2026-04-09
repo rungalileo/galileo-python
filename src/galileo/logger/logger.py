@@ -985,12 +985,17 @@ class GalileoLogger(TracesLogger):
         ----------
         input: LlmSpanAllowedInputType
             Input to the node.
-            Expected format: List of Message objects.
-            Example: `[Message(content="Say this is a test", role=MessageRole.user)]`
+            Accepted formats: list of Message objects, single Message, plain string,
+            dict, or list of dicts.
+            Example (Messages): `[Message(content="Say this is a test", role=MessageRole.user)]`
+            Example (string): `"Say this is a test"`
+            Example (dict): `{"content": "Say this is a test", "role": "user"}`
         output: LlmSpanAllowedOutputType
             Output of the node.
-            Expected format: Single Message object.
-            Example: `Message(content="The response text", role=MessageRole.assistant)`
+            Accepted formats: Message object, plain string, or dict.
+            Example (Message): `Message(content="The response text", role=MessageRole.assistant)`
+            Example (string): `"The response text"`
+            Example (dict): `{"content": "The response text", "role": "assistant"}`
         model: Optional[str]
             Model used for this span.
             Example: "gpt-4o", "claude-4-sonnet"
@@ -1149,12 +1154,17 @@ class GalileoLogger(TracesLogger):
         ----------
         input: LlmSpanAllowedInputType
             Input to the node.
-            Expected format: List of Message objects.
-            Example: `[Message(content="Say this is a test", role=MessageRole.user)]`
+            Accepted formats: list of Message objects, single Message, plain string,
+            dict, or list of dicts.
+            Example (Messages): `[Message(content="Say this is a test", role=MessageRole.user)]`
+            Example (string): `"Say this is a test"`
+            Example (dict): `{"content": "Say this is a test", "role": "user"}`
         output: LlmSpanAllowedOutputType
             Output of the node.
-            Expected format: Single Message object.
-            Example: `Message(content="The response text", role=MessageRole.assistant)`
+            Accepted formats: Message object, plain string, or dict.
+            Example (Message): `Message(content="The response text", role=MessageRole.assistant)`
+            Example (string): `"The response text"`
+            Example (dict): `{"content": "The response text", "role": "assistant"}`
         model: Optional[str]
             Model used for this span.
             Example: "gpt-4o", "claude-4-sonnet"
@@ -1272,13 +1282,20 @@ class GalileoLogger(TracesLogger):
         Parameters
         ----------
         input: str
-            Input to the node.
-        output: Union[str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None]
-            Documents retrieved from the retriever.
+            Query string passed to the retriever.
+            Example: `"What is the capital of France?"`
+        output: Union[str, list[str], dict[str, Any], list[dict[str, Any]], Document, list[Document], None]
+            Documents retrieved by the retriever.
+            Accepted formats: string, list of strings, dict, list of dicts,
+            Document, list of Documents, or None.
+            Example (Documents): `[Document(content="Paris is the capital.", metadata={"source": "wiki"})]`
+            Example (strings): `["Paris is the capital.", "France is in Europe."]`
+            Example (dicts): `[{"content": "Paris is the capital."}]`
         redacted_input: Optional[str]
-            Input that removes any sensitive information (redacted input to the node).
-        redacted_output: Union[str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None]
-            Output that removes any sensitive information (redacted documents retrieved from the retriever).
+            Redacted version of the query string (sensitive information removed).
+        redacted_output: Union[str, list[str], dict[str, Any], list[dict[str, Any]], Document, list[Document], None]
+            Redacted version of the retrieved documents (sensitive information removed).
+            Same accepted formats as output.
         name: Optional[str]
             Name of the span.
         duration_ns: Optional[int]

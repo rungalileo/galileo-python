@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import UUID4, BaseModel, Field
 
@@ -151,5 +151,5 @@ class LogRecordsSearchRequest(BaseLogStreamOrExperimentModel):
 
 
 RetrieverSpanAllowedOutputType = (
-    str | list[str] | dict[str, str] | list[dict[str, str]] | Document | list[Document] | None
+    str | list[str] | dict[str, Any] | list[dict[str, Any]] | Document | list[Document] | None
 )
