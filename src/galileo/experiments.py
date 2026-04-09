@@ -196,6 +196,7 @@ class Experiments:
         records: builtins.list[DatasetRecord] | None,
         func: Callable,
         local_metrics: builtins.list[LocalMetricConfig],
+        on_error: Callable[[Exception], None] | None = None,
     ) -> dict[str, Any]:
         if dataset_obj is None and records is None:
             raise ValueError("Either dataset_obj or records must be provided")
@@ -213,7 +214,7 @@ class Experiments:
                 galileo_context.reset_trace_context()
                 if getsizeof(results) > MAX_REQUEST_SIZE_BYTES or len(results) >= MAX_INGEST_BATCH_SIZE:
                     _logger.info("Flushing logger due to size limit")
-                    galileo_context.flush()
+                    galileo_context.flush(on_error=on_error)
                     results = []
         # For dataset object, paginate through content
         elif dataset_obj is not None:
@@ -236,13 +237,13 @@ class Experiments:
                         galileo_context.reset_trace_context()
                         if getsizeof(results) > MAX_REQUEST_SIZE_BYTES or len(results) >= MAX_INGEST_BATCH_SIZE:
                             _logger.info("Flushing logger due to size limit")
-                            galileo_context.flush()
+                            galileo_context.flush(on_error=on_error)
                             results = []
 
                     starting_token += len(batch_records)
 
         # flush the logger
-        galileo_context.flush()
+        galileo_context.flush(on_error=on_error)
 
         _logger.info(f" {len(results)} rows processed for experiment {experiment_obj.name}.")
 
@@ -282,6 +283,7 @@ def run_experiment(
     metrics: list[GalileoMetrics | Metric | LocalMetricConfig | str] | None = None,
     function: Callable | None = None,
     experiment_tags: dict[str, str] | None = None,
+    on_error: Callable[[Exception], None] | None = None,
 ) -> Any:
     """
     Run an experiment with the specified parameters.
@@ -319,6 +321,11 @@ def run_experiment(
         Optional function to run with the experiment
     experiment_tags
         Optional dictionary of key-value pairs to tag the experiment with
+    on_error
+        Optional callback invoked with the exception when a flush error occurs. Only applies
+        to the function flow — ignored in the prompt-template flow (a warning is logged if
+        provided there). Creation errors always propagate regardless of this callback. If None,
+        flush errors are logged as warnings. Defaults to None.
 
     Returns
     -------
@@ -390,6 +397,7 @@ def run_experiment(
             records=records,
             func=function,
             local_metrics=local_metrics,
+            on_error=on_error,
         )
 
     if dataset_obj is None:
@@ -403,6 +411,12 @@ def run_experiment(
 
     if local_metrics_check:
         raise ValueError("Local metrics can only be used with a locally run experiment, not a prompt experiment.")
+
+    if on_error is not None:
+        _logger.warning(
+            "on_error was provided but will not be invoked in the prompt-template flow "
+            "(no flush occurs on this path). on_error is only used in the function flow."
+        )
 
     # Execute a prompt template or generated-output experiment via trigger=True.
     # Single API call: creates experiment + triggers runner job.
