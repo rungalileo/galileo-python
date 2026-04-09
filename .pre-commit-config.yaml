@@ -24,8 +24,8 @@ repos:
     hooks:
       - id: mypy
         name: mypy
-        language: python
-        entry: inv type-check
+        language: system
+        entry: poetry run inv type-check
         types: [python]
         pass_filenames: false
         # Ensure it is only called once per commit.

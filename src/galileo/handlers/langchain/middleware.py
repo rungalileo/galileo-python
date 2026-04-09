@@ -1,7 +1,8 @@
 import json
 import logging
 import time
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any, Optional
 from uuid import UUID, uuid4
 
 from langchain_core.messages import AnyMessage
@@ -38,10 +39,10 @@ _logger = logging.getLogger(__name__)
 class GalileoMiddleware(AgentMiddleware):
     def __init__(
         self,
-        galileo_logger: Optional[GalileoLogger] = None,
+        galileo_logger: GalileoLogger | None = None,
         start_new_trace: bool = True,
         flush_on_chain_end: bool = True,
-        ingestion_hook: Optional[Callable[[TracesIngestRequest], None]] = None,
+        ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
     ) -> None:
         if not HAS_LANGCHAIN:
             raise ImportError("langchain is not installed or is not compatible with the expected version.")
@@ -60,10 +61,10 @@ class GalileoMiddleware(AgentMiddleware):
             integration="langchain",
             ingestion_hook=ingestion_hook,
         )
-        self._root_run_id: Optional[UUID] = None
+        self._root_run_id: UUID | None = None
 
     @staticmethod
-    def _serialize_messages(messages: Optional[list["AnyMessage"]]) -> Any:
+    def _serialize_messages(messages: list["AnyMessage"] | None) -> Any:
         if messages is None:
             return None
         try:
@@ -73,7 +74,7 @@ class GalileoMiddleware(AgentMiddleware):
             return str(messages)
 
     @staticmethod
-    def _get_state_messages(state: Optional["AgentState"]) -> Optional[list["AnyMessage"]]:
+    def _get_state_messages(state: Optional["AgentState"]) -> list["AnyMessage"] | None:
         if isinstance(state, dict) and "messages" in state:
             return state.get("messages")
         return None
@@ -84,7 +85,7 @@ class GalileoMiddleware(AgentMiddleware):
         return self._serialize_messages(messages) if messages else serialize_to_str(state)
 
     @staticmethod
-    def _extract_model_metadata(request: Any) -> tuple[Optional[str], Optional[float]]:
+    def _extract_model_metadata(request: Any) -> tuple[str | None, float | None]:
         model_settings = getattr(request, "model_settings", {}) or {}
         model_name = model_settings.get("model") or model_settings.get("model_name")
         if not model_name:
@@ -93,7 +94,7 @@ class GalileoMiddleware(AgentMiddleware):
         return model_name, model_settings.get("temperature")
 
     @staticmethod
-    def _get_model_display_name(request: Any, model_name: Optional[str]) -> str:
+    def _get_model_display_name(request: Any, model_name: str | None) -> str:
         if model_name:
             return model_name
         model = getattr(request, "model", None)
@@ -105,11 +106,11 @@ class GalileoMiddleware(AgentMiddleware):
         """Serialize model response to appropriate output format."""
         if hasattr(response, "result"):
             return self._serialize_messages(getattr(response, "result", None))
-        if HAS_LANGCHAIN and isinstance(response, (AIMessage, BaseMessage)):
+        if HAS_LANGCHAIN and isinstance(response, AIMessage | BaseMessage):
             return self._serialize_messages([response])
         return serialize_to_str(response)
 
-    def _serialize_tools(self, tools: Optional[list[StructuredTool]]) -> Any:
+    def _serialize_tools(self, tools: list[StructuredTool] | None) -> Any:
         if tools is None:
             return None
         tools_list = []
@@ -188,11 +189,11 @@ class GalileoMiddleware(AgentMiddleware):
             )
         return self._root_run_id
 
-    def before_agent(self, state: "AgentState", runtime: "Runtime") -> Optional[dict[str, Any]]:
+    def before_agent(self, state: "AgentState", runtime: "Runtime") -> dict[str, Any] | None:
         self._ensure_root_node(state)
         return None
 
-    def after_agent(self, state: "AgentState", runtime: "Runtime") -> Optional[dict[str, Any]]:
+    def after_agent(self, state: "AgentState", runtime: "Runtime") -> dict[str, Any] | None:
         if self._root_run_id is None:
             return None
         messages = self._serialize_state(state)
@@ -202,11 +203,11 @@ class GalileoMiddleware(AgentMiddleware):
         self._root_run_id = None
         return None
 
-    async def abefore_agent(self, state: "AgentState", runtime: "Runtime") -> Optional[dict[str, Any]]:
+    async def abefore_agent(self, state: "AgentState", runtime: "Runtime") -> dict[str, Any] | None:
         await self._ensure_async_root_node(state)
         return None
 
-    async def aafter_agent(self, state: "AgentState", runtime: "Runtime") -> Optional[dict[str, Any]]:
+    async def aafter_agent(self, state: "AgentState", runtime: "Runtime") -> dict[str, Any] | None:
         if self._root_run_id is None:
             return None
         messages = self._serialize_state(state)

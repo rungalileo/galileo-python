@@ -40,7 +40,8 @@ with galileo_context(project="my-project", log_stream="my-log-stream"):
 """
 
 import logging
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 import httpx
 from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
@@ -77,7 +78,7 @@ except ImportError:
 _logger = logging.getLogger(__name__)
 
 
-def _safe_initialize_logger(initialize: Callable[[], Optional[GalileoLogger]]) -> Optional[GalileoLogger]:
+def _safe_initialize_logger(initialize: Callable[[], GalileoLogger | None]) -> GalileoLogger | None:
     """
     Safely initialize the Galileo logger.
 
@@ -293,9 +294,9 @@ class OpenAIGalileo:
         The Galileo logger instance used for logging OpenAI API calls.
     """
 
-    _galileo_logger: Optional[GalileoLogger] = None
+    _galileo_logger: GalileoLogger | None = None
 
-    def initialize(self) -> Optional[GalileoLogger]:
+    def initialize(self) -> GalileoLogger | None:
         """
         Initialize a Galileo logger.
 

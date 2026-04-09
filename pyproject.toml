@@ -98,7 +98,7 @@ line-length = 120
 fix = true
 src = ["src"]
 unsafe-fixes = true
-target-version = "py39"
+target-version = "py310"
 exclude = [
     "src/galileo/resources",
 ]

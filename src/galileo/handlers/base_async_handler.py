@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from galileo.handlers.base_handler import GalileoBaseHandler
@@ -97,6 +97,6 @@ class GalileoAsyncBaseHandler(GalileoBaseHandler):
             await self.async_commit()
 
     async def async_start_node(
-        self, node_type: NODE_TYPE, parent_run_id: Optional[UUID], run_id: UUID, **kwargs: Any
+        self, node_type: NODE_TYPE, parent_run_id: UUID | None, run_id: UUID, **kwargs: Any
     ) -> Node:
         return super().start_node(node_type=node_type, parent_run_id=parent_run_id, run_id=run_id, **kwargs)

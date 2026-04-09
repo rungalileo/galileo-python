@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from typing import Optional, Union
 
 from pydantic import UUID4
 
@@ -25,16 +24,16 @@ class Protect:
     async def ainvoke(
         self,
         payload: Payload,
-        prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
-        project_id: Optional[UUID4] = None,
-        project_name: Optional[str] = None,
-        stage_id: Optional[UUID4] = None,
-        stage_name: Optional[str] = None,
-        stage_version: Optional[int] = None,
+        prioritized_rulesets: Sequence[Ruleset] | None = None,
+        project_id: UUID4 | None = None,
+        project_name: str | None = None,
+        stage_id: UUID4 | None = None,
+        stage_name: str | None = None,
+        stage_version: int | None = None,
         timeout: float = TIMEOUT_SECS,
-        metadata: Optional[dict[str, str]] = None,
-        headers: Optional[dict[str, str]] = None,
-    ) -> Optional[Union[Response, HTTPValidationError]]:
+        metadata: dict[str, str] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> Response | HTTPValidationError | None:
         request = Request(
             payload=payload,
             prioritized_rulesets=prioritized_rulesets or [],
@@ -51,7 +50,7 @@ class Protect:
         request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
         body = APIRequest.from_dict(request_dict)
 
-        response: Optional[Union[APIResponse, HTTPValidationError]] = await invoke_protect_invoke_post.asyncio(
+        response: APIResponse | HTTPValidationError | None = await invoke_protect_invoke_post.asyncio(
             client=self.config.api_client, body=body
         )
 
@@ -62,16 +61,16 @@ class Protect:
 
 async def ainvoke_protect(
     payload: Payload,
-    prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
-    project_id: Optional[UUID4] = None,
-    project_name: Optional[str] = None,
-    stage_id: Optional[UUID4] = None,
-    stage_name: Optional[str] = None,
-    stage_version: Optional[int] = None,
+    prioritized_rulesets: Sequence[Ruleset] | None = None,
+    project_id: UUID4 | None = None,
+    project_name: str | None = None,
+    stage_id: UUID4 | None = None,
+    stage_name: str | None = None,
+    stage_version: int | None = None,
     timeout: float = TIMEOUT_SECS,
-    metadata: Optional[dict[str, str]] = None,
-    headers: Optional[dict[str, str]] = None,
-) -> Optional[Union[Response, HTTPValidationError]]:
+    metadata: dict[str, str] | None = None,
+    headers: dict[str, str] | None = None,
+) -> Response | HTTPValidationError | None:
     """Asynchronously invoke Protect with the given payload.
 
     If using the local stage, the prioritized rulesets should be provided to ensure the
@@ -125,16 +124,16 @@ async def ainvoke_protect(
 
 def invoke_protect(
     payload: Payload,
-    prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
-    project_id: Optional[UUID4] = None,
-    project_name: Optional[str] = None,
-    stage_id: Optional[UUID4] = None,
-    stage_name: Optional[str] = None,
-    stage_version: Optional[int] = None,
+    prioritized_rulesets: Sequence[Ruleset] | None = None,
+    project_id: UUID4 | None = None,
+    project_name: str | None = None,
+    stage_id: UUID4 | None = None,
+    stage_name: str | None = None,
+    stage_version: int | None = None,
     timeout: float = TIMEOUT_SECS,
-    metadata: Optional[dict[str, str]] = None,
-    headers: Optional[dict[str, str]] = None,
-) -> Optional[Union[Response, HTTPValidationError]]:
+    metadata: dict[str, str] | None = None,
+    headers: dict[str, str] | None = None,
+) -> Response | HTTPValidationError | None:
     """Invoke Protect with the given payload.
 
     If using the local stage, the prioritized rulesets should be provided to ensure the

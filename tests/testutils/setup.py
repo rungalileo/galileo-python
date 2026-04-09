@@ -1,7 +1,8 @@
 import copy
 import datetime
+from collections.abc import Callable
 from contextlib import contextmanager
-from typing import Any, Callable, Optional
+from typing import Any
 from unittest.mock import AsyncMock, Mock
 from uuid import UUID
 
@@ -87,10 +88,10 @@ class ThreadPoolRequestCapture:
         )
         self.captured_tasks.append(task_info)
 
-    def get_request_by_function_name(self, function_name: str) -> Optional[Any]:
+    def get_request_by_function_name(self, function_name: str) -> Any | None:
         return next((task.request for task in self.captured_tasks if task.function_name == function_name), None)
 
-    def get_latest_task(self) -> Optional[ThreadPoolTaskInfo]:
+    def get_latest_task(self) -> ThreadPoolTaskInfo | None:
         """Get the most recent task info (request + function name)."""
         return self.captured_tasks[-1] if self.captured_tasks else None
 
@@ -111,7 +112,7 @@ class ThreadPoolRequestCapture:
         """Get all captured function names."""
         return [task.function_name for task in self.captured_tasks]
 
-    def get_task_by_function_name(self, function_name: str) -> Optional[ThreadPoolTaskInfo]:
+    def get_task_by_function_name(self, function_name: str) -> ThreadPoolTaskInfo | None:
         """Get the first task info that matches the given function name.
 
         Args:

@@ -7,13 +7,12 @@ to ensure compatibility with systems that expect UUID4 format.
 
 import hashlib
 import logging
-from typing import Optional, Union
 from uuid import UUID
 
 _logger = logging.getLogger(__name__)
 
 
-def is_uuid7(uuid_obj: Union[UUID, str]) -> bool:
+def is_uuid7(uuid_obj: UUID | str) -> bool:
     """
     Check if a UUID is version 7.
 
@@ -35,7 +34,7 @@ def is_uuid7(uuid_obj: Union[UUID, str]) -> bool:
         return False
 
 
-def uuid7_to_uuid4(uuid_obj: Union[UUID, str]) -> UUID:
+def uuid7_to_uuid4(uuid_obj: UUID | str) -> UUID:
     """
     Convert a UUID7 to a UUID4 by hashing its string representation.
 
@@ -82,7 +81,7 @@ def uuid7_to_uuid4(uuid_obj: Union[UUID, str]) -> UUID:
         raise
 
 
-def convert_uuid_if_uuid7(uuid_obj: Optional[Union[UUID, str]]) -> Optional[UUID]:
+def convert_uuid_if_uuid7(uuid_obj: UUID | str | None) -> UUID | None:
     """
     Convert a UUID to UUID4 if it's a UUID7, otherwise return the original UUID.
 

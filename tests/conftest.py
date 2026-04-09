@@ -32,10 +32,9 @@ del _os  # Clean up temporary import
 
 import datetime  # noqa: E402
 import logging  # noqa: E402
-from collections.abc import Generator  # noqa: E402
+from collections.abc import Callable, Generator  # noqa: E402
 from io import StringIO  # noqa: E402
 from pathlib import Path  # noqa: E402
-from typing import Callable  # noqa: E402
 from unittest.mock import AsyncMock, MagicMock, patch  # noqa: E402
 from uuid import uuid4  # noqa: E402
 

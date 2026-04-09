@@ -38,12 +38,12 @@ class Traces:
         The ID of the log stream.
     """
 
-    project_id: Optional[str] = None
-    log_stream_id: Optional[str] = None
+    project_id: str | None = None
+    log_stream_id: str | None = None
     config: GalileoPythonConfig
 
     def __init__(
-        self, project_id: Optional[str] = None, log_stream_id: Optional[str] = None, experiment_id: Optional[str] = None
+        self, project_id: str | None = None, log_stream_id: str | None = None, experiment_id: str | None = None
     ):
         self.config = GalileoPythonConfig.get()
         self.project_id = project_id
@@ -57,10 +57,10 @@ class Traces:
         self,
         request_method: RequestMethod,
         endpoint: str,
-        json: Optional[dict] = None,
-        data: Optional[dict] = None,
-        files: Optional[dict] = None,
-        params: Optional[dict] = None,
+        json: dict | None = None,
+        data: dict | None = None,
+        files: dict | None = None,
+        params: dict | None = None,
     ) -> Any:
         headers = {"X-Galileo-SDK": get_sdk_header()} | HttpHeaders.json()
 

@@ -7,7 +7,7 @@ from asyncio import Queue
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, NoReturn, Optional
+from typing import Any, NoReturn
 from unittest.mock import patch
 
 import pytest
@@ -123,7 +123,7 @@ class TestEventSerializer:
         class TestModel(BaseModel):
             name: str
             value: int
-            optional: Optional[str] = None
+            optional: str | None = None
 
         model = TestModel(name="test", value=42)
         result = json.dumps(model, cls=EventSerializer)

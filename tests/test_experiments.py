@@ -1,10 +1,11 @@
 import operator
 import os
+from collections.abc import Callable
 from datetime import datetime
 from functools import reduce
 from statistics import mean
-from typing import Callable, Union
 from unittest.mock import ANY, MagicMock, Mock, patch
+from unittest.mock import call as mock_call
 from uuid import UUID
 
 import pytest
@@ -794,7 +795,7 @@ class TestExperiments:
         reset_context,
         dataset_content: DatasetContent,
         function: Callable,
-        metrics: list[Union[str, LocalMetricConfig]],
+        metrics: list[str | LocalMetricConfig],
         num_spans: int,
         span_type: SPAN_TYPE,
         results: list[MetricValueType],
@@ -844,7 +845,7 @@ class TestExperiments:
         assert trace.dataset_output == "Europe"
         assert trace.dataset_metadata == {"meta": "data"}
 
-        for metric, metric_result in zip(metrics, aggregate_results):
+        for metric, metric_result in zip(metrics, aggregate_results, strict=False):
             assert hasattr(trace.metrics, metric.name)
             assert getattr(trace.metrics, metric.name) == metric_result
 
@@ -854,7 +855,7 @@ class TestExperiments:
             assert span.dataset_output == "Europe"
             assert span.dataset_metadata == {"meta": "data"}
 
-            for metric, metric_result in zip(metrics, results):
+            for metric, metric_result in zip(metrics, results, strict=False):
                 if span.type == span_type:
                     assert hasattr(span.metrics, metric.name)
                     assert getattr(span.metrics, metric.name) == metric_result
@@ -1040,6 +1041,21 @@ class TestExperiments:
         assert ps_dict["temperature"] == 0.5
         assert ps_dict["max_tokens"] == 256
 
+    @patch.object(galileo.experiments.Experiments, "create")
+    def test_experiments_run_raises_when_create_raises(self, mock_create: Mock) -> None:
+        # Given: Experiments.create raises
+        mock_create.side_effect = RuntimeError("API unavailable")
+
+        # When/Then: the exception propagates — create() is a resource management operation
+        with pytest.raises(RuntimeError, match="API unavailable"):
+            Experiments().run(
+                project_obj=project(),
+                dataset_obj=Mock(spec=galileo.datasets.Dataset),
+                experiment_name="test_experiment",
+                prompt_template=None,
+                scorers=None,
+            )
+
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     def test_experiments_run_with_prompt_settings_as_dict(self, mock_create: Mock) -> None:
         # Given: a project, dataset, and prompt_settings passed as a plain dict
@@ -1129,6 +1145,111 @@ class TestExperiments:
             payload.traces[0].input == '{"input": {"question": "Which continent is Spain in?", "expected": "Europe"}}'
         )
         assert payload.traces[0].output == "Say hello: Which continent is Spain in?"
+
+    @travel(datetime(2012, 1, 1), tick=False)
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create")
+    @patch.object(galileo.experiments.Experiments, "get")
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_raises_when_create_raises(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ) -> None:
+        # Given: Experiments.create raises
+        mock_create_experiment.side_effect = RuntimeError("server error")
+
+        # When/Then: the exception propagates regardless of on_error — create() is a resource management operation
+        with pytest.raises(RuntimeError, match="server error"):
+            run_experiment(
+                "test_experiment",
+                project="awesome-new-project",
+                dataset_id=str(UUID(int=0)),
+                prompt_template=prompt_template(),
+            )
+
+    @travel(datetime(2012, 1, 1), tick=False)
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(
+        galileo.experiments.Experiments,
+        "run",
+        return_value={"experiment": experiment_response(), "link": "http://example.com", "message": "done"},
+    )
+    @patch.object(galileo.experiments.Experiments, "get", return_value=None)
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_on_error_warns_when_unused_in_prompt_template_flow(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_run: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ) -> None:
+        # Given: an on_error callback is provided for the prompt-template flow
+        on_error = Mock()
+
+        # When: run_experiment() is called with a prompt template and on_error
+        with patch("galileo.experiments._logger") as mock_logger:
+            run_experiment(
+                "test_experiment",
+                project="awesome-new-project",
+                dataset_id=str(UUID(int=0)),
+                prompt_template=prompt_template(),
+                on_error=on_error,
+            )
+
+        # Then: a warning is logged and on_error is never invoked
+        mock_logger.warning.assert_any_call(
+            "on_error was provided but will not be invoked in the prompt-template flow "
+            "(no flush occurs on this path). on_error is only used in the function flow."
+        )
+        on_error.assert_not_called()
+
+    @patch("galileo.logger.logger.LogStreams")
+    @patch("galileo.logger.logger.Projects")
+    @patch("galileo.logger.logger.Traces")
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_on_error_passed_to_flush_in_function_flow(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_get_dataset: Mock,
+        mock_traces_client: Mock,
+        mock_projects_client: Mock,
+        mock_logstreams_client: Mock,
+        dataset_content: DatasetContent,
+        reset_context,
+    ) -> None:
+        # Given: an on_error callback is provided for the function flow
+        setup_mock_traces_client(mock_traces_client)
+        setup_mock_projects_client(mock_projects_client)
+        setup_mock_logstreams_client(mock_logstreams_client)
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(
+            side_effect=lambda starting_token=0, limit=1000: dataset_content if starting_token == 0 else None
+        )
+        on_error = Mock()
+
+        # When: run_experiment() is called with a function and on_error (function flow)
+        with patch("galileo.experiments.galileo_context.flush") as mock_flush:
+            run_experiment(
+                experiment_name="test_experiment",
+                project="awesome-new-project",
+                dataset_id=str(UUID(int=0, version=4)),
+                function=lambda x: "output",
+                on_error=on_error,
+            )
+
+        # Then: every flush call received on_error — no call was made without it
+        assert mock_flush.call_count >= 1
+        assert all(c == mock_call(on_error=on_error) for c in mock_flush.call_args_list)
 
     @patch.object(galileo.datasets.Datasets, "get")
     def test_run_experiment_with_prompt_template_and_function(

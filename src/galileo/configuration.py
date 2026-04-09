@@ -1,9 +1,10 @@
 import contextlib
 import logging
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any
 
 from galileo.config import GalileoPythonConfig
 from galileo.constants import DEFAULT_CONSOLE_URL
@@ -54,7 +55,7 @@ class ConfigKey:
     sensitive: bool = False
     default: Any = None
     value_type: type = str
-    parser: Optional[Callable[[str], Any]] = None
+    parser: Callable[[str], Any] | None = None
 
 
 VALID_LOG_LEVELS = frozenset({"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"})
@@ -449,7 +450,7 @@ class Configuration(metaclass=ConfigurationMeta):
         return result
 
     @classmethod
-    def enable_console_logging(cls, level: Optional[str] = None) -> None:
+    def enable_console_logging(cls, level: str | None = None) -> None:
         """
         Enable console logging for SDK output.
 
