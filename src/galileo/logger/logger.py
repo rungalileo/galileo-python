@@ -1246,16 +1246,16 @@ class GalileoLogger(TracesLogger):
         input: str
             Query string passed to the retriever.
             Example: `"What is the capital of France?"`
-        output: Union[str, list[str], dict, list[dict], Document, list[Document], None]
+        output: Union[str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None]
             Documents retrieved by the retriever.
-            Accepted formats: string, list of strings, dict, list of dicts,
+            Accepted formats: string, list of strings, dict[str, str], list of dict[str, str],
             Document, list of Documents, or None.
             Example (Documents): `[Document(content="Paris is the capital.", metadata={"source": "wiki"})]`
             Example (strings): `["Paris is the capital.", "France is in Europe."]`
             Example (dicts): `[{"content": "Paris is the capital."}]`
         redacted_input: Optional[str]
             Redacted version of the query string (sensitive information removed).
-        redacted_output: Union[str, list[str], dict, list[dict], Document, list[Document], None]
+        redacted_output: Union[str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None]
             Redacted version of the retrieved documents (sensitive information removed).
             Same accepted formats as output.
         name: Optional[str]
