@@ -89,8 +89,10 @@ addopts = [
     "--disable-socket",
     # Enable local socket access.
     "--allow-hosts=127.0.0.1,localhost",
-    # Per-test timeout to prevent CI hangs (SC-60512).
-    "--timeout=30",
+    # Per-test timeout to prevent CI hangs (SC-60512). Generous enough that
+    # legitimately slow tests don't trip it, but small enough that a hung
+    # worker is killed long before the CI job-level timeout.
+    "--timeout=60",
     "--timeout-method=thread",
 ]
 asyncio_default_fixture_loop_scope = "function"

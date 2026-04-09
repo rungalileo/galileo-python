@@ -9,6 +9,7 @@
 # 3. Security - prevents real API keys from leaking into test logs
 import atexit
 import os as _os
+import time as _time
 
 import pytest
 from openai.types import CompletionUsage
@@ -28,6 +29,10 @@ _os.environ["GALILEO_API_KEY"] = "api-1234567890"
 _os.environ["GALILEO_PROJECT"] = "test-project"
 _os.environ["GALILEO_LOG_STREAM"] = "test-log-stream"
 _os.environ["OPENAI_API_KEY"] = "sk-test"
+# SC-60512: Bound GalileoLogger.terminate() shutdown wait. The default of 90s
+# turns into a busy-poll when --disable-socket leaves background tasks pending,
+# which is the root cause of pytest workers hanging at exit. Keep this small.
+_os.environ.setdefault("GALILEO_LOGGER_SHUTDOWN_TIMEOUT_SECONDS", "2")
 del _os  # Clean up temporary import
 # fmt: on
 
@@ -536,6 +541,28 @@ def mock_collaborator() -> MagicMock:
 # ---------------------------------------------------------------------------
 # Test visibility & logger teardown (SC-60512)
 # ---------------------------------------------------------------------------
+#
+# CI symptom: pytest workers hang for minutes at the end of a run. Root cause:
+# every distributed-mode `GalileoLogger` registers its `terminate()` as an
+# `atexit` handler. At interpreter shutdown that handler runs
+# `_wait_for_all_tasks_sync(timeout_seconds=90)` which busy-polls every 100ms
+# until pending background tasks complete. With `--disable-socket` enabled,
+# any task whose status remains `pending` (e.g. a chained callback waiting on
+# its parent) keeps the loop alive for the full 90 seconds — multiplied by the
+# number of loggers created during the run.
+#
+# Mitigations applied (search SC-60512 for cross-references):
+#   1. `GALILEO_LOGGER_SHUTDOWN_TIMEOUT_SECONDS=2` (set at the top of this file)
+#      bounds each `terminate()` wait to 2 seconds.
+#   2. `GalileoLogger.terminate()` now also calls
+#      `_task_handler.terminate()` to actually stop the EventLoopThreadPool
+#      after the wait, instead of leaving the daemon threads dangling.
+#   3. The hooks below print `[TEST START]/[TEST FINISH]` so a hung test is
+#      immediately identifiable in CI logs, and `pytest_sessionfinish`
+#      surfaces any leaked logger atexit handlers so we can attribute leaks
+#      back to specific tests.
+#   4. `pytest-timeout` (configured in `pyproject.toml`) aborts a single test
+#      that runs longer than the per-test budget.
 
 
 def pytest_runtest_logstart(nodeid: str, location: tuple) -> None:
@@ -548,31 +575,38 @@ def pytest_runtest_logfinish(nodeid: str, location: tuple) -> None:
     print(f"[TEST FINISH] {nodeid}", flush=True)
 
 
-@pytest.fixture(autouse=True)
-def terminate_galileo_loggers(monkeypatch: pytest.MonkeyPatch) -> Generator[None, None, None]:
-    """Track all GalileoLogger instances created during a test and terminate them afterward.
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
+    """Diagnostic: time how long the GalileoLogger atexit handlers take to drain.
 
-    Prevents atexit handlers from running 90-second busy-poll loops when background
-    thread pool tasks are blocked by --disable-socket. See SC-60512.
+    If we see this print a multi-second duration, terminate() is still
+    busy-polling and SC-60512 has regressed. Also report how many GalileoLogger
+    instances are still tracked so we know whether the leak is per-test or
+    per-session.
     """
-    from galileo.logger.logger import GalileoLogger
+    try:
+        from galileo.logger.logger import GalileoLogger
+    except Exception:
+        return
 
-    created_loggers: list[GalileoLogger] = []
-    original_init = GalileoLogger.__init__
+    # Count loggers that still have atexit handlers wired up. We can't introspect
+    # `atexit` portably, but we can check whether the GalileoLogger class has any
+    # tracked instances via `gc.get_objects()`. This is best-effort diagnostic only.
+    import gc
 
-    def tracking_init(self: GalileoLogger, *args: object, **kwargs: object) -> None:
-        original_init(self, *args, **kwargs)
-        created_loggers.append(self)
-
-    monkeypatch.setattr(GalileoLogger, "__init__", tracking_init)
-    yield
-    for logger_instance in reversed(created_loggers):
-        try:
-            # Don't call terminate() because it calls flush(), which may attempt
-            # real network calls after @patch decorators have been unwound.
-            # Instead, just unregister the atexit handler and clear state.
-            atexit.unregister(logger_instance.terminate)
-            logger_instance.traces = []
-            logger_instance._set_current_parent(None)
-        except Exception:
-            pass  # belt-and-suspenders
+    live_loggers = [obj for obj in gc.get_objects() if isinstance(obj, GalileoLogger)]
+    if live_loggers:
+        print(
+            f"[SC-60512 DIAG] {len(live_loggers)} GalileoLogger instance(s) still alive at session finish.", flush=True
+        )
+        # Force-terminate them now so we measure the cost here, not at interpreter exit.
+        start = _time.monotonic()
+        for logger_instance in live_loggers:
+            try:
+                atexit.unregister(logger_instance.terminate)
+                task_handler = getattr(logger_instance, "_task_handler", None)
+                if task_handler is not None:
+                    task_handler.terminate()
+            except Exception as exc:
+                print(f"[SC-60512 DIAG] cleanup failed: {exc}", flush=True)
+        elapsed = _time.monotonic() - start
+        print(f"[SC-60512 DIAG] forced cleanup took {elapsed:.2f}s", flush=True)
