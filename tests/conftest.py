@@ -561,8 +561,13 @@ def mock_collaborator() -> MagicMock:
 #      immediately identifiable in CI logs, and `pytest_sessionfinish`
 #      surfaces any leaked logger atexit handlers so we can attribute leaks
 #      back to specific tests.
-#   4. `pytest-timeout` (configured in `pyproject.toml`) aborts a single test
-#      that runs longer than the per-test budget.
+#
+# Note: an earlier iteration of this fix also enabled `pytest-timeout` with
+# `--timeout-method=thread`. That was removed because the thread method
+# interrupts async code mid-`await` via `PyThreadState_SetAsyncExc`, which
+# orphans coroutines, triggers "coroutine was never awaited" warnings, and
+# corrupts xdist worker state. The root-cause atexit fix above is sufficient;
+# the CI job-level timeout is the backstop for catastrophic regressions.
 
 
 def pytest_runtest_logstart(nodeid: str, location: tuple) -> None:

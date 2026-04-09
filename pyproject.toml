@@ -42,7 +42,6 @@ pytest-asyncio = "^1.0.0"
 requests-mock = "^1.11.0"
 galileo-core = { extras = ["testing"], version = "^4.3.0" }
 
-pytest-timeout = "^2.3"
 pytest-env = "^1.1.5"
 langchain-core = ">=0.3.68"
 pytest-sugar = "^1.0.0"
@@ -89,11 +88,14 @@ addopts = [
     "--disable-socket",
     # Enable local socket access.
     "--allow-hosts=127.0.0.1,localhost",
-    # Per-test timeout to prevent CI hangs (SC-60512). Generous enough that
-    # legitimately slow tests don't trip it, but small enough that a hung
-    # worker is killed long before the CI job-level timeout.
-    "--timeout=60",
-    "--timeout-method=thread",
+    # SC-60512: We deliberately do NOT use pytest-timeout here. The root
+    # cause of the CI hangs (GalileoLogger.terminate() busy-polling at
+    # interpreter shutdown) is fixed in src/galileo/logger/logger.py plus
+    # the GALILEO_LOGGER_SHUTDOWN_TIMEOUT_SECONDS env var set in
+    # tests/conftest.py. Adding `--timeout --timeout-method=thread` on top
+    # introduced flakiness because the thread method interrupts async mocks
+    # mid-await ("coroutine was never awaited" warnings) and corrupts xdist
+    # worker state. The CI job-level timeout is sufficient as a last resort.
 ]
 asyncio_default_fixture_loop_scope = "function"
 
