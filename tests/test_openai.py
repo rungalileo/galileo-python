@@ -18,6 +18,11 @@ from tests.testutils.streaming import EventStream, ResponsesEventStream
 def ensure_openai_api_key(monkeypatch):
     """Ensure OPENAI_API_KEY is set for OpenAI tests."""
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    # When both OPENAI_API_KEY and AZURE_OPENAI_* env vars are set, the openai module-level
+    # client raises _AmbiguousModuleClientUsageError. We must set both the env var and the
+    # module attribute because openai.api_type is cached at import time from OPENAI_API_TYPE.
+    monkeypatch.setenv("OPENAI_API_TYPE", "openai")
+    monkeypatch.setattr("openai.api_type", "openai")
 
 
 def openai_incorrect_api_key_error() -> bytes:

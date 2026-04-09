@@ -1,4 +1,3 @@
-from typing import Optional
 from unittest.mock import ANY, AsyncMock, Mock, patch
 from uuid import uuid4
 
@@ -105,7 +104,7 @@ class TestAInvoke:
         timeout: float,
         metadata: dict,
         headers: dict,
-        stage_version: Optional[int],
+        stage_version: int | None,
     ) -> None:
         mock_invoke_post_async.return_value = invoke_response()
 
@@ -201,7 +200,7 @@ class TestInvoke:
         timeout: float,
         metadata: dict,
         headers: dict,
-        stage_version: Optional[int],
+        stage_version: int | None,
     ) -> None:
         with patch("galileo.protect.async_run") as mock_async_run:
             project_id = uuid4() if include_project_id else None
@@ -249,7 +248,7 @@ class TestInvoke:
         timeout: float,
         metadata: dict,
         headers: dict,
-        stage_version: Optional[int],
+        stage_version: int | None,
     ) -> None:
         mock_invoke_post_async.return_value = invoke_response()
 

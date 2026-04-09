@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 from uuid import UUID
 
 SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow", "agent"]
@@ -37,10 +37,10 @@ class Node:
     """
 
     def __init__(
-        self, node_type: NODE_TYPE, span_params: dict[str, Any], run_id: UUID, parent_run_id: Optional[UUID] = None
+        self, node_type: NODE_TYPE, span_params: dict[str, Any], run_id: UUID, parent_run_id: UUID | None = None
     ) -> None:
         self.node_type: NODE_TYPE = node_type
         self.span_params: dict[str, Any] = span_params
         self.run_id: UUID = run_id
-        self.parent_run_id: Optional[UUID] = parent_run_id
+        self.parent_run_id: UUID | None = parent_run_id
         self.children: list[str] = []

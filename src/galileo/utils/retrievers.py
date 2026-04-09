@@ -1,5 +1,5 @@
 import json
-from typing import Union, cast
+from typing import cast
 
 from pydantic import TypeAdapter, ValidationError
 
@@ -10,14 +10,14 @@ from galileo_core.schemas.shared.document import Document
 document_adapter = TypeAdapter(list[Document])
 
 
-def convert_to_documents(data: RetrieverSpanAllowedOutputType, field_name: Union[str, None] = None) -> list[Document]:
+def convert_to_documents(data: RetrieverSpanAllowedOutputType, field_name: str | None = None) -> list[Document]:
     """Convert various input types to a list of Document objects."""
     if data is None:
         return [Document(content="", metadata={})]
 
     if isinstance(data, list):
         if all(isinstance(doc, Document) for doc in data):
-            return cast(list[Document], data)
+            return data
         if all(isinstance(doc, GalileoDocument) for doc in data):
             return [
                 Document(content=doc.content, metadata=doc.metadata.to_dict() if doc.metadata else {})

@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from typing import Optional, Union
 
 from pydantic import UUID4
 
@@ -20,9 +19,7 @@ from galileo_core.schemas.protect.stage import StageDB, StageType, StageWithRule
 from galileo_core.utils.name import ts_name
 
 
-def _get_validated_project_id(
-    project_id: Optional[Union[str, UUID4]] = None, project_name: Optional[str] = None
-) -> str:
+def _get_validated_project_id(project_id: str | UUID4 | None = None, project_name: str | None = None) -> str:
     """Resolves project ID from either project_id or project_name."""
     # If the project Id is a UUID4, convert to string.
     if project_id is not None and type(project_id).__name__ == "UUID":
@@ -35,9 +32,7 @@ def _get_validated_project_id(
 
 
 def _get_stage_id(
-    stage_id: Optional[Union[str, UUID4]] = None,
-    stage_name: Optional[str] = None,
-    project_id: Optional[Union[str, UUID4]] = None,
+    stage_id: str | UUID4 | None = None, stage_name: str | None = None, project_id: str | UUID4 | None = None
 ) -> str:
     """
     Resolves stage ID from either stage_id or stage_name.
@@ -61,13 +56,13 @@ class Stages:
 
     def create(
         self,
-        project_id: Optional[Union[str, UUID4]] = None,
-        project_name: Optional[str] = None,
-        name: Optional[str] = None,
+        project_id: str | UUID4 | None = None,
+        project_name: str | None = None,
+        name: str | None = None,
         stage_type: StageType = StageType.local,
         pause: bool = False,
-        prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
-        description: Optional[str] = None,
+        prioritized_rulesets: Sequence[Ruleset] | None = None,
+        description: str | None = None,
     ) -> StageDB:
         actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
 
@@ -96,10 +91,10 @@ class Stages:
 
     def get(
         self,
-        project_id: Optional[Union[str, UUID4]] = None,
-        project_name: Optional[str] = None,
-        stage_id: Optional[Union[str, UUID4]] = None,
-        stage_name: Optional[str] = None,
+        project_id: str | UUID4 | None = None,
+        project_name: str | None = None,
+        stage_id: str | UUID4 | None = None,
+        stage_name: str | None = None,
     ) -> StageDB:
         actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
 
@@ -118,11 +113,11 @@ class Stages:
 
     def update(
         self,
-        project_id: Optional[Union[str, UUID4]] = None,
-        project_name: Optional[str] = None,
-        stage_id: Optional[Union[str, UUID4]] = None,
-        stage_name: Optional[str] = None,
-        prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
+        project_id: str | UUID4 | None = None,
+        project_name: str | None = None,
+        stage_id: str | UUID4 | None = None,
+        stage_name: str | None = None,
+        prioritized_rulesets: Sequence[Ruleset] | None = None,
     ) -> StageDB:
         actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
 
@@ -143,10 +138,10 @@ class Stages:
     def _set_pause_state(
         self,
         pause_flag: bool,
-        project_id: Optional[Union[str, UUID4]] = None,
-        project_name: Optional[str] = None,
-        stage_id: Optional[Union[str, UUID4]] = None,
-        stage_name: Optional[str] = None,
+        project_id: str | UUID4 | None = None,
+        project_name: str | None = None,
+        stage_id: str | UUID4 | None = None,
+        stage_name: str | None = None,
     ) -> StageDB:
         """Sets the pause state of a stage."""
         actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
@@ -162,10 +157,10 @@ class Stages:
 
     def pause(
         self,
-        project_id: Optional[Union[str, UUID4]] = None,
-        project_name: Optional[str] = None,
-        stage_id: Optional[Union[str, UUID4]] = None,
-        stage_name: Optional[str] = None,
+        project_id: str | UUID4 | None = None,
+        project_name: str | None = None,
+        stage_id: str | UUID4 | None = None,
+        stage_name: str | None = None,
     ) -> StageDB:
         return self._set_pause_state(
             project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name, pause_flag=True
@@ -173,10 +168,10 @@ class Stages:
 
     def resume(
         self,
-        project_id: Optional[Union[str, UUID4]] = None,
-        project_name: Optional[str] = None,
-        stage_id: Optional[Union[str, UUID4]] = None,
-        stage_name: Optional[str] = None,
+        project_id: str | UUID4 | None = None,
+        project_name: str | None = None,
+        stage_id: str | UUID4 | None = None,
+        stage_name: str | None = None,
     ) -> StageDB:
         return self._set_pause_state(
             project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name, pause_flag=False
@@ -184,14 +179,14 @@ class Stages:
 
 
 def create_protect_stage(
-    project_id: Optional[Union[str, UUID4]] = None,
-    project_name: Optional[str] = None,
-    name: Optional[str] = None,
+    project_id: str | UUID4 | None = None,
+    project_name: str | None = None,
+    name: str | None = None,
     stage_type: StageType = StageType.local,
     pause: bool = False,
-    prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
-    description: Optional[str] = None,
-) -> Optional[StageDB]:
+    prioritized_rulesets: Sequence[Ruleset] | None = None,
+    description: str | None = None,
+) -> StageDB | None:
     """Creates a new stage.
 
     Parameters
@@ -228,11 +223,11 @@ def create_protect_stage(
 
 
 def get_protect_stage(
-    project_id: Optional[Union[str, UUID4]] = None,
-    project_name: Optional[str] = None,
-    stage_id: Optional[Union[str, UUID4]] = None,
-    stage_name: Optional[str] = None,
-) -> Optional[StageDB]:
+    project_id: str | UUID4 | None = None,
+    project_name: str | None = None,
+    stage_id: str | UUID4 | None = None,
+    stage_name: str | None = None,
+) -> StageDB | None:
     """Retrieves a stage by its ID or name, within a given project.
 
     Parameters
@@ -256,12 +251,12 @@ def get_protect_stage(
 
 
 def update_protect_stage(
-    project_id: Optional[Union[str, UUID4]] = None,
-    project_name: Optional[str] = None,
-    stage_id: Optional[Union[str, UUID4]] = None,
-    stage_name: Optional[str] = None,
-    prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
-) -> Optional[StageDB]:
+    project_id: str | UUID4 | None = None,
+    project_name: str | None = None,
+    stage_id: str | UUID4 | None = None,
+    stage_name: str | None = None,
+    prioritized_rulesets: Sequence[Ruleset] | None = None,
+) -> StageDB | None:
     """Updates a stage's rulesets, creating a new version.
 
     Parameters
@@ -294,11 +289,11 @@ def update_protect_stage(
 
 
 def pause_protect_stage(
-    project_id: Optional[Union[str, UUID4]] = None,
-    project_name: Optional[str] = None,
-    stage_id: Optional[Union[str, UUID4]] = None,
-    stage_name: Optional[str] = None,
-) -> Optional[StageDB]:
+    project_id: str | UUID4 | None = None,
+    project_name: str | None = None,
+    stage_id: str | UUID4 | None = None,
+    stage_name: str | None = None,
+) -> StageDB | None:
     """Pauses the specified stage.
 
     Pauses a stage using either its ID or name within the context of a project.
@@ -323,11 +318,11 @@ def pause_protect_stage(
 
 
 def resume_protect_stage(
-    project_id: Optional[Union[str, UUID4]] = None,
-    project_name: Optional[str] = None,
-    stage_id: Optional[Union[str, UUID4]] = None,
-    stage_name: Optional[str] = None,
-) -> Optional[StageDB]:
+    project_id: str | UUID4 | None = None,
+    project_name: str | None = None,
+    stage_id: str | UUID4 | None = None,
+    stage_name: str | None = None,
+) -> StageDB | None:
     """Resumes a previously paused stage.
 
     Resumes a stage using either its ID or name within the context of a project.

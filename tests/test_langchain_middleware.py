@@ -1,5 +1,5 @@
 import json
-from typing import Any, Optional, cast
+from typing import Any, cast
 from unittest.mock import Mock, patch
 
 import pytest
@@ -31,7 +31,7 @@ class MockRuntime:
 class MockModel:
     """Mock model object."""
 
-    def __init__(self, model_name: Optional[str] = None):
+    def __init__(self, model_name: str | None = None):
         self.model_name = model_name
 
 
@@ -40,13 +40,13 @@ class MockRequest:
 
     def __init__(
         self,
-        state: Optional[dict[str, Any]] = None,
-        messages: Optional[list] = None,
-        system_message: Optional[Any] = None,
-        tools: Optional[list] = None,
-        model_settings: Optional[dict[str, Any]] = None,
-        model: Optional[Any] = None,
-        tool_call: Optional[dict[str, Any]] = None,
+        state: dict[str, Any] | None = None,
+        messages: list | None = None,
+        system_message: Any | None = None,
+        tools: list | None = None,
+        model_settings: dict[str, Any] | None = None,
+        model: Any | None = None,
+        tool_call: dict[str, Any] | None = None,
     ):
         self.state = state
         self.messages = messages or []
@@ -60,7 +60,7 @@ class MockRequest:
 class MockResponse:
     """Mock response object."""
 
-    def __init__(self, result: Optional[Any] = None):
+    def __init__(self, result: Any | None = None):
         self.result = result
 
 

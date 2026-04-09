@@ -1,7 +1,6 @@
 """Experiment Tags functionality for managing tags on experiments."""
 
 import logging
-from typing import Union
 
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.experiment_tags import (
@@ -24,7 +23,7 @@ class ExperimentTagsAPIException(APIException):
 class ExperimentTag(RunTagDB):
     """Wrapper class for experiment tags that provides additional functionality."""
 
-    def __init__(self, experiment_tag: Union[None, RunTagDB] = None):
+    def __init__(self, experiment_tag: None | RunTagDB = None):
         """
         Initialize an ExperimentTag instance.
 

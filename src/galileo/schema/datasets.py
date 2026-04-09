@@ -1,6 +1,6 @@
 import json
 from functools import cached_property
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, field_validator, model_validator
 
@@ -43,11 +43,11 @@ class DatasetRecord(BaseModel):
     >>> assert record2.ground_truth == "4"  # Property accessor
     """
 
-    id: Optional[str] = None
+    id: str | None = None
     input: str
-    output: Optional[str] = None
-    metadata: Optional[dict[str, str]] = None
-    generated_output: Optional[str] = None
+    output: str | None = None
+    metadata: dict[str, str] | None = None
+    generated_output: str | None = None
 
     @model_validator(mode="before")
     @classmethod
@@ -76,7 +76,7 @@ class DatasetRecord(BaseModel):
 
     @field_validator("output", mode="before")
     @classmethod
-    def validate_output(cls, value: Any) -> Optional[str]:
+    def validate_output(cls, value: Any) -> str | None:
         if value is None:
             return None
         if not isinstance(value, str):
@@ -85,7 +85,7 @@ class DatasetRecord(BaseModel):
 
     @field_validator("metadata", mode="before")
     @classmethod
-    def validate_metadata(cls, value: Any) -> Optional[dict[str, str]]:
+    def validate_metadata(cls, value: Any) -> dict[str, str] | None:
         if value is None:
             return None
         if isinstance(value, str):
@@ -102,7 +102,7 @@ class DatasetRecord(BaseModel):
 
     @field_validator("generated_output", mode="before")
     @classmethod
-    def validate_generated_output(cls, value: Any) -> Optional[str]:
+    def validate_generated_output(cls, value: Any) -> str | None:
         if value is None:
             return None
         if not isinstance(value, str):
@@ -117,7 +117,7 @@ class DatasetRecord(BaseModel):
             return self.input
 
     @cached_property
-    def deserialized_output(self) -> Optional[Any]:
+    def deserialized_output(self) -> Any | None:
         if self.output is None:
             return None
         try:
@@ -126,7 +126,7 @@ class DatasetRecord(BaseModel):
             return self.output
 
     @cached_property
-    def deserialized_generated_output(self) -> Optional[Any]:
+    def deserialized_generated_output(self) -> Any | None:
         if self.generated_output is None:
             return None
         try:
@@ -135,7 +135,7 @@ class DatasetRecord(BaseModel):
             return self.generated_output
 
     @property
-    def ground_truth(self) -> Optional[str]:
+    def ground_truth(self) -> str | None:
         """
         Get ground truth value (alias for output).
 

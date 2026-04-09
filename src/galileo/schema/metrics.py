@@ -1,7 +1,7 @@
 import warnings
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from enum import Enum
-from typing import Any, Callable, Generic, Optional, TypeVar, Union
+from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field, ValidationError, field_validator
 from pydantic_core.core_schema import ValidationInfo
@@ -125,10 +125,10 @@ MetricType = TypeVar("MetricType", bound=MetricValueType)
 
 class LocalMetricConfig(BaseModel, Generic[MetricType]):
     name: str = Field(description="Name of the local metric")
-    scorer_fn: Callable[[Union[Trace, Span]], MetricType] = Field(
+    scorer_fn: Callable[[Trace | Span], MetricType] = Field(
         description="function to call to produce the metric value (takes a trace or span as input"
     )
-    aggregator_fn: Optional[Callable[[list[MetricType]], Union[MetricType, dict[str, MetricType]]]] = Field(
+    aggregator_fn: Callable[[list[MetricType]], MetricType | dict[str, MetricType]] | None = Field(
         default=None,
         description="function to call to produce the aggregate metric values from individual metric values",
     )
@@ -151,7 +151,7 @@ class Metric(BaseModel):
     name: str = Field(
         description="The name of the metric you want to run a specific version of (ie: 'Sentence Density')."
     )
-    version: Optional[int] = Field(
+    version: int | None = Field(
         default=None,
         description="The version of the metric (ie: 1, 2, 3, etc.). If None is provided, the 'default' version will be used.",
     )

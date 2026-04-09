@@ -1,5 +1,4 @@
 import builtins
-from typing import Optional, Union
 from uuid import UUID
 
 from galileo.resources.models.scorer_config import ScorerConfig
@@ -11,14 +10,12 @@ from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.metric import MetricValueType
 
 
-def populate_local_metrics(step: Union[Trace, Span], local_metrics: list[LocalMetricConfig]) -> None:
+def populate_local_metrics(step: Trace | Span, local_metrics: list[LocalMetricConfig]) -> None:
     for local_metric in local_metrics:
         _populate_local_metric(step, local_metric, [])
 
 
-def _populate_local_metric(
-    step: Union[Trace, Span], local_metric: LocalMetricConfig, scores: list[MetricValueType]
-) -> None:
+def _populate_local_metric(step: Trace | Span, local_metric: LocalMetricConfig, scores: list[MetricValueType]) -> None:
     if isinstance(step, StepWithChildSpans):
         for span in step.spans:
             _populate_local_metric(span, local_metric, scores)
@@ -46,8 +43,8 @@ def _is_uuid(value: str) -> bool:
 
 def create_metric_configs(
     project_id: str,
-    run_id: Optional[str],  # Can be experiment_id, log_stream_id, or None (for trigger=True flow)
-    metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]],
+    run_id: str | None,  # Can be experiment_id, log_stream_id, or None (for trigger=True flow)
+    metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str],
 ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
     """
     Process metrics and create scorer configurations for experiments or log streams.
@@ -86,7 +83,7 @@ def create_metric_configs(
     """
     local_metric_configs: list[LocalMetricConfig] = []
     scorer_ids: list[str] = []
-    label_searches: list[tuple[str, Optional[int]]] = []
+    label_searches: list[tuple[str, int | None]] = []
 
     # Categorize metrics by type
     for metric in metrics:

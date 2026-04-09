@@ -1,8 +1,9 @@
 import builtins
 import datetime
 import logging
+from collections.abc import Callable
 from sys import getsizeof
-from typing import Any, Callable, Optional, Union
+from typing import Any
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -89,13 +90,13 @@ class Experiments:
         self,
         project_id: str,
         name: str,
-        dataset_obj: Optional[Dataset] = None,
+        dataset_obj: Dataset | None = None,
         trigger: bool = False,
-        prompt_template: Optional[PromptTemplate] = None,
-        scorers: Optional[builtins.list[ScorerConfig]] = None,
-        prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
+        prompt_template: PromptTemplate | None = None,
+        scorers: builtins.list[ScorerConfig] | None = None,
+        prompt_settings: PromptRunSettings | dict[str, Any] | None = None,
     ) -> ExperimentResponse:
-        resolved_settings: Optional[PromptRunSettings] = (
+        resolved_settings: PromptRunSettings | None = (
             PromptRunSettings.from_dict(prompt_settings) if isinstance(prompt_settings, dict) else prompt_settings
         )
 
@@ -130,7 +131,7 @@ class Experiments:
 
         return experiment
 
-    def get(self, project_id: str, experiment_name: str) -> Optional[ExperimentResponse]:
+    def get(self, project_id: str, experiment_name: str) -> ExperimentResponse | None:
         experiments = self.list(project_id=project_id)
 
         if experiments is None or isinstance(experiments, HTTPValidationError):
@@ -142,16 +143,14 @@ class Experiments:
 
         return None
 
-    def get_or_create(
-        self, project_id: str, experiment_name: str
-    ) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
+    def get_or_create(self, project_id: str, experiment_name: str) -> ExperimentResponse | HTTPValidationError | None:
         experiment = self.get(project_id, experiment_name)
         if not experiment:
             experiment = self.create(project_id, experiment_name)
 
         return experiment
 
-    def list(self, project_id: str) -> Optional[Union[HTTPValidationError, list["ExperimentResponse"]]]:
+    def list(self, project_id: str) -> HTTPValidationError | list["ExperimentResponse"] | None:
         return list_experiments_projects_project_id_experiments_get.sync(
             project_id=project_id, client=self.config.api_client
         )
@@ -161,9 +160,9 @@ class Experiments:
         project_obj: Project,
         dataset_obj: Dataset,
         experiment_name: str,
-        prompt_template: Optional[PromptTemplate],
-        scorers: Optional[builtins.list[ScorerConfig]],
-        prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
+        prompt_template: PromptTemplate | None,
+        scorers: builtins.list[ScorerConfig] | None,
+        prompt_settings: PromptRunSettings | dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         if isinstance(prompt_settings, dict):
             prompt_settings = PromptRunSettings.from_dict(prompt_settings)
@@ -193,10 +192,11 @@ class Experiments:
         self,
         project_obj: Project,
         experiment_obj: ExperimentResponse,
-        dataset_obj: Optional[Dataset],
-        records: Optional[builtins.list[DatasetRecord]],
+        dataset_obj: Dataset | None,
+        records: builtins.list[DatasetRecord] | None,
         func: Callable,
         local_metrics: builtins.list[LocalMetricConfig],
+        on_error: Callable[[Exception], None] | None = None,
     ) -> dict[str, Any]:
         if dataset_obj is None and records is None:
             raise ValueError("Either dataset_obj or records must be provided")
@@ -214,7 +214,7 @@ class Experiments:
                 galileo_context.reset_trace_context()
                 if getsizeof(results) > MAX_REQUEST_SIZE_BYTES or len(results) >= MAX_INGEST_BATCH_SIZE:
                     _logger.info("Flushing logger due to size limit")
-                    galileo_context.flush()
+                    galileo_context.flush(on_error=on_error)
                     results = []
         # For dataset object, paginate through content
         elif dataset_obj is not None:
@@ -237,13 +237,13 @@ class Experiments:
                         galileo_context.reset_trace_context()
                         if getsizeof(results) > MAX_REQUEST_SIZE_BYTES or len(results) >= MAX_INGEST_BATCH_SIZE:
                             _logger.info("Flushing logger due to size limit")
-                            galileo_context.flush()
+                            galileo_context.flush(on_error=on_error)
                             results = []
 
                     starting_token += len(batch_records)
 
         # flush the logger
-        galileo_context.flush()
+        galileo_context.flush(on_error=on_error)
 
         _logger.info(f" {len(results)} rows processed for experiment {experiment_obj.name}.")
 
@@ -273,16 +273,17 @@ def process_row(row: DatasetRecord, process_func: Callable) -> str:
 def run_experiment(
     experiment_name: str,
     *,
-    prompt_template: Optional[PromptTemplate] = None,
-    prompt_settings: Optional[Union[PromptRunSettings, dict[str, Any]]] = None,
-    project: Optional[str] = None,
-    project_id: Optional[str] = None,
-    dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]] = None,
-    dataset_id: Optional[str] = None,
-    dataset_name: Optional[str] = None,
-    metrics: Optional[list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]] = None,
-    function: Optional[Callable] = None,
-    experiment_tags: Optional[dict[str, str]] = None,
+    prompt_template: PromptTemplate | None = None,
+    prompt_settings: PromptRunSettings | dict[str, Any] | None = None,
+    project: str | None = None,
+    project_id: str | None = None,
+    dataset: Dataset | list[dict[str, Any] | str] | str | None = None,
+    dataset_id: str | None = None,
+    dataset_name: str | None = None,
+    metrics: list[GalileoMetrics | Metric | LocalMetricConfig | str] | None = None,
+    function: Callable | None = None,
+    experiment_tags: dict[str, str] | None = None,
+    on_error: Callable[[Exception], None] | None = None,
 ) -> Any:
     """
     Run an experiment with the specified parameters.
@@ -320,6 +321,11 @@ def run_experiment(
         Optional function to run with the experiment
     experiment_tags
         Optional dictionary of key-value pairs to tag the experiment with
+    on_error
+        Optional callback invoked with the exception when a flush error occurs. Only applies
+        to the function flow — ignored in the prompt-template flow (a warning is logged if
+        provided there). Creation errors always propagate regardless of this callback. If None,
+        flush errors are logged as warnings. Defaults to None.
 
     Returns
     -------
@@ -391,19 +397,26 @@ def run_experiment(
             records=records,
             func=function,
             local_metrics=local_metrics,
+            on_error=on_error,
         )
 
     if dataset_obj is None:
         raise ValueError("A dataset object must be provided")
 
     # Set up metrics WITHOUT run_id — trigger=True flow, API handles scorer registration
-    scorer_settings: Optional[list[ScorerConfig]] = None
+    scorer_settings: list[ScorerConfig] | None = None
     local_metrics_check: list[LocalMetricConfig] = []
     if metrics is not None:
         scorer_settings, local_metrics_check = create_metric_configs(project_obj.id, None, metrics)
 
     if local_metrics_check:
         raise ValueError("Local metrics can only be used with a locally run experiment, not a prompt experiment.")
+
+    if on_error is not None:
+        _logger.warning(
+            "on_error was provided but will not be invoked in the prompt-template flow "
+            "(no flush occurs on this path). on_error is only used in the function flow."
+        )
 
     # Execute a prompt template or generated-output experiment via trigger=True.
     # Single API call: creates experiment + triggers runner job.
@@ -427,7 +440,7 @@ def run_experiment(
 
 @deprecated("Use galileo.experiment.Experiment(name=..., ...).create() instead.")
 def create_experiment(
-    project_id: Optional[str] = None, experiment_name: Optional[str] = None, project_name: Optional[str] = None
+    project_id: str | None = None, experiment_name: str | None = None, project_name: str | None = None
 ) -> ExperimentResponse:
     """
     Create an experiment with the specified parameters.
@@ -472,8 +485,8 @@ def create_experiment(
 
 @deprecated("Use galileo.experiment.Experiment.get() instead.")
 def get_experiment(
-    project_id: Optional[str] = None, experiment_name: Optional[str] = None, project_name: Optional[str] = None
-) -> Optional[ExperimentResponse]:
+    project_id: str | None = None, experiment_name: str | None = None, project_name: str | None = None
+) -> ExperimentResponse | None:
     """
     Get an experiment with the specified parameters.
 
@@ -516,8 +529,8 @@ def get_experiment(
 
 @deprecated("Use galileo.experiment.Experiment.list() instead.")
 def get_experiments(
-    project_id: Optional[str] = None, project_name: Optional[str] = None
-) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]:
+    project_id: str | None = None, project_name: str | None = None
+) -> HTTPValidationError | list[ExperimentResponse] | None:
     """
     Get experiments from the specified Project.
 

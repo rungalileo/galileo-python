@@ -1,5 +1,5 @@
 import builtins
-from typing import Optional, Union, overload
+from typing import overload
 
 from typing_extensions import deprecated
 
@@ -101,7 +101,7 @@ class LogStream(LogStreamResponse):
     ```
     """
 
-    def __init__(self, log_stream: Union[None, LogStreamResponse] = None):
+    def __init__(self, log_stream: None | LogStreamResponse = None):
         """
         Initialize a LogStream instance.
 
@@ -124,7 +124,7 @@ class LogStream(LogStreamResponse):
             return
 
     def enable_metrics(
-        self, metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]
+        self, metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str]
     ) -> builtins.list[LocalMetricConfig]:
         """
         Enable metrics directly on this log stream instance.
@@ -240,7 +240,7 @@ class LogStreams:
     @overload
     def list(self, *, project_name: str) -> builtins.list[LogStream]: ...
 
-    def list(self, *, project_id: Optional[str] = None, project_name: Optional[str] = None) -> builtins.list[LogStream]:
+    def list(self, *, project_id: str | None = None, project_name: str | None = None) -> builtins.list[LogStream]:
         """
         Lists all log streams. Exactly one of `project_id` or `project_name` must be provided.
 
@@ -282,21 +282,17 @@ class LogStreams:
         return [LogStream(log_stream=log_stream) for log_stream in log_streams] if log_streams else []
 
     @overload
-    def get(
-        self, *, id: str, project_id: Optional[str] = None, project_name: Optional[str] = None
-    ) -> Optional[LogStream]: ...
+    def get(self, *, id: str, project_id: str | None = None, project_name: str | None = None) -> LogStream | None: ...
     @overload
-    def get(
-        self, *, name: str, project_id: Optional[str] = None, project_name: Optional[str] = None
-    ) -> Optional[LogStream]: ...
+    def get(self, *, name: str, project_id: str | None = None, project_name: str | None = None) -> LogStream | None: ...
     def get(
         self,
         *,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        project_id: Optional[str] = None,
-        project_name: Optional[str] = None,
-    ) -> Optional[LogStream]:
+        id: str | None = None,
+        name: str | None = None,
+        project_id: str | None = None,
+        project_name: str | None = None,
+    ) -> LogStream | None:
         """
         Retrieves a log stream by id or name.
 
@@ -358,11 +354,11 @@ class LogStreams:
         return None
 
     @overload
-    def create(self, name: str, *, project_id: Optional[str] = None) -> LogStream: ...
+    def create(self, name: str, *, project_id: str | None = None) -> LogStream: ...
     @overload
     def create(self, name: str, *, project_name: str) -> LogStream: ...
 
-    def create(self, name: str, *, project_id: Optional[str] = None, project_name: Optional[str] = None) -> LogStream:
+    def create(self, name: str, *, project_id: str | None = None, project_name: str | None = None) -> LogStream:
         """
         Creates a new log stream. Exactly one of `project_id` or `project_name` must be provided.
 
@@ -416,9 +412,9 @@ class LogStreams:
     def enable_metrics(
         self,
         *,
-        log_stream_name: Optional[str] = None,
-        project_name: Optional[str] = None,
-        metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]],
+        log_stream_name: str | None = None,
+        project_name: str | None = None,
+        metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str],
     ) -> builtins.list[LocalMetricConfig]:
         """
         Enable metrics for a log stream by configuring scorers.
@@ -520,8 +516,8 @@ class LogStreams:
 
 @deprecated("Use galileo.log_stream.LogStream.get() instead.")
 def get_log_stream(
-    *, name: Optional[str] = None, project_id: Optional[str] = None, project_name: Optional[str] = None
-) -> Optional[LogStream]:
+    *, name: str | None = None, project_id: str | None = None, project_name: str | None = None
+) -> LogStream | None:
     """
     Retrieves a log stream by name. Exactly one of `project_id` or `project_name` must be provided.
 
@@ -552,7 +548,7 @@ def get_log_stream(
 
 
 @deprecated("Use galileo.log_stream.LogStream.list() instead.")
-def list_log_streams(*, project_id: Optional[str] = None, project_name: Optional[str] = None) -> list[LogStream]:
+def list_log_streams(*, project_id: str | None = None, project_name: str | None = None) -> list[LogStream]:
     """
     Lists all log streams. Exactly one of `project_id` or `project_name` must be provided.
 
@@ -580,7 +576,7 @@ def list_log_streams(*, project_id: Optional[str] = None, project_name: Optional
 
 
 @deprecated("Use galileo.log_stream.LogStream(name=...).create() instead.")
-def create_log_stream(name: str, project_id: Optional[str] = None, project_name: Optional[str] = None) -> LogStream:
+def create_log_stream(name: str, project_id: str | None = None, project_name: str | None = None) -> LogStream:
     """
     Creates a new log stream. Exactly one of `project_id` or `project_name` must be provided.
 
@@ -608,9 +604,9 @@ def create_log_stream(name: str, project_id: Optional[str] = None, project_name:
 @deprecated("Use log_stream.set_metrics() instead.")
 def enable_metrics(
     *,
-    log_stream_name: Optional[str] = None,
-    project_name: Optional[str] = None,
-    metrics: builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]],
+    log_stream_name: str | None = None,
+    project_name: str | None = None,
+    metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str],
 ) -> builtins.list[LocalMetricConfig]:
     """
     Enable metrics for a log stream with flexible parameter and environment variable support.

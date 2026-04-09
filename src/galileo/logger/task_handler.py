@@ -1,7 +1,7 @@
 import time
-from collections.abc import Awaitable, Coroutine
+from collections.abc import Awaitable, Callable, Coroutine
 from concurrent.futures import Future
-from typing import Any, Callable, Literal, Optional, Union
+from typing import Any, Literal
 
 from galileo_core.helpers.event_loop_thread_pool import EventLoopThreadPool
 
@@ -33,10 +33,10 @@ class ThreadPoolTaskHandler:
     def _add_or_update_task(
         self,
         task_id: str,
-        future: Optional[Future] = None,
-        start_time: Optional[float] = None,
-        parent_task_id: Optional[str] = None,
-        callback: Optional[Callable] = None,
+        future: Future | None = None,
+        start_time: float | None = None,
+        parent_task_id: str | None = None,
+        callback: Callable | None = None,
     ) -> None:
         """
         Track a submitted future.
@@ -63,7 +63,7 @@ class ThreadPoolTaskHandler:
         self._retry_counts[task_id] = 0
 
     def submit_task(
-        self, task_id: str, async_fn: Union[Callable[[], Awaitable[Any]], Coroutine], dependent_on_prev: bool = False
+        self, task_id: str, async_fn: Callable[[], Awaitable[Any]] | Coroutine, dependent_on_prev: bool = False
     ) -> None:
         """
         Submit a task to the thread pool.
@@ -98,7 +98,7 @@ class ThreadPoolTaskHandler:
             _submit()
 
     def submit_task_with_parent(
-        self, task_id: str, async_fn: Union[Callable[[], Awaitable[Any]], Coroutine], parent_task_id: str
+        self, task_id: str, async_fn: Callable[[], Awaitable[Any]] | Coroutine, parent_task_id: str
     ) -> None:
         """
         Submit a task that depends on a specific parent task.

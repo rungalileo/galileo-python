@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from typing import Optional
 
 from langchain_core.runnables.base import Runnable
 from langchain_core.tools import BaseTool
@@ -19,8 +18,8 @@ logger = get_logger(__name__)
 class ProtectToolInputSchema(BaseModel):
     """Input schema for the ProtectTool."""
 
-    input: Optional[str] = None
-    output: Optional[str] = None
+    input: str | None = None
+    output: str | None = None
 
 
 class ProtectTool(BaseTool):
@@ -61,15 +60,15 @@ class ProtectTool(BaseTool):
     )
     args_schema: type[BaseModel] = ProtectToolInputSchema
 
-    prioritized_rulesets: Optional[Sequence[Ruleset]] = None
-    project_id: Optional[UUID4] = None
-    project_name: Optional[str] = None
-    stage_name: Optional[str] = None
-    stage_id: Optional[UUID4] = None
-    stage_version: Optional[int] = None
+    prioritized_rulesets: Sequence[Ruleset] | None = None
+    project_id: UUID4 | None = None
+    project_name: str | None = None
+    stage_name: str | None = None
+    stage_id: UUID4 | None = None
+    stage_version: int | None = None
     timeout: float = TIMEOUT_SECS
 
-    def _run(self, input: Optional[str] = None, output: Optional[str] = None) -> str:
+    def _run(self, input: str | None = None, output: str | None = None) -> str:
         """
         Apply the tool synchronously.
 
@@ -89,7 +88,7 @@ class ProtectTool(BaseTool):
         )
         return api_response.model_dump_json()
 
-    async def _arun(self, input: Optional[str] = None, output: Optional[str] = None) -> str:
+    async def _arun(self, input: str | None = None, output: str | None = None) -> str:
         """
         Apply the tool asynchronously.
 

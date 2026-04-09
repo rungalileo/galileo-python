@@ -102,7 +102,7 @@ invocation [agent_name]           ← Run span (workflow wrapper)
 
 ### Prerequisites
 
-- Python 3.10+
+- Python 3.13+ (recommended)
 - [UV](https://docs.astral.sh/uv/) package manager
 
 ### Setup

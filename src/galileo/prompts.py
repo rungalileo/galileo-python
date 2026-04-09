@@ -1,7 +1,7 @@
 import builtins
 import logging
 import warnings
-from typing import Optional, Union, overload
+from typing import overload
 
 from typing_extensions import deprecated
 
@@ -44,7 +44,7 @@ class PromptTemplateAPIException(APIException):
 
 
 class PromptTemplate(BasePromptTemplateResponse):
-    def __init__(self, prompt_template: Union[None, BasePromptTemplateResponse] = None):
+    def __init__(self, prompt_template: None | BasePromptTemplateResponse = None):
         """Initialize a PromptTemplate instance."""
         if prompt_template is not None:
             super().__init__(
@@ -66,7 +66,7 @@ class PromptTemplate(BasePromptTemplateResponse):
 
 
 class PromptTemplateVersion(BasePromptTemplateVersionResponse):
-    def __init__(self, prompt_template_version: Union[None, BasePromptTemplateVersionResponse] = None):
+    def __init__(self, prompt_template_version: None | BasePromptTemplateVersionResponse = None):
         if prompt_template_version is not None:
             super().__init__(
                 content_changed=prompt_template_version.content_changed,
@@ -97,10 +97,10 @@ class GlobalPromptTemplates:
     def list(
         self,
         *,
-        name_filter: Optional[str] = None,
-        project_id: Optional[str] = None,
-        project_name: Optional[str] = None,
-        limit: Union[Unset, int] = 100,
+        name_filter: str | None = None,
+        project_id: str | None = None,
+        project_name: str | None = None,
+        limit: Unset | int = 100,
         starting_token: int = 0,
     ) -> builtins.list[PromptTemplate]:
         """
@@ -162,12 +162,12 @@ class GlobalPromptTemplates:
         return []
 
     @overload
-    def get(self, *, template_id: str) -> Optional[PromptTemplate]: ...
+    def get(self, *, template_id: str) -> PromptTemplate | None: ...
 
     @overload
-    def get(self, *, name: str) -> Optional[PromptTemplate]: ...
+    def get(self, *, name: str) -> PromptTemplate | None: ...
 
-    def get(self, *, template_id: Optional[str] = None, name: Optional[str] = None) -> Optional[PromptTemplate]:
+    def get(self, *, template_id: str | None = None, name: str | None = None) -> PromptTemplate | None:
         if (template_id is None) and (name is None):
             raise ValueError("Exactly one of 'template_id' or 'name' must be provided")
 
@@ -204,7 +204,7 @@ class GlobalPromptTemplates:
     @overload
     def delete(self, *, name: str) -> None: ...
 
-    def delete(self, *, template_id: Optional[str] = None, name: Optional[str] = None) -> None:
+    def delete(self, *, template_id: str | None = None, name: str | None = None) -> None:
         """
         Delete a global prompt template by ID or name.
 
@@ -234,7 +234,7 @@ class GlobalPromptTemplates:
                 client=self.config.api_client, template_id=template_id
             )
 
-    def get_version(self, *, template_id: str, version: int) -> Optional[PromptTemplateVersion]:
+    def get_version(self, *, template_id: str, version: int) -> PromptTemplateVersion | None:
         _logger.debug(f"Get global template {template_id} version {version}")
         template_version = get_global_template_version_templates_template_id_versions_version_get.sync(
             template_id=template_id, version=version, client=self.config.api_client
@@ -248,9 +248,9 @@ class GlobalPromptTemplates:
     def create(
         self,
         name: str,
-        template: Union[builtins.list[Message], str],
-        project_id: Optional[str] = None,
-        project_name: Optional[str] = None,
+        template: builtins.list[Message] | str,
+        project_id: str | None = None,
+        project_name: str | None = None,
     ) -> PromptTemplate:
         """
         Create a new global prompt template.
@@ -341,9 +341,9 @@ class GlobalPromptTemplates:
         self,
         *,
         template: str,
-        data: Union[DatasetData, StringData],
-        starting_token: Union[Unset, int] = 0,
-        limit: Union[Unset, int] = 100,
+        data: DatasetData | StringData,
+        starting_token: Unset | int = 0,
+        limit: Unset | int = 100,
     ) -> RenderTemplateResponse:
         """
         Render a template with provided data.
@@ -388,22 +388,18 @@ class GlobalPromptTemplates:
 
 @deprecated("Use galileo.prompt.Prompt.get() instead.")
 @overload
-def get_prompt(*, id: str) -> Optional[PromptTemplate]: ...
+def get_prompt(*, id: str) -> PromptTemplate | None: ...
 
 
 @deprecated("Use galileo.prompt.Prompt.get() instead.")
 @overload
-def get_prompt(*, name: str) -> Optional[PromptTemplate]: ...
+def get_prompt(*, name: str) -> PromptTemplate | None: ...
 
 
 @deprecated("Use galileo.prompt.Prompt.get() instead.")
 def get_prompt(
-    *,
-    id: Optional[str] = None,
-    name: Optional[str] = None,
-    project_id: Optional[str] = None,
-    project_name: Optional[str] = None,
-) -> Optional[PromptTemplate]:
+    *, id: str | None = None, name: str | None = None, project_id: str | None = None, project_name: str | None = None
+) -> PromptTemplate | None:
     """
     Retrieves a global prompt template.
 
@@ -466,11 +462,7 @@ def delete_prompt(*, name: str) -> None: ...
 
 @deprecated("Use prompt.delete() instead.")
 def delete_prompt(
-    *,
-    id: Optional[str] = None,
-    name: Optional[str] = None,
-    project_id: Optional[str] = None,
-    project_name: Optional[str] = None,
+    *, id: str | None = None, name: str | None = None, project_id: str | None = None, project_name: str | None = None
 ) -> None:
     """
     Delete a global prompt template by ID or name.
@@ -523,7 +515,7 @@ def update_prompt(*, name: str, new_name: str) -> PromptTemplate: ...
 
 
 @deprecated("Use prompt.save() instead.")
-def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_name: str) -> PromptTemplate:
+def update_prompt(*, id: str | None = None, name: str | None = None, new_name: str) -> PromptTemplate:
     """
     Update a global prompt template by ID or name.
 
@@ -596,10 +588,7 @@ def create_prompt_template(name: str, project: str, messages: builtins.list[Mess
 
 @deprecated("Use galileo.prompt.Prompt(name=..., ...).create() instead.")
 def create_prompt(
-    name: str,
-    template: Union[builtins.list[Message], str],
-    project_id: Optional[str] = None,
-    project_name: Optional[str] = None,
+    name: str, template: builtins.list[Message] | str, project_id: str | None = None, project_name: str | None = None
 ) -> PromptTemplate:
     """
     Create a new global prompt template.
@@ -649,10 +638,10 @@ def create_prompt(
 
 @deprecated("Use galileo.prompt.Prompt.list() instead.")
 def get_prompts(
-    name_filter: Optional[str] = None,
-    project_id: Optional[str] = None,
-    project_name: Optional[str] = None,
-    limit: Union[Unset, int] = 100,
+    name_filter: str | None = None,
+    project_id: str | None = None,
+    project_name: str | None = None,
+    limit: Unset | int = 100,
 ) -> builtins.list[PromptTemplate]:
     """
     List global prompt templates with optional filtering.
@@ -688,9 +677,9 @@ def get_prompts(
 def render_template(
     *,
     template: str,
-    data: Union[DatasetData, StringData, list[str], str],
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    data: DatasetData | StringData | list[str] | str,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> RenderTemplateResponse:
     """
     Render a template with provided data.
@@ -760,7 +749,7 @@ def list_prompt_templates(project: str) -> builtins.list[PromptTemplate]:
 
 
 @deprecated("Use galileo.prompt.Prompt.get() instead.")
-def get_prompt_template(name: str, project: str) -> Optional[PromptTemplate]:
+def get_prompt_template(name: str, project: str) -> PromptTemplate | None:
     """
     Get a prompt template by name from a specific project.
 
@@ -817,7 +806,7 @@ class PromptTemplates:
         """
         return get_prompts(project_name=self.project_name)
 
-    def get(self, *, name: str) -> Optional[PromptTemplate]:
+    def get(self, *, name: str) -> PromptTemplate | None:
         """
         Get a template by name from this project.
 
@@ -833,7 +822,7 @@ class PromptTemplates:
         """
         return get_prompt(name=name)
 
-    def create(self, name: str, template: Union[builtins.list[Message], str]) -> PromptTemplate:
+    def create(self, name: str, template: builtins.list[Message] | str) -> PromptTemplate:
         """
         Create a template in this project.
 

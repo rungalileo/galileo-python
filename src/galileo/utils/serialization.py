@@ -58,7 +58,7 @@ class EventSerializer(JSONEncoder):
             if isinstance(obj, datetime):
                 return serialize_datetime(obj)
 
-            if isinstance(obj, (Exception, KeyboardInterrupt)):
+            if isinstance(obj, Exception | KeyboardInterrupt):
                 return f"{type(obj).__name__}: {obj!s}"
 
             if isinstance(obj, enum.Enum):
@@ -90,13 +90,13 @@ class EventSerializer(JSONEncoder):
                 from langchain_core.outputs import ChatGeneration, LLMResult
                 from langchain_core.prompt_values import ChatPromptValue
 
-                if isinstance(obj, (AgentAction, ChatPromptValue)):
+                if isinstance(obj, AgentAction | ChatPromptValue):
                     return self.default(obj.messages)
                 if isinstance(obj, ChatGeneration):
                     return self.default(obj.message)
                 if isinstance(obj, LLMResult):
                     return self.default(obj.generations[0])
-                if isinstance(obj, (AIMessageChunk, AIMessage)):
+                if isinstance(obj, AIMessageChunk | AIMessage):
                     # Map the `type` to `role`.
                     if hasattr(obj, "model_dump"):
                         dumped = obj.model_dump(
@@ -225,10 +225,10 @@ class EventSerializer(JSONEncoder):
                 return obj if self.is_js_safe_integer(obj) else str(obj)
 
             # Standard JSON-encodable types
-            if isinstance(obj, (str, float, type(None))):
+            if isinstance(obj, str | float | type(None)):
                 return obj
 
-            if isinstance(obj, (tuple, set, frozenset)):
+            if isinstance(obj, tuple | set | frozenset):
                 return list(obj)
 
             if isinstance(obj, dict):
@@ -302,7 +302,7 @@ def serialize_to_str(input_data: Any) -> str:
     if isinstance(input_data, str):
         return input_data
 
-    if input_data is None or isinstance(input_data, (bool, int, float)):
+    if input_data is None or isinstance(input_data, bool | int | float):
         return json.dumps(input_data)
 
     try:
@@ -335,7 +335,7 @@ def convert_to_string_dict(input_: dict) -> dict[str, str]:
         # Convert value to string based on type
         if value is None:
             string_value = ""
-        elif isinstance(value, (dict, list, tuple)):
+        elif isinstance(value, dict | list | tuple):
             # For complex types, use JSON serialization
             string_value = json.dumps(value, cls=EventSerializer)
         else:

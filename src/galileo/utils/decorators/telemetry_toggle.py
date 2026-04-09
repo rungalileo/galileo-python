@@ -8,7 +8,8 @@ and skip execution of telemetry operations when disabled.
 import functools
 import logging
 import os
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 _logger = logging.getLogger(__name__)
 
