@@ -232,7 +232,9 @@ class IngestTraces:
         elif self.log_stream_id:
             trace_update_request.log_stream_id = UUID(self.log_stream_id)
 
-        url = f"{self.base_url}{Routes.trace.format(project_id=self.project_id, trace_id=trace_update_request.trace_id)}"
+        url = (
+            f"{self.base_url}{Routes.trace.format(project_id=self.project_id, trace_id=trace_update_request.trace_id)}"
+        )
         payload = trace_update_request.model_dump(mode="json")
         resp = await self._client.patch(url, json=payload, headers=self._headers)
         resp.raise_for_status()
