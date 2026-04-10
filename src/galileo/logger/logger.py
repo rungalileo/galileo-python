@@ -406,15 +406,18 @@ class GalileoLogger(TracesLogger):
             self._init_log_stream()
 
         if self._is_ingest_service_available():
-            api_url = str(GalileoPythonConfig.get().api_url).rstrip("/")
-            api_key = os.environ.get("GALILEO_API_KEY", "")
-            return IngestTraces(
-                project_id=self.project_id,
-                base_url=api_url,
-                api_key=api_key,
-                log_stream_id=self.log_stream_id,
-                experiment_id=self.experiment_id,
-            )
+            config = GalileoPythonConfig.get()
+            api_key_secret = config.api_key
+            api_key = api_key_secret.get_secret_value() if api_key_secret else os.environ.get("GALILEO_API_KEY", "")
+            if api_key:
+                return IngestTraces(
+                    project_id=self.project_id,
+                    base_url=str(config.api_url).rstrip("/"),
+                    api_key=api_key,
+                    log_stream_id=self.log_stream_id,
+                    experiment_id=self.experiment_id,
+                )
+            _logger.debug("No API key available, falling back to standard Traces client")
 
         if self.log_stream_id:
             return Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)

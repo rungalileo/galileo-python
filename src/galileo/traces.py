@@ -224,3 +224,56 @@ class IngestTraces:
         resp = await self._client.post(url, json=payload, headers=self._headers)
         resp.raise_for_status()
         return resp.json()
+
+    @async_warn_catch_exception(logger=_logger)
+    async def update_trace(self, trace_update_request: TraceUpdateRequest) -> dict[str, Any]:
+        if self.experiment_id:
+            trace_update_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            trace_update_request.log_stream_id = UUID(self.log_stream_id)
+
+        url = (
+            f"{self.base_url}{Routes.trace.format(project_id=self.project_id, trace_id=trace_update_request.trace_id)}"
+        )
+        payload = trace_update_request.model_dump(mode="json")
+        resp = await self._client.patch(url, json=payload, headers=self._headers)
+        resp.raise_for_status()
+        return resp.json()
+
+    @async_warn_catch_exception(logger=_logger)
+    async def update_span(self, span_update_request: SpanUpdateRequest) -> dict[str, Any]:
+        if self.experiment_id:
+            span_update_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            span_update_request.log_stream_id = UUID(self.log_stream_id)
+
+        url = f"{self.base_url}{Routes.span.format(project_id=self.project_id, span_id=span_update_request.span_id)}"
+        payload = span_update_request.model_dump(mode="json")
+        resp = await self._client.patch(url, json=payload, headers=self._headers)
+        resp.raise_for_status()
+        return resp.json()
+
+    @async_warn_catch_exception(logger=_logger)
+    async def create_session(self, session_create_request: SessionCreateRequest) -> dict[str, Any]:
+        if self.experiment_id:
+            session_create_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            session_create_request.log_stream_id = UUID(self.log_stream_id)
+
+        url = f"{self.base_url}{Routes.sessions.format(project_id=self.project_id)}"
+        payload = session_create_request.model_dump(mode="json")
+        resp = await self._client.post(url, json=payload, headers=self._headers)
+        resp.raise_for_status()
+        return resp.json()
+
+    async def get_sessions(self, session_search_request: LogRecordsSearchRequest) -> dict[str, Any]:
+        if self.experiment_id:
+            session_search_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            session_search_request.log_stream_id = UUID(self.log_stream_id)
+
+        url = f"{self.base_url}{Routes.sessions_search.format(project_id=self.project_id)}"
+        payload = session_search_request.model_dump(mode="json")
+        resp = await self._client.post(url, json=payload, headers=self._headers)
+        resp.raise_for_status()
+        return resp.json()
