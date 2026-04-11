@@ -7,7 +7,9 @@
 # 1. Tests never accidentally use real credentials from developer's environment
 # 2. Test isolation - all tests see the same predictable values
 # 3. Security - prevents real API keys from leaking into test logs
+import atexit
 import os as _os
+import time as _time
 
 import pytest
 from openai.types import CompletionUsage
@@ -27,6 +29,10 @@ _os.environ["GALILEO_API_KEY"] = "api-1234567890"
 _os.environ["GALILEO_PROJECT"] = "test-project"
 _os.environ["GALILEO_LOG_STREAM"] = "test-log-stream"
 _os.environ["OPENAI_API_KEY"] = "sk-test"
+# SC-60512: Bound GalileoLogger.terminate() shutdown wait. The default of 90s
+# turns into a busy-poll when --disable-socket leaves background tasks pending,
+# which is the root cause of pytest workers hanging at exit. Keep this small.
+_os.environ.setdefault("GALILEO_LOGGER_SHUTDOWN_TIMEOUT_SECONDS", "2")
 del _os  # Clean up temporary import
 # fmt: on
 
@@ -529,3 +535,74 @@ def mock_collaborator() -> MagicMock:
     mock_collab.last_name = "Collaborator"
     mock_collab.permissions = []
     return mock_collab
+
+
+# ---------------------------------------------------------------------------
+# Test visibility & logger teardown (SC-60512)
+# ---------------------------------------------------------------------------
+#
+# CI symptom: pytest workers hang for minutes at the end of a run. Root cause:
+# every distributed-mode `GalileoLogger` registers its `terminate()` as an
+# `atexit` handler. At interpreter shutdown that handler runs
+# `_wait_for_all_tasks_sync(timeout_seconds=90)` which busy-polls every 100ms
+# until pending background tasks complete. With `--disable-socket` enabled,
+# any task whose status remains `pending` (e.g. a chained callback waiting on
+# its parent) keeps the loop alive for the full 90 seconds — multiplied by the
+# number of loggers created during the run.
+#
+# Mitigations applied (search SC-60512 for cross-references):
+#   1. `GALILEO_LOGGER_SHUTDOWN_TIMEOUT_SECONDS=2` (set at the top of this file)
+#      bounds each `terminate()` wait to 2 seconds.
+#   2. `GalileoLogger.terminate()` now also calls
+#      `_task_handler.terminate()` to actually stop the EventLoopThreadPool
+#      after the wait, instead of leaving the daemon threads dangling.
+#   3. `pytest_sessionfinish` below surfaces any leaked logger atexit handlers
+#      so we can attribute leaks back to specific tests.
+#   4. `--timeout=120` in `pyproject.toml` bounds any individual test (for
+#      example if a test_protect parametrization hits an unmocked code path
+#      on a slow runner). We deliberately rely on pytest-timeout's default
+#      method (SIGALRM on Linux/macOS); see the `pyproject.toml` comment for
+#      why `--timeout-method=thread` is unsafe.
+#
+# Note: we intentionally do NOT add per-test `pytest_runtest_logstart` /
+# `logfinish` print hooks. `invoke test-report-xml` runs pytest with `-vvv`
+# and pytest-sugar already prints full test nodeids as every test runs, so
+# extra prints are pure overhead on slow runners — they force stdout flushes
+# that serialize all xdist workers through the master.
+
+
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
+    """Diagnostic: time how long the GalileoLogger atexit handlers take to drain.
+
+    If we see this print a multi-second duration, terminate() is still
+    busy-polling and SC-60512 has regressed. Also report how many GalileoLogger
+    instances are still tracked so we know whether the leak is per-test or
+    per-session.
+    """
+    try:
+        from galileo.logger.logger import GalileoLogger
+    except Exception:
+        return
+
+    # Count loggers that still have atexit handlers wired up. We can't introspect
+    # `atexit` portably, but we can check whether the GalileoLogger class has any
+    # tracked instances via `gc.get_objects()`. This is best-effort diagnostic only.
+    import gc
+
+    live_loggers = [obj for obj in gc.get_objects() if isinstance(obj, GalileoLogger)]
+    if live_loggers:
+        print(
+            f"[SC-60512 DIAG] {len(live_loggers)} GalileoLogger instance(s) still alive at session finish.", flush=True
+        )
+        # Force-terminate them now so we measure the cost here, not at interpreter exit.
+        start = _time.monotonic()
+        for logger_instance in live_loggers:
+            try:
+                atexit.unregister(logger_instance.terminate)
+                task_handler = getattr(logger_instance, "_task_handler", None)
+                if task_handler is not None:
+                    task_handler.terminate()
+            except Exception as exc:
+                print(f"[SC-60512 DIAG] cleanup failed: {exc}", flush=True)
+        elapsed = _time.monotonic() - start
+        print(f"[SC-60512 DIAG] forced cleanup took {elapsed:.2f}s", flush=True)
