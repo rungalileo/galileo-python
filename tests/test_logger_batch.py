@@ -1727,35 +1727,33 @@ def test_ingestion_hook_with_real_redaction(
     Tests the ingestion hook with a real redaction function to ensure the
     end-to-end flow works as expected.
     """
-    # 1. Setup the final destination mock
-    # This mock will capture the data *after* it has been processed by the hook.
+    # Given: a mock traces client to capture the final redacted payload
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    # 2. Define the ingestor logger and the redaction hook
-    # This logger is what the hook will use to send the redacted data.
-    ingestor_logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
-
+    # Given: a redaction hook that modifies traces and forwards them to the API client
+    # Note: the hook calls the mock API client directly instead of going through
+    # a second GalileoLogger.ingest_traces(), which would re-enter async_run()
+    # from within _flush_batch() and risk a probabilistic deadlock when the
+    # thread pool selects the same thread (SC-60512).
     def redact_and_forward(ingest_request: TracesIngestRequest):
         """A real hook that redacts data and forwards it."""
         modified_request = ingest_request.model_copy(deep=True)
         for trace in modified_request.traces:
             if isinstance(trace.input, str):
                 trace.input = trace.input.replace("secret_password", "[REDACTED]")
-        ingestor_logger.ingest_traces(modified_request)
+        mock_traces_client_instance.ingest_traces(modified_request)
 
-    # 3. Setup the collector logger with the real hook
+    # When: logging a trace with sensitive data and flushing
     collector_logger = GalileoLogger(
         project="my_project", log_stream="my_log_stream", ingestion_hook=redact_and_forward
     )
-
-    # 4. Log a trace with sensitive data
     collector_logger.start_trace(input="This is a secret_password")
     collector_logger.conclude(output="some_output")
     collector_logger.flush()
 
-    # 5. Assert that the final data received was redacted
+    # Then: the final data received by the API client was redacted
     mock_traces_client_instance.ingest_traces.assert_called_once()
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
     assert payload.traces[0].input == "This is a [REDACTED]"
