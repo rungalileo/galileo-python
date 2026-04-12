@@ -30,7 +30,7 @@ _os.environ["OPENAI_API_KEY"] = "sk-test"
 # SC-60512: Bound GalileoLogger.terminate() shutdown wait. The default of 90s
 # turns into a busy-poll when --disable-socket leaves background tasks pending,
 # which is the root cause of pytest workers hanging at exit. Keep this small.
-_os.environ.setdefault("GALILEO_LOGGER_SHUTDOWN_TIMEOUT_SECONDS", "2")
+_os.environ["GALILEO_LOGGER_SHUTDOWN_TIMEOUT_SECONDS"] = "2"
 del _os  # Clean up temporary import
 # fmt: on
 
