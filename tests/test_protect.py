@@ -364,7 +364,10 @@ class TestInvoke:
 
 
 # ---------------------------------------------------------------------------
-# TestInvokePassThrough: each pass-through param tested independently
+# TestInvokePassThrough: each pass-through param tested independently.
+# Note: ProtectTool intentionally does NOT support `metadata` and `headers`
+# kwargs because those names conflict with the langchain_core tool interface,
+# so only `timeout` and `stage_version` are exercised against the tool here.
 # ---------------------------------------------------------------------------
 class TestInvokePassThrough:
     @mark.parametrize("timeout", [5, 60])

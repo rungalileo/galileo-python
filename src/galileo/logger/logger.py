@@ -92,7 +92,10 @@ MetadataValue = str | bool | int | float | None
 STREAMING_MAX_RETRIES = 5
 STREAMING_MAX_TIME_SECONDS = 70  # Maximum time to spend retrying a single request
 DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 90  # Timeout for waiting on background trace/span update tasks during flush()
-DEFAULT_TERMINATE_TIMEOUT_SECONDS = 90  # Default upper bound for shutdown wait in terminate()
+# Default upper bound for shutdown wait in terminate(). Independent from
+# DISTRIBUTED_FLUSH_TIMEOUT_SECONDS (which guards live flushes); kept aligned
+# at 90s so explicit terminate() calls behave like flush() by default.
+DEFAULT_TERMINATE_TIMEOUT_SECONDS = 90
 STUB_TRACE_NAME = "stub_trace"  # Name for stub traces created from distributed tracing headers
 
 # Cached result of the ingest service healthz probe. Key "result" is absent until first check.
@@ -2167,6 +2170,8 @@ class GalileoLogger(TracesLogger):
             # EventLoopThreads keep running until interpreter teardown — and any
             # blocked future inside `_wait_for_all_tasks_sync` would have already
             # cost up to `terminate_timeout_seconds` of busy-polling.
+            # Defensive: batch-mode loggers do not initialize `_task_handler`
+            # (it is only set in distributed mode, see __init__).
             task_handler = getattr(self, "_task_handler", None)
             if task_handler is not None:
                 try:
@@ -2174,9 +2179,12 @@ class GalileoLogger(TracesLogger):
                 except Exception as exc:
                     self._logger.warning("GalileoLogger.terminate: pool stop failed: %s", exc)
 
+            # Surface slow shutdowns so we can spot busy-poll regressions in CI logs.
+            # Threshold is tied to the configured timeout: warn only when shutdown
+            # consumed most of the bound (90%), which indicates the wait actually
+            # had to drain — not normal fast-path completions.
             duration_seconds = time.time() - start_time
-            if duration_seconds > 1.0:
-                # Surface slow shutdowns so we can spot busy-poll regressions in CI logs.
+            if terminate_timeout_seconds > 0 and duration_seconds > terminate_timeout_seconds * 0.9:
                 self._logger.warning(
                     "GalileoLogger.terminate: shutdown took %.2fs (mode=%s, timeout=%ss)",
                     duration_seconds,
