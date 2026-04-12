@@ -96,30 +96,16 @@ DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 90  # Timeout for waiting on background trac
 # DISTRIBUTED_FLUSH_TIMEOUT_SECONDS (which guards live flushes); kept aligned
 # at 90s so explicit terminate() calls behave like flush() by default.
 DEFAULT_TERMINATE_TIMEOUT_SECONDS = 90
+# Absolute threshold above which a slow GalileoLogger.terminate() shutdown is
+# logged as a warning. Fast-path shutdowns are sub-millisecond; >1s always
+# indicates a real anomaly (busy-poll, stuck task, in-flight HTTP retry) and
+# should be visible in CI logs regardless of the configured timeout.
+_SLOW_SHUTDOWN_WARN_THRESHOLD_SECONDS = 1.0
 STUB_TRACE_NAME = "stub_trace"  # Name for stub traces created from distributed tracing headers
 
 # Cached result of the ingest service healthz probe. Key "result" is absent until first check.
 _ingest_service_cache: dict[str, bool] = {}
 _logger = logging.getLogger("galileo.logger")
-
-
-def _get_terminate_timeout_seconds() -> int:
-    """Read shutdown timeout for ``GalileoLogger.terminate()`` from the environment.
-
-    Tests (and users running in constrained environments) can set
-    ``GALILEO_LOGGER_SHUTDOWN_TIMEOUT_SECONDS`` to a small value to prevent the
-    process from busy-polling for up to ``DEFAULT_TERMINATE_TIMEOUT_SECONDS``
-    seconds during interpreter shutdown when background tasks are blocked
-    (for example, when sockets are disabled in the test runner).
-    """
-    raw = os.environ.get("GALILEO_LOGGER_SHUTDOWN_TIMEOUT_SECONDS")
-    if raw is None:
-        return DEFAULT_TERMINATE_TIMEOUT_SECONDS
-    try:
-        value = int(raw)
-    except ValueError:
-        return DEFAULT_TERMINATE_TIMEOUT_SECONDS
-    return max(value, 0)
 
 
 class GalileoLogger(TracesLogger):
@@ -2123,7 +2109,18 @@ class GalileoLogger(TracesLogger):
             if inspect.iscoroutinefunction(self._ingestion_hook):
                 await self._ingestion_hook(traces_ingest_request)
             else:
-                self._ingestion_hook(traces_ingest_request)
+                # Run sync hooks on a worker thread (not on this event-loop
+                # thread). The supported pattern is for a sync hook to call
+                # `another_logger.ingest_traces(...)`, which routes through
+                # `async_run()` -> submit to the shared `galileo_async_run`
+                # `EventLoopThreadPool` -> `random.choice(threads)` to pick a
+                # worker. If the hook ran inline, the pick could land on the
+                # same thread that is currently blocked awaiting `_flush_batch`,
+                # producing a probabilistic deadlock (~1/N where N=pool size).
+                # Offloading to a regular worker thread guarantees the hook is
+                # never on a pool thread, so re-entry into `async_run()` is safe.
+                # See SC-60512.
+                await asyncio.to_thread(self._ingestion_hook, traces_ingest_request)
         else:
             await self._traces_client.ingest_traces(traces_ingest_request)
 
@@ -2138,16 +2135,21 @@ class GalileoLogger(TracesLogger):
     def terminate(self) -> None:
         """Terminate the logger and flush all traces to Galileo.
 
+        This is a lifecycle-end call. After ``terminate()`` returns the logger
+        instance must NOT be reused: in distributed mode the underlying
+        ``EventLoopThreadPool`` is stopped (its worker threads are joined), so
+        any subsequent call that submits a new task will hang silently. Create
+        a new ``GalileoLogger`` if you need to log again.
+
         The wait for in-flight background tasks is bounded by
-        ``GALILEO_LOGGER_SHUTDOWN_TIMEOUT_SECONDS`` (default
-        ``DEFAULT_TERMINATE_TIMEOUT_SECONDS``). After waiting (whether tasks
+        ``DEFAULT_TERMINATE_TIMEOUT_SECONDS``. After waiting (whether tasks
         completed or the timeout fired) the underlying ``EventLoopThreadPool``
         is stopped so its worker threads no longer hold the process open.
         """
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
 
-        terminate_timeout_seconds = _get_terminate_timeout_seconds()
+        terminate_timeout_seconds = DEFAULT_TERMINATE_TIMEOUT_SECONDS
         start_time = time.time()
         try:
             if self.mode == "distributed":
@@ -2170,8 +2172,10 @@ class GalileoLogger(TracesLogger):
             # EventLoopThreads keep running until interpreter teardown — and any
             # blocked future inside `_wait_for_all_tasks_sync` would have already
             # cost up to `terminate_timeout_seconds` of busy-polling.
-            # Defensive: batch-mode loggers do not initialize `_task_handler`
-            # (it is only set in distributed mode, see __init__).
+            #
+            # `_task_handler` is set unconditionally in __init__, but use getattr
+            # to be safe against partial init failures (terminate may run via the
+            # atexit handler even if __init__ raised midway through).
             task_handler = getattr(self, "_task_handler", None)
             if task_handler is not None:
                 try:
@@ -2179,12 +2183,14 @@ class GalileoLogger(TracesLogger):
                 except Exception as exc:
                     self._logger.warning("GalileoLogger.terminate: pool stop failed: %s", exc)
 
-            # Surface slow shutdowns so we can spot busy-poll regressions in CI logs.
-            # Threshold is tied to the configured timeout: warn only when shutdown
-            # consumed most of the bound (90%), which indicates the wait actually
-            # had to drain — not normal fast-path completions.
+            # Surface slow shutdowns so we can spot busy-poll regressions in CI
+            # logs. The fast path should complete in milliseconds; anything over
+            # one second indicates either a busy-poll, an in-flight HTTP retry,
+            # or a stuck task. We deliberately use a small absolute threshold
+            # rather than a fraction of the configured timeout — a 30s shutdown
+            # against a 90s bound is still a clear regression worth surfacing.
             duration_seconds = time.time() - start_time
-            if terminate_timeout_seconds > 0 and duration_seconds > terminate_timeout_seconds * 0.9:
+            if duration_seconds > _SLOW_SHUTDOWN_WARN_THRESHOLD_SECONDS:
                 self._logger.warning(
                     "GalileoLogger.terminate: shutdown took %.2fs (mode=%s, timeout=%ss)",
                     duration_seconds,

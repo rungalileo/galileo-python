@@ -1726,26 +1726,30 @@ def test_ingestion_hook_with_real_redaction(
     """
     Tests the ingestion hook with a real redaction function to ensure the
     end-to-end flow works as expected.
+
+    This exercises the documented "collector + redactor + ingestor" pattern
+    where a sync hook on one GalileoLogger calls `ingest_traces()` on a
+    second GalileoLogger to forward modified traces. See SC-60512: prior to
+    the fix in `_flush_batch`, this pattern had a probabilistic deadlock
+    when the inner `async_run()` re-entered the same thread pool slot.
     """
-    # Given: a mock traces client to capture the final redacted payload
+    # Given: a mock traces client that captures the final redacted payload
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    # Given: a redaction hook that modifies traces and forwards them to the API client
-    # Note: the hook calls the mock API client directly instead of going through
-    # a second GalileoLogger.ingest_traces(), which would re-enter async_run()
-    # from within _flush_batch() and risk a probabilistic deadlock when the
-    # thread pool selects the same thread (SC-60512).
+    # Given: a downstream logger used by the hook to ingest the modified payload
+    ingestor_logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
     def redact_and_forward(ingest_request: TracesIngestRequest):
-        """A real hook that redacts data and forwards it."""
+        """A real hook that redacts data and forwards it via a second logger."""
         modified_request = ingest_request.model_copy(deep=True)
         for trace in modified_request.traces:
             if isinstance(trace.input, str):
                 trace.input = trace.input.replace("secret_password", "[REDACTED]")
-        mock_traces_client_instance.ingest_traces(modified_request)
+        ingestor_logger.ingest_traces(modified_request)
 
-    # When: logging a trace with sensitive data and flushing
+    # When: logging a trace with sensitive data through a logger with the hook installed
     collector_logger = GalileoLogger(
         project="my_project", log_stream="my_log_stream", ingestion_hook=redact_and_forward
     )
