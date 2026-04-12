@@ -6,6 +6,7 @@ from uuid import uuid4
 import pytest
 
 from galileo.datasets import (
+    DEFAULT_EXTEND_MODEL_ALIAS,
     Dataset,
     DatasetAPIException,
     DatasetAppendRow,
@@ -574,6 +575,34 @@ def test_extend_dataset_success(
 
     # Verify sleep was called between status checks
     assert sleep_mock.call_count == 2  # Called 2 times (between the 3 status checks)
+
+
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+def test_extend_dataset_uses_default_model_alias_when_prompt_settings_is_none(extend_dataset_mock: Mock) -> None:
+    # Given: no prompt_settings provided
+    extend_dataset_mock.sync.return_value = HTTPValidationError()
+
+    # When: extend_dataset is called without prompt_settings
+    with pytest.raises(DatasetAPIException):
+        extend_dataset(prompt="Test prompt", count=1)
+
+    # Then: the request is built with the DEFAULT_EXTEND_MODEL_ALIAS
+    call_body = extend_dataset_mock.sync.call_args.kwargs["body"]
+    assert call_body.prompt_settings.model_alias == DEFAULT_EXTEND_MODEL_ALIAS
+
+
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+def test_extend_dataset_uses_default_model_alias_when_model_alias_key_missing(extend_dataset_mock: Mock) -> None:
+    # Given: prompt_settings provided but without a "model_alias" key
+    extend_dataset_mock.sync.return_value = HTTPValidationError()
+
+    # When: extend_dataset is called with prompt_settings that omit "model_alias"
+    with pytest.raises(DatasetAPIException):
+        extend_dataset(prompt_settings={"temperature": 0.7}, prompt="Test prompt", count=1)
+
+    # Then: the request falls back to DEFAULT_EXTEND_MODEL_ALIAS
+    call_body = extend_dataset_mock.sync.call_args.kwargs["body"]
+    assert call_body.prompt_settings.model_alias == DEFAULT_EXTEND_MODEL_ALIAS
 
 
 @patch("galileo.datasets.extend_dataset_content_datasets_extend_post")

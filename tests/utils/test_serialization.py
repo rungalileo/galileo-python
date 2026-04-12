@@ -7,14 +7,21 @@ from asyncio import Queue
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, NoReturn, Optional
+from typing import Any, NoReturn
 from unittest.mock import patch
 
 import pytest
-from langchain_core.messages import AIMessage
+from langchain_core.messages import AIMessage, HumanMessage
 from pydantic import BaseModel
 
-from galileo.utils.serialization import EventSerializer, convert_to_string_dict, serialize_datetime, serialize_to_str
+from galileo.utils.serialization import (
+    EventSerializer,
+    _convert_langchain_content_block,
+    _normalize_multimodal_content,
+    convert_to_string_dict,
+    serialize_datetime,
+    serialize_to_str,
+)
 
 
 class TestSerializeDateTime:
@@ -116,7 +123,7 @@ class TestEventSerializer:
         class TestModel(BaseModel):
             name: str
             value: int
-            optional: Optional[str] = None
+            optional: str | None = None
 
         model = TestModel(name="test", value=42)
         result = json.dumps(model, cls=EventSerializer)
@@ -516,6 +523,156 @@ class TestConvertToStringDict:
         assert "large_int" in result
         # Should be converted to string directly, not via JSON serialization
         assert result["large_int"] == str(large_int)
+
+
+class TestConvertLangchainContentBlock:
+    """Test conversion of LangChain multimodal content blocks to Galileo IngestContentBlock shape."""
+
+    def test_text_block_passthrough(self) -> None:
+        # Given: a standard text content block
+        block = {"type": "text", "text": "Hello world"}
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+        # Then: text block is preserved as-is
+        assert result == {"type": "text", "text": "Hello world"}
+
+    def test_responses_api_style_text_only(self) -> None:
+        # Given: a Responses API style block with no explicit type
+        block = {"text": "This is a response from the Responses API"}
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+        # Then: it's treated as text
+        assert result == {"type": "text", "text": "This is a response from the Responses API"}
+
+    def test_image_url_http(self) -> None:
+        # Given: a LangChain image_url block with an HTTP URL
+        block = {"type": "image_url", "image_url": {"url": "https://example.com/image.png"}}
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+        # Then: it becomes a data block with image modality
+        assert result == {"type": "data", "modality": "image", "url": "https://example.com/image.png"}
+
+    def test_image_url_base64_data_uri(self) -> None:
+        # Given: a LangChain image_url block with a base64 data URI
+        block = {"type": "image_url", "image_url": {"url": "data:image/png;base64,iVBORw0KGgo="}}
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+        # Then: base64 payload and mime type are extracted
+        assert result["type"] == "data"
+        assert result["modality"] == "image"
+        assert result["base64"] == "iVBORw0KGgo="
+        assert result.get("mime_type") == "image/png"
+
+    def test_audio_url(self) -> None:
+        # Given: a LangChain audio_url block
+        block = {"type": "audio_url", "audio_url": {"url": "https://example.com/audio.mp3"}}
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+        # Then: it becomes a data block with audio modality
+        assert result == {"type": "data", "modality": "audio", "url": "https://example.com/audio.mp3"}
+
+    def test_video_url(self) -> None:
+        # Given: a LangChain video_url block
+        block = {"type": "video_url", "video_url": {"url": "https://example.com/video.mp4"}}
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+        # Then: it becomes a data block with video modality
+        assert result == {"type": "data", "modality": "video", "url": "https://example.com/video.mp4"}
+
+    def test_document_url(self) -> None:
+        # Given: a LangChain document_url block
+        block = {"type": "document_url", "document_url": {"url": "https://example.com/doc.pdf"}}
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+        # Then: it becomes a data block with document modality
+        assert result == {"type": "data", "modality": "document", "url": "https://example.com/doc.pdf"}
+
+    def test_input_image_with_nested_url(self) -> None:
+        # Given: a LangChain input_image block with nested url
+        block = {"type": "input_image", "input_image": {"url": "https://example.com/photo.jpg"}}
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+        # Then: it becomes a data block with image modality
+        assert result == {"type": "data", "modality": "image", "url": "https://example.com/photo.jpg"}
+
+    def test_input_audio_with_nested_url(self) -> None:
+        # Given: a LangChain input_audio block with nested url
+        block = {"type": "input_audio", "input_audio": {"url": "https://example.com/clip.wav"}}
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+        # Then: it becomes a data block with audio modality
+        assert result == {"type": "data", "modality": "audio", "url": "https://example.com/clip.wav"}
+
+    def test_unknown_type_fallback_to_text(self) -> None:
+        # Given: a block with an unrecognized type
+        block = {"type": "unknown", "data": "xyz"}
+        # When: converting to ingest format
+        result = _convert_langchain_content_block(block)
+        # Then: it falls back to a text block with JSON dump
+        assert result["type"] == "text"
+        assert "unknown" in result["text"] or "xyz" in result["text"]
+
+
+class TestNormalizeMultimodalContent:
+    """Test _normalize_multimodal_content for LangChain list content."""
+
+    def test_empty_list_unchanged(self) -> None:
+        # Given/When/Then: empty list passes through
+        assert _normalize_multimodal_content([]) == []
+
+    def test_non_list_unchanged(self) -> None:
+        # Given/When/Then: non-list values pass through
+        assert _normalize_multimodal_content("hello") == "hello"
+        assert _normalize_multimodal_content(None) is None
+
+    def test_list_of_dicts_converted(self) -> None:
+        # Given: a LangChain-style list of content block dicts
+        content = [
+            {"type": "text", "text": "Describe this"},
+            {"type": "image_url", "image_url": {"url": "https://example.com/img.png"}},
+        ]
+        # When: normalizing multimodal content
+        result = _normalize_multimodal_content(content)
+        # Then: each block is converted to ingest format
+        assert len(result) == 2
+        assert result[0] == {"type": "text", "text": "Describe this"}
+        assert result[1] == {"type": "data", "modality": "image", "url": "https://example.com/img.png"}
+
+    def test_mixed_dict_and_string_items(self) -> None:
+        # Given: a list where first item is a dict but second is a string
+        content = [{"type": "text", "text": "Hello"}, "plain string"]
+        # When: normalizing multimodal content
+        result = _normalize_multimodal_content(content)
+        # Then: dicts are converted, strings become text blocks
+        assert result[0] == {"type": "text", "text": "Hello"}
+        assert result[1] == {"type": "text", "text": "plain string"}
+
+
+class TestLangChainMultimodalSerialization:
+    """Test that AIMessage/BaseMessage with list content serialize to IngestContentBlock list."""
+
+    def test_ai_message_list_content_to_content_blocks(self) -> None:
+        # Given: an AIMessage with list content
+        message = AIMessage(content=[{"type": "text", "text": "The image shows a cat."}])
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+        # Then: content is preserved as IngestContentBlock list
+        assert result["content"] == [{"type": "text", "text": "The image shows a cat."}]
+
+    def test_human_message_multimodal_roundtrip(self) -> None:
+        # Given: a HumanMessage with mixed text and image content
+        message = HumanMessage(
+            content=[
+                {"type": "text", "text": "What is in this image?"},
+                {"type": "image_url", "image_url": {"url": "https://example.com/photo.png"}},
+            ]
+        )
+        # When: serializing with EventSerializer
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+        # Then: content blocks are converted to ingest format
+        assert len(result["content"]) == 2
+        assert result["content"][0] == {"type": "text", "text": "What is in this image?"}
+        assert result["content"][1] == {"type": "data", "modality": "image", "url": "https://example.com/photo.png"}
 
 
 class TestLangChainToolCallsTransformation:

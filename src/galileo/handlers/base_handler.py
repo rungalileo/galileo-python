@@ -1,7 +1,8 @@
 import logging
 import time
+from collections.abc import Callable
 from datetime import datetime, timezone
-from typing import Any, Callable, Optional
+from typing import Any
 from uuid import UUID
 
 from galileo import galileo_context
@@ -38,10 +39,10 @@ class GalileoBaseHandler:
     def __init__(
         self,
         integration: INTEGRATION = "langchain",
-        galileo_logger: Optional[GalileoLogger] = None,
+        galileo_logger: GalileoLogger | None = None,
         start_new_trace: bool = True,
         flush_on_chain_end: bool = True,
-        ingestion_hook: Optional[Callable[[TracesIngestRequest], None]] = None,
+        ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
     ):
         self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance(
             ingestion_hook=ingestion_hook
@@ -53,7 +54,7 @@ class GalileoBaseHandler:
         self._start_new_trace: bool = start_new_trace
         self._flush_on_chain_end: bool = flush_on_chain_end
         self._nodes: dict[str, Node] = {}
-        self._root_node: Optional[Node] = None
+        self._root_node: Node | None = None
         self._integration: INTEGRATION = integration
 
     def commit(self) -> None:
@@ -75,7 +76,7 @@ class GalileoBaseHandler:
         try:
             if self._start_new_trace:
                 self._galileo_logger.start_trace(
-                    input=serialize_to_str(root_node.span_params.get("input", "")),
+                    input=GalileoLogger._coerce_output(root_node.span_params.get("input", "")),
                     name=root_node.span_params.get("name"),
                     metadata=root_node.span_params.get("metadata"),
                 )
@@ -86,9 +87,9 @@ class GalileoBaseHandler:
             root_output = root_node.span_params.get("output", "")
 
             if self._start_new_trace:
-                # If we started a new trace, we need to conclude it
                 self._galileo_logger.conclude(
-                    output=serialize_to_str(root_output), status_code=root_node.span_params.get("status_code")
+                    output=GalileoLogger._coerce_output(root_output),
+                    status_code=root_node.span_params.get("status_code"),
                 )
 
             if self._flush_on_chain_end:
@@ -222,7 +223,7 @@ class GalileoBaseHandler:
                 output=serialize_to_str(output), status_code=node.span_params.get("status_code")
             )
 
-    def start_node(self, node_type: NODE_TYPE, parent_run_id: Optional[UUID], run_id: UUID, **kwargs: Any) -> Node:
+    def start_node(self, node_type: NODE_TYPE, parent_run_id: UUID | None, run_id: UUID, **kwargs: Any) -> Node:
         """
         Start a new node in the chain.
 
@@ -310,7 +311,7 @@ class GalileoBaseHandler:
         if root and node.run_id == root.run_id:
             self.commit()
 
-    def get_node(self, run_id: UUID) -> Optional[Node]:
+    def get_node(self, run_id: UUID) -> Node | None:
         """
         Get a node by its run ID.
 

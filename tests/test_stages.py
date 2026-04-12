@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional
 from unittest.mock import ANY, Mock, patch
 
 import pytest
@@ -25,7 +24,7 @@ FIXED_STAGE_ID = uuid.uuid4()
 def _api_stage_db_factory(
     *,
     project_id: UUID4 = FIXED_PROJECT_ID,
-    stage_id: Optional[UUID4] = None,
+    stage_id: UUID4 | None = None,
     name: str = "fixture-stage",
     paused: bool = False,
     version: int = 1,
@@ -46,7 +45,7 @@ def _api_stage_db_factory(
 def _core_stage_db_factory(
     *,
     project_id: UUID4 = FIXED_PROJECT_ID,
-    stage_id: Optional[UUID4] = None,
+    stage_id: UUID4 | None = None,
     name: str = "fixture-stage",
     paused: bool = False,
     version: int = 1,

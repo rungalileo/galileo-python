@@ -1,4 +1,4 @@
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 
 class GalileoFutureError(Exception):
@@ -51,7 +51,7 @@ class APIError(GalileoFutureError):
     This wraps errors from the legacy API to provide consistent error handling.
     """
 
-    def __init__(self, message: str, original_error: Optional[Exception] = None):
+    def __init__(self, message: str, original_error: Exception | None = None):
         super().__init__(message)
         self.original_error = original_error
 
@@ -64,7 +64,7 @@ class SyncError(GalileoFutureError):
     or other synchronization-related issues.
     """
 
-    def __init__(self, message: str, sync_state: Optional[str] = None, original_error: Optional[Exception] = None):
+    def __init__(self, message: str, sync_state: str | None = None, original_error: Exception | None = None):
         super().__init__(message)
         self.sync_state = sync_state
         self.original_error = original_error

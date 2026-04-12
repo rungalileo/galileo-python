@@ -1,6 +1,6 @@
 [project]
 name = "galileo"
-version = "2.0.0"
+version = "2.1.1"
 description = "Client library for the Galileo platform."
 authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
@@ -108,7 +108,7 @@ line-length = 120
 fix = true
 src = ["src"]
 unsafe-fixes = true
-target-version = "py39"
+target-version = "py310"
 exclude = [
     "src/galileo/resources",
 ]

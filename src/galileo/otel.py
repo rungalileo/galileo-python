@@ -4,7 +4,7 @@ import typing
 from collections.abc import Generator
 from contextlib import contextmanager
 from contextvars import ContextVar
-from typing import Any, NoReturn, Optional, Protocol, cast
+from typing import Any, NoReturn, Protocol, cast
 from urllib.parse import urljoin
 
 from requests import Session
@@ -77,13 +77,13 @@ class TracerProvider(Protocol):
     def get_tracer(
         self,
         instrumenting_module_name: str,
-        instrumenting_library_version: typing.Optional[str] = None,
-        schema_url: typing.Optional[str] = None,
-        attributes: typing.Optional[Any] = None,
+        instrumenting_library_version: str | None = None,
+        schema_url: str | None = None,
+        attributes: Any | None = None,
     ) -> "Tracer": ...
 
 
-_TRACE_PROVIDER_CONTEXT_VAR: ContextVar[Optional[TracerProvider]] = ContextVar("galileo_trace_provider", default=None)
+_TRACE_PROVIDER_CONTEXT_VAR: ContextVar[TracerProvider | None] = ContextVar("galileo_trace_provider", default=None)
 
 
 class GalileoOTLPExporter(OTLPSpanExporter):
@@ -97,7 +97,7 @@ class GalileoOTLPExporter(OTLPSpanExporter):
 
     _session: Session
 
-    def __init__(self, project: Optional[str] = None, logstream: Optional[str] = None, **kwargs: Any) -> None:
+    def __init__(self, project: str | None = None, logstream: str | None = None, **kwargs: Any) -> None:
         """
         Initialize the Galileo OTLP exporter with authentication and endpoint configuration.
 
@@ -215,11 +215,7 @@ class GalileoSpanProcessor(SpanProcessor):
     """
 
     def __init__(
-        self,
-        project: Optional[str] = None,
-        logstream: Optional[str] = None,
-        SpanProcessor: Optional[type] = None,
-        **kwargs: Any,
+        self, project: str | None = None, logstream: str | None = None, SpanProcessor: type | None = None, **kwargs: Any
     ) -> None:
         """
         Initialize the Galileo span processor with export configuration.
@@ -259,7 +255,7 @@ class GalileoSpanProcessor(SpanProcessor):
 
         self._processor = SpanProcessor(self._exporter)
 
-    def on_start(self, span: Span, parent_context: Optional[context.Context] = None) -> None:
+    def on_start(self, span: Span, parent_context: context.Context | None = None) -> None:
         """Handle span start events by delegating to the underlying processor."""
         # Set Galileo context attributes on the span
         # Use context var if set and not None, otherwise fall back to instance defaults
@@ -351,10 +347,7 @@ def _set_tool_span_attributes(span: trace.Span, galileo_span: ToolSpan) -> None:
 
 
 def _apply_dataset_attributes(
-    span: trace.Span,
-    dataset_input: Optional[str],
-    dataset_output: Optional[str],
-    dataset_metadata: Optional[dict[str, Any]],
+    span: trace.Span, dataset_input: str | None, dataset_output: str | None, dataset_metadata: dict[str, Any] | None
 ) -> None:
     """Write dataset context attributes onto a span."""
     if dataset_input is not None:

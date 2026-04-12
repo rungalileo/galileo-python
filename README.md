@@ -384,3 +384,7 @@ session_id = galileo_context.start_session(name="my-session-name")
 galileo_context.set_session(session_id=session_id)
 
 ```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.

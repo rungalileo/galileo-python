@@ -1,16 +1,11 @@
 """Utility functions for project operations."""
 
-from typing import Optional
-
 from galileo.projects import Projects
 
 
 def resolve_project_id(
-    project_id: Optional[str] = None,
-    project_name: Optional[str] = None,
-    allow_none: bool = False,
-    validate: bool = True,
-) -> Optional[str]:
+    project_id: str | None = None, project_name: str | None = None, allow_none: bool = False, validate: bool = True
+) -> str | None:
     """
     Resolve project_name to project_id if needed.
 

@@ -3,7 +3,6 @@ import json
 import logging
 import uuid
 from collections import deque
-from typing import Union
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import UUID, uuid4
 
@@ -595,7 +594,7 @@ async def test_single_span_trace_to_galileo_with_async(
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
 
-    def local_scorer(step: Union[Trace, Span]) -> int:
+    def local_scorer(step: Trace | Span) -> int:
         return len(step.input)
 
     logger = GalileoLogger(
@@ -1178,9 +1177,9 @@ def test_coerce_output_preserves_content_blocks() -> None:
     assert isinstance(result[1], DataContentBlock)
 
 
-def test_coerce_output_serializes_messages_to_string() -> None:
-    """_coerce_output serializes List[Message] to JSON string."""
-    # Given: a list of messages (valid for workflow spans but not traces)
+def test_coerce_output_flattens_messages_to_content_blocks() -> None:
+    """_coerce_output flattens List[Message] to List[ContentBlock] for trace compatibility."""
+    # Given: a list of messages (valid for workflow spans but not trace input/output)
     messages = [
         LoggedMessage(content="hello", role=MessageRole.user),
         LoggedMessage(content="hi there", role=MessageRole.assistant),
@@ -1189,10 +1188,39 @@ def test_coerce_output_serializes_messages_to_string() -> None:
     # When: coercing the output
     result = GalileoLogger._coerce_output(messages)
 
-    # Then: serialized to a JSON string
-    assert isinstance(result, str)
-    assert "hello" in result
-    assert "user" in result
+    # Then: flattened to content blocks (not a JSON string)
+    assert isinstance(result, list)
+    assert len(result) == 2
+    assert isinstance(result[0], TextContentBlock)
+    assert result[0].text == "hello"
+    assert isinstance(result[1], TextContentBlock)
+    assert result[1].text == "hi there"
+
+
+def test_coerce_output_flattens_multimodal_messages_to_content_blocks() -> None:
+    """_coerce_output preserves DataContentBlocks when flattening multimodal messages."""
+    # Given: a message dict (as produced by EventSerializer) with mixed content blocks
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "What's in this image?"},
+                {"type": "data", "modality": "image", "url": "https://example.com/img.jpg"},
+            ],
+        }
+    ]
+
+    # When: coercing the output
+    result = GalileoLogger._coerce_output(messages)
+
+    # Then: returns List[IngestContentBlock] preserving the data block
+    assert isinstance(result, list)
+    assert len(result) == 2
+    assert isinstance(result[0], TextContentBlock)
+    assert result[0].text == "What's in this image?"
+    assert isinstance(result[1], DataContentBlock)
+    assert result[1].modality == ContentModality.image
+    assert result[1].url == "https://example.com/img.jpg"
 
 
 def test_coerce_output_serializes_single_message_to_string() -> None:
@@ -1925,6 +1953,73 @@ def test_multimodal_input_not_stringified_at_trace_level(
     assert isinstance(trace.input[1], DataContentBlock)
     assert trace.input[1].modality == ContentModality.image
     assert trace.input[1].url == "https://example.com/img.png"
+
+
+@pytest.mark.parametrize(
+    "valid_input",
+    [
+        pytest.param("Say this is a test", id="string"),
+        pytest.param({"query": "hello", "context": "world"}, id="dict"),
+        pytest.param([TextContentBlock(text="Analyze this")], id="text_content_block_list"),
+        pytest.param(
+            [DataContentBlock(modality=ContentModality.image, url="https://example.com/img.png")],
+            id="data_content_block_list",
+        ),
+        pytest.param(
+            [
+                TextContentBlock(text="Describe this image"),
+                DataContentBlock(modality=ContentModality.image, url="https://example.com/img.png"),
+            ],
+            id="mixed_content_block_list",
+        ),
+        pytest.param([{"type": "text", "text": "Describe this image"}], id="text_content_block_dict"),
+        pytest.param(
+            [{"type": "data", "modality": "image", "url": "https://example.com/img.png"}], id="data_content_block_dict"
+        ),
+        pytest.param(
+            [{"role": "user", "content": "Hello"}, {"role": "assistant", "content": "Hi"}], id="message_like_list_dict"
+        ),
+    ],
+)
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_start_trace_valid_input_types(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, valid_input: object
+) -> None:
+    """start_trace accepts all valid input types: str, dict, and list[ContentBlock]."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    # Given: a logger and a valid input value
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    # When: starting a trace with the valid input
+    trace = logger.start_trace(input=valid_input)
+
+    # Then: the trace is created without error
+    assert trace is not None
+
+
+def test_start_trace_invalid_input_type_raises() -> None:
+    """start_trace raises TypeError when given an unsupported input type."""
+    # Given: a logger initialized with an ingestion hook (bypasses project/log-stream API calls)
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=lambda x: None)
+
+    # When/Then: starting a trace with an unsupported type raises TypeError
+    with pytest.raises(TypeError, match="start_trace\\(\\) argument 'input'"):
+        logger.start_trace(input=42)  # type: ignore[arg-type]
+
+
+def test_start_trace_invalid_redacted_input_type_raises() -> None:
+    """start_trace raises TypeError when redacted_input has an unsupported type."""
+    # Given: a logger initialized with an ingestion hook (bypasses project/log-stream API calls)
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=lambda x: None)
+
+    # When/Then: a list of non-dict, non-content-block elements raises TypeError
+    with pytest.raises(TypeError, match="start_trace\\(\\) argument 'redacted_input'"):
+        logger.start_trace(input="valid input", redacted_input=["not", "content", "blocks"])  # type: ignore[arg-type]
 
 
 @pytest.mark.parametrize(

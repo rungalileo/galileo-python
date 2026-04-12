@@ -1,7 +1,7 @@
 import builtins
 import mimetypes
 import time
-from typing import Any, Optional, Union, overload
+from typing import Any, overload
 
 from typing_extensions import deprecated
 
@@ -52,6 +52,7 @@ from galileo_core.utils.dataset import DatasetType, parse_dataset
 
 logger = get_logger(__name__)
 MAX_DATASET_ROWS = 100000
+DEFAULT_EXTEND_MODEL_ALIAS = "GPT-4o mini"
 
 
 class DatasetAPIException(APIException):
@@ -59,14 +60,14 @@ class DatasetAPIException(APIException):
 
 
 class Dataset:
-    content: Optional[DatasetContent] = None
+    content: DatasetContent | None = None
     config: GalileoPythonConfig
 
     def __init__(self, dataset_db: DatasetDB) -> None:
         self.dataset = dataset_db
         self.config = GalileoPythonConfig.get()
 
-    def get_content(self, starting_token: int = 0, limit: int = MAX_DATASET_ROWS) -> Union[None, DatasetContent]:
+    def get_content(self, starting_token: int = 0, limit: int = MAX_DATASET_ROWS) -> None | DatasetContent:
         """
         Gets and returns the content of the dataset.
         Also refreshes the content of the local dataset instance.
@@ -95,7 +96,7 @@ class Dataset:
 
         return content
 
-    def _get_etag(self) -> Optional[str]:
+    def _get_etag(self) -> str | None:
         """
         ETag is returned in response headers of API endpoints of the format /datasets.*contents.*.
 
@@ -152,7 +153,7 @@ class Dataset:
 
         return self
 
-    def get_version_history(self) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
+    def get_version_history(self) -> HTTPValidationError | ListDatasetVersionResponse | None:
         return query_dataset_versions_datasets_dataset_id_versions_query_post.sync(
             dataset_id=self.dataset.id, client=self.config.api_client, body=ListDatasetVersionParams()
         )
@@ -162,7 +163,7 @@ class Dataset:
             dataset_id=self.dataset.id, version_index=version_index, client=self.config.api_client
         )
 
-    def list_projects(self, limit: Union[Unset, int] = 100) -> list:
+    def list_projects(self, limit: Unset | int = 100) -> list:
         """
         Lists all projects that this dataset is associated with.
 
@@ -208,7 +209,7 @@ class Datasets:
         self.config = GalileoPythonConfig.get()
 
     def list(
-        self, limit: Union[Unset, int] = 100, *, project_id: Optional[str] = None, project_name: Optional[str] = None
+        self, limit: Unset | int = 100, *, project_id: str | None = None, project_name: str | None = None
     ) -> list[Dataset]:
         """
         Lists all datasets, optionally filtered by project.
@@ -258,32 +259,32 @@ class Datasets:
         return [Dataset(dataset_db=dataset) for dataset in datasets_response.datasets] if datasets_response else []
 
     @overload
-    def get(self, *, id: str, with_content: bool = False) -> Optional[Dataset]: ...
+    def get(self, *, id: str, with_content: bool = False) -> Dataset | None: ...
 
     @overload
-    def get(self, *, id: str, with_content: bool = False, project_id: str) -> Optional[Dataset]: ...
+    def get(self, *, id: str, with_content: bool = False, project_id: str) -> Dataset | None: ...
 
     @overload
-    def get(self, *, id: str, with_content: bool = False, project_name: str) -> Optional[Dataset]: ...
+    def get(self, *, id: str, with_content: bool = False, project_name: str) -> Dataset | None: ...
 
     @overload
-    def get(self, *, name: str, with_content: bool = False) -> Optional[Dataset]: ...
+    def get(self, *, name: str, with_content: bool = False) -> Dataset | None: ...
 
     @overload
-    def get(self, *, name: str, with_content: bool = False, project_id: str) -> Optional[Dataset]: ...
+    def get(self, *, name: str, with_content: bool = False, project_id: str) -> Dataset | None: ...
 
     @overload
-    def get(self, *, name: str, with_content: bool = False, project_name: str) -> Optional[Dataset]: ...
+    def get(self, *, name: str, with_content: bool = False, project_name: str) -> Dataset | None: ...
 
     def get(
         self,
         *,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
+        id: str | None = None,
+        name: str | None = None,
         with_content: bool = False,
-        project_id: Optional[str] = None,
-        project_name: Optional[str] = None,
-    ) -> Optional[Dataset]:
+        project_id: str | None = None,
+        project_name: str | None = None,
+    ) -> Dataset | None:
         """
         Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
 
@@ -380,10 +381,10 @@ class Datasets:
     def delete(
         self,
         *,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        project_id: Optional[str] = None,
-        project_name: Optional[str] = None,
+        id: str | None = None,
+        name: str | None = None,
+        project_id: str | None = None,
+        project_name: str | None = None,
     ) -> None:
         """
         Deletes a dataset by id or name.
@@ -425,7 +426,7 @@ class Datasets:
         return delete_dataset_datasets_dataset_id_delete.sync(client=self.config.api_client, dataset_id=dataset.id)
 
     def create(
-        self, name: str, content: DatasetType, *, project_id: Optional[str] = None, project_name: Optional[str] = None
+        self, name: str, content: DatasetType, *, project_id: str | None = None, project_name: str | None = None
     ) -> Dataset:
         """
         Creates a new dataset, optionally associating it with a project.
@@ -457,7 +458,7 @@ class Datasets:
 
         """
         # Resolve project if provided
-        resolved_project_id: Union[str, type[Unset], None] = UNSET
+        resolved_project_id: str | type[Unset] | None = UNSET
         if project_id is not None or project_name is not None:
             resolved_project_id = resolve_project_id(project_id, project_name)
             assert resolved_project_id is not None  # resolve_project_id raises if both params are none
@@ -476,7 +477,7 @@ class Datasets:
                 normalized_content.append(row)
             content = normalized_content
 
-        if isinstance(content, (list, dict)) and len(content) == 0:
+        if isinstance(content, list | dict) and len(content) == 0:
             # we want to avoid errors: Invalid CSV data: CSV parse error:
             # Empty CSV file or block: cannot infer number of columns
             content = [{}]
@@ -533,11 +534,11 @@ class Datasets:
     def extend(
         self,
         *,
-        prompt_settings: Optional[dict[str, Any]] = None,
-        prompt: Optional[str] = None,
-        instructions: Optional[str] = None,
-        examples: Optional[builtins.list[str]] = None,
-        data_types: Optional[builtins.list[str]] = None,
+        prompt_settings: dict[str, Any] | None = None,
+        prompt: str | None = None,
+        instructions: str | None = None,
+        examples: builtins.list[str] | None = None,
+        data_types: builtins.list[str] | None = None,
         count: int = 10,
     ) -> builtins.list[DatasetRow]:
         """
@@ -581,7 +582,11 @@ class Datasets:
             If the request takes longer than Client.timeout.
         """
         # Convert prompt_settings dict to PromptRunSettings if provided
-        model_alias = prompt_settings.get("model_alias", "gpt-4o-mini") if prompt_settings else "gpt-4o-mini"
+        model_alias = (
+            prompt_settings.get("model_alias", DEFAULT_EXTEND_MODEL_ALIAS)
+            if prompt_settings
+            else DEFAULT_EXTEND_MODEL_ALIAS
+        )
         prompt_run_settings = PromptRunSettings(model_alias=model_alias)
 
         # Convert data_types strings to SyntheticDataTypes enum if provided
@@ -674,42 +679,38 @@ class Datasets:
 
 @deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
-def get_dataset(*, id: str) -> Optional[Dataset]: ...
+def get_dataset(*, id: str) -> Dataset | None: ...
 
 
 @deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
-def get_dataset(*, id: str, project_id: str) -> Optional[Dataset]: ...
+def get_dataset(*, id: str, project_id: str) -> Dataset | None: ...
 
 
 @deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
-def get_dataset(*, id: str, project_name: str) -> Optional[Dataset]: ...
+def get_dataset(*, id: str, project_name: str) -> Dataset | None: ...
 
 
 @deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
-def get_dataset(*, name: str) -> Optional[Dataset]: ...
+def get_dataset(*, name: str) -> Dataset | None: ...
 
 
 @deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
-def get_dataset(*, name: str, project_id: str) -> Optional[Dataset]: ...
+def get_dataset(*, name: str, project_id: str) -> Dataset | None: ...
 
 
 @deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
-def get_dataset(*, name: str, project_name: str) -> Optional[Dataset]: ...
+def get_dataset(*, name: str, project_name: str) -> Dataset | None: ...
 
 
 @deprecated("Use galileo.dataset.Dataset.get() instead.")
 def get_dataset(
-    *,
-    id: Optional[str] = None,
-    name: Optional[str] = None,
-    project_id: Optional[str] = None,
-    project_name: Optional[str] = None,
-) -> Optional[Dataset]:
+    *, id: str | None = None, name: str | None = None, project_id: str | None = None, project_name: str | None = None
+) -> Dataset | None:
     """
     Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
 
@@ -748,7 +749,7 @@ def get_dataset(
 
 @deprecated("Use galileo.dataset.Dataset.list() instead.")
 def list_datasets(
-    limit: Union[Unset, int] = 100, *, project_id: Optional[str] = None, project_name: Optional[str] = None
+    limit: Unset | int = 100, *, project_id: str | None = None, project_name: str | None = None
 ) -> list[Dataset]:
     """
     Lists all datasets, optionally filtered by project.
@@ -813,11 +814,7 @@ def delete_dataset(*, name: str, project_name: str) -> None: ...
 
 @deprecated("Use dataset.delete() instead.")
 def delete_dataset(
-    *,
-    id: Optional[str] = None,
-    name: Optional[str] = None,
-    project_id: Optional[str] = None,
-    project_name: Optional[str] = None,
+    *, id: str | None = None, name: str | None = None, project_id: str | None = None, project_name: str | None = None
 ) -> None:
     """
     Deletes a dataset by id or name (exactly one of `id` or `name` must be provided).
@@ -854,7 +851,7 @@ def delete_dataset(
 
 @deprecated("Use galileo.dataset.Dataset(name=..., content=...).create() instead.")
 def create_dataset(
-    name: str, content: DatasetType, *, project_id: Optional[str] = None, project_name: Optional[str] = None
+    name: str, content: DatasetType, *, project_id: str | None = None, project_name: str | None = None
 ) -> Dataset:
     """
     Creates a new dataset, optionally associating it with a project.
@@ -890,8 +887,8 @@ def create_dataset(
 
 @deprecated("Use dataset.get_version_history() instead.")
 def get_dataset_version_history(
-    *, dataset_name: Optional[str] = None, dataset_id: Optional[str] = None
-) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
+    *, dataset_name: str | None = None, dataset_id: str | None = None
+) -> HTTPValidationError | ListDatasetVersionResponse | None:
     """
     Retrieves a dataset version history by dataset name or dataset id.
 
@@ -925,8 +922,8 @@ def get_dataset_version_history(
 
 @deprecated("Use dataset.get_version() instead.")
 def get_dataset_version(
-    *, version_index: int, dataset_name: Optional[str] = None, dataset_id: Optional[str] = None
-) -> Optional[DatasetContent]:
+    *, version_index: int, dataset_name: str | None = None, dataset_id: str | None = None
+) -> DatasetContent | None:
     """
     Retrieves a dataset version by dataset name or dataset id.
 
@@ -962,11 +959,11 @@ def get_dataset_version(
 @deprecated("Use dataset.extend() instead.")
 def extend_dataset(
     *,
-    prompt_settings: Optional[dict[str, Any]] = None,
-    prompt: Optional[str] = None,
-    instructions: Optional[str] = None,
-    examples: Optional[list[str]] = None,
-    data_types: Optional[list[str]] = None,
+    prompt_settings: dict[str, Any] | None = None,
+    prompt: str | None = None,
+    instructions: str | None = None,
+    examples: list[str] | None = None,
+    data_types: list[str] | None = None,
     count: int = 10,
 ) -> list[DatasetRow]:
     """
@@ -1021,7 +1018,7 @@ def extend_dataset(
 
 @deprecated("Use galileo.project.Project.list() instead.")
 def list_dataset_projects(
-    *, dataset_id: Optional[str] = None, dataset_name: Optional[str] = None, limit: Union[Unset, int] = 100
+    *, dataset_id: str | None = None, dataset_name: str | None = None, limit: Unset | int = 100
 ) -> list:
     """
     Lists all projects that a dataset is associated with.
