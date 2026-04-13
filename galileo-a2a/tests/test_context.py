@@ -1,9 +1,17 @@
-"""Tests for trace context injection, extraction, and span link creation."""
+"""Tests for trace context injection, extraction, span link creation, and async iteration."""
 
+import pytest
+from opentelemetry import trace as otel_trace
+from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.trace import Link
 
 from galileo_a2a._constants import AGNTCY_OBSERVE_KEY, GALILEO_OBSERVE_KEY
-from galileo_a2a._context import create_span_link_from_context, extract_trace_context, inject_trace_context
+from galileo_a2a._context import (
+    create_span_link_from_context,
+    extract_trace_context,
+    inject_trace_context,
+    iter_with_context,
+)
 
 
 class TestInjectTraceContext:
@@ -175,3 +183,85 @@ class TestCreateSpanLink:
 
         # Then: returns None (zero IDs are invalid)
         assert link is None
+
+
+async def _async_range(n: int):
+    for i in range(n):
+        yield i
+
+
+async def _failing_iter():
+    yield "ok"
+    raise RuntimeError("boom")
+
+
+class TestIterWithContext:
+    @pytest.mark.asyncio
+    async def test_yields_all_events(self):
+        # Given: a span context and an async iterable with 3 items
+        provider = TracerProvider()
+        tracer = provider.get_tracer("test")
+        span = tracer.start_span("test")
+        ctx = otel_trace.set_span_in_context(span)
+
+        # When: iterating with context
+        results = [event async for event in iter_with_context(ctx, _async_range(3))]
+
+        # Then: all items yielded
+        assert results == [0, 1, 2]
+        span.end()
+
+    @pytest.mark.asyncio
+    async def test_span_is_current_during_anext(self):
+        # Given: a real span and an inner generator that captures the current span
+        provider = TracerProvider()
+        tracer = provider.get_tracer("test")
+        span = tracer.start_span("parent")
+        ctx = otel_trace.set_span_in_context(span)
+
+        captured = []
+
+        async def _capturing_iter():
+            captured.append(otel_trace.get_current_span())
+            yield "a"
+            captured.append(otel_trace.get_current_span())
+            yield "b"
+
+        # When: iterating with context
+        results = [event async for event in iter_with_context(ctx, _capturing_iter())]
+
+        # Then: the span was current during each __anext__ call
+        assert results == ["a", "b"]
+        assert all(c is span for c in captured)
+        span.end()
+
+    @pytest.mark.asyncio
+    async def test_no_token_held_across_yield(self):
+        # Given: a span context
+        provider = TracerProvider()
+        tracer = provider.get_tracer("test")
+        span = tracer.start_span("parent")
+        ctx = otel_trace.set_span_in_context(span)
+
+        # When: consuming one event then closing (GeneratorExit)
+        gen = iter_with_context(ctx, _async_range(5)).__aiter__()
+        await gen.__anext__()
+        await gen.aclose()  # must not log "Failed to detach context"
+
+        span.end()
+
+    @pytest.mark.asyncio
+    async def test_propagates_inner_exception(self):
+        # Given: an inner iterator that raises mid-stream
+        provider = TracerProvider()
+        tracer = provider.get_tracer("test")
+        span = tracer.start_span("test")
+        ctx = otel_trace.set_span_in_context(span)
+
+        # When/Then: exception propagates
+        results = []
+        with pytest.raises(RuntimeError, match="boom"):  # noqa: PT012
+            async for event in iter_with_context(ctx, _failing_iter()):
+                results.append(event)
+        assert results == ["ok"]
+        span.end()
