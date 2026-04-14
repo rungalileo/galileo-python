@@ -434,9 +434,7 @@ class Experiment(StateManagementMixin):
                         "from model parameter (no prompt_settings provided)"
                     )
                 else:
-                    settings_dict = (
-                        effective_prompt_settings.to_dict() if hasattr(effective_prompt_settings, "to_dict") else {}
-                    )
+                    settings_dict = effective_prompt_settings.to_dict()
                     settings_dict["model_alias"] = self.model_alias
                     effective_prompt_settings = PromptRunSettings(**settings_dict)
             elif self._prompt_template is not None and effective_prompt_settings is None:
