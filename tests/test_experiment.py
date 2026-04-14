@@ -6,7 +6,7 @@ import pytest
 
 from galileo.exceptions import NotFoundError
 from galileo.experiment import Experiment
-from galileo.resources.models import ExperimentResponse
+from galileo.resources.models import ExperimentResponse, PromptRunSettings
 from galileo.schema.metrics import GalileoMetrics
 from galileo.search import RecordType
 from galileo.shared.base import SyncState
@@ -481,6 +481,63 @@ class TestExperimentCreate:
         assert call_kwargs["prompt_settings"].model_alias == "GPT-4o"
         assert call_kwargs["prompt_settings"].temperature == 0.8
         assert call_kwargs["prompt_settings"].max_tokens == 256
+
+    @patch("galileo.experiment.create_metric_configs")
+    @patch("galileo.experiment.get_prompt")
+    @patch("galileo.experiment.load_dataset_and_records")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
+    def test_create_preserves_user_prompt_settings_when_overriding_model_alias(
+        self,
+        mock_experiments_class: MagicMock,
+        mock_projects_class: MagicMock,
+        mock_load_dataset: MagicMock,
+        mock_get_prompt: MagicMock,
+        mock_create_metrics: MagicMock,
+        reset_configuration: None,
+        mock_experiment_response: MagicMock,
+        mock_project: MagicMock,
+    ) -> None:
+        """Regression for sc-61307: user-provided prompt_settings fields must not be dropped
+        when model_alias is also supplied."""
+        # Given: user supplies both prompt_settings (with non-default values) and model_alias
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
+
+        mock_dataset = MagicMock()
+        mock_load_dataset.return_value = (mock_dataset, [])
+
+        mock_prompt = MagicMock()
+        mock_prompt.selected_version_id = str(uuid4())
+        mock_get_prompt.return_value = mock_prompt
+
+        mock_create_metrics.return_value = (None, [])
+
+        mock_experiments_service = MagicMock()
+        mock_experiments_class.return_value = mock_experiments_service
+        mock_experiments_service.get.return_value = None
+        mock_experiments_service.create.return_value = mock_experiment_response
+
+        user_settings = PromptRunSettings(temperature=0.42, max_tokens=123, top_p=0.9)
+
+        # When: creating the experiment with both prompt_settings and model_alias
+        Experiment(
+            name="Test Experiment",
+            dataset_name="test-dataset",
+            prompt_name="test-prompt",
+            project_name="Test Project",
+            prompt_settings=user_settings,
+            model="GPT-4o",
+        ).create()
+
+        # Then: user-provided fields survive and model_alias is applied on top
+        call_kwargs = mock_experiments_service.create.call_args.kwargs
+        effective = call_kwargs["prompt_settings"]
+        assert effective.model_alias == "GPT-4o"
+        assert effective.temperature == 0.42
+        assert effective.max_tokens == 123
+        assert effective.top_p == 0.9
 
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
