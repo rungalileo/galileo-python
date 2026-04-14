@@ -58,6 +58,7 @@ ruff = "^0.12.3"
 openapi-python-client = "^0.26.1"
 yq = "^3.4.3"
 pyyaml = "^6.0.2"
+pytest-timeout = "^2.4.0"
 
 
 [tool.pytest.ini_options]
@@ -248,6 +249,7 @@ ignore = [
 "src/galileo/utils/prompts.py" = ["PLC0415"]
 "src/galileo/utils/datasets.py" = ["PLC0415"]
 "src/galileo/utils/serialization.py" = ["PLC0415"]  # Optional dependency conditional imports
+"src/galileo/utils/exceptions.py" = ["PLC0415"]  # Lazy import of UNSET avoids circular dep with resources package
 "src/galileo/handlers/crewai/handler.py" = ["PLC0415"]  # Version-specific conditional imports
 "src/galileo/project.py" = ["PLC0415"]  # Bottom-of-file circular import avoidance
 
