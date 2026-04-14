@@ -2173,8 +2173,9 @@ class GalileoLogger(TracesLogger):
             # blocked future inside `_wait_for_all_tasks_sync` would have already
             # cost up to `terminate_timeout_seconds` of busy-polling.
             #
-            # `_task_handler` is set unconditionally in __init__, but use getattr
-            # to be safe against partial init failures (terminate may run via the
+            # `_task_handler` is only set in distributed mode, so it may
+            # be absent for batch-mode loggers. Also use getattr to be safe
+            # against partial init failures (terminate may run via the
             # atexit handler even if __init__ raised midway through).
             task_handler = getattr(self, "_task_handler", None)
             if task_handler is not None:
