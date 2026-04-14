@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
+from galileo.resources.types import UNSET
+
 if TYPE_CHECKING:
     from galileo.resources.models import HTTPValidationError
 
@@ -34,8 +36,6 @@ def _format_http_validation_error(error: HTTPValidationError) -> str:
     str
         A human-readable description of all validation failures.
     """
-    from galileo.resources.types import UNSET
-
     detail = error.detail
     if detail is UNSET or not detail:
         return "Request validation failed (no details provided)"

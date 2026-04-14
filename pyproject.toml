@@ -249,7 +249,6 @@ ignore = [
 "src/galileo/utils/prompts.py" = ["PLC0415"]
 "src/galileo/utils/datasets.py" = ["PLC0415"]
 "src/galileo/utils/serialization.py" = ["PLC0415"]  # Optional dependency conditional imports
-"src/galileo/utils/exceptions.py" = ["PLC0415"]  # Lazy import of UNSET avoids circular dep with resources package
 "src/galileo/handlers/crewai/handler.py" = ["PLC0415"]  # Version-specific conditional imports
 "src/galileo/project.py" = ["PLC0415"]  # Bottom-of-file circular import avoidance
 
