@@ -482,6 +482,7 @@ class Experiment(StateManagementMixin):
                     ),
                 }
             )
+            self._run_result_consumed = False
 
             # Set state to synced
             self._set_state(SyncState.SYNCED)

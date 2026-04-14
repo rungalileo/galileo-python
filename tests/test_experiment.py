@@ -744,6 +744,61 @@ class TestExperimentRun:
         with pytest.raises(ValueError, match="has already been run"):
             experiment.run()
 
+    @patch("galileo.experiment.create_metric_configs")
+    @patch("galileo.experiment.get_prompt")
+    @patch("galileo.experiment.load_dataset_and_records")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
+    def test_create_run_create_run_resets_consumed_flag(
+        self,
+        mock_experiments_class: MagicMock,
+        mock_projects_class: MagicMock,
+        mock_load_dataset: MagicMock,
+        mock_get_prompt: MagicMock,
+        mock_create_metrics: MagicMock,
+        reset_configuration: None,
+        mock_experiment_response: MagicMock,
+        mock_project: MagicMock,
+    ) -> None:
+        """Regression for sc-61309: a second create() must reset _run_result_consumed
+        so the following run() returns the new cached result instead of raising."""
+        # Given: a fully mocked create() flow
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
+
+        mock_dataset = MagicMock()
+        mock_load_dataset.return_value = (mock_dataset, [])
+
+        mock_prompt = MagicMock()
+        mock_prompt.selected_version_id = str(uuid4())
+        mock_get_prompt.return_value = mock_prompt
+
+        mock_create_metrics.return_value = (None, [])
+
+        mock_experiments_service = MagicMock()
+        mock_experiments_class.return_value = mock_experiments_service
+        mock_experiments_service.get.return_value = None
+        mock_experiments_service.create.return_value = mock_experiment_response
+        mock_experiments_service.config.console_url = "http://console.test.com"
+
+        # When: create() -> run() -> create() -> run()
+        experiment = Experiment(
+            name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt", project_name="Test Project"
+        ).create()
+        first_run = experiment.run()
+        assert experiment._run_result_consumed is True
+
+        experiment.create()
+
+        # Then: the second create() resets the consumed flag and re-populates _run_result
+        assert experiment._run_result_consumed is False
+        assert experiment._run_result is not None
+
+        second_run = experiment.run()
+        assert isinstance(first_run, ExperimentRunResult)
+        assert isinstance(second_run, ExperimentRunResult)
+
 
 class TestExperimentQuery:
     """Test suite for Experiment query methods."""
