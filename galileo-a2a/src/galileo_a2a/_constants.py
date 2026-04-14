@@ -1,8 +1,10 @@
 """Constants for galileo-a2a instrumentation."""
 
 # Instrumentor identity
+from galileo_a2a._version import __version__
+
 INSTRUMENTOR_NAME = "galileo-a2a"
-INSTRUMENTOR_VERSION = "1.0.0b1"
+INSTRUMENTOR_VERSION = __version__
 
 # Metadata keys for in-band trace context propagation
 GALILEO_OBSERVE_KEY = "galileo_observe"

@@ -37,16 +37,15 @@ dev = [
     "pytest-socket>=0.7",
     "ruff>=0.12.3",
     "mypy>=1.16.0",
-    "coverage>=7.9.2",
-    "galileo-core[testing]>=3.82.0",
+    "opentelemetry-instrumentation>=0.61b0",
+    "galileo[otel]>=1.47.0",
+]
+examples = [
     "uvicorn>=0.42.0",
     "starlette>=1.0.0",
-    "httpx>=0.28.1",
-    "opentelemetry-instrumentation>=0.61b0",
-    "galileo[otel]>=1.50.1",
     "sse-starlette>=3.3.4",
+    "httpx>=0.28.1",
     "openai>=2.30.0",
-    "opentelemetry-instrumentation-openai>=0.57.0",
     "opentelemetry-instrumentation-langchain>=0.57.0",
     "langchain>=1.2.13",
     "langchain-openai>=1.1.12",
@@ -90,21 +89,10 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["F", "E4", "E7", "E9", "W6", "I", "UP", "ASYNC", "B", "C4", "ARG", "PT", "RET", "SIM"]
-ignore = [
-    "S101",
-    "ARG001",
-    "ARG002",
-    "D",
-]
+ignore = ["ARG001", "ARG002", "D"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = [
-    "ANN",
-    "PLR",
-    "S",
-    "ARG",
-    "D",
-]
+"tests/**/*.py" = ["ARG", "D"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["galileo_a2a", "galileo"]
@@ -131,12 +119,8 @@ exclude_lines = [
     "if TYPE_CHECKING:",
 ]
 
-# =============================================================================
-# Release Configuration
-# =============================================================================
-
 [tool.semantic_release]
-version_variables = ["src/galileo_a2a/__init__.py:__version__"]
+version_variables = ["src/galileo_a2a/_version.py:__version__"]
 version_toml = ["pyproject.toml:project.version"]
 tag_format = "galileo-a2a-v{version}"
 version_source = "tag"
