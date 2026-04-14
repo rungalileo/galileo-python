@@ -30,6 +30,15 @@ _os.environ["OPENAI_API_KEY"] = "sk-test"
 del _os  # Clean up temporary import
 # fmt: on
 
+# SC-60512: Bound GalileoLogger.terminate() shutdown wait for the test session.
+# The 90s prod default turns into a busy-poll when --disable-socket leaves
+# background tasks pending, which causes pytest workers to hang at exit.
+# Override the module constant directly so tests don't depend on a user-facing
+# env var or any new SDK config knob.
+from galileo.logger import logger as _galileo_logger_module  # noqa: E402
+
+_galileo_logger_module.DEFAULT_TERMINATE_TIMEOUT_SECONDS = 2
+
 import datetime  # noqa: E402
 import logging  # noqa: E402
 from collections.abc import Callable, Generator  # noqa: E402
