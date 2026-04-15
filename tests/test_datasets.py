@@ -606,6 +606,44 @@ def test_extend_dataset_uses_default_model_alias_when_model_alias_key_missing(ex
 
 
 @patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+def test_extend_dataset_preserves_non_model_alias_prompt_settings(extend_dataset_mock: Mock) -> None:
+    """Regression for sc-61766: extend_dataset must forward all prompt_settings fields,
+    not just model_alias."""
+    # Given: prompt_settings with model_alias plus extra fields
+    extend_dataset_mock.sync.return_value = HTTPValidationError()
+
+    # When: extend_dataset is called with multiple prompt_settings fields
+    with pytest.raises(DatasetAPIException):
+        extend_dataset(
+            prompt_settings={"model_alias": "GPT-4o mini", "temperature": 0.2, "max_tokens": 256, "top_p": 0.9},
+            prompt="Test prompt",
+            count=1,
+        )
+
+    # Then: every caller-provided field reaches the API request body
+    call_body = extend_dataset_mock.sync.call_args.kwargs["body"]
+    assert call_body.prompt_settings.model_alias == "GPT-4o mini"
+    assert call_body.prompt_settings.temperature == 0.2
+    assert call_body.prompt_settings.max_tokens == 256
+    assert call_body.prompt_settings.top_p == 0.9
+
+
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+def test_extend_dataset_does_not_mutate_caller_prompt_settings(extend_dataset_mock: Mock) -> None:
+    """extend_dataset must not mutate the caller's prompt_settings dict (e.g. inject model_alias)."""
+    # Given: a caller dict without model_alias
+    extend_dataset_mock.sync.return_value = HTTPValidationError()
+    caller_settings = {"temperature": 0.5}
+
+    # When: extend_dataset is called
+    with pytest.raises(DatasetAPIException):
+        extend_dataset(prompt_settings=caller_settings, prompt="Test prompt", count=1)
+
+    # Then: the caller dict is untouched
+    assert caller_settings == {"temperature": 0.5}
+
+
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
 def test_extend_dataset_api_failure(extend_dataset_mock: Mock) -> None:
     """Test extend_dataset when the initial API call fails."""
 

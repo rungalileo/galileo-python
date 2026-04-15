@@ -573,13 +573,10 @@ class Datasets:
         httpx.TimeoutException
             If the request takes longer than Client.timeout.
         """
-        # Convert prompt_settings dict to PromptRunSettings if provided
-        model_alias = (
-            prompt_settings.get("model_alias", DEFAULT_EXTEND_MODEL_ALIAS)
-            if prompt_settings
-            else DEFAULT_EXTEND_MODEL_ALIAS
-        )
-        prompt_run_settings = PromptRunSettings(model_alias=model_alias)
+        # Convert prompt_settings dict to PromptRunSettings, preserving all caller fields
+        settings_dict = dict(prompt_settings) if prompt_settings else {}
+        settings_dict.setdefault("model_alias", DEFAULT_EXTEND_MODEL_ALIAS)
+        prompt_run_settings = PromptRunSettings.from_dict(settings_dict)
 
         # Convert data_types strings to SyntheticDataTypes enum if provided
         synthetic_data_types: builtins.list[SyntheticDataTypes] | Unset = UNSET

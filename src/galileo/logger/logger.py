@@ -91,7 +91,16 @@ MetadataValue = str | bool | int | float | None
 
 STREAMING_MAX_RETRIES = 5
 STREAMING_MAX_TIME_SECONDS = 70  # Maximum time to spend retrying a single request
-DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 90  # Timeout for waiting on background trace/span update tasks
+DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 90  # Timeout for waiting on background trace/span update tasks during flush()
+# Default upper bound for shutdown wait in terminate(). Independent from
+# DISTRIBUTED_FLUSH_TIMEOUT_SECONDS (which guards live flushes); kept aligned
+# at 90s so explicit terminate() calls behave like flush() by default.
+DEFAULT_TERMINATE_TIMEOUT_SECONDS = 90
+# Absolute threshold above which a slow GalileoLogger.terminate() shutdown is
+# logged as a warning. Fast-path shutdowns are sub-millisecond; >1s always
+# indicates a real anomaly (busy-poll, stuck task, in-flight HTTP retry) and
+# should be visible in CI logs regardless of the configured timeout.
+_SLOW_SHUTDOWN_WARN_THRESHOLD_SECONDS = 1.0
 STUB_TRACE_NAME = "stub_trace"  # Name for stub traces created from distributed tracing headers
 
 # Cached result of the ingest service healthz probe. Key "result" is absent until first check.
@@ -2100,7 +2109,18 @@ class GalileoLogger(TracesLogger):
             if inspect.iscoroutinefunction(self._ingestion_hook):
                 await self._ingestion_hook(traces_ingest_request)
             else:
-                self._ingestion_hook(traces_ingest_request)
+                # Run sync hooks on a worker thread (not on this event-loop
+                # thread). The supported pattern is for a sync hook to call
+                # `another_logger.ingest_traces(...)`, which routes through
+                # `async_run()` -> submit to the shared `galileo_async_run`
+                # `EventLoopThreadPool` -> `random.choice(threads)` to pick a
+                # worker. If the hook ran inline, the pick could land on the
+                # same thread that is currently blocked awaiting `_flush_batch`,
+                # producing a probabilistic deadlock (~1/N where N=pool size).
+                # Offloading to a regular worker thread guarantees the hook is
+                # never on a pool thread, so re-entry into `async_run()` is safe.
+                # See SC-60512.
+                await asyncio.to_thread(self._ingestion_hook, traces_ingest_request)
         else:
             await self._traces_client.ingest_traces(traces_ingest_request)
 
@@ -2113,25 +2133,71 @@ class GalileoLogger(TracesLogger):
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
     def terminate(self) -> None:
-        """Terminate the logger and flush all traces to Galileo."""
+        """Terminate the logger and flush all traces to Galileo.
+
+        This is a lifecycle-end call. After ``terminate()`` returns the logger
+        instance must NOT be reused: in distributed mode the underlying
+        ``EventLoopThreadPool`` is stopped (its worker threads are joined), so
+        any subsequent call that submits a new task will hang silently. Create
+        a new ``GalileoLogger`` if you need to log again.
+
+        The wait for in-flight background tasks is bounded by
+        ``DEFAULT_TERMINATE_TIMEOUT_SECONDS``. After waiting (whether tasks
+        completed or the timeout fired) the underlying ``EventLoopThreadPool``
+        is stopped so its worker threads no longer hold the process open.
+        """
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
 
-        if self.mode == "distributed":
-            # Don't use flush() which calls async_run() - this causes event loop conflicts during shutdown
-            # when the main program uses asyncio.run(). Instead, handle cleanup synchronously.
-            self._auto_conclude_trace()
-            # TODO: Use shorter timeout for terminate() to avoid long program hangs at exit
-            self._wait_for_all_tasks_sync(timeout_seconds=DISTRIBUTED_FLUSH_TIMEOUT_SECONDS)
-            self.traces = []
-            self._set_current_parent(None)
-        else:
-            # Batch mode: try flush() but don't fail if async_run has issues during shutdown
-            try:
-                self.flush()
-            except RuntimeError as e:
-                # Event loop might be closed during shutdown, log warning but don't crash
-                self._logger.warning(f"Could not flush during terminate due to event loop shutdown: {e}")
+        terminate_timeout_seconds = DEFAULT_TERMINATE_TIMEOUT_SECONDS
+        start_time = time.time()
+        try:
+            if self.mode == "distributed":
+                # Don't use flush() which calls async_run() - this causes event loop conflicts during shutdown
+                # when the main program uses asyncio.run(). Instead, handle cleanup synchronously.
+                self._auto_conclude_trace()
+                self._wait_for_all_tasks_sync(timeout_seconds=terminate_timeout_seconds)
+                self.traces = []
+                self._set_current_parent(None)
+            else:
+                # Batch mode: try flush() but don't fail if async_run has issues during shutdown
+                try:
+                    self.flush()
+                except RuntimeError as e:
+                    # Event loop might be closed during shutdown, log warning but don't crash
+                    self._logger.warning(f"Could not flush during terminate due to event loop shutdown: {e}")
+        finally:
+            # Always release the worker threads so the process can exit promptly,
+            # even if the wait above timed out or raised. Without this, the daemon
+            # EventLoopThreads keep running until interpreter teardown — and any
+            # blocked future inside `_wait_for_all_tasks_sync` would have already
+            # cost up to `terminate_timeout_seconds` of busy-polling.
+            #
+            # `_task_handler` is only set in distributed mode, so it may
+            # be absent for batch-mode loggers. Also use getattr to be safe
+            # against partial init failures (terminate may run via the
+            # atexit handler even if __init__ raised midway through).
+            task_handler = getattr(self, "_task_handler", None)
+            if task_handler is not None:
+                try:
+                    task_handler.terminate()
+                except Exception as exc:
+                    self._logger.warning("GalileoLogger.terminate: pool stop failed: %s", exc)
+
+            # Surface slow shutdowns so we can spot busy-poll regressions in CI
+            # logs. The fast path should complete in milliseconds; anything over
+            # one second indicates either a busy-poll, an in-flight HTTP retry,
+            # or a stuck task. We deliberately use a small absolute threshold
+            # rather than a fraction of the configured timeout — a 30s shutdown
+            # against a 90s bound is still a clear regression worth surfacing.
+            duration_seconds = time.time() - start_time
+            if duration_seconds > _SLOW_SHUTDOWN_WARN_THRESHOLD_SECONDS:
+                self._logger.warning(
+                    "GalileoLogger.terminate: shutdown took %.2fs (mode=%s, timeout=%ss)",
+                    duration_seconds,
+                    self.mode,
+                    terminate_timeout_seconds,
+                )
 
     @async_warn_catch_exception(exceptions=(Exception,))
     async def _start_or_get_session_async(

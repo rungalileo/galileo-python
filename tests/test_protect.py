@@ -21,6 +21,14 @@ A_PROJECT_NAME = "project_name"
 A_STAGE_NAME = "stage_name"
 A_PROTECT_INPUT = "invoke"
 
+# Default values for pass-through parameters. These are used in tests that
+# focus on identity-resolution or payload logic, where the specific values
+# of timeout/metadata/headers/stage_version don't affect the code path.
+DEFAULT_TIMEOUT = 5
+DEFAULT_METADATA: dict | None = None
+DEFAULT_HEADERS: dict | None = None
+DEFAULT_STAGE_VERSION: int | None = None
+
 
 def invoke_response_data() -> dict:
     return {
@@ -63,6 +71,10 @@ def invoke_response() -> APIResponse:
     return APIResponse.from_dict(invoke_response_data())
 
 
+# ---------------------------------------------------------------------------
+# TestAInvoke: identity-resolution x payload combinations (interacting params)
+# Pass-through params use defaults; tested independently below.
+# ---------------------------------------------------------------------------
 @mark.parametrize(
     ("include_project_id", "include_project_name", "include_stage_name", "include_stage_id"),
     [
@@ -86,10 +98,6 @@ def invoke_response() -> APIResponse:
         Payload(input=A_PROTECT_INPUT, output=A_PROTECT_INPUT),
     ],
 )
-@mark.parametrize("timeout", [5, 60])
-@mark.parametrize("metadata", [None, {"key": "value"}])
-@mark.parametrize("headers", [None, {"key": "value"}])
-@mark.parametrize("stage_version", [None, 1, 2])
 @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
 class TestAInvoke:
     @mark.asyncio
@@ -101,10 +109,6 @@ class TestAInvoke:
         include_stage_name: bool,
         include_stage_id: bool,
         payload: Payload,
-        timeout: float,
-        metadata: dict,
-        headers: dict,
-        stage_version: int | None,
     ) -> None:
         mock_invoke_post_async.return_value = invoke_response()
 
@@ -120,10 +124,10 @@ class TestAInvoke:
             project_name=current_project_name,
             stage_id=current_stage_id,
             stage_name=current_stage_name,
-            stage_version=stage_version,
-            timeout=timeout,
-            metadata=metadata,
-            headers=headers,
+            stage_version=DEFAULT_STAGE_VERSION,
+            timeout=DEFAULT_TIMEOUT,
+            metadata=DEFAULT_METADATA,
+            headers=DEFAULT_HEADERS,
         )
 
         expected_project_id = str(current_project_id) if current_project_id else None
@@ -136,10 +140,10 @@ class TestAInvoke:
             project_name=current_project_name,
             stage_id=expected_stage_id,
             stage_name=current_stage_name,
-            stage_version=stage_version,
-            timeout=timeout,
-            metadata=metadata,
-            headers=headers,
+            stage_version=DEFAULT_STAGE_VERSION,
+            timeout=DEFAULT_TIMEOUT,
+            metadata=DEFAULT_METADATA,
+            headers=DEFAULT_HEADERS,
         )
 
         body_dict = body.model_dump(mode="json")
@@ -160,6 +164,96 @@ class TestAInvoke:
             assert result.model_extra[key] == response_data[key]
 
 
+# ---------------------------------------------------------------------------
+# TestAInvokePassThrough: each pass-through param tested independently
+# Uses a single representative identity combo to avoid cross-product explosion.
+# ---------------------------------------------------------------------------
+class TestAInvokePassThrough:
+    @mark.parametrize("timeout", [5, 60])
+    @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
+    @mark.asyncio
+    async def test_ainvoke_forwards_timeout(self, mock_invoke_post_async: AsyncMock, timeout: float) -> None:
+        mock_invoke_post_async.return_value = invoke_response()
+        stage_id = uuid4()
+
+        await ainvoke_protect(
+            payload=Payload(input=A_PROTECT_INPUT),
+            prioritized_rulesets=None,
+            stage_id=stage_id,
+            stage_name=A_STAGE_NAME,
+            timeout=timeout,
+        )
+
+        body = mock_invoke_post_async.call_args.kwargs["body"]
+        assert body.timeout == timeout
+
+    @mark.parametrize("metadata", [None, {"key": "value"}])
+    @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
+    @mark.asyncio
+    async def test_ainvoke_forwards_metadata(self, mock_invoke_post_async: AsyncMock, metadata: dict | None) -> None:
+        mock_invoke_post_async.return_value = invoke_response()
+        stage_id = uuid4()
+
+        await ainvoke_protect(
+            payload=Payload(input=A_PROTECT_INPUT),
+            prioritized_rulesets=None,
+            stage_id=stage_id,
+            stage_name=A_STAGE_NAME,
+            metadata=metadata,
+        )
+
+        body = mock_invoke_post_async.call_args.kwargs["body"]
+        if metadata is None:
+            assert body.metadata is None
+        else:
+            assert body.metadata.additional_properties == metadata
+
+    @mark.parametrize("headers", [None, {"key": "value"}])
+    @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
+    @mark.asyncio
+    async def test_ainvoke_forwards_headers(self, mock_invoke_post_async: AsyncMock, headers: dict | None) -> None:
+        mock_invoke_post_async.return_value = invoke_response()
+        stage_id = uuid4()
+
+        await ainvoke_protect(
+            payload=Payload(input=A_PROTECT_INPUT),
+            prioritized_rulesets=None,
+            stage_id=stage_id,
+            stage_name=A_STAGE_NAME,
+            headers=headers,
+        )
+
+        body = mock_invoke_post_async.call_args.kwargs["body"]
+        if headers is None:
+            assert body.headers is None
+        else:
+            assert body.headers.additional_properties == headers
+
+    @mark.parametrize("stage_version", [None, 1, 2])
+    @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
+    @mark.asyncio
+    async def test_ainvoke_forwards_stage_version(
+        self, mock_invoke_post_async: AsyncMock, stage_version: int | None
+    ) -> None:
+        mock_invoke_post_async.return_value = invoke_response()
+        stage_id = uuid4()
+
+        await ainvoke_protect(
+            payload=Payload(input=A_PROTECT_INPUT),
+            prioritized_rulesets=None,
+            stage_id=stage_id,
+            stage_name=A_STAGE_NAME,
+            stage_version=stage_version,
+        )
+
+        body = mock_invoke_post_async.call_args.kwargs["body"]
+        assert body.stage_version == stage_version
+
+
+# ---------------------------------------------------------------------------
+# TestInvoke: identity-resolution x payload combinations (interacting params)
+# Pass-through params use defaults; tested independently below.
+# ---------------------------------------------------------------------------
 @mark.parametrize(
     ("include_project_id", "include_project_name", "include_stage_name", "include_stage_id"),
     [
@@ -183,10 +277,6 @@ class TestAInvoke:
         Payload(input=A_PROTECT_INPUT, output=A_PROTECT_INPUT),
     ],
 )
-@mark.parametrize("timeout", [5, 60])
-@mark.parametrize("metadata", [None, {"key": "value"}])
-@mark.parametrize("headers", [None, {"key": "value"}])
-@mark.parametrize("stage_version", [None, 1, 2])
 class TestInvoke:
     @patch("galileo.protect.ainvoke_protect")
     def test_invoke_success(
@@ -197,10 +287,6 @@ class TestInvoke:
         include_stage_name: bool,
         include_stage_id: bool,
         payload: Payload,
-        timeout: float,
-        metadata: dict,
-        headers: dict,
-        stage_version: int | None,
     ) -> None:
         with patch("galileo.protect.async_run") as mock_async_run:
             project_id = uuid4() if include_project_id else None
@@ -215,10 +301,10 @@ class TestInvoke:
                 project_name=project_name,
                 stage_id=stage_id,
                 stage_name=stage_name,
-                stage_version=stage_version,
-                timeout=timeout,
-                metadata=metadata,
-                headers=headers,
+                stage_version=DEFAULT_STAGE_VERSION,
+                timeout=DEFAULT_TIMEOUT,
+                metadata=DEFAULT_METADATA,
+                headers=DEFAULT_HEADERS,
             )
             mock_async_run.assert_called_once()
             mock_ainvoke_protect.assert_called_once_with(
@@ -228,10 +314,10 @@ class TestInvoke:
                 project_name=project_name,
                 stage_id=stage_id,
                 stage_name=stage_name,
-                stage_version=stage_version,
-                timeout=timeout,
-                metadata=metadata,
-                headers=headers,
+                stage_version=DEFAULT_STAGE_VERSION,
+                timeout=DEFAULT_TIMEOUT,
+                metadata=DEFAULT_METADATA,
+                headers=DEFAULT_HEADERS,
             )
 
     @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
@@ -245,10 +331,6 @@ class TestInvoke:
         include_stage_id: bool,
         payload: Payload,
         rulesets: list[Ruleset],
-        timeout: float,
-        metadata: dict,
-        headers: dict,
-        stage_version: int | None,
     ) -> None:
         mock_invoke_post_async.return_value = invoke_response()
 
@@ -263,12 +345,8 @@ class TestInvoke:
             project_name=current_project_name,
             stage_id=current_stage_id,
             stage_name=current_stage_name,
-            timeout=timeout,
-            stage_version=stage_version,
-            # Metadata and headers are not used by the tool since they conflict with the
-            # langchain_core tool interface.
-            # metadata=metadata,
-            # headers=headers,
+            timeout=DEFAULT_TIMEOUT,
+            stage_version=DEFAULT_STAGE_VERSION,
         )
         response_json = tool.run(payload.model_dump())
         assert isinstance(response_json, str)
@@ -283,6 +361,78 @@ class TestInvoke:
         assert response.text is not None
         assert response.status == ExecutionStatus.not_triggered
         assert mock_invoke_post_async.call_count == 2
+
+
+# ---------------------------------------------------------------------------
+# TestInvokePassThrough: each pass-through param tested independently.
+# Note: ProtectTool intentionally does NOT support `metadata` and `headers`
+# kwargs because those names conflict with the langchain_core tool interface,
+# so only `timeout` and `stage_version` are exercised against the tool here.
+# ---------------------------------------------------------------------------
+class TestInvokePassThrough:
+    @mark.parametrize("timeout", [5, 60])
+    @patch("galileo.protect.ainvoke_protect")
+    def test_invoke_forwards_timeout(self, mock_ainvoke_protect: Mock, timeout: float) -> None:
+        with patch("galileo.protect.async_run"):
+            invoke_protect(
+                payload=Payload(input=A_PROTECT_INPUT), stage_id=uuid4(), stage_name=A_STAGE_NAME, timeout=timeout
+            )
+            assert mock_ainvoke_protect.call_args.kwargs["timeout"] == timeout
+
+    @mark.parametrize("metadata", [None, {"key": "value"}])
+    @patch("galileo.protect.ainvoke_protect")
+    def test_invoke_forwards_metadata(self, mock_ainvoke_protect: Mock, metadata: dict | None) -> None:
+        with patch("galileo.protect.async_run"):
+            invoke_protect(
+                payload=Payload(input=A_PROTECT_INPUT), stage_id=uuid4(), stage_name=A_STAGE_NAME, metadata=metadata
+            )
+            assert mock_ainvoke_protect.call_args.kwargs["metadata"] == metadata
+
+    @mark.parametrize("headers", [None, {"key": "value"}])
+    @patch("galileo.protect.ainvoke_protect")
+    def test_invoke_forwards_headers(self, mock_ainvoke_protect: Mock, headers: dict | None) -> None:
+        with patch("galileo.protect.async_run"):
+            invoke_protect(
+                payload=Payload(input=A_PROTECT_INPUT), stage_id=uuid4(), stage_name=A_STAGE_NAME, headers=headers
+            )
+            assert mock_ainvoke_protect.call_args.kwargs["headers"] == headers
+
+    @mark.parametrize("stage_version", [None, 1, 2])
+    @patch("galileo.protect.ainvoke_protect")
+    def test_invoke_forwards_stage_version(self, mock_ainvoke_protect: Mock, stage_version: int | None) -> None:
+        with patch("galileo.protect.async_run"):
+            invoke_protect(
+                payload=Payload(input=A_PROTECT_INPUT),
+                stage_id=uuid4(),
+                stage_name=A_STAGE_NAME,
+                stage_version=stage_version,
+            )
+            assert mock_ainvoke_protect.call_args.kwargs["stage_version"] == stage_version
+
+    @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
+    @mark.asyncio
+    async def test_langchain_tool_forwards_timeout(self, mock_invoke_post_async: AsyncMock) -> None:
+        mock_invoke_post_async.return_value = invoke_response()
+        tool = ProtectTool(prioritized_rulesets=[], stage_id=uuid4(), stage_name=A_STAGE_NAME, timeout=60)
+        response_json = tool.run(Payload(input=A_PROTECT_INPUT).model_dump())
+        assert isinstance(response_json, str)
+        body = mock_invoke_post_async.call_args.kwargs["body"]
+        assert body.timeout == 60
+
+    @mark.parametrize("stage_version", [None, 1, 2])
+    @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
+    @mark.asyncio
+    async def test_langchain_tool_forwards_stage_version(
+        self, mock_invoke_post_async: AsyncMock, stage_version: int | None
+    ) -> None:
+        mock_invoke_post_async.return_value = invoke_response()
+        tool = ProtectTool(
+            prioritized_rulesets=[], stage_id=uuid4(), stage_name=A_STAGE_NAME, stage_version=stage_version
+        )
+        response_json = tool.run(Payload(input=A_PROTECT_INPUT).model_dump())
+        assert isinstance(response_json, str)
+        body = mock_invoke_post_async.call_args.kwargs["body"]
+        assert body.stage_version == stage_version
 
 
 @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)

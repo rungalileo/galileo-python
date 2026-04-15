@@ -43,6 +43,7 @@ requests-mock = "^1.11.0"
 galileo-core = { extras = ["testing"], version = "^4.3.0" }
 
 pytest-env = "^1.1.5"
+pytest-timeout = "^2.3"
 langchain-core = ">=0.3.68"
 pytest-sugar = "^1.0.0"
 vcrpy = "^7.0.0"
@@ -88,6 +89,15 @@ addopts = [
     "--disable-socket",
     # Enable local socket access.
     "--allow-hosts=127.0.0.1,localhost",
+    # SC-60512: Per-test timeout. 120s is well above any legitimate test
+    # runtime we've observed. We deliberately do NOT set --timeout-method;
+    # pytest-timeout defaults to `signal` on Linux/macOS (which interrupts
+    # cleanly via SIGALRM in each xdist worker subprocess) and only falls
+    # back to `thread` on Windows. The `thread` method is notoriously bad
+    # because it interrupts async code mid-`await` via
+    # `PyThreadState_SetAsyncExc`, orphaning coroutines and corrupting
+    # xdist worker state — do not enable it globally.
+    "--timeout=120",
 ]
 asyncio_default_fixture_loop_scope = "function"
 
