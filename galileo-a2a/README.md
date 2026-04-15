@@ -183,11 +183,16 @@ class ResearcherExecutor(AgentExecutor):
 
 class State(TypedDict):
     user_query: str
+    skills: list[str]
     research_query: str
     response: str
     plan: str
 
 def build_orchestrator(client):
+    async def discover(state: State) -> dict:
+        card = await client.get_card()
+        return {"skills": [s.name for s in card.skills]}
+
     async def plan(state: State) -> dict:
         result = await create_agent(llm,
             system_prompt="Formulate a travel research question. Reply with ONLY the question.",
@@ -211,10 +216,12 @@ def build_orchestrator(client):
         return {"plan": result["messages"][-1].content}
 
     graph = StateGraph(State)
+    graph.add_node("discover", discover)
     graph.add_node("plan", plan)
     graph.add_node("delegate", delegate)
     graph.add_node("synthesize", synthesize)
-    graph.add_edge(START, "plan")
+    graph.add_edge(START, "discover")
+    graph.add_edge("discover", "plan")
     graph.add_edge("plan", "delegate")
     graph.add_edge("delegate", "synthesize")
     graph.add_edge("synthesize", END)
@@ -239,7 +246,7 @@ async def main():
         config=ClientConfig(streaming=True, httpx_client=httpx.AsyncClient(timeout=httpx.Timeout(120))),
     ).create(CARD)
     result = await build_orchestrator(client).ainvoke(
-        {"user_query": "Plan a 3-day trip to Paris", "research_query": "", "response": "", "plan": ""},
+        {"user_query": "Plan a 3-day trip to Paris", "skills": [], "research_query": "", "response": "", "plan": ""},
     )
     print(result["plan"])
 
