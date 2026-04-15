@@ -7,6 +7,24 @@ if TYPE_CHECKING:
     from galileo.datasets import Dataset
 
 
+def normalize_dataset_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """
+    Normalize dataset rows by renaming ``ground_truth`` to ``output``.
+
+    Allows callers to use either field name. ``output`` takes precedence when both
+    are present. The caller's original dicts are never mutated.
+    """
+    normalized = []
+    for row in rows:
+        if "ground_truth" in row:
+            row = dict(row)  # avoid mutating caller's data
+            ground_truth = row.pop("ground_truth")
+            if "output" not in row:
+                row["output"] = ground_truth
+        normalized.append(row)
+    return normalized
+
+
 def validate_dataset_in_project(
     dataset_id: str, dataset_identifier: str, project_id: str, project_identifier: str, config: GalileoPythonConfig
 ) -> None:

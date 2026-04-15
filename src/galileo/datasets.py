@@ -44,7 +44,7 @@ from galileo.resources.models.update_dataset_content_request import UpdateDatase
 from galileo.resources.models.update_dataset_request import UpdateDatasetRequest
 from galileo.resources.types import UNSET, File, Unset
 from galileo.schema.datasets import DatasetRecord
-from galileo.utils.datasets import validate_dataset_in_project
+from galileo.utils.datasets import normalize_dataset_rows, validate_dataset_in_project
 from galileo.utils.exceptions import APIException
 from galileo.utils.log_config import get_logger
 from galileo.utils.projects import resolve_project_id
@@ -135,7 +135,7 @@ class Dataset:
 
         """
         append_rows: list[DatasetAppendRow] = [
-            DatasetAppendRow(values=DatasetAppendRowValues.from_dict(row)) for row in row_data
+            DatasetAppendRow(values=DatasetAppendRowValues.from_dict(row)) for row in normalize_dataset_rows(row_data)
         ]
         request = UpdateDatasetContentRequest(edits=append_rows)
         # Use sync_detailed to access status_code and headers from the 204 No Content response
@@ -467,15 +467,7 @@ class Datasets:
         # Use targeted key rename instead of routing through DatasetRecord, so that
         # custom columns (e.g. "category", "difficulty") are preserved rather than silently dropped.
         if isinstance(content, list) and len(content) > 0:
-            normalized_content = []
-            for row in content:
-                if isinstance(row, dict) and "ground_truth" in row:
-                    row = dict(row)  # avoid mutating caller's data
-                    ground_truth = row.pop("ground_truth")
-                    if "output" not in row:
-                        row["output"] = ground_truth
-                normalized_content.append(row)
-            content = normalized_content
+            content = normalize_dataset_rows(content)
 
         if isinstance(content, list | dict) and len(content) == 0:
             # we want to avoid errors: Invalid CSV data: CSV parse error:
