@@ -492,7 +492,7 @@ class Dataset(StateManagementMixin):
             prompt_settings=prompt_settings,
         )
         if generated_rows:
-            row_dicts = [row.values_dict.additional_properties for row in generated_rows]
+            row_dicts = [row.values_dict.to_dict() for row in generated_rows]
             self.add_rows(row_dicts)
         return generated_rows
 

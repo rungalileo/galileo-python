@@ -208,7 +208,7 @@ class TestDatasetContent:
 
         def make_row(values_dict: dict) -> DatasetRow:
             values_mock = MagicMock(spec=DatasetRowValuesDict)
-            values_mock.additional_properties = values_dict
+            values_mock.to_dict.return_value = values_dict
             return MagicMock(spec=DatasetRow, values_dict=values_mock)
 
         generated_rows = [make_row(row_a_values), make_row(row_b_values)]
