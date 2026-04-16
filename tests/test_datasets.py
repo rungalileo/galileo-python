@@ -606,6 +606,44 @@ def test_extend_dataset_uses_default_model_alias_when_model_alias_key_missing(ex
 
 
 @patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+def test_extend_dataset_preserves_non_model_alias_prompt_settings(extend_dataset_mock: Mock) -> None:
+    """Regression for sc-61766: extend_dataset must forward all prompt_settings fields,
+    not just model_alias."""
+    # Given: prompt_settings with model_alias plus extra fields
+    extend_dataset_mock.sync.return_value = HTTPValidationError()
+
+    # When: extend_dataset is called with multiple prompt_settings fields
+    with pytest.raises(DatasetAPIException):
+        extend_dataset(
+            prompt_settings={"model_alias": "GPT-4o mini", "temperature": 0.2, "max_tokens": 256, "top_p": 0.9},
+            prompt="Test prompt",
+            count=1,
+        )
+
+    # Then: every caller-provided field reaches the API request body
+    call_body = extend_dataset_mock.sync.call_args.kwargs["body"]
+    assert call_body.prompt_settings.model_alias == "GPT-4o mini"
+    assert call_body.prompt_settings.temperature == 0.2
+    assert call_body.prompt_settings.max_tokens == 256
+    assert call_body.prompt_settings.top_p == 0.9
+
+
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+def test_extend_dataset_does_not_mutate_caller_prompt_settings(extend_dataset_mock: Mock) -> None:
+    """extend_dataset must not mutate the caller's prompt_settings dict (e.g. inject model_alias)."""
+    # Given: a caller dict without model_alias
+    extend_dataset_mock.sync.return_value = HTTPValidationError()
+    caller_settings = {"temperature": 0.5}
+
+    # When: extend_dataset is called
+    with pytest.raises(DatasetAPIException):
+        extend_dataset(prompt_settings=caller_settings, prompt="Test prompt", count=1)
+
+    # Then: the caller dict is untouched
+    assert caller_settings == {"temperature": 0.5}
+
+
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
 def test_extend_dataset_api_failure(extend_dataset_mock: Mock) -> None:
     """Test extend_dataset when the initial API call fails."""
 
@@ -1543,3 +1581,117 @@ def test_create_dataset_does_not_mutate_caller_dicts(create_dataset_datasets_pos
 
     # Then: the original dict is not mutated
     assert row == {"input": "What is 2+2?", "ground_truth": "4"}, "Caller's dict should not be mutated"
+
+
+# ---------------------------------------------------------------------------
+# normalize_dataset_rows unit tests
+# ---------------------------------------------------------------------------
+
+
+def test_normalize_dataset_rows_renames_ground_truth_to_output() -> None:
+    from galileo.utils.datasets import normalize_dataset_rows
+
+    # Given: rows with ground_truth
+    rows = [{"input": "Q1", "ground_truth": "A1"}, {"input": "Q2", "ground_truth": "A2"}]
+
+    # When: normalizing
+    result = normalize_dataset_rows(rows)
+
+    # Then: ground_truth is renamed to output
+    assert result == [{"input": "Q1", "output": "A1"}, {"input": "Q2", "output": "A2"}]
+
+
+def test_normalize_dataset_rows_output_takes_precedence() -> None:
+    from galileo.utils.datasets import normalize_dataset_rows
+
+    # Given: a row with both output and ground_truth
+    rows = [{"input": "Q1", "output": "correct", "ground_truth": "ignored"}]
+
+    # When: normalizing
+    result = normalize_dataset_rows(rows)
+
+    # Then: output is preserved and ground_truth is dropped
+    assert result == [{"input": "Q1", "output": "correct"}]
+
+
+def test_normalize_dataset_rows_does_not_mutate_caller_dicts() -> None:
+    from galileo.utils.datasets import normalize_dataset_rows
+
+    # Given: caller-owned dicts
+    original = {"input": "Q1", "ground_truth": "A1"}
+    rows = [original]
+
+    # When: normalizing
+    normalize_dataset_rows(rows)
+
+    # Then: original dict is untouched
+    assert original == {"input": "Q1", "ground_truth": "A1"}
+
+
+def test_normalize_dataset_rows_passes_through_rows_without_ground_truth() -> None:
+    from galileo.utils.datasets import normalize_dataset_rows
+
+    # Given: rows that already use output
+    rows = [{"input": "Q1", "output": "A1"}, {"input": "Q2", "custom_col": "val"}]
+
+    # When: normalizing
+    result = normalize_dataset_rows(rows)
+
+    # Then: rows are returned unchanged
+    assert result == rows
+
+
+# ---------------------------------------------------------------------------
+# add_rows ground_truth normalization tests
+# ---------------------------------------------------------------------------
+
+
+@patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+def test_add_rows_normalizes_ground_truth_to_output(get_content_mock: Mock, patch_mock: Mock) -> None:
+    """Test that add_rows normalizes ground_truth to output before sending to the API."""
+    from http import HTTPStatus
+
+    # Given: a dataset and rows using ground_truth
+    dataset_id = str(uuid4())
+    patch_mock.sync_detailed.return_value = Mock(status_code=HTTPStatus.NO_CONTENT)
+    get_content_mock.sync_detailed.return_value = Mock(headers={"ETag": "etag-value"})
+    get_content_mock.sync.return_value = Mock(rows=[])
+
+    dataset_db = Mock()
+    dataset_db.id = dataset_id
+    ds = Dataset(dataset_db=dataset_db)
+
+    rows = [{"input": "Which continent is Morocco in?", "ground_truth": "Africa"}]
+
+    # When: adding rows
+    ds.add_rows(rows)
+
+    # Then: the API receives output, not ground_truth
+    patch_mock.sync_detailed.assert_called_once()
+    body: UpdateDatasetContentRequest = patch_mock.sync_detailed.call_args.kwargs["body"]
+    sent_values = body.edits[0].values.additional_properties
+    assert sent_values == {"input": "Which continent is Morocco in?", "output": "Africa"}
+
+
+@patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+def test_add_rows_does_not_mutate_caller_dicts(get_content_mock: Mock, patch_mock: Mock) -> None:
+    """Test that add_rows does not mutate the caller's input dicts."""
+    from http import HTTPStatus
+
+    # Given: a caller-owned dict with ground_truth
+    dataset_id = str(uuid4())
+    patch_mock.sync_detailed.return_value = Mock(status_code=HTTPStatus.NO_CONTENT)
+    get_content_mock.sync_detailed.return_value = Mock(headers={"ETag": "etag-value"})
+    get_content_mock.sync.return_value = Mock(rows=[])
+
+    dataset_db = Mock()
+    dataset_db.id = dataset_id
+    ds = Dataset(dataset_db=dataset_db)
+
+    original = {"input": "Q1", "ground_truth": "A1"}
+    ds.add_rows([original])
+
+    # Then: the original dict is not mutated
+    assert original == {"input": "Q1", "ground_truth": "A1"}

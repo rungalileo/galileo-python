@@ -22,20 +22,10 @@ _logger = logging.getLogger(__name__)
 
 
 def inject_trace_context(agent_name: str | None = None) -> dict[str, str]:
-    """Build a galileo_observe metadata dict from the current OTel span context.
+    """Build a metadata dict from the current OTel span context for propagation.
 
-    This dict is injected into A2A ``MessageSendParams.metadata`` so that the
-    receiving agent can link its trace back to the caller.
-
-    Parameters
-    ----------
-    agent_name : str, optional
-        Name of the calling agent, included for display purposes.
-
-    Returns
-    -------
-    dict[str, str]
-        Metadata dict containing traceparent, agent info, and span/trace IDs.
+    The returned dict is added to A2A ``MessageSendParams.metadata`` so the
+    receiving agent can reconstruct the caller's trace context.
     """
     carrier: dict[str, str] = {}
     otel_inject(carrier)
@@ -56,18 +46,9 @@ def inject_trace_context(agent_name: str | None = None) -> dict[str, str]:
 def extract_trace_context(metadata: dict[str, Any] | None) -> dict[str, str] | None:
     """Extract trace context from A2A request metadata.
 
-    Checks for Galileo's key first, then falls back to AGNTCY's key
-    for compatibility with the AGNTCY Observe SDK.
-
-    Parameters
-    ----------
-    metadata : dict or None
-        The ``MessageSendParams.metadata`` from the A2A request.
-
-    Returns
-    -------
-    dict[str, str] or None
-        Extracted trace context, or None if not present.
+    Checks the Galileo key first, then falls back to the AGNTCY key for
+    interoperability with the AGNTCY Observe SDK.  Returns ``None`` when
+    no trace context is present.
     """
     if not metadata or not isinstance(metadata, dict):
         return None
@@ -83,17 +64,84 @@ def extract_trace_context(metadata: dict[str, Any] | None) -> dict[str, str] | N
     return None
 
 
-def _parse_trace_and_span_ids(trace_context: dict[str, str]) -> tuple[int, int] | None:
-    """Parse trace_id and span_id from a trace context dict.
+def create_span_link_from_context(trace_context: dict[str, str]) -> Link | None:
+    """Create an OTel ``Link`` pointing to the calling agent's span.
 
-    Tries ``agent_trace_id``/``agent_span_id`` first, then falls back
-    to parsing the W3C ``traceparent`` header.
-
-    Returns
-    -------
-    tuple[int, int] or None
-        (trace_id, span_id) as integers, or None if parsing fails.
+    The link carries ``link.type = "agent_handoff"`` and, when available,
+    ``link.from_agent``.  Returns ``None`` when the context cannot be parsed.
     """
+    ids = _parse_ids(trace_context)
+    if ids is None:
+        return None
+
+    trace_id, span_id = ids
+
+    attrs: dict[str, str] = {LINK_TYPE: LINK_TYPE_AGENT_HANDOFF}
+    agent_name = trace_context.get("agent_name")
+    if agent_name:
+        attrs[LINK_FROM_AGENT] = agent_name
+
+    return Link(
+        context=SpanContext(
+            trace_id=trace_id,
+            span_id=span_id,
+            is_remote=True,
+            trace_flags=TraceFlags(TraceFlags.SAMPLED),
+        ),
+        attributes=attrs,
+    )
+
+
+def create_parent_context_from_trace(trace_context: dict[str, str]) -> otel_context.Context | None:
+    """Create an OTel parent context so the server span joins the caller's trace.
+
+    Returns ``None`` when the context cannot be parsed.
+    """
+    ids = _parse_ids(trace_context)
+    if ids is None:
+        return None
+
+    trace_id, span_id = ids
+
+    parent_span_context = SpanContext(
+        trace_id=trace_id,
+        span_id=span_id,
+        is_remote=True,
+        trace_flags=TraceFlags(TraceFlags.SAMPLED),
+    )
+    return trace.set_span_in_context(NonRecordingSpan(parent_span_context))
+
+
+async def iter_with_context(ctx: otel_context.Context, async_iterable: Any) -> Any:
+    """Iterate *async_iterable* with *ctx* attached for each ``__anext__`` call.
+
+    Attaches *ctx* before each iteration step and detaches immediately after,
+    so no context token is held across yield boundaries.  This is required
+    for instrumenting async generators because ``start_as_current_span()``
+    cannot be used when the span must survive across ``yield`` points.
+
+    The inner async iterator is closed on any exit path including
+    ``GeneratorExit`` from early stream termination.
+    """
+    aiter = async_iterable.__aiter__()
+    try:
+        while True:
+            token = otel_context.attach(ctx)
+            try:
+                event = await aiter.__anext__()
+            except StopAsyncIteration:
+                break
+            finally:
+                otel_context.detach(token)
+            yield event
+    finally:
+        aclose = getattr(aiter, "aclose", None)
+        if aclose is not None:
+            await aclose()
+
+
+def _parse_ids(trace_context: dict[str, str]) -> tuple[int, int] | None:
+    """Parse trace and span IDs from ``agent_trace_id``/``agent_span_id`` or ``traceparent``."""
     trace_id_hex = trace_context.get("agent_trace_id")
     span_id_hex = trace_context.get("agent_span_id")
 
@@ -111,82 +159,10 @@ def _parse_trace_and_span_ids(trace_context: dict[str, str]) -> tuple[int, int] 
         trace_id = int(trace_id_hex, 16)
         span_id = int(span_id_hex, 16)
     except (ValueError, TypeError):
-        _logger.debug("Failed to parse trace/span IDs from A2A trace context", exc_info=True)
+        _logger.debug("Failed to parse trace/span IDs from A2A context", exc_info=True)
         return None
 
     if trace_id == 0 or span_id == 0:
         return None
 
     return trace_id, span_id
-
-
-def create_span_link_from_context(trace_context: dict[str, str]) -> Link | None:
-    """Create an OTel span Link from extracted trace context.
-
-    Parses the ``traceparent`` header (or ``agent_trace_id`` / ``agent_span_id``)
-    and creates a Link with ``link.type = "agent_handoff"`` attributes.
-
-    Parameters
-    ----------
-    trace_context : dict[str, str]
-        Trace context dict (from ``extract_trace_context``).
-
-    Returns
-    -------
-    Link or None
-        An OTel Link pointing to the calling agent's span, or None if
-        the context cannot be parsed.
-    """
-    ids = _parse_trace_and_span_ids(trace_context)
-    if ids is None:
-        return None
-
-    trace_id, span_id = ids
-
-    link_attributes: dict[str, str] = {LINK_TYPE: LINK_TYPE_AGENT_HANDOFF}
-    agent_name = trace_context.get("agent_name")
-    if agent_name:
-        link_attributes[LINK_FROM_AGENT] = agent_name
-
-    return Link(
-        context=SpanContext(
-            trace_id=trace_id,
-            span_id=span_id,
-            is_remote=True,
-            trace_flags=TraceFlags(TraceFlags.SAMPLED),
-        ),
-        attributes=link_attributes,
-    )
-
-
-def create_parent_context_from_trace(trace_context: dict[str, str]) -> otel_context.Context | None:
-    """Create an OTel parent context from extracted trace context.
-
-    This allows the server-side span to be a **child** of the client span
-    (same trace ID), so both appear in a single distributed trace in Galileo.
-
-    Parameters
-    ----------
-    trace_context : dict[str, str]
-        Trace context dict (from ``extract_trace_context``).
-
-    Returns
-    -------
-    Context or None
-        An OTel Context with the caller's span as parent, or None if
-        the context cannot be parsed.
-    """
-    ids = _parse_trace_and_span_ids(trace_context)
-    if ids is None:
-        return None
-
-    trace_id, span_id = ids
-
-    parent_span_context = SpanContext(
-        trace_id=trace_id,
-        span_id=span_id,
-        is_remote=True,
-        trace_flags=TraceFlags(TraceFlags.SAMPLED),
-    )
-    parent_span = NonRecordingSpan(parent_span_context)
-    return trace.set_span_in_context(parent_span)

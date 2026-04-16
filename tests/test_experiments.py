@@ -176,6 +176,59 @@ class TestExperiments:
         galileo_resources_api_create_experiment.sync.assert_called_once_with(project_id="test", client=ANY, body=ANY)
 
     @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    def test_create_raises_value_error_with_clear_message_on_invalid_model_alias(
+        self, galileo_resources_api_create_experiment: Mock
+    ) -> None:
+        """Experiments.create() with invalid model_alias (HTTP 422) raises ValueError with human-readable message."""
+        # Given: the API returns a 422 HTTPValidationError for an invalid model alias
+        from galileo.resources.models import HTTPValidationError, ValidationError
+
+        galileo_resources_api_create_experiment.sync = Mock(
+            return_value=HTTPValidationError(
+                detail=[
+                    ValidationError(
+                        loc=["body", "prompt_settings", "model_alias"],
+                        msg="Invalid model alias: 'gpt-4o-mini' is not a valid model alias.",
+                        type_="value_error",
+                    )
+                ]
+            )
+        )
+
+        # When/Then: create() raises ValueError with a clear, readable message
+        with pytest.raises(ValueError, match="Request validation failed"):
+            Experiments().create(
+                project_id="test", name="test_experiment", prompt_settings=PromptRunSettings(model_alias="gpt-4o-mini")
+            )
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    def test_create_error_message_contains_field_and_msg_on_422(
+        self, galileo_resources_api_create_experiment: Mock
+    ) -> None:
+        """ValueError from Experiments.create() includes field path and backend message."""
+        # Given: the API returns a 422 with specific validation detail
+        from galileo.resources.models import HTTPValidationError, ValidationError
+
+        galileo_resources_api_create_experiment.sync = Mock(
+            return_value=HTTPValidationError(
+                detail=[
+                    ValidationError(
+                        loc=["body", "prompt_settings", "model_alias"],
+                        msg="Invalid model alias: 'gpt-4o-mini' is not a valid model alias.",
+                        type_="value_error",
+                    )
+                ]
+            )
+        )
+
+        # When/Then: the error message includes both the field path and the backend message
+        with pytest.raises(ValueError) as exc_info:
+            Experiments().create(project_id="test", name="test_experiment")
+        msg = str(exc_info.value)
+        assert "model_alias" in msg
+        assert "gpt-4o-mini" in msg
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
     def test_create_with_dict_prompt_settings(self, galileo_resources_api_create_experiment: Mock) -> None:
         """Test create() converts dict prompt_settings via PromptRunSettings roundtrip."""
         # Given: a dict prompt_settings and a mocked API response

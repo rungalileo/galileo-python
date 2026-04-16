@@ -2,8 +2,15 @@ import logging
 
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.jobs import create_job_jobs_post
-from galileo.resources.models import CreateJobRequest, CreateJobResponse, PromptRunSettings, ScorerConfig, TaskType
-from galileo_core.exceptions.http import GalileoHTTPException
+from galileo.resources.models import (
+    CreateJobRequest,
+    CreateJobResponse,
+    HTTPValidationError,
+    PromptRunSettings,
+    ScorerConfig,
+    TaskType,
+)
+from galileo.utils.exceptions import _format_http_validation_error
 
 _logger = logging.getLogger(__name__)
 
@@ -42,7 +49,7 @@ class Jobs:
             client=self.config.api_client, body=CreateJobRequest(**create_params)
         )
         if not result.parsed or not isinstance(result.parsed, CreateJobResponse):
-            raise GalileoHTTPException(
-                message="Create job failed", status_code=result.status_code, response_text=str(result.content)
-            )
+            if isinstance(result.parsed, HTTPValidationError):
+                raise ValueError(_format_http_validation_error(result.parsed))
+            raise ValueError(f"Create job failed (HTTP {result.status_code}): {result.content.decode(errors='ignore')}")
         return result.parsed
