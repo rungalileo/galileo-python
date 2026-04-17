@@ -40,6 +40,7 @@ from galileo.schema.metrics import Metric as LegacyMetric
 from galileo.scorers import Scorers
 from galileo.shared.base import StateManagementMixin, SyncState
 from galileo.shared.exceptions import APIError, ValidationError
+from galileo.utils.exceptions import _format_http_validation_error
 from galileo_core.schemas.logging.span import Span
 from galileo_core.schemas.logging.step import StepType
 from galileo_core.schemas.logging.trace import Trace
@@ -1086,6 +1087,9 @@ class CodeMetric(Metric):
             if scorer_response is None:
                 logger.debug("CodeMetric.create: No response from create_scorers_post")
                 raise ValueError("Failed to create code-based metric: No response from API")
+
+            if isinstance(scorer_response, HTTPValidationError):
+                raise ValidationError(_format_http_validation_error(scorer_response))
 
             # Step 3: Create the code scorer version with file upload and validation result
             # Convert the code string to bytes for file upload

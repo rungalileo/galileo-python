@@ -45,12 +45,17 @@ class HTTPValidationError:
         from ..models.validation_error import ValidationError
 
         d = dict(src_dict)
-        detail = []
+        detail: Union[Unset, list["ValidationError"]] = UNSET
         _detail = d.pop("detail", UNSET)
-        for detail_item_data in _detail or []:
-            detail_item = ValidationError.from_dict(detail_item_data)
-
-            detail.append(detail_item)
+        if isinstance(_detail, list):
+            detail = []
+            for detail_item_data in _detail:
+                detail_item = ValidationError.from_dict(detail_item_data)
+                detail.append(detail_item)
+        elif isinstance(_detail, str):
+            # The API may return a plain string detail (e.g. from GalileoServerException)
+            # instead of the standard list-of-ValidationError shape.
+            detail = [ValidationError(loc=[], msg=_detail, type_="server_error")]
 
         http_validation_error = cls(detail=detail)
 
