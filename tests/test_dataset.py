@@ -4,6 +4,8 @@ from uuid import uuid4
 import pytest
 
 from galileo.dataset import Dataset, DatasetVersionContent
+from galileo.resources.models.dataset_row import DatasetRow
+from galileo.resources.models.dataset_row_values_dict import DatasetRowValuesDict
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.list_dataset_version_response import ListDatasetVersionResponse
 from galileo.shared.base import SyncState
@@ -190,6 +192,71 @@ class TestDatasetContent:
         mock_dataset.add_rows.assert_called_once_with(new_rows)
         assert result == dataset  # Verify method chaining
         assert dataset.is_synced()
+
+    @patch("galileo.dataset.Datasets")
+    def test_extend_generates_rows_and_adds_to_dataset(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test extend() generates rows and appends them to the existing dataset."""
+        # Given: a synced dataset and 2 generated rows returned by the service
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+
+        row_a_values = {"input": "Which continent is Brazil in?", "output": "South America"}
+        row_b_values = {"input": "Which continent is Egypt in?", "output": "Africa"}
+
+        def make_row(values_dict: dict) -> DatasetRow:
+            values_mock = MagicMock(spec=DatasetRowValuesDict)
+            values_mock.to_dict.return_value = values_dict
+            return MagicMock(spec=DatasetRow, values_dict=values_mock)
+
+        generated_rows = [make_row(row_a_values), make_row(row_b_values)]
+        mock_service.extend.return_value = generated_rows
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When: extending the dataset
+        result = dataset.extend(
+            prompt="Geography questions about continents",
+            instructions="Generate questions about which continent countries belong to",
+            examples=["Which continent is Brazil in?"],
+            count=2,
+        )
+
+        # Then: the service extend is called with the right params
+        mock_service.extend.assert_called_once_with(
+            prompt="Geography questions about continents",
+            instructions="Generate questions about which continent countries belong to",
+            examples=["Which continent is Brazil in?"],
+            count=2,
+            data_types=None,
+            prompt_settings=None,
+        )
+        # Then: generated rows are added back to the existing dataset
+        mock_dataset.add_rows.assert_called_once_with([row_a_values, row_b_values])
+        # Then: the generated DatasetRow objects are returned
+        assert result == generated_rows
+
+    @patch("galileo.dataset.Datasets")
+    def test_extend_with_empty_result_skips_add_rows(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        """Test extend() does not call add_rows when no rows are generated."""
+        # Given: a synced dataset and the service returning an empty list
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = mock_dataset
+        mock_service.extend.return_value = []
+
+        dataset = Dataset.get(id=mock_dataset.id)
+
+        # When: extending the dataset
+        result = dataset.extend(prompt="Test", count=5)
+
+        # Then: add_rows is never called and an empty list is returned
+        mock_dataset.add_rows.assert_not_called()
+        assert result == []
 
 
 class TestDatasetDelete:
