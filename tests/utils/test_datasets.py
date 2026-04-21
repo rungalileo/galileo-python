@@ -2,12 +2,16 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from galileo.resources.models.dataset_content import DatasetContent
+from galileo.resources.models.dataset_row import DatasetRow
+from galileo.resources.models.dataset_row_values_dict import DatasetRowValuesDict
 from galileo.schema.datasets import DatasetRecord
 from galileo.utils.datasets import (
     create_rows_from_records,
     get_dataset_and_records,
     get_records_for_dataset,
     load_dataset_and_records,
+    remap_output_to_ground_truth,
 )
 
 
@@ -253,6 +257,51 @@ def test_load_dataset_and_records_with_records_list(mockcreate_rows) -> None:
     mockcreate_rows.assert_called_once_with(records_list)
     assert dataset is None
     assert records == mock_records
+
+
+def test_remap_output_to_ground_truth_column_names() -> None:
+    """Test that remap_output_to_ground_truth renames 'output' in column_names."""
+    # Given: content with 'output' in column_names
+    content = DatasetContent(column_names=["input", "output", "generated_output", "metadata"], rows=[])
+
+    # When: remapping
+    result = remap_output_to_ground_truth(content)
+
+    # Then: 'output' is renamed to 'ground_truth', other columns unchanged
+    assert result.column_names == ["input", "ground_truth", "generated_output", "metadata"]
+
+
+def test_remap_output_to_ground_truth_row_values() -> None:
+    """Test that remap_output_to_ground_truth renames 'output' in row values_dict."""
+    # Given: a row with 'output' in values_dict
+    row = DatasetRow(
+        index=0,
+        values=["q", "a"],
+        metadata=None,
+        row_id="r1",
+        values_dict=DatasetRowValuesDict.from_dict({"input": "q", "output": "a"}),
+    )
+    content = DatasetContent(column_names=["input", "output"], rows=[row])
+
+    # When: remapping
+    remap_output_to_ground_truth(content)
+
+    # Then: row values_dict has 'ground_truth', not 'output'
+    props = row.values_dict.additional_properties
+    assert props.get("ground_truth") == "a"
+    assert "output" not in props
+
+
+def test_remap_output_to_ground_truth_no_output_column() -> None:
+    """Test that remap_output_to_ground_truth leaves content unchanged when no 'output' column."""
+    # Given: content with no 'output' column
+    content = DatasetContent(column_names=["input", "ground_truth", "metadata"], rows=[])
+
+    # When: remapping
+    result = remap_output_to_ground_truth(content)
+
+    # Then: column_names are unchanged
+    assert result.column_names == ["input", "ground_truth", "metadata"]
 
 
 def test_load_dataset_and_records_no_params() -> None:

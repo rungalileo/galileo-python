@@ -1656,7 +1656,7 @@ def test_add_rows_normalizes_ground_truth_to_output(get_content_mock: Mock, patc
     dataset_id = str(uuid4())
     patch_mock.sync_detailed.return_value = Mock(status_code=HTTPStatus.NO_CONTENT)
     get_content_mock.sync_detailed.return_value = Mock(headers={"ETag": "etag-value"})
-    get_content_mock.sync.return_value = Mock(rows=[])
+    get_content_mock.sync.return_value = DatasetContent(column_names=[], rows=[])
 
     dataset_db = Mock()
     dataset_db.id = dataset_id
@@ -1684,7 +1684,7 @@ def test_add_rows_does_not_mutate_caller_dicts(get_content_mock: Mock, patch_moc
     dataset_id = str(uuid4())
     patch_mock.sync_detailed.return_value = Mock(status_code=HTTPStatus.NO_CONTENT)
     get_content_mock.sync_detailed.return_value = Mock(headers={"ETag": "etag-value"})
-    get_content_mock.sync.return_value = Mock(rows=[])
+    get_content_mock.sync.return_value = DatasetContent(column_names=[], rows=[])
 
     dataset_db = Mock()
     dataset_db.id = dataset_id
@@ -1695,3 +1695,33 @@ def test_add_rows_does_not_mutate_caller_dicts(get_content_mock: Mock, patch_moc
 
     # Then: the original dict is not mutated
     assert original == {"input": "Q1", "ground_truth": "A1"}
+
+
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+def test_get_content_remaps_output_to_ground_truth(get_content_mock: Mock) -> None:
+    """Test that get_content() remaps 'output' to 'ground_truth' in column_names and row values."""
+    # Given: the API returns content with 'output' as the column name
+    row = DatasetRow(
+        index=0,
+        values=["Spain", "Europe"],
+        metadata=None,
+        row_id="row-1",
+        values_dict=DatasetRowValuesDict.from_dict({"input": "Spain", "output": "Europe"}),
+    )
+    get_content_mock.sync.return_value = DatasetContent(
+        column_names=["input", "output", "generated_output", "metadata"], rows=[row]
+    )
+    dataset_db = Mock()
+    dataset_db.id = str(uuid4())
+    ds = Dataset(dataset_db=dataset_db)
+
+    # When: getting content
+    content = ds.get_content()
+
+    # Then: 'output' is renamed to 'ground_truth' in column_names
+    assert content.column_names == ["input", "ground_truth", "generated_output", "metadata"]
+    # Then: 'output' is renamed to 'ground_truth' in row values_dict
+    row_values = content.rows[0].values_dict.additional_properties
+    assert "ground_truth" in row_values
+    assert "output" not in row_values
+    assert row_values["ground_truth"] == "Europe"

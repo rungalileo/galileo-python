@@ -44,7 +44,7 @@ from galileo.resources.models.update_dataset_content_request import UpdateDatase
 from galileo.resources.models.update_dataset_request import UpdateDatasetRequest
 from galileo.resources.types import UNSET, File, Unset
 from galileo.schema.datasets import DatasetRecord
-from galileo.utils.datasets import normalize_dataset_rows, validate_dataset_in_project
+from galileo.utils.datasets import normalize_dataset_rows, remap_output_to_ground_truth, validate_dataset_in_project
 from galileo.utils.exceptions import APIException
 from galileo.utils.log_config import get_logger
 from galileo.utils.projects import resolve_project_id
@@ -92,6 +92,7 @@ class Dataset:
             client=self.config.api_client, dataset_id=self.dataset.id, limit=limit, starting_token=starting_token
         )
 
+        content = remap_output_to_ground_truth(content)
         self.content = content
 
         return content
