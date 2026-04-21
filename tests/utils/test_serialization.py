@@ -351,6 +351,7 @@ class TestSerializeToStr:
         assert serialize_to_str(n) == json.dumps(
             {
                 "client": {
+                    "workload_identity": None,
                     "api_key": "test",
                     "organization": None,
                     "project": None,
@@ -381,6 +382,7 @@ def test_serialize_complex_example_with_dataclasses() -> None:
             {
                 "model_name": "gpt-4o",
                 "client": {
+                    "workload_identity": None,
                     "api_key": "test",
                     "organization": None,
                     "project": None,
