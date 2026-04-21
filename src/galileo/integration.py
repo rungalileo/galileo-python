@@ -13,7 +13,7 @@ from galileo.resources.models.integration_db import IntegrationDB
 from galileo.resources.models.integration_name import IntegrationName
 from galileo.resources.types import Unset
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import APIError, ValidationError
+from galileo.shared.exceptions import APIError, ResourceNotFoundError, ValidationError
 from galileo.shared.utils import classproperty
 from galileo.utils.exceptions import APIException
 
@@ -254,7 +254,9 @@ class Integration(StateManagementMixin):
 
         Raises
         ------
-            APIError: If the API call fails or the integration is not found.
+            ValidationError: If the integration has no ID.
+            ResourceNotFoundError: If the integration no longer exists on the server.
+            APIError: If the API call fails for any other reason.
         """
         if self.id is None:
             error = ValidationError("Cannot refresh integration without an ID")
@@ -268,9 +270,9 @@ class Integration(StateManagementMixin):
             all_integrations = list_integrations_integrations_get.sync(client=config.api_client)
 
             if not all_integrations:
-                api_error = APIError(f"Integration with ID {self.id} not found")
-                self._set_state(SyncState.FAILED_SYNC, api_error)
-                raise api_error
+                err = ResourceNotFoundError(f"Integration with id={self.id!r} not found")
+                self._set_state(SyncState.FAILED_SYNC, err)
+                raise err
 
             # Find this integration in the list
             for integration_data in all_integrations:
@@ -295,9 +297,9 @@ class Integration(StateManagementMixin):
                     return
 
             # If we didn't find it, raise an error
-            api_error = APIError(f"Integration with ID {self.id} not found")
-            self._set_state(SyncState.FAILED_SYNC, api_error)
-            raise api_error
+            err = ResourceNotFoundError(f"Integration with id={self.id!r} not found")
+            self._set_state(SyncState.FAILED_SYNC, err)
+            raise err
 
         except APIException as e:
             error_msg = f"Failed to refresh integration: {e!s}"
@@ -365,6 +367,12 @@ class Integration(StateManagementMixin):
     def _get_integration_by_name(cls, integration_name: str) -> Provider | UnconfiguredProvider:
         """
         Get a configured integration by name.
+
+        Note: This method intentionally returns ``UnconfiguredProvider`` (not ``None`` or
+        ``ResourceNotFoundError``) when no matching integration is found. The caller
+        (e.g., ``Integration.openai``) is a convenience property that should degrade
+        gracefully — raising ``IntegrationNotConfiguredError`` only when the provider
+        is actually used, not when it is merely accessed.
 
         Args:
             integration_name (str): The integration name (e.g., "openai", "azure").

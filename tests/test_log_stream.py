@@ -239,10 +239,9 @@ class TestLogStreamGet:
 
     @patch("galileo.log_stream.LogStreams")
     @patch("galileo.log_stream.Projects")
-    def test_get_returns_none_when_not_found(
+    def test_get_raises_resource_not_found_when_not_found(
         self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test get() returns None when log stream is not found."""
         # Given: project is resolved but log stream not found
         mock_project = MagicMock()
         mock_project.id = "test-project-id"
@@ -255,11 +254,12 @@ class TestLogStreamGet:
         mock_logstreams_class.return_value = mock_service
         mock_service.get.return_value = None
 
-        # When: calling get
-        log_stream = LogStream.get(name="Nonexistent Stream", project_id="test-project-id")
+        # When/Then: get() raises ResourceNotFoundError with name in the message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            LogStream.get(name="Nonexistent Stream", project_id="test-project-id")
 
-        # Then: None is returned
-        assert log_stream is None
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "name=" in str(exc_info.value)
 
     @patch("galileo.log_stream.Projects")
     def test_get_raises_error_without_project_info_and_no_env_fallback(
@@ -479,7 +479,7 @@ class TestLogStreamRefresh:
 
     @patch("galileo.log_stream.Projects")
     @patch("galileo.log_stream.LogStreams")
-    def test_refresh_raises_error_if_log_stream_no_longer_exists(
+    def test_refresh_raises_resource_not_found_if_log_stream_no_longer_exists(
         self,
         mock_logstreams_class: MagicMock,
         mock_projects_class: MagicMock,
@@ -487,7 +487,7 @@ class TestLogStreamRefresh:
         mock_logstream: MagicMock,
         mock_project: MagicMock,
     ) -> None:
-        """Test refresh() raises ValueError if log stream no longer exists."""
+        # Given: a synced log stream whose remote record has been deleted
         mock_projects_class.return_value.get_with_env_fallbacks.return_value = mock_project
         mock_service = MagicMock()
         mock_logstreams_class.return_value = mock_service
@@ -495,9 +495,12 @@ class TestLogStreamRefresh:
 
         log_stream = LogStream.get(name="Test Stream", project_id="test-project-id")
 
-        with pytest.raises(ValueError, match="no longer exists"):
+        # When/Then: refresh() raises ResourceNotFoundError and sets FAILED_SYNC
+        with pytest.raises(ResourceNotFoundError) as exc_info:
             log_stream.refresh()
 
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
         assert log_stream.sync_state == SyncState.FAILED_SYNC
 
     @patch("galileo.log_stream.LogStreams")
@@ -927,3 +930,30 @@ class TestLogStreamMethods:
         assert "test-id-123" in repr(log_stream)
         assert "test-project-id" in repr(log_stream)
         assert "2024-01-01 12:00:00" in repr(log_stream)
+
+
+class TestLogStreamSetMetrics:
+    """Test suite for LogStream.set_metrics() not-found path."""
+
+    @patch("galileo.log_stream.LogStreams")
+    def test_set_metrics_raises_resource_not_found_when_log_stream_deleted(
+        self, mock_logstreams_class: MagicMock, reset_configuration: None, mock_logstream: MagicMock
+    ) -> None:
+        # Given: an instance whose remote log stream cannot be found by name
+        mock_service = MagicMock()
+        mock_logstreams_class.return_value = mock_service
+        mock_service.get.return_value = None
+
+        log_stream = LogStream._create_empty()
+        log_stream.id = str(uuid4())
+        log_stream.name = "Missing Stream"
+        log_stream.project_id = "test-project-id"
+        log_stream._set_state(SyncState.SYNCED)
+
+        # When/Then: set_metrics() raises ResourceNotFoundError with name in the message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            log_stream.set_metrics([])
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "name=" in str(exc_info.value)
+        assert log_stream.sync_state == SyncState.FAILED_SYNC

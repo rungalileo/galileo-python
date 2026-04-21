@@ -6,6 +6,7 @@ from pydantic import UUID4
 
 from galileo.resources.models import HTTPValidationError
 from galileo.resources.models.stage_db import StageDB as APIStageDB
+from galileo.shared.exceptions import ResourceNotFoundError
 from galileo.stages import (
     create_protect_stage,
     get_protect_stage,
@@ -340,3 +341,42 @@ def test_stage_creation_with_project_name_and_project_id_env_var(mock_api: Mock,
         assert api_rule.operator.lower() == rule.operator.value.lower()
         assert api_rule.target_value == rule.target_value
     assert "rulesets" not in body.additional_properties
+
+
+@patch("galileo.stages.Projects")
+def test_get_validated_project_id_raises_resource_not_found(mock_projects_cls: Mock) -> None:
+    # Given: project lookup returns None (project does not exist)
+    mock_projects_cls.return_value.get_with_env_fallbacks.return_value = None
+
+    # When/Then: ResourceNotFoundError is raised with name in the message
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        get_protect_stage(project_name="nonexistent-project", stage_id=FIXED_STAGE_ID)
+
+    assert isinstance(exc_info.value, ResourceNotFoundError)
+    assert "name=" in str(exc_info.value)
+
+
+@patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
+def test_get_stage_by_name_raises_resource_not_found_when_stage_missing(mock_api: Mock) -> None:
+    # Given: the project is found (autouse fixture) but the API returns None for the stage
+    mock_api.return_value = None
+
+    # When/Then: ResourceNotFoundError is raised with name in the message
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        get_protect_stage(project_id=FIXED_PROJECT_ID, stage_name="missing-stage")
+
+    assert isinstance(exc_info.value, ResourceNotFoundError)
+    assert "name=" in str(exc_info.value)
+
+
+@patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
+def test_get_stage_by_id_raises_resource_not_found_when_stage_missing(mock_api: Mock) -> None:
+    # Given: the project is found (autouse fixture) but the API returns None for the stage
+    mock_api.return_value = None
+
+    # When/Then: ResourceNotFoundError is raised with id in the message
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        get_protect_stage(project_id=FIXED_PROJECT_ID, stage_id=FIXED_STAGE_ID)
+
+    assert isinstance(exc_info.value, ResourceNotFoundError)
+    assert "id=" in str(exc_info.value)

@@ -7,7 +7,7 @@ import pytest
 from galileo.collaborator import Collaborator, CollaboratorRole
 from galileo.project import Project
 from galileo.shared.base import SyncState
-from galileo.shared.exceptions import APIError, ValidationError
+from galileo.shared.exceptions import APIError, ResourceNotFoundError, ValidationError
 
 
 class TestProjectInitialization:
@@ -86,15 +86,36 @@ class TestProjectGet:
         assert project.is_synced()
 
     @patch("galileo.project.Projects")
-    def test_get_returns_none_when_not_found(self, mock_projects_class: MagicMock, reset_configuration: None) -> None:
-        """Test get() returns None when project is not found."""
+    def test_get_raises_resource_not_found_by_name(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: the service returns None for the lookup
         mock_service = MagicMock()
         mock_projects_class.return_value = mock_service
         mock_service.get.return_value = None
 
-        project = Project.get(name="Nonexistent Project")
+        # When/Then: get() raises ResourceNotFoundError with the name in the message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            Project.get(name="Nonexistent Project")
 
-        assert project is None
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "name=" in str(exc_info.value)
+
+    @patch("galileo.project.Projects")
+    def test_get_raises_resource_not_found_by_id(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: the service returns None for the lookup
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.return_value = None
+
+        # When/Then: get() raises ResourceNotFoundError with the id in the message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            Project.get(id="nonexistent-id-123")
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
 
     @patch("galileo.project.Projects")
     def test_get_raises_error_for_api_failure(self, mock_projects_class: MagicMock, reset_configuration: None) -> None:
@@ -420,6 +441,33 @@ class TestProjectCollaborators:
 
         with pytest.raises(ValueError, match="Project ID is not set"):
             project.remove_collaborator(user_id="user-123")
+
+
+class TestProjectRefresh:
+    """Test suite for Project.refresh() method."""
+
+    @patch("galileo.project.Projects")
+    def test_refresh_raises_resource_not_found_when_project_deleted(
+        self, mock_projects_class: MagicMock, reset_configuration: None, mock_project: MagicMock
+    ) -> None:
+        # Given: a synced project whose remote record has been deleted
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get.return_value = mock_project
+
+        project = Project.get(id=mock_project.id)
+        assert project.is_synced()
+
+        # Simulate remote deletion
+        mock_service.get.return_value = None
+
+        # When/Then: refresh() raises ResourceNotFoundError and sets FAILED_SYNC
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            project.refresh()
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
+        assert project.sync_state == SyncState.FAILED_SYNC
 
 
 class TestCollaborator:

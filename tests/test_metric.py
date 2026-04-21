@@ -10,7 +10,7 @@ from galileo.resources.models import HTTPValidationError, OutputTypeEnum, Scorer
 from galileo.resources.models.invalid_result import InvalidResult
 from galileo.resources.models.task_result_status import TaskResultStatus
 from galileo.shared.base import SyncState
-from galileo.shared.exceptions import APIError, ValidationError
+from galileo.shared.exceptions import APIError, ResourceNotFoundError, ValidationError
 from galileo_core.schemas.logging.step import StepType
 
 # Test fixtures and helper functions
@@ -315,15 +315,54 @@ class TestMetricGet:
         assert metric.is_synced()
 
     @patch("galileo.metric.Scorers")
-    def test_get_returns_none_when_not_found(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
-        """Test get() returns None when metric is not found."""
+    def test_get_raises_resource_not_found_by_name_empty_list(
+        self, mock_scorers_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: the scorers service returns an empty list (name not matched)
         mock_service = MagicMock()
         mock_scorers_class.return_value = mock_service
         mock_service.list.return_value = []
 
-        metric = Metric.get(name="Nonexistent Metric")
+        # When/Then: get() raises ResourceNotFoundError with name in the message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            Metric.get(name="Nonexistent Metric")
 
-        assert metric is None
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "name=" in str(exc_info.value)
+
+    @patch("galileo.metric.Scorers")
+    def test_get_raises_resource_not_found_by_name_no_exact_match(
+        self, mock_scorers_class: MagicMock, reset_configuration: None, mock_scorer_response: MagicMock
+    ) -> None:
+        # Given: the service returns results but none have the exact name
+        mock_service = MagicMock()
+        mock_scorers_class.return_value = mock_service
+        scorer = mock_scorer_response(scorer_id=str(uuid4()), name="other-metric")
+        mock_service.list.return_value = [scorer]
+
+        # When/Then: get() raises ResourceNotFoundError with name in the message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            Metric.get(name="Nonexistent Metric")
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "name=" in str(exc_info.value)
+
+    @patch("galileo.metric.Scorers")
+    def test_get_raises_resource_not_found_by_id(
+        self, mock_scorers_class: MagicMock, reset_configuration: None, mock_scorer_response: MagicMock
+    ) -> None:
+        # Given: the service returns all scorers but none match the requested id
+        mock_service = MagicMock()
+        mock_scorers_class.return_value = mock_service
+        scorer = mock_scorer_response(scorer_id=str(uuid4()), name="some-metric")
+        mock_service.list.return_value = [scorer]
+
+        # When/Then: get() raises ResourceNotFoundError with id in the message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            Metric.get(id="nonexistent-metric-id")
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
 
     @pytest.mark.parametrize(
         "kwargs,expected_error",
@@ -521,10 +560,10 @@ class TestMetricRefresh:
             metric.refresh()
 
     @patch("galileo.metric.Scorers")
-    def test_refresh_raises_error_when_metric_no_longer_exists(
+    def test_refresh_raises_resource_not_found_when_metric_deleted(
         self, mock_scorers_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test refresh() raises error when metric no longer exists."""
+        # Given: a synced metric whose remote record has been deleted (list returns empty on second call)
         mock_service = MagicMock()
         mock_scorers_class.return_value = mock_service
 
@@ -542,13 +581,19 @@ class TestMetricRefresh:
         mock_scorer.defaults = MagicMock()
         mock_scorer.scoreable_node_types = []
 
-        # First call returns the metric, second returns empty list (deleted)
+        # First call (get) returns the metric; second call (refresh) returns empty list
         mock_service.list.side_effect = [[mock_scorer], []]
 
         metric = Metric.get(id=metric_id)
+        assert metric.is_synced()
 
-        with pytest.raises(ValueError, match="no longer exists"):
+        # When/Then: refresh() raises ResourceNotFoundError and sets FAILED_SYNC
+        with pytest.raises(ResourceNotFoundError) as exc_info:
             metric.refresh()
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
+        assert metric.sync_state == SyncState.FAILED_SYNC
 
 
 class TestMetricUpdate:

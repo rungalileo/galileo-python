@@ -625,15 +625,14 @@ class TestExperimentGet:
 
     @patch("galileo.experiment.Projects")
     @patch("galileo.experiment.ExperimentsService")
-    def test_get_returns_none_when_not_found(
+    def test_get_raises_resource_not_found_when_not_found(
         self,
         mock_experiments_class: MagicMock,
         mock_projects_class: MagicMock,
         reset_configuration: None,
         mock_project: MagicMock,
     ) -> None:
-        """Test get() returns None when experiment is not found."""
-        # Setup mocks
+        # Given: the project resolves but the experiment does not exist
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -642,11 +641,12 @@ class TestExperimentGet:
         mock_experiments_class.return_value = mock_experiments_service
         mock_experiments_service.get.return_value = None
 
-        # Get experiment
-        experiment = Experiment.get(name="Nonexistent", project_name="Test Project")
+        # When/Then: get() raises ResourceNotFoundError with name in message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            Experiment.get(name="Nonexistent", project_name="Test Project")
 
-        # Verify
-        assert experiment is None
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "name=" in str(exc_info.value)
 
 
 class TestExperimentList:
@@ -987,6 +987,28 @@ class TestExperimentLifecycle:
         with pytest.raises(NotFoundError):
             synced_experiment.refresh()
 
+        assert synced_experiment.sync_state == SyncState.FAILED_SYNC
+
+    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.get_experiment_projects_project_id_experiments_experiment_id_get")
+    def test_refresh_raises_resource_not_found_when_api_returns_none(
+        self,
+        mock_get_experiment_api: MagicMock,
+        mock_config_class: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: a synced experiment and the API returns None (no record)
+        mock_config = MagicMock()
+        mock_config_class.get.return_value = mock_config
+        mock_get_experiment_api.sync.return_value = None
+
+        # When/Then: refresh() raises ResourceNotFoundError and sets FAILED_SYNC
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            synced_experiment.refresh()
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
         assert synced_experiment.sync_state == SyncState.FAILED_SYNC
 
     @patch("galileo.experiment.GalileoPythonConfig")
