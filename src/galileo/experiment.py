@@ -729,7 +729,7 @@ class Experiment(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the experiment ID or project_id is not set, or if the API returns a validation error.
+            ValueError: If the experiment ID or project_id is not set.
             ResourceNotFoundError: If the experiment no longer exists on the server.
             Exception: If the API call fails for any other reason.
 
