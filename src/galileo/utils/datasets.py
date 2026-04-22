@@ -16,11 +16,14 @@ def remap_output_to_ground_truth(content: DatasetContent) -> DatasetContent:
     normalize_dataset_rows, applied when reading content back out.
     """
     has_output_column = not isinstance(content.column_names, Unset) and "output" in content.column_names
+    # Only skip row remapping when column_names is explicitly present and doesn't contain 'output'.
+    # When column_names is Unset (e.g. paginated responses), always remap rows to avoid mixed keys.
+    columns_explicitly_no_output = not isinstance(content.column_names, Unset) and "output" not in content.column_names
 
     if has_output_column:
         content.column_names = ["ground_truth" if name == "output" else name for name in content.column_names]
 
-    if has_output_column and not isinstance(content.rows, Unset):
+    if not columns_explicitly_no_output and not isinstance(content.rows, Unset):
         for row in content.rows:
             props = row.values_dict.additional_properties
             if "output" in props:

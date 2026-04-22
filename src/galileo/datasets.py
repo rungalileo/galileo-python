@@ -94,6 +94,8 @@ class Dataset:
 
         if isinstance(content, DatasetContent):
             content = remap_output_to_ground_truth(content)
+            if not isinstance(content.column_names, Unset):
+                self.dataset.column_names = list(content.column_names)
         self.content = content
 
         return content

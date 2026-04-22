@@ -1714,6 +1714,23 @@ def test_get_content_returns_none_when_api_returns_none(get_content_mock: Mock) 
 
 
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+def test_get_content_syncs_dataset_column_names_after_remap(get_content_mock: Mock) -> None:
+    """Test that get_content() updates dataset.column_names to the remapped names."""
+    # Given: the API returns content with 'output' as a column name
+    get_content_mock.sync.return_value = DatasetContent(column_names=["input", "output", "generated_output"], rows=[])
+    dataset_db = Mock()
+    dataset_db.id = str(uuid4())
+    dataset_db.column_names = ["input", "output", "generated_output"]
+    ds = Dataset(dataset_db=dataset_db)
+
+    # When: getting content
+    ds.get_content()
+
+    # Then: dataset.column_names is updated to the remapped names
+    assert ds.dataset.column_names == ["input", "ground_truth", "generated_output"]
+
+
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 def test_get_content_remaps_output_to_ground_truth(get_content_mock: Mock) -> None:
     """Test that get_content() remaps 'output' to 'ground_truth' in column_names and row values."""
     # Given: the API returns content with 'output' as the column name

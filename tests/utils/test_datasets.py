@@ -325,6 +325,27 @@ def test_remap_output_to_ground_truth_row_not_renamed_without_output_column() ->
     assert "ground_truth" not in props
 
 
+def test_remap_output_to_ground_truth_row_renamed_when_column_names_unset() -> None:
+    """Test that row values are renamed when column_names is Unset (e.g. paginated response)."""
+    # Given: column_names is Unset but a row's values_dict contains 'output'
+    row = DatasetRow(
+        index=0,
+        values=["q", "a"],
+        metadata=None,
+        row_id="r1",
+        values_dict=DatasetRowValuesDict.from_dict({"input": "q", "output": "a"}),
+    )
+    content = DatasetContent(rows=[row])  # column_names defaults to UNSET
+
+    # When: remapping
+    remap_output_to_ground_truth(content)
+
+    # Then: row values_dict is remapped even without column_names
+    props = row.values_dict.additional_properties
+    assert props.get("ground_truth") == "a"
+    assert "output" not in props
+
+
 def test_load_dataset_and_records_no_params() -> None:
     """Test load_dataset_and_records function when no parameters are provided."""
     # Execute and Assert
