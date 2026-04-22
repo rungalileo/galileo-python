@@ -729,7 +729,8 @@ class Experiment(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the experiment ID or project_id is not set.
+            ValueError: If the experiment ID or project_id is not set, or if the API
+                returns a 422 validation error (e.g. malformed UUID).
             ResourceNotFoundError: If the experiment no longer exists on the server.
             Exception: If the API call fails for any other reason.
 
@@ -751,8 +752,12 @@ class Experiment(StateManagementMixin):
                 project_id=self.project_id, experiment_id=self.id, client=config.api_client
             )
 
-            if retrieved_experiment is None or isinstance(retrieved_experiment, HTTPValidationError):
+            if retrieved_experiment is None:
                 raise ResourceNotFoundError(f"Experiment with id={self.id!r} not found")
+            if isinstance(retrieved_experiment, HTTPValidationError):
+                raise ValueError(
+                    f"Validation error fetching experiment with id={self.id!r}: {retrieved_experiment.detail}"
+                )
 
             # Update all top-level attributes from response
             self.id = retrieved_experiment.id

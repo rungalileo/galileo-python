@@ -1013,24 +1013,22 @@ class TestExperimentLifecycle:
 
     @patch("galileo.experiment.GalileoPythonConfig")
     @patch("galileo.experiment.get_experiment_projects_project_id_experiments_experiment_id_get")
-    def test_refresh_raises_resource_not_found_when_api_returns_validation_error(
+    def test_refresh_raises_value_error_when_api_returns_validation_error(
         self,
         mock_get_experiment_api: MagicMock,
         mock_config_class: MagicMock,
         synced_experiment: Experiment,
         reset_configuration: None,
     ) -> None:
-        # Given: a synced experiment and the API returns HTTPValidationError
+        # Given: a synced experiment and the API returns a 422 HTTPValidationError
         mock_config = MagicMock()
         mock_config_class.get.return_value = mock_config
         mock_get_experiment_api.sync.return_value = HTTPValidationError()
 
-        # When/Then: refresh() raises ResourceNotFoundError (not ValueError) and sets FAILED_SYNC
-        with pytest.raises(ResourceNotFoundError) as exc_info:
+        # When/Then: refresh() raises ValueError (not ResourceNotFoundError) and sets FAILED_SYNC
+        with pytest.raises(ValueError, match="Validation error fetching experiment"):
             synced_experiment.refresh()
 
-        assert isinstance(exc_info.value, ResourceNotFoundError)
-        assert "id=" in str(exc_info.value)
         assert synced_experiment.sync_state == SyncState.FAILED_SYNC
 
     @patch("galileo.experiment.GalileoPythonConfig")
