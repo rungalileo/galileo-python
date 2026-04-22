@@ -1698,6 +1698,22 @@ def test_add_rows_does_not_mutate_caller_dicts(get_content_mock: Mock, patch_moc
 
 
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+def test_get_content_returns_none_when_api_returns_none(get_content_mock: Mock) -> None:
+    """Test that get_content() handles None API response without crashing."""
+    # Given: the API returns None
+    get_content_mock.sync.return_value = None
+    dataset_db = Mock()
+    dataset_db.id = str(uuid4())
+    ds = Dataset(dataset_db=dataset_db)
+
+    # When: getting content
+    content = ds.get_content()
+
+    # Then: None is returned without raising
+    assert content is None
+
+
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 def test_get_content_remaps_output_to_ground_truth(get_content_mock: Mock) -> None:
     """Test that get_content() remaps 'output' to 'ground_truth' in column_names and row values."""
     # Given: the API returns content with 'output' as the column name

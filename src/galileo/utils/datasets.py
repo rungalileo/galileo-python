@@ -15,10 +15,12 @@ def remap_output_to_ground_truth(content: DatasetContent) -> DatasetContent:
     The API stores ground_truth as 'output' internally. This is the inverse of
     normalize_dataset_rows, applied when reading content back out.
     """
-    if not isinstance(content.column_names, Unset) and "output" in content.column_names:
+    has_output_column = not isinstance(content.column_names, Unset) and "output" in content.column_names
+
+    if has_output_column:
         content.column_names = ["ground_truth" if name == "output" else name for name in content.column_names]
 
-    if not isinstance(content.rows, Unset):
+    if has_output_column and not isinstance(content.rows, Unset):
         for row in content.rows:
             props = row.values_dict.additional_properties
             if "output" in props:

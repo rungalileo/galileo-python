@@ -88,11 +88,12 @@ class Dataset:
         if not self.dataset:
             return None
 
-        content: DatasetContent = get_dataset_content_datasets_dataset_id_content_get.sync(
+        content = get_dataset_content_datasets_dataset_id_content_get.sync(
             client=self.config.api_client, dataset_id=self.dataset.id, limit=limit, starting_token=starting_token
         )
 
-        content = remap_output_to_ground_truth(content)
+        if isinstance(content, DatasetContent):
+            content = remap_output_to_ground_truth(content)
         self.content = content
 
         return content

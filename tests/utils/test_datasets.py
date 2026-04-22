@@ -304,6 +304,27 @@ def test_remap_output_to_ground_truth_no_output_column() -> None:
     assert result.column_names == ["input", "ground_truth", "metadata"]
 
 
+def test_remap_output_to_ground_truth_row_not_renamed_without_output_column() -> None:
+    """Test that row values are not renamed when column_names does not contain 'output'."""
+    # Given: column_names has no 'output', but a row's values_dict does
+    row = DatasetRow(
+        index=0,
+        values=["q", "a"],
+        metadata=None,
+        row_id="r1",
+        values_dict=DatasetRowValuesDict.from_dict({"input": "q", "output": "a"}),
+    )
+    content = DatasetContent(column_names=["input", "ground_truth"], rows=[row])
+
+    # When: remapping
+    remap_output_to_ground_truth(content)
+
+    # Then: row values_dict is left unchanged because column_names had no 'output'
+    props = row.values_dict.additional_properties
+    assert props.get("output") == "a"
+    assert "ground_truth" not in props
+
+
 def test_load_dataset_and_records_no_params() -> None:
     """Test load_dataset_and_records function when no parameters are provided."""
     # Execute and Assert
