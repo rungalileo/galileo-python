@@ -4,6 +4,7 @@ from uuid import uuid4
 import pytest
 
 from galileo.log_stream import LogStream
+from galileo.projects import ProjectsAPIException
 from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, RootType
 from galileo.search import RecordType
 from galileo.shared.base import SyncState
@@ -275,6 +276,20 @@ class TestLogStreamGet:
         with pytest.raises(ResourceNotFoundError, match="Project not found"):
             LogStream.get(name="Test Stream")
 
+    @patch("galileo.log_stream.Projects")
+    def test_get_raises_resource_not_found_when_project_id_unknown(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        """Test get() raises ResourceNotFoundError when project_id lookup raises ProjectsAPIException."""
+        # Given: the projects service raises ProjectsAPIException for an unknown project_id
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.side_effect = ProjectsAPIException("not found")
+
+        # When/Then: calling get with an unknown project_id raises ResourceNotFoundError
+        with pytest.raises(ResourceNotFoundError, match="Project not found"):
+            LogStream.get(name="Test Stream", project_id="unknown-id")
+
     @patch("galileo.log_stream.LogStreams")
     @patch("galileo.log_stream.Projects")
     def test_get_uses_env_fallback_when_no_project_specified(
@@ -396,6 +411,20 @@ class TestLogStreamList:
         # When/Then: Calling list raises ResourceNotFoundError
         with pytest.raises(ResourceNotFoundError, match="Project not found"):
             LogStream.list()
+
+    @patch("galileo.log_stream.Projects")
+    def test_list_raises_resource_not_found_when_project_id_unknown(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        """Test list() raises ResourceNotFoundError when project_id lookup raises ProjectsAPIException."""
+        # Given: the projects service raises ProjectsAPIException for an unknown project_id
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.side_effect = ProjectsAPIException("not found")
+
+        # When/Then: calling list with an unknown project_id raises ResourceNotFoundError
+        with pytest.raises(ResourceNotFoundError, match="Project not found"):
+            LogStream.list(project_id="unknown-id")
 
     @patch("galileo.log_stream.LogStreams")
     @patch("galileo.log_stream.Projects")
