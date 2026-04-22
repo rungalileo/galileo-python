@@ -751,10 +751,8 @@ class Experiment(StateManagementMixin):
                 project_id=self.project_id, experiment_id=self.id, client=config.api_client
             )
 
-            if retrieved_experiment is None:
+            if retrieved_experiment is None or isinstance(retrieved_experiment, HTTPValidationError):
                 raise ResourceNotFoundError(f"Experiment with id={self.id!r} not found")
-            if isinstance(retrieved_experiment, HTTPValidationError):
-                raise ValueError(f"Experiment with id '{self.id}' no longer exists")
 
             # Update all top-level attributes from response
             self.id = retrieved_experiment.id

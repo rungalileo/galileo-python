@@ -344,16 +344,31 @@ def test_stage_creation_with_project_name_and_project_id_env_var(mock_api: Mock,
 
 
 @patch("galileo.stages.Projects")
-def test_get_validated_project_id_raises_resource_not_found(mock_projects_cls: Mock) -> None:
-    # Given: project lookup returns None (project does not exist)
+def test_get_validated_project_id_raises_resource_not_found_by_name(mock_projects_cls: Mock) -> None:
+    # Given: project lookup by name returns None
     mock_projects_cls.return_value.get_with_env_fallbacks.return_value = None
 
-    # When/Then: ResourceNotFoundError is raised with name in the message
+    # When/Then: ResourceNotFoundError references the name, not id=None
     with pytest.raises(ResourceNotFoundError) as exc_info:
         get_protect_stage(project_name="nonexistent-project", stage_id=FIXED_STAGE_ID)
 
     assert isinstance(exc_info.value, ResourceNotFoundError)
     assert "name=" in str(exc_info.value)
+    assert "None" not in str(exc_info.value)
+
+
+@patch("galileo.stages.Projects")
+def test_get_validated_project_id_raises_resource_not_found_by_id(mock_projects_cls: Mock) -> None:
+    # Given: project lookup by id returns None
+    mock_projects_cls.return_value.get_with_env_fallbacks.return_value = None
+
+    # When/Then: ResourceNotFoundError references the id, not name=None
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        get_protect_stage(project_id=FIXED_PROJECT_ID, stage_id=FIXED_STAGE_ID)
+
+    assert isinstance(exc_info.value, ResourceNotFoundError)
+    assert "id=" in str(exc_info.value)
+    assert "name=" not in str(exc_info.value)
 
 
 @patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
@@ -380,3 +395,15 @@ def test_get_stage_by_id_raises_resource_not_found_when_stage_missing(mock_api: 
 
     assert isinstance(exc_info.value, ResourceNotFoundError)
     assert "id=" in str(exc_info.value)
+
+
+@patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
+def test_get_stage_raises_value_error_on_http_validation_error(mock_api: Mock) -> None:
+    # Given: the API returns an HTTPValidationError instead of a stage
+    validation_error = HTTPValidationError()
+    validation_error.detail = [{"msg": "invalid stage"}]
+    mock_api.return_value = validation_error
+
+    # When/Then: ValueError is raised rather than silently returning the error object
+    with pytest.raises(ValueError, match="Validation error looking up stage"):
+        get_protect_stage(project_id=FIXED_PROJECT_ID, stage_id=FIXED_STAGE_ID)
