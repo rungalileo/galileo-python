@@ -1,6 +1,7 @@
 import builtins
 from uuid import UUID
 
+from galileo.metric import Metric as MetricV2
 from galileo.resources.models.scorer_config import ScorerConfig
 from galileo.resources.models.scorer_response import ScorerResponse
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
@@ -89,6 +90,11 @@ def create_metric_configs(
     for metric in metrics:
         if isinstance(metric, GalileoMetrics):
             label_searches.append((metric.value, None))
+        elif isinstance(metric, MetricV2):
+            if metric.id:
+                scorer_ids.append(metric.id)
+            else:
+                label_searches.append((metric.name, metric.version))
         elif isinstance(metric, Metric):
             label_searches.append((metric.name, metric.version))
         elif isinstance(metric, LocalMetricConfig):
