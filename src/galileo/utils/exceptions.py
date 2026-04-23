@@ -39,5 +39,10 @@ def _format_http_validation_error(error: HTTPValidationError) -> str:
     detail = error.detail
     if detail is UNSET or not detail:
         return "Request validation failed (no details provided)"
-    parts = ["[{}] {}".format(".".join(str(p) for p in ve.loc), ve.msg) for ve in detail]
+    parts = []
+    for ve in detail:
+        if ve.loc:
+            parts.append("[{}] {}".format(".".join(str(p) for p in ve.loc), ve.msg))
+        else:
+            parts.append(ve.msg)
     return "Request validation failed — " + "; ".join(parts)
