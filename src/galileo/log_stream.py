@@ -10,7 +10,8 @@ from galileo.config import GalileoPythonConfig
 from galileo.decorator import galileo_context
 from galileo.export import ExportClient
 from galileo.log_streams import LogStreams
-from galileo.projects import Projects
+from galileo.projects import Project as ProjectRecord
+from galileo.projects import ProjectNotFoundError, Projects
 from galileo.resources.api.trace import (
     sessions_available_columns_projects_project_id_sessions_available_columns_post,
     spans_available_columns_projects_project_id_spans_available_columns_post,
@@ -38,6 +39,19 @@ RECORD_TYPE_TO_ROOT_TYPE = {
     RecordType.TRACE: RootType.TRACE,
     RecordType.SESSION: RootType.SESSION,
 }
+
+
+def _resolve_project(project_id: str | None, project_name: str | None) -> ProjectRecord:
+    """Resolve a project from explicit params or env fallbacks, raising ResourceNotFoundError on 404."""
+    try:
+        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+    except ProjectNotFoundError:
+        project_obj = None
+    if not project_obj:
+        raise ResourceNotFoundError(
+            "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
+        )
+    return project_obj
 
 
 class LogStream(StateManagementMixin):
@@ -284,12 +298,7 @@ class LogStream(StateManagementMixin):
             # Get using GALILEO_PROJECT environment variable
             log_stream = LogStream.get(name="Production Logs")
         """
-        # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
-        if not project_obj:
-            raise ResourceNotFoundError(
-                "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
-            )
+        project_obj = _resolve_project(project_id, project_name)
 
         log_streams_service = LogStreams()
         retrieved_log_stream = log_streams_service.get(name=name, project_id=project_obj.id)
@@ -331,12 +340,7 @@ class LogStream(StateManagementMixin):
             # List using GALILEO_PROJECT environment variable
             log_streams = LogStream.list()
         """
-        # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
-        if not project_obj:
-            raise ResourceNotFoundError(
-                "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
-            )
+        project_obj = _resolve_project(project_id, project_name)
 
         log_streams_service = LogStreams()
         retrieved_log_streams = log_streams_service.list(project_id=project_obj.id)
