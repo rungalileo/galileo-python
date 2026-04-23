@@ -48,6 +48,10 @@ _FIELD_RE = re.compile(r'^(?P<indent>\s*)detail: list\["ValidationError"\]\s*$',
 #    for detail_item_data in _detail or []:
 #        detail_item = ValidationError.from_dict(detail_item_data)
 #        detail.append(detail_item)
+#
+# Note: the first line uses \"ValidationError\" (quoted) because the generated local
+# variable annotation is `list["ValidationError"]`, while the function call on line 4
+# uses ValidationError without quotes — both forms appear in the same generated block.
 _LOOP_RE = re.compile(
     r"(?P<indent>\s*)detail: list\[\"ValidationError\"\] = \[\]\n"
     r"(?P=indent)_detail = d\.pop\(\"detail\", UNSET\)\n"
@@ -89,7 +93,11 @@ def patch(text: str) -> tuple[str, bool]:
     )
     # Replace the from_dict loop
     loop_patched, loop_count = _LOOP_RE.subn(lambda m: _loop_replacement(m.group("indent")), field_patched)
-    return loop_patched, bool(field_count and loop_count)
+    # Treat the file as already-patched if no replacements were made but the
+    # patched sentinel is present — ensures idempotent re-runs exit 0 instead
+    # of falsely reporting template drift (exit 2).
+    already_patched = loop_patched == text and "isinstance(_detail, list)" in text
+    return loop_patched, bool(field_count and loop_count) or already_patched
 
 
 def main() -> int:
