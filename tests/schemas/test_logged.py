@@ -1,8 +1,13 @@
 """Tests for SDK-local ingestion models (Logged variants and content blocks)."""
 
+import builtins
+import importlib
+
 import pytest
 from pydantic import ValidationError
 
+import galileo.logger.control as control_module
+import galileo.schema.logged as logged_module
 from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
 from galileo.schema.logged import LoggedAgentSpan, LoggedLlmSpan, LoggedTrace, LoggedWorkflowSpan
 from galileo.schema.message import LoggedMessage
@@ -334,6 +339,32 @@ class TestJsonRoundtripNoCoercion:
         tool = wf.spans[2]
         assert type(tool) is ToolSpan
         assert tool.output == "4"
+
+    def test_logged_trace_roundtrip_with_fallback_control_span(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        # Given: galileo.logger.control is reloaded without native ControlSpan support
+        original_import = builtins.__import__
+
+        def force_fallback_import(name, globals=None, locals=None, fromlist=(), level=0):
+            if name == "galileo_core.schemas.logging.control":
+                raise ImportError("forced fallback for test")
+            return original_import(name, globals, locals, fromlist, level)
+
+        with monkeypatch.context() as context:
+            context.setattr(builtins, "__import__", force_fallback_import)
+            importlib.reload(control_module)
+            importlib.reload(logged_module)
+
+            # When: constructing and validating a LoggedTrace containing the fallback ControlSpan
+            trace = logged_module.LoggedTrace(input="query", spans=[control_module.ControlSpan(input="selected text")])
+            restored = logged_module.LoggedTrace.model_validate(trace.model_dump(mode="json"))
+
+            # Then: the discriminated union resolves the fallback ControlSpan cleanly
+            assert control_module.HAS_NATIVE_CONTROL_SPAN is False
+            assert restored.spans[0].type == "control"
+            assert type(restored.spans[0]) is control_module.ControlSpan
+
+        importlib.reload(control_module)
+        importlib.reload(logged_module)
 
 
 class TestLoggedAndCoreParity:

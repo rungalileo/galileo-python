@@ -16,9 +16,11 @@ from galileo.exceptions import (
     ServerError,
 )
 from galileo.experiment import Experiment
+from galileo.handlers.agent_control import GalileoAgentControlBridge, setup_agent_control_bridge
 from galileo.integration import Integration
 from galileo.log_stream import LogStream
 from galileo.logger import GalileoLogger
+from galileo.logger.control import ControlAppliesTo, ControlCheckStage, ControlResult, ControlSpan
 from galileo.metric import CodeMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
 from galileo.model import Model
 from galileo.project import Project
@@ -83,6 +85,10 @@ __all__ = [
     "CollaboratorRole",
     "Configuration",
     "ConfigurationError",
+    "ControlAppliesTo",
+    "ControlCheckStage",
+    "ControlResult",
+    "ControlSpan",
     "ConflictError",
     "Dataset",
     "ExecutionStatus",
@@ -91,6 +97,7 @@ __all__ = [
     "GalileoAPIError",
     "GalileoDecorator",
     "GalileoFutureError",
+    "GalileoAgentControlBridge",
     "GalileoLogger",
     "GalileoLoggerException",
     "GalileoMetric",
@@ -146,6 +153,7 @@ __all__ = [
     "log",
     "pause_protect_stage",
     "resume_protect_stage",
+    "setup_agent_control_bridge",
     "start_session",
     "update_protect_stage",
 ]

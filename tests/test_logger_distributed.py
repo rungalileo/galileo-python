@@ -97,6 +97,58 @@ def test_start_trace(mock_traces_client: Mock, mock_projects_client: Mock, mock_
     assert request.traces[0].metrics.duration_ns == 1_000_000
 
 
+@patch("galileo.logger.logger.IngestTraces")
+@patch("galileo.logger.logger.Traces")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+def test_distributed_logger_uses_standard_client_when_ingest_service_is_available(
+    mock_projects_client: Mock,
+    mock_logstreams_client: Mock,
+    mock_traces_client: Mock,
+    mock_ingest_traces_client: Mock,
+) -> None:
+    # Given: the ingest service reports healthy and project/log stream lookups succeed
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    with patch.object(GalileoLogger, "_is_ingest_service_available", return_value=True):
+        # When: creating a distributed logger
+        logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    # Then: distributed mode stays on the standard Traces client for span create/update support
+    assert logger._traces_client is mock_traces_client.return_value
+    mock_traces_client.assert_called_once_with(project_id=logger.project_id, log_stream_id=logger.log_stream_id)
+    mock_ingest_traces_client.assert_not_called()
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_nested_distributed_spans_wait_for_parent_ingest(
+    mock_traces_client: Mock,
+    mock_projects_client: Mock,
+    mock_logstreams_client: Mock,
+) -> None:
+    # Given: a distributed logger with an active trace and workflow parent
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+    capture = setup_thread_pool_request_capture(logger)
+
+    trace = logger.start_trace(input="input", name="test-trace")
+    workflow = logger.add_workflow_span(input="workflow input", name="workflow")
+
+    # When: a control span is emitted under the active workflow
+    logger.add_control_span(input="selected input", name="control")
+
+    # Then: each streamed span waits for its direct parent ingest task
+    span_tasks = [task for task in capture.get_all_tasks() if task.function_name == "ingest_spans_with_backoff"]
+    assert len(span_tasks) == 2
+    assert span_tasks[0].kwargs["parent_task_id"] == f"trace-ingest-{trace.id}"
+    assert span_tasks[1].kwargs["parent_task_id"] == f"span-ingest-{workflow.id}"
+
+
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
