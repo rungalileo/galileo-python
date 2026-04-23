@@ -263,11 +263,12 @@ class TestExperimentEnvFallback:
             name="otel-trace-eval", dataset_name="trace-dataset", project_name="My AI Project"
         ).create()
 
-        # Then: experiment is created and synced, no prompt_template passed to service
+        # Then: experiment is created and synced, no prompt_template or prompt_settings passed to service
         assert experiment.is_synced()
         assert experiment.project_id == mock_project.id
         _, kwargs = mock_experiments_service.create.call_args
         assert kwargs.get("prompt_template") is None
+        assert kwargs.get("prompt_settings") is None
 
     @patch("galileo.experiment.Projects")
     @patch("galileo.experiment.ExperimentsService")
