@@ -1,152 +1,95 @@
 #!/usr/bin/env python3
 """
-Patch the generated HTTPValidationError model so it accepts either a list
-or a single string in the ``detail`` field.
+Patch the generated HTTPValidationError model so it correctly handles both
+list-of-ValidationError and plain-string ``detail`` payloads from the API.
+
+Some API error paths (e.g. invalid model alias) return a 422 whose ``detail``
+is a plain string instead of the standard list-of-ValidationError objects.
+The auto-generated ``from_dict`` iterates ``detail`` unconditionally, which
+causes it to crash when ``detail`` is a string (each character is passed to
+``ValidationError.from_dict``).  This script fixes that by replacing the
+generated for-loop with an isinstance-guarded block, and changes the field
+initialisation from an empty list to UNSET so missing/absent detail is
+distinguishable from an empty error list.
 
 Workflow
 --------
-1. Parse the target file into an AST.
-2. Locate the ``for item in (_detail or [])`` loop inside
-   ``HTTPValidationError.from_dict``.
-3. Replace that loop with an ``if/else`` block:
+Run this script as a post-generation hook after
+``scripts/auto-generate-api-client.sh``::
 
-       if isinstance(_detail, str):
-           detail.append(ValidationError(loc=["api"], msg=_detail, type_="string"))
-       else:
-           for item in (_detail or []):
-               ...
-
-4. Write the file back only if the replacement succeeded; otherwise exit
-   with status 2 so a CI job can flag the mismatch.
-
-Run this script as a post-generation hook for *openapi-python-client*.
+    python scripts/patch_http_validation_error.py \\
+        src/galileo/resources/models/http_validation_error.py
 
 Exit codes
-0 - patch applied
-1 - I/O or syntax error
-2 - target loop not found (template drift)
+----------
+0  patch applied successfully
+1  I/O or syntax error
+2  expected pattern not found in target (template drift — update this script)
 """
 
 from __future__ import annotations
 
-import ast
+import re
 import sys
 from pathlib import Path
 
+# ---------------------------------------------------------------------------
+# Patterns to find in the auto-generated file
+# ---------------------------------------------------------------------------
 
-def _build_replacement_if_node(iter_node: ast.AST) -> ast.If:
-    """Return the `if/else` AST that replaces the original loop."""
-    return ast.If(
-        test=ast.Call(
-            func=ast.Name(id="isinstance", ctx=ast.Load()),
-            args=[ast.Name(id="_detail", ctx=ast.Load()), ast.Name(id="str", ctx=ast.Load())],
-            keywords=[],
-        ),
-        body=[
-            ast.Expr(
-                ast.Call(
-                    func=ast.Attribute(ast.Name(id="detail", ctx=ast.Load()), attr="append", ctx=ast.Load()),
-                    args=[
-                        ast.Call(
-                            func=ast.Name(id="ValidationError", ctx=ast.Load()),
-                            args=[],
-                            keywords=[
-                                ast.keyword(
-                                    arg="loc", value=ast.List(elts=[ast.Constant(value="api")], ctx=ast.Load())
-                                ),
-                                ast.keyword(arg="msg", value=ast.Name(id="_detail", ctx=ast.Load())),
-                                ast.keyword(arg="type_", value=ast.Constant(value="string")),
-                            ],
-                        )
-                    ],
-                    keywords=[],
-                )
-            )
-        ],
-        orelse=[
-            ast.For(
-                target=ast.Name(id="item", ctx=ast.Store()),
-                iter=iter_node,
-                body=[
-                    ast.Assign(
-                        targets=[ast.Name(id="detail_item", ctx=ast.Store())],
-                        value=ast.Call(
-                            func=ast.Attribute(
-                                ast.Name(id="ValidationError", ctx=ast.Load()), attr="from_dict", ctx=ast.Load()
-                            ),
-                            args=[ast.Name(id="item", ctx=ast.Load())],
-                            keywords=[],
-                        ),
-                    ),
-                    ast.Expr(
-                        ast.Call(
-                            func=ast.Attribute(ast.Name(id="detail", ctx=ast.Load()), attr="append", ctx=ast.Load()),
-                            args=[ast.Name(id="detail_item", ctx=ast.Load())],
-                            keywords=[],
-                        )
-                    ),
-                ],
-                orelse=[],
-            )
-        ],
+# 1. Class-level field declaration:
+#    detail: list["ValidationError"]
+#    → detail: Unset | list["ValidationError"] = UNSET
+_FIELD_RE = re.compile(r'^(?P<indent>\s*)detail: list\["ValidationError"\]\s*$', re.MULTILINE)
+
+# 2. Inside from_dict — initialisation + for-loop:
+#    detail: list[ValidationError] = []
+#    _detail = d.pop("detail", UNSET)
+#    for detail_item_data in _detail or []:
+#        detail_item = ValidationError.from_dict(detail_item_data)
+#        detail.append(detail_item)
+_LOOP_RE = re.compile(
+    r"(?P<indent>\s*)detail: list\[\"ValidationError\"\] = \[\]\n"
+    r"(?P=indent)_detail = d\.pop\(\"detail\", UNSET\)\n"
+    r"(?P=indent)for detail_item_data in _detail or \[\]:\n"
+    r"(?P=indent)    detail_item = ValidationError\.from_dict\(detail_item_data\)\n"
+    r"(?P=indent)    detail\.append\(detail_item\)",
+    re.MULTILINE,
+)
+
+
+def _loop_replacement(indent: str) -> str:
+    i = indent
+    i4 = indent + "    "
+    return "\n".join(
+        [
+            f'{i}detail: Unset | list["ValidationError"] = UNSET',
+            f'{i}_detail = d.pop("detail", UNSET)',
+            f"{i}if isinstance(_detail, list):",
+            f"{i4}detail = [ValidationError.from_dict(item) for item in _detail]",
+            f"{i}elif isinstance(_detail, str) and _detail:",
+            f"{i4}# Some API error responses return a plain string instead of the standard",
+            f"{i4}# list-of-ValidationError shape (e.g. GalileoServerException messages).",
+            f"{i4}# Wrap it so callers always receive a consistent ValidationError list.",
+            f'{i4}detail = [ValidationError(loc=[], msg=_detail, type_="server_error")]',
+        ]
     )
 
 
-class HTTPValidationErrorPatcher(ast.NodeTransformer):
-    """AST transformer for `HTTPValidationError.from_dict`."""
-
-    def __init__(self) -> None:
-        super().__init__()
-        self.patch_applied: bool = False
-
-    # Helpers
-
-    @staticmethod
-    def _target_loop(stmt: ast.For) -> bool:
-        """Return True if loop matches the autogenerated pattern."""
-        if not any(isinstance(n, ast.Name) and n.id == "_detail" for n in ast.walk(stmt.iter)):
-            return False
-
-        def _has(attr_target: str, attr_name: str) -> bool:
-            return any(
-                isinstance(n, ast.Attribute)
-                and isinstance(n.value, ast.Name)
-                and n.value.id == attr_target
-                and n.attr == attr_name
-                for n in ast.walk(stmt)
-            )
-
-        return _has("ValidationError", "from_dict") and _has("detail", "append")
-
-    def _patch_method(self, fn: ast.FunctionDef) -> bool:
-        new_body: list[ast.stmt] = []
-        replaced = False
-        for stmt in fn.body:
-            if not replaced and isinstance(stmt, ast.For) and self._target_loop(stmt):
-                if_node = _build_replacement_if_node(stmt.iter)
-                ast.copy_location(if_node, stmt)
-                new_body.append(if_node)
-                replaced = True
-            else:
-                new_body.append(stmt)
-        if replaced:
-            fn.body = new_body
-        return replaced
-
-    # NodeTransformer
-
-    def visit_ClassDef(self, node: ast.ClassDef) -> ast.AST:
-        if self.patch_applied or node.name != "HTTPValidationError":
-            return node
-        for child in node.body:
-            if isinstance(child, ast.FunctionDef) and child.name == "from_dict":
-                if self._patch_method(child):
-                    self.patch_applied = True
-                    break
-        return node
-
-
+# ---------------------------------------------------------------------------
 # Main
+# ---------------------------------------------------------------------------
+
+
+def patch(text: str) -> tuple[str, bool]:
+    """Apply both replacements; return (patched_text, success)."""
+    # Replace the class-level field annotation
+    field_patched, field_count = _FIELD_RE.subn(
+        lambda m: m.group("indent") + 'detail: Unset | list["ValidationError"] = UNSET', text
+    )
+    # Replace the from_dict loop
+    loop_patched, loop_count = _LOOP_RE.subn(lambda m: _loop_replacement(m.group("indent")), field_patched)
+    return loop_patched, bool(field_count and loop_count)
 
 
 def main() -> int:
@@ -157,23 +100,34 @@ def main() -> int:
     target = Path(sys.argv[1])
 
     try:
-        tree = ast.parse(target.read_text(encoding="utf-8"))
+        original = target.read_text(encoding="utf-8")
     except FileNotFoundError:
         print(f"{target} not found", file=sys.stderr)
         return 1
-    except SyntaxError as e:
-        print(f"Syntax error in {target}: {e}", file=sys.stderr)
+    except OSError as e:
+        print(f"Error reading {target}: {e}", file=sys.stderr)
         return 1
 
-    patcher = HTTPValidationErrorPatcher()
-    patcher.visit(tree)
+    patched, success = patch(original)
 
-    if not patcher.patch_applied:
-        print(f"Target loop not found in {target} — template may have changed.", file=sys.stderr)
+    if not success:
+        print(
+            f"Expected patterns not found in {target} — template may have changed. "
+            "Update this script to match the new generated code.",
+            file=sys.stderr,
+        )
         return 2
 
-    ast.fix_missing_locations(tree)
-    target.write_text(ast.unparse(tree), encoding="utf-8")
+    if patched == original:
+        print(f"{target} already patched — nothing to do.")
+        return 0
+
+    try:
+        target.write_text(patched, encoding="utf-8")
+    except OSError as e:
+        print(f"Error writing {target}: {e}", file=sys.stderr)
+        return 1
+
     print(f"Patched {target}")
     return 0
 
