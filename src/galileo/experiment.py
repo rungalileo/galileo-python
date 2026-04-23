@@ -124,7 +124,7 @@ class Experiment(StateManagementMixin):
 
     Examples
     --------
-        # Create an experiment
+        # Prompt-based experiment
         experiment = Experiment(
             name="ml-expert-evaluation",
             dataset_name="ml-knowledge-dataset",
@@ -132,25 +132,16 @@ class Experiment(StateManagementMixin):
             metrics=["correctness", "completeness"],
             project_name="My AI Project"
         )
-
-        # Create and run
         experiment.create()
-        result = experiment.run()
 
-        # Check results
-        experiment.refresh()
-        metrics = experiment.aggregate_metrics
-        print(f"Average cost: ${metrics['average_cost']}")
-
-        # Re-run with different name
-        experiment2 = Experiment(
-            name=f"{experiment.name}-rerun-1",
-            dataset_name=experiment.dataset_name,
-            prompt_name=experiment.prompt_name,
-            metrics=experiment.metrics,
-            project_name=experiment.project_name
-        ).create()
-        experiment2.run()
+        # Function-based / generated-output experiment (no prompt required)
+        experiment = Experiment(
+            name="otel-trace-eval",
+            dataset_name="trace-dataset",
+            metrics=["correctness"],
+            project_name="My AI Project"
+        )
+        experiment.create()
     """
 
     id: str | None
@@ -188,7 +179,6 @@ class Experiment(StateManagementMixin):
             f"created_at='{self.created_at}')"
         )
 
-    @require_exactly_one("prompt", "prompt_name")  # TODO: For function-based experiments, prompt is optional.
     def __init__(
         self,
         name: str,
@@ -201,8 +191,6 @@ class Experiment(StateManagementMixin):
         metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str] | None = None,
         project_id: str | None = None,
         project_name: str | None = None,
-        # TODO: Function-based experiments are temporarily disabled. Need to validate implementation and fix decorator logic.
-        # function: Callable | None = None,
         prompt_settings: PromptRunSettings | None = None,
     ) -> None:
         """
@@ -217,8 +205,9 @@ class Experiment(StateManagementMixin):
                     but required when running the experiment with a prompt template.
             dataset_name: Name of the dataset (alternative to dataset parameter). Optional at creation,
                          but required when running the experiment with a prompt template.
-            prompt: Prompt object, prompt name, or legacy PromptTemplate object.
-            prompt_name: Name of the prompt template (alternative to prompt parameter).
+            prompt: Prompt object, prompt name, or legacy PromptTemplate object. Optional — omit
+                   for function-based or generated-output experiments that don't use a prompt template.
+            prompt_name: Name of the prompt template (alternative to prompt parameter). Optional.
             model: Model object or model alias string to use for the experiment.
                   This will be used to configure the prompt_settings when running the experiment.
             metrics: List of metrics to evaluate.
@@ -236,11 +225,19 @@ class Experiment(StateManagementMixin):
 
         Examples
         --------
-            # Create by project name with dataset and prompt names
+            # Create a prompt-based experiment
             experiment = Experiment(
                 name="ml-evaluation",
                 dataset_name="ml-dataset",
                 prompt_name="ml-prompt",
+                project_name="My AI Project"
+            )
+
+            # Create a function-based experiment (no prompt required)
+            experiment = Experiment(
+                name="otel-trace-eval",
+                dataset_name="trace-dataset",
+                metrics=["correctness"],
                 project_name="My AI Project"
             )
 
