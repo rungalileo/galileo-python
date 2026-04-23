@@ -38,6 +38,10 @@ try:
     from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
         OTLPSpanExporter,  # pyright: ignore[reportAssignmentType]
     )
+    from google.protobuf.json_format import Parse as _ProtoJsonParse  # pyright: ignore[reportAssignmentType]
+    from opentelemetry.proto.collector.trace.v1.trace_service_pb2 import (  # pyright: ignore[reportAssignmentType]
+        ExportTraceServiceResponse,
+    )
     from opentelemetry.sdk.resources import Resource  # pyright: ignore[reportAssignmentType]
     from opentelemetry.sdk.trace import Span, SpanProcessor  # pyright: ignore[reportAssignmentType]
     from opentelemetry.sdk.trace.export import BatchSpanProcessor  # pyright: ignore[reportAssignmentType]
@@ -196,6 +200,38 @@ class GalileoOTLPExporter(OTLPSpanExporter):
                 self._session.headers.pop("logstream", None)  # Remove logstream header if experiment is present
 
         return super().export(spans)
+
+    def _export(self, serialized_data: bytes, timeout_sec: float | None = None) -> Any:
+        """Wrap upstream _export to surface OTLP partial_success rejections.
+
+        The Galileo backend reports unrecognized/invalid spans via the OTLP
+        partial_success protocol on a 200 OK response. The upstream
+        OTLPSpanExporter treats any 2xx as SUCCESS and never inspects the body,
+        so rejections are invisible to users. We parse the response here and
+        log a warning so the signal isn't lost.
+        """
+        resp = super()._export(serialized_data, timeout_sec)
+        if resp.ok and resp.content:
+            try:
+                parsed = ExportTraceServiceResponse()
+                content_type = (resp.headers.get("content-type") or "").split(";")[0].strip().lower()
+                # The Galileo API returns application/json for partial_success, not protobuf,
+                # so we branch on Content-Type and parse accordingly.
+                if content_type == "application/json":
+                    _ProtoJsonParse(resp.content.decode("utf-8"), parsed)
+                else:
+                    parsed.ParseFromString(resp.content)
+                rejected = parsed.partial_success.rejected_spans
+                if rejected:
+                    error_message = parsed.partial_success.error_message or "(no error message returned by server)"
+                    logger.warning(
+                        "Galileo OTLP server rejected %d span(s) via partial_success: %s",
+                        rejected,
+                        error_message,
+                    )
+            except Exception as e:
+                logger.debug("Failed to parse OTLP partial_success response: %s", e)
+        return resp
 
 
 class GalileoSpanProcessor(SpanProcessor):
