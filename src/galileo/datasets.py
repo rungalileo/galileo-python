@@ -3,8 +3,6 @@ import mimetypes
 import time
 from typing import Any, overload
 
-from typing_extensions import deprecated
-
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.datasets import (
     create_dataset_datasets_post,
@@ -670,37 +668,30 @@ class Datasets:
 #
 
 
-@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, id: str) -> Dataset | None: ...
 
 
-@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, id: str, project_id: str) -> Dataset | None: ...
 
 
-@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, id: str, project_name: str) -> Dataset | None: ...
 
 
-@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, name: str) -> Dataset | None: ...
 
 
-@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, name: str, project_id: str) -> Dataset | None: ...
 
 
-@deprecated("Use galileo.dataset.Dataset.get() instead.")
 @overload
 def get_dataset(*, name: str, project_name: str) -> Dataset | None: ...
 
 
-@deprecated("Use galileo.dataset.Dataset.get() instead.")
 def get_dataset(
     *, id: str | None = None, name: str | None = None, project_id: str | None = None, project_name: str | None = None
 ) -> Dataset | None:
@@ -740,7 +731,6 @@ def get_dataset(
     return Datasets().get(id=id, name=name, project_id=project_id, project_name=project_name)  # type: ignore[call-overload]
 
 
-@deprecated("Use galileo.dataset.Dataset.list() instead.")
 def list_datasets(
     limit: Unset | int = 100, *, project_id: str | None = None, project_name: str | None = None
 ) -> list[Dataset]:
@@ -775,37 +765,30 @@ def list_datasets(
     return Datasets().list(limit=limit, project_id=project_id, project_name=project_name)
 
 
-@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, id: str) -> None: ...
 
 
-@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, id: str, project_id: str) -> None: ...
 
 
-@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, id: str, project_name: str) -> None: ...
 
 
-@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, name: str) -> None: ...
 
 
-@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, name: str, project_id: str) -> None: ...
 
 
-@deprecated("Use dataset.delete() instead.")
 @overload
 def delete_dataset(*, name: str, project_name: str) -> None: ...
 
 
-@deprecated("Use dataset.delete() instead.")
 def delete_dataset(
     *, id: str | None = None, name: str | None = None, project_id: str | None = None, project_name: str | None = None
 ) -> None:
@@ -842,7 +825,6 @@ def delete_dataset(
     return Datasets().delete(id=id, name=name, project_id=project_id, project_name=project_name)  # type: ignore[call-overload]
 
 
-@deprecated("Use galileo.dataset.Dataset(name=..., content=...).create() instead.")
 def create_dataset(
     name: str, content: DatasetType, *, project_id: str | None = None, project_name: str | None = None
 ) -> Dataset:
@@ -878,7 +860,6 @@ def create_dataset(
     return Datasets().create(name=name, content=content, project_id=project_id, project_name=project_name)
 
 
-@deprecated("Use dataset.get_version_history() instead.")
 def get_dataset_version_history(
     *, dataset_name: str | None = None, dataset_id: str | None = None
 ) -> HTTPValidationError | ListDatasetVersionResponse | None:
@@ -913,7 +894,6 @@ def get_dataset_version_history(
     raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
-@deprecated("Use dataset.get_version() instead.")
 def get_dataset_version(
     *, version_index: int, dataset_name: str | None = None, dataset_id: str | None = None
 ) -> DatasetContent | None:
@@ -949,7 +929,6 @@ def get_dataset_version(
     raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
-@deprecated("Use dataset.extend() instead.")
 def extend_dataset(
     *,
     prompt_settings: dict[str, Any] | None = None,
@@ -1009,7 +988,6 @@ def extend_dataset(
     )
 
 
-@deprecated("Use galileo.project.Project.list() instead.")
 def list_dataset_projects(
     *, dataset_id: str | None = None, dataset_name: str | None = None, limit: Unset | int = 100
 ) -> list:

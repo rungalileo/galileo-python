@@ -2,7 +2,6 @@ import builtins
 import datetime
 
 import httpx
-from typing_extensions import deprecated
 
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.projects import (
@@ -400,7 +399,6 @@ class Projects:
 #
 
 
-@deprecated("Use galileo.project.Project.get() instead.")
 def get_project(*, id: str | None = None, name: str | None = None) -> Project | None:
     """
     Retrieves a project by id or name (exactly one of `id` or `name` must be provided).
@@ -430,7 +428,6 @@ def get_project(*, id: str | None = None, name: str | None = None) -> Project | 
     return Projects().get(id=id, name=name)
 
 
-@deprecated("Use galileo.project.Project.list() instead.")
 def list_projects() -> list[Project]:
     """
     Lists all projects.
@@ -456,7 +453,6 @@ def list_projects() -> list[Project]:
     return Projects().list()
 
 
-@deprecated("Use galileo.project.Project(name=...).create() instead.")
 def create_project(name: str) -> Project:
     """
     Creates a new project.
@@ -484,7 +480,6 @@ def create_project(name: str) -> Project:
     return Projects().create(name=name)
 
 
-@deprecated("Use project.add_collaborator() instead.")
 def share_project_with_user(
     project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.VIEWER
 ) -> UserCollaborator:
@@ -508,7 +503,6 @@ def share_project_with_user(
     return Projects().share_project_with_user(project_id=project_id, user_id=user_id, role=role)
 
 
-@deprecated("Use project.remove_collaborator() instead.")
 def unshare_project_with_user(project_id: str, user_id: str) -> None:
     """
     Unshare a project with a user.
@@ -523,7 +517,6 @@ def unshare_project_with_user(project_id: str, user_id: str) -> None:
     return Projects().unshare_project_with_user(project_id=project_id, user_id=user_id)
 
 
-@deprecated("Use project.list_collaborators() instead.")
 def list_user_project_collaborators(project_id: str) -> list[UserCollaborator]:
     """
     List all users that a project is shared with.
@@ -541,7 +534,6 @@ def list_user_project_collaborators(project_id: str) -> list[UserCollaborator]:
     return Projects().list_user_project_collaborators(project_id=project_id)
 
 
-@deprecated("Use project.update_collaborator() instead.")
 def update_user_project_collaborator(
     project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.VIEWER
 ) -> UserCollaborator:
@@ -565,7 +557,6 @@ def update_user_project_collaborator(
     return Projects().update_user_project_collaborator(project_id=project_id, user_id=user_id, role=role)
 
 
-@deprecated("Use galileo.project.Project.get(name=...).delete() instead.")
 def delete_project(*, id: str | None = None, name: str | None = None) -> bool:
     """
     Deletes a gen_ai project by ID or name (exactly one of `id` or `name` must be provided).
