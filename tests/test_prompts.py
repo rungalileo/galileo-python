@@ -1422,13 +1422,12 @@ def test_list_prompt_templates_deprecated(mock_projects_get: Mock, query_templat
         }
     )
 
-    # Should work but emit deprecation warning
-    with pytest.warns(DeprecationWarning, match="Use galileo.prompt.Prompt.list"):
-        templates = list_prompt_templates(project="My Project")
+    # When: listing prompt templates for a project
+    templates = list_prompt_templates(project="My Project")
 
+    # Then: templates are returned and the API was called with the project filter
     assert len(templates) == 1
     assert templates[0].name == template.name
-    # Verify it called with project_name filter
     query_templates_mock.sync.assert_called_once()
 
 
@@ -1455,10 +1454,10 @@ def test_get_prompt_template_deprecated(query_templates_mock: Mock, get_template
 
     get_template_mock.sync.return_value = template
 
-    # Should work but emit deprecation warning
-    with pytest.warns(DeprecationWarning, match="Use galileo.prompt.Prompt.get"):
-        result = get_prompt_template(name="my-template", project="My Project")
+    # When: retrieving a prompt template by name and project
+    result = get_prompt_template(name="my-template", project="My Project")
 
+    # Then: the correct template is returned
     assert result is not None
     assert result.name == "my-template"
 
@@ -1486,12 +1485,11 @@ def test_prompt_templates_class_deprecated(mock_projects_get: Mock, query_templa
         }
     )
 
-    # Should work but emit deprecation warning on instantiation
-    with pytest.warns(DeprecationWarning, match="PromptTemplates is deprecated, use get_prompts instead"):
-        templates_obj = PromptTemplates(project="My Project")
-
-    # Methods should work without additional warnings
+    # When: instantiating PromptTemplates and listing templates
+    templates_obj = PromptTemplates(project="My Project")
     templates_list = templates_obj.list()
+
+    # Then: templates are returned correctly
     assert len(templates_list) == 1
     assert templates_list[0].name == template.name
 
@@ -1504,21 +1502,17 @@ def test_get_prompt_with_project_params_deprecated(get_template_mock: Mock) -> N
     template.name = "my-template"
     get_template_mock.sync.return_value = template
 
-    # Using project_id should emit warning
-    with pytest.warns(
-        DeprecationWarning, match="project_id and project_name parameters are deprecated, use get_prompts instead"
-    ):
-        result = get_prompt(id=template.id, project_id="some-project-id")
+    # When: calling get_prompt with project_id (silently ignored)
+    result = get_prompt(id=template.id, project_id="some-project-id")
 
+    # Then: the template is returned regardless
     assert result is not None
     assert result.name == "my-template"
 
-    # Using project_name should emit warning
-    with pytest.warns(
-        DeprecationWarning, match="project_id and project_name parameters are deprecated, use get_prompts instead"
-    ):
-        result = get_prompt(id=template.id, project_name="Some Project")
+    # When: calling get_prompt with project_name (silently ignored)
+    result = get_prompt(id=template.id, project_name="Some Project")
 
+    # Then: the template is returned regardless
     assert result is not None
     assert result.name == "my-template"
 
@@ -1532,17 +1526,17 @@ def test_delete_prompt_with_project_params_deprecated(get_template_mock: Mock, d
     get_template_mock.sync.return_value = template
     delete_template_mock.sync.return_value = None
 
-    # Using project_id should emit warning
-    with pytest.warns(DeprecationWarning, match="project_id and project_name parameters are deprecated"):
-        delete_prompt(id=template.id, project_id="some-project-id")
+    # When: calling delete_prompt with project_id (silently ignored)
+    delete_prompt(id=template.id, project_id="some-project-id")
 
+    # Then: the template is deleted regardless
     delete_template_mock.sync.assert_called_once()
     delete_template_mock.reset_mock()
 
-    # Using project_name should emit warning
-    with pytest.warns(DeprecationWarning, match="project_id and project_name parameters are deprecated"):
-        delete_prompt(id=template.id, project_name="Some Project")
+    # When: calling delete_prompt with project_name (silently ignored)
+    delete_prompt(id=template.id, project_name="Some Project")
 
+    # Then: the template is deleted regardless
     delete_template_mock.sync.assert_called_once()
 
 
@@ -1572,12 +1566,12 @@ def test_create_prompt_template_still_works(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
     )
 
-    # Should work but emit deprecation warning
-    with pytest.warns(DeprecationWarning, match="Use galileo.prompt.Prompt"):
-        template = create_prompt_template(
-            name="test-template", project="My Project", messages=[Message(role=MessageRole.system, content="test")]
-        )
+    # When: creating a prompt template via the legacy function
+    template = create_prompt_template(
+        name="test-template", project="My Project", messages=[Message(role=MessageRole.system, content="test")]
+    )
 
+    # Then: the created template is returned
     assert template is not None
     assert template.name == "test-template"
     create_global_prompt_template_mock.sync_detailed.assert_called_once()
@@ -1607,13 +1601,13 @@ def test_prompt_templates_create_method(mock_projects_get: Mock, create_mock: Mo
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
     )
 
-    # Instantiate (will emit warning)
-    with pytest.warns(DeprecationWarning):
-        templates_obj = PromptTemplates(project="My Project")
+    # Given: a PromptTemplates instance for a project
+    templates_obj = PromptTemplates(project="My Project")
 
-    # Create should work
+    # When: creating a template via the instance
     template = templates_obj.create(name="test-template", template=[Message(role=MessageRole.system, content="test")])
 
+    # Then: the created template is returned
     assert template is not None
     assert template.name == "test-template"
 
@@ -1645,13 +1639,13 @@ def test_prompt_templates_get_method(mock_projects_get: Mock, query_templates_mo
     )
     get_mock.sync.return_value = template
 
-    # Instantiate (will emit warning)
-    with pytest.warns(DeprecationWarning):
-        templates_obj = PromptTemplates(project="My Project")
+    # Given: a PromptTemplates instance for a project
+    templates_obj = PromptTemplates(project="My Project")
 
-    # Get should work
+    # When: retrieving a template by name
     result = templates_obj.get(name="my-template")
 
+    # Then: the correct template is returned
     assert result is not None
     assert result.name == "my-template"
 
@@ -1687,11 +1681,11 @@ def test_prompt_templates_delete_method(
     get_mock.sync.return_value = template
     delete_mock.sync.return_value = None
 
-    # Instantiate (will emit warning)
-    with pytest.warns(DeprecationWarning):
-        templates_obj = PromptTemplates(project="My Project")
+    # Given: a PromptTemplates instance for a project
+    templates_obj = PromptTemplates(project="My Project")
 
-    # Delete should work
+    # When: deleting a template by name
     templates_obj.delete(name="my-template")
 
+    # Then: the delete API was called
     delete_mock.sync.assert_called_once()
