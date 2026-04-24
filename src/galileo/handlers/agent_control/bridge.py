@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import importlib
 import logging
+import re
 import threading
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from types import ModuleType
@@ -14,6 +16,7 @@ from galileo.utils.serialization import serialize_to_str
 
 logger = logging.getLogger(__name__)
 
+_UUID_PATTERN = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 _REGISTRATION_LOCK = threading.RLock()
 _REGISTERED_BRIDGES: list[GalileoAgentControlBridge] = []
 _PREVIOUS_TRACE_CONTEXT_PROVIDER: Any = None
@@ -96,6 +99,30 @@ def _extract_control_input(metadata: dict[str, Any] | None) -> str:
             return value if isinstance(value, str) else serialize_to_str(value)
 
     return ""
+
+
+def _normalize_context_id(value: Any) -> str | None:
+    """Normalize Galileo context IDs while tolerating prefixed upstream wrappers."""
+    if value is None:
+        return None
+
+    text = str(value).strip()
+    if not text:
+        return None
+
+    try:
+        return str(uuid.UUID(text))
+    except (TypeError, ValueError, AttributeError):
+        pass
+
+    uuid_matches = _UUID_PATTERN.findall(text)
+    if len(uuid_matches) != 1:
+        return text
+
+    try:
+        return str(uuid.UUID(uuid_matches[0]))
+    except ValueError:
+        return text
 
 
 def _dispatch_trace_context() -> dict[str, str] | None:
@@ -233,9 +260,11 @@ class GalileoAgentControlBridge:
 
     @staticmethod
     def _matches_active_context(event: Any, active_context: _ActiveContext) -> bool:
-        event_trace_id = getattr(event, "trace_id", None)
-        event_span_id = getattr(event, "span_id", None)
-        return event_trace_id == active_context.trace_id and event_span_id == active_context.span_id
+        event_trace_id = _normalize_context_id(getattr(event, "trace_id", None))
+        event_span_id = _normalize_context_id(getattr(event, "span_id", None))
+        active_trace_id = _normalize_context_id(active_context.trace_id)
+        active_span_id = _normalize_context_id(active_context.span_id)
+        return event_trace_id == active_trace_id and event_span_id == active_span_id
 
     @staticmethod
     def _control_span_kwargs(event: Any) -> dict[str, Any]:

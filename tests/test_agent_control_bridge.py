@@ -345,6 +345,63 @@ def test_agent_control_event_converts_to_control_span_in_batch_mode(
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
+def test_agent_control_event_matches_prefixed_ids_against_canonical_context(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
+) -> None:
+    # Given: an active logger and an Agent Control event that prefixes the Galileo IDs
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="trace input")
+    workflow = logger.add_workflow_span(input="workflow input", name="workflow")
+    bridge = setup_agent_control_bridge(logger)
+    prefixed_trace_id = f"trace:{str(logger.traces[0].id).upper()}"
+    prefixed_span_id = f"span:{str(workflow.id).upper()}"
+    event = _make_event(logger, trace_id=prefixed_trace_id, span_id=prefixed_span_id)
+
+    # When: the bridge receives the prefixed event
+    result = bridge.write_events([event])
+
+    # Then: the event is matched using the canonical Galileo IDs and raw upstream IDs are preserved in metadata
+    assert result.accepted == 1
+    assert result.dropped == 0
+    control_span = workflow.spans[0]
+    assert isinstance(control_span, ControlSpan)
+    assert control_span.trace_id == logger.traces[0].id
+    assert control_span.parent_id == workflow.id
+    assert control_span.user_metadata["agent_control_trace_id"] == prefixed_trace_id
+    assert control_span.user_metadata["agent_control_span_id"] == prefixed_span_id
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_agent_control_event_drops_prefixed_ids_when_canonical_ids_do_not_match(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
+) -> None:
+    # Given: an active logger and an Agent Control event whose prefixed span ID resolves to a different Galileo span
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="trace input")
+    workflow = logger.add_workflow_span(input="workflow input", name="workflow")
+    bridge = setup_agent_control_bridge(logger)
+    event = _make_event(logger, trace_id=f"trace:{logger.traces[0].id}", span_id=f"span:{uuid.uuid4()}")
+
+    # When: the bridge receives the mismatched prefixed event
+    result = bridge.write_events([event])
+
+    # Then: the event is still dropped instead of attaching to the active parent
+    assert result.accepted == 0
+    assert result.dropped == 1
+    assert workflow.spans == []
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
 def test_agent_control_event_streams_immediately_in_distributed_mode(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
 ) -> None:
