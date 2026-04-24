@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+    from ..models.extended_control_span_record import ExtendedControlSpanRecord
     from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
     from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
     from ..models.extended_session_record import ExtendedSessionRecord
@@ -29,21 +30,22 @@ class LogRecordsQueryResponse:
         paginated (Union[Unset, bool]):  Default: False.
         next_starting_token (Union[None, Unset, int]):
         last_row_id (Union[None, Unset, str]):
-        records (Union[Unset, list[Union['ExtendedAgentSpanRecord', 'ExtendedLlmSpanRecord',
-            'ExtendedRetrieverSpanRecord', 'ExtendedSessionRecord', 'ExtendedToolSpanRecord', 'ExtendedTraceRecord',
-            'ExtendedWorkflowSpanRecord']]]): records matching the query.
+        records (Union[Unset, list[Union['ExtendedAgentSpanRecord', 'ExtendedControlSpanRecord',
+            'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecord', 'ExtendedSessionRecord', 'ExtendedToolSpanRecord',
+            'ExtendedTraceRecord', 'ExtendedWorkflowSpanRecord']]]): records matching the query.
     """
 
-    starting_token: Union[Unset, int] = 0
-    limit: Union[Unset, int] = 100
-    paginated: Union[Unset, bool] = False
-    next_starting_token: Union[None, Unset, int] = UNSET
-    last_row_id: Union[None, Unset, str] = UNSET
-    records: Union[
-        Unset,
-        list[
+    starting_token: Unset | int = 0
+    limit: Unset | int = 100
+    paginated: Unset | bool = False
+    next_starting_token: None | Unset | int = UNSET
+    last_row_id: None | Unset | str = UNSET
+    records: (
+        Unset
+        | list[
             Union[
                 "ExtendedAgentSpanRecord",
+                "ExtendedControlSpanRecord",
                 "ExtendedLlmSpanRecord",
                 "ExtendedRetrieverSpanRecord",
                 "ExtendedSessionRecord",
@@ -51,12 +53,13 @@ class LogRecordsQueryResponse:
                 "ExtendedTraceRecord",
                 "ExtendedWorkflowSpanRecord",
             ]
-        ],
-    ] = UNSET
+        ]
+    ) = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+        from ..models.extended_control_span_record import ExtendedControlSpanRecord
         from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
         from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
         from ..models.extended_tool_span_record import ExtendedToolSpanRecord
@@ -69,27 +72,25 @@ class LogRecordsQueryResponse:
 
         paginated = self.paginated
 
-        next_starting_token: Union[None, Unset, int]
+        next_starting_token: None | Unset | int
         next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
-        last_row_id: Union[None, Unset, str]
+        last_row_id: None | Unset | str
         last_row_id = UNSET if isinstance(self.last_row_id, Unset) else self.last_row_id
 
-        records: Union[Unset, list[dict[str, Any]]] = UNSET
+        records: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.records, Unset):
             records = []
             for records_item_data in self.records:
                 records_item: dict[str, Any]
                 if isinstance(
                     records_item_data,
-                    (
-                        ExtendedTraceRecord,
-                        ExtendedAgentSpanRecord,
-                        ExtendedWorkflowSpanRecord,
-                        ExtendedLlmSpanRecord,
-                        ExtendedToolSpanRecord,
-                        ExtendedRetrieverSpanRecord,
-                    ),
+                    ExtendedTraceRecord
+                    | ExtendedAgentSpanRecord
+                    | ExtendedWorkflowSpanRecord
+                    | ExtendedLlmSpanRecord
+                    | (ExtendedToolSpanRecord | ExtendedRetrieverSpanRecord)
+                    | ExtendedControlSpanRecord,
                 ):
                     records_item = records_item_data.to_dict()
                 else:
@@ -117,6 +118,8 @@ class LogRecordsQueryResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.extended_control_span_record import ExtendedControlSpanRecord
+
         d = dict(src_dict)
         starting_token = d.pop("starting_token", UNSET)
 
@@ -124,21 +127,21 @@ class LogRecordsQueryResponse:
 
         paginated = d.pop("paginated", UNSET)
 
-        def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
+        def _parse_next_starting_token(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
-        def _parse_last_row_id(data: object) -> Union[None, Unset, str]:
+        def _parse_last_row_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         last_row_id = _parse_last_row_id(d.pop("last_row_id", UNSET))
 
@@ -150,6 +153,7 @@ class LogRecordsQueryResponse:
                 data: object,
             ) -> Union[
                 "ExtendedAgentSpanRecord",
+                "ExtendedControlSpanRecord",
                 "ExtendedLlmSpanRecord",
                 "ExtendedRetrieverSpanRecord",
                 "ExtendedSessionRecord",
@@ -252,6 +256,13 @@ class LogRecordsQueryResponse:
                     if not isinstance(data, dict):
                         raise TypeError()
                     return ExtendedRetrieverSpanRecord.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return ExtendedControlSpanRecord.from_dict(data)
 
                 except:  # noqa: E722
                     pass

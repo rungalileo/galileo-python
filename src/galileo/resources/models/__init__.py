@@ -135,6 +135,13 @@ from .content_modality import ContentModality
 from .context_adherence_scorer import ContextAdherenceScorer
 from .context_adherence_scorer_type import ContextAdherenceScorerType
 from .context_relevance_scorer import ContextRelevanceScorer
+from .control_action import ControlAction
+from .control_applies_to import ControlAppliesTo
+from .control_check_stage import ControlCheckStage
+from .control_result import ControlResult
+from .control_span import ControlSpan
+from .control_span_dataset_metadata import ControlSpanDatasetMetadata
+from .control_span_user_metadata import ControlSpanUserMetadata
 from .core_scorer_name import CoreScorerName
 from .correctness_scorer import CorrectnessScorer
 from .create_custom_luna_scorer_version_request import CreateCustomLunaScorerVersionRequest
@@ -405,6 +412,17 @@ from .extended_agent_span_record_with_children_metric_info_type_0 import (
     ExtendedAgentSpanRecordWithChildrenMetricInfoType0,
 )
 from .extended_agent_span_record_with_children_user_metadata import ExtendedAgentSpanRecordWithChildrenUserMetadata
+from .extended_control_span_record import ExtendedControlSpanRecord
+from .extended_control_span_record_annotation_aggregates import ExtendedControlSpanRecordAnnotationAggregates
+from .extended_control_span_record_annotations import ExtendedControlSpanRecordAnnotations
+from .extended_control_span_record_annotations_additional_property import (
+    ExtendedControlSpanRecordAnnotationsAdditionalProperty,
+)
+from .extended_control_span_record_dataset_metadata import ExtendedControlSpanRecordDatasetMetadata
+from .extended_control_span_record_feedback_rating_info import ExtendedControlSpanRecordFeedbackRatingInfo
+from .extended_control_span_record_files_type_0 import ExtendedControlSpanRecordFilesType0
+from .extended_control_span_record_metric_info_type_0 import ExtendedControlSpanRecordMetricInfoType0
+from .extended_control_span_record_user_metadata import ExtendedControlSpanRecordUserMetadata
 from .extended_llm_span_record import ExtendedLlmSpanRecord
 from .extended_llm_span_record_annotation_aggregates import ExtendedLlmSpanRecordAnnotationAggregates
 from .extended_llm_span_record_annotations import ExtendedLlmSpanRecordAnnotations
@@ -813,6 +831,21 @@ from .partial_extended_agent_span_record_feedback_rating_info import PartialExte
 from .partial_extended_agent_span_record_files_type_0 import PartialExtendedAgentSpanRecordFilesType0
 from .partial_extended_agent_span_record_metric_info_type_0 import PartialExtendedAgentSpanRecordMetricInfoType0
 from .partial_extended_agent_span_record_user_metadata import PartialExtendedAgentSpanRecordUserMetadata
+from .partial_extended_control_span_record import PartialExtendedControlSpanRecord
+from .partial_extended_control_span_record_annotation_aggregates import (
+    PartialExtendedControlSpanRecordAnnotationAggregates,
+)
+from .partial_extended_control_span_record_annotations import PartialExtendedControlSpanRecordAnnotations
+from .partial_extended_control_span_record_annotations_additional_property import (
+    PartialExtendedControlSpanRecordAnnotationsAdditionalProperty,
+)
+from .partial_extended_control_span_record_dataset_metadata import PartialExtendedControlSpanRecordDatasetMetadata
+from .partial_extended_control_span_record_feedback_rating_info import (
+    PartialExtendedControlSpanRecordFeedbackRatingInfo,
+)
+from .partial_extended_control_span_record_files_type_0 import PartialExtendedControlSpanRecordFilesType0
+from .partial_extended_control_span_record_metric_info_type_0 import PartialExtendedControlSpanRecordMetricInfoType0
+from .partial_extended_control_span_record_user_metadata import PartialExtendedControlSpanRecordUserMetadata
 from .partial_extended_llm_span_record import PartialExtendedLlmSpanRecord
 from .partial_extended_llm_span_record_annotation_aggregates import PartialExtendedLlmSpanRecordAnnotationAggregates
 from .partial_extended_llm_span_record_annotations import PartialExtendedLlmSpanRecordAnnotations
@@ -1250,6 +1283,13 @@ __all__ = (
     "ContextAdherenceScorer",
     "ContextAdherenceScorerType",
     "ContextRelevanceScorer",
+    "ControlAction",
+    "ControlAppliesTo",
+    "ControlCheckStage",
+    "ControlResult",
+    "ControlSpan",
+    "ControlSpanDatasetMetadata",
+    "ControlSpanUserMetadata",
     "CoreScorerName",
     "CorrectnessScorer",
     "CreateCustomLunaScorerVersionRequest",
@@ -1432,6 +1472,15 @@ __all__ = (
     "ExtendedAgentSpanRecordWithChildrenFilesType0",
     "ExtendedAgentSpanRecordWithChildrenMetricInfoType0",
     "ExtendedAgentSpanRecordWithChildrenUserMetadata",
+    "ExtendedControlSpanRecord",
+    "ExtendedControlSpanRecordAnnotationAggregates",
+    "ExtendedControlSpanRecordAnnotations",
+    "ExtendedControlSpanRecordAnnotationsAdditionalProperty",
+    "ExtendedControlSpanRecordDatasetMetadata",
+    "ExtendedControlSpanRecordFeedbackRatingInfo",
+    "ExtendedControlSpanRecordFilesType0",
+    "ExtendedControlSpanRecordMetricInfoType0",
+    "ExtendedControlSpanRecordUserMetadata",
     "ExtendedLlmSpanRecord",
     "ExtendedLlmSpanRecordAnnotationAggregates",
     "ExtendedLlmSpanRecordAnnotations",
@@ -1782,6 +1831,15 @@ __all__ = (
     "PartialExtendedAgentSpanRecordFilesType0",
     "PartialExtendedAgentSpanRecordMetricInfoType0",
     "PartialExtendedAgentSpanRecordUserMetadata",
+    "PartialExtendedControlSpanRecord",
+    "PartialExtendedControlSpanRecordAnnotationAggregates",
+    "PartialExtendedControlSpanRecordAnnotations",
+    "PartialExtendedControlSpanRecordAnnotationsAdditionalProperty",
+    "PartialExtendedControlSpanRecordDatasetMetadata",
+    "PartialExtendedControlSpanRecordFeedbackRatingInfo",
+    "PartialExtendedControlSpanRecordFilesType0",
+    "PartialExtendedControlSpanRecordMetricInfoType0",
+    "PartialExtendedControlSpanRecordUserMetadata",
     "PartialExtendedLlmSpanRecord",
     "PartialExtendedLlmSpanRecordAnnotationAggregates",
     "PartialExtendedLlmSpanRecordAnnotations",

@@ -198,6 +198,7 @@ ignore = [
     "S311",     # Standard pseudo-random generators (false positive for backoff/timing)
     "S324",     # Insecure hash functions (sometimes needed for non-crypto)
     "PLR0914",  # Too many local variables
+    "PLW0603",  # Using the global statement to update module-level variables (necessary for this code)
     # Docstring rules - allow missing docstrings but enforce format when present
     "D100",     # Missing docstring in public module
     "D101",     # Missing docstring in public class

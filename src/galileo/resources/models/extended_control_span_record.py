@@ -7,31 +7,32 @@ from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
 from ..models.content_modality import ContentModality
+from ..models.control_applies_to import ControlAppliesTo
+from ..models.control_check_stage import ControlCheckStage
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.control_result import ControlResult
-    from ..models.document import Document
-    from ..models.extended_workflow_span_record_annotation_aggregates import (
-        ExtendedWorkflowSpanRecordAnnotationAggregates,
+    from ..models.extended_control_span_record_annotation_aggregates import (
+        ExtendedControlSpanRecordAnnotationAggregates,
     )
-    from ..models.extended_workflow_span_record_annotations import ExtendedWorkflowSpanRecordAnnotations
-    from ..models.extended_workflow_span_record_dataset_metadata import ExtendedWorkflowSpanRecordDatasetMetadata
-    from ..models.extended_workflow_span_record_feedback_rating_info import ExtendedWorkflowSpanRecordFeedbackRatingInfo
-    from ..models.extended_workflow_span_record_files_type_0 import ExtendedWorkflowSpanRecordFilesType0
-    from ..models.extended_workflow_span_record_metric_info_type_0 import ExtendedWorkflowSpanRecordMetricInfoType0
-    from ..models.extended_workflow_span_record_user_metadata import ExtendedWorkflowSpanRecordUserMetadata
+    from ..models.extended_control_span_record_annotations import ExtendedControlSpanRecordAnnotations
+    from ..models.extended_control_span_record_dataset_metadata import ExtendedControlSpanRecordDatasetMetadata
+    from ..models.extended_control_span_record_feedback_rating_info import ExtendedControlSpanRecordFeedbackRatingInfo
+    from ..models.extended_control_span_record_files_type_0 import ExtendedControlSpanRecordFilesType0
+    from ..models.extended_control_span_record_metric_info_type_0 import ExtendedControlSpanRecordMetricInfoType0
+    from ..models.extended_control_span_record_user_metadata import ExtendedControlSpanRecordUserMetadata
     from ..models.file_content_part import FileContentPart
     from ..models.message import Message
     from ..models.metrics import Metrics
     from ..models.text_content_part import TextContentPart
 
 
-T = TypeVar("T", bound="ExtendedWorkflowSpanRecord")
+T = TypeVar("T", bound="ExtendedControlSpanRecord")
 
 
 @_attrs_define
-class ExtendedWorkflowSpanRecord:
+class ExtendedControlSpanRecord:
     """
     Attributes
     ----------
@@ -40,18 +41,16 @@ class ExtendedWorkflowSpanRecord:
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
         parent_id (str): Galileo ID of the parent of this span
-        type_ (Union[Literal['workflow'], Unset]): Type of the trace, span or session. Default: 'workflow'.
+        type_ (Union[Literal['control'], Unset]): Type of the trace, span or session. Default: 'control'.
         input_ (Union[Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]): Input to the
             trace or span. Default: ''.
         redacted_input (Union[None, Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]):
             Redacted input of the trace or span.
-        output (Union['ControlResult', 'Message', None, Unset, list['Document'], list[Union['FileContentPart',
-            'TextContentPart']], str]): Output of the trace or span.
-        redacted_output (Union['ControlResult', 'Message', None, Unset, list['Document'], list[Union['FileContentPart',
-            'TextContentPart']], str]): Redacted output of the trace or span.
+        output (Union['ControlResult', None, Unset]): Output of the trace or span.
+        redacted_output (Union['ControlResult', None, Unset]): Redacted output of the trace or span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
-        user_metadata (Union[Unset, ExtendedWorkflowSpanRecordUserMetadata]): Metadata associated with this trace or
+        user_metadata (Union[Unset, ExtendedControlSpanRecordUserMetadata]): Metadata associated with this trace or
             span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
@@ -60,7 +59,7 @@ class ExtendedWorkflowSpanRecord:
         external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
-        dataset_metadata (Union[Unset, ExtendedWorkflowSpanRecordDatasetMetadata]): Metadata from the dataset associated
+        dataset_metadata (Union[Unset, ExtendedControlSpanRecordDatasetMetadata]): Metadata from the dataset associated
             with this trace
         trace_id (Union[None, Unset, str]): Galileo ID of the trace containing the span (or the same value as id for a
             trace)
@@ -68,21 +67,31 @@ class ExtendedWorkflowSpanRecord:
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
-        feedback_rating_info (Union[Unset, ExtendedWorkflowSpanRecordFeedbackRatingInfo]): Feedback information related
+        feedback_rating_info (Union[Unset, ExtendedControlSpanRecordFeedbackRatingInfo]): Feedback information related
             to the record
-        annotations (Union[Unset, ExtendedWorkflowSpanRecordAnnotations]): Annotations keyed by template ID and
-            annotator ID
+        annotations (Union[Unset, ExtendedControlSpanRecordAnnotations]): Annotations keyed by template ID and annotator
+            ID
         file_ids (Union[Unset, list[str]]): IDs of files associated with this record
         file_modalities (Union[Unset, list[ContentModality]]): Modalities of files associated with this record
-        annotation_aggregates (Union[Unset, ExtendedWorkflowSpanRecordAnnotationAggregates]): Annotation aggregate
+        annotation_aggregates (Union[Unset, ExtendedControlSpanRecordAnnotationAggregates]): Annotation aggregate
             information keyed by template ID
         annotation_queue_ids (Union[Unset, list[str]]): IDs of annotation queues this record is in
-        metric_info (Union['ExtendedWorkflowSpanRecordMetricInfoType0', None, Unset]): Detailed information about the
+        metric_info (Union['ExtendedControlSpanRecordMetricInfoType0', None, Unset]): Detailed information about the
             metrics associated with this trace or span
-        files (Union['ExtendedWorkflowSpanRecordFilesType0', None, Unset]): File metadata keyed by file ID for files
+        files (Union['ExtendedControlSpanRecordFilesType0', None, Unset]): File metadata keyed by file ID for files
             associated with this record
         is_complete (Union[Unset, bool]): Whether the parent trace is complete or not Default: True.
         step_number (Union[None, Unset, int]): Topological step number of the span.
+        control_id (Union[None, Unset, int]): Identifier of the control definition that produced this span.
+        agent_name (Union[None, Unset, str]): Normalized agent name associated with this control execution.
+        check_stage (Union[ControlCheckStage, None, Unset]): Execution stage where the control ran, typically 'pre' or
+            'post'.
+        applies_to (Union[ControlAppliesTo, None, Unset]): Parent execution type the control applied to, for example
+            'llm_call' or 'tool_call'.
+        evaluator_name (Union[None, Unset, str]): Representative evaluator name for this control span. For composite
+            controls, this is the primary evaluator chosen for observability identity.
+        selector_path (Union[None, Unset, str]): Representative selector path for this control span. For composite
+            controls, this is the primary selector path chosen for observability identity.
     """
 
     id: str
@@ -90,59 +99,48 @@ class ExtendedWorkflowSpanRecord:
     project_id: str
     run_id: str
     parent_id: str
-    type_: Literal["workflow"] | Unset = "workflow"
+    type_: Literal["control"] | Unset = "control"
     input_: Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str = ""
     redacted_input: None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str = UNSET
-    output: Union[
-        "ControlResult",
-        "Message",
-        None,
-        Unset,
-        list["Document"],
-        list[Union["FileContentPart", "TextContentPart"]],
-        str,
-    ] = UNSET
-    redacted_output: Union[
-        "ControlResult",
-        "Message",
-        None,
-        Unset,
-        list["Document"],
-        list[Union["FileContentPart", "TextContentPart"]],
-        str,
-    ] = UNSET
+    output: Union["ControlResult", None, Unset] = UNSET
+    redacted_output: Union["ControlResult", None, Unset] = UNSET
     name: Unset | str = ""
     created_at: Unset | datetime.datetime = UNSET
-    user_metadata: Union[Unset, "ExtendedWorkflowSpanRecordUserMetadata"] = UNSET
+    user_metadata: Union[Unset, "ExtendedControlSpanRecordUserMetadata"] = UNSET
     tags: Unset | list[str] = UNSET
     status_code: None | Unset | int = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
     external_id: None | Unset | str = UNSET
     dataset_input: None | Unset | str = UNSET
     dataset_output: None | Unset | str = UNSET
-    dataset_metadata: Union[Unset, "ExtendedWorkflowSpanRecordDatasetMetadata"] = UNSET
+    dataset_metadata: Union[Unset, "ExtendedControlSpanRecordDatasetMetadata"] = UNSET
     trace_id: None | Unset | str = UNSET
     updated_at: None | Unset | datetime.datetime = UNSET
     has_children: None | Unset | bool = UNSET
     metrics_batch_id: None | Unset | str = UNSET
     session_batch_id: None | Unset | str = UNSET
-    feedback_rating_info: Union[Unset, "ExtendedWorkflowSpanRecordFeedbackRatingInfo"] = UNSET
-    annotations: Union[Unset, "ExtendedWorkflowSpanRecordAnnotations"] = UNSET
+    feedback_rating_info: Union[Unset, "ExtendedControlSpanRecordFeedbackRatingInfo"] = UNSET
+    annotations: Union[Unset, "ExtendedControlSpanRecordAnnotations"] = UNSET
     file_ids: Unset | list[str] = UNSET
     file_modalities: Unset | list[ContentModality] = UNSET
-    annotation_aggregates: Union[Unset, "ExtendedWorkflowSpanRecordAnnotationAggregates"] = UNSET
+    annotation_aggregates: Union[Unset, "ExtendedControlSpanRecordAnnotationAggregates"] = UNSET
     annotation_queue_ids: Unset | list[str] = UNSET
-    metric_info: Union["ExtendedWorkflowSpanRecordMetricInfoType0", None, Unset] = UNSET
-    files: Union["ExtendedWorkflowSpanRecordFilesType0", None, Unset] = UNSET
+    metric_info: Union["ExtendedControlSpanRecordMetricInfoType0", None, Unset] = UNSET
+    files: Union["ExtendedControlSpanRecordFilesType0", None, Unset] = UNSET
     is_complete: Unset | bool = True
     step_number: None | Unset | int = UNSET
+    control_id: None | Unset | int = UNSET
+    agent_name: None | Unset | str = UNSET
+    check_stage: ControlCheckStage | None | Unset = UNSET
+    applies_to: ControlAppliesTo | None | Unset = UNSET
+    evaluator_name: None | Unset | str = UNSET
+    selector_path: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.control_result import ControlResult
-        from ..models.extended_workflow_span_record_files_type_0 import ExtendedWorkflowSpanRecordFilesType0
-        from ..models.extended_workflow_span_record_metric_info_type_0 import ExtendedWorkflowSpanRecordMetricInfoType0
-        from ..models.message import Message
+        from ..models.extended_control_span_record_files_type_0 import ExtendedControlSpanRecordFilesType0
+        from ..models.extended_control_span_record_metric_info_type_0 import ExtendedControlSpanRecordMetricInfoType0
         from ..models.text_content_part import TextContentPart
 
         id = self.id
@@ -203,55 +201,17 @@ class ExtendedWorkflowSpanRecord:
         else:
             redacted_input = self.redacted_input
 
-        output: None | Unset | dict[str, Any] | list[dict[str, Any]] | str
+        output: None | Unset | dict[str, Any]
         if isinstance(self.output, Unset):
             output = UNSET
-        elif isinstance(self.output, Message):
-            output = self.output.to_dict()
-        elif isinstance(self.output, list):
-            output = []
-            for output_type_2_item_data in self.output:
-                output_type_2_item = output_type_2_item_data.to_dict()
-                output.append(output_type_2_item)
-
-        elif isinstance(self.output, list):
-            output = []
-            for output_type_3_item_data in self.output:
-                output_type_3_item: dict[str, Any]
-                if isinstance(output_type_3_item_data, TextContentPart):
-                    output_type_3_item = output_type_3_item_data.to_dict()
-                else:
-                    output_type_3_item = output_type_3_item_data.to_dict()
-
-                output.append(output_type_3_item)
-
         elif isinstance(self.output, ControlResult):
             output = self.output.to_dict()
         else:
             output = self.output
 
-        redacted_output: None | Unset | dict[str, Any] | list[dict[str, Any]] | str
+        redacted_output: None | Unset | dict[str, Any]
         if isinstance(self.redacted_output, Unset):
             redacted_output = UNSET
-        elif isinstance(self.redacted_output, Message):
-            redacted_output = self.redacted_output.to_dict()
-        elif isinstance(self.redacted_output, list):
-            redacted_output = []
-            for redacted_output_type_2_item_data in self.redacted_output:
-                redacted_output_type_2_item = redacted_output_type_2_item_data.to_dict()
-                redacted_output.append(redacted_output_type_2_item)
-
-        elif isinstance(self.redacted_output, list):
-            redacted_output = []
-            for redacted_output_type_3_item_data in self.redacted_output:
-                redacted_output_type_3_item: dict[str, Any]
-                if isinstance(redacted_output_type_3_item_data, TextContentPart):
-                    redacted_output_type_3_item = redacted_output_type_3_item_data.to_dict()
-                else:
-                    redacted_output_type_3_item = redacted_output_type_3_item_data.to_dict()
-
-                redacted_output.append(redacted_output_type_3_item)
-
         elif isinstance(self.redacted_output, ControlResult):
             redacted_output = self.redacted_output.to_dict()
         else:
@@ -341,7 +301,7 @@ class ExtendedWorkflowSpanRecord:
         metric_info: None | Unset | dict[str, Any]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
-        elif isinstance(self.metric_info, ExtendedWorkflowSpanRecordMetricInfoType0):
+        elif isinstance(self.metric_info, ExtendedControlSpanRecordMetricInfoType0):
             metric_info = self.metric_info.to_dict()
         else:
             metric_info = self.metric_info
@@ -349,7 +309,7 @@ class ExtendedWorkflowSpanRecord:
         files: None | Unset | dict[str, Any]
         if isinstance(self.files, Unset):
             files = UNSET
-        elif isinstance(self.files, ExtendedWorkflowSpanRecordFilesType0):
+        elif isinstance(self.files, ExtendedControlSpanRecordFilesType0):
             files = self.files.to_dict()
         else:
             files = self.files
@@ -358,6 +318,34 @@ class ExtendedWorkflowSpanRecord:
 
         step_number: None | Unset | int
         step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
+
+        control_id: None | Unset | int
+        control_id = UNSET if isinstance(self.control_id, Unset) else self.control_id
+
+        agent_name: None | Unset | str
+        agent_name = UNSET if isinstance(self.agent_name, Unset) else self.agent_name
+
+        check_stage: None | Unset | str
+        if isinstance(self.check_stage, Unset):
+            check_stage = UNSET
+        elif isinstance(self.check_stage, ControlCheckStage):
+            check_stage = self.check_stage.value
+        else:
+            check_stage = self.check_stage
+
+        applies_to: None | Unset | str
+        if isinstance(self.applies_to, Unset):
+            applies_to = UNSET
+        elif isinstance(self.applies_to, ControlAppliesTo):
+            applies_to = self.applies_to.value
+        else:
+            applies_to = self.applies_to
+
+        evaluator_name: None | Unset | str
+        evaluator_name = UNSET if isinstance(self.evaluator_name, Unset) else self.evaluator_name
+
+        selector_path: None | Unset | str
+        selector_path = UNSET if isinstance(self.selector_path, Unset) else self.selector_path
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -424,24 +412,35 @@ class ExtendedWorkflowSpanRecord:
             field_dict["is_complete"] = is_complete
         if step_number is not UNSET:
             field_dict["step_number"] = step_number
+        if control_id is not UNSET:
+            field_dict["control_id"] = control_id
+        if agent_name is not UNSET:
+            field_dict["agent_name"] = agent_name
+        if check_stage is not UNSET:
+            field_dict["check_stage"] = check_stage
+        if applies_to is not UNSET:
+            field_dict["applies_to"] = applies_to
+        if evaluator_name is not UNSET:
+            field_dict["evaluator_name"] = evaluator_name
+        if selector_path is not UNSET:
+            field_dict["selector_path"] = selector_path
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.control_result import ControlResult
-        from ..models.document import Document
-        from ..models.extended_workflow_span_record_annotation_aggregates import (
-            ExtendedWorkflowSpanRecordAnnotationAggregates,
+        from ..models.extended_control_span_record_annotation_aggregates import (
+            ExtendedControlSpanRecordAnnotationAggregates,
         )
-        from ..models.extended_workflow_span_record_annotations import ExtendedWorkflowSpanRecordAnnotations
-        from ..models.extended_workflow_span_record_dataset_metadata import ExtendedWorkflowSpanRecordDatasetMetadata
-        from ..models.extended_workflow_span_record_feedback_rating_info import (
-            ExtendedWorkflowSpanRecordFeedbackRatingInfo,
+        from ..models.extended_control_span_record_annotations import ExtendedControlSpanRecordAnnotations
+        from ..models.extended_control_span_record_dataset_metadata import ExtendedControlSpanRecordDatasetMetadata
+        from ..models.extended_control_span_record_feedback_rating_info import (
+            ExtendedControlSpanRecordFeedbackRatingInfo,
         )
-        from ..models.extended_workflow_span_record_files_type_0 import ExtendedWorkflowSpanRecordFilesType0
-        from ..models.extended_workflow_span_record_metric_info_type_0 import ExtendedWorkflowSpanRecordMetricInfoType0
-        from ..models.extended_workflow_span_record_user_metadata import ExtendedWorkflowSpanRecordUserMetadata
+        from ..models.extended_control_span_record_files_type_0 import ExtendedControlSpanRecordFilesType0
+        from ..models.extended_control_span_record_metric_info_type_0 import ExtendedControlSpanRecordMetricInfoType0
+        from ..models.extended_control_span_record_user_metadata import ExtendedControlSpanRecordUserMetadata
         from ..models.file_content_part import FileContentPart
         from ..models.message import Message
         from ..models.metrics import Metrics
@@ -458,9 +457,9 @@ class ExtendedWorkflowSpanRecord:
 
         parent_id = d.pop("parent_id")
 
-        type_ = cast(Literal["workflow"] | Unset, d.pop("type", UNSET))
-        if type_ != "workflow" and not isinstance(type_, Unset):
-            raise ValueError(f"type must match const 'workflow', got '{type_}'")
+        type_ = cast(Literal["control"] | Unset, d.pop("type", UNSET))
+        if type_ != "control" and not isinstance(type_, Unset):
+            raise ValueError(f"type must match const 'control', got '{type_}'")
 
         def _parse_input_(
             data: object,
@@ -560,17 +559,7 @@ class ExtendedWorkflowSpanRecord:
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
-        def _parse_output(
-            data: object,
-        ) -> Union[
-            "ControlResult",
-            "Message",
-            None,
-            Unset,
-            list["Document"],
-            list[Union["FileContentPart", "TextContentPart"]],
-            str,
-        ]:
+        def _parse_output(data: object) -> Union["ControlResult", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -578,82 +567,15 @@ class ExtendedWorkflowSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return Message.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                output_type_2 = []
-                _output_type_2 = data
-                for output_type_2_item_data in _output_type_2:
-                    output_type_2_item = Document.from_dict(output_type_2_item_data)
-
-                    output_type_2.append(output_type_2_item)
-
-                return output_type_2
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                output_type_3 = []
-                _output_type_3 = data
-                for output_type_3_item_data in _output_type_3:
-
-                    def _parse_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return TextContentPart.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        if not isinstance(data, dict):
-                            raise TypeError()
-                        return FileContentPart.from_dict(data)
-
-                    output_type_3_item = _parse_output_type_3_item(output_type_3_item_data)
-
-                    output_type_3.append(output_type_3_item)
-
-                return output_type_3
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
                 return ControlResult.from_dict(data)
 
             except:  # noqa: E722
                 pass
-            return cast(
-                Union[
-                    "ControlResult",
-                    "Message",
-                    None,
-                    Unset,
-                    list["Document"],
-                    list[Union["FileContentPart", "TextContentPart"]],
-                    str,
-                ],
-                data,
-            )
+            return cast(Union["ControlResult", None, Unset], data)
 
         output = _parse_output(d.pop("output", UNSET))
 
-        def _parse_redacted_output(
-            data: object,
-        ) -> Union[
-            "ControlResult",
-            "Message",
-            None,
-            Unset,
-            list["Document"],
-            list[Union["FileContentPart", "TextContentPart"]],
-            str,
-        ]:
+        def _parse_redacted_output(data: object) -> Union["ControlResult", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -661,68 +583,11 @@ class ExtendedWorkflowSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return Message.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                redacted_output_type_2 = []
-                _redacted_output_type_2 = data
-                for redacted_output_type_2_item_data in _redacted_output_type_2:
-                    redacted_output_type_2_item = Document.from_dict(redacted_output_type_2_item_data)
-
-                    redacted_output_type_2.append(redacted_output_type_2_item)
-
-                return redacted_output_type_2
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                redacted_output_type_3 = []
-                _redacted_output_type_3 = data
-                for redacted_output_type_3_item_data in _redacted_output_type_3:
-
-                    def _parse_redacted_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
-                        try:
-                            if not isinstance(data, dict):
-                                raise TypeError()
-                            return TextContentPart.from_dict(data)
-
-                        except:  # noqa: E722
-                            pass
-                        if not isinstance(data, dict):
-                            raise TypeError()
-                        return FileContentPart.from_dict(data)
-
-                    redacted_output_type_3_item = _parse_redacted_output_type_3_item(redacted_output_type_3_item_data)
-
-                    redacted_output_type_3.append(redacted_output_type_3_item)
-
-                return redacted_output_type_3
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
                 return ControlResult.from_dict(data)
 
             except:  # noqa: E722
                 pass
-            return cast(
-                Union[
-                    "ControlResult",
-                    "Message",
-                    None,
-                    Unset,
-                    list["Document"],
-                    list[Union["FileContentPart", "TextContentPart"]],
-                    str,
-                ],
-                data,
-            )
+            return cast(Union["ControlResult", None, Unset], data)
 
         redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
 
@@ -733,11 +598,11 @@ class ExtendedWorkflowSpanRecord:
         created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
-        user_metadata: Unset | ExtendedWorkflowSpanRecordUserMetadata
+        user_metadata: Unset | ExtendedControlSpanRecordUserMetadata
         if isinstance(_user_metadata, Unset):
             user_metadata = UNSET
         else:
-            user_metadata = ExtendedWorkflowSpanRecordUserMetadata.from_dict(_user_metadata)
+            user_metadata = ExtendedControlSpanRecordUserMetadata.from_dict(_user_metadata)
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
@@ -782,11 +647,11 @@ class ExtendedWorkflowSpanRecord:
         dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
 
         _dataset_metadata = d.pop("dataset_metadata", UNSET)
-        dataset_metadata: Unset | ExtendedWorkflowSpanRecordDatasetMetadata
+        dataset_metadata: Unset | ExtendedControlSpanRecordDatasetMetadata
         if isinstance(_dataset_metadata, Unset):
             dataset_metadata = UNSET
         else:
-            dataset_metadata = ExtendedWorkflowSpanRecordDatasetMetadata.from_dict(_dataset_metadata)
+            dataset_metadata = ExtendedControlSpanRecordDatasetMetadata.from_dict(_dataset_metadata)
 
         def _parse_trace_id(data: object) -> None | Unset | str:
             if data is None:
@@ -841,18 +706,18 @@ class ExtendedWorkflowSpanRecord:
         session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
         _feedback_rating_info = d.pop("feedback_rating_info", UNSET)
-        feedback_rating_info: Unset | ExtendedWorkflowSpanRecordFeedbackRatingInfo
+        feedback_rating_info: Unset | ExtendedControlSpanRecordFeedbackRatingInfo
         if isinstance(_feedback_rating_info, Unset):
             feedback_rating_info = UNSET
         else:
-            feedback_rating_info = ExtendedWorkflowSpanRecordFeedbackRatingInfo.from_dict(_feedback_rating_info)
+            feedback_rating_info = ExtendedControlSpanRecordFeedbackRatingInfo.from_dict(_feedback_rating_info)
 
         _annotations = d.pop("annotations", UNSET)
-        annotations: Unset | ExtendedWorkflowSpanRecordAnnotations
+        annotations: Unset | ExtendedControlSpanRecordAnnotations
         if isinstance(_annotations, Unset):
             annotations = UNSET
         else:
-            annotations = ExtendedWorkflowSpanRecordAnnotations.from_dict(_annotations)
+            annotations = ExtendedControlSpanRecordAnnotations.from_dict(_annotations)
 
         file_ids = cast(list[str], d.pop("file_ids", UNSET))
 
@@ -864,15 +729,15 @@ class ExtendedWorkflowSpanRecord:
             file_modalities.append(file_modalities_item)
 
         _annotation_aggregates = d.pop("annotation_aggregates", UNSET)
-        annotation_aggregates: Unset | ExtendedWorkflowSpanRecordAnnotationAggregates
+        annotation_aggregates: Unset | ExtendedControlSpanRecordAnnotationAggregates
         if isinstance(_annotation_aggregates, Unset):
             annotation_aggregates = UNSET
         else:
-            annotation_aggregates = ExtendedWorkflowSpanRecordAnnotationAggregates.from_dict(_annotation_aggregates)
+            annotation_aggregates = ExtendedControlSpanRecordAnnotationAggregates.from_dict(_annotation_aggregates)
 
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
 
-        def _parse_metric_info(data: object) -> Union["ExtendedWorkflowSpanRecordMetricInfoType0", None, Unset]:
+        def _parse_metric_info(data: object) -> Union["ExtendedControlSpanRecordMetricInfoType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -880,15 +745,15 @@ class ExtendedWorkflowSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedWorkflowSpanRecordMetricInfoType0.from_dict(data)
+                return ExtendedControlSpanRecordMetricInfoType0.from_dict(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union["ExtendedWorkflowSpanRecordMetricInfoType0", None, Unset], data)
+            return cast(Union["ExtendedControlSpanRecordMetricInfoType0", None, Unset], data)
 
         metric_info = _parse_metric_info(d.pop("metric_info", UNSET))
 
-        def _parse_files(data: object) -> Union["ExtendedWorkflowSpanRecordFilesType0", None, Unset]:
+        def _parse_files(data: object) -> Union["ExtendedControlSpanRecordFilesType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -896,11 +761,11 @@ class ExtendedWorkflowSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedWorkflowSpanRecordFilesType0.from_dict(data)
+                return ExtendedControlSpanRecordFilesType0.from_dict(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union["ExtendedWorkflowSpanRecordFilesType0", None, Unset], data)
+            return cast(Union["ExtendedControlSpanRecordFilesType0", None, Unset], data)
 
         files = _parse_files(d.pop("files", UNSET))
 
@@ -915,7 +780,75 @@ class ExtendedWorkflowSpanRecord:
 
         step_number = _parse_step_number(d.pop("step_number", UNSET))
 
-        extended_workflow_span_record = cls(
+        def _parse_control_id(data: object) -> None | Unset | int:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | int, data)
+
+        control_id = _parse_control_id(d.pop("control_id", UNSET))
+
+        def _parse_agent_name(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        agent_name = _parse_agent_name(d.pop("agent_name", UNSET))
+
+        def _parse_check_stage(data: object) -> ControlCheckStage | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return ControlCheckStage(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(ControlCheckStage | None | Unset, data)
+
+        check_stage = _parse_check_stage(d.pop("check_stage", UNSET))
+
+        def _parse_applies_to(data: object) -> ControlAppliesTo | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return ControlAppliesTo(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(ControlAppliesTo | None | Unset, data)
+
+        applies_to = _parse_applies_to(d.pop("applies_to", UNSET))
+
+        def _parse_evaluator_name(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        evaluator_name = _parse_evaluator_name(d.pop("evaluator_name", UNSET))
+
+        def _parse_selector_path(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        selector_path = _parse_selector_path(d.pop("selector_path", UNSET))
+
+        extended_control_span_record = cls(
             id=id,
             session_id=session_id,
             project_id=project_id,
@@ -951,10 +884,16 @@ class ExtendedWorkflowSpanRecord:
             files=files,
             is_complete=is_complete,
             step_number=step_number,
+            control_id=control_id,
+            agent_name=agent_name,
+            check_stage=check_stage,
+            applies_to=applies_to,
+            evaluator_name=evaluator_name,
+            selector_path=selector_path,
         )
 
-        extended_workflow_span_record.additional_properties = d
-        return extended_workflow_span_record
+        extended_control_span_record.additional_properties = d
+        return extended_control_span_record
 
     @property
     def additional_keys(self) -> list[str]:

@@ -11,6 +11,7 @@ from ..models.content_modality import ContentModality
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.control_result import ControlResult
     from ..models.document import Document
     from ..models.file_content_part import FileContentPart
     from ..models.message import Message
@@ -41,9 +42,9 @@ class PartialExtendedSessionRecord:
         input_ (Union[Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]):  Default: ''.
         redacted_input (Union[None, Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]):
             Redacted input of the trace or span.
-        output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart', 'TextContentPart']],
-            str]): Output of the trace or span.
-        redacted_output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart',
+        output (Union['ControlResult', 'Message', None, Unset, list['Document'], list[Union['FileContentPart',
+            'TextContentPart']], str]): Output of the trace or span.
+        redacted_output (Union['ControlResult', 'Message', None, Unset, list['Document'], list[Union['FileContentPart',
             'TextContentPart']], str]): Redacted output of the trace or span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
@@ -85,46 +86,59 @@ class PartialExtendedSessionRecord:
         previous_session_id (Union[None, Unset, str]):
     """
 
-    type_: Union[Literal["session"], Unset] = "session"
-    input_: Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = ""
-    redacted_input: Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
-    output: Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str] = (
-        UNSET
-    )
-    redacted_output: Union[
-        "Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str
+    type_: Literal["session"] | Unset = "session"
+    input_: Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str = ""
+    redacted_input: None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str = UNSET
+    output: Union[
+        "ControlResult",
+        "Message",
+        None,
+        Unset,
+        list["Document"],
+        list[Union["FileContentPart", "TextContentPart"]],
+        str,
     ] = UNSET
-    name: Union[Unset, str] = ""
-    created_at: Union[Unset, datetime.datetime] = UNSET
+    redacted_output: Union[
+        "ControlResult",
+        "Message",
+        None,
+        Unset,
+        list["Document"],
+        list[Union["FileContentPart", "TextContentPart"]],
+        str,
+    ] = UNSET
+    name: Unset | str = ""
+    created_at: Unset | datetime.datetime = UNSET
     user_metadata: Union[Unset, "PartialExtendedSessionRecordUserMetadata"] = UNSET
-    tags: Union[Unset, list[str]] = UNSET
-    status_code: Union[None, Unset, int] = UNSET
+    tags: Unset | list[str] = UNSET
+    status_code: None | Unset | int = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
-    external_id: Union[None, Unset, str] = UNSET
-    dataset_input: Union[None, Unset, str] = UNSET
-    dataset_output: Union[None, Unset, str] = UNSET
+    external_id: None | Unset | str = UNSET
+    dataset_input: None | Unset | str = UNSET
+    dataset_output: None | Unset | str = UNSET
     dataset_metadata: Union[Unset, "PartialExtendedSessionRecordDatasetMetadata"] = UNSET
-    id: Union[None, UUID, Unset] = UNSET
-    session_id: Union[None, Unset, str] = UNSET
-    trace_id: Union[None, Unset, str] = UNSET
-    project_id: Union[None, UUID, Unset] = UNSET
-    run_id: Union[None, UUID, Unset] = UNSET
-    updated_at: Union[None, Unset, datetime.datetime] = UNSET
-    has_children: Union[None, Unset, bool] = UNSET
-    metrics_batch_id: Union[None, Unset, str] = UNSET
-    session_batch_id: Union[None, Unset, str] = UNSET
+    id: None | UUID | Unset = UNSET
+    session_id: None | Unset | str = UNSET
+    trace_id: None | Unset | str = UNSET
+    project_id: None | UUID | Unset = UNSET
+    run_id: None | UUID | Unset = UNSET
+    updated_at: None | Unset | datetime.datetime = UNSET
+    has_children: None | Unset | bool = UNSET
+    metrics_batch_id: None | Unset | str = UNSET
+    session_batch_id: None | Unset | str = UNSET
     feedback_rating_info: Union[Unset, "PartialExtendedSessionRecordFeedbackRatingInfo"] = UNSET
     annotations: Union[Unset, "PartialExtendedSessionRecordAnnotations"] = UNSET
-    file_ids: Union[Unset, list[str]] = UNSET
-    file_modalities: Union[Unset, list[ContentModality]] = UNSET
+    file_ids: Unset | list[str] = UNSET
+    file_modalities: Unset | list[ContentModality] = UNSET
     annotation_aggregates: Union[Unset, "PartialExtendedSessionRecordAnnotationAggregates"] = UNSET
-    annotation_queue_ids: Union[Unset, list[str]] = UNSET
+    annotation_queue_ids: Unset | list[str] = UNSET
     metric_info: Union["PartialExtendedSessionRecordMetricInfoType0", None, Unset] = UNSET
     files: Union["PartialExtendedSessionRecordFilesType0", None, Unset] = UNSET
-    previous_session_id: Union[None, Unset, str] = UNSET
+    previous_session_id: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.control_result import ControlResult
         from ..models.message import Message
         from ..models.partial_extended_session_record_files_type_0 import PartialExtendedSessionRecordFilesType0
         from ..models.partial_extended_session_record_metric_info_type_0 import (
@@ -134,7 +148,7 @@ class PartialExtendedSessionRecord:
 
         type_ = self.type_
 
-        input_: Union[Unset, list[dict[str, Any]], str]
+        input_: Unset | list[dict[str, Any]] | str
         if isinstance(self.input_, Unset):
             input_ = UNSET
         elif isinstance(self.input_, list):
@@ -157,7 +171,7 @@ class PartialExtendedSessionRecord:
         else:
             input_ = self.input_
 
-        redacted_input: Union[None, Unset, list[dict[str, Any]], str]
+        redacted_input: None | Unset | list[dict[str, Any]] | str
         if isinstance(self.redacted_input, Unset):
             redacted_input = UNSET
         elif isinstance(self.redacted_input, list):
@@ -180,7 +194,7 @@ class PartialExtendedSessionRecord:
         else:
             redacted_input = self.redacted_input
 
-        output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
+        output: None | Unset | dict[str, Any] | list[dict[str, Any]] | str
         if isinstance(self.output, Unset):
             output = UNSET
         elif isinstance(self.output, Message):
@@ -202,10 +216,12 @@ class PartialExtendedSessionRecord:
 
                 output.append(output_type_3_item)
 
+        elif isinstance(self.output, ControlResult):
+            output = self.output.to_dict()
         else:
             output = self.output
 
-        redacted_output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
+        redacted_output: None | Unset | dict[str, Any] | list[dict[str, Any]] | str
         if isinstance(self.redacted_output, Unset):
             redacted_output = UNSET
         elif isinstance(self.redacted_output, Message):
@@ -227,44 +243,46 @@ class PartialExtendedSessionRecord:
 
                 redacted_output.append(redacted_output_type_3_item)
 
+        elif isinstance(self.redacted_output, ControlResult):
+            redacted_output = self.redacted_output.to_dict()
         else:
             redacted_output = self.redacted_output
 
         name = self.name
 
-        created_at: Union[Unset, str] = UNSET
+        created_at: Unset | str = UNSET
         if not isinstance(self.created_at, Unset):
             created_at = self.created_at.isoformat()
 
-        user_metadata: Union[Unset, dict[str, Any]] = UNSET
+        user_metadata: Unset | dict[str, Any] = UNSET
         if not isinstance(self.user_metadata, Unset):
             user_metadata = self.user_metadata.to_dict()
 
-        tags: Union[Unset, list[str]] = UNSET
+        tags: Unset | list[str] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
-        status_code: Union[None, Unset, int]
+        status_code: None | Unset | int
         status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
-        metrics: Union[Unset, dict[str, Any]] = UNSET
+        metrics: Unset | dict[str, Any] = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
-        external_id: Union[None, Unset, str]
+        external_id: None | Unset | str
         external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
-        dataset_input: Union[None, Unset, str]
+        dataset_input: None | Unset | str
         dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
-        dataset_output: Union[None, Unset, str]
+        dataset_output: None | Unset | str
         dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
-        dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
+        dataset_metadata: Unset | dict[str, Any] = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
-        id: Union[None, Unset, str]
+        id: None | Unset | str
         if isinstance(self.id, Unset):
             id = UNSET
         elif isinstance(self.id, UUID):
@@ -272,13 +290,13 @@ class PartialExtendedSessionRecord:
         else:
             id = self.id
 
-        session_id: Union[None, Unset, str]
+        session_id: None | Unset | str
         session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
 
-        trace_id: Union[None, Unset, str]
+        trace_id: None | Unset | str
         trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
-        project_id: Union[None, Unset, str]
+        project_id: None | Unset | str
         if isinstance(self.project_id, Unset):
             project_id = UNSET
         elif isinstance(self.project_id, UUID):
@@ -286,7 +304,7 @@ class PartialExtendedSessionRecord:
         else:
             project_id = self.project_id
 
-        run_id: Union[None, Unset, str]
+        run_id: None | Unset | str
         if isinstance(self.run_id, Unset):
             run_id = UNSET
         elif isinstance(self.run_id, UUID):
@@ -294,7 +312,7 @@ class PartialExtendedSessionRecord:
         else:
             run_id = self.run_id
 
-        updated_at: Union[None, Unset, str]
+        updated_at: None | Unset | str
         if isinstance(self.updated_at, Unset):
             updated_at = UNSET
         elif isinstance(self.updated_at, datetime.datetime):
@@ -302,43 +320,43 @@ class PartialExtendedSessionRecord:
         else:
             updated_at = self.updated_at
 
-        has_children: Union[None, Unset, bool]
+        has_children: None | Unset | bool
         has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
 
-        metrics_batch_id: Union[None, Unset, str]
+        metrics_batch_id: None | Unset | str
         metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
 
-        session_batch_id: Union[None, Unset, str]
+        session_batch_id: None | Unset | str
         session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
-        feedback_rating_info: Union[Unset, dict[str, Any]] = UNSET
+        feedback_rating_info: Unset | dict[str, Any] = UNSET
         if not isinstance(self.feedback_rating_info, Unset):
             feedback_rating_info = self.feedback_rating_info.to_dict()
 
-        annotations: Union[Unset, dict[str, Any]] = UNSET
+        annotations: Unset | dict[str, Any] = UNSET
         if not isinstance(self.annotations, Unset):
             annotations = self.annotations.to_dict()
 
-        file_ids: Union[Unset, list[str]] = UNSET
+        file_ids: Unset | list[str] = UNSET
         if not isinstance(self.file_ids, Unset):
             file_ids = self.file_ids
 
-        file_modalities: Union[Unset, list[str]] = UNSET
+        file_modalities: Unset | list[str] = UNSET
         if not isinstance(self.file_modalities, Unset):
             file_modalities = []
             for file_modalities_item_data in self.file_modalities:
                 file_modalities_item = file_modalities_item_data.value
                 file_modalities.append(file_modalities_item)
 
-        annotation_aggregates: Union[Unset, dict[str, Any]] = UNSET
+        annotation_aggregates: Unset | dict[str, Any] = UNSET
         if not isinstance(self.annotation_aggregates, Unset):
             annotation_aggregates = self.annotation_aggregates.to_dict()
 
-        annotation_queue_ids: Union[Unset, list[str]] = UNSET
+        annotation_queue_ids: Unset | list[str] = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
             annotation_queue_ids = self.annotation_queue_ids
 
-        metric_info: Union[None, Unset, dict[str, Any]]
+        metric_info: None | Unset | dict[str, Any]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
         elif isinstance(self.metric_info, PartialExtendedSessionRecordMetricInfoType0):
@@ -346,7 +364,7 @@ class PartialExtendedSessionRecord:
         else:
             metric_info = self.metric_info
 
-        files: Union[None, Unset, dict[str, Any]]
+        files: None | Unset | dict[str, Any]
         if isinstance(self.files, Unset):
             files = UNSET
         elif isinstance(self.files, PartialExtendedSessionRecordFilesType0):
@@ -354,7 +372,7 @@ class PartialExtendedSessionRecord:
         else:
             files = self.files
 
-        previous_session_id: Union[None, Unset, str]
+        previous_session_id: None | Unset | str
         previous_session_id = UNSET if isinstance(self.previous_session_id, Unset) else self.previous_session_id
 
         field_dict: dict[str, Any] = {}
@@ -431,6 +449,7 @@ class PartialExtendedSessionRecord:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.control_result import ControlResult
         from ..models.document import Document
         from ..models.file_content_part import FileContentPart
         from ..models.message import Message
@@ -453,13 +472,13 @@ class PartialExtendedSessionRecord:
         from ..models.text_content_part import TextContentPart
 
         d = dict(src_dict)
-        type_ = cast(Union[Literal["session"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["session"] | Unset, d.pop("type", UNSET))
         if type_ != "session" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'session', got '{type_}'")
 
         def _parse_input_(
             data: object,
-        ) -> Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        ) -> Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str:
             if isinstance(data, Unset):
                 return data
             try:
@@ -501,13 +520,13 @@ class PartialExtendedSessionRecord:
                 return input_type_2
             except:  # noqa: E722
                 pass
-            return cast(Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data)
+            return cast(Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str, data)
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
         def _parse_redacted_input(
             data: object,
-        ) -> Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        ) -> None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -551,15 +570,21 @@ class PartialExtendedSessionRecord:
                 return redacted_input_type_2
             except:  # noqa: E722
                 pass
-            return cast(
-                Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data
-            )
+            return cast(None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str, data)
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
         def _parse_output(
             data: object,
-        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        ) -> Union[
+            "ControlResult",
+            "Message",
+            None,
+            Unset,
+            list["Document"],
+            list[Union["FileContentPart", "TextContentPart"]],
+            str,
+        ]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -610,8 +635,23 @@ class PartialExtendedSessionRecord:
                 return output_type_3
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ControlResult.from_dict(data)
+
+            except:  # noqa: E722
+                pass
             return cast(
-                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                Union[
+                    "ControlResult",
+                    "Message",
+                    None,
+                    Unset,
+                    list["Document"],
+                    list[Union["FileContentPart", "TextContentPart"]],
+                    str,
+                ],
                 data,
             )
 
@@ -619,7 +659,15 @@ class PartialExtendedSessionRecord:
 
         def _parse_redacted_output(
             data: object,
-        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        ) -> Union[
+            "ControlResult",
+            "Message",
+            None,
+            Unset,
+            list["Document"],
+            list[Union["FileContentPart", "TextContentPart"]],
+            str,
+        ]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -670,8 +718,23 @@ class PartialExtendedSessionRecord:
                 return redacted_output_type_3
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ControlResult.from_dict(data)
+
+            except:  # noqa: E722
+                pass
             return cast(
-                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                Union[
+                    "ControlResult",
+                    "Message",
+                    None,
+                    Unset,
+                    list["Document"],
+                    list[Union["FileContentPart", "TextContentPart"]],
+                    str,
+                ],
                 data,
             )
 
@@ -680,11 +743,11 @@ class PartialExtendedSessionRecord:
         name = d.pop("name", UNSET)
 
         _created_at = d.pop("created_at", UNSET)
-        created_at: Union[Unset, datetime.datetime]
+        created_at: Unset | datetime.datetime
         created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
-        user_metadata: Union[Unset, PartialExtendedSessionRecordUserMetadata]
+        user_metadata: Unset | PartialExtendedSessionRecordUserMetadata
         if isinstance(_user_metadata, Unset):
             user_metadata = UNSET
         else:
@@ -692,54 +755,54 @@ class PartialExtendedSessionRecord:
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
-        def _parse_status_code(data: object) -> Union[None, Unset, int]:
+        def _parse_status_code(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
         _metrics = d.pop("metrics", UNSET)
-        metrics: Union[Unset, Metrics]
+        metrics: Unset | Metrics
         metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
-        def _parse_external_id(data: object) -> Union[None, Unset, str]:
+        def _parse_external_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         external_id = _parse_external_id(d.pop("external_id", UNSET))
 
-        def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
+        def _parse_dataset_input(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
 
-        def _parse_dataset_output(data: object) -> Union[None, Unset, str]:
+        def _parse_dataset_output(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
 
         _dataset_metadata = d.pop("dataset_metadata", UNSET)
-        dataset_metadata: Union[Unset, PartialExtendedSessionRecordDatasetMetadata]
+        dataset_metadata: Unset | PartialExtendedSessionRecordDatasetMetadata
         if isinstance(_dataset_metadata, Unset):
             dataset_metadata = UNSET
         else:
             dataset_metadata = PartialExtendedSessionRecordDatasetMetadata.from_dict(_dataset_metadata)
 
-        def _parse_id(data: object) -> Union[None, UUID, Unset]:
+        def _parse_id(data: object) -> None | UUID | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -751,29 +814,29 @@ class PartialExtendedSessionRecord:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, UUID, Unset], data)
+            return cast(None | UUID | Unset, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+        def _parse_session_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         session_id = _parse_session_id(d.pop("session_id", UNSET))
 
-        def _parse_trace_id(data: object) -> Union[None, Unset, str]:
+        def _parse_trace_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
 
-        def _parse_project_id(data: object) -> Union[None, UUID, Unset]:
+        def _parse_project_id(data: object) -> None | UUID | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -785,11 +848,11 @@ class PartialExtendedSessionRecord:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, UUID, Unset], data)
+            return cast(None | UUID | Unset, data)
 
         project_id = _parse_project_id(d.pop("project_id", UNSET))
 
-        def _parse_run_id(data: object) -> Union[None, UUID, Unset]:
+        def _parse_run_id(data: object) -> None | UUID | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -801,11 +864,11 @@ class PartialExtendedSessionRecord:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, UUID, Unset], data)
+            return cast(None | UUID | Unset, data)
 
         run_id = _parse_run_id(d.pop("run_id", UNSET))
 
-        def _parse_updated_at(data: object) -> Union[None, Unset, datetime.datetime]:
+        def _parse_updated_at(data: object) -> None | Unset | datetime.datetime:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -817,46 +880,46 @@ class PartialExtendedSessionRecord:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, datetime.datetime], data)
+            return cast(None | Unset | datetime.datetime, data)
 
         updated_at = _parse_updated_at(d.pop("updated_at", UNSET))
 
-        def _parse_has_children(data: object) -> Union[None, Unset, bool]:
+        def _parse_has_children(data: object) -> None | Unset | bool:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(None | Unset | bool, data)
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
 
-        def _parse_metrics_batch_id(data: object) -> Union[None, Unset, str]:
+        def _parse_metrics_batch_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         metrics_batch_id = _parse_metrics_batch_id(d.pop("metrics_batch_id", UNSET))
 
-        def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
+        def _parse_session_batch_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
         _feedback_rating_info = d.pop("feedback_rating_info", UNSET)
-        feedback_rating_info: Union[Unset, PartialExtendedSessionRecordFeedbackRatingInfo]
+        feedback_rating_info: Unset | PartialExtendedSessionRecordFeedbackRatingInfo
         if isinstance(_feedback_rating_info, Unset):
             feedback_rating_info = UNSET
         else:
             feedback_rating_info = PartialExtendedSessionRecordFeedbackRatingInfo.from_dict(_feedback_rating_info)
 
         _annotations = d.pop("annotations", UNSET)
-        annotations: Union[Unset, PartialExtendedSessionRecordAnnotations]
+        annotations: Unset | PartialExtendedSessionRecordAnnotations
         if isinstance(_annotations, Unset):
             annotations = UNSET
         else:
@@ -872,7 +935,7 @@ class PartialExtendedSessionRecord:
             file_modalities.append(file_modalities_item)
 
         _annotation_aggregates = d.pop("annotation_aggregates", UNSET)
-        annotation_aggregates: Union[Unset, PartialExtendedSessionRecordAnnotationAggregates]
+        annotation_aggregates: Unset | PartialExtendedSessionRecordAnnotationAggregates
         if isinstance(_annotation_aggregates, Unset):
             annotation_aggregates = UNSET
         else:
@@ -912,12 +975,12 @@ class PartialExtendedSessionRecord:
 
         files = _parse_files(d.pop("files", UNSET))
 
-        def _parse_previous_session_id(data: object) -> Union[None, Unset, str]:
+        def _parse_previous_session_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         previous_session_id = _parse_previous_session_id(d.pop("previous_session_id", UNSET))
 

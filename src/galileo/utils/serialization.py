@@ -312,7 +312,7 @@ class EventSerializer(JSONEncoder):
                 return obj if self.is_js_safe_integer(obj) else str(obj)
 
             # Standard JSON-encodable types
-            if isinstance(obj, str | float | type(None)):
+            if isinstance(obj, (str, float, type(None))):
                 return obj
 
             if isinstance(obj, tuple | set | frozenset):

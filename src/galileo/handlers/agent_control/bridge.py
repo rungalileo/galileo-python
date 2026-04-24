@@ -15,7 +15,7 @@ from galileo.utils.serialization import serialize_to_str
 logger = logging.getLogger(__name__)
 
 _REGISTRATION_LOCK = threading.RLock()
-_REGISTERED_BRIDGES: list["GalileoAgentControlBridge"] = []
+_REGISTERED_BRIDGES: list[GalileoAgentControlBridge] = []
 _PREVIOUS_TRACE_CONTEXT_PROVIDER: Any = None
 
 
@@ -130,7 +130,7 @@ def _dispatch_trace_context() -> dict[str, str] | None:
 
 
 class _GalileoControlEventSink:
-    def __init__(self, bridge: "GalileoAgentControlBridge") -> None:
+    def __init__(self, bridge: GalileoAgentControlBridge) -> None:
         self._bridge = bridge
 
     def write_events(self, events: Any) -> Any:
@@ -154,7 +154,7 @@ class GalileoAgentControlBridge:
         self._sink = _GalileoControlEventSink(self)
         self._registered = False
 
-    def register(self) -> "GalileoAgentControlBridge":
+    def register(self) -> GalileoAgentControlBridge:
         """Register this bridge and install the shared Galileo trace-context dispatcher."""
         with _REGISTRATION_LOCK:
             global _PREVIOUS_TRACE_CONTEXT_PROVIDER
@@ -259,8 +259,8 @@ class GalileoAgentControlBridge:
         return {
             "input": control_input,
             "output": ControlResult(
-                action=getattr(event, "action"),
-                matched=getattr(event, "matched"),
+                action=event.action,
+                matched=event.matched,
                 confidence=getattr(event, "confidence", None),
                 error_message=error_message,
             ),
