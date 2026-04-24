@@ -917,8 +917,10 @@ class GalileoLogger(TracesLogger):
         # The traces check is a sanity check to ensure consistency.
         return current_parent is not None and len(self.traces) > 0
 
-    def enable_agent_control(self) -> GalileoAgentControlBridge:
+    def enable_agent_control(self) -> "GalileoAgentControlBridge":
         """Register this logger as the active Agent Control bridge target."""
+        from galileo.handlers.agent_control import GalileoAgentControlBridge
+
         bridge = getattr(self, "_agent_control_bridge", None)
         if bridge is None:
             bridge = GalileoAgentControlBridge(galileo_logger=self)
