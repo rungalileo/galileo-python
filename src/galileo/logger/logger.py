@@ -959,8 +959,8 @@ class GalileoLogger(TracesLogger):
     @warn_catch_exception()
     def start_trace(
         self,
-        input: TextOrContentBlocks | dict,
-        redacted_input: TextOrContentBlocks | dict | None = None,
+        input: TextOrContentBlocks | dict | list[dict[str, Any]],
+        redacted_input: TextOrContentBlocks | dict | list[dict[str, Any]] | None = None,
         name: str | None = None,
         duration_ns: int | None = None,
         created_at: datetime | None = None,
@@ -977,15 +977,17 @@ class GalileoLogger(TracesLogger):
 
         Parameters
         ----------
-        input: TextOrContentBlocks | dict
+        input: TextOrContentBlocks | dict | list[dict[str, Any]]
             Input to the node.
-            Expected format: String, dict (auto-converted to JSON),
-            or list of IngestContentBlock objects for multimodal content.
+            Accepted formats: string, dict (auto-converted to JSON string),
+            list of dicts (auto-converted to JSON string),
+            or list of content block objects for multimodal content.
             Examples -
-                - String: "User query: What is the weather today?"
+                - String: `"User query: What is the weather today?"`
                 - Dict: `{"query": "hello", "context": "world"}` (auto-converted to JSON string)
+                - List of dicts: `[{"role": "user", "content": "hello"}]` (auto-converted to JSON string)
                 - Content blocks: `[TextContentBlock(text="Analyze"), DataContentBlock(...)]`
-        redacted_input: Optional[TextOrContentBlocks | dict]
+        redacted_input: Optional[TextOrContentBlocks | dict | list[dict[str, Any]]]
             Input that removes any sensitive information (redacted input).
             Same format as input parameter.
         name: Optional[str]
