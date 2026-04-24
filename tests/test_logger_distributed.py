@@ -102,10 +102,7 @@ def test_start_trace(mock_traces_client: Mock, mock_projects_client: Mock, mock_
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 def test_distributed_logger_uses_standard_client_when_ingest_service_is_available(
-    mock_projects_client: Mock,
-    mock_logstreams_client: Mock,
-    mock_traces_client: Mock,
-    mock_ingest_traces_client: Mock,
+    mock_projects_client: Mock, mock_logstreams_client: Mock, mock_traces_client: Mock, mock_ingest_traces_client: Mock
 ) -> None:
     # Given: the ingest service reports healthy and project/log stream lookups succeed
     setup_mock_projects_client(mock_projects_client)
@@ -125,9 +122,7 @@ def test_distributed_logger_uses_standard_client_when_ingest_service_is_availabl
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_nested_distributed_spans_wait_for_parent_ingest(
-    mock_traces_client: Mock,
-    mock_projects_client: Mock,
-    mock_logstreams_client: Mock,
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
     # Given: a distributed logger with an active trace and workflow parent
     setup_mock_traces_client(mock_traces_client)

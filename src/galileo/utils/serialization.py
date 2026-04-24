@@ -138,7 +138,9 @@ class EventSerializer(JSONEncoder):
         self.seen: set[int] = set()  # Track seen objects to detect circular references
 
     def default(self, obj: Any) -> Any:
-        try:
+        try:  # Standard JSON-encodable types
+            if isinstance(obj, str | float | type(None)):
+                return obj
             if isinstance(obj, datetime):
                 return serialize_datetime(obj)
 
@@ -310,10 +312,6 @@ class EventSerializer(JSONEncoder):
             # 64-bit integers might overflow the JavaScript safe integer range.
             if isinstance(obj, int):
                 return obj if self.is_js_safe_integer(obj) else str(obj)
-
-            # Standard JSON-encodable types
-            if isinstance(obj, (str, float, type(None))):
-                return obj
 
             if isinstance(obj, tuple | set | frozenset):
                 return list(obj)

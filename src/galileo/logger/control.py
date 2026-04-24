@@ -38,13 +38,9 @@ except ImportError:
             )
         )
         confidence: float | None = Field(
-            default=None,
-            description="Confidence score reported by the control evaluation result.",
+            default=None, description="Confidence score reported by the control evaluation result."
         )
-        error_message: str | None = Field(
-            default=None,
-            description="Error text when control evaluation failed.",
-        )
+        error_message: str | None = Field(default=None, description="Error text when control evaluation failed.")
 
     class ControlSpan(BaseModel):
         """Fallback ControlSpan compatible with the Orbit schema."""
@@ -54,13 +50,11 @@ except ImportError:
         redacted_input: Any | None = Field(default=None, description="Redacted representative control input.")
         output: ControlResult | None = Field(default=None, description="Structured control evaluation result.")
         redacted_output: ControlResult | None = Field(
-            default=None,
-            description="Redacted structured control evaluation result.",
+            default=None, description="Redacted structured control evaluation result."
         )
         name: str = Field(default="control", description="Human-readable control name.")
         created_at: datetime = Field(
-            default_factory=lambda: datetime.now(tz=timezone.utc),
-            description="Timestamp of the control execution.",
+            default_factory=lambda: datetime.now(tz=timezone.utc), description="Timestamp of the control execution."
         )
         user_metadata: dict[str, str] = Field(default_factory=dict, description="Metadata associated with the span.")
         tags: list[str] = Field(default_factory=list, description="Tags associated with the span.")
@@ -70,8 +64,7 @@ except ImportError:
         dataset_input: str | None = Field(default=None, description="Dataset input inherited from the parent.")
         dataset_output: str | None = Field(default=None, description="Dataset output inherited from the parent.")
         dataset_metadata: dict[str, str] = Field(
-            default_factory=dict,
-            description="Dataset metadata inherited from the parent.",
+            default_factory=dict, description="Dataset metadata inherited from the parent."
         )
         id: Any | None = Field(default=None, description="Galileo ID of the control span.")
         session_id: Any | None = Field(default=None, description="Session ID associated with the span.")

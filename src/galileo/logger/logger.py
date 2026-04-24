@@ -10,7 +10,10 @@ import time
 import uuid
 from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Union
+from typing import TYPE_CHECKING, Any, Union
+
+if TYPE_CHECKING:
+    from galileo.handlers.agent_control import GalileoAgentControlBridge
 
 import backoff
 import httpx
@@ -755,9 +758,7 @@ class GalileoLogger(TracesLogger):
             return await self._traces_client.ingest_spans(request)
 
         self._task_handler.submit_task_with_parent(
-            task_id,
-            lambda: ingest_spans_with_backoff(spans_ingest_request),
-            parent_task_id=parent_task_id,
+            task_id, lambda: ingest_spans_with_backoff(spans_ingest_request), parent_task_id=parent_task_id
         )
         self._logger.info("ingested span %s.", span.id)
 
@@ -916,10 +917,8 @@ class GalileoLogger(TracesLogger):
         # The traces check is a sanity check to ensure consistency.
         return current_parent is not None and len(self.traces) > 0
 
-    def enable_agent_control(self) -> "GalileoAgentControlBridge":
+    def enable_agent_control(self) -> GalileoAgentControlBridge:
         """Register this logger as the active Agent Control bridge target."""
-        from galileo.handlers.agent_control import GalileoAgentControlBridge
-
         bridge = getattr(self, "_agent_control_bridge", None)
         if bridge is None:
             bridge = GalileoAgentControlBridge(galileo_logger=self)
@@ -1903,9 +1902,7 @@ class GalileoLogger(TracesLogger):
         if name is not None:
             span_kwargs["name"] = name
 
-        span = ControlSpan(
-            **span_kwargs,
-        )
+        span = ControlSpan(**span_kwargs)
         self.add_child_span_to_parent(span)
 
         if self.mode == "distributed":

@@ -100,11 +100,7 @@ def fake_agent_control_modules(monkeypatch):
     monkeypatch.setitem(sys.modules, "agent_control_telemetry.sinks", sinks_module)
     monkeypatch.setitem(sys.modules, "agent_control_telemetry.trace_context", trace_context_module)
 
-    yield {
-        "agent_control": agent_control_module,
-        "trace_context": trace_context_module,
-        "sinks": sinks_module,
-    }
+    yield {"agent_control": agent_control_module, "trace_context": trace_context_module, "sinks": sinks_module}
 
     bridge_module = sys.modules.get("galileo.handlers.agent_control.bridge")
     if bridge_module is not None:
@@ -151,10 +147,7 @@ def _make_event(logger: GalileoLogger, **overrides: object) -> FakeControlExecut
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_enable_agent_control_registers_provider_and_sink(
-    mock_traces_client: Mock,
-    mock_projects_client: Mock,
-    mock_logstreams_client: Mock,
-    fake_agent_control_modules,
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
 ) -> None:
     # Given: a logger with an active Galileo parent and Agent Control available
     setup_mock_traces_client(mock_traces_client)
@@ -186,10 +179,7 @@ def test_enable_agent_control_registers_provider_and_sink(
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_logger_auto_registers_agent_control_bridge_when_available(
-    mock_traces_client: Mock,
-    mock_projects_client: Mock,
-    mock_logstreams_client: Mock,
-    fake_agent_control_modules,
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
 ) -> None:
     # Given: Agent Control modules are importable when the logger is created
     setup_mock_traces_client(mock_traces_client)
@@ -209,18 +199,14 @@ def test_logger_auto_registers_agent_control_bridge_when_available(
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_logger_init_does_not_raise_when_agent_control_is_missing(
-    mock_traces_client: Mock,
-    mock_projects_client: Mock,
-    mock_logstreams_client: Mock,
-    monkeypatch: pytest.MonkeyPatch,
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # Given: Agent Control modules are not importable
     setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
     monkeypatch.setattr(
-        "galileo.handlers.agent_control.bridge._import_module",
-        lambda name: (_ for _ in ()).throw(ImportError(name)),
+        "galileo.handlers.agent_control.bridge._import_module", lambda name: (_ for _ in ()).throw(ImportError(name))
     )
 
     # When: creating a new Galileo logger
@@ -234,16 +220,16 @@ def test_logger_init_does_not_raise_when_agent_control_is_missing(
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_agent_control_cleanup_restores_previous_provider_across_loggers(
-    mock_traces_client: Mock,
-    mock_projects_client: Mock,
-    mock_logstreams_client: Mock,
-    fake_agent_control_modules,
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
 ) -> None:
     # Given: an existing external provider and two Galileo loggers registering in sequence
     setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
-    external_provider = lambda: {"trace_id": "external-trace", "span_id": "external-span"}
+
+    def external_provider():
+        return {"trace_id": "external-trace", "span_id": "external-span"}
+
     fake_agent_control_modules["trace_context"].set_trace_context_provider(external_provider)
 
     logger_a = GalileoLogger(project="project_a", log_stream="stream_a")
@@ -279,10 +265,7 @@ def test_agent_control_cleanup_restores_previous_provider_across_loggers(
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_idle_new_logger_does_not_mask_active_logger_context(
-    mock_traces_client: Mock,
-    mock_projects_client: Mock,
-    mock_logstreams_client: Mock,
-    fake_agent_control_modules,
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
 ) -> None:
     # Given: one logger is actively tracing before another logger is constructed
     setup_mock_traces_client(mock_traces_client)
@@ -298,10 +281,7 @@ def test_idle_new_logger_does_not_mask_active_logger_context(
     active_context = fake_agent_control_modules["trace_context"].get_trace_context_from_provider()
 
     # Then: the shared provider still reports the active logger's context
-    assert active_context == {
-        "trace_id": str(logger_a.traces[0].id),
-        "span_id": str(workflow_a.id),
-    }
+    assert active_context == {"trace_id": str(logger_a.traces[0].id), "span_id": str(workflow_a.id)}
 
     # When: Agent Control stamps and emits an event using the shared provider
     event = _make_event(logger_a, trace_id=active_context["trace_id"], span_id=active_context["span_id"])
@@ -317,10 +297,7 @@ def test_idle_new_logger_does_not_mask_active_logger_context(
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_agent_control_event_converts_to_control_span_in_batch_mode(
-    mock_traces_client: Mock,
-    mock_projects_client: Mock,
-    mock_logstreams_client: Mock,
-    fake_agent_control_modules,
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
 ) -> None:
     # Given: a batch logger with an active parent and a matching Agent Control event
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
@@ -351,7 +328,7 @@ def test_agent_control_event_converts_to_control_span_in_batch_mode(
     assert control_span.metrics.duration_ns == 12_500_000
     assert control_span.user_metadata["control_execution_id"] == event.control_execution_id
     assert control_span.user_metadata["primary_selector_path"] == "input"
-    assert control_span.user_metadata["all_selector_paths"] == "[\"input\", \"output\"]"
+    assert control_span.user_metadata["all_selector_paths"] == '["input", "output"]'
 
     # When: the logger flushes in batch mode
     logger.flush()
@@ -369,10 +346,7 @@ def test_agent_control_event_converts_to_control_span_in_batch_mode(
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_agent_control_event_streams_immediately_in_distributed_mode(
-    mock_traces_client: Mock,
-    mock_projects_client: Mock,
-    mock_logstreams_client: Mock,
-    fake_agent_control_modules,
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
 ) -> None:
     # Given: a distributed logger with request capture enabled
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
@@ -419,10 +393,7 @@ def test_agent_control_event_streams_immediately_in_distributed_mode(
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_add_control_span_uses_model_default_name_in_fallback_mode(
-    mock_traces_client: Mock,
-    mock_projects_client: Mock,
-    mock_logstreams_client: Mock,
-    monkeypatch: pytest.MonkeyPatch,
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # Given: the logger is using the fallback ControlSpan model
     setup_mock_traces_client(mock_traces_client)
@@ -461,10 +432,7 @@ def test_add_control_span_uses_model_default_name_in_fallback_mode(
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_agent_control_event_is_dropped_when_context_does_not_match(
-    mock_traces_client: Mock,
-    mock_projects_client: Mock,
-    mock_logstreams_client: Mock,
-    fake_agent_control_modules,
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
 ) -> None:
     # Given: an active logger and an Agent Control event with stale trace context
     setup_mock_traces_client(mock_traces_client)

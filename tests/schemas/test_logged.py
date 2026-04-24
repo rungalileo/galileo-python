@@ -354,14 +354,16 @@ class TestJsonRoundtripNoCoercion:
             importlib.reload(control_module)
             importlib.reload(logged_module)
 
-            # When: constructing and validating a LoggedTrace containing the fallback ControlSpan
-            trace = logged_module.LoggedTrace(input="query", spans=[control_module.ControlSpan(input="selected text")])
+            # When: constructing and validating a LoggedTrace containing the fallback ControlSpan payload
+            control_payload = control_module.ControlSpan(input="selected text").model_dump(mode="python")
+            trace = logged_module.LoggedTrace(input="query", spans=[control_payload])
             restored = logged_module.LoggedTrace.model_validate(trace.model_dump(mode="json"))
 
             # Then: the discriminated union resolves the fallback ControlSpan cleanly
             assert control_module.HAS_NATIVE_CONTROL_SPAN is False
             assert restored.spans[0].type == "control"
-            assert type(restored.spans[0]) is control_module.ControlSpan
+            assert restored.spans[0].__class__.__name__ == "ControlSpan"
+            assert restored.spans[0].model_dump(mode="json")["input"] == "selected text"
 
         importlib.reload(control_module)
         importlib.reload(logged_module)

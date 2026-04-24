@@ -118,10 +118,7 @@ def _dispatch_trace_context() -> dict[str, str] | None:
     for bridge in reversed(bridges):
         active_context = bridge._active_context()
         if active_context is not None:
-            return {
-                "trace_id": active_context.trace_id,
-                "span_id": active_context.span_id,
-            }
+            return {"trace_id": active_context.trace_id, "span_id": active_context.span_id}
 
     if previous_provider is not None:
         return previous_provider()

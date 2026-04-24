@@ -198,7 +198,7 @@ ignore = [
     "S311",     # Standard pseudo-random generators (false positive for backoff/timing)
     "S324",     # Insecure hash functions (sometimes needed for non-crypto)
     "PLR0914",  # Too many local variables
-    "PLW0603",  # Using the global statement to update module-level variables (necessary for this code)
+    "PLW0603",  # Using the global statement to update module-level variables)
     # Docstring rules - allow missing docstrings but enforce format when present
     "D100",     # Missing docstring in public module
     "D101",     # Missing docstring in public class
@@ -253,6 +253,7 @@ ignore = [
 "src/galileo/utils/serialization.py" = ["PLC0415"]  # Optional dependency conditional imports
 "src/galileo/handlers/crewai/handler.py" = ["PLC0415"]  # Version-specific conditional imports
 "src/galileo/project.py" = ["PLC0415"]  # Bottom-of-file circular import avoidance
+"src/galileo/logger/logger.py" = ["PLC0415"]  # Local imports to avoid circular dependencies
 
 [tool.ruff.lint.isort]
 known-first-party = ["galileo_core"]
