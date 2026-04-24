@@ -231,13 +231,15 @@ class GalileoAgentControlBridge:
                 continue
 
             try:
-                self._galileo_logger.add_control_span(**self._control_span_kwargs(event))
+                result = self._galileo_logger.add_control_span(**self._control_span_kwargs(event))
             except Exception:
                 logger.warning("Agent Control event conversion failed", exc_info=True)
                 dropped += 1
                 continue
-
-            accepted += 1
+            if result is None:
+                dropped += 1
+            else:
+                accepted += 1
 
         return self._sink_result(accepted=accepted, dropped=dropped)
 

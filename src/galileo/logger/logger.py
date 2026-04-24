@@ -1905,6 +1905,7 @@ class GalileoLogger(TracesLogger):
             span_kwargs["name"] = name
 
         span = ControlSpan(**span_kwargs)
+        span._parent = current_parent
         self.add_child_span_to_parent(span)
 
         if self.mode == "distributed":
