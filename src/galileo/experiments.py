@@ -630,12 +630,17 @@ def get_experiments(
     return Experiments().list(project_id=project_obj.id)
 
 
-def list_experiment_groups(
-    project_id: str | None = None, project_name: str | None = None, *, starting_token: int = 0, limit: int = 100
-) -> list[ExperimentGroupResponse]:
-    """List experiment groups in a project.
+_LIST_EXPERIMENT_GROUPS_PAGE_SIZE = 100
 
-    Calls ``POST /projects/{project_id}/experiment-groups/query``.
+
+def list_experiment_groups(
+    project_id: str | None = None, project_name: str | None = None
+) -> list[ExperimentGroupResponse]:
+    """List all experiment groups in a project.
+
+    Calls ``POST /projects/{project_id}/experiment-groups/query`` and pages through
+    every group internally. The full list is returned in a single call; customers
+    do not need to handle pagination tokens.
 
     The project can be specified by providing exactly one of the project name (via the
     ``project_name`` parameter or the ``GALILEO_PROJECT`` environment variable) or the
@@ -648,15 +653,11 @@ def list_experiment_groups(
         Optional project ID. Takes preference over the ``GALILEO_PROJECT_ID`` env var.
     project_name
         Optional project name. Takes preference over the ``GALILEO_PROJECT`` env var.
-    starting_token
-        Pagination offset. Defaults to 0.
-    limit
-        Page size. Defaults to 100.
 
     Returns
     -------
     list[ExperimentGroupResponse]
-        Experiment groups in the project.
+        All experiment groups in the project.
 
     Raises
     ------
@@ -676,13 +677,22 @@ def list_experiment_groups(
     # timeout, and SDK headers. The experiment-group routes are not yet in the generated
     # client; once they are, this helper should be rewritten to use the generated function.
     config = GalileoPythonConfig.get()
-    response = config.api_client.request(
-        method=RequestMethod.POST,
-        path=f"/projects/{project_obj.id}/experiment-groups/query",
-        json={"starting_token": starting_token, "limit": limit},
-        content_headers={"Content-Type": "application/json", "X-Galileo-SDK": get_sdk_header()},
-        return_raw_response=True,
-    )
-    response.raise_for_status()
-    payload = response.json()
-    return [ExperimentGroupResponse.model_validate(g) for g in payload.get("experiment_groups", [])]
+    headers = {"Content-Type": "application/json", "X-Galileo-SDK": get_sdk_header()}
+    path = f"/projects/{project_obj.id}/experiment-groups/query"
+
+    all_groups: list[ExperimentGroupResponse] = []
+    starting_token: int | None = 0
+    while starting_token is not None:
+        response = config.api_client.request(
+            method=RequestMethod.POST,
+            path=path,
+            json={"starting_token": starting_token, "limit": _LIST_EXPERIMENT_GROUPS_PAGE_SIZE},
+            content_headers=headers,
+            return_raw_response=True,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        all_groups.extend(ExperimentGroupResponse.model_validate(g) for g in payload.get("experiment_groups", []))
+        starting_token = payload.get("next_starting_token") if payload.get("paginated") else None
+
+    return all_groups

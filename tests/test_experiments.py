@@ -16,7 +16,14 @@ import galileo.jobs
 import galileo.utils.datasets
 from galileo import galileo_context
 from galileo.decorator import SPAN_TYPE
-from galileo.experiments import Experiments, create_experiment, get_experiment, get_experiments, run_experiment
+from galileo.experiments import (
+    Experiments,
+    create_experiment,
+    get_experiment,
+    get_experiments,
+    list_experiment_groups,
+    run_experiment,
+)
 from galileo.projects import Project
 from galileo.prompts import PromptTemplate
 from galileo.resources.models import (
@@ -35,6 +42,7 @@ from galileo.resources.models import (
     TaskType,
 )
 from galileo.schema.datasets import DatasetRecord
+from galileo.schema.experiment_group import ExperimentGroupResponse
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 from galileo.utils.datasets import load_dataset_and_records
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
@@ -1835,8 +1843,6 @@ class TestExperimentGroups:
     def test_list_experiment_groups(self, get_project_mock: Mock, config_mock: Mock) -> None:
         """list_experiment_groups() POSTs to /experiment-groups/query and returns typed objects."""
         # Given: a resolved project and a mocked httpx client returning two groups
-        from galileo.experiments import list_experiment_groups
-        from galileo.schema.experiment_group import ExperimentGroupResponse
 
         get_project_mock.return_value = project()
 
@@ -1874,12 +1880,15 @@ class TestExperimentGroups:
         fake_response.json.return_value = api_payload
         fake_response.raise_for_status = MagicMock()
 
+        # API returns a single page (paginated=False)
+        api_payload["paginated"] = False
+        api_payload["next_starting_token"] = None
         config_mock.get.return_value.api_client.request.return_value = fake_response
 
         # When: listing experiment groups
         groups = list_experiment_groups(project_name="awesome-new-project")
 
-        # Then: it calls ApiClient.request with the right path and pagination body
+        # Then: it calls ApiClient.request once with the right path and pagination body
         config_mock.get.return_value.api_client.request.assert_called_once()
         call_kwargs = config_mock.get.return_value.api_client.request.call_args.kwargs
         assert call_kwargs["path"] == f"/projects/{UUID(int=0)}/experiment-groups/query"
@@ -1891,3 +1900,55 @@ class TestExperimentGroups:
         assert groups[0].name == "group-a"
         assert groups[0].experiment_count == 2
         assert groups[1].is_system is True
+
+    @patch("galileo.experiments.GalileoPythonConfig")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_list_experiment_groups_paginates_internally(self, get_project_mock: Mock, config_mock: Mock) -> None:
+        """list_experiment_groups() walks all pages and returns the combined list."""
+        # Given: a project and an API that returns 2 pages
+
+        get_project_mock.return_value = project()
+
+        now_iso = datetime.now().isoformat() + "Z"
+
+        def make_group(idx: int, system: bool = False) -> dict:
+            return {
+                "id": str(UUID(int=idx)),
+                "name": f"group-{idx}",
+                "project_id": str(UUID(int=0)),
+                "created_at": now_iso,
+                "updated_at": now_iso,
+                "is_system": system,
+                "experiment_count": 0,
+                "datasets": [],
+            }
+
+        page1 = MagicMock()
+        page1.json.return_value = {
+            "experiment_groups": [make_group(1), make_group(2)],
+            "paginated": True,
+            "next_starting_token": 100,
+        }
+        page1.raise_for_status = MagicMock()
+
+        page2 = MagicMock()
+        page2.json.return_value = {
+            "experiment_groups": [make_group(3)],
+            "paginated": False,
+            "next_starting_token": None,
+        }
+        page2.raise_for_status = MagicMock()
+
+        config_mock.get.return_value.api_client.request.side_effect = [page1, page2]
+
+        # When: listing experiment groups
+        groups = list_experiment_groups(project_name="awesome-new-project")
+
+        # Then: both pages are walked and the combined list is returned
+        assert config_mock.get.return_value.api_client.request.call_count == 2
+        starting_tokens = [
+            c.kwargs["json"]["starting_token"] for c in config_mock.get.return_value.api_client.request.call_args_list
+        ]
+        assert starting_tokens == [0, 100]
+        assert len(groups) == 3
+        assert [g.name for g in groups] == ["group-1", "group-2", "group-3"]
