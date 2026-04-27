@@ -599,10 +599,19 @@ def get_experiment(
 
 
 def get_experiments(
-    project_id: str | None = None, project_name: str | None = None
+    project_id: str | None = None,
+    project_name: str | None = None,
+    *,
+    experiment_group: str | None = None,
+    experiment_group_id: str | None = None,
 ) -> HTTPValidationError | list[ExperimentResponse] | None:
     """
     Get experiments from the specified Project.
+
+    When no group filter is given, returns all experiments in the project (existing
+    behavior, calls ``GET /projects/{id}/experiments``). When ``experiment_group`` or
+    ``experiment_group_id`` is provided, returns only experiments assigned to that group
+    (calls ``POST /projects/{id}/experiments/search`` and pages internally).
 
     Parameters
     ----------
@@ -610,15 +619,25 @@ def get_experiments(
         Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using ``project``
     project_name
         Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using ``project_id``
+    experiment_group
+        Optional experiment-group name to filter by. Returns only experiments assigned to
+        a group with this name. Mutually compatible with ``experiment_group_id``: if both
+        are provided, both filters are sent and the API resolves precedence.
+    experiment_group_id
+        Optional experiment-group UUID to filter by. Returns only experiments assigned to
+        this group.
 
     Returns
     -------
-    List of ExperimentResponse results
+    List of ExperimentResponse results. When a filter is set, the list is scoped to the
+    matching group; otherwise it is the full project listing.
 
     Raises
     ------
     HTTPValidationError
         If there's a validation error in returning a list of ExperimentResponse
+    httpx.HTTPStatusError
+        If the search endpoint returns a non-2xx response (only when a group filter is set).
     """
     # Resolve project by id, name, or environment fallbacks
     project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
@@ -627,7 +646,54 @@ def get_experiments(
             raise ValueError(f"Project {project_name} does not exist")
         raise ValueError("Project not specified and no defaults found")
 
-    return Experiments().list(project_id=project_obj.id)
+    # No filter → keep existing behavior unchanged (calls GET /experiments via generated client)
+    if experiment_group is None and experiment_group_id is None:
+        return Experiments().list(project_id=project_obj.id)
+
+    # Filter set → call the search endpoint, page through all results.
+    # The search endpoint is not in the generated client today; once it is, this branch
+    # should be rewritten to use the generated function.
+    filters: list[dict[str, Any]] = []
+    if experiment_group_id is not None:
+        filters.append(
+            {
+                "filter_type": "id",
+                "name": "experiment_group_id",
+                "operator": "eq",
+                "value": experiment_group_id,
+            }
+        )
+    if experiment_group is not None:
+        filters.append(
+            {
+                "filter_type": "string",
+                "name": "experiment_group_name",
+                "operator": "eq",
+                "value": experiment_group,
+                "case_sensitive": True,
+            }
+        )
+
+    config = GalileoPythonConfig.get()
+    headers = {"Content-Type": "application/json", "X-Galileo-SDK": get_sdk_header()}
+    path = f"/projects/{project_obj.id}/experiments/search"
+
+    all_experiments: list[ExperimentResponse] = []
+    starting_token: int | None = 0
+    while starting_token is not None:
+        response = config.api_client.request(
+            method=RequestMethod.POST,
+            path=path,
+            json={"filters": filters, "starting_token": starting_token, "limit": _LIST_EXPERIMENT_GROUPS_PAGE_SIZE},
+            content_headers=headers,
+            return_raw_response=True,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        all_experiments.extend(ExperimentResponse.from_dict(e) for e in payload.get("experiments", []))
+        starting_token = payload.get("next_starting_token") if payload.get("paginated") else None
+
+    return all_experiments
 
 
 _LIST_EXPERIMENT_GROUPS_PAGE_SIZE = 100

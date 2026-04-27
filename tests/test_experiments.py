@@ -1952,3 +1952,91 @@ class TestExperimentGroups:
         assert starting_tokens == [0, 100]
         assert len(groups) == 3
         assert [g.name for g in groups] == ["group-1", "group-2", "group-3"]
+
+    @patch("galileo.experiments.GalileoPythonConfig")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_get_experiments_with_group_name_filter(self, get_project_mock: Mock, config_mock: Mock) -> None:
+        """get_experiments(experiment_group=...) calls the search endpoint with a name filter."""
+        # Given: a resolved project and a search endpoint that returns one matching experiment
+        get_project_mock.return_value = project()
+        fake_response = MagicMock()
+        fake_response.json.return_value = {
+            "experiments": [experiment_response().to_dict()],
+            "paginated": False,
+            "next_starting_token": None,
+        }
+        fake_response.raise_for_status = MagicMock()
+        config_mock.get.return_value.api_client.request.return_value = fake_response
+
+        # When: filtering by group name
+        result = get_experiments(project_name="awesome-new-project", experiment_group="my-group")
+
+        # Then: it calls /experiments/search with the right filter and returns the experiment
+        config_mock.get.return_value.api_client.request.assert_called_once()
+        kwargs = config_mock.get.return_value.api_client.request.call_args.kwargs
+        assert kwargs["path"] == f"/projects/{UUID(int=0)}/experiments/search"
+        body = kwargs["json"]
+        assert body["filters"] == [
+            {
+                "filter_type": "string",
+                "name": "experiment_group_name",
+                "operator": "eq",
+                "value": "my-group",
+                "case_sensitive": True,
+            }
+        ]
+        assert body["starting_token"] == 0
+        assert isinstance(result, list)
+        assert len(result) == 1
+
+    @patch("galileo.experiments.GalileoPythonConfig")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_get_experiments_with_group_id_filter(self, get_project_mock: Mock, config_mock: Mock) -> None:
+        """get_experiments(experiment_group_id=...) calls the search endpoint with an id filter."""
+        # Given: a resolved project and a search endpoint that returns one matching experiment
+        get_project_mock.return_value = project()
+        fake_response = MagicMock()
+        fake_response.json.return_value = {
+            "experiments": [experiment_response().to_dict()],
+            "paginated": False,
+            "next_starting_token": None,
+        }
+        fake_response.raise_for_status = MagicMock()
+        config_mock.get.return_value.api_client.request.return_value = fake_response
+
+        group_uuid = str(UUID(int=42))
+
+        # When: filtering by group ID
+        result = get_experiments(project_name="awesome-new-project", experiment_group_id=group_uuid)
+
+        # Then: filter sends an id-typed filter clause
+        kwargs = config_mock.get.return_value.api_client.request.call_args.kwargs
+        body = kwargs["json"]
+        assert body["filters"] == [
+            {
+                "filter_type": "id",
+                "name": "experiment_group_id",
+                "operator": "eq",
+                "value": group_uuid,
+            }
+        ]
+        assert isinstance(result, list)
+        assert len(result) == 1
+
+    @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_get_experiments_without_filter_unchanged(
+        self, get_project_mock: Mock, list_experiments_mock: Mock
+    ) -> None:
+        """get_experiments() without any filter still calls the legacy list endpoint."""
+        # Given: a resolved project and the existing list endpoint
+        get_project_mock.return_value = project()
+        list_experiments_mock.sync = Mock(return_value=[experiment_response()])
+
+        # When: calling without filter
+        result = get_experiments(project_name="awesome-new-project")
+
+        # Then: legacy list endpoint is used (no search call), returning the project's experiments
+        list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
+        assert isinstance(result, list)
+        assert len(result) == 1
