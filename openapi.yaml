@@ -3,7 +3,7 @@ info:
   title: Galileo API Server
   version: 1.961.4
 servers:
-  - url: http://localhost:8088
+  - url: https://api.galileo.ai
     description: Galileo API Server - local
 paths:
   /login:
