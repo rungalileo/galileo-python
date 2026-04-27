@@ -19,6 +19,29 @@ logger = logging.getLogger(__name__)
 _MAX_METADATA_SERIALIZED_BYTES = 8 * 1024
 
 
+def _safe_scorer_metadata(metadata: dict, metric_name: str) -> dict | None:
+    """Return ``metadata`` if it is safe to attach to ``step.metrics``, else ``None``.
+
+    Metadata flows into HTTPX ``json=`` during trace upload, so a non-serializable
+    value (e.g. a ``set``, a ``datetime``) would blow up far from the scorer with
+    no useful context. Oversized payloads also bloat ingest. Both are dropped
+    with a warning; the score still flows through so the user keeps the metric.
+    """
+    try:
+        serialized = json.dumps(metadata)
+    except (TypeError, ValueError) as exc:
+        logger.warning("Dropping non-JSON-serializable metadata from local metric '%s': %s", metric_name, exc)
+        return None
+    if len(serialized.encode("utf-8")) > _MAX_METADATA_SERIALIZED_BYTES:
+        logger.warning(
+            "Dropping metadata from local metric '%s': serialized size exceeds %d bytes",
+            metric_name,
+            _MAX_METADATA_SERIALIZED_BYTES,
+        )
+        return None
+    return metadata
+
+
 def populate_local_metrics(step: Trace | Span, local_metrics: list[LocalMetricConfig]) -> None:
     for local_metric in local_metrics:
         _populate_local_metric(step, local_metric, [])
@@ -42,25 +65,9 @@ def _populate_local_metric(step: Trace | Span, local_metric: LocalMetricConfig, 
         # for explainability. A bare 2-element list (e.g. a vector-valued score) is not.
         if isinstance(result, tuple) and len(result) == 2 and isinstance(result[1], dict):
             metric_value, metadata = result
-            # Reject metadata that won't survive trace upload — the dict ends up in HTTPX
-            # `json=` downstream, so a non-serializable value (e.g. a `set`, a `datetime`)
-            # would otherwise blow up far from the scorer with no useful context. Also
-            # enforce the 8 KB cap so misbehaved scorers can't bloat trace payloads.
-            try:
-                serialized = json.dumps(metadata)
-            except (TypeError, ValueError) as exc:
-                logger.warning(
-                    "Dropping non-JSON-serializable metadata from local metric '%s': %s", local_metric.name, exc
-                )
-            else:
-                if len(serialized.encode("utf-8")) > _MAX_METADATA_SERIALIZED_BYTES:
-                    logger.warning(
-                        "Dropping metadata from local metric '%s': serialized size exceeds %d bytes",
-                        local_metric.name,
-                        _MAX_METADATA_SERIALIZED_BYTES,
-                    )
-                else:
-                    setattr(step.metrics, f"{local_metric.name}_metadata", metadata)
+            safe_metadata = _safe_scorer_metadata(metadata, local_metric.name)
+            if safe_metadata is not None:
+                setattr(step.metrics, f"{local_metric.name}_metadata", safe_metadata)
         else:
             metric_value = result
         setattr(step.metrics, local_metric.name, metric_value)
