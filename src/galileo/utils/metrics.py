@@ -1,4 +1,6 @@
 import builtins
+import json
+import logging
 from uuid import UUID
 
 from galileo.resources.models.scorer_config import ScorerConfig
@@ -8,6 +10,8 @@ from galileo.scorers import Scorers, ScorerSettings
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.metric import MetricValueType
+
+logger = logging.getLogger(__name__)
 
 
 def populate_local_metrics(step: Trace | Span, local_metrics: list[LocalMetricConfig]) -> None:
@@ -33,7 +37,17 @@ def _populate_local_metric(step: Trace | Span, local_metric: LocalMetricConfig, 
         # for explainability. A bare 2-element list (e.g. a vector-valued score) is not.
         if isinstance(result, tuple) and len(result) == 2 and isinstance(result[1], dict):
             metric_value, metadata = result
-            setattr(step.metrics, f"{local_metric.name}_metadata", metadata)
+            # Reject metadata that won't survive trace upload — the dict ends up in HTTPX
+            # `json=` downstream, so a non-serializable value (e.g. a `set`, a `datetime`)
+            # would otherwise blow up far from the scorer with no useful context.
+            try:
+                json.dumps(metadata)
+            except (TypeError, ValueError) as exc:
+                logger.warning(
+                    "Dropping non-JSON-serializable metadata from local metric '%s': %s", local_metric.name, exc
+                )
+            else:
+                setattr(step.metrics, f"{local_metric.name}_metadata", metadata)
         else:
             metric_value = result
         setattr(step.metrics, local_metric.name, metric_value)
