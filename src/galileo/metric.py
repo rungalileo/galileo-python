@@ -1176,7 +1176,9 @@ class LocalMetric(Metric):
 
     Attributes
     ----------
-        scorer_fn (Callable): Scoring function that takes a Trace or Span and returns a score.
+        scorer_fn (Callable): Scoring function that takes a Trace or Span and returns either a
+            score, or a ``(score, metadata)`` tuple — when a tuple is returned, the metadata dict
+            is attached to the step under ``{name}_metadata`` for explainability.
         scorable_types (list[StepType]): Types that can be scored.
         aggregatable_types (list[StepType]): Types that can be aggregated.
 
@@ -1195,12 +1197,22 @@ class LocalMetric(Metric):
             aggregatable_types=[StepType.trace],
         )
 
+        # Or return (score, metadata) for explainability
+        EXPECTED = ["relevance", "accuracy", "completeness"]
+        def keyword_coverage(trace_or_span):
+            text = getattr(trace_or_span, "output", "") or ""
+            matched = [k for k in EXPECTED if k in text]
+            return len(matched) / len(EXPECTED), {
+                "matched": matched,
+                "missing": [k for k in EXPECTED if k not in text],
+            }
+
         # Use with log stream
         log_stream.set_metrics([local_metric])
     """
 
     # Type annotations for local metric attributes
-    scorer_fn: Callable[[Trace | Span], MetricValueType]
+    scorer_fn: Callable[[Trace | Span], MetricValueType | tuple[MetricValueType, dict[str, Any]]]
     scorable_types: list[StepType]
     aggregatable_types: list[StepType]
 
@@ -1208,7 +1220,7 @@ class LocalMetric(Metric):
         self,
         name: str,
         *,
-        scorer_fn: Callable[[Trace | Span], MetricValueType],
+        scorer_fn: Callable[[Trace | Span], MetricValueType | tuple[MetricValueType, dict[str, Any]]],
         scorable_types: list[StepType] | None = None,
         aggregatable_types: list[StepType] | None = None,
         description: str = "",
@@ -1219,7 +1231,9 @@ class LocalMetric(Metric):
 
         Args:
             name: The name of the metric.
-            scorer_fn: Scoring function for the metric.
+            scorer_fn: Scoring function for the metric. May return either a bare score, or a
+                ``(score, metadata)`` tuple where ``metadata`` is a JSON-serializable dict
+                surfaced under ``{name}_metadata`` on the step.
             scorable_types: Step types that can be scored. Defaults to [StepType.llm].
             aggregatable_types: Step types for aggregation. Defaults to [StepType.trace].
             description: Description of the metric.

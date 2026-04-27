@@ -27,8 +27,16 @@ def _populate_local_metric(step: Trace | Span, local_metric: LocalMetricConfig, 
             else:
                 setattr(step.metrics, local_metric.name, aggregate_metric_result)
     if step.type in local_metric.scorable_types:
-        metric_value = local_metric.scorer_fn(step)
-        setattr(step.metrics, local_metric.name, local_metric.scorer_fn(step))
+        result = local_metric.scorer_fn(step)
+        # A 2-tuple whose second element is a dict is a (score, metadata) return — attach
+        # the metadata under {name}_metadata so the backend stores it as auxiliary context
+        # for explainability. A bare 2-element list (e.g. a vector-valued score) is not.
+        if isinstance(result, tuple) and len(result) == 2 and isinstance(result[1], dict):
+            metric_value, metadata = result
+            setattr(step.metrics, f"{local_metric.name}_metadata", metadata)
+        else:
+            metric_value = result
+        setattr(step.metrics, local_metric.name, metric_value)
         scores.append(metric_value)
 
 
