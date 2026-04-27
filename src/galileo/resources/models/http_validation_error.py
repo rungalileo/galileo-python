@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,11 +21,11 @@ class HTTPValidationError:
         detail (Union[Unset, list['ValidationError']]):
     """
 
-    detail: Unset | list["ValidationError"] = UNSET
+    detail: Union[Unset, list["ValidationError"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        detail: Unset | list[dict[str, Any]] = UNSET
+        detail: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.detail, Unset):
             detail = []
             for detail_item_data in self.detail:
@@ -45,13 +45,14 @@ class HTTPValidationError:
         from ..models.validation_error import ValidationError
 
         d = dict(src_dict)
-        detail: Unset | list[ValidationError] = UNSET
+        detail: Union[Unset, list[ValidationError]] = UNSET
         _detail = d.pop("detail", UNSET)
         if isinstance(_detail, list):
             detail = [ValidationError.from_dict(item) for item in _detail]
         elif isinstance(_detail, str) and _detail:
-            # Some API error responses return a plain string instead of the standard
-            # list-of-ValidationError shape (e.g. GalileoServerException messages).
+            # Some backend 422s return a bare string instead of the standard
+            # list-of-ValidationError shape (e.g. invalid model alias lookups
+            # returning {"detail": "Model alias '...' not found"}).
             # Wrap it so callers always receive a consistent ValidationError list.
             detail = [ValidationError(loc=[], msg=_detail, type_="server_error")]
 

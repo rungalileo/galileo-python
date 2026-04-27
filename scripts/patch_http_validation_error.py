@@ -37,26 +37,24 @@ from pathlib import Path
 # Patterns to find in the auto-generated file
 # ---------------------------------------------------------------------------
 
-# 1. Class-level field declaration:
-#    detail: list["ValidationError"]
-#    → detail: Unset | list["ValidationError"] = UNSET
-_FIELD_RE = re.compile(r'^(?P<indent>\s*)detail: list\["ValidationError"\]\s*$', re.MULTILINE)
-
-# 2. Inside from_dict — initialisation + for-loop:
-#    detail: list[ValidationError] = []
-#    _detail = d.pop("detail", UNSET)
-#    for detail_item_data in _detail or []:
-#        detail_item = ValidationError.from_dict(detail_item_data)
-#        detail.append(detail_item)
+# Inside from_dict — bare initialisation + for-loop produced by the generator:
 #
-# Note: the first line uses \"ValidationError\" (quoted) because the generated local
-# variable annotation is `list["ValidationError"]`, while the function call on line 4
-# uses ValidationError without quotes — both forms appear in the same generated block.
+#     detail = []
+#     _detail = d.pop("detail", UNSET)
+#     for detail_item_data in _detail or []:
+#         detail_item = ValidationError.from_dict(detail_item_data)
+#                                                                      <- blank line
+#         detail.append(detail_item)
+#
+# The class-level field annotation already comes out as
+# `Union[Unset, list["ValidationError"]] = UNSET` from the generator, so it
+# does NOT need to be patched — only the from_dict body is rewritten here.
 _LOOP_RE = re.compile(
-    r"(?P<indent>\s*)detail: list\[\"ValidationError\"\] = \[\]\n"
+    r"(?P<indent>[ \t]+)detail = \[\]\n"
     r"(?P=indent)_detail = d\.pop\(\"detail\", UNSET\)\n"
     r"(?P=indent)for detail_item_data in _detail or \[\]:\n"
     r"(?P=indent)    detail_item = ValidationError\.from_dict\(detail_item_data\)\n"
+    r"[ \t]*\n"
     r"(?P=indent)    detail\.append\(detail_item\)",
     re.MULTILINE,
 )
@@ -67,13 +65,14 @@ def _loop_replacement(indent: str) -> str:
     i4 = indent + "    "
     return "\n".join(
         [
-            f'{i}detail: Unset | list["ValidationError"] = UNSET',
+            f"{i}detail: Union[Unset, list[ValidationError]] = UNSET",
             f'{i}_detail = d.pop("detail", UNSET)',
             f"{i}if isinstance(_detail, list):",
             f"{i4}detail = [ValidationError.from_dict(item) for item in _detail]",
             f"{i}elif isinstance(_detail, str) and _detail:",
-            f"{i4}# Some API error responses return a plain string instead of the standard",
-            f"{i4}# list-of-ValidationError shape (e.g. GalileoServerException messages).",
+            f"{i4}# Some backend 422s return a bare string instead of the standard",
+            f"{i4}# list-of-ValidationError shape (e.g. invalid model alias lookups",
+            f'{i4}# returning {{"detail": "Model alias \'...\' not found"}}).',
             f"{i4}# Wrap it so callers always receive a consistent ValidationError list.",
             f'{i4}detail = [ValidationError(loc=[], msg=_detail, type_="server_error")]',
         ]
@@ -85,19 +84,17 @@ def _loop_replacement(indent: str) -> str:
 # ---------------------------------------------------------------------------
 
 
+_PATCHED_SENTINEL = "isinstance(_detail, list)"
+
+
 def patch(text: str) -> tuple[str, bool]:
-    """Apply both replacements; return (patched_text, success)."""
-    # Replace the class-level field annotation
-    field_patched, field_count = _FIELD_RE.subn(
-        lambda m: m.group("indent") + 'detail: Unset | list["ValidationError"] = UNSET', text
-    )
-    # Replace the from_dict loop
-    loop_patched, loop_count = _LOOP_RE.subn(lambda m: _loop_replacement(m.group("indent")), field_patched)
+    """Rewrite the from_dict loop; return (patched_text, success)."""
+    patched, count = _LOOP_RE.subn(lambda m: _loop_replacement(m.group("indent")), text)
     # Treat the file as already-patched if no replacements were made but the
     # patched sentinel is present — ensures idempotent re-runs exit 0 instead
     # of falsely reporting template drift (exit 2).
-    already_patched = loop_patched == text and "isinstance(_detail, list)" in text
-    return loop_patched, bool(field_count and loop_count) or already_patched
+    already_patched = count == 0 and _PATCHED_SENTINEL in text
+    return patched, bool(count) or already_patched
 
 
 def main() -> int:
