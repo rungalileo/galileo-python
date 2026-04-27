@@ -39,6 +39,10 @@ class ProjectsAPIException(APIException):
     pass
 
 
+class ProjectNotFoundError(ProjectsAPIException):
+    pass
+
+
 class Project:
     """
     Represents a project in the Galileo platform.
@@ -234,6 +238,8 @@ class Projects:
             detailed_response = get_project_projects_project_id_get.sync_detailed(
                 project_id=id, client=self.config.api_client
             )
+            if detailed_response.status_code == httpx.codes.NOT_FOUND:
+                raise ProjectNotFoundError(detailed_response.content)
             if detailed_response.status_code != httpx.codes.OK:
                 raise ProjectsAPIException(detailed_response.content)
 
