@@ -1718,3 +1718,176 @@ class TestExperiments:
             payload = call[0][0]
             total_traces += len(payload.traces)
         assert total_traces == 1500
+
+
+# ===========================================================================
+# Experiment Groups V1 — group identity + discovery helper
+# ===========================================================================
+
+
+class TestExperimentGroups:
+    """V1 experiment-group support: group-aware run/create + list_experiment_groups()."""
+
+    @patch.object(
+        galileo.experiments.Experiments,
+        "run",
+        return_value={"experiment": experiment_response(), "link": "x", "message": "y"},
+    )
+    @patch.object(galileo.experiments.Experiments, "get", return_value=None)
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    @patch("galileo.experiments.load_dataset")
+    def test_run_experiment_with_experiment_group_name(
+        self, load_dataset_mock: Mock, get_project_mock: Mock, get_experiment_mock: Mock, run_mock: Mock
+    ) -> None:
+        """run_experiment(experiment_group=...) forwards experiment_group_name to Experiments.run()."""
+        # Given: a resolved project, no existing experiment, and a stubbed dataset
+        load_dataset_mock.return_value = MagicMock()
+
+        # When: running an experiment with experiment_group=
+        run_experiment(
+            experiment_name="grouped-run",
+            project="awesome-new-project",
+            dataset_id=str(UUID(int=0)),
+            prompt_template=prompt_template(),
+            experiment_group="my-rag-bench",
+        )
+
+        # Then: Experiments.run was called with the group name (and no group id)
+        run_mock.assert_called_once()
+        call_kwargs = run_mock.call_args.kwargs
+        assert call_kwargs.get("experiment_group_name") == "my-rag-bench"
+        assert "experiment_group_id" not in call_kwargs
+
+    @patch.object(
+        galileo.experiments.Experiments,
+        "run",
+        return_value={"experiment": experiment_response(), "link": "x", "message": "y"},
+    )
+    @patch.object(galileo.experiments.Experiments, "get", return_value=None)
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    @patch("galileo.experiments.load_dataset")
+    def test_run_experiment_with_experiment_group_id(
+        self, load_dataset_mock: Mock, get_project_mock: Mock, get_experiment_mock: Mock, run_mock: Mock
+    ) -> None:
+        """run_experiment(experiment_group_id=...) forwards experiment_group_id to Experiments.run()."""
+        # Given: a resolved project, no existing experiment, and a stubbed dataset
+        load_dataset_mock.return_value = MagicMock()
+        group_uuid = str(UUID(int=42))
+
+        # When: running an experiment with experiment_group_id=
+        run_experiment(
+            experiment_name="id-run",
+            project="awesome-new-project",
+            dataset_id=str(UUID(int=0)),
+            prompt_template=prompt_template(),
+            experiment_group_id=group_uuid,
+        )
+
+        # Then: Experiments.run was called with the group id (and no group name)
+        run_mock.assert_called_once()
+        call_kwargs = run_mock.call_args.kwargs
+        assert call_kwargs.get("experiment_group_id") == group_uuid
+        assert "experiment_group_name" not in call_kwargs
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_create_experiment_with_experiment_group_name(
+        self, get_project_mock: Mock, create_experiment_mock: Mock
+    ) -> None:
+        """create_experiment(experiment_group=...) flows the name through to the API body."""
+        # Given: a resolved project and a mocked create endpoint
+        get_project_mock.return_value = project()
+        create_experiment_mock.sync = Mock(return_value=experiment_response())
+
+        # When: creating an experiment with experiment_group=
+        create_experiment(
+            experiment_name="grouped-create", project_name="awesome-new-project", experiment_group="standalone-bench"
+        )
+
+        # Then: the create body carries experiment_group_name
+        body = create_experiment_mock.sync.call_args.kwargs["body"]
+        assert body.additional_properties["experiment_group_name"] == "standalone-bench"
+        assert "experiment_group_id" not in body.additional_properties
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_create_experiment_with_experiment_group_id(
+        self, get_project_mock: Mock, create_experiment_mock: Mock
+    ) -> None:
+        """create_experiment(experiment_group_id=...) flows the id through to the API body."""
+        # Given: a resolved project and a mocked create endpoint
+        get_project_mock.return_value = project()
+        create_experiment_mock.sync = Mock(return_value=experiment_response())
+
+        # When: creating an experiment with experiment_group_id=
+        group_uuid = str(UUID(int=99))
+        create_experiment(
+            experiment_name="id-create", project_name="awesome-new-project", experiment_group_id=group_uuid
+        )
+
+        # Then: the create body carries experiment_group_id
+        body = create_experiment_mock.sync.call_args.kwargs["body"]
+        assert body.additional_properties["experiment_group_id"] == group_uuid
+        assert "experiment_group_name" not in body.additional_properties
+
+    @patch("galileo.experiments.GalileoPythonConfig")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_list_experiment_groups(self, get_project_mock: Mock, config_mock: Mock) -> None:
+        """list_experiment_groups() POSTs to /experiment-groups/query and returns typed objects."""
+        # Given: a resolved project and a mocked httpx client returning two groups
+        from galileo.experiments import list_experiment_groups
+        from galileo.schema.experiment_group import ExperimentGroupResponse
+
+        get_project_mock.return_value = project()
+
+        now_iso = datetime.now().isoformat() + "Z"
+        api_payload = {
+            "starting_token": 0,
+            "limit": 100,
+            "paginated": False,
+            "next_starting_token": None,
+            "experiment_groups": [
+                {
+                    "id": str(UUID(int=1)),
+                    "name": "group-a",
+                    "project_id": str(UUID(int=0)),
+                    "created_at": now_iso,
+                    "updated_at": now_iso,
+                    "is_system": False,
+                    "experiment_count": 2,
+                    "datasets": [],
+                },
+                {
+                    "id": str(UUID(int=2)),
+                    "name": "Ungrouped",
+                    "project_id": str(UUID(int=0)),
+                    "created_at": now_iso,
+                    "updated_at": now_iso,
+                    "is_system": True,
+                    "experiment_count": 0,
+                    "datasets": [],
+                },
+            ],
+        }
+
+        fake_response = MagicMock()
+        fake_response.json.return_value = api_payload
+        fake_response.raise_for_status = MagicMock()
+
+        config_mock.get.return_value.api_client.request.return_value = fake_response
+
+        # When: listing experiment groups
+        groups = list_experiment_groups(project_name="awesome-new-project")
+
+        # Then: it calls ApiClient.request with the right path and pagination body
+        config_mock.get.return_value.api_client.request.assert_called_once()
+        call_kwargs = config_mock.get.return_value.api_client.request.call_args.kwargs
+        assert call_kwargs["path"] == f"/projects/{UUID(int=0)}/experiment-groups/query"
+        assert call_kwargs["json"] == {"starting_token": 0, "limit": 100}
+        assert call_kwargs["return_raw_response"] is True
+
+        assert len(groups) == 2
+        assert all(isinstance(g, ExperimentGroupResponse) for g in groups)
+        assert groups[0].name == "group-a"
+        assert groups[0].experiment_count == 2
+        assert groups[1].is_system is True
