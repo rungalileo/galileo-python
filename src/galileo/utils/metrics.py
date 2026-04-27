@@ -13,6 +13,11 @@ from galileo_core.schemas.shared.metric import MetricValueType
 
 logger = logging.getLogger(__name__)
 
+# Per-row, per-metric upper bound for serialized scorer metadata. Mirrors the
+# server-side cap enforced in the runners sandbox so SDK-side and code-scorer
+# scorers are subject to the same constraint.
+_MAX_METADATA_SERIALIZED_BYTES = 8 * 1024
+
 
 def populate_local_metrics(step: Trace | Span, local_metrics: list[LocalMetricConfig]) -> None:
     for local_metric in local_metrics:
@@ -39,15 +44,23 @@ def _populate_local_metric(step: Trace | Span, local_metric: LocalMetricConfig, 
             metric_value, metadata = result
             # Reject metadata that won't survive trace upload — the dict ends up in HTTPX
             # `json=` downstream, so a non-serializable value (e.g. a `set`, a `datetime`)
-            # would otherwise blow up far from the scorer with no useful context.
+            # would otherwise blow up far from the scorer with no useful context. Also
+            # enforce the 8 KB cap so misbehaved scorers can't bloat trace payloads.
             try:
-                json.dumps(metadata)
+                serialized = json.dumps(metadata)
             except (TypeError, ValueError) as exc:
                 logger.warning(
                     "Dropping non-JSON-serializable metadata from local metric '%s': %s", local_metric.name, exc
                 )
             else:
-                setattr(step.metrics, f"{local_metric.name}_metadata", metadata)
+                if len(serialized.encode("utf-8")) > _MAX_METADATA_SERIALIZED_BYTES:
+                    logger.warning(
+                        "Dropping metadata from local metric '%s': serialized size exceeds %d bytes",
+                        local_metric.name,
+                        _MAX_METADATA_SERIALIZED_BYTES,
+                    )
+                else:
+                    setattr(step.metrics, f"{local_metric.name}_metadata", metadata)
         else:
             metric_value = result
         setattr(step.metrics, local_metric.name, metric_value)

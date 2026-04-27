@@ -259,6 +259,24 @@ class TestPopulateLocalMetric:
         assert scores == [0.5]
         assert any("non-JSON-serializable metadata" in rec.getMessage() for rec in caplog.records)
 
+    def test_populate_local_metric_drops_oversized_metadata(self, llm_span, caplog, enable_galileo_logging) -> None:
+        # Given: a scorer whose metadata serializes above the 8 KB cap mirrored from runners.
+        def big_metadata_scorer(step) -> tuple[float, dict]:
+            return 0.5, {"blob": "x" * (8 * 1024 + 1)}
+
+        config = LocalMetricConfig(name="kw_coverage", scorer_fn=big_metadata_scorer, scorable_types=[StepType.llm])
+        scores: list = []
+
+        # When: _populate_local_metric runs with the oversized metadata
+        caplog.set_level("WARNING")
+        _populate_local_metric(llm_span, config, scores)
+
+        # Then: the score still flows through; metadata is dropped with a size warning
+        assert llm_span.metrics.kw_coverage == 0.5
+        assert not hasattr(llm_span.metrics, "kw_coverage_metadata")
+        assert scores == [0.5]
+        assert any("serialized size exceeds" in rec.getMessage() for rec in caplog.records)
+
     def test_populate_local_metric_scorer_called_exactly_once(self, llm_span) -> None:
         # Regression: previous implementation invoked scorer_fn twice per step. The tuple-unpack
         # rewrite collapses that to one invocation.
