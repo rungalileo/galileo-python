@@ -2009,14 +2009,14 @@ class TestExperimentGroups:
         # When: filtering by group ID
         result = get_experiments(project_name="awesome-new-project", experiment_group_id=group_uuid)
 
-        # Then: filter sends an id-typed filter clause
+        # Then: filter sends a custom_uuid filter clause (matches API schema —
+        # ExperimentGroupIDFilter extends CustomUUIDFilter, which has no operator)
         kwargs = config_mock.get.return_value.api_client.request.call_args.kwargs
         body = kwargs["json"]
         assert body["filters"] == [
             {
-                "filter_type": "id",
+                "filter_type": "custom_uuid",
                 "name": "experiment_group_id",
-                "operator": "eq",
                 "value": group_uuid,
             }
         ]

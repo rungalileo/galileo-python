@@ -655,11 +655,13 @@ def get_experiments(
     # should be rewritten to use the generated function.
     filters: list[dict[str, Any]] = []
     if experiment_group_id is not None:
+        # The experiment_group_id column is registered as CustomUUIDFilterConfig in the API
+        # (see api/daos/run.py); the matching schema (ExperimentGroupIDFilter) extends
+        # CustomUUIDFilter, which has no operator and uses filter_type="custom_uuid".
         filters.append(
             {
-                "filter_type": "id",
+                "filter_type": "custom_uuid",
                 "name": "experiment_group_id",
-                "operator": "eq",
                 "value": experiment_group_id,
             }
         )
