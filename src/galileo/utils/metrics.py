@@ -1,6 +1,7 @@
 import builtins
 import json
 import logging
+from typing import Any
 from uuid import UUID
 
 from galileo.resources.models.scorer_config import ScorerConfig
@@ -17,6 +18,20 @@ logger = logging.getLogger(__name__)
 # server-side cap enforced in the runners sandbox so SDK-side and code-scorer
 # scorers are subject to the same constraint.
 _MAX_METADATA_SERIALIZED_BYTES = 8 * 1024
+
+
+def _split_score_and_metadata(result: Any) -> tuple[Any, dict | None]:
+    """Split a scorer return value into ``(score, metadata)``.
+
+    A 2-tuple whose second element is a dict is the ``(score, metadata)`` shape:
+    we use a tuple (not list) check so a vector-valued score like ``[0.1, 0.2]``
+    flows through unchanged, and a dict check so a ``(score1, score2)`` 2-tuple
+    isn't mistakenly unpacked as metadata. Anything else passes through with
+    ``metadata=None``.
+    """
+    if isinstance(result, tuple) and len(result) == 2 and isinstance(result[1], dict):
+        return result[0], result[1]
+    return result, None
 
 
 def _safe_scorer_metadata(metadata: dict, metric_name: str) -> dict | None:
@@ -59,17 +74,11 @@ def _populate_local_metric(step: Trace | Span, local_metric: LocalMetricConfig, 
             else:
                 setattr(step.metrics, local_metric.name, aggregate_metric_result)
     if step.type in local_metric.scorable_types:
-        result = local_metric.scorer_fn(step)
-        # A 2-tuple whose second element is a dict is a (score, metadata) return — attach
-        # the metadata under {name}_metadata so the backend stores it as auxiliary context
-        # for explainability. A bare 2-element list (e.g. a vector-valued score) is not.
-        if isinstance(result, tuple) and len(result) == 2 and isinstance(result[1], dict):
-            metric_value, metadata = result
+        metric_value, metadata = _split_score_and_metadata(local_metric.scorer_fn(step))
+        if metadata is not None:
             safe_metadata = _safe_scorer_metadata(metadata, local_metric.name)
             if safe_metadata is not None:
                 setattr(step.metrics, f"{local_metric.name}_metadata", safe_metadata)
-        else:
-            metric_value = result
         setattr(step.metrics, local_metric.name, metric_value)
         scores.append(metric_value)
 
