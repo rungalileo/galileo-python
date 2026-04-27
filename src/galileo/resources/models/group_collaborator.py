@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,14 +21,13 @@ T = TypeVar("T", bound="GroupCollaborator")
 @_attrs_define
 class GroupCollaborator:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         role (CollaboratorRole):
         created_at (datetime.datetime):
         group_id (str):
         group_name (str):
-        permissions (Union[Unset, list['Permission']]):
+        permissions (list[Permission] | Unset):
     """
 
     id: str
@@ -34,7 +35,7 @@ class GroupCollaborator:
     created_at: datetime.datetime
     group_id: str
     group_name: str
-    permissions: Union[Unset, list["Permission"]] = UNSET
+    permissions: list[Permission] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -48,7 +49,7 @@ class GroupCollaborator:
 
         group_name = self.group_name
 
-        permissions: Union[Unset, list[dict[str, Any]]] = UNSET
+        permissions: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
@@ -80,12 +81,14 @@ class GroupCollaborator:
 
         group_name = d.pop("group_name")
 
-        permissions = []
         _permissions = d.pop("permissions", UNSET)
-        for permissions_item_data in _permissions or []:
-            permissions_item = Permission.from_dict(permissions_item_data)
+        permissions: list[Permission] | Unset = UNSET
+        if _permissions is not UNSET:
+            permissions = []
+            for permissions_item_data in _permissions:
+                permissions_item = Permission.from_dict(permissions_item_data)
 
-            permissions.append(permissions_item)
+                permissions.append(permissions_item)
 
         group_collaborator = cls(
             id=id, role=role, created_at=created_at, group_id=group_id, group_name=group_name, permissions=permissions

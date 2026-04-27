@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,28 +22,27 @@ T = TypeVar("T", bound="MetricCritiqueJobConfiguration")
 class MetricCritiqueJobConfiguration:
     """Info necessary to execute a metric critique job.
 
-    Attributes
-    ----------
-        project_type (Union[Literal['gen_ai'], Literal['llm_monitor'], Literal['prompt_evaluation']]):
+    Attributes:
+        project_type (Literal['gen_ai'] | Literal['llm_monitor'] | Literal['prompt_evaluation']):
         metric_name (str):
         critique_ids (list[str]):
-        scorer_id (Union[None, Unset, str]):
-        recompute_settings (Union['RecomputeSettingsLogStream', 'RecomputeSettingsObserve', 'RecomputeSettingsProject',
-            'RecomputeSettingsRuns', None, Unset]):
+        scorer_id (None | str | Unset):
+        recompute_settings (None | RecomputeSettingsLogStream | RecomputeSettingsObserve | RecomputeSettingsProject |
+            RecomputeSettingsRuns | Unset):
     """
 
-    project_type: Union[Literal["gen_ai"], Literal["llm_monitor"], Literal["prompt_evaluation"]]
+    project_type: Literal["gen_ai"] | Literal["llm_monitor"] | Literal["prompt_evaluation"]
     metric_name: str
     critique_ids: list[str]
-    scorer_id: Union[None, Unset, str] = UNSET
-    recompute_settings: Union[
-        "RecomputeSettingsLogStream",
-        "RecomputeSettingsObserve",
-        "RecomputeSettingsProject",
-        "RecomputeSettingsRuns",
-        None,
-        Unset,
-    ] = UNSET
+    scorer_id: None | str | Unset = UNSET
+    recompute_settings: (
+        None
+        | RecomputeSettingsLogStream
+        | RecomputeSettingsObserve
+        | RecomputeSettingsProject
+        | RecomputeSettingsRuns
+        | Unset
+    ) = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -50,23 +51,29 @@ class MetricCritiqueJobConfiguration:
         from ..models.recompute_settings_project import RecomputeSettingsProject
         from ..models.recompute_settings_runs import RecomputeSettingsRuns
 
-        project_type: Union[Literal["gen_ai"], Literal["llm_monitor"], Literal["prompt_evaluation"]]
+        project_type: Literal["gen_ai"] | Literal["llm_monitor"] | Literal["prompt_evaluation"]
         project_type = self.project_type
 
         metric_name = self.metric_name
 
         critique_ids = self.critique_ids
 
-        scorer_id: Union[None, Unset, str]
-        scorer_id = UNSET if isinstance(self.scorer_id, Unset) else self.scorer_id
+        scorer_id: None | str | Unset
+        if isinstance(self.scorer_id, Unset):
+            scorer_id = UNSET
+        else:
+            scorer_id = self.scorer_id
 
-        recompute_settings: Union[None, Unset, dict[str, Any]]
+        recompute_settings: dict[str, Any] | None | Unset
         if isinstance(self.recompute_settings, Unset):
             recompute_settings = UNSET
-        elif isinstance(
-            self.recompute_settings,
-            (RecomputeSettingsRuns, RecomputeSettingsProject, RecomputeSettingsObserve, RecomputeSettingsLogStream),
-        ):
+        elif isinstance(self.recompute_settings, RecomputeSettingsRuns):
+            recompute_settings = self.recompute_settings.to_dict()
+        elif isinstance(self.recompute_settings, RecomputeSettingsProject):
+            recompute_settings = self.recompute_settings.to_dict()
+        elif isinstance(self.recompute_settings, RecomputeSettingsObserve):
+            recompute_settings = self.recompute_settings.to_dict()
+        elif isinstance(self.recompute_settings, RecomputeSettingsLogStream):
             recompute_settings = self.recompute_settings.to_dict()
         else:
             recompute_settings = self.recompute_settings
@@ -92,7 +99,7 @@ class MetricCritiqueJobConfiguration:
 
         def _parse_project_type(
             data: object,
-        ) -> Union[Literal["gen_ai"], Literal["llm_monitor"], Literal["prompt_evaluation"]]:
+        ) -> Literal["gen_ai"] | Literal["llm_monitor"] | Literal["prompt_evaluation"]:
             project_type_type_0 = cast(Literal["prompt_evaluation"], data)
             if project_type_type_0 != "prompt_evaluation":
                 raise ValueError(
@@ -114,25 +121,25 @@ class MetricCritiqueJobConfiguration:
 
         critique_ids = cast(list[str], d.pop("critique_ids"))
 
-        def _parse_scorer_id(data: object) -> Union[None, Unset, str]:
+        def _parse_scorer_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         scorer_id = _parse_scorer_id(d.pop("scorer_id", UNSET))
 
         def _parse_recompute_settings(
             data: object,
-        ) -> Union[
-            "RecomputeSettingsLogStream",
-            "RecomputeSettingsObserve",
-            "RecomputeSettingsProject",
-            "RecomputeSettingsRuns",
-            None,
-            Unset,
-        ]:
+        ) -> (
+            None
+            | RecomputeSettingsLogStream
+            | RecomputeSettingsObserve
+            | RecomputeSettingsProject
+            | RecomputeSettingsRuns
+            | Unset
+        ):
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -140,40 +147,42 @@ class MetricCritiqueJobConfiguration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return RecomputeSettingsRuns.from_dict(data)
+                recompute_settings_type_0_type_0 = RecomputeSettingsRuns.from_dict(data)
 
+                return recompute_settings_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return RecomputeSettingsProject.from_dict(data)
+                recompute_settings_type_0_type_1 = RecomputeSettingsProject.from_dict(data)
 
+                return recompute_settings_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return RecomputeSettingsObserve.from_dict(data)
+                recompute_settings_type_0_type_2 = RecomputeSettingsObserve.from_dict(data)
 
+                return recompute_settings_type_0_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return RecomputeSettingsLogStream.from_dict(data)
+                recompute_settings_type_0_type_3 = RecomputeSettingsLogStream.from_dict(data)
 
+                return recompute_settings_type_0_type_3
             except:  # noqa: E722
                 pass
             return cast(
-                Union[
-                    "RecomputeSettingsLogStream",
-                    "RecomputeSettingsObserve",
-                    "RecomputeSettingsProject",
-                    "RecomputeSettingsRuns",
-                    None,
-                    Unset,
-                ],
+                None
+                | RecomputeSettingsLogStream
+                | RecomputeSettingsObserve
+                | RecomputeSettingsProject
+                | RecomputeSettingsRuns
+                | Unset,
                 data,
             )
 

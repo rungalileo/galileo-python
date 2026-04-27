@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,23 +17,22 @@ T = TypeVar("T", bound="CreateCustomLunaScorerVersionRequest")
 @_attrs_define
 class CreateCustomLunaScorerVersionRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         lora_task_id (int):
         prompt (str):
-        lora_weights_path (Union[None, Unset, str]):
-        executor (Union[CoreScorerName, None, Unset]): Executor pipeline. Defaults to finetuned scorer pipeline but can
-            run custom galileo score pipelines.
-        luna_input_type (Union[LunaInputTypeEnum, None, Unset]):
-        luna_output_type (Union[LunaOutputTypeEnum, None, Unset]):
+        lora_weights_path (None | str | Unset):
+        executor (CoreScorerName | None | Unset): Executor pipeline. Defaults to finetuned scorer pipeline but can run
+            custom galileo score pipelines.
+        luna_input_type (LunaInputTypeEnum | None | Unset):
+        luna_output_type (LunaOutputTypeEnum | None | Unset):
     """
 
     lora_task_id: int
     prompt: str
-    lora_weights_path: Union[None, Unset, str] = UNSET
-    executor: Union[CoreScorerName, None, Unset] = UNSET
-    luna_input_type: Union[LunaInputTypeEnum, None, Unset] = UNSET
-    luna_output_type: Union[LunaOutputTypeEnum, None, Unset] = UNSET
+    lora_weights_path: None | str | Unset = UNSET
+    executor: CoreScorerName | None | Unset = UNSET
+    luna_input_type: LunaInputTypeEnum | None | Unset = UNSET
+    luna_output_type: LunaOutputTypeEnum | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,10 +40,13 @@ class CreateCustomLunaScorerVersionRequest:
 
         prompt = self.prompt
 
-        lora_weights_path: Union[None, Unset, str]
-        lora_weights_path = UNSET if isinstance(self.lora_weights_path, Unset) else self.lora_weights_path
+        lora_weights_path: None | str | Unset
+        if isinstance(self.lora_weights_path, Unset):
+            lora_weights_path = UNSET
+        else:
+            lora_weights_path = self.lora_weights_path
 
-        executor: Union[None, Unset, str]
+        executor: None | str | Unset
         if isinstance(self.executor, Unset):
             executor = UNSET
         elif isinstance(self.executor, CoreScorerName):
@@ -50,7 +54,7 @@ class CreateCustomLunaScorerVersionRequest:
         else:
             executor = self.executor
 
-        luna_input_type: Union[None, Unset, str]
+        luna_input_type: None | str | Unset
         if isinstance(self.luna_input_type, Unset):
             luna_input_type = UNSET
         elif isinstance(self.luna_input_type, LunaInputTypeEnum):
@@ -58,7 +62,7 @@ class CreateCustomLunaScorerVersionRequest:
         else:
             luna_input_type = self.luna_input_type
 
-        luna_output_type: Union[None, Unset, str]
+        luna_output_type: None | str | Unset
         if isinstance(self.luna_output_type, Unset):
             luna_output_type = UNSET
         elif isinstance(self.luna_output_type, LunaOutputTypeEnum):
@@ -87,16 +91,16 @@ class CreateCustomLunaScorerVersionRequest:
 
         prompt = d.pop("prompt")
 
-        def _parse_lora_weights_path(data: object) -> Union[None, Unset, str]:
+        def _parse_lora_weights_path(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         lora_weights_path = _parse_lora_weights_path(d.pop("lora_weights_path", UNSET))
 
-        def _parse_executor(data: object) -> Union[CoreScorerName, None, Unset]:
+        def _parse_executor(data: object) -> CoreScorerName | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -104,15 +108,16 @@ class CreateCustomLunaScorerVersionRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return CoreScorerName(data)
+                executor_type_0 = CoreScorerName(data)
 
+                return executor_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[CoreScorerName, None, Unset], data)
+            return cast(CoreScorerName | None | Unset, data)
 
         executor = _parse_executor(d.pop("executor", UNSET))
 
-        def _parse_luna_input_type(data: object) -> Union[LunaInputTypeEnum, None, Unset]:
+        def _parse_luna_input_type(data: object) -> LunaInputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -120,15 +125,16 @@ class CreateCustomLunaScorerVersionRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return LunaInputTypeEnum(data)
+                luna_input_type_type_0 = LunaInputTypeEnum(data)
 
+                return luna_input_type_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[LunaInputTypeEnum, None, Unset], data)
+            return cast(LunaInputTypeEnum | None | Unset, data)
 
         luna_input_type = _parse_luna_input_type(d.pop("luna_input_type", UNSET))
 
-        def _parse_luna_output_type(data: object) -> Union[LunaOutputTypeEnum, None, Unset]:
+        def _parse_luna_output_type(data: object) -> LunaOutputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -136,11 +142,12 @@ class CreateCustomLunaScorerVersionRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return LunaOutputTypeEnum(data)
+                luna_output_type_type_0 = LunaOutputTypeEnum(data)
 
+                return luna_output_type_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[LunaOutputTypeEnum, None, Unset], data)
+            return cast(LunaOutputTypeEnum | None | Unset, data)
 
         luna_output_type = _parse_luna_output_type(d.pop("luna_output_type", UNSET))
 

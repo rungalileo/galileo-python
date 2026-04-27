@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -41,25 +41,32 @@ def _get_kwargs(*, body: ProtectRequest) -> dict[str, Any]:
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]:
+) -> HTTPValidationError | InvokeResponse | ProtectResponse:
     if response.status_code == 200:
 
-        def _parse_response_200(data: object) -> Union["InvokeResponse", "ProtectResponse"]:
+        def _parse_response_200(data: object) -> InvokeResponse | ProtectResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ProtectResponse.from_dict(data)
+                response_200_type_0 = ProtectResponse.from_dict(data)
 
+                return response_200_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return InvokeResponse.from_dict(data)
+            response_200_type_1 = InvokeResponse.from_dict(data)
 
-        return _parse_response_200(response.json())
+            return response_200_type_1
+
+        response_200 = _parse_response_200(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -81,7 +88,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]]:
+) -> Response[HTTPValidationError | InvokeResponse | ProtectResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -92,21 +99,20 @@ def _build_response(
 
 def sync_detailed(
     *, client: ApiClient, body: ProtectRequest
-) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]]:
-    """Invoke.
+) -> Response[HTTPValidationError | InvokeResponse | ProtectResponse]:
+    """Invoke
 
     Args:
         body (ProtectRequest): Protect request schema with custom OpenAPI title.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, Union['InvokeResponse', 'ProtectResponse']]]
+    Returns:
+        Response[HTTPValidationError | InvokeResponse | ProtectResponse]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -116,41 +122,39 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: ProtectRequest
-) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]]:
-    """Invoke.
+) -> Optional[HTTPValidationError | InvokeResponse | ProtectResponse]:
+    """Invoke
 
     Args:
         body (ProtectRequest): Protect request schema with custom OpenAPI title.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, Union['InvokeResponse', 'ProtectResponse']]
+    Returns:
+        HTTPValidationError | InvokeResponse | ProtectResponse
     """
+
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: ProtectRequest
-) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]]:
-    """Invoke.
+) -> Response[HTTPValidationError | InvokeResponse | ProtectResponse]:
+    """Invoke
 
     Args:
         body (ProtectRequest): Protect request schema with custom OpenAPI title.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, Union['InvokeResponse', 'ProtectResponse']]]
+    Returns:
+        Response[HTTPValidationError | InvokeResponse | ProtectResponse]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -160,19 +164,18 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: ProtectRequest
-) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]]:
-    """Invoke.
+) -> Optional[HTTPValidationError | InvokeResponse | ProtectResponse]:
+    """Invoke
 
     Args:
         body (ProtectRequest): Protect request schema with custom OpenAPI title.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, Union['InvokeResponse', 'ProtectResponse']]
+    Returns:
+        HTTPValidationError | InvokeResponse | ProtectResponse
     """
+
     return (await asyncio_detailed(client=client, body=body)).parsed

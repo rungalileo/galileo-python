@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,23 +19,21 @@ T = TypeVar("T", bound="StageWithRulesets")
 @_attrs_define
 class StageWithRulesets:
     """
-    Attributes
-    ----------
+    Attributes:
         name (str): Name of the stage. Must be unique within the project.
         project_id (str): ID of the project to which this stage belongs.
-        prioritized_rulesets (Union[Unset, list['Ruleset']]): Rulesets to be applied to the payload.
-        description (Union[None, Unset, str]): Optional human-readable description of the goals of this guardrail.
-        type_ (Union[Unset, StageType]):
-        paused (Union[Unset, bool]): Whether the action is enabled. If False, the action will not be applied. Default:
-            False.
+        prioritized_rulesets (list[Ruleset] | Unset): Rulesets to be applied to the payload.
+        description (None | str | Unset): Optional human-readable description of the goals of this guardrail.
+        type_ (StageType | Unset):
+        paused (bool | Unset): Whether the action is enabled. If False, the action will not be applied. Default: False.
     """
 
     name: str
     project_id: str
-    prioritized_rulesets: Union[Unset, list["Ruleset"]] = UNSET
-    description: Union[None, Unset, str] = UNSET
-    type_: Union[Unset, StageType] = UNSET
-    paused: Union[Unset, bool] = False
+    prioritized_rulesets: list[Ruleset] | Unset = UNSET
+    description: None | str | Unset = UNSET
+    type_: StageType | Unset = UNSET
+    paused: bool | Unset = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,17 +41,20 @@ class StageWithRulesets:
 
         project_id = self.project_id
 
-        prioritized_rulesets: Union[Unset, list[dict[str, Any]]] = UNSET
+        prioritized_rulesets: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.prioritized_rulesets, Unset):
             prioritized_rulesets = []
             for prioritized_rulesets_item_data in self.prioritized_rulesets:
                 prioritized_rulesets_item = prioritized_rulesets_item_data.to_dict()
                 prioritized_rulesets.append(prioritized_rulesets_item)
 
-        description: Union[None, Unset, str]
-        description = UNSET if isinstance(self.description, Unset) else self.description
+        description: None | str | Unset
+        if isinstance(self.description, Unset):
+            description = UNSET
+        else:
+            description = self.description
 
-        type_: Union[Unset, str] = UNSET
+        type_: str | Unset = UNSET
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
 
@@ -80,25 +83,30 @@ class StageWithRulesets:
 
         project_id = d.pop("project_id")
 
-        prioritized_rulesets = []
         _prioritized_rulesets = d.pop("prioritized_rulesets", UNSET)
-        for prioritized_rulesets_item_data in _prioritized_rulesets or []:
-            prioritized_rulesets_item = Ruleset.from_dict(prioritized_rulesets_item_data)
+        prioritized_rulesets: list[Ruleset] | Unset = UNSET
+        if _prioritized_rulesets is not UNSET:
+            prioritized_rulesets = []
+            for prioritized_rulesets_item_data in _prioritized_rulesets:
+                prioritized_rulesets_item = Ruleset.from_dict(prioritized_rulesets_item_data)
 
-            prioritized_rulesets.append(prioritized_rulesets_item)
+                prioritized_rulesets.append(prioritized_rulesets_item)
 
-        def _parse_description(data: object) -> Union[None, Unset, str]:
+        def _parse_description(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         description = _parse_description(d.pop("description", UNSET))
 
         _type_ = d.pop("type", UNSET)
-        type_: Union[Unset, StageType]
-        type_ = UNSET if isinstance(_type_, Unset) else StageType(_type_)
+        type_: StageType | Unset
+        if isinstance(_type_, Unset):
+            type_ = UNSET
+        else:
+            type_ = StageType(_type_)
 
         paused = d.pop("paused", UNSET)
 

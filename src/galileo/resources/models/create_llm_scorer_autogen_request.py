@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -12,8 +14,7 @@ T = TypeVar("T", bound="CreateLLMScorerAutogenRequest")
 @_attrs_define
 class CreateLLMScorerAutogenRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         instructions (str):
         model_name (str):
         output_type (OutputTypeEnum): Enumeration of output types.

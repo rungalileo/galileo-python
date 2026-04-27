@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,19 +20,18 @@ T = TypeVar("T", bound="AnnotationAggregate")
 @_attrs_define
 class AnnotationAggregate:
     """
-    Attributes
-    ----------
-        aggregate (Union['AnnotationLikeDislikeAggregate', 'AnnotationScoreAggregate', 'AnnotationStarAggregate',
-            'AnnotationTagsAggregate', 'AnnotationTextAggregate']):
+    Attributes:
+        aggregate (AnnotationLikeDislikeAggregate | AnnotationScoreAggregate | AnnotationStarAggregate |
+            AnnotationTagsAggregate | AnnotationTextAggregate):
     """
 
-    aggregate: Union[
-        "AnnotationLikeDislikeAggregate",
-        "AnnotationScoreAggregate",
-        "AnnotationStarAggregate",
-        "AnnotationTagsAggregate",
-        "AnnotationTextAggregate",
-    ]
+    aggregate: (
+        AnnotationLikeDislikeAggregate
+        | AnnotationScoreAggregate
+        | AnnotationStarAggregate
+        | AnnotationTagsAggregate
+        | AnnotationTextAggregate
+    )
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,15 +41,13 @@ class AnnotationAggregate:
         from ..models.annotation_tags_aggregate import AnnotationTagsAggregate
 
         aggregate: dict[str, Any]
-        if isinstance(
-            self.aggregate,
-            (
-                AnnotationLikeDislikeAggregate,
-                AnnotationStarAggregate,
-                AnnotationScoreAggregate,
-                AnnotationTagsAggregate,
-            ),
-        ):
+        if isinstance(self.aggregate, AnnotationLikeDislikeAggregate):
+            aggregate = self.aggregate.to_dict()
+        elif isinstance(self.aggregate, AnnotationStarAggregate):
+            aggregate = self.aggregate.to_dict()
+        elif isinstance(self.aggregate, AnnotationScoreAggregate):
+            aggregate = self.aggregate.to_dict()
+        elif isinstance(self.aggregate, AnnotationTagsAggregate):
             aggregate = self.aggregate.to_dict()
         else:
             aggregate = self.aggregate.to_dict()
@@ -71,44 +70,50 @@ class AnnotationAggregate:
 
         def _parse_aggregate(
             data: object,
-        ) -> Union[
-            "AnnotationLikeDislikeAggregate",
-            "AnnotationScoreAggregate",
-            "AnnotationStarAggregate",
-            "AnnotationTagsAggregate",
-            "AnnotationTextAggregate",
-        ]:
+        ) -> (
+            AnnotationLikeDislikeAggregate
+            | AnnotationScoreAggregate
+            | AnnotationStarAggregate
+            | AnnotationTagsAggregate
+            | AnnotationTextAggregate
+        ):
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AnnotationLikeDislikeAggregate.from_dict(data)
+                aggregate_type_0 = AnnotationLikeDislikeAggregate.from_dict(data)
 
+                return aggregate_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AnnotationStarAggregate.from_dict(data)
+                aggregate_type_1 = AnnotationStarAggregate.from_dict(data)
 
+                return aggregate_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AnnotationScoreAggregate.from_dict(data)
+                aggregate_type_2 = AnnotationScoreAggregate.from_dict(data)
 
+                return aggregate_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AnnotationTagsAggregate.from_dict(data)
+                aggregate_type_3 = AnnotationTagsAggregate.from_dict(data)
 
+                return aggregate_type_3
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return AnnotationTextAggregate.from_dict(data)
+            aggregate_type_4 = AnnotationTextAggregate.from_dict(data)
+
+            return aggregate_type_4
 
         aggregate = _parse_aggregate(d.pop("aggregate"))
 

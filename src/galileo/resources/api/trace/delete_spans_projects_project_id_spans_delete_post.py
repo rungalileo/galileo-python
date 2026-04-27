@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsDeleteRequest) -> dict[str, 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/spans/delete",
+        "path": "/projects/{project_id}/spans/delete".format(project_id=project_id),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -42,14 +42,16 @@ def _get_kwargs(project_id: str, *, body: LogRecordsDeleteRequest) -> dict[str, 
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, LogRecordsDeleteResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | LogRecordsDeleteResponse:
     if response.status_code == 200:
-        return LogRecordsDeleteResponse.from_dict(response.json())
+        response_200 = LogRecordsDeleteResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -71,7 +73,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
+) -> Response[HTTPValidationError | LogRecordsDeleteResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,8 +84,8 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
-) -> Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
-    """Delete Spans.
+) -> Response[HTTPValidationError | LogRecordsDeleteResponse]:
+    """Delete Spans
 
      Delete all span records that match the provided filters.
 
@@ -93,15 +95,14 @@ def sync_detailed(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]
+    Returns:
+        Response[HTTPValidationError | LogRecordsDeleteResponse]
     """
+
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = client.request(**kwargs)
@@ -111,8 +112,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
-    """Delete Spans.
+) -> Optional[HTTPValidationError | LogRecordsDeleteResponse]:
+    """Delete Spans
 
      Delete all span records that match the provided filters.
 
@@ -122,22 +123,21 @@ def sync(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, LogRecordsDeleteResponse]
+    Returns:
+        HTTPValidationError | LogRecordsDeleteResponse
     """
+
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
-) -> Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
-    """Delete Spans.
+) -> Response[HTTPValidationError | LogRecordsDeleteResponse]:
+    """Delete Spans
 
      Delete all span records that match the provided filters.
 
@@ -147,15 +147,14 @@ async def asyncio_detailed(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]
+    Returns:
+        Response[HTTPValidationError | LogRecordsDeleteResponse]
     """
+
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -165,8 +164,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
-    """Delete Spans.
+) -> Optional[HTTPValidationError | LogRecordsDeleteResponse]:
+    """Delete Spans
 
      Delete all span records that match the provided filters.
 
@@ -176,13 +175,12 @@ async def asyncio(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, LogRecordsDeleteResponse]
+    Returns:
+        HTTPValidationError | LogRecordsDeleteResponse
     """
+
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.execution_status import ExecutionStatus
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -18,16 +19,15 @@ T = TypeVar("T", bound="ProtectResponse")
 class ProtectResponse:
     """Protect response schema with custom OpenAPI title.
 
-    Attributes
-    ----------
+    Attributes:
         text (str): Text from the request after processing the rules.
         trace_metadata (TraceMetadata):
-        status (Union[Unset, ExecutionStatus]): Status of the execution.
+        status (str | Unset): Status of the request after processing the rules.
     """
 
     text: str
-    trace_metadata: "TraceMetadata"
-    status: Union[Unset, ExecutionStatus] = UNSET
+    trace_metadata: TraceMetadata
+    status: str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,9 +35,7 @@ class ProtectResponse:
 
         trace_metadata = self.trace_metadata.to_dict()
 
-        status: Union[Unset, str] = UNSET
-        if not isinstance(self.status, Unset):
-            status = self.status.value
+        status = self.status
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -56,9 +54,7 @@ class ProtectResponse:
 
         trace_metadata = TraceMetadata.from_dict(d.pop("trace_metadata"))
 
-        _status = d.pop("status", UNSET)
-        status: Union[Unset, ExecutionStatus]
-        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
+        status = d.pop("status", UNSET)
 
         protect_response = cls(text=text, trace_metadata=trace_metadata, status=status)
 

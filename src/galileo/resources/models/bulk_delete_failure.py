@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -11,8 +13,7 @@ T = TypeVar("T", bound="BulkDeleteFailure")
 class BulkDeleteFailure:
     """Details about a failed deletion.
 
-    Attributes
-    ----------
+    Attributes:
         dataset_id (str):
         dataset_name (str):
         reason (str):

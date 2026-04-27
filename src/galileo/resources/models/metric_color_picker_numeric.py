@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -31,14 +33,13 @@ class MetricColorPickerNumeric:
             ]
         }
 
-    Attributes
-    ----------
-            constraints (list['NumericColorConstraint']):
-            type_ (Union[Literal['numeric'], Unset]):  Default: 'numeric'.
+        Attributes:
+            constraints (list[NumericColorConstraint]):
+            type_ (Literal['numeric'] | Unset):  Default: 'numeric'.
     """
 
-    constraints: list["NumericColorConstraint"]
-    type_: Union[Literal["numeric"], Unset] = "numeric"
+    constraints: list[NumericColorConstraint]
+    type_: Literal["numeric"] | Unset = "numeric"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -69,7 +70,7 @@ class MetricColorPickerNumeric:
 
             constraints.append(constraints_item)
 
-        type_ = cast(Union[Literal["numeric"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["numeric"] | Unset, d.pop("type", UNSET))
         if type_ != "numeric" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'numeric', got '{type_}'")
 

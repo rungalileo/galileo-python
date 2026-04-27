@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -24,17 +24,20 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
+    *, project_name: None | str | Unset = UNSET, type_: None | ProjectType | Unset = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_project_name: Union[None, Unset, str]
-    json_project_name = UNSET if isinstance(project_name, Unset) else project_name
+    json_project_name: None | str | Unset
+    if isinstance(project_name, Unset):
+        json_project_name = UNSET
+    else:
+        json_project_name = project_name
     params["project_name"] = json_project_name
 
-    json_type_: Union[None, Unset, str]
+    json_type_: None | str | Unset
     if isinstance(type_, Unset):
         json_type_ = UNSET
     elif isinstance(type_, ProjectType):
@@ -58,7 +61,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, list["ProjectDB"]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list[ProjectDB]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -70,7 +73,9 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
         return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -90,9 +95,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | list[ProjectDB]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -102,9 +105,9 @@ def _build_response(
 
 
 def sync_detailed(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects.
+    *, client: ApiClient, project_name: None | str | Unset = UNSET, type_: None | ProjectType | Unset = UNSET
+) -> Response[HTTPValidationError | list[ProjectDB]]:
+    """Get Projects
 
      Gets projects for a user.
 
@@ -113,18 +116,17 @@ def sync_detailed(
     DEPRECATED in favor of `get_projects_paginated`.
 
     Args:
-        project_name (Union[None, Unset, str]):
-        type_ (Union[None, ProjectType, Unset]):
+        project_name (None | str | Unset):
+        type_ (None | ProjectType | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, list['ProjectDB']]]
+    Returns:
+        Response[HTTPValidationError | list[ProjectDB]]
     """
+
     kwargs = _get_kwargs(project_name=project_name, type_=type_)
 
     response = client.request(**kwargs)
@@ -133,9 +135,9 @@ def sync_detailed(
 
 
 def sync(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Optional[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects.
+    *, client: ApiClient, project_name: None | str | Unset = UNSET, type_: None | ProjectType | Unset = UNSET
+) -> Optional[HTTPValidationError | list[ProjectDB]]:
+    """Get Projects
 
      Gets projects for a user.
 
@@ -144,25 +146,24 @@ def sync(
     DEPRECATED in favor of `get_projects_paginated`.
 
     Args:
-        project_name (Union[None, Unset, str]):
-        type_ (Union[None, ProjectType, Unset]):
+        project_name (None | str | Unset):
+        type_ (None | ProjectType | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, list['ProjectDB']]
+    Returns:
+        HTTPValidationError | list[ProjectDB]
     """
+
     return sync_detailed(client=client, project_name=project_name, type_=type_).parsed
 
 
 async def asyncio_detailed(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects.
+    *, client: ApiClient, project_name: None | str | Unset = UNSET, type_: None | ProjectType | Unset = UNSET
+) -> Response[HTTPValidationError | list[ProjectDB]]:
+    """Get Projects
 
      Gets projects for a user.
 
@@ -171,18 +172,17 @@ async def asyncio_detailed(
     DEPRECATED in favor of `get_projects_paginated`.
 
     Args:
-        project_name (Union[None, Unset, str]):
-        type_ (Union[None, ProjectType, Unset]):
+        project_name (None | str | Unset):
+        type_ (None | ProjectType | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, list['ProjectDB']]]
+    Returns:
+        Response[HTTPValidationError | list[ProjectDB]]
     """
+
     kwargs = _get_kwargs(project_name=project_name, type_=type_)
 
     response = await client.arequest(**kwargs)
@@ -191,9 +191,9 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Optional[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects.
+    *, client: ApiClient, project_name: None | str | Unset = UNSET, type_: None | ProjectType | Unset = UNSET
+) -> Optional[HTTPValidationError | list[ProjectDB]]:
+    """Get Projects
 
      Gets projects for a user.
 
@@ -202,16 +202,15 @@ async def asyncio(
     DEPRECATED in favor of `get_projects_paginated`.
 
     Args:
-        project_name (Union[None, Unset, str]):
-        type_ (Union[None, ProjectType, Unset]):
+        project_name (None | str | Unset):
+        type_ (None | ProjectType | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, list['ProjectDB']]
+    Returns:
+        HTTPValidationError | list[ProjectDB]
     """
+
     return (await asyncio_detailed(client=client, project_name=project_name, type_=type_)).parsed

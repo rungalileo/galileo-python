@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(project_id: str, trace_id: str, *, body: LogTraceUpdateRequest) 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PATCH,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/traces/{trace_id}",
+        "path": "/projects/{project_id}/traces/{trace_id}".format(project_id=project_id, trace_id=trace_id),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -42,14 +42,16 @@ def _get_kwargs(project_id: str, trace_id: str, *, body: LogTraceUpdateRequest) 
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, LogTraceUpdateResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | LogTraceUpdateResponse:
     if response.status_code == 200:
-        return LogTraceUpdateResponse.from_dict(response.json())
+        response_200 = LogTraceUpdateResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -71,7 +73,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, LogTraceUpdateResponse]]:
+) -> Response[HTTPValidationError | LogTraceUpdateResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,8 +84,8 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, trace_id: str, *, client: ApiClient, body: LogTraceUpdateRequest
-) -> Response[Union[HTTPValidationError, LogTraceUpdateResponse]]:
-    """Update Trace.
+) -> Response[HTTPValidationError | LogTraceUpdateResponse]:
+    """Update Trace
 
      Update a trace with the given ID.
 
@@ -92,15 +94,14 @@ def sync_detailed(
         trace_id (str):
         body (LogTraceUpdateRequest): Request model for updating a trace.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, LogTraceUpdateResponse]]
+    Returns:
+        Response[HTTPValidationError | LogTraceUpdateResponse]
     """
+
     kwargs = _get_kwargs(project_id=project_id, trace_id=trace_id, body=body)
 
     response = client.request(**kwargs)
@@ -110,8 +111,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, trace_id: str, *, client: ApiClient, body: LogTraceUpdateRequest
-) -> Optional[Union[HTTPValidationError, LogTraceUpdateResponse]]:
-    """Update Trace.
+) -> Optional[HTTPValidationError | LogTraceUpdateResponse]:
+    """Update Trace
 
      Update a trace with the given ID.
 
@@ -120,22 +121,21 @@ def sync(
         trace_id (str):
         body (LogTraceUpdateRequest): Request model for updating a trace.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, LogTraceUpdateResponse]
+    Returns:
+        HTTPValidationError | LogTraceUpdateResponse
     """
+
     return sync_detailed(project_id=project_id, trace_id=trace_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, trace_id: str, *, client: ApiClient, body: LogTraceUpdateRequest
-) -> Response[Union[HTTPValidationError, LogTraceUpdateResponse]]:
-    """Update Trace.
+) -> Response[HTTPValidationError | LogTraceUpdateResponse]:
+    """Update Trace
 
      Update a trace with the given ID.
 
@@ -144,15 +144,14 @@ async def asyncio_detailed(
         trace_id (str):
         body (LogTraceUpdateRequest): Request model for updating a trace.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, LogTraceUpdateResponse]]
+    Returns:
+        Response[HTTPValidationError | LogTraceUpdateResponse]
     """
+
     kwargs = _get_kwargs(project_id=project_id, trace_id=trace_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -162,8 +161,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, trace_id: str, *, client: ApiClient, body: LogTraceUpdateRequest
-) -> Optional[Union[HTTPValidationError, LogTraceUpdateResponse]]:
-    """Update Trace.
+) -> Optional[HTTPValidationError | LogTraceUpdateResponse]:
+    """Update Trace
 
      Update a trace with the given ID.
 
@@ -172,13 +171,12 @@ async def asyncio(
         trace_id (str):
         body (LogTraceUpdateRequest): Request model for updating a trace.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, LogTraceUpdateResponse]
+    Returns:
+        HTTPValidationError | LogTraceUpdateResponse
     """
+
     return (await asyncio_detailed(project_id=project_id, trace_id=trace_id, client=client, body=body)).parsed

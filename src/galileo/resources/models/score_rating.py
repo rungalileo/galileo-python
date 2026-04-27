@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,26 +14,25 @@ T = TypeVar("T", bound="ScoreRating")
 @_attrs_define
 class ScoreRating:
     """
-    Attributes
-    ----------
+    Attributes:
         value (int):
-        feedback_type (Union[Literal['score'], Unset]):  Default: 'score'.
+        annotation_type (Literal['score'] | Unset):  Default: 'score'.
     """
 
     value: int
-    feedback_type: Union[Literal["score"], Unset] = "score"
+    annotation_type: Literal["score"] | Unset = "score"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         value = self.value
 
-        feedback_type = self.feedback_type
+        annotation_type = self.annotation_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"value": value})
-        if feedback_type is not UNSET:
-            field_dict["feedback_type"] = feedback_type
+        if annotation_type is not UNSET:
+            field_dict["annotation_type"] = annotation_type
 
         return field_dict
 
@@ -40,11 +41,11 @@ class ScoreRating:
         d = dict(src_dict)
         value = d.pop("value")
 
-        feedback_type = cast(Union[Literal["score"], Unset], d.pop("feedback_type", UNSET))
-        if feedback_type != "score" and not isinstance(feedback_type, Unset):
-            raise ValueError(f"feedback_type must match const 'score', got '{feedback_type}'")
+        annotation_type = cast(Literal["score"] | Unset, d.pop("annotation_type", UNSET))
+        if annotation_type != "score" and not isinstance(annotation_type, Unset):
+            raise ValueError(f"annotation_type must match const 'score', got '{annotation_type}'")
 
-        score_rating = cls(value=value, feedback_type=feedback_type)
+        score_rating = cls(value=value, annotation_type=annotation_type)
 
         score_rating.additional_properties = d
         return score_rating

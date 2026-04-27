@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -21,13 +21,16 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(scorer_id: str, *, version: Union[None, Unset, int] = UNSET) -> dict[str, Any]:
+def _get_kwargs(scorer_id: str, *, version: int | None | Unset = UNSET) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_version: Union[None, Unset, int]
-    json_version = UNSET if isinstance(version, Unset) else version
+    json_version: int | None | Unset
+    if isinstance(version, Unset):
+        json_version = UNSET
+    else:
+        json_version = version
     params["version"] = json_version
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
@@ -35,7 +38,7 @@ def _get_kwargs(scorer_id: str, *, version: Union[None, Unset, int] = UNSET) -> 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": f"/scorers/{scorer_id}/version/code",
+        "path": "/scorers/{scorer_id}/version/code".format(scorer_id=scorer_id),
         "params": params,
     }
 
@@ -45,12 +48,15 @@ def _get_kwargs(scorer_id: str, *, version: Union[None, Unset, int] = UNSET) -> 
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 200:
-        return response.json()
+        response_200 = response.json()
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -70,7 +76,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,23 +86,22 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(
-    scorer_id: str, *, client: ApiClient, version: Union[None, Unset, int] = UNSET
-) -> Response[Union[Any, HTTPValidationError]]:
-    """Get Scorer Version Code.
+    scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET
+) -> Response[Any | HTTPValidationError]:
+    """Get Scorer Version Code
 
     Args:
         scorer_id (str):
-        version (Union[None, Unset, int]): version number, defaults to latest version
+        version (int | None | Unset): version number, defaults to latest version
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[Any, HTTPValidationError]]
+    Returns:
+        Response[Any | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(scorer_id=scorer_id, version=version)
 
     response = client.request(**kwargs)
@@ -105,44 +110,42 @@ def sync_detailed(
 
 
 def sync(
-    scorer_id: str, *, client: ApiClient, version: Union[None, Unset, int] = UNSET
-) -> Optional[Union[Any, HTTPValidationError]]:
-    """Get Scorer Version Code.
+    scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET
+) -> Optional[Any | HTTPValidationError]:
+    """Get Scorer Version Code
 
     Args:
         scorer_id (str):
-        version (Union[None, Unset, int]): version number, defaults to latest version
+        version (int | None | Unset): version number, defaults to latest version
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[Any, HTTPValidationError]
+    Returns:
+        Any | HTTPValidationError
     """
+
     return sync_detailed(scorer_id=scorer_id, client=client, version=version).parsed
 
 
 async def asyncio_detailed(
-    scorer_id: str, *, client: ApiClient, version: Union[None, Unset, int] = UNSET
-) -> Response[Union[Any, HTTPValidationError]]:
-    """Get Scorer Version Code.
+    scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET
+) -> Response[Any | HTTPValidationError]:
+    """Get Scorer Version Code
 
     Args:
         scorer_id (str):
-        version (Union[None, Unset, int]): version number, defaults to latest version
+        version (int | None | Unset): version number, defaults to latest version
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[Any, HTTPValidationError]]
+    Returns:
+        Response[Any | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(scorer_id=scorer_id, version=version)
 
     response = await client.arequest(**kwargs)
@@ -151,21 +154,20 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    scorer_id: str, *, client: ApiClient, version: Union[None, Unset, int] = UNSET
-) -> Optional[Union[Any, HTTPValidationError]]:
-    """Get Scorer Version Code.
+    scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET
+) -> Optional[Any | HTTPValidationError]:
+    """Get Scorer Version Code
 
     Args:
         scorer_id (str):
-        version (Union[None, Unset, int]): version number, defaults to latest version
+        version (int | None | Unset): version number, defaults to latest version
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[Any, HTTPValidationError]
+    Returns:
+        Any | HTTPValidationError
     """
+
     return (await asyncio_detailed(scorer_id=scorer_id, client=client, version=version)).parsed

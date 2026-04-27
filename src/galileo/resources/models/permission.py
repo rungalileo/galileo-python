@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,59 +26,66 @@ T = TypeVar("T", bound="Permission")
 @_attrs_define
 class Permission:
     """
-    Attributes
-    ----------
-        action (Union[AnnotationQueueAction, ApiKeyAction, DatasetAction, FineTunedScorerAction, GeneratedScorerAction,
-            GroupAction, GroupMemberAction, IntegrationAction, OrganizationAction, ProjectAction, RegisteredScorerAction,
-            UserAction]):
+    Attributes:
+        action (AnnotationQueueAction | ApiKeyAction | DatasetAction | FineTunedScorerAction | GeneratedScorerAction |
+            GroupAction | GroupMemberAction | IntegrationAction | OrganizationAction | ProjectAction |
+            RegisteredScorerAction | UserAction):
         allowed (bool):
-        message (Union[None, Unset, str]):
+        message (None | str | Unset):
     """
 
-    action: Union[
-        AnnotationQueueAction,
-        ApiKeyAction,
-        DatasetAction,
-        FineTunedScorerAction,
-        GeneratedScorerAction,
-        GroupAction,
-        GroupMemberAction,
-        IntegrationAction,
-        OrganizationAction,
-        ProjectAction,
-        RegisteredScorerAction,
-        UserAction,
-    ]
+    action: (
+        AnnotationQueueAction
+        | ApiKeyAction
+        | DatasetAction
+        | FineTunedScorerAction
+        | GeneratedScorerAction
+        | GroupAction
+        | GroupMemberAction
+        | IntegrationAction
+        | OrganizationAction
+        | ProjectAction
+        | RegisteredScorerAction
+        | UserAction
+    )
     allowed: bool
-    message: Union[None, Unset, str] = UNSET
+    message: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         action: str
-        if isinstance(
-            self.action,
-            (
-                UserAction,
-                GroupAction,
-                GroupMemberAction,
-                ProjectAction,
-                RegisteredScorerAction,
-                ApiKeyAction,
-                GeneratedScorerAction,
-                FineTunedScorerAction,
-                DatasetAction,
-                IntegrationAction,
-                OrganizationAction,
-            ),
-        ):
+        if isinstance(self.action, UserAction):
+            action = self.action.value
+        elif isinstance(self.action, GroupAction):
+            action = self.action.value
+        elif isinstance(self.action, GroupMemberAction):
+            action = self.action.value
+        elif isinstance(self.action, ProjectAction):
+            action = self.action.value
+        elif isinstance(self.action, RegisteredScorerAction):
+            action = self.action.value
+        elif isinstance(self.action, ApiKeyAction):
+            action = self.action.value
+        elif isinstance(self.action, GeneratedScorerAction):
+            action = self.action.value
+        elif isinstance(self.action, FineTunedScorerAction):
+            action = self.action.value
+        elif isinstance(self.action, DatasetAction):
+            action = self.action.value
+        elif isinstance(self.action, IntegrationAction):
+            action = self.action.value
+        elif isinstance(self.action, OrganizationAction):
             action = self.action.value
         else:
             action = self.action.value
 
         allowed = self.allowed
 
-        message: Union[None, Unset, str]
-        message = UNSET if isinstance(self.message, Unset) else self.message
+        message: None | str | Unset
+        if isinstance(self.message, Unset):
+            message = UNSET
+        else:
+            message = self.message
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -92,111 +101,124 @@ class Permission:
 
         def _parse_action(
             data: object,
-        ) -> Union[
-            AnnotationQueueAction,
-            ApiKeyAction,
-            DatasetAction,
-            FineTunedScorerAction,
-            GeneratedScorerAction,
-            GroupAction,
-            GroupMemberAction,
-            IntegrationAction,
-            OrganizationAction,
-            ProjectAction,
-            RegisteredScorerAction,
-            UserAction,
-        ]:
+        ) -> (
+            AnnotationQueueAction
+            | ApiKeyAction
+            | DatasetAction
+            | FineTunedScorerAction
+            | GeneratedScorerAction
+            | GroupAction
+            | GroupMemberAction
+            | IntegrationAction
+            | OrganizationAction
+            | ProjectAction
+            | RegisteredScorerAction
+            | UserAction
+        ):
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return UserAction(data)
+                action_type_0 = UserAction(data)
 
+                return action_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return GroupAction(data)
+                action_type_1 = GroupAction(data)
 
+                return action_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return GroupMemberAction(data)
+                action_type_2 = GroupMemberAction(data)
 
+                return action_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return ProjectAction(data)
+                action_type_3 = ProjectAction(data)
 
+                return action_type_3
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return RegisteredScorerAction(data)
+                action_type_4 = RegisteredScorerAction(data)
 
+                return action_type_4
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return ApiKeyAction(data)
+                action_type_5 = ApiKeyAction(data)
 
+                return action_type_5
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return GeneratedScorerAction(data)
+                action_type_6 = GeneratedScorerAction(data)
 
+                return action_type_6
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return FineTunedScorerAction(data)
+                action_type_7 = FineTunedScorerAction(data)
 
+                return action_type_7
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return DatasetAction(data)
+                action_type_8 = DatasetAction(data)
 
+                return action_type_8
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return IntegrationAction(data)
+                action_type_9 = IntegrationAction(data)
 
+                return action_type_9
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return OrganizationAction(data)
+                action_type_10 = OrganizationAction(data)
 
+                return action_type_10
             except:  # noqa: E722
                 pass
             if not isinstance(data, str):
                 raise TypeError()
-            return AnnotationQueueAction(data)
+            action_type_11 = AnnotationQueueAction(data)
+
+            return action_type_11
 
         action = _parse_action(d.pop("action"))
 
         allowed = d.pop("allowed")
 
-        def _parse_message(data: object) -> Union[None, Unset, str]:
+        def _parse_message(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         message = _parse_message(d.pop("message", UNSET))
 

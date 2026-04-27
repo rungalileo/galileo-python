@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
 from typing import Any, TypeVar
@@ -12,8 +14,7 @@ T = TypeVar("T", bound="RunTagDB")
 @_attrs_define
 class RunTagDB:
     """
-    Attributes
-    ----------
+    Attributes:
         key (str):
         value (str):
         tag_type (str):

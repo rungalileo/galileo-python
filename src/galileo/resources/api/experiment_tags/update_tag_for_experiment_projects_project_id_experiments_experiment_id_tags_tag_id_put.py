@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -29,7 +29,9 @@ def _get_kwargs(project_id: str, experiment_id: str, tag_id: str, *, body: RunTa
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PUT,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/experiments/{experiment_id}/tags/{tag_id}",
+        "path": "/projects/{project_id}/experiments/{experiment_id}/tags/{tag_id}".format(
+            project_id=project_id, experiment_id=experiment_id, tag_id=tag_id
+        ),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -42,12 +44,16 @@ def _get_kwargs(project_id: str, experiment_id: str, tag_id: str, *, body: RunTa
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, RunTagDB]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | RunTagDB:
     if response.status_code == 200:
-        return RunTagDB.from_dict(response.json())
+        response_200 = RunTagDB.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -67,7 +73,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, RunTagDB]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | RunTagDB]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -78,8 +84,8 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 def sync_detailed(
     project_id: str, experiment_id: str, tag_id: str, *, client: ApiClient, body: RunTagCreateRequest
-) -> Response[Union[HTTPValidationError, RunTagDB]]:
-    """Update Tag For Experiment.
+) -> Response[HTTPValidationError | RunTagDB]:
+    """Update Tag For Experiment
 
      Sets or updates a tag for an experiment.
 
@@ -89,15 +95,14 @@ def sync_detailed(
         tag_id (str):
         body (RunTagCreateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, RunTagDB]]
+    Returns:
+        Response[HTTPValidationError | RunTagDB]
     """
+
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, body=body)
 
     response = client.request(**kwargs)
@@ -107,8 +112,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, experiment_id: str, tag_id: str, *, client: ApiClient, body: RunTagCreateRequest
-) -> Optional[Union[HTTPValidationError, RunTagDB]]:
-    """Update Tag For Experiment.
+) -> Optional[HTTPValidationError | RunTagDB]:
+    """Update Tag For Experiment
 
      Sets or updates a tag for an experiment.
 
@@ -118,15 +123,14 @@ def sync(
         tag_id (str):
         body (RunTagCreateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, RunTagDB]
+    Returns:
+        HTTPValidationError | RunTagDB
     """
+
     return sync_detailed(
         project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, client=client, body=body
     ).parsed
@@ -134,8 +138,8 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, experiment_id: str, tag_id: str, *, client: ApiClient, body: RunTagCreateRequest
-) -> Response[Union[HTTPValidationError, RunTagDB]]:
-    """Update Tag For Experiment.
+) -> Response[HTTPValidationError | RunTagDB]:
+    """Update Tag For Experiment
 
      Sets or updates a tag for an experiment.
 
@@ -145,15 +149,14 @@ async def asyncio_detailed(
         tag_id (str):
         body (RunTagCreateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, RunTagDB]]
+    Returns:
+        Response[HTTPValidationError | RunTagDB]
     """
+
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -163,8 +166,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, experiment_id: str, tag_id: str, *, client: ApiClient, body: RunTagCreateRequest
-) -> Optional[Union[HTTPValidationError, RunTagDB]]:
-    """Update Tag For Experiment.
+) -> Optional[HTTPValidationError | RunTagDB]:
+    """Update Tag For Experiment
 
      Sets or updates a tag for an experiment.
 
@@ -174,15 +177,14 @@ async def asyncio(
         tag_id (str):
         body (RunTagCreateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, RunTagDB]
+    Returns:
+        HTTPValidationError | RunTagDB
     """
+
     return (
         await asyncio_detailed(
             project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, client=client, body=body

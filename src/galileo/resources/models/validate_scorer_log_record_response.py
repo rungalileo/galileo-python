@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -13,8 +15,7 @@ class ValidateScorerLogRecordResponse:
 
     Returns the uuid of the experiment created with the copied log records to store the metric testing results.
 
-    Attributes
-    ----------
+        Attributes:
             metrics_experiment_id (str):
     """
 

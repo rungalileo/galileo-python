@@ -33,7 +33,9 @@ def _get_kwargs() -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> list[str]:
     if response.status_code == 200:
-        return cast(list[str], response.json())
+        response_200 = cast(list[str], response.json())
+
+        return response_200
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -63,17 +65,16 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(*, client: ApiClient) -> Response[list[str]]:
-    """List Tags.
+    """List Tags
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[list[str]]
     """
+
     kwargs = _get_kwargs()
 
     response = client.request(**kwargs)
@@ -82,32 +83,30 @@ def sync_detailed(*, client: ApiClient) -> Response[list[str]]:
 
 
 def sync(*, client: ApiClient) -> Optional[list[str]]:
-    """List Tags.
+    """List Tags
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         list[str]
     """
+
     return sync_detailed(client=client).parsed
 
 
 async def asyncio_detailed(*, client: ApiClient) -> Response[list[str]]:
-    """List Tags.
+    """List Tags
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[list[str]]
     """
+
     kwargs = _get_kwargs()
 
     response = await client.arequest(**kwargs)
@@ -116,15 +115,14 @@ async def asyncio_detailed(*, client: ApiClient) -> Response[list[str]]:
 
 
 async def asyncio(*, client: ApiClient) -> Optional[list[str]]:
-    """List Tags.
+    """List Tags
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         list[str]
     """
+
     return (await asyncio_detailed(client=client)).parsed

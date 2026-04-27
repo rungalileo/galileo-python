@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -24,7 +24,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *, body: RenderTemplateRequest, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    *, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -53,14 +53,16 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, RenderTemplateResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | RenderTemplateResponse:
     if response.status_code == 200:
-        return RenderTemplateResponse.from_dict(response.json())
+        response_200 = RenderTemplateResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -82,7 +84,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, RenderTemplateResponse]]:
+) -> Response[HTTPValidationError | RenderTemplateResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -92,28 +94,23 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: ApiClient,
-    body: RenderTemplateRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, RenderTemplateResponse]]:
-    """Render Template.
+    *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+) -> Response[HTTPValidationError | RenderTemplateResponse]:
+    """Render Template
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
         body (RenderTemplateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, RenderTemplateResponse]]
+    Returns:
+        Response[HTTPValidationError | RenderTemplateResponse]
     """
+
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -122,54 +119,44 @@ def sync_detailed(
 
 
 def sync(
-    *,
-    client: ApiClient,
-    body: RenderTemplateRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, RenderTemplateResponse]]:
-    """Render Template.
+    *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+) -> Optional[HTTPValidationError | RenderTemplateResponse]:
+    """Render Template
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
         body (RenderTemplateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, RenderTemplateResponse]
+    Returns:
+        HTTPValidationError | RenderTemplateResponse
     """
+
     return sync_detailed(client=client, body=body, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: ApiClient,
-    body: RenderTemplateRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, RenderTemplateResponse]]:
-    """Render Template.
+    *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+) -> Response[HTTPValidationError | RenderTemplateResponse]:
+    """Render Template
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
         body (RenderTemplateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, RenderTemplateResponse]]
+    Returns:
+        Response[HTTPValidationError | RenderTemplateResponse]
     """
+
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -178,26 +165,21 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: ApiClient,
-    body: RenderTemplateRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, RenderTemplateResponse]]:
-    """Render Template.
+    *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+) -> Optional[HTTPValidationError | RenderTemplateResponse]:
+    """Render Template
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
         body (RenderTemplateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, RenderTemplateResponse]
+    Returns:
+        HTTPValidationError | RenderTemplateResponse
     """
+
     return (await asyncio_detailed(client=client, body=body, starting_token=starting_token, limit=limit)).parsed

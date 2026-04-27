@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, cast
 
 import httpx
 
@@ -28,7 +28,7 @@ def _get_kwargs(llm_integration: LLMIntegration) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": f"/llm_integrations/{llm_integration}/scorer_models",
+        "path": "/llm_integrations/{llm_integration}/scorer_models".format(llm_integration=llm_integration),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -37,12 +37,16 @@ def _get_kwargs(llm_integration: LLMIntegration) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, list[str]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list[str]:
     if response.status_code == 200:
-        return cast(list[str], response.json())
+        response_200 = cast(list[str], response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -62,7 +66,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, list[str]]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | list[str]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -71,25 +75,22 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(
-    llm_integration: LLMIntegration, *, client: ApiClient
-) -> Response[Union[HTTPValidationError, list[str]]]:
-    """Get Available Scorer Models.
+def sync_detailed(llm_integration: LLMIntegration, *, client: ApiClient) -> Response[HTTPValidationError | list[str]]:
+    """Get Available Scorer Models
 
      Get the list of supported scorer models for the LLM integration.
 
     Args:
         llm_integration (LLMIntegration):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, list[str]]]
+    Returns:
+        Response[HTTPValidationError | list[str]]
     """
+
     kwargs = _get_kwargs(llm_integration=llm_integration)
 
     response = client.request(**kwargs)
@@ -97,45 +98,43 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(llm_integration: LLMIntegration, *, client: ApiClient) -> Optional[Union[HTTPValidationError, list[str]]]:
-    """Get Available Scorer Models.
+def sync(llm_integration: LLMIntegration, *, client: ApiClient) -> Optional[HTTPValidationError | list[str]]:
+    """Get Available Scorer Models
 
      Get the list of supported scorer models for the LLM integration.
 
     Args:
         llm_integration (LLMIntegration):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, list[str]]
+    Returns:
+        HTTPValidationError | list[str]
     """
+
     return sync_detailed(llm_integration=llm_integration, client=client).parsed
 
 
 async def asyncio_detailed(
     llm_integration: LLMIntegration, *, client: ApiClient
-) -> Response[Union[HTTPValidationError, list[str]]]:
-    """Get Available Scorer Models.
+) -> Response[HTTPValidationError | list[str]]:
+    """Get Available Scorer Models
 
      Get the list of supported scorer models for the LLM integration.
 
     Args:
         llm_integration (LLMIntegration):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, list[str]]]
+    Returns:
+        Response[HTTPValidationError | list[str]]
     """
+
     kwargs = _get_kwargs(llm_integration=llm_integration)
 
     response = await client.arequest(**kwargs)
@@ -143,23 +142,20 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    llm_integration: LLMIntegration, *, client: ApiClient
-) -> Optional[Union[HTTPValidationError, list[str]]]:
-    """Get Available Scorer Models.
+async def asyncio(llm_integration: LLMIntegration, *, client: ApiClient) -> Optional[HTTPValidationError | list[str]]:
+    """Get Available Scorer Models
 
      Get the list of supported scorer models for the LLM integration.
 
     Args:
         llm_integration (LLMIntegration):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, list[str]]
+    Returns:
+        HTTPValidationError | list[str]
     """
+
     return (await asyncio_detailed(llm_integration=llm_integration, client=client)).parsed

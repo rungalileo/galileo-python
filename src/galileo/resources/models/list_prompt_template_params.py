@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,28 +24,23 @@ T = TypeVar("T", bound="ListPromptTemplateParams")
 @_attrs_define
 class ListPromptTemplateParams:
     """
-    Attributes
-    ----------
-        filters (Union[Unset, list[Union['PromptTemplateCreatedByFilter', 'PromptTemplateNameFilter',
-            'PromptTemplateNotInProjectFilter', 'PromptTemplateUsedInProjectFilter']]]):
-        sort (Union['PromptTemplateCreatedAtSort', 'PromptTemplateNameSort', 'PromptTemplateUpdatedAtSort', None,
-            Unset]):  Default: None.
+    Attributes:
+        filters (list[PromptTemplateCreatedByFilter | PromptTemplateNameFilter | PromptTemplateNotInProjectFilter |
+            PromptTemplateUsedInProjectFilter] | Unset):
+        sort (None | PromptTemplateCreatedAtSort | PromptTemplateNameSort | PromptTemplateUpdatedAtSort | Unset):
+            Default: None.
     """
 
-    filters: Union[
-        Unset,
+    filters: (
         list[
-            Union[
-                "PromptTemplateCreatedByFilter",
-                "PromptTemplateNameFilter",
-                "PromptTemplateNotInProjectFilter",
-                "PromptTemplateUsedInProjectFilter",
-            ]
-        ],
-    ] = UNSET
-    sort: Union["PromptTemplateCreatedAtSort", "PromptTemplateNameSort", "PromptTemplateUpdatedAtSort", None, Unset] = (
-        None
-    )
+            PromptTemplateCreatedByFilter
+            | PromptTemplateNameFilter
+            | PromptTemplateNotInProjectFilter
+            | PromptTemplateUsedInProjectFilter
+        ]
+        | Unset
+    ) = UNSET
+    sort: None | PromptTemplateCreatedAtSort | PromptTemplateNameSort | PromptTemplateUpdatedAtSort | Unset = None
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -54,25 +51,30 @@ class ListPromptTemplateParams:
         from ..models.prompt_template_updated_at_sort import PromptTemplateUpdatedAtSort
         from ..models.prompt_template_used_in_project_filter import PromptTemplateUsedInProjectFilter
 
-        filters: Union[Unset, list[dict[str, Any]]] = UNSET
+        filters: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
-                if isinstance(
-                    filters_item_data,
-                    (PromptTemplateNameFilter, PromptTemplateCreatedByFilter, PromptTemplateUsedInProjectFilter),
-                ):
+                if isinstance(filters_item_data, PromptTemplateNameFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, PromptTemplateCreatedByFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, PromptTemplateUsedInProjectFilter):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
 
                 filters.append(filters_item)
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: dict[str, Any] | None | Unset
         if isinstance(self.sort, Unset):
             sort = UNSET
-        elif isinstance(self.sort, (PromptTemplateNameSort, PromptTemplateCreatedAtSort, PromptTemplateUpdatedAtSort)):
+        elif isinstance(self.sort, PromptTemplateNameSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, PromptTemplateCreatedAtSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, PromptTemplateUpdatedAtSort):
             sort = self.sort.to_dict()
         else:
             sort = self.sort
@@ -98,50 +100,65 @@ class ListPromptTemplateParams:
         from ..models.prompt_template_used_in_project_filter import PromptTemplateUsedInProjectFilter
 
         d = dict(src_dict)
-        filters = []
         _filters = d.pop("filters", UNSET)
-        for filters_item_data in _filters or []:
+        filters: (
+            list[
+                PromptTemplateCreatedByFilter
+                | PromptTemplateNameFilter
+                | PromptTemplateNotInProjectFilter
+                | PromptTemplateUsedInProjectFilter
+            ]
+            | Unset
+        ) = UNSET
+        if _filters is not UNSET:
+            filters = []
+            for filters_item_data in _filters:
 
-            def _parse_filters_item(
-                data: object,
-            ) -> Union[
-                "PromptTemplateCreatedByFilter",
-                "PromptTemplateNameFilter",
-                "PromptTemplateNotInProjectFilter",
-                "PromptTemplateUsedInProjectFilter",
-            ]:
-                try:
+                def _parse_filters_item(
+                    data: object,
+                ) -> (
+                    PromptTemplateCreatedByFilter
+                    | PromptTemplateNameFilter
+                    | PromptTemplateNotInProjectFilter
+                    | PromptTemplateUsedInProjectFilter
+                ):
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_item_type_0 = PromptTemplateNameFilter.from_dict(data)
+
+                        return filters_item_type_0
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_item_type_1 = PromptTemplateCreatedByFilter.from_dict(data)
+
+                        return filters_item_type_1
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_item_type_2 = PromptTemplateUsedInProjectFilter.from_dict(data)
+
+                        return filters_item_type_2
+                    except:  # noqa: E722
+                        pass
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return PromptTemplateNameFilter.from_dict(data)
+                    filters_item_type_3 = PromptTemplateNotInProjectFilter.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return PromptTemplateCreatedByFilter.from_dict(data)
+                    return filters_item_type_3
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return PromptTemplateUsedInProjectFilter.from_dict(data)
+                filters_item = _parse_filters_item(filters_item_data)
 
-                except:  # noqa: E722
-                    pass
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return PromptTemplateNotInProjectFilter.from_dict(data)
-
-            filters_item = _parse_filters_item(filters_item_data)
-
-            filters.append(filters_item)
+                filters.append(filters_item)
 
         def _parse_sort(
             data: object,
-        ) -> Union["PromptTemplateCreatedAtSort", "PromptTemplateNameSort", "PromptTemplateUpdatedAtSort", None, Unset]:
+        ) -> None | PromptTemplateCreatedAtSort | PromptTemplateNameSort | PromptTemplateUpdatedAtSort | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -149,29 +166,29 @@ class ListPromptTemplateParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return PromptTemplateNameSort.from_dict(data)
+                sort_type_0_type_0 = PromptTemplateNameSort.from_dict(data)
 
+                return sort_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return PromptTemplateCreatedAtSort.from_dict(data)
+                sort_type_0_type_1 = PromptTemplateCreatedAtSort.from_dict(data)
 
+                return sort_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return PromptTemplateUpdatedAtSort.from_dict(data)
+                sort_type_0_type_2 = PromptTemplateUpdatedAtSort.from_dict(data)
 
+                return sort_type_0_type_2
             except:  # noqa: E722
                 pass
             return cast(
-                Union[
-                    "PromptTemplateCreatedAtSort", "PromptTemplateNameSort", "PromptTemplateUpdatedAtSort", None, Unset
-                ],
-                data,
+                None | PromptTemplateCreatedAtSort | PromptTemplateNameSort | PromptTemplateUpdatedAtSort | Unset, data
             )
 
         sort = _parse_sort(d.pop("sort", UNSET))

@@ -11,7 +11,7 @@ FIXED_PROJECT_ID = str(uuid4())
 
 
 def _log_records_query_response_factory(records: list) -> LogRecordsQueryResponse:
-    return LogRecordsQueryResponse(records=records)
+    return LogRecordsQueryResponse(records=records, num_records=len(records))
 
 
 @pytest.mark.parametrize(

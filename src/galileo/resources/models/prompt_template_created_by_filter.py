@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,21 +15,19 @@ T = TypeVar("T", bound="PromptTemplateCreatedByFilter")
 @_attrs_define
 class PromptTemplateCreatedByFilter:
     """
-    Attributes
-    ----------
-        value (Union[list[str], str]):
-        name (Union[Literal['creator'], Unset]):  Default: 'creator'.
-        operator (Union[Unset, PromptTemplateCreatedByFilterOperator]):  Default:
-            PromptTemplateCreatedByFilterOperator.EQ.
+    Attributes:
+        value (list[str] | str):
+        name (Literal['creator'] | Unset):  Default: 'creator'.
+        operator (PromptTemplateCreatedByFilterOperator | Unset):  Default: PromptTemplateCreatedByFilterOperator.EQ.
     """
 
-    value: Union[list[str], str]
-    name: Union[Literal["creator"], Unset] = "creator"
-    operator: Union[Unset, PromptTemplateCreatedByFilterOperator] = PromptTemplateCreatedByFilterOperator.EQ
+    value: list[str] | str
+    name: Literal["creator"] | Unset = "creator"
+    operator: PromptTemplateCreatedByFilterOperator | Unset = PromptTemplateCreatedByFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        value: Union[list[str], str]
+        value: list[str] | str
         if isinstance(self.value, list):
             value = []
             for value_type_1_item_data in self.value:
@@ -40,7 +40,7 @@ class PromptTemplateCreatedByFilter:
 
         name = self.name
 
-        operator: Union[Unset, str] = UNSET
+        operator: str | Unset = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -58,7 +58,7 @@ class PromptTemplateCreatedByFilter:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_value(data: object) -> Union[list[str], str]:
+        def _parse_value(data: object) -> list[str] | str:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
@@ -76,17 +76,20 @@ class PromptTemplateCreatedByFilter:
                 return value_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[list[str], str], data)
+            return cast(list[str] | str, data)
 
         value = _parse_value(d.pop("value"))
 
-        name = cast(Union[Literal["creator"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["creator"] | Unset, d.pop("name", UNSET))
         if name != "creator" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'creator', got '{name}'")
 
         _operator = d.pop("operator", UNSET)
-        operator: Union[Unset, PromptTemplateCreatedByFilterOperator]
-        operator = UNSET if isinstance(_operator, Unset) else PromptTemplateCreatedByFilterOperator(_operator)
+        operator: PromptTemplateCreatedByFilterOperator | Unset
+        if isinstance(_operator, Unset):
+            operator = UNSET
+        else:
+            operator = PromptTemplateCreatedByFilterOperator(_operator)
 
         prompt_template_created_by_filter = cls(value=value, name=name, operator=operator)
 

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,16 +18,15 @@ T = TypeVar("T", bound="AnnotationTagsAggregate")
 @_attrs_define
 class AnnotationTagsAggregate:
     """
-    Attributes
-    ----------
+    Attributes:
         counts (AnnotationTagsAggregateCounts):
         unrated_count (int):
-        annotation_type (Union[Literal['tags'], Unset]):  Default: 'tags'.
+        annotation_type (Literal['tags'] | Unset):  Default: 'tags'.
     """
 
-    counts: "AnnotationTagsAggregateCounts"
+    counts: AnnotationTagsAggregateCounts
     unrated_count: int
-    annotation_type: Union[Literal["tags"], Unset] = "tags"
+    annotation_type: Literal["tags"] | Unset = "tags"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -52,7 +53,7 @@ class AnnotationTagsAggregate:
 
         unrated_count = d.pop("unrated_count")
 
-        annotation_type = cast(Union[Literal["tags"], Unset], d.pop("annotation_type", UNSET))
+        annotation_type = cast(Literal["tags"] | Unset, d.pop("annotation_type", UNSET))
         if annotation_type != "tags" and not isinstance(annotation_type, Unset):
             raise ValueError(f"annotation_type must match const 'tags', got '{annotation_type}'")
 

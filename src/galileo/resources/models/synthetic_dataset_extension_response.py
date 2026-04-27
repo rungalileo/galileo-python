@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -11,8 +13,7 @@ T = TypeVar("T", bound="SyntheticDatasetExtensionResponse")
 class SyntheticDatasetExtensionResponse:
     """Response for synthetic dataset extension requests.
 
-    Attributes
-    ----------
+    Attributes:
         dataset_id (str):
     """
 

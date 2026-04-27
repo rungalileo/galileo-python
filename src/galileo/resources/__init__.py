@@ -1,4 +1,4 @@
-"""A client library for accessing FastAPI."""
+"""A client library for accessing Galileo API Server"""
 
 from .client import AuthenticatedClient, Client
 

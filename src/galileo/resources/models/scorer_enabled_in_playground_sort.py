@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,18 +14,17 @@ T = TypeVar("T", bound="ScorerEnabledInPlaygroundSort")
 @_attrs_define
 class ScorerEnabledInPlaygroundSort:
     """
-    Attributes
-    ----------
+    Attributes:
         value (str):
-        name (Union[Literal['enabled_in_playground'], Unset]):  Default: 'enabled_in_playground'.
-        ascending (Union[Unset, bool]):  Default: True.
-        sort_type (Union[Literal['custom_uuid'], Unset]):  Default: 'custom_uuid'.
+        name (Literal['enabled_in_playground'] | Unset):  Default: 'enabled_in_playground'.
+        ascending (bool | Unset):  Default: True.
+        sort_type (Literal['custom_uuid'] | Unset):  Default: 'custom_uuid'.
     """
 
     value: str
-    name: Union[Literal["enabled_in_playground"], Unset] = "enabled_in_playground"
-    ascending: Union[Unset, bool] = True
-    sort_type: Union[Literal["custom_uuid"], Unset] = "custom_uuid"
+    name: Literal["enabled_in_playground"] | Unset = "enabled_in_playground"
+    ascending: bool | Unset = True
+    sort_type: Literal["custom_uuid"] | Unset = "custom_uuid"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -52,13 +53,13 @@ class ScorerEnabledInPlaygroundSort:
         d = dict(src_dict)
         value = d.pop("value")
 
-        name = cast(Union[Literal["enabled_in_playground"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["enabled_in_playground"] | Unset, d.pop("name", UNSET))
         if name != "enabled_in_playground" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'enabled_in_playground', got '{name}'")
 
         ascending = d.pop("ascending", UNSET)
 
-        sort_type = cast(Union[Literal["custom_uuid"], Unset], d.pop("sort_type", UNSET))
+        sort_type = cast(Literal["custom_uuid"] | Unset, d.pop("sort_type", UNSET))
         if sort_type != "custom_uuid" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'custom_uuid', got '{sort_type}'")
 

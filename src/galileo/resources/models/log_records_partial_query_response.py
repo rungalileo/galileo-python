@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,38 +25,36 @@ T = TypeVar("T", bound="LogRecordsPartialQueryResponse")
 @_attrs_define
 class LogRecordsPartialQueryResponse:
     """
-    Attributes
-    ----------
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        paginated (Union[Unset, bool]):  Default: False.
-        next_starting_token (Union[None, Unset, int]):
-        last_row_id (Union[None, Unset, str]):
-        records (Union[Unset, list[Union['PartialExtendedAgentSpanRecord', 'PartialExtendedControlSpanRecord',
-            'PartialExtendedLlmSpanRecord', 'PartialExtendedRetrieverSpanRecord', 'PartialExtendedSessionRecord',
-            'PartialExtendedToolSpanRecord', 'PartialExtendedTraceRecord', 'PartialExtendedWorkflowSpanRecord']]]): records
-            matching the query.
+    Attributes:
+        num_records (int): number of records
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        paginated (bool | Unset):  Default: False.
+        next_starting_token (int | None | Unset):
+        last_row_id (None | str | Unset):
+        records (list[PartialExtendedAgentSpanRecord | PartialExtendedControlSpanRecord | PartialExtendedLlmSpanRecord |
+            PartialExtendedRetrieverSpanRecord | PartialExtendedSessionRecord | PartialExtendedToolSpanRecord |
+            PartialExtendedTraceRecord | PartialExtendedWorkflowSpanRecord] | Unset): records matching the query
     """
 
-    starting_token: Unset | int = 0
-    limit: Unset | int = 100
-    paginated: Unset | bool = False
-    next_starting_token: None | Unset | int = UNSET
-    last_row_id: None | Unset | str = UNSET
+    num_records: int
+    starting_token: int | Unset = 0
+    limit: int | Unset = 100
+    paginated: bool | Unset = False
+    next_starting_token: int | None | Unset = UNSET
+    last_row_id: None | str | Unset = UNSET
     records: (
-        Unset
-        | list[
-            Union[
-                "PartialExtendedAgentSpanRecord",
-                "PartialExtendedControlSpanRecord",
-                "PartialExtendedLlmSpanRecord",
-                "PartialExtendedRetrieverSpanRecord",
-                "PartialExtendedSessionRecord",
-                "PartialExtendedToolSpanRecord",
-                "PartialExtendedTraceRecord",
-                "PartialExtendedWorkflowSpanRecord",
-            ]
+        list[
+            PartialExtendedAgentSpanRecord
+            | PartialExtendedControlSpanRecord
+            | PartialExtendedLlmSpanRecord
+            | PartialExtendedRetrieverSpanRecord
+            | PartialExtendedSessionRecord
+            | PartialExtendedToolSpanRecord
+            | PartialExtendedTraceRecord
+            | PartialExtendedWorkflowSpanRecord
         ]
+        | Unset
     ) = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -67,32 +67,44 @@ class LogRecordsPartialQueryResponse:
         from ..models.partial_extended_trace_record import PartialExtendedTraceRecord
         from ..models.partial_extended_workflow_span_record import PartialExtendedWorkflowSpanRecord
 
+        num_records = self.num_records
+
         starting_token = self.starting_token
 
         limit = self.limit
 
         paginated = self.paginated
 
-        next_starting_token: None | Unset | int
-        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
+        next_starting_token: int | None | Unset
+        if isinstance(self.next_starting_token, Unset):
+            next_starting_token = UNSET
+        else:
+            next_starting_token = self.next_starting_token
 
-        last_row_id: None | Unset | str
-        last_row_id = UNSET if isinstance(self.last_row_id, Unset) else self.last_row_id
+        last_row_id: None | str | Unset
+        if isinstance(self.last_row_id, Unset):
+            last_row_id = UNSET
+        else:
+            last_row_id = self.last_row_id
 
-        records: Unset | list[dict[str, Any]] = UNSET
+        records: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.records, Unset):
             records = []
             for records_item_data in self.records:
                 records_item: dict[str, Any]
-                if isinstance(
-                    records_item_data,
-                    PartialExtendedTraceRecord
-                    | PartialExtendedAgentSpanRecord
-                    | PartialExtendedWorkflowSpanRecord
-                    | PartialExtendedLlmSpanRecord
-                    | (PartialExtendedToolSpanRecord | PartialExtendedRetrieverSpanRecord)
-                    | PartialExtendedControlSpanRecord,
-                ):
+                if isinstance(records_item_data, PartialExtendedTraceRecord):
+                    records_item = records_item_data.to_dict()
+                elif isinstance(records_item_data, PartialExtendedAgentSpanRecord):
+                    records_item = records_item_data.to_dict()
+                elif isinstance(records_item_data, PartialExtendedWorkflowSpanRecord):
+                    records_item = records_item_data.to_dict()
+                elif isinstance(records_item_data, PartialExtendedLlmSpanRecord):
+                    records_item = records_item_data.to_dict()
+                elif isinstance(records_item_data, PartialExtendedToolSpanRecord):
+                    records_item = records_item_data.to_dict()
+                elif isinstance(records_item_data, PartialExtendedRetrieverSpanRecord):
+                    records_item = records_item_data.to_dict()
+                elif isinstance(records_item_data, PartialExtendedControlSpanRecord):
                     records_item = records_item_data.to_dict()
                 else:
                     records_item = records_item_data.to_dict()
@@ -101,7 +113,7 @@ class LogRecordsPartialQueryResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({})
+        field_dict.update({"num_records": num_records})
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
         if limit is not UNSET:
@@ -129,167 +141,194 @@ class LogRecordsPartialQueryResponse:
         from ..models.partial_extended_workflow_span_record import PartialExtendedWorkflowSpanRecord
 
         d = dict(src_dict)
+        num_records = d.pop("num_records")
+
         starting_token = d.pop("starting_token", UNSET)
 
         limit = d.pop("limit", UNSET)
 
         paginated = d.pop("paginated", UNSET)
 
-        def _parse_next_starting_token(data: object) -> None | Unset | int:
+        def _parse_next_starting_token(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(int | None | Unset, data)
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
-        def _parse_last_row_id(data: object) -> None | Unset | str:
+        def _parse_last_row_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         last_row_id = _parse_last_row_id(d.pop("last_row_id", UNSET))
 
-        records = []
         _records = d.pop("records", UNSET)
-        for records_item_data in _records or []:
+        records: (
+            list[
+                PartialExtendedAgentSpanRecord
+                | PartialExtendedControlSpanRecord
+                | PartialExtendedLlmSpanRecord
+                | PartialExtendedRetrieverSpanRecord
+                | PartialExtendedSessionRecord
+                | PartialExtendedToolSpanRecord
+                | PartialExtendedTraceRecord
+                | PartialExtendedWorkflowSpanRecord
+            ]
+            | Unset
+        ) = UNSET
+        if _records is not UNSET:
+            records = []
+            for records_item_data in _records:
 
-            def _parse_records_item(
-                data: object,
-            ) -> Union[
-                "PartialExtendedAgentSpanRecord",
-                "PartialExtendedControlSpanRecord",
-                "PartialExtendedLlmSpanRecord",
-                "PartialExtendedRetrieverSpanRecord",
-                "PartialExtendedSessionRecord",
-                "PartialExtendedToolSpanRecord",
-                "PartialExtendedTraceRecord",
-                "PartialExtendedWorkflowSpanRecord",
-            ]:
-                # Discriminator-aware parsing for Extended*Record types
-                if isinstance(data, dict) and "type" in data:
-                    type_value = data.get("type")
+                def _parse_records_item(
+                    data: object,
+                ) -> (
+                    PartialExtendedAgentSpanRecord
+                    | PartialExtendedControlSpanRecord
+                    | PartialExtendedLlmSpanRecord
+                    | PartialExtendedRetrieverSpanRecord
+                    | PartialExtendedSessionRecord
+                    | PartialExtendedToolSpanRecord
+                    | PartialExtendedTraceRecord
+                    | PartialExtendedWorkflowSpanRecord
+                ):
+                    # Discriminator-aware parsing for Extended*Record types
+                    if isinstance(data, dict) and "type" in data:
+                        type_value = data.get("type")
 
-                    # Hardcoded discriminator mapping for Extended*Record types
-                    if type_value == "trace":
-                        try:
-                            from ..models.extended_trace_record import ExtendedTraceRecord
+                        # Hardcoded discriminator mapping for Extended*Record types
+                        if type_value == "trace":
+                            try:
+                                from ..models.extended_trace_record import ExtendedTraceRecord
 
-                            return ExtendedTraceRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "agent":
-                        try:
-                            from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+                                return ExtendedTraceRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "agent":
+                            try:
+                                from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
 
-                            return ExtendedAgentSpanRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "workflow":
-                        try:
-                            from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
+                                return ExtendedAgentSpanRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "workflow":
+                            try:
+                                from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
 
-                            return ExtendedWorkflowSpanRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "llm":
-                        try:
-                            from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+                                return ExtendedWorkflowSpanRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "llm":
+                            try:
+                                from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
 
-                            return ExtendedLlmSpanRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "tool":
-                        try:
-                            from ..models.extended_tool_span_record import ExtendedToolSpanRecord
+                                return ExtendedLlmSpanRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "tool":
+                            try:
+                                from ..models.extended_tool_span_record import ExtendedToolSpanRecord
 
-                            return ExtendedToolSpanRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "retriever":
-                        try:
-                            from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
+                                return ExtendedToolSpanRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "retriever":
+                            try:
+                                from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
 
-                            return ExtendedRetrieverSpanRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "session":
-                        try:
-                            from ..models.extended_session_record import ExtendedSessionRecord
+                                return ExtendedRetrieverSpanRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "session":
+                            try:
+                                from ..models.extended_session_record import ExtendedSessionRecord
 
-                            return ExtendedSessionRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
+                                return ExtendedSessionRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
 
-                # Fallback to standard union parsing
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return PartialExtendedTraceRecord.from_dict(data)
+                    # Fallback to standard union parsing
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        records_item_type_0 = PartialExtendedTraceRecord.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return PartialExtendedAgentSpanRecord.from_dict(data)
+                        return records_item_type_0
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        records_item_type_1 = PartialExtendedAgentSpanRecord.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return PartialExtendedWorkflowSpanRecord.from_dict(data)
+                        return records_item_type_1
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        records_item_type_2 = PartialExtendedWorkflowSpanRecord.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return PartialExtendedLlmSpanRecord.from_dict(data)
+                        return records_item_type_2
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        records_item_type_3 = PartialExtendedLlmSpanRecord.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return PartialExtendedToolSpanRecord.from_dict(data)
+                        return records_item_type_3
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        records_item_type_4 = PartialExtendedToolSpanRecord.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return PartialExtendedRetrieverSpanRecord.from_dict(data)
+                        return records_item_type_4
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        records_item_type_5 = PartialExtendedRetrieverSpanRecord.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return PartialExtendedControlSpanRecord.from_dict(data)
+                        return records_item_type_5
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        records_item_type_6 = PartialExtendedControlSpanRecord.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return PartialExtendedSessionRecord.from_dict(data)
+                        return records_item_type_6
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        records_item_type_7 = PartialExtendedSessionRecord.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                # If we reach here, none of the parsers succeeded
-                discriminator_info = f" (type={data.get('type')})" if isinstance(data, dict) and "type" in data else ""
-                raise ValueError(f"Could not parse union type for records_item{discriminator_info}")
+                        return records_item_type_7
+                    except:  # noqa: E722
+                        pass
+                    # If we reach here, none of the parsers succeeded
+                    discriminator_info = (
+                        f" (type={data.get('type')})" if isinstance(data, dict) and "type" in data else ""
+                    )
+                    raise ValueError(f"Could not parse union type for records_item{discriminator_info}")
 
-            records_item = _parse_records_item(records_item_data)
+                records_item = _parse_records_item(records_item_data)
 
-            records.append(records_item)
+                records.append(records_item)
 
         log_records_partial_query_response = cls(
+            num_records=num_records,
             starting_token=starting_token,
             limit=limit,
             paginated=paginated,

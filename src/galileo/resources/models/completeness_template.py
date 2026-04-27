@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,16 +19,15 @@ T = TypeVar("T", bound="CompletenessTemplate")
 @_attrs_define
 class CompletenessTemplate:
     r"""
-    Attributes
-    ----------
-        metric_system_prompt (Union[None, Unset, str]): System prompt for the metric.
-        metric_description (Union[None, Unset, str]): Description of what the metric should do.
-        value_field_name (Union[Unset, str]):  Default: 'completeness'.
-        explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
-            explanation. Default: 'explanation'.
-        template (Union[Unset, str]):  Default: 'I asked someone to answer a question based on one or more documents. On
-            a scale of 0 to 1, tell me how well their response covered the relevant information from the documents.\n\nHere
-            is what I said to them, as a JSON string:\n\n```\n{query_json}\n```\n\nHere is what they told me, as a JSON
+    Attributes:
+        metric_system_prompt (None | str | Unset): System prompt for the metric.
+        metric_description (None | str | Unset): Description of what the metric should do.
+        value_field_name (str | Unset):  Default: 'completeness'.
+        explanation_field_name (str | Unset): Field name to look for in the chainpoll response, for the explanation.
+            Default: 'explanation'.
+        template (str | Unset):  Default: 'I asked someone to answer a question based on one or more documents. On a
+            scale of 0 to 1, tell me how well their response covered the relevant information from the documents.\n\nHere is
+            what I said to them, as a JSON string:\n\n```\n{query_json}\n```\n\nHere is what they told me, as a JSON
             string:\n\n```\n{response_json}\n```\n\nRespond in the following JSON format:\n\n```\n{{\n    \\"explanation\\":
             string,\n    \\"completeness\\": number\n}}\n```\n\n\\"explanation\\": A string with your step-by-step reasoning
             process. List out each piece of information covered in the documents. For each one, explain why it was or was
@@ -37,29 +38,35 @@ class CompletenessTemplate:
             to 1. This number should equal the amount of relevant information that was comprehensively covered in the
             response, divided by the total amount of relevant information in the documents.\n\nYou must respond with a valid
             JSON string.'.
-        metric_few_shot_examples (Union[Unset, list['FewShotExample']]): Few-shot examples for the metric.
-        response_schema (Union['CompletenessTemplateResponseSchemaType0', None, Unset]): Response schema for the output.
+        metric_few_shot_examples (list[FewShotExample] | Unset): Few-shot examples for the metric.
+        response_schema (CompletenessTemplateResponseSchemaType0 | None | Unset): Response schema for the output
     """
 
-    metric_system_prompt: Union[None, Unset, str] = UNSET
-    metric_description: Union[None, Unset, str] = UNSET
-    value_field_name: Union[Unset, str] = "completeness"
-    explanation_field_name: Union[Unset, str] = "explanation"
-    template: Union[Unset, str] = (
+    metric_system_prompt: None | str | Unset = UNSET
+    metric_description: None | str | Unset = UNSET
+    value_field_name: str | Unset = "completeness"
+    explanation_field_name: str | Unset = "explanation"
+    template: str | Unset = (
         'I asked someone to answer a question based on one or more documents. On a scale of 0 to 1, tell me how well their response covered the relevant information from the documents.\n\nHere is what I said to them, as a JSON string:\n\n```\n{query_json}\n```\n\nHere is what they told me, as a JSON string:\n\n```\n{response_json}\n```\n\nRespond in the following JSON format:\n\n```\n{{\n    \\"explanation\\": string,\n    \\"completeness\\": number\n}}\n```\n\n\\"explanation\\": A string with your step-by-step reasoning process. List out each piece of information covered in the documents. For each one, explain why it was or was not relevant to the question, and how well the response covered it. Do *not* give an overall assessment of the response here, just think step by step about each piece of information, one at a time. Present your work in a document-by-document format, considering each document separately, ensure the value is a valid string.\n\n\\"completeness\\": A floating-point number rating the Completeness of the response on a scale of 0 to 1. This number should equal the amount of relevant information that was comprehensively covered in the response, divided by the total amount of relevant information in the documents.\n\nYou must respond with a valid JSON string.'
     )
-    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
-    response_schema: Union["CompletenessTemplateResponseSchemaType0", None, Unset] = UNSET
+    metric_few_shot_examples: list[FewShotExample] | Unset = UNSET
+    response_schema: CompletenessTemplateResponseSchemaType0 | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.completeness_template_response_schema_type_0 import CompletenessTemplateResponseSchemaType0
 
-        metric_system_prompt: Union[None, Unset, str]
-        metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
+        metric_system_prompt: None | str | Unset
+        if isinstance(self.metric_system_prompt, Unset):
+            metric_system_prompt = UNSET
+        else:
+            metric_system_prompt = self.metric_system_prompt
 
-        metric_description: Union[None, Unset, str]
-        metric_description = UNSET if isinstance(self.metric_description, Unset) else self.metric_description
+        metric_description: None | str | Unset
+        if isinstance(self.metric_description, Unset):
+            metric_description = UNSET
+        else:
+            metric_description = self.metric_description
 
         value_field_name = self.value_field_name
 
@@ -67,14 +74,14 @@ class CompletenessTemplate:
 
         template = self.template
 
-        metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
+        metric_few_shot_examples: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
             metric_few_shot_examples = []
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        response_schema: Union[None, Unset, dict[str, Any]]
+        response_schema: dict[str, Any] | None | Unset
         if isinstance(self.response_schema, Unset):
             response_schema = UNSET
         elif isinstance(self.response_schema, CompletenessTemplateResponseSchemaType0):
@@ -109,21 +116,21 @@ class CompletenessTemplate:
 
         d = dict(src_dict)
 
-        def _parse_metric_system_prompt(data: object) -> Union[None, Unset, str]:
+        def _parse_metric_system_prompt(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         metric_system_prompt = _parse_metric_system_prompt(d.pop("metric_system_prompt", UNSET))
 
-        def _parse_metric_description(data: object) -> Union[None, Unset, str]:
+        def _parse_metric_description(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         metric_description = _parse_metric_description(d.pop("metric_description", UNSET))
 
@@ -133,14 +140,16 @@ class CompletenessTemplate:
 
         template = d.pop("template", UNSET)
 
-        metric_few_shot_examples = []
         _metric_few_shot_examples = d.pop("metric_few_shot_examples", UNSET)
-        for metric_few_shot_examples_item_data in _metric_few_shot_examples or []:
-            metric_few_shot_examples_item = FewShotExample.from_dict(metric_few_shot_examples_item_data)
+        metric_few_shot_examples: list[FewShotExample] | Unset = UNSET
+        if _metric_few_shot_examples is not UNSET:
+            metric_few_shot_examples = []
+            for metric_few_shot_examples_item_data in _metric_few_shot_examples:
+                metric_few_shot_examples_item = FewShotExample.from_dict(metric_few_shot_examples_item_data)
 
-            metric_few_shot_examples.append(metric_few_shot_examples_item)
+                metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        def _parse_response_schema(data: object) -> Union["CompletenessTemplateResponseSchemaType0", None, Unset]:
+        def _parse_response_schema(data: object) -> CompletenessTemplateResponseSchemaType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -148,11 +157,12 @@ class CompletenessTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return CompletenessTemplateResponseSchemaType0.from_dict(data)
+                response_schema_type_0 = CompletenessTemplateResponseSchemaType0.from_dict(data)
 
+                return response_schema_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["CompletenessTemplateResponseSchemaType0", None, Unset], data)
+            return cast(CompletenessTemplateResponseSchemaType0 | None | Unset, data)
 
         response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
 

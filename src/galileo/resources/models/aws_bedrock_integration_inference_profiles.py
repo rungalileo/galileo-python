@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -9,7 +11,7 @@ T = TypeVar("T", bound="AwsBedrockIntegrationInferenceProfiles")
 
 @_attrs_define
 class AwsBedrockIntegrationInferenceProfiles:
-    """Mapping from model name (Foundation model ID) to inference profile ARN or ID."""
+    """Mapping from model name (Foundation model ID) to inference profile ARN or ID"""
 
     additional_properties: dict[str, str] = _attrs_field(init=False, factory=dict)
 

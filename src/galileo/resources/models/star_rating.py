@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,26 +14,25 @@ T = TypeVar("T", bound="StarRating")
 @_attrs_define
 class StarRating:
     """
-    Attributes
-    ----------
+    Attributes:
         value (int):
-        feedback_type (Union[Literal['star'], Unset]):  Default: 'star'.
+        annotation_type (Literal['star'] | Unset):  Default: 'star'.
     """
 
     value: int
-    feedback_type: Union[Literal["star"], Unset] = "star"
+    annotation_type: Literal["star"] | Unset = "star"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         value = self.value
 
-        feedback_type = self.feedback_type
+        annotation_type = self.annotation_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"value": value})
-        if feedback_type is not UNSET:
-            field_dict["feedback_type"] = feedback_type
+        if annotation_type is not UNSET:
+            field_dict["annotation_type"] = annotation_type
 
         return field_dict
 
@@ -40,11 +41,11 @@ class StarRating:
         d = dict(src_dict)
         value = d.pop("value")
 
-        feedback_type = cast(Union[Literal["star"], Unset], d.pop("feedback_type", UNSET))
-        if feedback_type != "star" and not isinstance(feedback_type, Unset):
-            raise ValueError(f"feedback_type must match const 'star', got '{feedback_type}'")
+        annotation_type = cast(Literal["star"] | Unset, d.pop("annotation_type", UNSET))
+        if annotation_type != "star" and not isinstance(annotation_type, Unset):
+            raise ValueError(f"annotation_type must match const 'star', got '{annotation_type}'")
 
-        star_rating = cls(value=value, feedback_type=feedback_type)
+        star_rating = cls(value=value, annotation_type=annotation_type)
 
         star_rating.additional_properties = d
         return star_rating

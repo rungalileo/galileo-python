@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -38,12 +38,16 @@ def _get_kwargs(*, body: WriterIntegrationCreate) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, IntegrationDB]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | IntegrationDB:
     if response.status_code == 200:
-        return IntegrationDB.from_dict(response.json())
+        response_200 = IntegrationDB.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -63,9 +67,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, IntegrationDB]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | IntegrationDB]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -74,25 +76,22 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    *, client: ApiClient, body: WriterIntegrationCreate
-) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create or update Writer integration.
+def sync_detailed(*, client: ApiClient, body: WriterIntegrationCreate) -> Response[HTTPValidationError | IntegrationDB]:
+    """Create or update Writer integration
 
      Create or update a Writer integration for a user.
 
     Args:
         body (WriterIntegrationCreate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, IntegrationDB]]
+    Returns:
+        Response[HTTPValidationError | IntegrationDB]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -100,45 +99,43 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: WriterIntegrationCreate) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create or update Writer integration.
+def sync(*, client: ApiClient, body: WriterIntegrationCreate) -> Optional[HTTPValidationError | IntegrationDB]:
+    """Create or update Writer integration
 
      Create or update a Writer integration for a user.
 
     Args:
         body (WriterIntegrationCreate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, IntegrationDB]
+    Returns:
+        HTTPValidationError | IntegrationDB
     """
+
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: WriterIntegrationCreate
-) -> Response[Union[HTTPValidationError, IntegrationDB]]:
-    """Create or update Writer integration.
+) -> Response[HTTPValidationError | IntegrationDB]:
+    """Create or update Writer integration
 
      Create or update a Writer integration for a user.
 
     Args:
         body (WriterIntegrationCreate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, IntegrationDB]]
+    Returns:
+        Response[HTTPValidationError | IntegrationDB]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -146,23 +143,20 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *, client: ApiClient, body: WriterIntegrationCreate
-) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
-    """Create or update Writer integration.
+async def asyncio(*, client: ApiClient, body: WriterIntegrationCreate) -> Optional[HTTPValidationError | IntegrationDB]:
+    """Create or update Writer integration
 
      Create or update a Writer integration for a user.
 
     Args:
         body (WriterIntegrationCreate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, IntegrationDB]
+    Returns:
+        HTTPValidationError | IntegrationDB
     """
+
     return (await asyncio_detailed(client=client, body=body)).parsed

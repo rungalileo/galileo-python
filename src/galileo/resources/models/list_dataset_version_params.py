@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,18 +18,17 @@ T = TypeVar("T", bound="ListDatasetVersionParams")
 @_attrs_define
 class ListDatasetVersionParams:
     """
-    Attributes
-    ----------
-        sort (Union['DatasetVersionIndexSort', None, Unset]):
+    Attributes:
+        sort (DatasetVersionIndexSort | None | Unset):
     """
 
-    sort: Union["DatasetVersionIndexSort", None, Unset] = UNSET
+    sort: DatasetVersionIndexSort | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_version_index_sort import DatasetVersionIndexSort
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: dict[str, Any] | None | Unset
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(self.sort, DatasetVersionIndexSort):
@@ -49,7 +50,7 @@ class ListDatasetVersionParams:
 
         d = dict(src_dict)
 
-        def _parse_sort(data: object) -> Union["DatasetVersionIndexSort", None, Unset]:
+        def _parse_sort(data: object) -> DatasetVersionIndexSort | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -57,11 +58,12 @@ class ListDatasetVersionParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetVersionIndexSort.from_dict(data)
+                sort_type_0 = DatasetVersionIndexSort.from_dict(data)
 
+                return sort_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["DatasetVersionIndexSort", None, Unset], data)
+            return cast(DatasetVersionIndexSort | None | Unset, data)
 
         sort = _parse_sort(d.pop("sort", UNSET))
 

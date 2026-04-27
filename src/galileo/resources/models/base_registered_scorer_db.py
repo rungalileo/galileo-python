@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,16 +14,15 @@ T = TypeVar("T", bound="BaseRegisteredScorerDB")
 @_attrs_define
 class BaseRegisteredScorerDB:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         name (str):
-        score_type (Union[None, Unset, str]):
+        score_type (None | str | Unset):
     """
 
     id: str
     name: str
-    score_type: Union[None, Unset, str] = UNSET
+    score_type: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -29,8 +30,11 @@ class BaseRegisteredScorerDB:
 
         name = self.name
 
-        score_type: Union[None, Unset, str]
-        score_type = UNSET if isinstance(self.score_type, Unset) else self.score_type
+        score_type: None | str | Unset
+        if isinstance(self.score_type, Unset):
+            score_type = UNSET
+        else:
+            score_type = self.score_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -47,12 +51,12 @@ class BaseRegisteredScorerDB:
 
         name = d.pop("name")
 
-        def _parse_score_type(data: object) -> Union[None, Unset, str]:
+        def _parse_score_type(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         score_type = _parse_score_type(d.pop("score_type", UNSET))
 

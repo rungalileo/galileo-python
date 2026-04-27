@@ -28,7 +28,7 @@ def _get_kwargs(name: IntegrationName) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": f"/integrations/{name}",
+        "path": "/integrations/{name}".format(name=name),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -39,7 +39,9 @@ def _get_kwargs(name: IntegrationName) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError:
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -69,22 +71,21 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[HTTPValidationError]:
-    """Get Integration.
+    """Get Integration
 
      Gets the integration data formatted for the specified integration.
 
     Args:
         name (IntegrationName):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[HTTPValidationError]
     """
+
     kwargs = _get_kwargs(name=name)
 
     response = client.request(**kwargs)
@@ -93,42 +94,40 @@ def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[HTTPV
 
 
 def sync(name: IntegrationName, *, client: ApiClient) -> Optional[HTTPValidationError]:
-    """Get Integration.
+    """Get Integration
 
      Gets the integration data formatted for the specified integration.
 
     Args:
         name (IntegrationName):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         HTTPValidationError
     """
+
     return sync_detailed(name=name, client=client).parsed
 
 
 async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Response[HTTPValidationError]:
-    """Get Integration.
+    """Get Integration
 
      Gets the integration data formatted for the specified integration.
 
     Args:
         name (IntegrationName):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[HTTPValidationError]
     """
+
     kwargs = _get_kwargs(name=name)
 
     response = await client.arequest(**kwargs)
@@ -137,20 +136,19 @@ async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Respo
 
 
 async def asyncio(name: IntegrationName, *, client: ApiClient) -> Optional[HTTPValidationError]:
-    """Get Integration.
+    """Get Integration
 
      Gets the integration data formatted for the specified integration.
 
     Args:
         name (IntegrationName):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         HTTPValidationError
     """
+
     return (await asyncio_detailed(name=name, client=client)).parsed

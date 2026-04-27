@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,17 +22,16 @@ class CustomLLMConfig:
     Allows users to specify a custom implementation of litellm.CustomLLM
     that handles acompletion() calls with custom request/response transformation.
 
-    Attributes
-    ----------
+        Attributes:
             file_name (str): Python file name containing the CustomLLM class (e.g., 'my_handler.py')
             class_name (str): Class name within the module (must be a litellm.CustomLLM subclass)
-            init_kwargs (Union['CustomLLMConfigInitKwargsType0', None, Unset]): Optional keyword arguments to pass to the
-                CustomLLM constructor
+            init_kwargs (CustomLLMConfigInitKwargsType0 | None | Unset): Optional keyword arguments to pass to the CustomLLM
+                constructor
     """
 
     file_name: str
     class_name: str
-    init_kwargs: Union["CustomLLMConfigInitKwargsType0", None, Unset] = UNSET
+    init_kwargs: CustomLLMConfigInitKwargsType0 | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,7 +41,7 @@ class CustomLLMConfig:
 
         class_name = self.class_name
 
-        init_kwargs: Union[None, Unset, dict[str, Any]]
+        init_kwargs: dict[str, Any] | None | Unset
         if isinstance(self.init_kwargs, Unset):
             init_kwargs = UNSET
         elif isinstance(self.init_kwargs, CustomLLMConfigInitKwargsType0):
@@ -65,7 +66,7 @@ class CustomLLMConfig:
 
         class_name = d.pop("class_name")
 
-        def _parse_init_kwargs(data: object) -> Union["CustomLLMConfigInitKwargsType0", None, Unset]:
+        def _parse_init_kwargs(data: object) -> CustomLLMConfigInitKwargsType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -73,11 +74,12 @@ class CustomLLMConfig:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return CustomLLMConfigInitKwargsType0.from_dict(data)
+                init_kwargs_type_0 = CustomLLMConfigInitKwargsType0.from_dict(data)
 
+                return init_kwargs_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["CustomLLMConfigInitKwargsType0", None, Unset], data)
+            return cast(CustomLLMConfigInitKwargsType0 | None | Unset, data)
 
         init_kwargs = _parse_init_kwargs(d.pop("init_kwargs", UNSET))
 

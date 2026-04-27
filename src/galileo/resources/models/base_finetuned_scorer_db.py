@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,32 +26,31 @@ T = TypeVar("T", bound="BaseFinetunedScorerDB")
 @_attrs_define
 class BaseFinetunedScorerDB:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         name (str):
         lora_task_id (int):
         prompt (str):
-        lora_weights_path (Union[None, Unset, str]):
-        luna_input_type (Union[LunaInputTypeEnum, None, Unset]):
-        luna_output_type (Union[LunaOutputTypeEnum, None, Unset]):
-        class_name_to_vocab_ix (Union['BaseFinetunedScorerDBClassNameToVocabIxType0',
-            'BaseFinetunedScorerDBClassNameToVocabIxType1', None, Unset]):
-        executor (Union[CoreScorerName, None, Unset]): Executor pipeline. Defaults to finetuned scorer pipeline but can
-            run custom galileo score pipelines.
+        lora_weights_path (None | str | Unset):
+        luna_input_type (LunaInputTypeEnum | None | Unset):
+        luna_output_type (LunaOutputTypeEnum | None | Unset):
+        class_name_to_vocab_ix (BaseFinetunedScorerDBClassNameToVocabIxType0 |
+            BaseFinetunedScorerDBClassNameToVocabIxType1 | None | Unset):
+        executor (CoreScorerName | None | Unset): Executor pipeline. Defaults to finetuned scorer pipeline but can run
+            custom galileo score pipelines.
     """
 
     id: str
     name: str
     lora_task_id: int
     prompt: str
-    lora_weights_path: Union[None, Unset, str] = UNSET
-    luna_input_type: Union[LunaInputTypeEnum, None, Unset] = UNSET
-    luna_output_type: Union[LunaOutputTypeEnum, None, Unset] = UNSET
-    class_name_to_vocab_ix: Union[
-        "BaseFinetunedScorerDBClassNameToVocabIxType0", "BaseFinetunedScorerDBClassNameToVocabIxType1", None, Unset
-    ] = UNSET
-    executor: Union[CoreScorerName, None, Unset] = UNSET
+    lora_weights_path: None | str | Unset = UNSET
+    luna_input_type: LunaInputTypeEnum | None | Unset = UNSET
+    luna_output_type: LunaOutputTypeEnum | None | Unset = UNSET
+    class_name_to_vocab_ix: (
+        BaseFinetunedScorerDBClassNameToVocabIxType0 | BaseFinetunedScorerDBClassNameToVocabIxType1 | None | Unset
+    ) = UNSET
+    executor: CoreScorerName | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -68,10 +69,13 @@ class BaseFinetunedScorerDB:
 
         prompt = self.prompt
 
-        lora_weights_path: Union[None, Unset, str]
-        lora_weights_path = UNSET if isinstance(self.lora_weights_path, Unset) else self.lora_weights_path
+        lora_weights_path: None | str | Unset
+        if isinstance(self.lora_weights_path, Unset):
+            lora_weights_path = UNSET
+        else:
+            lora_weights_path = self.lora_weights_path
 
-        luna_input_type: Union[None, Unset, str]
+        luna_input_type: None | str | Unset
         if isinstance(self.luna_input_type, Unset):
             luna_input_type = UNSET
         elif isinstance(self.luna_input_type, LunaInputTypeEnum):
@@ -79,7 +83,7 @@ class BaseFinetunedScorerDB:
         else:
             luna_input_type = self.luna_input_type
 
-        luna_output_type: Union[None, Unset, str]
+        luna_output_type: None | str | Unset
         if isinstance(self.luna_output_type, Unset):
             luna_output_type = UNSET
         elif isinstance(self.luna_output_type, LunaOutputTypeEnum):
@@ -87,18 +91,17 @@ class BaseFinetunedScorerDB:
         else:
             luna_output_type = self.luna_output_type
 
-        class_name_to_vocab_ix: Union[None, Unset, dict[str, Any]]
+        class_name_to_vocab_ix: dict[str, Any] | None | Unset
         if isinstance(self.class_name_to_vocab_ix, Unset):
             class_name_to_vocab_ix = UNSET
-        elif isinstance(
-            self.class_name_to_vocab_ix,
-            (BaseFinetunedScorerDBClassNameToVocabIxType0, BaseFinetunedScorerDBClassNameToVocabIxType1),
-        ):
+        elif isinstance(self.class_name_to_vocab_ix, BaseFinetunedScorerDBClassNameToVocabIxType0):
+            class_name_to_vocab_ix = self.class_name_to_vocab_ix.to_dict()
+        elif isinstance(self.class_name_to_vocab_ix, BaseFinetunedScorerDBClassNameToVocabIxType1):
             class_name_to_vocab_ix = self.class_name_to_vocab_ix.to_dict()
         else:
             class_name_to_vocab_ix = self.class_name_to_vocab_ix
 
-        executor: Union[None, Unset, str]
+        executor: None | str | Unset
         if isinstance(self.executor, Unset):
             executor = UNSET
         elif isinstance(self.executor, CoreScorerName):
@@ -140,16 +143,16 @@ class BaseFinetunedScorerDB:
 
         prompt = d.pop("prompt")
 
-        def _parse_lora_weights_path(data: object) -> Union[None, Unset, str]:
+        def _parse_lora_weights_path(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         lora_weights_path = _parse_lora_weights_path(d.pop("lora_weights_path", UNSET))
 
-        def _parse_luna_input_type(data: object) -> Union[LunaInputTypeEnum, None, Unset]:
+        def _parse_luna_input_type(data: object) -> LunaInputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -157,15 +160,16 @@ class BaseFinetunedScorerDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return LunaInputTypeEnum(data)
+                luna_input_type_type_0 = LunaInputTypeEnum(data)
 
+                return luna_input_type_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[LunaInputTypeEnum, None, Unset], data)
+            return cast(LunaInputTypeEnum | None | Unset, data)
 
         luna_input_type = _parse_luna_input_type(d.pop("luna_input_type", UNSET))
 
-        def _parse_luna_output_type(data: object) -> Union[LunaOutputTypeEnum, None, Unset]:
+        def _parse_luna_output_type(data: object) -> LunaOutputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -173,19 +177,18 @@ class BaseFinetunedScorerDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return LunaOutputTypeEnum(data)
+                luna_output_type_type_0 = LunaOutputTypeEnum(data)
 
+                return luna_output_type_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[LunaOutputTypeEnum, None, Unset], data)
+            return cast(LunaOutputTypeEnum | None | Unset, data)
 
         luna_output_type = _parse_luna_output_type(d.pop("luna_output_type", UNSET))
 
         def _parse_class_name_to_vocab_ix(
             data: object,
-        ) -> Union[
-            "BaseFinetunedScorerDBClassNameToVocabIxType0", "BaseFinetunedScorerDBClassNameToVocabIxType1", None, Unset
-        ]:
+        ) -> BaseFinetunedScorerDBClassNameToVocabIxType0 | BaseFinetunedScorerDBClassNameToVocabIxType1 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -193,30 +196,30 @@ class BaseFinetunedScorerDB:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return BaseFinetunedScorerDBClassNameToVocabIxType0.from_dict(data)
+                class_name_to_vocab_ix_type_0 = BaseFinetunedScorerDBClassNameToVocabIxType0.from_dict(data)
 
+                return class_name_to_vocab_ix_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return BaseFinetunedScorerDBClassNameToVocabIxType1.from_dict(data)
+                class_name_to_vocab_ix_type_1 = BaseFinetunedScorerDBClassNameToVocabIxType1.from_dict(data)
 
+                return class_name_to_vocab_ix_type_1
             except:  # noqa: E722
                 pass
             return cast(
-                Union[
-                    "BaseFinetunedScorerDBClassNameToVocabIxType0",
-                    "BaseFinetunedScorerDBClassNameToVocabIxType1",
-                    None,
-                    Unset,
-                ],
+                BaseFinetunedScorerDBClassNameToVocabIxType0
+                | BaseFinetunedScorerDBClassNameToVocabIxType1
+                | None
+                | Unset,
                 data,
             )
 
         class_name_to_vocab_ix = _parse_class_name_to_vocab_ix(d.pop("class_name_to_vocab_ix", UNSET))
 
-        def _parse_executor(data: object) -> Union[CoreScorerName, None, Unset]:
+        def _parse_executor(data: object) -> CoreScorerName | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -224,11 +227,12 @@ class BaseFinetunedScorerDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return CoreScorerName(data)
+                executor_type_0 = CoreScorerName(data)
 
+                return executor_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[CoreScorerName, None, Unset], data)
+            return cast(CoreScorerName | None | Unset, data)
 
         executor = _parse_executor(d.pop("executor", UNSET))
 

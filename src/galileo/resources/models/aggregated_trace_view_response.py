@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,22 +20,21 @@ T = TypeVar("T", bound="AggregatedTraceViewResponse")
 @_attrs_define
 class AggregatedTraceViewResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         graph (AggregatedTraceViewGraph):
         num_traces (int): Number of traces in the aggregated view
         num_sessions (int): Number of sessions in the aggregated view
         has_all_traces (bool): Whether all traces were returned
-        start_time (Union[None, Unset, datetime.datetime]): created_at of earliest record of the aggregated view
-        end_time (Union[None, Unset, datetime.datetime]): created_at of latest record of the aggregated view.
+        start_time (datetime.datetime | None | Unset): created_at of earliest record of the aggregated view
+        end_time (datetime.datetime | None | Unset): created_at of latest record of the aggregated view
     """
 
-    graph: "AggregatedTraceViewGraph"
+    graph: AggregatedTraceViewGraph
     num_traces: int
     num_sessions: int
     has_all_traces: bool
-    start_time: Union[None, Unset, datetime.datetime] = UNSET
-    end_time: Union[None, Unset, datetime.datetime] = UNSET
+    start_time: datetime.datetime | None | Unset = UNSET
+    end_time: datetime.datetime | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -45,7 +46,7 @@ class AggregatedTraceViewResponse:
 
         has_all_traces = self.has_all_traces
 
-        start_time: Union[None, Unset, str]
+        start_time: None | str | Unset
         if isinstance(self.start_time, Unset):
             start_time = UNSET
         elif isinstance(self.start_time, datetime.datetime):
@@ -53,7 +54,7 @@ class AggregatedTraceViewResponse:
         else:
             start_time = self.start_time
 
-        end_time: Union[None, Unset, str]
+        end_time: None | str | Unset
         if isinstance(self.end_time, Unset):
             end_time = UNSET
         elif isinstance(self.end_time, datetime.datetime):
@@ -86,7 +87,7 @@ class AggregatedTraceViewResponse:
 
         has_all_traces = d.pop("has_all_traces")
 
-        def _parse_start_time(data: object) -> Union[None, Unset, datetime.datetime]:
+        def _parse_start_time(data: object) -> datetime.datetime | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -94,15 +95,16 @@ class AggregatedTraceViewResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return isoparse(data)
+                start_time_type_0 = isoparse(data)
 
+                return start_time_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, datetime.datetime], data)
+            return cast(datetime.datetime | None | Unset, data)
 
         start_time = _parse_start_time(d.pop("start_time", UNSET))
 
-        def _parse_end_time(data: object) -> Union[None, Unset, datetime.datetime]:
+        def _parse_end_time(data: object) -> datetime.datetime | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -110,11 +112,12 @@ class AggregatedTraceViewResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return isoparse(data)
+                end_time_type_0 = isoparse(data)
 
+                return end_time_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, datetime.datetime], data)
+            return cast(datetime.datetime | None | Unset, data)
 
         end_time = _parse_end_time(d.pop("end_time", UNSET))
 

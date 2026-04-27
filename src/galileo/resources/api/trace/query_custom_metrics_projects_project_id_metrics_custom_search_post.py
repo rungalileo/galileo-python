@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsCustomMetricsQueryRequest) -
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/metrics/custom_search",
+        "path": "/projects/{project_id}/metrics/custom_search".format(project_id=project_id),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -42,14 +42,16 @@ def _get_kwargs(project_id: str, *, body: LogRecordsCustomMetricsQueryRequest) -
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, LogRecordsMetricsResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | LogRecordsMetricsResponse:
     if response.status_code == 200:
-        return LogRecordsMetricsResponse.from_dict(response.json())
+        response_200 = LogRecordsMetricsResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -71,7 +73,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, LogRecordsMetricsResponse]]:
+) -> Response[HTTPValidationError | LogRecordsMetricsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,22 +84,21 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsCustomMetricsQueryRequest
-) -> Response[Union[HTTPValidationError, LogRecordsMetricsResponse]]:
-    """Query Custom Metrics.
+) -> Response[HTTPValidationError | LogRecordsMetricsResponse]:
+    """Query Custom Metrics
 
     Args:
         project_id (str):
         body (LogRecordsCustomMetricsQueryRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, LogRecordsMetricsResponse]]
+    Returns:
+        Response[HTTPValidationError | LogRecordsMetricsResponse]
     """
+
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = client.request(**kwargs)
@@ -107,43 +108,41 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: LogRecordsCustomMetricsQueryRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsMetricsResponse]]:
-    """Query Custom Metrics.
+) -> Optional[HTTPValidationError | LogRecordsMetricsResponse]:
+    """Query Custom Metrics
 
     Args:
         project_id (str):
         body (LogRecordsCustomMetricsQueryRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, LogRecordsMetricsResponse]
+    Returns:
+        HTTPValidationError | LogRecordsMetricsResponse
     """
+
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsCustomMetricsQueryRequest
-) -> Response[Union[HTTPValidationError, LogRecordsMetricsResponse]]:
-    """Query Custom Metrics.
+) -> Response[HTTPValidationError | LogRecordsMetricsResponse]:
+    """Query Custom Metrics
 
     Args:
         project_id (str):
         body (LogRecordsCustomMetricsQueryRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, LogRecordsMetricsResponse]]
+    Returns:
+        Response[HTTPValidationError | LogRecordsMetricsResponse]
     """
+
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -153,20 +152,19 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsCustomMetricsQueryRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsMetricsResponse]]:
-    """Query Custom Metrics.
+) -> Optional[HTTPValidationError | LogRecordsMetricsResponse]:
+    """Query Custom Metrics
 
     Args:
         project_id (str):
         body (LogRecordsCustomMetricsQueryRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, LogRecordsMetricsResponse]
+    Returns:
+        HTTPValidationError | LogRecordsMetricsResponse
     """
+
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

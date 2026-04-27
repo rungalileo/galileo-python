@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,18 +14,19 @@ T = TypeVar("T", bound="AnnotationLikeDislikeAggregate")
 @_attrs_define
 class AnnotationLikeDislikeAggregate:
     """
-    Attributes
-    ----------
+    Attributes:
         like_count (int):
         dislike_count (int):
         unrated_count (int):
-        annotation_type (Union[Literal['like_dislike'], Unset]):  Default: 'like_dislike'.
+        annotation_type (Literal['like_dislike'] | Unset):  Default: 'like_dislike'.
+        tie_count (int | None | Unset):
     """
 
     like_count: int
     dislike_count: int
     unrated_count: int
-    annotation_type: Union[Literal["like_dislike"], Unset] = "like_dislike"
+    annotation_type: Literal["like_dislike"] | Unset = "like_dislike"
+    tie_count: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,11 +38,19 @@ class AnnotationLikeDislikeAggregate:
 
         annotation_type = self.annotation_type
 
+        tie_count: int | None | Unset
+        if isinstance(self.tie_count, Unset):
+            tie_count = UNSET
+        else:
+            tie_count = self.tie_count
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"like_count": like_count, "dislike_count": dislike_count, "unrated_count": unrated_count})
         if annotation_type is not UNSET:
             field_dict["annotation_type"] = annotation_type
+        if tie_count is not UNSET:
+            field_dict["tie_count"] = tie_count
 
         return field_dict
 
@@ -52,15 +63,25 @@ class AnnotationLikeDislikeAggregate:
 
         unrated_count = d.pop("unrated_count")
 
-        annotation_type = cast(Union[Literal["like_dislike"], Unset], d.pop("annotation_type", UNSET))
+        annotation_type = cast(Literal["like_dislike"] | Unset, d.pop("annotation_type", UNSET))
         if annotation_type != "like_dislike" and not isinstance(annotation_type, Unset):
             raise ValueError(f"annotation_type must match const 'like_dislike', got '{annotation_type}'")
+
+        def _parse_tie_count(data: object) -> int | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(int | None | Unset, data)
+
+        tie_count = _parse_tie_count(d.pop("tie_count", UNSET))
 
         annotation_like_dislike_aggregate = cls(
             like_count=like_count,
             dislike_count=dislike_count,
             unrated_count=unrated_count,
             annotation_type=annotation_type,
+            tie_count=tie_count,
         )
 
         annotation_like_dislike_aggregate.additional_properties = d

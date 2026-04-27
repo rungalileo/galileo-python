@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,14 +17,13 @@ T = TypeVar("T", bound="RenderTemplateRequest")
 @_attrs_define
 class RenderTemplateRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         template (str):
-        data (Union['DatasetData', 'StringData']):
+        data (DatasetData | StringData):
     """
 
     template: str
-    data: Union["DatasetData", "StringData"]
+    data: DatasetData | StringData
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -31,7 +32,10 @@ class RenderTemplateRequest:
         template = self.template
 
         data: dict[str, Any]
-        data = self.data.to_dict() if isinstance(self.data, DatasetData) else self.data.to_dict()
+        if isinstance(self.data, DatasetData):
+            data = self.data.to_dict()
+        else:
+            data = self.data.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -47,17 +51,20 @@ class RenderTemplateRequest:
         d = dict(src_dict)
         template = d.pop("template")
 
-        def _parse_data(data: object) -> Union["DatasetData", "StringData"]:
+        def _parse_data(data: object) -> DatasetData | StringData:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetData.from_dict(data)
+                data_type_0 = DatasetData.from_dict(data)
 
+                return data_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return StringData.from_dict(data)
+            data_type_1 = StringData.from_dict(data)
+
+            return data_type_1
 
         data = _parse_data(d.pop("data"))
 

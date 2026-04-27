@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,20 +15,19 @@ T = TypeVar("T", bound="ProjectIDFilter")
 @_attrs_define
 class ProjectIDFilter:
     """
-    Attributes
-    ----------
-        value (Union[list[str], str]):
-        name (Union[Literal['id'], Unset]):  Default: 'id'.
-        operator (Union[Unset, ProjectIDFilterOperator]):  Default: ProjectIDFilterOperator.EQ.
+    Attributes:
+        value (list[str] | str):
+        name (Literal['id'] | Unset):  Default: 'id'.
+        operator (ProjectIDFilterOperator | Unset):  Default: ProjectIDFilterOperator.EQ.
     """
 
-    value: Union[list[str], str]
-    name: Union[Literal["id"], Unset] = "id"
-    operator: Union[Unset, ProjectIDFilterOperator] = ProjectIDFilterOperator.EQ
+    value: list[str] | str
+    name: Literal["id"] | Unset = "id"
+    operator: ProjectIDFilterOperator | Unset = ProjectIDFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        value: Union[list[str], str]
+        value: list[str] | str
         if isinstance(self.value, list):
             value = []
             for value_type_1_item_data in self.value:
@@ -39,7 +40,7 @@ class ProjectIDFilter:
 
         name = self.name
 
-        operator: Union[Unset, str] = UNSET
+        operator: str | Unset = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -57,7 +58,7 @@ class ProjectIDFilter:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_value(data: object) -> Union[list[str], str]:
+        def _parse_value(data: object) -> list[str] | str:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
@@ -75,17 +76,20 @@ class ProjectIDFilter:
                 return value_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[list[str], str], data)
+            return cast(list[str] | str, data)
 
         value = _parse_value(d.pop("value"))
 
-        name = cast(Union[Literal["id"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["id"] | Unset, d.pop("name", UNSET))
         if name != "id" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'id', got '{name}'")
 
         _operator = d.pop("operator", UNSET)
-        operator: Union[Unset, ProjectIDFilterOperator]
-        operator = UNSET if isinstance(_operator, Unset) else ProjectIDFilterOperator(_operator)
+        operator: ProjectIDFilterOperator | Unset
+        if isinstance(_operator, Unset):
+            operator = UNSET
+        else:
+            operator = ProjectIDFilterOperator(_operator)
 
         project_id_filter = cls(value=value, name=name, operator=operator)
 

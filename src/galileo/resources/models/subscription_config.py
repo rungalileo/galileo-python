@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,22 +15,21 @@ T = TypeVar("T", bound="SubscriptionConfig")
 @_attrs_define
 class SubscriptionConfig:
     """
-    Attributes
-    ----------
+    Attributes:
         url (str): URL to send the event to. This can be a webhook URL, a message queue URL, an event bus or a custom
             endpoint that can receive an HTTP POST request.
-        statuses (Union[Unset, list[ExecutionStatus]]): List of statuses that will cause a notification to be sent to
-            the configured URL.
+        statuses (list[ExecutionStatus] | Unset): List of statuses that will cause a notification to be sent to the
+            configured URL.
     """
 
     url: str
-    statuses: Union[Unset, list[ExecutionStatus]] = UNSET
+    statuses: list[ExecutionStatus] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         url = self.url
 
-        statuses: Union[Unset, list[str]] = UNSET
+        statuses: list[str] | Unset = UNSET
         if not isinstance(self.statuses, Unset):
             statuses = []
             for statuses_item_data in self.statuses:
@@ -48,12 +49,14 @@ class SubscriptionConfig:
         d = dict(src_dict)
         url = d.pop("url")
 
-        statuses = []
         _statuses = d.pop("statuses", UNSET)
-        for statuses_item_data in _statuses or []:
-            statuses_item = ExecutionStatus(statuses_item_data)
+        statuses: list[ExecutionStatus] | Unset = UNSET
+        if _statuses is not UNSET:
+            statuses = []
+            for statuses_item_data in _statuses:
+                statuses_item = ExecutionStatus(statuses_item_data)
 
-            statuses.append(statuses_item)
+                statuses.append(statuses_item)
 
         subscription_config = cls(url=url, statuses=statuses)
 

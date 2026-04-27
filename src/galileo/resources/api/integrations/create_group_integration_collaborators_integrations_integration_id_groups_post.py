@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -23,13 +23,13 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(integration_id: str, *, body: list["GroupCollaboratorCreate"]) -> dict[str, Any]:
+def _get_kwargs(integration_id: str, *, body: list[GroupCollaboratorCreate]) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": f"/integrations/{integration_id}/groups",
+        "path": "/integrations/{integration_id}/groups".format(integration_id=integration_id),
     }
 
     _kwargs["json"] = []
@@ -45,9 +45,7 @@ def _get_kwargs(integration_id: str, *, body: list["GroupCollaboratorCreate"]) -
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, list["GroupCollaborator"]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list[GroupCollaborator]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -59,7 +57,9 @@ def _parse_response(
         return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -81,7 +81,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
+) -> Response[HTTPValidationError | list[GroupCollaborator]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -91,25 +91,24 @@ def _build_response(
 
 
 def sync_detailed(
-    integration_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
-    """Create Group Integration Collaborators.
+    integration_id: str, *, client: ApiClient, body: list[GroupCollaboratorCreate]
+) -> Response[HTTPValidationError | list[GroupCollaborator]]:
+    """Create Group Integration Collaborators
 
      Share an integration with groups.
 
     Args:
         integration_id (str):
-        body (list['GroupCollaboratorCreate']):
+        body (list[GroupCollaboratorCreate]):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, list['GroupCollaborator']]]
+    Returns:
+        Response[HTTPValidationError | list[GroupCollaborator]]
     """
+
     kwargs = _get_kwargs(integration_id=integration_id, body=body)
 
     response = client.request(**kwargs)
@@ -118,48 +117,46 @@ def sync_detailed(
 
 
 def sync(
-    integration_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
-    """Create Group Integration Collaborators.
+    integration_id: str, *, client: ApiClient, body: list[GroupCollaboratorCreate]
+) -> Optional[HTTPValidationError | list[GroupCollaborator]]:
+    """Create Group Integration Collaborators
 
      Share an integration with groups.
 
     Args:
         integration_id (str):
-        body (list['GroupCollaboratorCreate']):
+        body (list[GroupCollaboratorCreate]):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, list['GroupCollaborator']]
+    Returns:
+        HTTPValidationError | list[GroupCollaborator]
     """
+
     return sync_detailed(integration_id=integration_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    integration_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
-    """Create Group Integration Collaborators.
+    integration_id: str, *, client: ApiClient, body: list[GroupCollaboratorCreate]
+) -> Response[HTTPValidationError | list[GroupCollaborator]]:
+    """Create Group Integration Collaborators
 
      Share an integration with groups.
 
     Args:
         integration_id (str):
-        body (list['GroupCollaboratorCreate']):
+        body (list[GroupCollaboratorCreate]):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, list['GroupCollaborator']]]
+    Returns:
+        Response[HTTPValidationError | list[GroupCollaborator]]
     """
+
     kwargs = _get_kwargs(integration_id=integration_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -168,23 +165,22 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    integration_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
-    """Create Group Integration Collaborators.
+    integration_id: str, *, client: ApiClient, body: list[GroupCollaboratorCreate]
+) -> Optional[HTTPValidationError | list[GroupCollaborator]]:
+    """Create Group Integration Collaborators
 
      Share an integration with groups.
 
     Args:
         integration_id (str):
-        body (list['GroupCollaboratorCreate']):
+        body (list[GroupCollaboratorCreate]):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, list['GroupCollaborator']]
+    Returns:
+        HTTPValidationError | list[GroupCollaborator]
     """
+
     return (await asyncio_detailed(integration_id=integration_id, client=client, body=body)).parsed

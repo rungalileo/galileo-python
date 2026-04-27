@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,12 +20,11 @@ T = TypeVar("T", bound="FeedbackAggregate")
 @_attrs_define
 class FeedbackAggregate:
     """
-    Attributes
-    ----------
-        aggregate (Union['LikeDislikeAggregate', 'ScoreAggregate', 'StarAggregate', 'TagsAggregate', 'TextAggregate']):
+    Attributes:
+        aggregate (LikeDislikeAggregate | ScoreAggregate | StarAggregate | TagsAggregate | TextAggregate):
     """
 
-    aggregate: Union["LikeDislikeAggregate", "ScoreAggregate", "StarAggregate", "TagsAggregate", "TextAggregate"]
+    aggregate: LikeDislikeAggregate | ScoreAggregate | StarAggregate | TagsAggregate | TextAggregate
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,7 +34,13 @@ class FeedbackAggregate:
         from ..models.tags_aggregate import TagsAggregate
 
         aggregate: dict[str, Any]
-        if isinstance(self.aggregate, (LikeDislikeAggregate, StarAggregate, ScoreAggregate, TagsAggregate)):
+        if isinstance(self.aggregate, LikeDislikeAggregate):
+            aggregate = self.aggregate.to_dict()
+        elif isinstance(self.aggregate, StarAggregate):
+            aggregate = self.aggregate.to_dict()
+        elif isinstance(self.aggregate, ScoreAggregate):
+            aggregate = self.aggregate.to_dict()
+        elif isinstance(self.aggregate, TagsAggregate):
             aggregate = self.aggregate.to_dict()
         else:
             aggregate = self.aggregate.to_dict()
@@ -56,38 +63,44 @@ class FeedbackAggregate:
 
         def _parse_aggregate(
             data: object,
-        ) -> Union["LikeDislikeAggregate", "ScoreAggregate", "StarAggregate", "TagsAggregate", "TextAggregate"]:
+        ) -> LikeDislikeAggregate | ScoreAggregate | StarAggregate | TagsAggregate | TextAggregate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LikeDislikeAggregate.from_dict(data)
+                aggregate_type_0 = LikeDislikeAggregate.from_dict(data)
 
+                return aggregate_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return StarAggregate.from_dict(data)
+                aggregate_type_1 = StarAggregate.from_dict(data)
 
+                return aggregate_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ScoreAggregate.from_dict(data)
+                aggregate_type_2 = ScoreAggregate.from_dict(data)
 
+                return aggregate_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return TagsAggregate.from_dict(data)
+                aggregate_type_3 = TagsAggregate.from_dict(data)
 
+                return aggregate_type_3
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return TextAggregate.from_dict(data)
+            aggregate_type_4 = TextAggregate.from_dict(data)
+
+            return aggregate_type_4
 
         aggregate = _parse_aggregate(d.pop("aggregate"))
 

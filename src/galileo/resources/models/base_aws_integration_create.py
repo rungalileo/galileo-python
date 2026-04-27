@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,22 +21,21 @@ T = TypeVar("T", bound="BaseAwsIntegrationCreate")
 @_attrs_define
 class BaseAwsIntegrationCreate:
     """
-    Attributes
-    ----------
+    Attributes:
         token (BaseAwsIntegrationCreateToken):
-        multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
+        multi_modal_config (MultiModalModelIntegrationConfig | None | Unset): Configuration for multi-modal (file
             upload) capabilities.
-        credential_type (Union[Unset, AwsCredentialType]):
-        region (Union[Unset, str]):  Default: 'us-west-2'.
-        inference_profiles (Union[Unset, BaseAwsIntegrationCreateInferenceProfiles]): Mapping from model name
-            (Foundation model ID) to inference profile ARN or ID.
+        credential_type (AwsCredentialType | Unset):
+        region (str | Unset):  Default: 'us-west-2'.
+        inference_profiles (BaseAwsIntegrationCreateInferenceProfiles | Unset): Mapping from model name (Foundation
+            model ID) to inference profile ARN or ID
     """
 
-    token: "BaseAwsIntegrationCreateToken"
-    multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
-    credential_type: Union[Unset, AwsCredentialType] = UNSET
-    region: Union[Unset, str] = "us-west-2"
-    inference_profiles: Union[Unset, "BaseAwsIntegrationCreateInferenceProfiles"] = UNSET
+    token: BaseAwsIntegrationCreateToken
+    multi_modal_config: MultiModalModelIntegrationConfig | None | Unset = UNSET
+    credential_type: AwsCredentialType | Unset = UNSET
+    region: str | Unset = "us-west-2"
+    inference_profiles: BaseAwsIntegrationCreateInferenceProfiles | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,7 +43,7 @@ class BaseAwsIntegrationCreate:
 
         token = self.token.to_dict()
 
-        multi_modal_config: Union[None, Unset, dict[str, Any]]
+        multi_modal_config: dict[str, Any] | None | Unset
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -50,13 +51,13 @@ class BaseAwsIntegrationCreate:
         else:
             multi_modal_config = self.multi_modal_config
 
-        credential_type: Union[Unset, str] = UNSET
+        credential_type: str | Unset = UNSET
         if not isinstance(self.credential_type, Unset):
             credential_type = self.credential_type.value
 
         region = self.region
 
-        inference_profiles: Union[Unset, dict[str, Any]] = UNSET
+        inference_profiles: dict[str, Any] | Unset = UNSET
         if not isinstance(self.inference_profiles, Unset):
             inference_profiles = self.inference_profiles.to_dict()
 
@@ -83,7 +84,7 @@ class BaseAwsIntegrationCreate:
         d = dict(src_dict)
         token = BaseAwsIntegrationCreateToken.from_dict(d.pop("token"))
 
-        def _parse_multi_modal_config(data: object) -> Union["MultiModalModelIntegrationConfig", None, Unset]:
+        def _parse_multi_modal_config(data: object) -> MultiModalModelIntegrationConfig | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -91,22 +92,26 @@ class BaseAwsIntegrationCreate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MultiModalModelIntegrationConfig.from_dict(data)
+                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
 
+                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
+            return cast(MultiModalModelIntegrationConfig | None | Unset, data)
 
         multi_modal_config = _parse_multi_modal_config(d.pop("multi_modal_config", UNSET))
 
         _credential_type = d.pop("credential_type", UNSET)
-        credential_type: Union[Unset, AwsCredentialType]
-        credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
+        credential_type: AwsCredentialType | Unset
+        if isinstance(_credential_type, Unset):
+            credential_type = UNSET
+        else:
+            credential_type = AwsCredentialType(_credential_type)
 
         region = d.pop("region", UNSET)
 
         _inference_profiles = d.pop("inference_profiles", UNSET)
-        inference_profiles: Union[Unset, BaseAwsIntegrationCreateInferenceProfiles]
+        inference_profiles: BaseAwsIntegrationCreateInferenceProfiles | Unset
         if isinstance(_inference_profiles, Unset):
             inference_profiles = UNSET
         else:

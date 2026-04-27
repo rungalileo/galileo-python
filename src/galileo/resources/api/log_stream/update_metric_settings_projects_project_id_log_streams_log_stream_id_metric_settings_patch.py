@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -29,7 +29,9 @@ def _get_kwargs(project_id: str, log_stream_id: str, *, body: MetricSettingsRequ
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PATCH,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/log_streams/{log_stream_id}/metric_settings",
+        "path": "/projects/{project_id}/log_streams/{log_stream_id}/metric_settings".format(
+            project_id=project_id, log_stream_id=log_stream_id
+        ),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -42,14 +44,16 @@ def _get_kwargs(project_id: str, log_stream_id: str, *, body: MetricSettingsRequ
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, MetricSettingsResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | MetricSettingsResponse:
     if response.status_code == 200:
-        return MetricSettingsResponse.from_dict(response.json())
+        response_200 = MetricSettingsResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -71,7 +75,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, MetricSettingsResponse]]:
+) -> Response[HTTPValidationError | MetricSettingsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,23 +86,22 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: MetricSettingsRequest
-) -> Response[Union[HTTPValidationError, MetricSettingsResponse]]:
-    """Update Metric Settings.
+) -> Response[HTTPValidationError | MetricSettingsResponse]:
+    """Update Metric Settings
 
     Args:
         project_id (str):
         log_stream_id (str):
         body (MetricSettingsRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, MetricSettingsResponse]]
+    Returns:
+        Response[HTTPValidationError | MetricSettingsResponse]
     """
+
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id, body=body)
 
     response = client.request(**kwargs)
@@ -108,45 +111,43 @@ def sync_detailed(
 
 def sync(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: MetricSettingsRequest
-) -> Optional[Union[HTTPValidationError, MetricSettingsResponse]]:
-    """Update Metric Settings.
+) -> Optional[HTTPValidationError | MetricSettingsResponse]:
+    """Update Metric Settings
 
     Args:
         project_id (str):
         log_stream_id (str):
         body (MetricSettingsRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, MetricSettingsResponse]
+    Returns:
+        HTTPValidationError | MetricSettingsResponse
     """
+
     return sync_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: MetricSettingsRequest
-) -> Response[Union[HTTPValidationError, MetricSettingsResponse]]:
-    """Update Metric Settings.
+) -> Response[HTTPValidationError | MetricSettingsResponse]:
+    """Update Metric Settings
 
     Args:
         project_id (str):
         log_stream_id (str):
         body (MetricSettingsRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, MetricSettingsResponse]]
+    Returns:
+        Response[HTTPValidationError | MetricSettingsResponse]
     """
+
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -156,21 +157,20 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: MetricSettingsRequest
-) -> Optional[Union[HTTPValidationError, MetricSettingsResponse]]:
-    """Update Metric Settings.
+) -> Optional[HTTPValidationError | MetricSettingsResponse]:
+    """Update Metric Settings
 
     Args:
         project_id (str):
         log_stream_id (str):
         body (MetricSettingsRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, MetricSettingsResponse]
+    Returns:
+        HTTPValidationError | MetricSettingsResponse
     """
+
     return (await asyncio_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client, body=body)).parsed

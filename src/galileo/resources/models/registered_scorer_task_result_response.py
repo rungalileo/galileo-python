@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,20 +21,19 @@ T = TypeVar("T", bound="RegisteredScorerTaskResultResponse")
 @_attrs_define
 class RegisteredScorerTaskResultResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         status (TaskResultStatus):
-        result (Union['ValidateRegisteredScorerResult', None, Unset, str]):
+        result (None | str | Unset | ValidateRegisteredScorerResult):
     """
 
     id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
     status: TaskResultStatus
-    result: Union["ValidateRegisteredScorerResult", None, Unset, str] = UNSET
+    result: None | str | Unset | ValidateRegisteredScorerResult = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,7 +47,7 @@ class RegisteredScorerTaskResultResponse:
 
         status = self.status.value
 
-        result: Union[None, Unset, dict[str, Any], str]
+        result: dict[str, Any] | None | str | Unset
         if isinstance(self.result, Unset):
             result = UNSET
         elif isinstance(self.result, ValidateRegisteredScorerResult):
@@ -75,7 +76,7 @@ class RegisteredScorerTaskResultResponse:
 
         status = TaskResultStatus(d.pop("status"))
 
-        def _parse_result(data: object) -> Union["ValidateRegisteredScorerResult", None, Unset, str]:
+        def _parse_result(data: object) -> None | str | Unset | ValidateRegisteredScorerResult:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -83,11 +84,12 @@ class RegisteredScorerTaskResultResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ValidateRegisteredScorerResult.from_dict(data)
+                result_type_0 = ValidateRegisteredScorerResult.from_dict(data)
 
+                return result_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["ValidateRegisteredScorerResult", None, Unset, str], data)
+            return cast(None | str | Unset | ValidateRegisteredScorerResult, data)
 
         result = _parse_result(d.pop("result", UNSET))
 

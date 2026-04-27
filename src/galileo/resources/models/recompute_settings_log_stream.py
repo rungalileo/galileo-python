@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,16 +14,15 @@ T = TypeVar("T", bound="RecomputeSettingsLogStream")
 @_attrs_define
 class RecomputeSettingsLogStream:
     """
-    Attributes
-    ----------
+    Attributes:
         run_id (str):
         filters (list[Any]):
-        mode (Union[Literal['log_stream_filters'], Unset]):  Default: 'log_stream_filters'.
+        mode (Literal['log_stream_filters'] | Unset):  Default: 'log_stream_filters'.
     """
 
     run_id: str
     filters: list[Any]
-    mode: Union[Literal["log_stream_filters"], Unset] = "log_stream_filters"
+    mode: Literal["log_stream_filters"] | Unset = "log_stream_filters"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,7 +47,7 @@ class RecomputeSettingsLogStream:
 
         filters = cast(list[Any], d.pop("filters"))
 
-        mode = cast(Union[Literal["log_stream_filters"], Unset], d.pop("mode", UNSET))
+        mode = cast(Literal["log_stream_filters"] | Unset, d.pop("mode", UNSET))
         if mode != "log_stream_filters" and not isinstance(mode, Unset):
             raise ValueError(f"mode must match const 'log_stream_filters', got '{mode}'")
 

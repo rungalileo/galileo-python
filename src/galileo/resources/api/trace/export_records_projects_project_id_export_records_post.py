@@ -1,6 +1,5 @@
-from collections.abc import Iterator
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Iterator, Optional
 
 import httpx
 
@@ -29,7 +28,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsExportRequest) -> dict[str, 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/export_records",
+        "path": "/projects/{project_id}/export_records".format(project_id=project_id),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -42,12 +41,15 @@ def _get_kwargs(project_id: str, *, body: LogRecordsExportRequest) -> dict[str, 
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 200:
-        return response.json()
+        response_200 = response.json()
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -67,7 +69,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -85,23 +87,22 @@ def stream_detailed(project_id: str, *, client: ApiClient, body: LogRecordsExpor
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsExportRequest
-) -> Response[Union[Any, HTTPValidationError]]:
-    """Export Records.
+) -> Response[Any | HTTPValidationError]:
+    """Export Records
 
     Args:
         project_id (str):
         body (LogRecordsExportRequest): Request schema for exporting log records (sessions,
             traces, spans).
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[Any, HTTPValidationError]]
+    Returns:
+        Response[Any | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = client.request(**kwargs)
@@ -109,47 +110,43 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(
-    project_id: str, *, client: ApiClient, body: LogRecordsExportRequest
-) -> Optional[Union[Any, HTTPValidationError]]:
-    """Export Records.
+def sync(project_id: str, *, client: ApiClient, body: LogRecordsExportRequest) -> Optional[Any | HTTPValidationError]:
+    """Export Records
 
     Args:
         project_id (str):
         body (LogRecordsExportRequest): Request schema for exporting log records (sessions,
             traces, spans).
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[Any, HTTPValidationError]
+    Returns:
+        Any | HTTPValidationError
     """
+
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsExportRequest
-) -> Response[Union[Any, HTTPValidationError]]:
-    """Export Records.
+) -> Response[Any | HTTPValidationError]:
+    """Export Records
 
     Args:
         project_id (str):
         body (LogRecordsExportRequest): Request schema for exporting log records (sessions,
             traces, spans).
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[Any, HTTPValidationError]]
+    Returns:
+        Response[Any | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -159,21 +156,20 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsExportRequest
-) -> Optional[Union[Any, HTTPValidationError]]:
-    """Export Records.
+) -> Optional[Any | HTTPValidationError]:
+    """Export Records
 
     Args:
         project_id (str):
         body (LogRecordsExportRequest): Request schema for exporting log records (sessions,
             traces, spans).
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[Any, HTTPValidationError]
+    Returns:
+        Any | HTTPValidationError
     """
+
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

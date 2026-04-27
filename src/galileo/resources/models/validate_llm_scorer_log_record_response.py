@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -10,8 +12,7 @@ T = TypeVar("T", bound="ValidateLLMScorerLogRecordResponse")
 @_attrs_define
 class ValidateLLMScorerLogRecordResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         metrics_experiment_id (str):
     """
 

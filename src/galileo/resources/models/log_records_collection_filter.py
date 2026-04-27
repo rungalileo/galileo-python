@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,20 +15,19 @@ T = TypeVar("T", bound="LogRecordsCollectionFilter")
 @_attrs_define
 class LogRecordsCollectionFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         column_id (str): ID of the column to filter.
         operator (LogRecordsCollectionFilterOperator):
-        value (Union[list[str], str]):
-        case_sensitive (Union[Unset, bool]):  Default: True.
-        type_ (Union[Literal['collection'], Unset]):  Default: 'collection'.
+        value (list[str] | str):
+        case_sensitive (bool | Unset):  Default: True.
+        type_ (Literal['collection'] | Unset):  Default: 'collection'.
     """
 
     column_id: str
     operator: LogRecordsCollectionFilterOperator
-    value: Union[list[str], str]
-    case_sensitive: Union[Unset, bool] = True
-    type_: Union[Literal["collection"], Unset] = "collection"
+    value: list[str] | str
+    case_sensitive: bool | Unset = True
+    type_: Literal["collection"] | Unset = "collection"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,8 +35,12 @@ class LogRecordsCollectionFilter:
 
         operator = self.operator.value
 
-        value: Union[list[str], str]
-        value = self.value if isinstance(self.value, list) else self.value
+        value: list[str] | str
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         case_sensitive = self.case_sensitive
 
@@ -58,21 +63,22 @@ class LogRecordsCollectionFilter:
 
         operator = LogRecordsCollectionFilterOperator(d.pop("operator"))
 
-        def _parse_value(data: object) -> Union[list[str], str]:
+        def _parse_value(data: object) -> list[str] | str:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[list[str], str], data)
+            return cast(list[str] | str, data)
 
         value = _parse_value(d.pop("value"))
 
         case_sensitive = d.pop("case_sensitive", UNSET)
 
-        type_ = cast(Union[Literal["collection"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["collection"] | Unset, d.pop("type", UNSET))
         if type_ != "collection" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'collection', got '{type_}'")
 

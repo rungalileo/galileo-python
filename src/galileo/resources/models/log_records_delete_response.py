@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -10,9 +12,8 @@ T = TypeVar("T", bound="LogRecordsDeleteResponse")
 @_attrs_define
 class LogRecordsDeleteResponse:
     """
-    Attributes
-    ----------
-        message (str): Message.
+    Attributes:
+        message (str): Message
     """
 
     message: str

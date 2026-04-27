@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,16 +14,15 @@ T = TypeVar("T", bound="TextAggregate")
 @_attrs_define
 class TextAggregate:
     """
-    Attributes
-    ----------
+    Attributes:
         count (int):
         unrated_count (int):
-        feedback_type (Union[Literal['text'], Unset]):  Default: 'text'.
+        feedback_type (Literal['text'] | Unset):  Default: 'text'.
     """
 
     count: int
     unrated_count: int
-    feedback_type: Union[Literal["text"], Unset] = "text"
+    feedback_type: Literal["text"] | Unset = "text"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,7 +47,7 @@ class TextAggregate:
 
         unrated_count = d.pop("unrated_count")
 
-        feedback_type = cast(Union[Literal["text"], Unset], d.pop("feedback_type", UNSET))
+        feedback_type = cast(Literal["text"] | Unset, d.pop("feedback_type", UNSET))
         if feedback_type != "text" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'text', got '{feedback_type}'")
 

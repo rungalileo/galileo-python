@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,19 +20,18 @@ T = TypeVar("T", bound="ListPromptTemplateVersionParams")
 @_attrs_define
 class ListPromptTemplateVersionParams:
     """
-    Attributes
-    ----------
-        sort (Union['PromptTemplateVersionCreatedAtSort', 'PromptTemplateVersionNumberSort',
-            'PromptTemplateVersionUpdatedAtSort', None, Unset]):
+    Attributes:
+        sort (None | PromptTemplateVersionCreatedAtSort | PromptTemplateVersionNumberSort |
+            PromptTemplateVersionUpdatedAtSort | Unset):
     """
 
-    sort: Union[
-        "PromptTemplateVersionCreatedAtSort",
-        "PromptTemplateVersionNumberSort",
-        "PromptTemplateVersionUpdatedAtSort",
-        None,
-        Unset,
-    ] = UNSET
+    sort: (
+        None
+        | PromptTemplateVersionCreatedAtSort
+        | PromptTemplateVersionNumberSort
+        | PromptTemplateVersionUpdatedAtSort
+        | Unset
+    ) = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,13 +39,14 @@ class ListPromptTemplateVersionParams:
         from ..models.prompt_template_version_number_sort import PromptTemplateVersionNumberSort
         from ..models.prompt_template_version_updated_at_sort import PromptTemplateVersionUpdatedAtSort
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: dict[str, Any] | None | Unset
         if isinstance(self.sort, Unset):
             sort = UNSET
-        elif isinstance(
-            self.sort,
-            (PromptTemplateVersionNumberSort, PromptTemplateVersionCreatedAtSort, PromptTemplateVersionUpdatedAtSort),
-        ):
+        elif isinstance(self.sort, PromptTemplateVersionNumberSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, PromptTemplateVersionCreatedAtSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, PromptTemplateVersionUpdatedAtSort):
             sort = self.sort.to_dict()
         else:
             sort = self.sort
@@ -67,13 +69,13 @@ class ListPromptTemplateVersionParams:
 
         def _parse_sort(
             data: object,
-        ) -> Union[
-            "PromptTemplateVersionCreatedAtSort",
-            "PromptTemplateVersionNumberSort",
-            "PromptTemplateVersionUpdatedAtSort",
-            None,
-            Unset,
-        ]:
+        ) -> (
+            None
+            | PromptTemplateVersionCreatedAtSort
+            | PromptTemplateVersionNumberSort
+            | PromptTemplateVersionUpdatedAtSort
+            | Unset
+        ):
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -81,32 +83,33 @@ class ListPromptTemplateVersionParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return PromptTemplateVersionNumberSort.from_dict(data)
+                sort_type_0_type_0 = PromptTemplateVersionNumberSort.from_dict(data)
 
+                return sort_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return PromptTemplateVersionCreatedAtSort.from_dict(data)
+                sort_type_0_type_1 = PromptTemplateVersionCreatedAtSort.from_dict(data)
 
+                return sort_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return PromptTemplateVersionUpdatedAtSort.from_dict(data)
+                sort_type_0_type_2 = PromptTemplateVersionUpdatedAtSort.from_dict(data)
 
+                return sort_type_0_type_2
             except:  # noqa: E722
                 pass
             return cast(
-                Union[
-                    "PromptTemplateVersionCreatedAtSort",
-                    "PromptTemplateVersionNumberSort",
-                    "PromptTemplateVersionUpdatedAtSort",
-                    None,
-                    Unset,
-                ],
+                None
+                | PromptTemplateVersionCreatedAtSort
+                | PromptTemplateVersionNumberSort
+                | PromptTemplateVersionUpdatedAtSort
+                | Unset,
                 data,
             )
 

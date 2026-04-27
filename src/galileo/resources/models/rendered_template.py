@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,21 +14,23 @@ T = TypeVar("T", bound="RenderedTemplate")
 @_attrs_define
 class RenderedTemplate:
     """
-    Attributes
-    ----------
+    Attributes:
         result (str):
-        warning (Union[None, Unset, str]):
+        warning (None | str | Unset):
     """
 
     result: str
-    warning: Union[None, Unset, str] = UNSET
+    warning: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         result = self.result
 
-        warning: Union[None, Unset, str]
-        warning = UNSET if isinstance(self.warning, Unset) else self.warning
+        warning: None | str | Unset
+        if isinstance(self.warning, Unset):
+            warning = UNSET
+        else:
+            warning = self.warning
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -41,12 +45,12 @@ class RenderedTemplate:
         d = dict(src_dict)
         result = d.pop("result")
 
-        def _parse_warning(data: object) -> Union[None, Unset, str]:
+        def _parse_warning(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         warning = _parse_warning(d.pop("warning", UNSET))
 

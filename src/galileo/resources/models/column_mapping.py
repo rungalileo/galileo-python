@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -14,24 +16,23 @@ T = TypeVar("T", bound="ColumnMapping")
 @_attrs_define
 class ColumnMapping:
     """
-    Attributes
-    ----------
-        input_ (Union['ColumnMappingConfig', None, list[str]]):
-        output (Union['ColumnMappingConfig', None, list[str]]):
-        generated_output (Union['ColumnMappingConfig', None, list[str]]):
-        metadata (Union['ColumnMappingConfig', None, list[str]]):
+    Attributes:
+        input_ (ColumnMappingConfig | list[str] | None):
+        output (ColumnMappingConfig | list[str] | None):
+        generated_output (ColumnMappingConfig | list[str] | None):
+        metadata (ColumnMappingConfig | list[str] | None):
     """
 
-    input_: Union["ColumnMappingConfig", None, list[str]]
-    output: Union["ColumnMappingConfig", None, list[str]]
-    generated_output: Union["ColumnMappingConfig", None, list[str]]
-    metadata: Union["ColumnMappingConfig", None, list[str]]
+    input_: ColumnMappingConfig | list[str] | None
+    output: ColumnMappingConfig | list[str] | None
+    generated_output: ColumnMappingConfig | list[str] | None
+    metadata: ColumnMappingConfig | list[str] | None
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.column_mapping_config import ColumnMappingConfig
 
-        input_: Union[None, dict[str, Any], list[str]]
+        input_: dict[str, Any] | list[str] | None
         if isinstance(self.input_, ColumnMappingConfig):
             input_ = self.input_.to_dict()
         elif isinstance(self.input_, list):
@@ -40,7 +41,7 @@ class ColumnMapping:
         else:
             input_ = self.input_
 
-        output: Union[None, dict[str, Any], list[str]]
+        output: dict[str, Any] | list[str] | None
         if isinstance(self.output, ColumnMappingConfig):
             output = self.output.to_dict()
         elif isinstance(self.output, list):
@@ -49,7 +50,7 @@ class ColumnMapping:
         else:
             output = self.output
 
-        generated_output: Union[None, dict[str, Any], list[str]]
+        generated_output: dict[str, Any] | list[str] | None
         if isinstance(self.generated_output, ColumnMappingConfig):
             generated_output = self.generated_output.to_dict()
         elif isinstance(self.generated_output, list):
@@ -58,7 +59,7 @@ class ColumnMapping:
         else:
             generated_output = self.generated_output
 
-        metadata: Union[None, dict[str, Any], list[str]]
+        metadata: dict[str, Any] | list[str] | None
         if isinstance(self.metadata, ColumnMappingConfig):
             metadata = self.metadata.to_dict()
         elif isinstance(self.metadata, list):
@@ -81,87 +82,95 @@ class ColumnMapping:
 
         d = dict(src_dict)
 
-        def _parse_input_(data: object) -> Union["ColumnMappingConfig", None, list[str]]:
+        def _parse_input_(data: object) -> ColumnMappingConfig | list[str] | None:
             if data is None:
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ColumnMappingConfig.from_dict(data)
+                input_type_0 = ColumnMappingConfig.from_dict(data)
 
+                return input_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                input_type_1 = cast(list[str], data)
 
+                return input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union["ColumnMappingConfig", None, list[str]], data)
+            return cast(ColumnMappingConfig | list[str] | None, data)
 
         input_ = _parse_input_(d.pop("input"))
 
-        def _parse_output(data: object) -> Union["ColumnMappingConfig", None, list[str]]:
+        def _parse_output(data: object) -> ColumnMappingConfig | list[str] | None:
             if data is None:
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ColumnMappingConfig.from_dict(data)
+                output_type_0 = ColumnMappingConfig.from_dict(data)
 
+                return output_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                output_type_1 = cast(list[str], data)
 
+                return output_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union["ColumnMappingConfig", None, list[str]], data)
+            return cast(ColumnMappingConfig | list[str] | None, data)
 
         output = _parse_output(d.pop("output"))
 
-        def _parse_generated_output(data: object) -> Union["ColumnMappingConfig", None, list[str]]:
+        def _parse_generated_output(data: object) -> ColumnMappingConfig | list[str] | None:
             if data is None:
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ColumnMappingConfig.from_dict(data)
+                generated_output_type_0 = ColumnMappingConfig.from_dict(data)
 
+                return generated_output_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                generated_output_type_1 = cast(list[str], data)
 
+                return generated_output_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union["ColumnMappingConfig", None, list[str]], data)
+            return cast(ColumnMappingConfig | list[str] | None, data)
 
         generated_output = _parse_generated_output(d.pop("generated_output"))
 
-        def _parse_metadata(data: object) -> Union["ColumnMappingConfig", None, list[str]]:
+        def _parse_metadata(data: object) -> ColumnMappingConfig | list[str] | None:
             if data is None:
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ColumnMappingConfig.from_dict(data)
+                metadata_type_0 = ColumnMappingConfig.from_dict(data)
 
+                return metadata_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                metadata_type_1 = cast(list[str], data)
 
+                return metadata_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union["ColumnMappingConfig", None, list[str]], data)
+            return cast(ColumnMappingConfig | list[str] | None, data)
 
         metadata = _parse_metadata(d.pop("metadata"))
 

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,18 +18,17 @@ T = TypeVar("T", bound="UpdatePromptTemplateRequest")
 @_attrs_define
 class UpdatePromptTemplateRequest:
     """
-    Attributes
-    ----------
-        name (Union['Name', None, Unset, str]):
+    Attributes:
+        name (Name | None | str | Unset):
     """
 
-    name: Union["Name", None, Unset, str] = UNSET
+    name: Name | None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.name import Name
 
-        name: Union[None, Unset, dict[str, Any], str]
+        name: dict[str, Any] | None | str | Unset
         if isinstance(self.name, Unset):
             name = UNSET
         elif isinstance(self.name, Name):
@@ -49,7 +50,7 @@ class UpdatePromptTemplateRequest:
 
         d = dict(src_dict)
 
-        def _parse_name(data: object) -> Union["Name", None, Unset, str]:
+        def _parse_name(data: object) -> Name | None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -57,11 +58,12 @@ class UpdatePromptTemplateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return Name.from_dict(data)
+                name_type_1 = Name.from_dict(data)
 
+                return name_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union["Name", None, Unset, str], data)
+            return cast(Name | None | str | Unset, data)
 
         name = _parse_name(d.pop("name", UNSET))
 

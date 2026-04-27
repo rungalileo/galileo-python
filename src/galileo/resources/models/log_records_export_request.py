@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,6 +14,7 @@ if TYPE_CHECKING:
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
     from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
+    from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
     from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_sort_clause import LogRecordsSortClause
@@ -25,48 +28,46 @@ T = TypeVar("T", bound="LogRecordsExportRequest")
 class LogRecordsExportRequest:
     """Request schema for exporting log records (sessions, traces, spans).
 
-    Attributes
-    ----------
+    Attributes:
         root_type (RootType): The root-level type of a logged step hierarchy.
 
             Maps fine-grained StepType values to the three top-level categories
             used throughout the platform: session, trace, and span.
-        log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
-        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
-        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
-        filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
-            'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]): Filters to
-            apply on the export
-        sort (Union['LogRecordsSortClause', None, Unset]): Sort clause for the export.  Defaults to native sort
-            (created_at, id descending).
-        column_ids (Union[None, Unset, list[str]]): Column IDs to include in export
-        export_format (Union[Unset, LLMExportFormat]):
-        redact (Union[Unset, bool]): Redact sensitive data Default: True.
-        file_name (Union[None, Unset, str]): Optional filename for the exported file
+        log_stream_id (None | str | Unset): Log stream id associated with the traces.
+        experiment_id (None | str | Unset): Experiment id associated with the traces.
+        metrics_testing_id (None | str | Unset): Metrics testing id associated with the traces.
+        filters (list[LogRecordsBooleanFilter | LogRecordsCollectionFilter | LogRecordsDateFilter |
+            LogRecordsFullyAnnotatedFilter | LogRecordsIDFilter | LogRecordsNumberFilter | LogRecordsTextFilter] | Unset):
+            Filters to apply on the export
+        sort (LogRecordsSortClause | None | Unset): Sort clause for the export.  Defaults to native sort (created_at, id
+            descending).
+        column_ids (list[str] | None | Unset): Column IDs to include in export
+        export_format (LLMExportFormat | Unset):
+        redact (bool | Unset): Redact sensitive data Default: True.
+        file_name (None | str | Unset): Optional filename for the exported file
     """
 
     root_type: RootType
-    log_stream_id: Union[None, Unset, str] = UNSET
-    experiment_id: Union[None, Unset, str] = UNSET
-    metrics_testing_id: Union[None, Unset, str] = UNSET
-    filters: Union[
-        Unset,
+    log_stream_id: None | str | Unset = UNSET
+    experiment_id: None | str | Unset = UNSET
+    metrics_testing_id: None | str | Unset = UNSET
+    filters: (
         list[
-            Union[
-                "LogRecordsBooleanFilter",
-                "LogRecordsCollectionFilter",
-                "LogRecordsDateFilter",
-                "LogRecordsIDFilter",
-                "LogRecordsNumberFilter",
-                "LogRecordsTextFilter",
-            ]
-        ],
-    ] = UNSET
-    sort: Union["LogRecordsSortClause", None, Unset] = UNSET
-    column_ids: Union[None, Unset, list[str]] = UNSET
-    export_format: Union[Unset, LLMExportFormat] = UNSET
-    redact: Union[Unset, bool] = True
-    file_name: Union[None, Unset, str] = UNSET
+            LogRecordsBooleanFilter
+            | LogRecordsCollectionFilter
+            | LogRecordsDateFilter
+            | LogRecordsFullyAnnotatedFilter
+            | LogRecordsIDFilter
+            | LogRecordsNumberFilter
+            | LogRecordsTextFilter
+        ]
+        | Unset
+    ) = UNSET
+    sort: LogRecordsSortClause | None | Unset = UNSET
+    column_ids: list[str] | None | Unset = UNSET
+    export_format: LLMExportFormat | Unset = UNSET
+    redact: bool | Unset = True
+    file_name: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -76,40 +77,51 @@ class LogRecordsExportRequest:
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_sort_clause import LogRecordsSortClause
+        from ..models.log_records_text_filter import LogRecordsTextFilter
 
         root_type = self.root_type.value
 
-        log_stream_id: Union[None, Unset, str]
-        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
+        log_stream_id: None | str | Unset
+        if isinstance(self.log_stream_id, Unset):
+            log_stream_id = UNSET
+        else:
+            log_stream_id = self.log_stream_id
 
-        experiment_id: Union[None, Unset, str]
-        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
+        experiment_id: None | str | Unset
+        if isinstance(self.experiment_id, Unset):
+            experiment_id = UNSET
+        else:
+            experiment_id = self.experiment_id
 
-        metrics_testing_id: Union[None, Unset, str]
-        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
+        metrics_testing_id: None | str | Unset
+        if isinstance(self.metrics_testing_id, Unset):
+            metrics_testing_id = UNSET
+        else:
+            metrics_testing_id = self.metrics_testing_id
 
-        filters: Union[Unset, list[dict[str, Any]]] = UNSET
+        filters: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
-                if isinstance(
-                    filters_item_data,
-                    (
-                        LogRecordsIDFilter,
-                        LogRecordsDateFilter,
-                        LogRecordsNumberFilter,
-                        LogRecordsBooleanFilter,
-                        LogRecordsCollectionFilter,
-                    ),
-                ):
+                if isinstance(filters_item_data, LogRecordsIDFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsDateFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsNumberFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsBooleanFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsCollectionFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsTextFilter):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
 
                 filters.append(filters_item)
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: dict[str, Any] | None | Unset
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(self.sort, LogRecordsSortClause):
@@ -117,7 +129,7 @@ class LogRecordsExportRequest:
         else:
             sort = self.sort
 
-        column_ids: Union[None, Unset, list[str]]
+        column_ids: list[str] | None | Unset
         if isinstance(self.column_ids, Unset):
             column_ids = UNSET
         elif isinstance(self.column_ids, list):
@@ -126,14 +138,17 @@ class LogRecordsExportRequest:
         else:
             column_ids = self.column_ids
 
-        export_format: Union[Unset, str] = UNSET
+        export_format: str | Unset = UNSET
         if not isinstance(self.export_format, Unset):
             export_format = self.export_format.value
 
         redact = self.redact
 
-        file_name: Union[None, Unset, str]
-        file_name = UNSET if isinstance(self.file_name, Unset) else self.file_name
+        file_name: None | str | Unset
+        if isinstance(self.file_name, Unset):
+            file_name = UNSET
+        else:
+            file_name = self.file_name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -164,6 +179,7 @@ class LogRecordsExportRequest:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
+        from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_sort_clause import LogRecordsSortClause
@@ -172,91 +188,120 @@ class LogRecordsExportRequest:
         d = dict(src_dict)
         root_type = RootType(d.pop("root_type"))
 
-        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
+        def _parse_log_stream_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
+        def _parse_experiment_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
+        def _parse_metrics_testing_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
-        filters = []
         _filters = d.pop("filters", UNSET)
-        for filters_item_data in _filters or []:
+        filters: (
+            list[
+                LogRecordsBooleanFilter
+                | LogRecordsCollectionFilter
+                | LogRecordsDateFilter
+                | LogRecordsFullyAnnotatedFilter
+                | LogRecordsIDFilter
+                | LogRecordsNumberFilter
+                | LogRecordsTextFilter
+            ]
+            | Unset
+        ) = UNSET
+        if _filters is not UNSET:
+            filters = []
+            for filters_item_data in _filters:
 
-            def _parse_filters_item(
-                data: object,
-            ) -> Union[
-                "LogRecordsBooleanFilter",
-                "LogRecordsCollectionFilter",
-                "LogRecordsDateFilter",
-                "LogRecordsIDFilter",
-                "LogRecordsNumberFilter",
-                "LogRecordsTextFilter",
-            ]:
-                try:
+                def _parse_filters_item(
+                    data: object,
+                ) -> (
+                    LogRecordsBooleanFilter
+                    | LogRecordsCollectionFilter
+                    | LogRecordsDateFilter
+                    | LogRecordsFullyAnnotatedFilter
+                    | LogRecordsIDFilter
+                    | LogRecordsNumberFilter
+                    | LogRecordsTextFilter
+                ):
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_item_type_0 = LogRecordsIDFilter.from_dict(data)
+
+                        return filters_item_type_0
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_item_type_1 = LogRecordsDateFilter.from_dict(data)
+
+                        return filters_item_type_1
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_item_type_2 = LogRecordsNumberFilter.from_dict(data)
+
+                        return filters_item_type_2
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_item_type_3 = LogRecordsBooleanFilter.from_dict(data)
+
+                        return filters_item_type_3
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_item_type_4 = LogRecordsCollectionFilter.from_dict(data)
+
+                        return filters_item_type_4
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_item_type_5 = LogRecordsTextFilter.from_dict(data)
+
+                        return filters_item_type_5
+                    except:  # noqa: E722
+                        pass
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsIDFilter.from_dict(data)
+                    filters_item_type_6 = LogRecordsFullyAnnotatedFilter.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return LogRecordsDateFilter.from_dict(data)
+                    return filters_item_type_6
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return LogRecordsNumberFilter.from_dict(data)
+                filters_item = _parse_filters_item(filters_item_data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return LogRecordsBooleanFilter.from_dict(data)
+                filters.append(filters_item)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return LogRecordsCollectionFilter.from_dict(data)
-
-                except:  # noqa: E722
-                    pass
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return LogRecordsTextFilter.from_dict(data)
-
-            filters_item = _parse_filters_item(filters_item_data)
-
-            filters.append(filters_item)
-
-        def _parse_sort(data: object) -> Union["LogRecordsSortClause", None, Unset]:
+        def _parse_sort(data: object) -> LogRecordsSortClause | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -264,15 +309,16 @@ class LogRecordsExportRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsSortClause.from_dict(data)
+                sort_type_0 = LogRecordsSortClause.from_dict(data)
 
+                return sort_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["LogRecordsSortClause", None, Unset], data)
+            return cast(LogRecordsSortClause | None | Unset, data)
 
         sort = _parse_sort(d.pop("sort", UNSET))
 
-        def _parse_column_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_column_ids(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -280,26 +326,30 @@ class LogRecordsExportRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                column_ids_type_0 = cast(list[str], data)
 
+                return column_ids_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         column_ids = _parse_column_ids(d.pop("column_ids", UNSET))
 
         _export_format = d.pop("export_format", UNSET)
-        export_format: Union[Unset, LLMExportFormat]
-        export_format = UNSET if isinstance(_export_format, Unset) else LLMExportFormat(_export_format)
+        export_format: LLMExportFormat | Unset
+        if isinstance(_export_format, Unset):
+            export_format = UNSET
+        else:
+            export_format = LLMExportFormat(_export_format)
 
         redact = d.pop("redact", UNSET)
 
-        def _parse_file_name(data: object) -> Union[None, Unset, str]:
+        def _parse_file_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         file_name = _parse_file_name(d.pop("file_name", UNSET))
 

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,25 +14,28 @@ T = TypeVar("T", bound="FeedbackRatingInfo")
 @_attrs_define
 class FeedbackRatingInfo:
     """
-    Attributes
-    ----------
+    Attributes:
         feedback_type (FeedbackType):
-        value (Union[bool, int, list[str], str]):
-        explanation (Union[None, str]):
+        value (bool | int | list[str] | str):
+        explanation (None | str):
     """
 
     feedback_type: FeedbackType
-    value: Union[bool, int, list[str], str]
-    explanation: Union[None, str]
+    value: bool | int | list[str] | str
+    explanation: None | str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         feedback_type = self.feedback_type.value
 
-        value: Union[bool, int, list[str], str]
-        value = self.value if isinstance(self.value, list) else self.value
+        value: bool | int | list[str] | str
+        if isinstance(self.value, list):
+            value = self.value
 
-        explanation: Union[None, str]
+        else:
+            value = self.value
+
+        explanation: None | str
         explanation = self.explanation
 
         field_dict: dict[str, Any] = {}
@@ -44,22 +49,23 @@ class FeedbackRatingInfo:
         d = dict(src_dict)
         feedback_type = FeedbackType(d.pop("feedback_type"))
 
-        def _parse_value(data: object) -> Union[bool, int, list[str], str]:
+        def _parse_value(data: object) -> bool | int | list[str] | str:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_3 = cast(list[str], data)
 
+                return value_type_3
             except:  # noqa: E722
                 pass
-            return cast(Union[bool, int, list[str], str], data)
+            return cast(bool | int | list[str] | str, data)
 
         value = _parse_value(d.pop("value"))
 
-        def _parse_explanation(data: object) -> Union[None, str]:
+        def _parse_explanation(data: object) -> None | str:
             if data is None:
                 return data
-            return cast(Union[None, str], data)
+            return cast(None | str, data)
 
         explanation = _parse_explanation(d.pop("explanation"))
 

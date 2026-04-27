@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,20 +18,19 @@ T = TypeVar("T", bound="ListDatasetResponse")
 @_attrs_define
 class ListDatasetResponse:
     """
-    Attributes
-    ----------
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        paginated (Union[Unset, bool]):  Default: False.
-        next_starting_token (Union[None, Unset, int]):
-        datasets (Union[Unset, list['DatasetDB']]):
+    Attributes:
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        paginated (bool | Unset):  Default: False.
+        next_starting_token (int | None | Unset):
+        datasets (list[DatasetDB] | Unset):
     """
 
-    starting_token: Union[Unset, int] = 0
-    limit: Union[Unset, int] = 100
-    paginated: Union[Unset, bool] = False
-    next_starting_token: Union[None, Unset, int] = UNSET
-    datasets: Union[Unset, list["DatasetDB"]] = UNSET
+    starting_token: int | Unset = 0
+    limit: int | Unset = 100
+    paginated: bool | Unset = False
+    next_starting_token: int | None | Unset = UNSET
+    datasets: list[DatasetDB] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,10 +40,13 @@ class ListDatasetResponse:
 
         paginated = self.paginated
 
-        next_starting_token: Union[None, Unset, int]
-        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
+        next_starting_token: int | None | Unset
+        if isinstance(self.next_starting_token, Unset):
+            next_starting_token = UNSET
+        else:
+            next_starting_token = self.next_starting_token
 
-        datasets: Union[Unset, list[dict[str, Any]]] = UNSET
+        datasets: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.datasets, Unset):
             datasets = []
             for datasets_item_data in self.datasets:
@@ -76,21 +80,23 @@ class ListDatasetResponse:
 
         paginated = d.pop("paginated", UNSET)
 
-        def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
+        def _parse_next_starting_token(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
-        datasets = []
         _datasets = d.pop("datasets", UNSET)
-        for datasets_item_data in _datasets or []:
-            datasets_item = DatasetDB.from_dict(datasets_item_data)
+        datasets: list[DatasetDB] | Unset = UNSET
+        if _datasets is not UNSET:
+            datasets = []
+            for datasets_item_data in _datasets:
+                datasets_item = DatasetDB.from_dict(datasets_item_data)
 
-            datasets.append(datasets_item)
+                datasets.append(datasets_item)
 
         list_dataset_response = cls(
             starting_token=starting_token,

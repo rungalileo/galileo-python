@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -14,8 +16,7 @@ T = TypeVar("T", bound="PromptOptimizationConfiguration")
 class PromptOptimizationConfiguration:
     """Configuration for prompt optimization.
 
-    Attributes
-    ----------
+    Attributes:
         prompt (str):
         evaluation_criteria (str):
         task_description (str):
@@ -26,9 +27,9 @@ class PromptOptimizationConfiguration:
         temperature (float):
         generation_model_alias (str):
         evaluation_model_alias (str):
-        integration_name (Union[Unset, LLMIntegration]):
-        reasoning_effort (Union[None, Unset, str]):
-        verbosity (Union[None, Unset, str]):
+        integration_name (LLMIntegration | Unset):
+        reasoning_effort (None | str | Unset):
+        verbosity (None | str | Unset):
     """
 
     prompt: str
@@ -41,9 +42,9 @@ class PromptOptimizationConfiguration:
     temperature: float
     generation_model_alias: str
     evaluation_model_alias: str
-    integration_name: Union[Unset, LLMIntegration] = UNSET
-    reasoning_effort: Union[None, Unset, str] = UNSET
-    verbosity: Union[None, Unset, str] = UNSET
+    integration_name: LLMIntegration | Unset = UNSET
+    reasoning_effort: None | str | Unset = UNSET
+    verbosity: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -67,15 +68,21 @@ class PromptOptimizationConfiguration:
 
         evaluation_model_alias = self.evaluation_model_alias
 
-        integration_name: Union[Unset, str] = UNSET
+        integration_name: str | Unset = UNSET
         if not isinstance(self.integration_name, Unset):
             integration_name = self.integration_name.value
 
-        reasoning_effort: Union[None, Unset, str]
-        reasoning_effort = UNSET if isinstance(self.reasoning_effort, Unset) else self.reasoning_effort
+        reasoning_effort: None | str | Unset
+        if isinstance(self.reasoning_effort, Unset):
+            reasoning_effort = UNSET
+        else:
+            reasoning_effort = self.reasoning_effort
 
-        verbosity: Union[None, Unset, str]
-        verbosity = UNSET if isinstance(self.verbosity, Unset) else self.verbosity
+        verbosity: None | str | Unset
+        if isinstance(self.verbosity, Unset):
+            verbosity = UNSET
+        else:
+            verbosity = self.verbosity
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -126,24 +133,27 @@ class PromptOptimizationConfiguration:
         evaluation_model_alias = d.pop("evaluation_model_alias")
 
         _integration_name = d.pop("integration_name", UNSET)
-        integration_name: Union[Unset, LLMIntegration]
-        integration_name = UNSET if isinstance(_integration_name, Unset) else LLMIntegration(_integration_name)
+        integration_name: LLMIntegration | Unset
+        if isinstance(_integration_name, Unset):
+            integration_name = UNSET
+        else:
+            integration_name = LLMIntegration(_integration_name)
 
-        def _parse_reasoning_effort(data: object) -> Union[None, Unset, str]:
+        def _parse_reasoning_effort(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         reasoning_effort = _parse_reasoning_effort(d.pop("reasoning_effort", UNSET))
 
-        def _parse_verbosity(data: object) -> Union[None, Unset, str]:
+        def _parse_verbosity(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         verbosity = _parse_verbosity(d.pop("verbosity", UNSET))
 

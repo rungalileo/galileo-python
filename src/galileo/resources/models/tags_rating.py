@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,26 +14,25 @@ T = TypeVar("T", bound="TagsRating")
 @_attrs_define
 class TagsRating:
     """
-    Attributes
-    ----------
+    Attributes:
         value (list[str]):
-        feedback_type (Union[Literal['tags'], Unset]):  Default: 'tags'.
+        annotation_type (Literal['tags'] | Unset):  Default: 'tags'.
     """
 
     value: list[str]
-    feedback_type: Union[Literal["tags"], Unset] = "tags"
+    annotation_type: Literal["tags"] | Unset = "tags"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         value = self.value
 
-        feedback_type = self.feedback_type
+        annotation_type = self.annotation_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"value": value})
-        if feedback_type is not UNSET:
-            field_dict["feedback_type"] = feedback_type
+        if annotation_type is not UNSET:
+            field_dict["annotation_type"] = annotation_type
 
         return field_dict
 
@@ -40,11 +41,11 @@ class TagsRating:
         d = dict(src_dict)
         value = cast(list[str], d.pop("value"))
 
-        feedback_type = cast(Union[Literal["tags"], Unset], d.pop("feedback_type", UNSET))
-        if feedback_type != "tags" and not isinstance(feedback_type, Unset):
-            raise ValueError(f"feedback_type must match const 'tags', got '{feedback_type}'")
+        annotation_type = cast(Literal["tags"] | Unset, d.pop("annotation_type", UNSET))
+        if annotation_type != "tags" and not isinstance(annotation_type, Unset):
+            raise ValueError(f"annotation_type must match const 'tags', got '{annotation_type}'")
 
-        tags_rating = cls(value=value, feedback_type=feedback_type)
+        tags_rating = cls(value=value, annotation_type=annotation_type)
 
         tags_rating.additional_properties = d
         return tags_rating

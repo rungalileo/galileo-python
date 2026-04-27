@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 
@@ -15,25 +17,24 @@ T = TypeVar("T", bound="Document")
 @_attrs_define
 class Document:
     """
-    Attributes
-    ----------
-        content (str): Content of the document.
-        metadata (Union[Unset, DocumentMetadata]):
+    Attributes:
+        page_content (str): Content of the document.
+        metadata (DocumentMetadata | Unset):
     """
 
-    content: str
-    metadata: Union[Unset, "DocumentMetadata"] = UNSET
+    page_content: str
+    metadata: DocumentMetadata | Unset = UNSET
 
     def to_dict(self) -> dict[str, Any]:
-        content = self.content
+        page_content = self.page_content
 
-        metadata: Union[Unset, dict[str, Any]] = UNSET
+        metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metadata, Unset):
             metadata = self.metadata.to_dict()
 
         field_dict: dict[str, Any] = {}
 
-        field_dict.update({"content": content})
+        field_dict.update({"page_content": page_content})
         if metadata is not UNSET:
             field_dict["metadata"] = metadata
 
@@ -44,10 +45,15 @@ class Document:
         from ..models.document_metadata import DocumentMetadata
 
         d = dict(src_dict)
-        content = d.pop("content")
+        page_content = d.pop("page_content")
 
         _metadata = d.pop("metadata", UNSET)
-        metadata: Union[Unset, DocumentMetadata]
-        metadata = UNSET if isinstance(_metadata, Unset) else DocumentMetadata.from_dict(_metadata)
+        metadata: DocumentMetadata | Unset
+        if isinstance(_metadata, Unset):
+            metadata = UNSET
+        else:
+            metadata = DocumentMetadata.from_dict(_metadata)
 
-        return cls(content=content, metadata=metadata)
+        document = cls(page_content=page_content, metadata=metadata)
+
+        return document

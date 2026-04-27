@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -26,9 +26,9 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     template_id: str,
     *,
-    body: ListPromptTemplateVersionParams,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    body: ListPromptTemplateVersionParams | Unset,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -43,11 +43,13 @@ def _get_kwargs(
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": f"/templates/{template_id}/versions/query",
+        "path": "/templates/{template_id}/versions/query".format(template_id=template_id),
         "params": params,
     }
 
-    _kwargs["json"] = body.to_dict()
+    _kwargs["json"]: dict[str, Any] | Unset = UNSET
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -59,12 +61,16 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, ListPromptTemplateVersionResponse]:
+) -> HTTPValidationError | ListPromptTemplateVersionResponse:
     if response.status_code == 200:
-        return ListPromptTemplateVersionResponse.from_dict(response.json())
+        response_200 = ListPromptTemplateVersionResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -86,7 +92,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]:
+) -> Response[HTTPValidationError | ListPromptTemplateVersionResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -99,11 +105,11 @@ def sync_detailed(
     template_id: str,
     *,
     client: ApiClient,
-    body: ListPromptTemplateVersionParams,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]:
-    """Query Template Versions.
+    body: ListPromptTemplateVersionParams | Unset,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> Response[HTTPValidationError | ListPromptTemplateVersionResponse]:
+    """Query Template Versions
 
      Query versions of a specific prompt template.
 
@@ -125,19 +131,18 @@ def sync_detailed(
 
     Args:
         template_id (str):
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ListPromptTemplateVersionParams):
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        body (ListPromptTemplateVersionParams | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]
+    Returns:
+        Response[HTTPValidationError | ListPromptTemplateVersionResponse]
     """
+
     kwargs = _get_kwargs(template_id=template_id, body=body, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -149,11 +154,11 @@ def sync(
     template_id: str,
     *,
     client: ApiClient,
-    body: ListPromptTemplateVersionParams,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]:
-    """Query Template Versions.
+    body: ListPromptTemplateVersionParams | Unset,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> Optional[HTTPValidationError | ListPromptTemplateVersionResponse]:
+    """Query Template Versions
 
      Query versions of a specific prompt template.
 
@@ -175,19 +180,18 @@ def sync(
 
     Args:
         template_id (str):
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ListPromptTemplateVersionParams):
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        body (ListPromptTemplateVersionParams | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, ListPromptTemplateVersionResponse]
+    Returns:
+        HTTPValidationError | ListPromptTemplateVersionResponse
     """
+
     return sync_detailed(
         template_id=template_id, client=client, body=body, starting_token=starting_token, limit=limit
     ).parsed
@@ -197,11 +201,11 @@ async def asyncio_detailed(
     template_id: str,
     *,
     client: ApiClient,
-    body: ListPromptTemplateVersionParams,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]:
-    """Query Template Versions.
+    body: ListPromptTemplateVersionParams | Unset,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> Response[HTTPValidationError | ListPromptTemplateVersionResponse]:
+    """Query Template Versions
 
      Query versions of a specific prompt template.
 
@@ -223,19 +227,18 @@ async def asyncio_detailed(
 
     Args:
         template_id (str):
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ListPromptTemplateVersionParams):
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        body (ListPromptTemplateVersionParams | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]
+    Returns:
+        Response[HTTPValidationError | ListPromptTemplateVersionResponse]
     """
+
     kwargs = _get_kwargs(template_id=template_id, body=body, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -247,11 +250,11 @@ async def asyncio(
     template_id: str,
     *,
     client: ApiClient,
-    body: ListPromptTemplateVersionParams,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]:
-    """Query Template Versions.
+    body: ListPromptTemplateVersionParams | Unset,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> Optional[HTTPValidationError | ListPromptTemplateVersionResponse]:
+    """Query Template Versions
 
      Query versions of a specific prompt template.
 
@@ -273,19 +276,18 @@ async def asyncio(
 
     Args:
         template_id (str):
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ListPromptTemplateVersionParams):
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        body (ListPromptTemplateVersionParams | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, ListPromptTemplateVersionResponse]
+    Returns:
+        HTTPValidationError | ListPromptTemplateVersionResponse
     """
+
     return (
         await asyncio_detailed(
             template_id=template_id, client=client, body=body, starting_token=starting_token, limit=limit

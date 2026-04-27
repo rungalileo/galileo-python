@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,63 +23,62 @@ T = TypeVar("T", bound="Model")
 @_attrs_define
 class Model:
     """
-    Attributes
-    ----------
+    Attributes:
         name (str):
         alias (str):
-        integration (Union[Unset, LLMIntegration]):
-        user_role (Union[None, Unset, str]):
-        assistant_role (Union[None, Unset, str]):
-        system_supported (Union[Unset, bool]):  Default: False.
-        input_modalities (Union[Unset, list[ContentModality]]): Input modalities that the model can accept.
-        alternative_names (Union[Unset, list[str]]): Alternative names for the model, used for matching with various
-            current, versioned or legacy names.
-        input_token_limit (Union[None, Unset, int]):
-        output_token_limit (Union[None, Unset, int]):
-        token_limit (Union[None, Unset, int]):
-        output_price (Union[Unset, float]):  Default: 0.0.
-        input_price (Union[Unset, float]):  Default: 0.0.
-        cost_by (Union[Unset, ModelCostBy]):
-        is_chat (Union[Unset, bool]):  Default: False.
-        provides_log_probs (Union[Unset, bool]):  Default: False.
-        formatting_tokens (Union[Unset, int]):  Default: 0.
-        response_prefix_tokens (Union[Unset, int]):  Default: 0.
-        api_version (Union[None, Unset, str]):
-        legacy_mistral_prompt_format (Union[Unset, bool]):  Default: False.
-        requires_max_tokens (Union[Unset, bool]):  Default: False.
-        max_top_p (Union[None, Unset, float]):
-        params_map (Union[Unset, RunParamsMap]): Maps the internal settings parameters (left) to the serialized
-            parameters (right) we want to send in the API
+        integration (LLMIntegration | Unset):
+        user_role (None | str | Unset):
+        assistant_role (None | str | Unset):
+        system_supported (bool | Unset):  Default: False.
+        input_modalities (list[ContentModality] | Unset): Input modalities that the model can accept.
+        alternative_names (list[str] | Unset): Alternative names for the model, used for matching with various current,
+            versioned or legacy names.
+        input_token_limit (int | None | Unset):
+        output_token_limit (int | None | Unset):
+        token_limit (int | None | Unset):
+        output_price (float | Unset):  Default: 0.0.
+        input_price (float | Unset):  Default: 0.0.
+        cost_by (ModelCostBy | Unset):
+        is_chat (bool | Unset):  Default: False.
+        provides_log_probs (bool | Unset):  Default: False.
+        formatting_tokens (int | Unset):  Default: 0.
+        response_prefix_tokens (int | Unset):  Default: 0.
+        api_version (None | str | Unset):
+        legacy_mistral_prompt_format (bool | Unset):  Default: False.
+        requires_max_tokens (bool | Unset):  Default: False.
+        max_top_p (float | None | Unset):
+        params_map (RunParamsMap | Unset): Maps the internal settings parameters (left) to the serialized parameters
+            (right) we want to send in the API
             requests.
-        output_map (Union['OutputMap', None, Unset]):
-        input_map (Union['InputMap', None, Unset]):
+        output_map (None | OutputMap | Unset):
+        input_map (InputMap | None | Unset):
     """
 
     name: str
     alias: str
-    integration: Union[Unset, LLMIntegration] = UNSET
-    user_role: Union[None, Unset, str] = UNSET
-    assistant_role: Union[None, Unset, str] = UNSET
-    system_supported: Union[Unset, bool] = False
-    input_modalities: Union[Unset, list[ContentModality]] = UNSET
-    alternative_names: Union[Unset, list[str]] = UNSET
-    input_token_limit: Union[None, Unset, int] = UNSET
-    output_token_limit: Union[None, Unset, int] = UNSET
-    token_limit: Union[None, Unset, int] = UNSET
-    output_price: Union[Unset, float] = 0.0
-    input_price: Union[Unset, float] = 0.0
-    cost_by: Union[Unset, ModelCostBy] = UNSET
-    is_chat: Union[Unset, bool] = False
-    provides_log_probs: Union[Unset, bool] = False
-    formatting_tokens: Union[Unset, int] = 0
-    response_prefix_tokens: Union[Unset, int] = 0
-    api_version: Union[None, Unset, str] = UNSET
-    legacy_mistral_prompt_format: Union[Unset, bool] = False
-    requires_max_tokens: Union[Unset, bool] = False
-    max_top_p: Union[None, Unset, float] = UNSET
-    params_map: Union[Unset, "RunParamsMap"] = UNSET
-    output_map: Union["OutputMap", None, Unset] = UNSET
-    input_map: Union["InputMap", None, Unset] = UNSET
+    integration: LLMIntegration | Unset = UNSET
+    user_role: None | str | Unset = UNSET
+    assistant_role: None | str | Unset = UNSET
+    system_supported: bool | Unset = False
+    input_modalities: list[ContentModality] | Unset = UNSET
+    alternative_names: list[str] | Unset = UNSET
+    input_token_limit: int | None | Unset = UNSET
+    output_token_limit: int | None | Unset = UNSET
+    token_limit: int | None | Unset = UNSET
+    output_price: float | Unset = 0.0
+    input_price: float | Unset = 0.0
+    cost_by: ModelCostBy | Unset = UNSET
+    is_chat: bool | Unset = False
+    provides_log_probs: bool | Unset = False
+    formatting_tokens: int | Unset = 0
+    response_prefix_tokens: int | Unset = 0
+    api_version: None | str | Unset = UNSET
+    legacy_mistral_prompt_format: bool | Unset = False
+    requires_max_tokens: bool | Unset = False
+    max_top_p: float | None | Unset = UNSET
+    params_map: RunParamsMap | Unset = UNSET
+    output_map: None | OutputMap | Unset = UNSET
+    input_map: InputMap | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -88,43 +89,58 @@ class Model:
 
         alias = self.alias
 
-        integration: Union[Unset, str] = UNSET
+        integration: str | Unset = UNSET
         if not isinstance(self.integration, Unset):
             integration = self.integration.value
 
-        user_role: Union[None, Unset, str]
-        user_role = UNSET if isinstance(self.user_role, Unset) else self.user_role
+        user_role: None | str | Unset
+        if isinstance(self.user_role, Unset):
+            user_role = UNSET
+        else:
+            user_role = self.user_role
 
-        assistant_role: Union[None, Unset, str]
-        assistant_role = UNSET if isinstance(self.assistant_role, Unset) else self.assistant_role
+        assistant_role: None | str | Unset
+        if isinstance(self.assistant_role, Unset):
+            assistant_role = UNSET
+        else:
+            assistant_role = self.assistant_role
 
         system_supported = self.system_supported
 
-        input_modalities: Union[Unset, list[str]] = UNSET
+        input_modalities: list[str] | Unset = UNSET
         if not isinstance(self.input_modalities, Unset):
             input_modalities = []
             for input_modalities_item_data in self.input_modalities:
                 input_modalities_item = input_modalities_item_data.value
                 input_modalities.append(input_modalities_item)
 
-        alternative_names: Union[Unset, list[str]] = UNSET
+        alternative_names: list[str] | Unset = UNSET
         if not isinstance(self.alternative_names, Unset):
             alternative_names = self.alternative_names
 
-        input_token_limit: Union[None, Unset, int]
-        input_token_limit = UNSET if isinstance(self.input_token_limit, Unset) else self.input_token_limit
+        input_token_limit: int | None | Unset
+        if isinstance(self.input_token_limit, Unset):
+            input_token_limit = UNSET
+        else:
+            input_token_limit = self.input_token_limit
 
-        output_token_limit: Union[None, Unset, int]
-        output_token_limit = UNSET if isinstance(self.output_token_limit, Unset) else self.output_token_limit
+        output_token_limit: int | None | Unset
+        if isinstance(self.output_token_limit, Unset):
+            output_token_limit = UNSET
+        else:
+            output_token_limit = self.output_token_limit
 
-        token_limit: Union[None, Unset, int]
-        token_limit = UNSET if isinstance(self.token_limit, Unset) else self.token_limit
+        token_limit: int | None | Unset
+        if isinstance(self.token_limit, Unset):
+            token_limit = UNSET
+        else:
+            token_limit = self.token_limit
 
         output_price = self.output_price
 
         input_price = self.input_price
 
-        cost_by: Union[Unset, str] = UNSET
+        cost_by: str | Unset = UNSET
         if not isinstance(self.cost_by, Unset):
             cost_by = self.cost_by.value
 
@@ -136,21 +152,27 @@ class Model:
 
         response_prefix_tokens = self.response_prefix_tokens
 
-        api_version: Union[None, Unset, str]
-        api_version = UNSET if isinstance(self.api_version, Unset) else self.api_version
+        api_version: None | str | Unset
+        if isinstance(self.api_version, Unset):
+            api_version = UNSET
+        else:
+            api_version = self.api_version
 
         legacy_mistral_prompt_format = self.legacy_mistral_prompt_format
 
         requires_max_tokens = self.requires_max_tokens
 
-        max_top_p: Union[None, Unset, float]
-        max_top_p = UNSET if isinstance(self.max_top_p, Unset) else self.max_top_p
+        max_top_p: float | None | Unset
+        if isinstance(self.max_top_p, Unset):
+            max_top_p = UNSET
+        else:
+            max_top_p = self.max_top_p
 
-        params_map: Union[Unset, dict[str, Any]] = UNSET
+        params_map: dict[str, Any] | Unset = UNSET
         if not isinstance(self.params_map, Unset):
             params_map = self.params_map.to_dict()
 
-        output_map: Union[None, Unset, dict[str, Any]]
+        output_map: dict[str, Any] | None | Unset
         if isinstance(self.output_map, Unset):
             output_map = UNSET
         elif isinstance(self.output_map, OutputMap):
@@ -158,7 +180,7 @@ class Model:
         else:
             output_map = self.output_map
 
-        input_map: Union[None, Unset, dict[str, Any]]
+        input_map: dict[str, Any] | None | Unset
         if isinstance(self.input_map, Unset):
             input_map = UNSET
         elif isinstance(self.input_map, InputMap):
@@ -230,62 +252,67 @@ class Model:
         alias = d.pop("alias")
 
         _integration = d.pop("integration", UNSET)
-        integration: Union[Unset, LLMIntegration]
-        integration = UNSET if isinstance(_integration, Unset) else LLMIntegration(_integration)
+        integration: LLMIntegration | Unset
+        if isinstance(_integration, Unset):
+            integration = UNSET
+        else:
+            integration = LLMIntegration(_integration)
 
-        def _parse_user_role(data: object) -> Union[None, Unset, str]:
+        def _parse_user_role(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         user_role = _parse_user_role(d.pop("user_role", UNSET))
 
-        def _parse_assistant_role(data: object) -> Union[None, Unset, str]:
+        def _parse_assistant_role(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         assistant_role = _parse_assistant_role(d.pop("assistant_role", UNSET))
 
         system_supported = d.pop("system_supported", UNSET)
 
-        input_modalities = []
         _input_modalities = d.pop("input_modalities", UNSET)
-        for input_modalities_item_data in _input_modalities or []:
-            input_modalities_item = ContentModality(input_modalities_item_data)
+        input_modalities: list[ContentModality] | Unset = UNSET
+        if _input_modalities is not UNSET:
+            input_modalities = []
+            for input_modalities_item_data in _input_modalities:
+                input_modalities_item = ContentModality(input_modalities_item_data)
 
-            input_modalities.append(input_modalities_item)
+                input_modalities.append(input_modalities_item)
 
         alternative_names = cast(list[str], d.pop("alternative_names", UNSET))
 
-        def _parse_input_token_limit(data: object) -> Union[None, Unset, int]:
+        def _parse_input_token_limit(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         input_token_limit = _parse_input_token_limit(d.pop("input_token_limit", UNSET))
 
-        def _parse_output_token_limit(data: object) -> Union[None, Unset, int]:
+        def _parse_output_token_limit(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         output_token_limit = _parse_output_token_limit(d.pop("output_token_limit", UNSET))
 
-        def _parse_token_limit(data: object) -> Union[None, Unset, int]:
+        def _parse_token_limit(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         token_limit = _parse_token_limit(d.pop("token_limit", UNSET))
 
@@ -294,8 +321,11 @@ class Model:
         input_price = d.pop("input_price", UNSET)
 
         _cost_by = d.pop("cost_by", UNSET)
-        cost_by: Union[Unset, ModelCostBy]
-        cost_by = UNSET if isinstance(_cost_by, Unset) else ModelCostBy(_cost_by)
+        cost_by: ModelCostBy | Unset
+        if isinstance(_cost_by, Unset):
+            cost_by = UNSET
+        else:
+            cost_by = ModelCostBy(_cost_by)
 
         is_chat = d.pop("is_chat", UNSET)
 
@@ -305,12 +335,12 @@ class Model:
 
         response_prefix_tokens = d.pop("response_prefix_tokens", UNSET)
 
-        def _parse_api_version(data: object) -> Union[None, Unset, str]:
+        def _parse_api_version(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         api_version = _parse_api_version(d.pop("api_version", UNSET))
 
@@ -318,20 +348,23 @@ class Model:
 
         requires_max_tokens = d.pop("requires_max_tokens", UNSET)
 
-        def _parse_max_top_p(data: object) -> Union[None, Unset, float]:
+        def _parse_max_top_p(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(float | None | Unset, data)
 
         max_top_p = _parse_max_top_p(d.pop("max_top_p", UNSET))
 
         _params_map = d.pop("params_map", UNSET)
-        params_map: Union[Unset, RunParamsMap]
-        params_map = UNSET if isinstance(_params_map, Unset) else RunParamsMap.from_dict(_params_map)
+        params_map: RunParamsMap | Unset
+        if isinstance(_params_map, Unset):
+            params_map = UNSET
+        else:
+            params_map = RunParamsMap.from_dict(_params_map)
 
-        def _parse_output_map(data: object) -> Union["OutputMap", None, Unset]:
+        def _parse_output_map(data: object) -> None | OutputMap | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -339,15 +372,16 @@ class Model:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return OutputMap.from_dict(data)
+                output_map_type_0 = OutputMap.from_dict(data)
 
+                return output_map_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["OutputMap", None, Unset], data)
+            return cast(None | OutputMap | Unset, data)
 
         output_map = _parse_output_map(d.pop("output_map", UNSET))
 
-        def _parse_input_map(data: object) -> Union["InputMap", None, Unset]:
+        def _parse_input_map(data: object) -> InputMap | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -355,11 +389,12 @@ class Model:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return InputMap.from_dict(data)
+                input_map_type_0 = InputMap.from_dict(data)
 
+                return input_map_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["InputMap", None, Unset], data)
+            return cast(InputMap | None | Unset, data)
 
         input_map = _parse_input_map(d.pop("input_map", UNSET))
 

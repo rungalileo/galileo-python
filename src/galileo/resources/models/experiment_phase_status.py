@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,12 +14,11 @@ T = TypeVar("T", bound="ExperimentPhaseStatus")
 @_attrs_define
 class ExperimentPhaseStatus:
     """
-    Attributes
-    ----------
-        progress_percent (Union[Unset, float]): Progress percentage from 0.0 to 1.0 Default: 0.0.
+    Attributes:
+        progress_percent (float | Unset): Progress percentage from 0.0 to 1.0 Default: 0.0.
     """
 
-    progress_percent: Union[Unset, float] = 0.0
+    progress_percent: float | Unset = 0.0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

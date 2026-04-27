@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,17 +20,15 @@ T = TypeVar("T", bound="AggregatedTraceViewGraph")
 @_attrs_define
 class AggregatedTraceViewGraph:
     """
-    Attributes
-    ----------
-        nodes (list['AggregatedTraceViewNode']):
-        edges (list['AggregatedTraceViewEdge']):
-        edge_occurrences_histogram (Union['Histogram', None, Unset]): Histogram of edge occurrence counts across the
-            graph.
+    Attributes:
+        nodes (list[AggregatedTraceViewNode]):
+        edges (list[AggregatedTraceViewEdge]):
+        edge_occurrences_histogram (Histogram | None | Unset): Histogram of edge occurrence counts across the graph
     """
 
-    nodes: list["AggregatedTraceViewNode"]
-    edges: list["AggregatedTraceViewEdge"]
-    edge_occurrences_histogram: Union["Histogram", None, Unset] = UNSET
+    nodes: list[AggregatedTraceViewNode]
+    edges: list[AggregatedTraceViewEdge]
+    edge_occurrences_histogram: Histogram | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,7 +44,7 @@ class AggregatedTraceViewGraph:
             edges_item = edges_item_data.to_dict()
             edges.append(edges_item)
 
-        edge_occurrences_histogram: Union[None, Unset, dict[str, Any]]
+        edge_occurrences_histogram: dict[str, Any] | None | Unset
         if isinstance(self.edge_occurrences_histogram, Unset):
             edge_occurrences_histogram = UNSET
         elif isinstance(self.edge_occurrences_histogram, Histogram):
@@ -81,7 +81,7 @@ class AggregatedTraceViewGraph:
 
             edges.append(edges_item)
 
-        def _parse_edge_occurrences_histogram(data: object) -> Union["Histogram", None, Unset]:
+        def _parse_edge_occurrences_histogram(data: object) -> Histogram | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -89,11 +89,12 @@ class AggregatedTraceViewGraph:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return Histogram.from_dict(data)
+                edge_occurrences_histogram_type_0 = Histogram.from_dict(data)
 
+                return edge_occurrences_histogram_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["Histogram", None, Unset], data)
+            return cast(Histogram | None | Unset, data)
 
         edge_occurrences_histogram = _parse_edge_occurrences_histogram(d.pop("edge_occurrences_histogram", UNSET))
 

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -28,7 +28,7 @@ def _get_kwargs(project_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/experiments/available_columns",
+        "path": "/projects/{project_id}/experiments/available_columns".format(project_id=project_id),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -39,12 +39,16 @@ def _get_kwargs(project_id: str) -> dict[str, Any]:
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]:
+) -> ExperimentsAvailableColumnsResponse | HTTPValidationError:
     if response.status_code == 200:
-        return ExperimentsAvailableColumnsResponse.from_dict(response.json())
+        response_200 = ExperimentsAvailableColumnsResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -66,7 +70,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]:
+) -> Response[ExperimentsAvailableColumnsResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -77,23 +81,22 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient
-) -> Response[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]:
-    """Experiments Available Columns.
+) -> Response[ExperimentsAvailableColumnsResponse | HTTPValidationError]:
+    """Experiments Available Columns
 
      Procures the column information for experiments.
 
     Args:
         project_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]
+    Returns:
+        Response[ExperimentsAvailableColumnsResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id)
 
     response = client.request(**kwargs)
@@ -101,47 +104,43 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(
-    project_id: str, *, client: ApiClient
-) -> Optional[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]:
-    """Experiments Available Columns.
+def sync(project_id: str, *, client: ApiClient) -> Optional[ExperimentsAvailableColumnsResponse | HTTPValidationError]:
+    """Experiments Available Columns
 
      Procures the column information for experiments.
 
     Args:
         project_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]
+    Returns:
+        ExperimentsAvailableColumnsResponse | HTTPValidationError
     """
+
     return sync_detailed(project_id=project_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient
-) -> Response[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]:
-    """Experiments Available Columns.
+) -> Response[ExperimentsAvailableColumnsResponse | HTTPValidationError]:
+    """Experiments Available Columns
 
      Procures the column information for experiments.
 
     Args:
         project_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]
+    Returns:
+        Response[ExperimentsAvailableColumnsResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id)
 
     response = await client.arequest(**kwargs)
@@ -151,21 +150,20 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient
-) -> Optional[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]:
-    """Experiments Available Columns.
+) -> Optional[ExperimentsAvailableColumnsResponse | HTTPValidationError]:
+    """Experiments Available Columns
 
      Procures the column information for experiments.
 
     Args:
         project_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]
+    Returns:
+        ExperimentsAvailableColumnsResponse | HTTPValidationError
     """
+
     return (await asyncio_detailed(project_id=project_id, client=client)).parsed

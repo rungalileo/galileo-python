@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,19 +21,18 @@ T = TypeVar("T", bound="DatasetDB")
 @_attrs_define
 class DatasetDB:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         name (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         project_count (int):
-        num_rows (Union[None, int]):
-        column_names (Union[None, list[str]]):
-        created_by_user (Union['UserInfo', None]):
+        num_rows (int | None):
+        column_names (list[str] | None):
+        created_by_user (None | UserInfo):
         current_version_index (int):
         draft (bool):
-        permissions (Union[Unset, list['Permission']]):
+        permissions (list[Permission] | Unset):
     """
 
     id: str
@@ -39,12 +40,12 @@ class DatasetDB:
     created_at: datetime.datetime
     updated_at: datetime.datetime
     project_count: int
-    num_rows: Union[None, int]
-    column_names: Union[None, list[str]]
-    created_by_user: Union["UserInfo", None]
+    num_rows: int | None
+    column_names: list[str] | None
+    created_by_user: None | UserInfo
     current_version_index: int
     draft: bool
-    permissions: Union[Unset, list["Permission"]] = UNSET
+    permissions: list[Permission] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,13 +61,17 @@ class DatasetDB:
 
         project_count = self.project_count
 
-        num_rows: Union[None, int]
+        num_rows: int | None
         num_rows = self.num_rows
 
-        column_names: Union[None, list[str]]
-        column_names = self.column_names if isinstance(self.column_names, list) else self.column_names
+        column_names: list[str] | None
+        if isinstance(self.column_names, list):
+            column_names = self.column_names
 
-        created_by_user: Union[None, dict[str, Any]]
+        else:
+            column_names = self.column_names
+
+        created_by_user: dict[str, Any] | None
         if isinstance(self.created_by_user, UserInfo):
             created_by_user = self.created_by_user.to_dict()
         else:
@@ -76,7 +81,7 @@ class DatasetDB:
 
         draft = self.draft
 
-        permissions: Union[Unset, list[dict[str, Any]]] = UNSET
+        permissions: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
@@ -120,38 +125,40 @@ class DatasetDB:
 
         project_count = d.pop("project_count")
 
-        def _parse_num_rows(data: object) -> Union[None, int]:
+        def _parse_num_rows(data: object) -> int | None:
             if data is None:
                 return data
-            return cast(Union[None, int], data)
+            return cast(int | None, data)
 
         num_rows = _parse_num_rows(d.pop("num_rows"))
 
-        def _parse_column_names(data: object) -> Union[None, list[str]]:
+        def _parse_column_names(data: object) -> list[str] | None:
             if data is None:
                 return data
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                column_names_type_0 = cast(list[str], data)
 
+                return column_names_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, list[str]], data)
+            return cast(list[str] | None, data)
 
         column_names = _parse_column_names(d.pop("column_names"))
 
-        def _parse_created_by_user(data: object) -> Union["UserInfo", None]:
+        def _parse_created_by_user(data: object) -> None | UserInfo:
             if data is None:
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return UserInfo.from_dict(data)
+                created_by_user_type_0 = UserInfo.from_dict(data)
 
+                return created_by_user_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["UserInfo", None], data)
+            return cast(None | UserInfo, data)
 
         created_by_user = _parse_created_by_user(d.pop("created_by_user"))
 
@@ -159,12 +166,14 @@ class DatasetDB:
 
         draft = d.pop("draft")
 
-        permissions = []
         _permissions = d.pop("permissions", UNSET)
-        for permissions_item_data in _permissions or []:
-            permissions_item = Permission.from_dict(permissions_item_data)
+        permissions: list[Permission] | Unset = UNSET
+        if _permissions is not UNSET:
+            permissions = []
+            for permissions_item_data in _permissions:
+                permissions_item = Permission.from_dict(permissions_item_data)
 
-            permissions.append(permissions_item)
+                permissions.append(permissions_item)
 
         dataset_db = cls(
             id=id,

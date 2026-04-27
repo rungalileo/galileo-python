@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,36 +20,35 @@ T = TypeVar("T", bound="AggregatedTraceViewNode")
 @_attrs_define
 class AggregatedTraceViewNode:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
-        name (Union[None, str]):
+        name (None | str):
         type_ (StepType):
         occurrences (int):
         has_children (bool):
         metrics (AggregatedTraceViewNodeMetrics):
         trace_count (int):
         weight (float):
-        parent_id (Union[None, Unset, str]):
-        insights (Union[Unset, list['InsightSummary']]):
+        parent_id (None | str | Unset):
+        insights (list[InsightSummary] | Unset):
     """
 
     id: str
-    name: Union[None, str]
+    name: None | str
     type_: StepType
     occurrences: int
     has_children: bool
-    metrics: "AggregatedTraceViewNodeMetrics"
+    metrics: AggregatedTraceViewNodeMetrics
     trace_count: int
     weight: float
-    parent_id: Union[None, Unset, str] = UNSET
-    insights: Union[Unset, list["InsightSummary"]] = UNSET
+    parent_id: None | str | Unset = UNSET
+    insights: list[InsightSummary] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         id = self.id
 
-        name: Union[None, str]
+        name: None | str
         name = self.name
 
         type_ = self.type_.value
@@ -62,10 +63,13 @@ class AggregatedTraceViewNode:
 
         weight = self.weight
 
-        parent_id: Union[None, Unset, str]
-        parent_id = UNSET if isinstance(self.parent_id, Unset) else self.parent_id
+        parent_id: None | str | Unset
+        if isinstance(self.parent_id, Unset):
+            parent_id = UNSET
+        else:
+            parent_id = self.parent_id
 
-        insights: Union[Unset, list[dict[str, Any]]] = UNSET
+        insights: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.insights, Unset):
             insights = []
             for insights_item_data in self.insights:
@@ -101,10 +105,10 @@ class AggregatedTraceViewNode:
         d = dict(src_dict)
         id = d.pop("id")
 
-        def _parse_name(data: object) -> Union[None, str]:
+        def _parse_name(data: object) -> None | str:
             if data is None:
                 return data
-            return cast(Union[None, str], data)
+            return cast(None | str, data)
 
         name = _parse_name(d.pop("name"))
 
@@ -120,21 +124,23 @@ class AggregatedTraceViewNode:
 
         weight = d.pop("weight")
 
-        def _parse_parent_id(data: object) -> Union[None, Unset, str]:
+        def _parse_parent_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         parent_id = _parse_parent_id(d.pop("parent_id", UNSET))
 
-        insights = []
         _insights = d.pop("insights", UNSET)
-        for insights_item_data in _insights or []:
-            insights_item = InsightSummary.from_dict(insights_item_data)
+        insights: list[InsightSummary] | Unset = UNSET
+        if _insights is not UNSET:
+            insights = []
+            for insights_item_data in _insights:
+                insights_item = InsightSummary.from_dict(insights_item_data)
 
-            insights.append(insights_item)
+                insights.append(insights_item)
 
         aggregated_trace_view_node = cls(
             id=id,

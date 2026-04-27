@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,20 +18,19 @@ T = TypeVar("T", bound="DatasetRow")
 @_attrs_define
 class DatasetRow:
     """
-    Attributes
-    ----------
+    Attributes:
         row_id (str):
         index (int):
-        values (list[Union['DatasetRowValuesItemType3', None, float, int, str]]):
+        values (list[DatasetRowValuesItemType3 | float | int | None | str]):
         values_dict (DatasetRowValuesDict):
-        metadata (Union['DatasetRowMetadata', None]):
+        metadata (DatasetRowMetadata | None):
     """
 
     row_id: str
     index: int
-    values: list[Union["DatasetRowValuesItemType3", None, float, int, str]]
-    values_dict: "DatasetRowValuesDict"
-    metadata: Union["DatasetRowMetadata", None]
+    values: list[DatasetRowValuesItemType3 | float | int | None | str]
+    values_dict: DatasetRowValuesDict
+    metadata: DatasetRowMetadata | None
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,7 +43,7 @@ class DatasetRow:
 
         values = []
         for values_item_data in self.values:
-            values_item: Union[None, dict[str, Any], float, int, str]
+            values_item: dict[str, Any] | float | int | None | str
             if isinstance(values_item_data, DatasetRowValuesItemType3):
                 values_item = values_item_data.to_dict()
             else:
@@ -51,8 +52,11 @@ class DatasetRow:
 
         values_dict = self.values_dict.to_dict()
 
-        metadata: Union[None, dict[str, Any]]
-        metadata = self.metadata.to_dict() if isinstance(self.metadata, DatasetRowMetadata) else self.metadata
+        metadata: dict[str, Any] | None
+        if isinstance(self.metadata, DatasetRowMetadata):
+            metadata = self.metadata.to_dict()
+        else:
+            metadata = self.metadata
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -77,17 +81,18 @@ class DatasetRow:
         _values = d.pop("values")
         for values_item_data in _values:
 
-            def _parse_values_item(data: object) -> Union["DatasetRowValuesItemType3", None, float, int, str]:
+            def _parse_values_item(data: object) -> DatasetRowValuesItemType3 | float | int | None | str:
                 if data is None:
                     return data
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return DatasetRowValuesItemType3.from_dict(data)
+                    values_item_type_3 = DatasetRowValuesItemType3.from_dict(data)
 
+                    return values_item_type_3
                 except:  # noqa: E722
                     pass
-                return cast(Union["DatasetRowValuesItemType3", None, float, int, str], data)
+                return cast(DatasetRowValuesItemType3 | float | int | None | str, data)
 
             values_item = _parse_values_item(values_item_data)
 
@@ -95,17 +100,18 @@ class DatasetRow:
 
         values_dict = DatasetRowValuesDict.from_dict(d.pop("values_dict"))
 
-        def _parse_metadata(data: object) -> Union["DatasetRowMetadata", None]:
+        def _parse_metadata(data: object) -> DatasetRowMetadata | None:
             if data is None:
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetRowMetadata.from_dict(data)
+                metadata_type_0 = DatasetRowMetadata.from_dict(data)
 
+                return metadata_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["DatasetRowMetadata", None], data)
+            return cast(DatasetRowMetadata | None, data)
 
         metadata = _parse_metadata(d.pop("metadata"))
 

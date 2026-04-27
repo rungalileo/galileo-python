@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,18 +18,17 @@ T = TypeVar("T", bound="AnnotationStarAggregate")
 @_attrs_define
 class AnnotationStarAggregate:
     """
-    Attributes
-    ----------
+    Attributes:
         average (float):
         counts (AnnotationStarAggregateCounts):
         unrated_count (int):
-        annotation_type (Union[Literal['star'], Unset]):  Default: 'star'.
+        annotation_type (Literal['star'] | Unset):  Default: 'star'.
     """
 
     average: float
-    counts: "AnnotationStarAggregateCounts"
+    counts: AnnotationStarAggregateCounts
     unrated_count: int
-    annotation_type: Union[Literal["star"], Unset] = "star"
+    annotation_type: Literal["star"] | Unset = "star"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,7 +59,7 @@ class AnnotationStarAggregate:
 
         unrated_count = d.pop("unrated_count")
 
-        annotation_type = cast(Union[Literal["star"], Unset], d.pop("annotation_type", UNSET))
+        annotation_type = cast(Literal["star"] | Unset, d.pop("annotation_type", UNSET))
         if annotation_type != "star" and not isinstance(annotation_type, Unset):
             raise ValueError(f"annotation_type must match const 'star', got '{annotation_type}'")
 

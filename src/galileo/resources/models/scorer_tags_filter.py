@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,25 +15,28 @@ T = TypeVar("T", bound="ScorerTagsFilter")
 @_attrs_define
 class ScorerTagsFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         operator (ScorerTagsFilterOperator):
-        value (Union[list[str], str]):
-        name (Union[Literal['tags'], Unset]):  Default: 'tags'.
-        case_sensitive (Union[Unset, bool]):  Default: True.
+        value (list[str] | str):
+        name (Literal['tags'] | Unset):  Default: 'tags'.
+        case_sensitive (bool | Unset):  Default: True.
     """
 
     operator: ScorerTagsFilterOperator
-    value: Union[list[str], str]
-    name: Union[Literal["tags"], Unset] = "tags"
-    case_sensitive: Union[Unset, bool] = True
+    value: list[str] | str
+    name: Literal["tags"] | Unset = "tags"
+    case_sensitive: bool | Unset = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         operator = self.operator.value
 
-        value: Union[list[str], str]
-        value = self.value if isinstance(self.value, list) else self.value
+        value: list[str] | str
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         name = self.name
 
@@ -52,19 +57,20 @@ class ScorerTagsFilter:
         d = dict(src_dict)
         operator = ScorerTagsFilterOperator(d.pop("operator"))
 
-        def _parse_value(data: object) -> Union[list[str], str]:
+        def _parse_value(data: object) -> list[str] | str:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[list[str], str], data)
+            return cast(list[str] | str, data)
 
         value = _parse_value(d.pop("value"))
 
-        name = cast(Union[Literal["tags"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["tags"] | Unset, d.pop("name", UNSET))
         if name != "tags" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'tags', got '{name}'")
 

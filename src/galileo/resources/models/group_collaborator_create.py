@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,20 +15,19 @@ T = TypeVar("T", bound="GroupCollaboratorCreate")
 @_attrs_define
 class GroupCollaboratorCreate:
     """
-    Attributes
-    ----------
+    Attributes:
         group_id (str):
-        role (Union[Unset, CollaboratorRole]):
+        role (CollaboratorRole | Unset):
     """
 
     group_id: str
-    role: Union[Unset, CollaboratorRole] = UNSET
+    role: CollaboratorRole | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         group_id = self.group_id
 
-        role: Union[Unset, str] = UNSET
+        role: str | Unset = UNSET
         if not isinstance(self.role, Unset):
             role = self.role.value
 
@@ -44,8 +45,11 @@ class GroupCollaboratorCreate:
         group_id = d.pop("group_id")
 
         _role = d.pop("role", UNSET)
-        role: Union[Unset, CollaboratorRole]
-        role = UNSET if isinstance(_role, Unset) else CollaboratorRole(_role)
+        role: CollaboratorRole | Unset
+        if isinstance(_role, Unset):
+            role = UNSET
+        else:
+            role = CollaboratorRole(_role)
 
         group_collaborator_create = cls(group_id=group_id, role=role)
 

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -28,7 +28,9 @@ def _get_kwargs(project_id: str, template_id: str, version: int) -> dict[str, An
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/templates/{template_id}/versions/{version}",
+        "path": "/projects/{project_id}/templates/{template_id}/versions/{version}".format(
+            project_id=project_id, template_id=template_id, version=version
+        ),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -39,12 +41,16 @@ def _get_kwargs(project_id: str, template_id: str, version: int) -> dict[str, An
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[BasePromptTemplateVersionResponse, HTTPValidationError]:
+) -> BasePromptTemplateVersionResponse | HTTPValidationError:
     if response.status_code == 200:
-        return BasePromptTemplateVersionResponse.from_dict(response.json())
+        response_200 = BasePromptTemplateVersionResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -66,7 +72,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
+) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -77,8 +83,8 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
-    """Get Template Version.
+) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
+    """Get Template Version
 
      Get a specific version of a prompt template.
 
@@ -101,15 +107,14 @@ def sync_detailed(
         template_id (str):
         version (int):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
+    Returns:
+        Response[BasePromptTemplateVersionResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
 
     response = client.request(**kwargs)
@@ -119,8 +124,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
-    """Get Template Version.
+) -> Optional[BasePromptTemplateVersionResponse | HTTPValidationError]:
+    """Get Template Version
 
      Get a specific version of a prompt template.
 
@@ -143,22 +148,21 @@ def sync(
         template_id (str):
         version (int):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[BasePromptTemplateVersionResponse, HTTPValidationError]
+    Returns:
+        BasePromptTemplateVersionResponse | HTTPValidationError
     """
+
     return sync_detailed(project_id=project_id, template_id=template_id, version=version, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
-    """Get Template Version.
+) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
+    """Get Template Version
 
      Get a specific version of a prompt template.
 
@@ -181,15 +185,14 @@ async def asyncio_detailed(
         template_id (str):
         version (int):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
+    Returns:
+        Response[BasePromptTemplateVersionResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
 
     response = await client.arequest(**kwargs)
@@ -199,8 +202,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
-    """Get Template Version.
+) -> Optional[BasePromptTemplateVersionResponse | HTTPValidationError]:
+    """Get Template Version
 
      Get a specific version of a prompt template.
 
@@ -223,15 +226,14 @@ async def asyncio(
         template_id (str):
         version (int):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[BasePromptTemplateVersionResponse, HTTPValidationError]
+    Returns:
+        BasePromptTemplateVersionResponse | HTTPValidationError
     """
+
     return (
         await asyncio_detailed(project_id=project_id, template_id=template_id, version=version, client=client)
     ).parsed

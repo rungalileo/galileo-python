@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -10,8 +12,7 @@ T = TypeVar("T", bound="AzureModelDeployment")
 @_attrs_define
 class AzureModelDeployment:
     """
-    Attributes
-    ----------
+    Attributes:
         model (str): The name of the model.
         id (str): The ID of the deployment.
     """

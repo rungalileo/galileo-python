@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.execution_status import ExecutionStatus
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -23,32 +24,31 @@ T = TypeVar("T", bound="InvokeResponse")
 @_attrs_define
 class InvokeResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         text (str): Text from the request after processing the rules.
         trace_metadata (TraceMetadata):
         stage_metadata (StageMetadata):
         action_result (ActionResult):
-        status (Union[Unset, ExecutionStatus]): Status of the execution.
-        api_version (Union[Unset, str]):  Default: '1.0.0'.
-        ruleset_results (Union[Unset, list['RulesetResult']]): Results of the rule execution.
-        metric_results (Union[Unset, InvokeResponseMetricResults]): Results of the metric computation.
-        metadata (Union['InvokeResponseMetadataType0', None, Unset]): Optional additional metadata. This being echoed
-            back from the request.
-        headers (Union['InvokeResponseHeadersType0', None, Unset]): Optional additional HTTP headers that should be
-            included in the response.
+        status (str | Unset): Status of the execution.
+        api_version (str | Unset):  Default: '1.0.0'.
+        ruleset_results (list[RulesetResult] | Unset): Results of the rule execution.
+        metric_results (InvokeResponseMetricResults | Unset): Results of the metric computation.
+        metadata (InvokeResponseMetadataType0 | None | Unset): Optional additional metadata. This being echoed back from
+            the request.
+        headers (InvokeResponseHeadersType0 | None | Unset): Optional additional HTTP headers that should be included in
+            the response.
     """
 
     text: str
-    trace_metadata: "TraceMetadata"
-    stage_metadata: "StageMetadata"
-    action_result: "ActionResult"
-    status: Union[Unset, ExecutionStatus] = UNSET
-    api_version: Union[Unset, str] = "1.0.0"
-    ruleset_results: Union[Unset, list["RulesetResult"]] = UNSET
-    metric_results: Union[Unset, "InvokeResponseMetricResults"] = UNSET
-    metadata: Union["InvokeResponseMetadataType0", None, Unset] = UNSET
-    headers: Union["InvokeResponseHeadersType0", None, Unset] = UNSET
+    trace_metadata: TraceMetadata
+    stage_metadata: StageMetadata
+    action_result: ActionResult
+    status: str | Unset = UNSET
+    api_version: str | Unset = "1.0.0"
+    ruleset_results: list[RulesetResult] | Unset = UNSET
+    metric_results: InvokeResponseMetricResults | Unset = UNSET
+    metadata: InvokeResponseMetadataType0 | None | Unset = UNSET
+    headers: InvokeResponseHeadersType0 | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -63,24 +63,22 @@ class InvokeResponse:
 
         action_result = self.action_result.to_dict()
 
-        status: Union[Unset, str] = UNSET
-        if not isinstance(self.status, Unset):
-            status = self.status.value
+        status = self.status
 
         api_version = self.api_version
 
-        ruleset_results: Union[Unset, list[dict[str, Any]]] = UNSET
+        ruleset_results: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.ruleset_results, Unset):
             ruleset_results = []
             for ruleset_results_item_data in self.ruleset_results:
                 ruleset_results_item = ruleset_results_item_data.to_dict()
                 ruleset_results.append(ruleset_results_item)
 
-        metric_results: Union[Unset, dict[str, Any]] = UNSET
+        metric_results: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metric_results, Unset):
             metric_results = self.metric_results.to_dict()
 
-        metadata: Union[None, Unset, dict[str, Any]]
+        metadata: dict[str, Any] | None | Unset
         if isinstance(self.metadata, Unset):
             metadata = UNSET
         elif isinstance(self.metadata, InvokeResponseMetadataType0):
@@ -88,7 +86,7 @@ class InvokeResponse:
         else:
             metadata = self.metadata
 
-        headers: Union[None, Unset, dict[str, Any]]
+        headers: dict[str, Any] | None | Unset
         if isinstance(self.headers, Unset):
             headers = UNSET
         elif isinstance(self.headers, InvokeResponseHeadersType0):
@@ -140,27 +138,27 @@ class InvokeResponse:
 
         action_result = ActionResult.from_dict(d.pop("action_result"))
 
-        _status = d.pop("status", UNSET)
-        status: Union[Unset, ExecutionStatus]
-        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
+        status = d.pop("status", UNSET)
 
         api_version = d.pop("api_version", UNSET)
 
-        ruleset_results = []
         _ruleset_results = d.pop("ruleset_results", UNSET)
-        for ruleset_results_item_data in _ruleset_results or []:
-            ruleset_results_item = RulesetResult.from_dict(ruleset_results_item_data)
+        ruleset_results: list[RulesetResult] | Unset = UNSET
+        if _ruleset_results is not UNSET:
+            ruleset_results = []
+            for ruleset_results_item_data in _ruleset_results:
+                ruleset_results_item = RulesetResult.from_dict(ruleset_results_item_data)
 
-            ruleset_results.append(ruleset_results_item)
+                ruleset_results.append(ruleset_results_item)
 
         _metric_results = d.pop("metric_results", UNSET)
-        metric_results: Union[Unset, InvokeResponseMetricResults]
+        metric_results: InvokeResponseMetricResults | Unset
         if isinstance(_metric_results, Unset):
             metric_results = UNSET
         else:
             metric_results = InvokeResponseMetricResults.from_dict(_metric_results)
 
-        def _parse_metadata(data: object) -> Union["InvokeResponseMetadataType0", None, Unset]:
+        def _parse_metadata(data: object) -> InvokeResponseMetadataType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -168,15 +166,16 @@ class InvokeResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return InvokeResponseMetadataType0.from_dict(data)
+                metadata_type_0 = InvokeResponseMetadataType0.from_dict(data)
 
+                return metadata_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["InvokeResponseMetadataType0", None, Unset], data)
+            return cast(InvokeResponseMetadataType0 | None | Unset, data)
 
         metadata = _parse_metadata(d.pop("metadata", UNSET))
 
-        def _parse_headers(data: object) -> Union["InvokeResponseHeadersType0", None, Unset]:
+        def _parse_headers(data: object) -> InvokeResponseHeadersType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -184,11 +183,12 @@ class InvokeResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return InvokeResponseHeadersType0.from_dict(data)
+                headers_type_0 = InvokeResponseHeadersType0.from_dict(data)
 
+                return headers_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["InvokeResponseHeadersType0", None, Unset], data)
+            return cast(InvokeResponseHeadersType0 | None | Unset, data)
 
         headers = _parse_headers(d.pop("headers", UNSET))
 

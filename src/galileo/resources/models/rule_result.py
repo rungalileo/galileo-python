@@ -1,10 +1,11 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.execution_status import ExecutionStatus
 from ..models.rule_operator import RuleOperator
 from ..types import UNSET, Unset
 
@@ -14,22 +15,21 @@ T = TypeVar("T", bound="RuleResult")
 @_attrs_define
 class RuleResult:
     """
-    Attributes
-    ----------
+    Attributes:
         metric (str): Name of the metric.
         operator (RuleOperator):
-        target_value (Union[None, float, int, list[Any], str]): Value to compare with for this metric (right hand side).
-        status (Union[Unset, ExecutionStatus]): Status of the execution.
-        value (Union[Any, None, Unset]): Result of the metric computation.
-        execution_time (Union[None, Unset, float]): Execution time for the rule in seconds.
+        target_value (float | int | list[Any] | None | str): Value to compare with for this metric (right hand side).
+        status (str | Unset): Status of the execution.
+        value (Any | None | Unset): Result of the metric computation.
+        execution_time (float | None | Unset): Execution time for the rule in seconds.
     """
 
     metric: str
     operator: RuleOperator
-    target_value: Union[None, float, int, list[Any], str]
-    status: Union[Unset, ExecutionStatus] = UNSET
-    value: Union[Any, None, Unset] = UNSET
-    execution_time: Union[None, Unset, float] = UNSET
+    target_value: float | int | list[Any] | None | str
+    status: str | Unset = UNSET
+    value: Any | None | Unset = UNSET
+    execution_time: float | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -37,18 +37,26 @@ class RuleResult:
 
         operator = self.operator.value
 
-        target_value: Union[None, float, int, list[Any], str]
-        target_value = self.target_value if isinstance(self.target_value, list) else self.target_value
+        target_value: float | int | list[Any] | None | str
+        if isinstance(self.target_value, list):
+            target_value = self.target_value
 
-        status: Union[Unset, str] = UNSET
-        if not isinstance(self.status, Unset):
-            status = self.status.value
+        else:
+            target_value = self.target_value
 
-        value: Union[Any, None, Unset]
-        value = UNSET if isinstance(self.value, Unset) else self.value
+        status = self.status
 
-        execution_time: Union[None, Unset, float]
-        execution_time = UNSET if isinstance(self.execution_time, Unset) else self.execution_time
+        value: Any | None | Unset
+        if isinstance(self.value, Unset):
+            value = UNSET
+        else:
+            value = self.value
+
+        execution_time: float | None | Unset
+        if isinstance(self.execution_time, Unset):
+            execution_time = UNSET
+        else:
+            execution_time = self.execution_time
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -69,39 +77,38 @@ class RuleResult:
 
         operator = RuleOperator(d.pop("operator"))
 
-        def _parse_target_value(data: object) -> Union[None, float, int, list[Any], str]:
+        def _parse_target_value(data: object) -> float | int | list[Any] | None | str:
             if data is None:
                 return data
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[Any], data)
+                target_value_type_3 = cast(list[Any], data)
 
+                return target_value_type_3
             except:  # noqa: E722
                 pass
-            return cast(Union[None, float, int, list[Any], str], data)
+            return cast(float | int | list[Any] | None | str, data)
 
         target_value = _parse_target_value(d.pop("target_value"))
 
-        _status = d.pop("status", UNSET)
-        status: Union[Unset, ExecutionStatus]
-        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
+        status = d.pop("status", UNSET)
 
-        def _parse_value(data: object) -> Union[Any, None, Unset]:
+        def _parse_value(data: object) -> Any | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[Any, None, Unset], data)
+            return cast(Any | None | Unset, data)
 
         value = _parse_value(d.pop("value", UNSET))
 
-        def _parse_execution_time(data: object) -> Union[None, Unset, float]:
+        def _parse_execution_time(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(float | None | Unset, data)
 
         execution_time = _parse_execution_time(d.pop("execution_time", UNSET))
 

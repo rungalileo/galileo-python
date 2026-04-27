@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,28 +21,26 @@ T = TypeVar("T", bound="MCPApprovalRequestEvent")
 class MCPApprovalRequestEvent:
     """MCP approval request - when human approval is needed for an MCP tool call.
 
-    Attributes
-    ----------
-        type_ (Union[Literal['mcp_approval_request'], Unset]):  Default: 'mcp_approval_request'.
-        id (Union[None, Unset, str]): Unique identifier for the event
-        status (Union[EventStatus, None, Unset]): Status of the event
-        metadata (Union['MCPApprovalRequestEventMetadataType0', None, Unset]): Provider-specific metadata and additional
-            fields
-        error_message (Union[None, Unset, str]): Error message if the event failed
-        tool_name (Union[None, Unset, str]): Name of the MCP tool requiring approval
-        tool_invocation (Union['MCPApprovalRequestEventToolInvocationType0', None, Unset]): Details of the tool
-            invocation requiring approval
-        approved (Union[None, Unset, bool]): Whether the request was approved
+    Attributes:
+        type_ (Literal['mcp_approval_request'] | Unset):  Default: 'mcp_approval_request'.
+        id (None | str | Unset): Unique identifier for the event
+        status (EventStatus | None | Unset): Status of the event
+        metadata (MCPApprovalRequestEventMetadataType0 | None | Unset): Provider-specific metadata and additional fields
+        error_message (None | str | Unset): Error message if the event failed
+        tool_name (None | str | Unset): Name of the MCP tool requiring approval
+        tool_invocation (MCPApprovalRequestEventToolInvocationType0 | None | Unset): Details of the tool invocation
+            requiring approval
+        approved (bool | None | Unset): Whether the request was approved
     """
 
-    type_: Union[Literal["mcp_approval_request"], Unset] = "mcp_approval_request"
-    id: Union[None, Unset, str] = UNSET
-    status: Union[EventStatus, None, Unset] = UNSET
-    metadata: Union["MCPApprovalRequestEventMetadataType0", None, Unset] = UNSET
-    error_message: Union[None, Unset, str] = UNSET
-    tool_name: Union[None, Unset, str] = UNSET
-    tool_invocation: Union["MCPApprovalRequestEventToolInvocationType0", None, Unset] = UNSET
-    approved: Union[None, Unset, bool] = UNSET
+    type_: Literal["mcp_approval_request"] | Unset = "mcp_approval_request"
+    id: None | str | Unset = UNSET
+    status: EventStatus | None | Unset = UNSET
+    metadata: MCPApprovalRequestEventMetadataType0 | None | Unset = UNSET
+    error_message: None | str | Unset = UNSET
+    tool_name: None | str | Unset = UNSET
+    tool_invocation: MCPApprovalRequestEventToolInvocationType0 | None | Unset = UNSET
+    approved: bool | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -51,10 +51,13 @@ class MCPApprovalRequestEvent:
 
         type_ = self.type_
 
-        id: Union[None, Unset, str]
-        id = UNSET if isinstance(self.id, Unset) else self.id
+        id: None | str | Unset
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
-        status: Union[None, Unset, str]
+        status: None | str | Unset
         if isinstance(self.status, Unset):
             status = UNSET
         elif isinstance(self.status, EventStatus):
@@ -62,7 +65,7 @@ class MCPApprovalRequestEvent:
         else:
             status = self.status
 
-        metadata: Union[None, Unset, dict[str, Any]]
+        metadata: dict[str, Any] | None | Unset
         if isinstance(self.metadata, Unset):
             metadata = UNSET
         elif isinstance(self.metadata, MCPApprovalRequestEventMetadataType0):
@@ -70,13 +73,19 @@ class MCPApprovalRequestEvent:
         else:
             metadata = self.metadata
 
-        error_message: Union[None, Unset, str]
-        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
+        error_message: None | str | Unset
+        if isinstance(self.error_message, Unset):
+            error_message = UNSET
+        else:
+            error_message = self.error_message
 
-        tool_name: Union[None, Unset, str]
-        tool_name = UNSET if isinstance(self.tool_name, Unset) else self.tool_name
+        tool_name: None | str | Unset
+        if isinstance(self.tool_name, Unset):
+            tool_name = UNSET
+        else:
+            tool_name = self.tool_name
 
-        tool_invocation: Union[None, Unset, dict[str, Any]]
+        tool_invocation: dict[str, Any] | None | Unset
         if isinstance(self.tool_invocation, Unset):
             tool_invocation = UNSET
         elif isinstance(self.tool_invocation, MCPApprovalRequestEventToolInvocationType0):
@@ -84,8 +93,11 @@ class MCPApprovalRequestEvent:
         else:
             tool_invocation = self.tool_invocation
 
-        approved: Union[None, Unset, bool]
-        approved = UNSET if isinstance(self.approved, Unset) else self.approved
+        approved: bool | None | Unset
+        if isinstance(self.approved, Unset):
+            approved = UNSET
+        else:
+            approved = self.approved
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -117,20 +129,20 @@ class MCPApprovalRequestEvent:
         )
 
         d = dict(src_dict)
-        type_ = cast(Union[Literal["mcp_approval_request"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["mcp_approval_request"] | Unset, d.pop("type", UNSET))
         if type_ != "mcp_approval_request" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'mcp_approval_request', got '{type_}'")
 
-        def _parse_id(data: object) -> Union[None, Unset, str]:
+        def _parse_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_status(data: object) -> Union[EventStatus, None, Unset]:
+        def _parse_status(data: object) -> EventStatus | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -138,15 +150,16 @@ class MCPApprovalRequestEvent:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return EventStatus(data)
+                status_type_0 = EventStatus(data)
 
+                return status_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[EventStatus, None, Unset], data)
+            return cast(EventStatus | None | Unset, data)
 
         status = _parse_status(d.pop("status", UNSET))
 
-        def _parse_metadata(data: object) -> Union["MCPApprovalRequestEventMetadataType0", None, Unset]:
+        def _parse_metadata(data: object) -> MCPApprovalRequestEventMetadataType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -154,33 +167,34 @@ class MCPApprovalRequestEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MCPApprovalRequestEventMetadataType0.from_dict(data)
+                metadata_type_0 = MCPApprovalRequestEventMetadataType0.from_dict(data)
 
+                return metadata_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["MCPApprovalRequestEventMetadataType0", None, Unset], data)
+            return cast(MCPApprovalRequestEventMetadataType0 | None | Unset, data)
 
         metadata = _parse_metadata(d.pop("metadata", UNSET))
 
-        def _parse_error_message(data: object) -> Union[None, Unset, str]:
+        def _parse_error_message(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         error_message = _parse_error_message(d.pop("error_message", UNSET))
 
-        def _parse_tool_name(data: object) -> Union[None, Unset, str]:
+        def _parse_tool_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         tool_name = _parse_tool_name(d.pop("tool_name", UNSET))
 
-        def _parse_tool_invocation(data: object) -> Union["MCPApprovalRequestEventToolInvocationType0", None, Unset]:
+        def _parse_tool_invocation(data: object) -> MCPApprovalRequestEventToolInvocationType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -188,20 +202,21 @@ class MCPApprovalRequestEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MCPApprovalRequestEventToolInvocationType0.from_dict(data)
+                tool_invocation_type_0 = MCPApprovalRequestEventToolInvocationType0.from_dict(data)
 
+                return tool_invocation_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["MCPApprovalRequestEventToolInvocationType0", None, Unset], data)
+            return cast(MCPApprovalRequestEventToolInvocationType0 | None | Unset, data)
 
         tool_invocation = _parse_tool_invocation(d.pop("tool_invocation", UNSET))
 
-        def _parse_approved(data: object) -> Union[None, Unset, bool]:
+        def _parse_approved(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         approved = _parse_approved(d.pop("approved", UNSET))
 

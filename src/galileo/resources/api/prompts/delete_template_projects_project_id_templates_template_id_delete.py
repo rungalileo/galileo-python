@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -28,7 +28,7 @@ def _get_kwargs(project_id: str, template_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.DELETE,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/templates/{template_id}",
+        "path": "/projects/{project_id}/templates/{template_id}".format(project_id=project_id, template_id=template_id),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -37,12 +37,16 @@ def _get_kwargs(project_id: str, template_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[DeletePromptResponse, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> DeletePromptResponse | HTTPValidationError:
     if response.status_code == 200:
-        return DeletePromptResponse.from_dict(response.json())
+        response_200 = DeletePromptResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -64,7 +68,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Del
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
+) -> Response[DeletePromptResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -75,22 +79,21 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, template_id: str, *, client: ApiClient
-) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
-    """Delete Template.
+) -> Response[DeletePromptResponse | HTTPValidationError]:
+    """Delete Template
 
     Args:
         project_id (str):
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[DeletePromptResponse, HTTPValidationError]]
+    Returns:
+        Response[DeletePromptResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id)
 
     response = client.request(**kwargs)
@@ -100,43 +103,41 @@ def sync_detailed(
 
 def sync(
     project_id: str, template_id: str, *, client: ApiClient
-) -> Optional[Union[DeletePromptResponse, HTTPValidationError]]:
-    """Delete Template.
+) -> Optional[DeletePromptResponse | HTTPValidationError]:
+    """Delete Template
 
     Args:
         project_id (str):
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[DeletePromptResponse, HTTPValidationError]
+    Returns:
+        DeletePromptResponse | HTTPValidationError
     """
+
     return sync_detailed(project_id=project_id, template_id=template_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, template_id: str, *, client: ApiClient
-) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
-    """Delete Template.
+) -> Response[DeletePromptResponse | HTTPValidationError]:
+    """Delete Template
 
     Args:
         project_id (str):
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[DeletePromptResponse, HTTPValidationError]]
+    Returns:
+        Response[DeletePromptResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id)
 
     response = await client.arequest(**kwargs)
@@ -146,20 +147,19 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, template_id: str, *, client: ApiClient
-) -> Optional[Union[DeletePromptResponse, HTTPValidationError]]:
-    """Delete Template.
+) -> Optional[DeletePromptResponse | HTTPValidationError]:
+    """Delete Template
 
     Args:
         project_id (str):
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[DeletePromptResponse, HTTPValidationError]
+    Returns:
+        DeletePromptResponse | HTTPValidationError
     """
+
     return (await asyncio_detailed(project_id=project_id, template_id=template_id, client=client)).parsed
