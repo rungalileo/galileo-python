@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -36,7 +36,7 @@ def _get_kwargs(project_id: str, user_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 200:
         return response.json()
 
@@ -61,7 +61,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,7 +70,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(project_id: str, user_id: str, *, client: ApiClient) -> Response[Union[Any, HTTPValidationError]]:
+def sync_detailed(project_id: str, user_id: str, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
     """Delete User Project Collaborator.
 
      Remove a user's access to a project.
@@ -86,7 +86,7 @@ def sync_detailed(project_id: str, user_id: str, *, client: ApiClient) -> Respon
 
     Returns
     -------
-        Response[Union[Any, HTTPValidationError]]
+        Response[Any | HTTPValidationError]
     """
     kwargs = _get_kwargs(project_id=project_id, user_id=user_id)
 
@@ -95,7 +95,7 @@ def sync_detailed(project_id: str, user_id: str, *, client: ApiClient) -> Respon
     return _build_response(client=client, response=response)
 
 
-def sync(project_id: str, user_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
+def sync(project_id: str, user_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
     """Delete User Project Collaborator.
 
      Remove a user's access to a project.
@@ -111,14 +111,12 @@ def sync(project_id: str, user_id: str, *, client: ApiClient) -> Optional[Union[
 
     Returns
     -------
-        Union[Any, HTTPValidationError]
+        Any | HTTPValidationError
     """
     return sync_detailed(project_id=project_id, user_id=user_id, client=client).parsed
 
 
-async def asyncio_detailed(
-    project_id: str, user_id: str, *, client: ApiClient
-) -> Response[Union[Any, HTTPValidationError]]:
+async def asyncio_detailed(project_id: str, user_id: str, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
     """Delete User Project Collaborator.
 
      Remove a user's access to a project.
@@ -134,7 +132,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[Any, HTTPValidationError]]
+        Response[Any | HTTPValidationError]
     """
     kwargs = _get_kwargs(project_id=project_id, user_id=user_id)
 
@@ -143,7 +141,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(project_id: str, user_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
+async def asyncio(project_id: str, user_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
     """Delete User Project Collaborator.
 
      Remove a user's access to a project.
@@ -159,6 +157,6 @@ async def asyncio(project_id: str, user_id: str, *, client: ApiClient) -> Option
 
     Returns
     -------
-        Union[Any, HTTPValidationError]
+        Any | HTTPValidationError
     """
     return (await asyncio_detailed(project_id=project_id, user_id=user_id, client=client)).parsed

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,9 +42,7 @@ def _get_kwargs(project_id: str, *, body: SessionCreateRequest) -> dict[str, Any
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, SessionCreateResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | SessionCreateResponse:
     if response.status_code == 200:
         return SessionCreateResponse.from_dict(response.json())
 
@@ -71,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, SessionCreateResponse]]:
+) -> Response[HTTPValidationError | SessionCreateResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: SessionCreateRequest
-) -> Response[Union[HTTPValidationError, SessionCreateResponse]]:
+) -> Response[HTTPValidationError | SessionCreateResponse]:
     """Create Session.
 
     Args:
@@ -96,7 +94,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, SessionCreateResponse]]
+        Response[HTTPValidationError | SessionCreateResponse]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -107,7 +105,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: SessionCreateRequest
-) -> Optional[Union[HTTPValidationError, SessionCreateResponse]]:
+) -> HTTPValidationError | SessionCreateResponse | None:
     """Create Session.
 
     Args:
@@ -121,14 +119,14 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, SessionCreateResponse]
+        HTTPValidationError | SessionCreateResponse
     """
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: SessionCreateRequest
-) -> Response[Union[HTTPValidationError, SessionCreateResponse]]:
+) -> Response[HTTPValidationError | SessionCreateResponse]:
     """Create Session.
 
     Args:
@@ -142,7 +140,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, SessionCreateResponse]]
+        Response[HTTPValidationError | SessionCreateResponse]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -153,7 +151,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: SessionCreateRequest
-) -> Optional[Union[HTTPValidationError, SessionCreateResponse]]:
+) -> HTTPValidationError | SessionCreateResponse | None:
     """Create Session.
 
     Args:
@@ -167,6 +165,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, SessionCreateResponse]
+        HTTPValidationError | SessionCreateResponse
     """
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

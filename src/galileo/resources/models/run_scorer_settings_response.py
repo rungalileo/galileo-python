@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,14 +21,14 @@ class RunScorerSettingsResponse:
     """
     Attributes
     ----------
-        scorers (list['ScorerConfig']):
+        scorers (list[ScorerConfig]):
         run_id (str): ID of the run.
-        segment_filters (Union[None, Unset, list['SegmentFilter']]): List of segment filters to apply to the run.
+        segment_filters (list[SegmentFilter] | None | Unset): List of segment filters to apply to the run.
     """
 
-    scorers: list["ScorerConfig"]
+    scorers: list[ScorerConfig]
     run_id: str
-    segment_filters: Union[None, Unset, list["SegmentFilter"]] = UNSET
+    segment_filters: list[SegmentFilter] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -37,7 +39,7 @@ class RunScorerSettingsResponse:
 
         run_id = self.run_id
 
-        segment_filters: Union[None, Unset, list[dict[str, Any]]]
+        segment_filters: list[dict[str, Any]] | None | Unset
         if isinstance(self.segment_filters, Unset):
             segment_filters = UNSET
         elif isinstance(self.segment_filters, list):
@@ -72,7 +74,7 @@ class RunScorerSettingsResponse:
 
         run_id = d.pop("run_id")
 
-        def _parse_segment_filters(data: object) -> Union[None, Unset, list["SegmentFilter"]]:
+        def _parse_segment_filters(data: object) -> list[SegmentFilter] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -90,7 +92,7 @@ class RunScorerSettingsResponse:
                 return segment_filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["SegmentFilter"]], data)
+            return cast(list[SegmentFilter] | None | Unset, data)
 
         segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
 

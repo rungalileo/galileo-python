@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,11 +18,11 @@ class TextContentPart:
     Attributes
     ----------
         text (str):
-        type_ (Union[Literal['text'], Unset]):  Default: 'text'.
+        type_ (Literal['text'] | Unset):  Default: 'text'.
     """
 
     text: str
-    type_: Union[Literal["text"], Unset] = "text"
+    type_: Literal["text"] | Unset = "text"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,7 +43,7 @@ class TextContentPart:
         d = dict(src_dict)
         text = d.pop("text")
 
-        type_ = cast(Union[Literal["text"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["text"] | Unset, d.pop("type", UNSET))
         if type_ != "text" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'text', got '{type_}'")
 

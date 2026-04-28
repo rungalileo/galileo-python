@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -20,13 +22,13 @@ class Histogram:
     ----------
         strategy (HistogramStrategy):
         edges (list[float]): List of bin edges (monotonically increasing, length = number of buckets + 1)
-        buckets (list['HistogramBucket']): List of histogram buckets containing the binned data
+        buckets (list[HistogramBucket]): List of histogram buckets containing the binned data
         total (int): Total number of data points in the histogram.
     """
 
     strategy: HistogramStrategy
     edges: list[float]
-    buckets: list["HistogramBucket"]
+    buckets: list[HistogramBucket]
     total: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,12 +22,12 @@ class DatasetUpdateRow:
     ----------
         row_id (str):
         values (DatasetUpdateRowValues):
-        edit_type (Union[Literal['update_row'], Unset]):  Default: 'update_row'.
+        edit_type (Literal['update_row'] | Unset):  Default: 'update_row'.
     """
 
     row_id: str
-    values: "DatasetUpdateRowValues"
-    edit_type: Union[Literal["update_row"], Unset] = "update_row"
+    values: DatasetUpdateRowValues
+    edit_type: Literal["update_row"] | Unset = "update_row"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -52,7 +54,7 @@ class DatasetUpdateRow:
 
         values = DatasetUpdateRowValues.from_dict(d.pop("values"))
 
-        edit_type = cast(Union[Literal["update_row"], Unset], d.pop("edit_type", UNSET))
+        edit_type = cast(Literal["update_row"] | Unset, d.pop("edit_type", UNSET))
         if edit_type != "update_row" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'update_row', got '{edit_type}'")
 

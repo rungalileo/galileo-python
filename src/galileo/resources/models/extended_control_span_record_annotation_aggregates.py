@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -5,21 +7,17 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.metric_roll_up_roll_up_metrics_type_1_additional_property import (
-        MetricRollUpRollUpMetricsType1AdditionalProperty,
-    )
+    from ..models.annotation_aggregate import AnnotationAggregate
 
 
-T = TypeVar("T", bound="MetricRollUpRollUpMetricsType1")
+T = TypeVar("T", bound="ExtendedControlSpanRecordAnnotationAggregates")
 
 
 @_attrs_define
-class MetricRollUpRollUpMetricsType1:
-    """ """
+class ExtendedControlSpanRecordAnnotationAggregates:
+    """Annotation aggregate information keyed by template ID."""
 
-    additional_properties: dict[str, "MetricRollUpRollUpMetricsType1AdditionalProperty"] = _attrs_field(
-        init=False, factory=dict
-    )
+    additional_properties: dict[str, AnnotationAggregate] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         field_dict: dict[str, Any] = {}
@@ -30,30 +28,28 @@ class MetricRollUpRollUpMetricsType1:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.metric_roll_up_roll_up_metrics_type_1_additional_property import (
-            MetricRollUpRollUpMetricsType1AdditionalProperty,
-        )
+        from ..models.annotation_aggregate import AnnotationAggregate
 
         d = dict(src_dict)
-        metric_roll_up_roll_up_metrics_type_1 = cls()
+        extended_control_span_record_annotation_aggregates = cls()
 
         additional_properties = {}
         for prop_name, prop_dict in d.items():
-            additional_property = MetricRollUpRollUpMetricsType1AdditionalProperty.from_dict(prop_dict)
+            additional_property = AnnotationAggregate.from_dict(prop_dict)
 
             additional_properties[prop_name] = additional_property
 
-        metric_roll_up_roll_up_metrics_type_1.additional_properties = additional_properties
-        return metric_roll_up_roll_up_metrics_type_1
+        extended_control_span_record_annotation_aggregates.additional_properties = additional_properties
+        return extended_control_span_record_annotation_aggregates
 
     @property
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> "MetricRollUpRollUpMetricsType1AdditionalProperty":
+    def __getitem__(self, key: str) -> AnnotationAggregate:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: "MetricRollUpRollUpMetricsType1AdditionalProperty") -> None:
+    def __setitem__(self, key: str, value: AnnotationAggregate) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

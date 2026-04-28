@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,32 +23,32 @@ class SystemMetricInfo:
     ----------
         name (str): Unique identifier for the metric
         label (str): Human-readable display name for the metric
-        unit (Union[DataUnit, None, Unset]): Unit of measurement, if any
-        values (Union[Unset, list[float]]): Raw metric values used to compute statistics and histograms
-        mean (Union[None, Unset, float]): Arithmetic mean of the metric values
-        median (Union[None, Unset, float]): Median (50th percentile) of the metric values
-        p5 (Union[None, Unset, float]): 5th percentile of the metric values
-        p25 (Union[None, Unset, float]): 25th percentile (first quartile) of the metric values
-        p75 (Union[None, Unset, float]): 75th percentile (third quartile) of the metric values
-        p95 (Union[None, Unset, float]): 95th percentile of the metric values
-        min_ (Union[None, Unset, float]): Minimum value in the metric dataset
-        max_ (Union[None, Unset, float]): Maximum value in the metric dataset
-        histogram (Union['Histogram', None, Unset]): Histogram representation of the metric distribution.
+        unit (DataUnit | None | Unset): Unit of measurement, if any
+        values (list[float] | Unset): Raw metric values used to compute statistics and histograms
+        mean (float | None | Unset): Arithmetic mean of the metric values
+        median (float | None | Unset): Median (50th percentile) of the metric values
+        p5 (float | None | Unset): 5th percentile of the metric values
+        p25 (float | None | Unset): 25th percentile (first quartile) of the metric values
+        p75 (float | None | Unset): 75th percentile (third quartile) of the metric values
+        p95 (float | None | Unset): 95th percentile of the metric values
+        min_ (float | None | Unset): Minimum value in the metric dataset
+        max_ (float | None | Unset): Maximum value in the metric dataset
+        histogram (Histogram | None | Unset): Histogram representation of the metric distribution.
     """
 
     name: str
     label: str
-    unit: Union[DataUnit, None, Unset] = UNSET
-    values: Union[Unset, list[float]] = UNSET
-    mean: Union[None, Unset, float] = UNSET
-    median: Union[None, Unset, float] = UNSET
-    p5: Union[None, Unset, float] = UNSET
-    p25: Union[None, Unset, float] = UNSET
-    p75: Union[None, Unset, float] = UNSET
-    p95: Union[None, Unset, float] = UNSET
-    min_: Union[None, Unset, float] = UNSET
-    max_: Union[None, Unset, float] = UNSET
-    histogram: Union["Histogram", None, Unset] = UNSET
+    unit: DataUnit | None | Unset = UNSET
+    values: list[float] | Unset = UNSET
+    mean: float | None | Unset = UNSET
+    median: float | None | Unset = UNSET
+    p5: float | None | Unset = UNSET
+    p25: float | None | Unset = UNSET
+    p75: float | None | Unset = UNSET
+    p95: float | None | Unset = UNSET
+    min_: float | None | Unset = UNSET
+    max_: float | None | Unset = UNSET
+    histogram: Histogram | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -56,7 +58,7 @@ class SystemMetricInfo:
 
         label = self.label
 
-        unit: Union[None, Unset, str]
+        unit: None | str | Unset
         if isinstance(self.unit, Unset):
             unit = UNSET
         elif isinstance(self.unit, DataUnit):
@@ -64,35 +66,35 @@ class SystemMetricInfo:
         else:
             unit = self.unit
 
-        values: Union[Unset, list[float]] = UNSET
+        values: list[float] | Unset = UNSET
         if not isinstance(self.values, Unset):
             values = self.values
 
-        mean: Union[None, Unset, float]
+        mean: float | None | Unset
         mean = UNSET if isinstance(self.mean, Unset) else self.mean
 
-        median: Union[None, Unset, float]
+        median: float | None | Unset
         median = UNSET if isinstance(self.median, Unset) else self.median
 
-        p5: Union[None, Unset, float]
+        p5: float | None | Unset
         p5 = UNSET if isinstance(self.p5, Unset) else self.p5
 
-        p25: Union[None, Unset, float]
+        p25: float | None | Unset
         p25 = UNSET if isinstance(self.p25, Unset) else self.p25
 
-        p75: Union[None, Unset, float]
+        p75: float | None | Unset
         p75 = UNSET if isinstance(self.p75, Unset) else self.p75
 
-        p95: Union[None, Unset, float]
+        p95: float | None | Unset
         p95 = UNSET if isinstance(self.p95, Unset) else self.p95
 
-        min_: Union[None, Unset, float]
+        min_: float | None | Unset
         min_ = UNSET if isinstance(self.min_, Unset) else self.min_
 
-        max_: Union[None, Unset, float]
+        max_: float | None | Unset
         max_ = UNSET if isinstance(self.max_, Unset) else self.max_
 
-        histogram: Union[None, Unset, dict[str, Any]]
+        histogram: dict[str, Any] | None | Unset
         if isinstance(self.histogram, Unset):
             histogram = UNSET
         elif isinstance(self.histogram, Histogram):
@@ -137,7 +139,7 @@ class SystemMetricInfo:
 
         label = d.pop("label")
 
-        def _parse_unit(data: object) -> Union[DataUnit, None, Unset]:
+        def _parse_unit(data: object) -> DataUnit | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -149,85 +151,85 @@ class SystemMetricInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[DataUnit, None, Unset], data)
+            return cast(DataUnit | None | Unset, data)
 
         unit = _parse_unit(d.pop("unit", UNSET))
 
         values = cast(list[float], d.pop("values", UNSET))
 
-        def _parse_mean(data: object) -> Union[None, Unset, float]:
+        def _parse_mean(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(float | None | Unset, data)
 
         mean = _parse_mean(d.pop("mean", UNSET))
 
-        def _parse_median(data: object) -> Union[None, Unset, float]:
+        def _parse_median(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(float | None | Unset, data)
 
         median = _parse_median(d.pop("median", UNSET))
 
-        def _parse_p5(data: object) -> Union[None, Unset, float]:
+        def _parse_p5(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(float | None | Unset, data)
 
         p5 = _parse_p5(d.pop("p5", UNSET))
 
-        def _parse_p25(data: object) -> Union[None, Unset, float]:
+        def _parse_p25(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(float | None | Unset, data)
 
         p25 = _parse_p25(d.pop("p25", UNSET))
 
-        def _parse_p75(data: object) -> Union[None, Unset, float]:
+        def _parse_p75(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(float | None | Unset, data)
 
         p75 = _parse_p75(d.pop("p75", UNSET))
 
-        def _parse_p95(data: object) -> Union[None, Unset, float]:
+        def _parse_p95(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(float | None | Unset, data)
 
         p95 = _parse_p95(d.pop("p95", UNSET))
 
-        def _parse_min_(data: object) -> Union[None, Unset, float]:
+        def _parse_min_(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(float | None | Unset, data)
 
         min_ = _parse_min_(d.pop("min", UNSET))
 
-        def _parse_max_(data: object) -> Union[None, Unset, float]:
+        def _parse_max_(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(float | None | Unset, data)
 
         max_ = _parse_max_(d.pop("max", UNSET))
 
-        def _parse_histogram(data: object) -> Union["Histogram", None, Unset]:
+        def _parse_histogram(data: object) -> Histogram | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -239,7 +241,7 @@ class SystemMetricInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["Histogram", None, Unset], data)
+            return cast(Histogram | None | Unset, data)
 
         histogram = _parse_histogram(d.pop("histogram", UNSET))
 

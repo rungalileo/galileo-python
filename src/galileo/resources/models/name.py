@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,11 +18,11 @@ class Name:
     Attributes
     ----------
         value (str):
-        append_suffix_if_duplicate (Union[Unset, bool]):  Default: False.
+        append_suffix_if_duplicate (bool | Unset):  Default: False.
     """
 
     value: str
-    append_suffix_if_duplicate: Union[Unset, bool] = False
+    append_suffix_if_duplicate: bool | Unset = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

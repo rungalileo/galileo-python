@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,18 +20,18 @@ class GetProjectsPaginatedResponse:
     """
     Attributes
     ----------
-        projects (list['ProjectDB']):
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        paginated (Union[Unset, bool]):  Default: False.
-        next_starting_token (Union[None, Unset, int]):
+        projects (list[ProjectDB]):
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        paginated (bool | Unset):  Default: False.
+        next_starting_token (int | None | Unset):
     """
 
-    projects: list["ProjectDB"]
-    starting_token: Union[Unset, int] = 0
-    limit: Union[Unset, int] = 100
-    paginated: Union[Unset, bool] = False
-    next_starting_token: Union[None, Unset, int] = UNSET
+    projects: list[ProjectDB]
+    starting_token: int | Unset = 0
+    limit: int | Unset = 100
+    paginated: bool | Unset = False
+    next_starting_token: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,7 +46,7 @@ class GetProjectsPaginatedResponse:
 
         paginated = self.paginated
 
-        next_starting_token: Union[None, Unset, int]
+        next_starting_token: int | None | Unset
         next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
         field_dict: dict[str, Any] = {}
@@ -79,12 +81,12 @@ class GetProjectsPaginatedResponse:
 
         paginated = d.pop("paginated", UNSET)
 
-        def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
+        def _parse_next_starting_token(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 

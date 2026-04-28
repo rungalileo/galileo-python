@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,19 +15,19 @@ class ScoreBucket:
     Attributes
     ----------
         min_inclusive (int):
-        max_exclusive (Union[None, int]):
+        max_exclusive (int | None):
         count (int):
     """
 
     min_inclusive: int
-    max_exclusive: Union[None, int]
+    max_exclusive: int | None
     count: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         min_inclusive = self.min_inclusive
 
-        max_exclusive: Union[None, int]
+        max_exclusive: int | None
         max_exclusive = self.max_exclusive
 
         count = self.count
@@ -41,10 +43,10 @@ class ScoreBucket:
         d = dict(src_dict)
         min_inclusive = d.pop("min_inclusive")
 
-        def _parse_max_exclusive(data: object) -> Union[None, int]:
+        def _parse_max_exclusive(data: object) -> int | None:
             if data is None:
                 return data
-            return cast(Union[None, int], data)
+            return cast(int | None, data)
 
         max_exclusive = _parse_max_exclusive(d.pop("max_exclusive"))
 

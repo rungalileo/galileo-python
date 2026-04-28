@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -29,36 +31,33 @@ class ListDatasetParams:
     """
     Attributes
     ----------
-        filters (Union[Unset, list[Union['DatasetDraftFilter', 'DatasetIDFilter', 'DatasetNameFilter',
-            'DatasetNotInProjectFilter', 'DatasetUsedInProjectFilter']]]):
-        sort (Union['DatasetCreatedAtSort', 'DatasetLastEditedByUserAtSort', 'DatasetNameSort',
-            'DatasetProjectLastUsedAtSort', 'DatasetProjectsSort', 'DatasetRowsSort', 'DatasetUpdatedAtSort', None, Unset]):
-            Default: None.
+        filters (list[DatasetDraftFilter | DatasetIDFilter | DatasetNameFilter | DatasetNotInProjectFilter |
+            DatasetUsedInProjectFilter] | Unset):
+        sort (DatasetCreatedAtSort | DatasetLastEditedByUserAtSort | DatasetNameSort | DatasetProjectLastUsedAtSort |
+            DatasetProjectsSort | DatasetRowsSort | DatasetUpdatedAtSort | None | Unset):  Default: None.
     """
 
-    filters: Union[
-        Unset,
+    filters: (
         list[
-            Union[
-                "DatasetDraftFilter",
-                "DatasetIDFilter",
-                "DatasetNameFilter",
-                "DatasetNotInProjectFilter",
-                "DatasetUsedInProjectFilter",
-            ]
-        ],
-    ] = UNSET
-    sort: Union[
-        "DatasetCreatedAtSort",
-        "DatasetLastEditedByUserAtSort",
-        "DatasetNameSort",
-        "DatasetProjectLastUsedAtSort",
-        "DatasetProjectsSort",
-        "DatasetRowsSort",
-        "DatasetUpdatedAtSort",
-        None,
-        Unset,
-    ] = None
+            DatasetDraftFilter
+            | DatasetIDFilter
+            | DatasetNameFilter
+            | DatasetNotInProjectFilter
+            | DatasetUsedInProjectFilter
+        ]
+        | Unset
+    ) = UNSET
+    sort: (
+        DatasetCreatedAtSort
+        | DatasetLastEditedByUserAtSort
+        | DatasetNameSort
+        | DatasetProjectLastUsedAtSort
+        | DatasetProjectsSort
+        | DatasetRowsSort
+        | DatasetUpdatedAtSort
+        | None
+        | Unset
+    ) = None
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -74,14 +73,14 @@ class ListDatasetParams:
         from ..models.dataset_updated_at_sort import DatasetUpdatedAtSort
         from ..models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
 
-        filters: Union[Unset, list[dict[str, Any]]] = UNSET
+        filters: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    (DatasetNameFilter, DatasetDraftFilter, DatasetUsedInProjectFilter, DatasetIDFilter),
+                    DatasetNameFilter | DatasetDraftFilter | DatasetUsedInProjectFilter | DatasetIDFilter,
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -89,20 +88,17 @@ class ListDatasetParams:
 
                 filters.append(filters_item)
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: dict[str, Any] | None | Unset
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(
             self.sort,
-            (
-                DatasetNameSort,
-                DatasetCreatedAtSort,
-                DatasetUpdatedAtSort,
-                DatasetProjectLastUsedAtSort,
-                DatasetProjectsSort,
-                DatasetRowsSort,
-                DatasetLastEditedByUserAtSort,
-            ),
+            DatasetNameSort
+            | DatasetCreatedAtSort
+            | DatasetUpdatedAtSort
+            | DatasetProjectLastUsedAtSort
+            | (DatasetProjectsSort | DatasetRowsSort)
+            | DatasetLastEditedByUserAtSort,
         ):
             sort = self.sort.to_dict()
         else:
@@ -134,68 +130,79 @@ class ListDatasetParams:
         from ..models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
 
         d = dict(src_dict)
-        filters = []
         _filters = d.pop("filters", UNSET)
-        for filters_item_data in _filters or []:
+        filters: (
+            list[
+                DatasetDraftFilter
+                | DatasetIDFilter
+                | DatasetNameFilter
+                | DatasetNotInProjectFilter
+                | DatasetUsedInProjectFilter
+            ]
+            | Unset
+        ) = UNSET
+        if _filters is not UNSET:
+            filters = []
+            for filters_item_data in _filters:
 
-            def _parse_filters_item(
-                data: object,
-            ) -> Union[
-                "DatasetDraftFilter",
-                "DatasetIDFilter",
-                "DatasetNameFilter",
-                "DatasetNotInProjectFilter",
-                "DatasetUsedInProjectFilter",
-            ]:
-                try:
+                def _parse_filters_item(
+                    data: object,
+                ) -> (
+                    DatasetDraftFilter
+                    | DatasetIDFilter
+                    | DatasetNameFilter
+                    | DatasetNotInProjectFilter
+                    | DatasetUsedInProjectFilter
+                ):
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return DatasetNameFilter.from_dict(data)
+
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return DatasetDraftFilter.from_dict(data)
+
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return DatasetUsedInProjectFilter.from_dict(data)
+
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return DatasetIDFilter.from_dict(data)
+
+                    except:  # noqa: E722
+                        pass
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return DatasetNameFilter.from_dict(data)
+                    return DatasetNotInProjectFilter.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return DatasetDraftFilter.from_dict(data)
+                filters_item = _parse_filters_item(filters_item_data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return DatasetUsedInProjectFilter.from_dict(data)
-
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return DatasetIDFilter.from_dict(data)
-
-                except:  # noqa: E722
-                    pass
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return DatasetNotInProjectFilter.from_dict(data)
-
-            filters_item = _parse_filters_item(filters_item_data)
-
-            filters.append(filters_item)
+                filters.append(filters_item)
 
         def _parse_sort(
             data: object,
-        ) -> Union[
-            "DatasetCreatedAtSort",
-            "DatasetLastEditedByUserAtSort",
-            "DatasetNameSort",
-            "DatasetProjectLastUsedAtSort",
-            "DatasetProjectsSort",
-            "DatasetRowsSort",
-            "DatasetUpdatedAtSort",
-            None,
-            Unset,
-        ]:
+        ) -> (
+            DatasetCreatedAtSort
+            | DatasetLastEditedByUserAtSort
+            | DatasetNameSort
+            | DatasetProjectLastUsedAtSort
+            | DatasetProjectsSort
+            | DatasetRowsSort
+            | DatasetUpdatedAtSort
+            | None
+            | Unset
+        ):
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -250,17 +257,15 @@ class ListDatasetParams:
             except:  # noqa: E722
                 pass
             return cast(
-                Union[
-                    "DatasetCreatedAtSort",
-                    "DatasetLastEditedByUserAtSort",
-                    "DatasetNameSort",
-                    "DatasetProjectLastUsedAtSort",
-                    "DatasetProjectsSort",
-                    "DatasetRowsSort",
-                    "DatasetUpdatedAtSort",
-                    None,
-                    Unset,
-                ],
+                DatasetCreatedAtSort
+                | DatasetLastEditedByUserAtSort
+                | DatasetNameSort
+                | DatasetProjectLastUsedAtSort
+                | DatasetProjectsSort
+                | DatasetRowsSort
+                | DatasetUpdatedAtSort
+                | None
+                | Unset,
                 data,
             )
 

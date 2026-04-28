@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,12 +22,12 @@ class TagsAggregate:
     ----------
         counts (TagsAggregateCounts):
         unrated_count (int):
-        feedback_type (Union[Literal['tags'], Unset]):  Default: 'tags'.
+        feedback_type (Literal['tags'] | Unset):  Default: 'tags'.
     """
 
-    counts: "TagsAggregateCounts"
+    counts: TagsAggregateCounts
     unrated_count: int
-    feedback_type: Union[Literal["tags"], Unset] = "tags"
+    feedback_type: Literal["tags"] | Unset = "tags"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -52,7 +54,7 @@ class TagsAggregate:
 
         unrated_count = d.pop("unrated_count")
 
-        feedback_type = cast(Union[Literal["tags"], Unset], d.pop("feedback_type", UNSET))
+        feedback_type = cast(Literal["tags"] | Unset, d.pop("feedback_type", UNSET))
         if feedback_type != "tags" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'tags', got '{feedback_type}'")
 

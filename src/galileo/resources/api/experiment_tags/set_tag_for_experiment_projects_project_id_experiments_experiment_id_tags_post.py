@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,7 +42,7 @@ def _get_kwargs(project_id: str, experiment_id: str, *, body: RunTagCreateReques
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, RunTagDB]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | RunTagDB:
     if response.status_code == 200:
         return RunTagDB.from_dict(response.json())
 
@@ -67,7 +67,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, RunTagDB]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | RunTagDB]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -78,7 +78,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 def sync_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient, body: RunTagCreateRequest
-) -> Response[Union[HTTPValidationError, RunTagDB]]:
+) -> Response[HTTPValidationError | RunTagDB]:
     """Set Tag For Experiment.
 
      Sets a tag for an experiment.
@@ -95,7 +95,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, RunTagDB]]
+        Response[HTTPValidationError | RunTagDB]
     """
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, body=body)
 
@@ -106,7 +106,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, experiment_id: str, *, client: ApiClient, body: RunTagCreateRequest
-) -> Optional[Union[HTTPValidationError, RunTagDB]]:
+) -> HTTPValidationError | RunTagDB | None:
     """Set Tag For Experiment.
 
      Sets a tag for an experiment.
@@ -123,14 +123,14 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, RunTagDB]
+        HTTPValidationError | RunTagDB
     """
     return sync_detailed(project_id=project_id, experiment_id=experiment_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient, body: RunTagCreateRequest
-) -> Response[Union[HTTPValidationError, RunTagDB]]:
+) -> Response[HTTPValidationError | RunTagDB]:
     """Set Tag For Experiment.
 
      Sets a tag for an experiment.
@@ -147,7 +147,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, RunTagDB]]
+        Response[HTTPValidationError | RunTagDB]
     """
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, body=body)
 
@@ -158,7 +158,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, experiment_id: str, *, client: ApiClient, body: RunTagCreateRequest
-) -> Optional[Union[HTTPValidationError, RunTagDB]]:
+) -> HTTPValidationError | RunTagDB | None:
     """Set Tag For Experiment.
 
      Sets a tag for an experiment.
@@ -175,6 +175,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, RunTagDB]
+        HTTPValidationError | RunTagDB
     """
     return (await asyncio_detailed(project_id=project_id, experiment_id=experiment_id, client=client, body=body)).parsed

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,11 +22,11 @@ class FileContentPart:
     Attributes
     ----------
             file_id (str):
-            type_ (Union[Literal['file'], Unset]):  Default: 'file'.
+            type_ (Literal['file'] | Unset):  Default: 'file'.
     """
 
     file_id: str
-    type_: Union[Literal["file"], Unset] = "file"
+    type_: Literal["file"] | Unset = "file"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -45,7 +47,7 @@ class FileContentPart:
         d = dict(src_dict)
         file_id = d.pop("file_id")
 
-        type_ = cast(Union[Literal["file"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["file"] | Unset, d.pop("type", UNSET))
         if type_ != "file" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'file', got '{type_}'")
 

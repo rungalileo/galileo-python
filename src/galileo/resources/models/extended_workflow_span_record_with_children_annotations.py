@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -17,7 +19,7 @@ T = TypeVar("T", bound="ExtendedWorkflowSpanRecordWithChildrenAnnotations")
 class ExtendedWorkflowSpanRecordWithChildrenAnnotations:
     """Annotations keyed by template ID and annotator ID."""
 
-    additional_properties: dict[str, "ExtendedWorkflowSpanRecordWithChildrenAnnotationsAdditionalProperty"] = (
+    additional_properties: dict[str, ExtendedWorkflowSpanRecordWithChildrenAnnotationsAdditionalProperty] = (
         _attrs_field(init=False, factory=dict)
     )
 
@@ -52,12 +54,10 @@ class ExtendedWorkflowSpanRecordWithChildrenAnnotations:
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> "ExtendedWorkflowSpanRecordWithChildrenAnnotationsAdditionalProperty":
+    def __getitem__(self, key: str) -> ExtendedWorkflowSpanRecordWithChildrenAnnotationsAdditionalProperty:
         return self.additional_properties[key]
 
-    def __setitem__(
-        self, key: str, value: "ExtendedWorkflowSpanRecordWithChildrenAnnotationsAdditionalProperty"
-    ) -> None:
+    def __setitem__(self, key: str, value: ExtendedWorkflowSpanRecordWithChildrenAnnotationsAdditionalProperty) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,38 +22,38 @@ class CreateLLMScorerVersionRequest:
     """
     Attributes
     ----------
-        model_name (Union[None, Unset, str]):
-        num_judges (Union[None, Unset, int]):
-        scoreable_node_types (Union[None, Unset, list[str]]):
-        cot_enabled (Union[None, Unset, bool]):
-        output_type (Union[None, OutputTypeEnum, Unset]):
-        input_type (Union[InputTypeEnum, None, Unset]):
-        instructions (Union[None, Unset, str]):
-        chain_poll_template (Union['ChainPollTemplate', None, Unset]):
-        user_prompt (Union[None, Unset, str]):
+        model_name (None | str | Unset):
+        num_judges (int | None | Unset):
+        scoreable_node_types (list[str] | None | Unset):
+        cot_enabled (bool | None | Unset):
+        output_type (None | OutputTypeEnum | Unset):
+        input_type (InputTypeEnum | None | Unset):
+        instructions (None | str | Unset):
+        chain_poll_template (ChainPollTemplate | None | Unset):
+        user_prompt (None | str | Unset):
     """
 
-    model_name: Union[None, Unset, str] = UNSET
-    num_judges: Union[None, Unset, int] = UNSET
-    scoreable_node_types: Union[None, Unset, list[str]] = UNSET
-    cot_enabled: Union[None, Unset, bool] = UNSET
-    output_type: Union[None, OutputTypeEnum, Unset] = UNSET
-    input_type: Union[InputTypeEnum, None, Unset] = UNSET
-    instructions: Union[None, Unset, str] = UNSET
-    chain_poll_template: Union["ChainPollTemplate", None, Unset] = UNSET
-    user_prompt: Union[None, Unset, str] = UNSET
+    model_name: None | str | Unset = UNSET
+    num_judges: int | None | Unset = UNSET
+    scoreable_node_types: list[str] | None | Unset = UNSET
+    cot_enabled: bool | None | Unset = UNSET
+    output_type: None | OutputTypeEnum | Unset = UNSET
+    input_type: InputTypeEnum | None | Unset = UNSET
+    instructions: None | str | Unset = UNSET
+    chain_poll_template: ChainPollTemplate | None | Unset = UNSET
+    user_prompt: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.chain_poll_template import ChainPollTemplate
 
-        model_name: Union[None, Unset, str]
+        model_name: None | str | Unset
         model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
-        num_judges: Union[None, Unset, int]
+        num_judges: int | None | Unset
         num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
-        scoreable_node_types: Union[None, Unset, list[str]]
+        scoreable_node_types: list[str] | None | Unset
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
         elif isinstance(self.scoreable_node_types, list):
@@ -60,10 +62,10 @@ class CreateLLMScorerVersionRequest:
         else:
             scoreable_node_types = self.scoreable_node_types
 
-        cot_enabled: Union[None, Unset, bool]
+        cot_enabled: bool | None | Unset
         cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
-        output_type: Union[None, Unset, str]
+        output_type: None | str | Unset
         if isinstance(self.output_type, Unset):
             output_type = UNSET
         elif isinstance(self.output_type, OutputTypeEnum):
@@ -71,7 +73,7 @@ class CreateLLMScorerVersionRequest:
         else:
             output_type = self.output_type
 
-        input_type: Union[None, Unset, str]
+        input_type: None | str | Unset
         if isinstance(self.input_type, Unset):
             input_type = UNSET
         elif isinstance(self.input_type, InputTypeEnum):
@@ -79,10 +81,10 @@ class CreateLLMScorerVersionRequest:
         else:
             input_type = self.input_type
 
-        instructions: Union[None, Unset, str]
+        instructions: None | str | Unset
         instructions = UNSET if isinstance(self.instructions, Unset) else self.instructions
 
-        chain_poll_template: Union[None, Unset, dict[str, Any]]
+        chain_poll_template: dict[str, Any] | None | Unset
         if isinstance(self.chain_poll_template, Unset):
             chain_poll_template = UNSET
         elif isinstance(self.chain_poll_template, ChainPollTemplate):
@@ -90,7 +92,7 @@ class CreateLLMScorerVersionRequest:
         else:
             chain_poll_template = self.chain_poll_template
 
-        user_prompt: Union[None, Unset, str]
+        user_prompt: None | str | Unset
         user_prompt = UNSET if isinstance(self.user_prompt, Unset) else self.user_prompt
 
         field_dict: dict[str, Any] = {}
@@ -123,25 +125,25 @@ class CreateLLMScorerVersionRequest:
 
         d = dict(src_dict)
 
-        def _parse_model_name(data: object) -> Union[None, Unset, str]:
+        def _parse_model_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         model_name = _parse_model_name(d.pop("model_name", UNSET))
 
-        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
+        def _parse_num_judges(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
-        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_scoreable_node_types(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -153,20 +155,20 @@ class CreateLLMScorerVersionRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
-        def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
+        def _parse_cot_enabled(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
 
-        def _parse_output_type(data: object) -> Union[None, OutputTypeEnum, Unset]:
+        def _parse_output_type(data: object) -> None | OutputTypeEnum | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -178,11 +180,11 @@ class CreateLLMScorerVersionRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, OutputTypeEnum, Unset], data)
+            return cast(None | OutputTypeEnum | Unset, data)
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 
-        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
+        def _parse_input_type(data: object) -> InputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -194,20 +196,20 @@ class CreateLLMScorerVersionRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[InputTypeEnum, None, Unset], data)
+            return cast(InputTypeEnum | None | Unset, data)
 
         input_type = _parse_input_type(d.pop("input_type", UNSET))
 
-        def _parse_instructions(data: object) -> Union[None, Unset, str]:
+        def _parse_instructions(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         instructions = _parse_instructions(d.pop("instructions", UNSET))
 
-        def _parse_chain_poll_template(data: object) -> Union["ChainPollTemplate", None, Unset]:
+        def _parse_chain_poll_template(data: object) -> ChainPollTemplate | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -219,16 +221,16 @@ class CreateLLMScorerVersionRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["ChainPollTemplate", None, Unset], data)
+            return cast(ChainPollTemplate | None | Unset, data)
 
         chain_poll_template = _parse_chain_poll_template(d.pop("chain_poll_template", UNSET))
 
-        def _parse_user_prompt(data: object) -> Union[None, Unset, str]:
+        def _parse_user_prompt(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         user_prompt = _parse_user_prompt(d.pop("user_prompt", UNSET))
 

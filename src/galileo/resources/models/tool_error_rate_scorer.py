@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,17 +23,17 @@ class ToolErrorRateScorer:
     """
     Attributes
     ----------
-        name (Union[Literal['tool_error_rate'], Unset]):  Default: 'tool_error_rate'.
-        filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]): List of filters
-            to apply to the scorer.
-        type_ (Union[Unset, ToolErrorRateScorerType]):  Default: ToolErrorRateScorerType.PLUS.
-        model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
+        name (Literal['tool_error_rate'] | Unset):  Default: 'tool_error_rate'.
+        filters (list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset): List of filters to apply to the
+            scorer.
+        type_ (ToolErrorRateScorerType | Unset):  Default: ToolErrorRateScorerType.PLUS.
+        model_name (None | str | Unset): Alias of the model to use for the scorer.
     """
 
-    name: Union[Literal["tool_error_rate"], Unset] = "tool_error_rate"
-    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
-    type_: Union[Unset, ToolErrorRateScorerType] = ToolErrorRateScorerType.PLUS
-    model_name: Union[None, Unset, str] = UNSET
+    name: Literal["tool_error_rate"] | Unset = "tool_error_rate"
+    filters: list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset = UNSET
+    type_: ToolErrorRateScorerType | Unset = ToolErrorRateScorerType.PLUS
+    model_name: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,14 +42,14 @@ class ToolErrorRateScorer:
 
         name = self.name
 
-        filters: Union[None, Unset, list[dict[str, Any]]]
+        filters: list[dict[str, Any]] | None | Unset
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, (NodeNameFilter, MetadataFilter)):
+                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -57,11 +59,11 @@ class ToolErrorRateScorer:
         else:
             filters = self.filters
 
-        type_: Union[Unset, str] = UNSET
+        type_: str | Unset = UNSET
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
 
-        model_name: Union[None, Unset, str]
+        model_name: None | str | Unset
         model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
         field_dict: dict[str, Any] = {}
@@ -85,13 +87,11 @@ class ToolErrorRateScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
-        name = cast(Union[Literal["tool_error_rate"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["tool_error_rate"] | Unset, d.pop("name", UNSET))
         if name != "tool_error_rate" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'tool_error_rate', got '{name}'")
 
-        def _parse_filters(
-            data: object,
-        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
+        def _parse_filters(data: object) -> list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -103,9 +103,7 @@ class ToolErrorRateScorer:
                 _filters_type_0 = data
                 for filters_type_0_item_data in _filters_type_0:
 
-                    def _parse_filters_type_0_item(
-                        data: object,
-                    ) -> Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]:
+                    def _parse_filters_type_0_item(data: object) -> MetadataFilter | ModalityFilter | NodeNameFilter:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -131,20 +129,20 @@ class ToolErrorRateScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
+            return cast(list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset, data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
         _type_ = d.pop("type", UNSET)
-        type_: Union[Unset, ToolErrorRateScorerType]
+        type_: ToolErrorRateScorerType | Unset
         type_ = UNSET if isinstance(_type_, Unset) else ToolErrorRateScorerType(_type_)
 
-        def _parse_model_name(data: object) -> Union[None, Unset, str]:
+        def _parse_model_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         model_name = _parse_model_name(d.pop("model_name", UNSET))
 

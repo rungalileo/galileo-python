@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -39,7 +39,7 @@ def _get_kwargs(task_id: str) -> dict[str, Any]:
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, RegisteredScorerTaskResultResponse]:
+) -> HTTPValidationError | RegisteredScorerTaskResultResponse:
     if response.status_code == 200:
         return RegisteredScorerTaskResultResponse.from_dict(response.json())
 
@@ -66,7 +66,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]:
+) -> Response[HTTPValidationError | RegisteredScorerTaskResultResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -77,7 +77,7 @@ def _build_response(
 
 def sync_detailed(
     task_id: str, *, client: ApiClient
-) -> Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]:
+) -> Response[HTTPValidationError | RegisteredScorerTaskResultResponse]:
     """Get Validate Code Scorer Task Result.
 
      Poll for a code-scorer validation task result (returns status/result).
@@ -96,7 +96,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]
+        Response[HTTPValidationError | RegisteredScorerTaskResultResponse]
     """
     kwargs = _get_kwargs(task_id=task_id)
 
@@ -105,9 +105,7 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(
-    task_id: str, *, client: ApiClient
-) -> Optional[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]:
+def sync(task_id: str, *, client: ApiClient) -> HTTPValidationError | RegisteredScorerTaskResultResponse | None:
     """Get Validate Code Scorer Task Result.
 
      Poll for a code-scorer validation task result (returns status/result).
@@ -126,14 +124,14 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, RegisteredScorerTaskResultResponse]
+        HTTPValidationError | RegisteredScorerTaskResultResponse
     """
     return sync_detailed(task_id=task_id, client=client).parsed
 
 
 async def asyncio_detailed(
     task_id: str, *, client: ApiClient
-) -> Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]:
+) -> Response[HTTPValidationError | RegisteredScorerTaskResultResponse]:
     """Get Validate Code Scorer Task Result.
 
      Poll for a code-scorer validation task result (returns status/result).
@@ -152,7 +150,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]
+        Response[HTTPValidationError | RegisteredScorerTaskResultResponse]
     """
     kwargs = _get_kwargs(task_id=task_id)
 
@@ -163,7 +161,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     task_id: str, *, client: ApiClient
-) -> Optional[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]:
+) -> HTTPValidationError | RegisteredScorerTaskResultResponse | None:
     """Get Validate Code Scorer Task Result.
 
      Poll for a code-scorer validation task result (returns status/result).
@@ -182,6 +180,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, RegisteredScorerTaskResultResponse]
+        HTTPValidationError | RegisteredScorerTaskResultResponse
     """
     return (await asyncio_detailed(task_id=task_id, client=client)).parsed

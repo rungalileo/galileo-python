@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,24 +18,24 @@ class ProjectCreate:
     Attributes
     ----------
         name (str):
-        created_by (Union[None, Unset, str]):
-        type_ (Union[Unset, ProjectType]):
-        create_example_templates (Union[Unset, bool]):  Default: False.
+        created_by (None | str | Unset):
+        type_ (ProjectType | Unset):
+        create_example_templates (bool | Unset):  Default: False.
     """
 
     name: str
-    created_by: Union[None, Unset, str] = UNSET
-    type_: Union[Unset, ProjectType] = UNSET
-    create_example_templates: Union[Unset, bool] = False
+    created_by: None | str | Unset = UNSET
+    type_: ProjectType | Unset = UNSET
+    create_example_templates: bool | Unset = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        created_by: Union[None, Unset, str]
+        created_by: None | str | Unset
         created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
-        type_: Union[Unset, str] = UNSET
+        type_: str | Unset = UNSET
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
 
@@ -56,17 +58,17 @@ class ProjectCreate:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_created_by(data: object) -> Union[None, Unset, str]:
+        def _parse_created_by(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         created_by = _parse_created_by(d.pop("created_by", UNSET))
 
         _type_ = d.pop("type", UNSET)
-        type_: Union[Unset, ProjectType]
+        type_: ProjectType | Unset
         type_ = UNSET if isinstance(_type_, Unset) else ProjectType(_type_)
 
         create_example_templates = d.pop("create_example_templates", UNSET)

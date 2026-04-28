@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,38 +23,37 @@ class ChunkAttributionUtilizationTemplate:
     r"""
     Attributes
     ----------
-        metric_system_prompt (Union[None, Unset, str]): System prompt for the metric.
-        metric_description (Union[None, Unset, str]): Description of what the metric should do.
-        value_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the rating. Default:
+        metric_system_prompt (None | str | Unset): System prompt for the metric.
+        metric_description (None | str | Unset): Description of what the metric should do.
+        value_field_name (str | Unset): Field name to look for in the chainpoll response, for the rating. Default:
             'rating'.
-        explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
-            explanation. Default: 'explanation'.
-        template (Union[Unset, str]):  Default: 'I asked someone to answer a question based on one or more documents.
-            You will tell me which of the documents their answer was sourced from, and which specific sentences from the
-            documents they used.\n\nHere are the documents, with each document split up into sentences. Each sentence is
-            given a unique key, such as \'0a\' for the first sentence of Document 0. You\'ll use these keys in your response
-            to identify which sentences were used.\n\n```\n{chunks}\n```\n\nThe question
-            was:\n\n```\n{question}\n```\n\nTheir response was:\n\n```\n{response}\n```\n\nRespond with a JSON object
-            matching this schema:\n\n```\n{{\n  \\"source_sentence_keys\\": [string]\n}}\n```\n\nThe source_sentence_keys
-            field is a list identifying the sentences in the documents that were used to construct the answer. Each entry
-            MUST be a sentence key, such as \'0a\', that appears in the document list above. Include the key of every
-            sentence that was used to construct the answer, even if it was not used in its entirety. Omit keys for sentences
-            that were not used, and could have been removed from the document without affecting the answer.\n\nYou must
-            respond with a valid JSON string.'.
-        metric_few_shot_examples (Union[Unset, list['FewShotExample']]): Few-shot examples for the metric.
-        response_schema (Union['ChunkAttributionUtilizationTemplateResponseSchemaType0', None, Unset]): Response schema
-            for the output.
+        explanation_field_name (str | Unset): Field name to look for in the chainpoll response, for the explanation.
+            Default: 'explanation'.
+        template (str | Unset):  Default: 'I asked someone to answer a question based on one or more documents. You will
+            tell me which of the documents their answer was sourced from, and which specific sentences from the documents
+            they used.\n\nHere are the documents, with each document split up into sentences. Each sentence is given a
+            unique key, such as \'0a\' for the first sentence of Document 0. You\'ll use these keys in your response to
+            identify which sentences were used.\n\n```\n{chunks}\n```\n\nThe question was:\n\n```\n{question}\n```\n\nTheir
+            response was:\n\n```\n{response}\n```\n\nRespond with a JSON object matching this schema:\n\n```\n{{\n
+            \\"source_sentence_keys\\": [string]\n}}\n```\n\nThe source_sentence_keys field is a list identifying the
+            sentences in the documents that were used to construct the answer. Each entry MUST be a sentence key, such as
+            \'0a\', that appears in the document list above. Include the key of every sentence that was used to construct
+            the answer, even if it was not used in its entirety. Omit keys for sentences that were not used, and could have
+            been removed from the document without affecting the answer.\n\nYou must respond with a valid JSON string.'.
+        metric_few_shot_examples (list[FewShotExample] | Unset): Few-shot examples for the metric.
+        response_schema (ChunkAttributionUtilizationTemplateResponseSchemaType0 | None | Unset): Response schema for the
+            output.
     """
 
-    metric_system_prompt: Union[None, Unset, str] = UNSET
-    metric_description: Union[None, Unset, str] = UNSET
-    value_field_name: Union[Unset, str] = "rating"
-    explanation_field_name: Union[Unset, str] = "explanation"
-    template: Union[Unset, str] = (
+    metric_system_prompt: None | str | Unset = UNSET
+    metric_description: None | str | Unset = UNSET
+    value_field_name: str | Unset = "rating"
+    explanation_field_name: str | Unset = "explanation"
+    template: str | Unset = (
         "I asked someone to answer a question based on one or more documents. You will tell me which of the documents their answer was sourced from, and which specific sentences from the documents they used.\n\nHere are the documents, with each document split up into sentences. Each sentence is given a unique key, such as '0a' for the first sentence of Document 0. You'll use these keys in your response to identify which sentences were used.\n\n```\n{chunks}\n```\n\nThe question was:\n\n```\n{question}\n```\n\nTheir response was:\n\n```\n{response}\n```\n\nRespond with a JSON object matching this schema:\n\n```\n{{\n  \\\"source_sentence_keys\\\": [string]\n}}\n```\n\nThe source_sentence_keys field is a list identifying the sentences in the documents that were used to construct the answer. Each entry MUST be a sentence key, such as '0a', that appears in the document list above. Include the key of every sentence that was used to construct the answer, even if it was not used in its entirety. Omit keys for sentences that were not used, and could have been removed from the document without affecting the answer.\n\nYou must respond with a valid JSON string."
     )
-    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
-    response_schema: Union["ChunkAttributionUtilizationTemplateResponseSchemaType0", None, Unset] = UNSET
+    metric_few_shot_examples: list[FewShotExample] | Unset = UNSET
+    response_schema: ChunkAttributionUtilizationTemplateResponseSchemaType0 | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,10 +61,10 @@ class ChunkAttributionUtilizationTemplate:
             ChunkAttributionUtilizationTemplateResponseSchemaType0,
         )
 
-        metric_system_prompt: Union[None, Unset, str]
+        metric_system_prompt: None | str | Unset
         metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
 
-        metric_description: Union[None, Unset, str]
+        metric_description: None | str | Unset
         metric_description = UNSET if isinstance(self.metric_description, Unset) else self.metric_description
 
         value_field_name = self.value_field_name
@@ -72,14 +73,14 @@ class ChunkAttributionUtilizationTemplate:
 
         template = self.template
 
-        metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
+        metric_few_shot_examples: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
             metric_few_shot_examples = []
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        response_schema: Union[None, Unset, dict[str, Any]]
+        response_schema: dict[str, Any] | None | Unset
         if isinstance(self.response_schema, Unset):
             response_schema = UNSET
         elif isinstance(self.response_schema, ChunkAttributionUtilizationTemplateResponseSchemaType0):
@@ -116,21 +117,21 @@ class ChunkAttributionUtilizationTemplate:
 
         d = dict(src_dict)
 
-        def _parse_metric_system_prompt(data: object) -> Union[None, Unset, str]:
+        def _parse_metric_system_prompt(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         metric_system_prompt = _parse_metric_system_prompt(d.pop("metric_system_prompt", UNSET))
 
-        def _parse_metric_description(data: object) -> Union[None, Unset, str]:
+        def _parse_metric_description(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         metric_description = _parse_metric_description(d.pop("metric_description", UNSET))
 
@@ -140,16 +141,18 @@ class ChunkAttributionUtilizationTemplate:
 
         template = d.pop("template", UNSET)
 
-        metric_few_shot_examples = []
         _metric_few_shot_examples = d.pop("metric_few_shot_examples", UNSET)
-        for metric_few_shot_examples_item_data in _metric_few_shot_examples or []:
-            metric_few_shot_examples_item = FewShotExample.from_dict(metric_few_shot_examples_item_data)
+        metric_few_shot_examples: list[FewShotExample] | Unset = UNSET
+        if _metric_few_shot_examples is not UNSET:
+            metric_few_shot_examples = []
+            for metric_few_shot_examples_item_data in _metric_few_shot_examples:
+                metric_few_shot_examples_item = FewShotExample.from_dict(metric_few_shot_examples_item_data)
 
-            metric_few_shot_examples.append(metric_few_shot_examples_item)
+                metric_few_shot_examples.append(metric_few_shot_examples_item)
 
         def _parse_response_schema(
             data: object,
-        ) -> Union["ChunkAttributionUtilizationTemplateResponseSchemaType0", None, Unset]:
+        ) -> ChunkAttributionUtilizationTemplateResponseSchemaType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -161,7 +164,7 @@ class ChunkAttributionUtilizationTemplate:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["ChunkAttributionUtilizationTemplateResponseSchemaType0", None, Unset], data)
+            return cast(ChunkAttributionUtilizationTemplateResponseSchemaType0 | None | Unset, data)
 
         response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
 

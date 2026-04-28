@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,19 +18,19 @@ class ProjectTypeFilter:
     Attributes
     ----------
         operator (ProjectTypeFilterOperator):
-        value (Union[list[str], str]):
-        name (Union[Literal['type'], Unset]):  Default: 'type'.
+        value (list[str] | str):
+        name (Literal['type'] | Unset):  Default: 'type'.
     """
 
     operator: ProjectTypeFilterOperator
-    value: Union[list[str], str]
-    name: Union[Literal["type"], Unset] = "type"
+    value: list[str] | str
+    name: Literal["type"] | Unset = "type"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         operator = self.operator.value
 
-        value: Union[list[str], str]
+        value: list[str] | str
         value = self.value if isinstance(self.value, list) else self.value
 
         name = self.name
@@ -46,7 +48,7 @@ class ProjectTypeFilter:
         d = dict(src_dict)
         operator = ProjectTypeFilterOperator(d.pop("operator"))
 
-        def _parse_value(data: object) -> Union[list[str], str]:
+        def _parse_value(data: object) -> list[str] | str:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
@@ -54,11 +56,11 @@ class ProjectTypeFilter:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[list[str], str], data)
+            return cast(list[str] | str, data)
 
         value = _parse_value(d.pop("value"))
 
-        name = cast(Union[Literal["type"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["type"] | Unset, d.pop("name", UNSET))
         if name != "type" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'type', got '{name}'")
 

@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,18 +22,18 @@ class DatasetRowMetadata:
     ----------
         created_in_version (int):
         created_at (datetime.datetime):
-        created_by_user (Union['UserInfo', None]):
+        created_by_user (None | UserInfo):
         updated_in_version (int):
         updated_at (datetime.datetime):
-        updated_by_user (Union['UserInfo', None]):
+        updated_by_user (None | UserInfo):
     """
 
     created_in_version: int
     created_at: datetime.datetime
-    created_by_user: Union["UserInfo", None]
+    created_by_user: None | UserInfo
     updated_in_version: int
     updated_at: datetime.datetime
-    updated_by_user: Union["UserInfo", None]
+    updated_by_user: None | UserInfo
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,7 +43,7 @@ class DatasetRowMetadata:
 
         created_at = self.created_at.isoformat()
 
-        created_by_user: Union[None, dict[str, Any]]
+        created_by_user: dict[str, Any] | None
         if isinstance(self.created_by_user, UserInfo):
             created_by_user = self.created_by_user.to_dict()
         else:
@@ -51,7 +53,7 @@ class DatasetRowMetadata:
 
         updated_at = self.updated_at.isoformat()
 
-        updated_by_user: Union[None, dict[str, Any]]
+        updated_by_user: dict[str, Any] | None
         if isinstance(self.updated_by_user, UserInfo):
             updated_by_user = self.updated_by_user.to_dict()
         else:
@@ -81,7 +83,7 @@ class DatasetRowMetadata:
 
         created_at = isoparse(d.pop("created_at"))
 
-        def _parse_created_by_user(data: object) -> Union["UserInfo", None]:
+        def _parse_created_by_user(data: object) -> None | UserInfo:
             if data is None:
                 return data
             try:
@@ -91,7 +93,7 @@ class DatasetRowMetadata:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["UserInfo", None], data)
+            return cast(None | UserInfo, data)
 
         created_by_user = _parse_created_by_user(d.pop("created_by_user"))
 
@@ -99,7 +101,7 @@ class DatasetRowMetadata:
 
         updated_at = isoparse(d.pop("updated_at"))
 
-        def _parse_updated_by_user(data: object) -> Union["UserInfo", None]:
+        def _parse_updated_by_user(data: object) -> None | UserInfo:
             if data is None:
                 return data
             try:
@@ -109,7 +111,7 @@ class DatasetRowMetadata:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["UserInfo", None], data)
+            return cast(None | UserInfo, data)
 
         updated_by_user = _parse_updated_by_user(d.pop("updated_by_user"))
 

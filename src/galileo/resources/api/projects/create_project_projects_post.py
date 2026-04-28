@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -38,9 +38,7 @@ def _get_kwargs(*, body: ProjectCreate) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, ProjectCreateResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ProjectCreateResponse:
     if response.status_code == 200:
         return ProjectCreateResponse.from_dict(response.json())
 
@@ -67,7 +65,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, ProjectCreateResponse]]:
+) -> Response[HTTPValidationError | ProjectCreateResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -76,9 +74,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    *, client: ApiClient, body: ProjectCreate
-) -> Response[Union[HTTPValidationError, ProjectCreateResponse]]:
+def sync_detailed(*, client: ApiClient, body: ProjectCreate) -> Response[HTTPValidationError | ProjectCreateResponse]:
     """Create Project.
 
      Create a new project.
@@ -93,7 +89,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, ProjectCreateResponse]]
+        Response[HTTPValidationError | ProjectCreateResponse]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -102,7 +98,7 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: ProjectCreate) -> Optional[Union[HTTPValidationError, ProjectCreateResponse]]:
+def sync(*, client: ApiClient, body: ProjectCreate) -> HTTPValidationError | ProjectCreateResponse | None:
     """Create Project.
 
      Create a new project.
@@ -117,14 +113,14 @@ def sync(*, client: ApiClient, body: ProjectCreate) -> Optional[Union[HTTPValida
 
     Returns
     -------
-        Union[HTTPValidationError, ProjectCreateResponse]
+        HTTPValidationError | ProjectCreateResponse
     """
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: ProjectCreate
-) -> Response[Union[HTTPValidationError, ProjectCreateResponse]]:
+) -> Response[HTTPValidationError | ProjectCreateResponse]:
     """Create Project.
 
      Create a new project.
@@ -139,7 +135,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, ProjectCreateResponse]]
+        Response[HTTPValidationError | ProjectCreateResponse]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -148,9 +144,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *, client: ApiClient, body: ProjectCreate
-) -> Optional[Union[HTTPValidationError, ProjectCreateResponse]]:
+async def asyncio(*, client: ApiClient, body: ProjectCreate) -> HTTPValidationError | ProjectCreateResponse | None:
     """Create Project.
 
      Create a new project.
@@ -165,6 +159,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, ProjectCreateResponse]
+        HTTPValidationError | ProjectCreateResponse
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,17 +22,17 @@ class AnnotationAggregate:
     """
     Attributes
     ----------
-        aggregate (Union['AnnotationLikeDislikeAggregate', 'AnnotationScoreAggregate', 'AnnotationStarAggregate',
-            'AnnotationTagsAggregate', 'AnnotationTextAggregate']):
+        aggregate (AnnotationLikeDislikeAggregate | AnnotationScoreAggregate | AnnotationStarAggregate |
+            AnnotationTagsAggregate | AnnotationTextAggregate):
     """
 
-    aggregate: Union[
-        "AnnotationLikeDislikeAggregate",
-        "AnnotationScoreAggregate",
-        "AnnotationStarAggregate",
-        "AnnotationTagsAggregate",
-        "AnnotationTextAggregate",
-    ]
+    aggregate: (
+        AnnotationLikeDislikeAggregate
+        | AnnotationScoreAggregate
+        | AnnotationStarAggregate
+        | AnnotationTagsAggregate
+        | AnnotationTextAggregate
+    )
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,12 +44,10 @@ class AnnotationAggregate:
         aggregate: dict[str, Any]
         if isinstance(
             self.aggregate,
-            (
-                AnnotationLikeDislikeAggregate,
-                AnnotationStarAggregate,
-                AnnotationScoreAggregate,
-                AnnotationTagsAggregate,
-            ),
+            AnnotationLikeDislikeAggregate
+            | AnnotationStarAggregate
+            | AnnotationScoreAggregate
+            | AnnotationTagsAggregate,
         ):
             aggregate = self.aggregate.to_dict()
         else:
@@ -71,13 +71,13 @@ class AnnotationAggregate:
 
         def _parse_aggregate(
             data: object,
-        ) -> Union[
-            "AnnotationLikeDislikeAggregate",
-            "AnnotationScoreAggregate",
-            "AnnotationStarAggregate",
-            "AnnotationTagsAggregate",
-            "AnnotationTextAggregate",
-        ]:
+        ) -> (
+            AnnotationLikeDislikeAggregate
+            | AnnotationScoreAggregate
+            | AnnotationStarAggregate
+            | AnnotationTagsAggregate
+            | AnnotationTextAggregate
+        ):
             try:
                 if not isinstance(data, dict):
                     raise TypeError()

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -41,10 +41,10 @@ def _get_kwargs(*, body: ProtectRequest) -> dict[str, Any]:
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]:
+) -> HTTPValidationError | InvokeResponse | ProtectResponse:
     if response.status_code == 200:
 
-        def _parse_response_200(data: object) -> Union["InvokeResponse", "ProtectResponse"]:
+        def _parse_response_200(data: object) -> InvokeResponse | ProtectResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
@@ -81,7 +81,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]]:
+) -> Response[HTTPValidationError | InvokeResponse | ProtectResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -92,7 +92,7 @@ def _build_response(
 
 def sync_detailed(
     *, client: ApiClient, body: ProtectRequest
-) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]]:
+) -> Response[HTTPValidationError | InvokeResponse | ProtectResponse]:
     """Invoke.
 
     Args:
@@ -105,7 +105,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, Union['InvokeResponse', 'ProtectResponse']]]
+        Response[HTTPValidationError | InvokeResponse | ProtectResponse]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -114,9 +114,7 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *, client: ApiClient, body: ProtectRequest
-) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]]:
+def sync(*, client: ApiClient, body: ProtectRequest) -> HTTPValidationError | InvokeResponse | ProtectResponse | None:
     """Invoke.
 
     Args:
@@ -129,14 +127,14 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, Union['InvokeResponse', 'ProtectResponse']]
+        HTTPValidationError | InvokeResponse | ProtectResponse
     """
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: ProtectRequest
-) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]]:
+) -> Response[HTTPValidationError | InvokeResponse | ProtectResponse]:
     """Invoke.
 
     Args:
@@ -149,7 +147,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, Union['InvokeResponse', 'ProtectResponse']]]
+        Response[HTTPValidationError | InvokeResponse | ProtectResponse]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -160,7 +158,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: ProtectRequest
-) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "ProtectResponse"]]]:
+) -> HTTPValidationError | InvokeResponse | ProtectResponse | None:
     """Invoke.
 
     Args:
@@ -173,6 +171,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, Union['InvokeResponse', 'ProtectResponse']]
+        HTTPValidationError | InvokeResponse | ProtectResponse
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

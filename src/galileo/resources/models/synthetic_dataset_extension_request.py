@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,44 +23,44 @@ class SyntheticDatasetExtensionRequest:
 
     Attributes
     ----------
-        prompt_settings (Union[Unset, PromptRunSettings]): Prompt run settings.
-        prompt (Union[None, Unset, str]):
-        instructions (Union[None, Unset, str]):
-        examples (Union[Unset, list[str]]):
-        source_dataset (Union['SyntheticDataSourceDataset', None, Unset]):
-        data_types (Union[None, Unset, list[SyntheticDataTypes]]):
-        count (Union[Unset, int]):  Default: 10.
-        project_id (Union[None, Unset, str]):
+        prompt_settings (PromptRunSettings | Unset): Prompt run settings.
+        prompt (None | str | Unset):
+        instructions (None | str | Unset):
+        examples (list[str] | Unset):
+        source_dataset (None | SyntheticDataSourceDataset | Unset):
+        data_types (list[SyntheticDataTypes] | None | Unset):
+        count (int | Unset):  Default: 10.
+        project_id (None | str | Unset):
     """
 
-    prompt_settings: Union[Unset, "PromptRunSettings"] = UNSET
-    prompt: Union[None, Unset, str] = UNSET
-    instructions: Union[None, Unset, str] = UNSET
-    examples: Union[Unset, list[str]] = UNSET
-    source_dataset: Union["SyntheticDataSourceDataset", None, Unset] = UNSET
-    data_types: Union[None, Unset, list[SyntheticDataTypes]] = UNSET
-    count: Union[Unset, int] = 10
-    project_id: Union[None, Unset, str] = UNSET
+    prompt_settings: PromptRunSettings | Unset = UNSET
+    prompt: None | str | Unset = UNSET
+    instructions: None | str | Unset = UNSET
+    examples: list[str] | Unset = UNSET
+    source_dataset: None | SyntheticDataSourceDataset | Unset = UNSET
+    data_types: list[SyntheticDataTypes] | None | Unset = UNSET
+    count: int | Unset = 10
+    project_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.synthetic_data_source_dataset import SyntheticDataSourceDataset
 
-        prompt_settings: Union[Unset, dict[str, Any]] = UNSET
+        prompt_settings: dict[str, Any] | Unset = UNSET
         if not isinstance(self.prompt_settings, Unset):
             prompt_settings = self.prompt_settings.to_dict()
 
-        prompt: Union[None, Unset, str]
+        prompt: None | str | Unset
         prompt = UNSET if isinstance(self.prompt, Unset) else self.prompt
 
-        instructions: Union[None, Unset, str]
+        instructions: None | str | Unset
         instructions = UNSET if isinstance(self.instructions, Unset) else self.instructions
 
-        examples: Union[Unset, list[str]] = UNSET
+        examples: list[str] | Unset = UNSET
         if not isinstance(self.examples, Unset):
             examples = self.examples
 
-        source_dataset: Union[None, Unset, dict[str, Any]]
+        source_dataset: dict[str, Any] | None | Unset
         if isinstance(self.source_dataset, Unset):
             source_dataset = UNSET
         elif isinstance(self.source_dataset, SyntheticDataSourceDataset):
@@ -66,7 +68,7 @@ class SyntheticDatasetExtensionRequest:
         else:
             source_dataset = self.source_dataset
 
-        data_types: Union[None, Unset, list[str]]
+        data_types: list[str] | None | Unset
         if isinstance(self.data_types, Unset):
             data_types = UNSET
         elif isinstance(self.data_types, list):
@@ -80,7 +82,7 @@ class SyntheticDatasetExtensionRequest:
 
         count = self.count
 
-        project_id: Union[None, Unset, str]
+        project_id: None | str | Unset
         project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
         field_dict: dict[str, Any] = {}
@@ -112,33 +114,33 @@ class SyntheticDatasetExtensionRequest:
 
         d = dict(src_dict)
         _prompt_settings = d.pop("prompt_settings", UNSET)
-        prompt_settings: Union[Unset, PromptRunSettings]
+        prompt_settings: PromptRunSettings | Unset
         if isinstance(_prompt_settings, Unset):
             prompt_settings = UNSET
         else:
             prompt_settings = PromptRunSettings.from_dict(_prompt_settings)
 
-        def _parse_prompt(data: object) -> Union[None, Unset, str]:
+        def _parse_prompt(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         prompt = _parse_prompt(d.pop("prompt", UNSET))
 
-        def _parse_instructions(data: object) -> Union[None, Unset, str]:
+        def _parse_instructions(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         instructions = _parse_instructions(d.pop("instructions", UNSET))
 
         examples = cast(list[str], d.pop("examples", UNSET))
 
-        def _parse_source_dataset(data: object) -> Union["SyntheticDataSourceDataset", None, Unset]:
+        def _parse_source_dataset(data: object) -> None | SyntheticDataSourceDataset | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -150,11 +152,11 @@ class SyntheticDatasetExtensionRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["SyntheticDataSourceDataset", None, Unset], data)
+            return cast(None | SyntheticDataSourceDataset | Unset, data)
 
         source_dataset = _parse_source_dataset(d.pop("source_dataset", UNSET))
 
-        def _parse_data_types(data: object) -> Union[None, Unset, list[SyntheticDataTypes]]:
+        def _parse_data_types(data: object) -> list[SyntheticDataTypes] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -172,18 +174,18 @@ class SyntheticDatasetExtensionRequest:
                 return data_types_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[SyntheticDataTypes]], data)
+            return cast(list[SyntheticDataTypes] | None | Unset, data)
 
         data_types = _parse_data_types(d.pop("data_types", UNSET))
 
         count = d.pop("count", UNSET)
 
-        def _parse_project_id(data: object) -> Union[None, Unset, str]:
+        def _parse_project_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         project_id = _parse_project_id(d.pop("project_id", UNSET))
 

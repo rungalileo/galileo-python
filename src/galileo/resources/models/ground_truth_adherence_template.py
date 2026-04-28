@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,7 +23,7 @@ class GroundTruthAdherenceTemplate:
     r"""
     Attributes
     ----------
-        metric_system_prompt (Union[Unset, str]):  Default: 'I will give you two different texts, called the \\"ground
+        metric_system_prompt (str | Unset):  Default: 'I will give you two different texts, called the \\"ground
             truth\\" and the \\"response.\\"\n\nRead both texts, then tell me whether they are \\"equivalent,\\" in the
             sense that they basically mean the same thing.\n\nKeep the following guidelines in mind.\n\n- Two texts can be
             equivalent if they use different phrasing, as long as the phrasing doesn\'t affect meaning.\n- Two texts can be
@@ -36,29 +38,28 @@ class GroundTruthAdherenceTemplate:
             explicitly, and ultimately draw a conclusion about whether that difference makes the text non-
             equivalent.\n\n\\"equivalent\\": `true` if the texts are equivalent in the sense given above, `false` if they
             are non-equivalent.\n\nYou must respond with valid JSON.'.
-        metric_description (Union[Unset, str]):  Default: 'This metric computes whether a response from a large language
-            model matches a provided ground truth text.'.
-        value_field_name (Union[Unset, str]):  Default: 'equivalent'.
-        explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
-            explanation. Default: 'explanation'.
-        template (Union[Unset, str]):  Default: 'Ground
+        metric_description (str | Unset):  Default: 'This metric computes whether a response from a large language model
+            matches a provided ground truth text.'.
+        value_field_name (str | Unset):  Default: 'equivalent'.
+        explanation_field_name (str | Unset): Field name to look for in the chainpoll response, for the explanation.
+            Default: 'explanation'.
+        template (str | Unset):  Default: 'Ground
             truth:\n\n```\n{ground_truth}\n```\n\nResponse:\n\n```\n{response}\n```'.
-        metric_few_shot_examples (Union[Unset, list['FewShotExample']]): Few-shot examples for the metric.
-        response_schema (Union['GroundTruthAdherenceTemplateResponseSchemaType0', None, Unset]): Response schema for the
-            output.
+        metric_few_shot_examples (list[FewShotExample] | Unset): Few-shot examples for the metric.
+        response_schema (GroundTruthAdherenceTemplateResponseSchemaType0 | None | Unset): Response schema for the output.
     """
 
-    metric_system_prompt: Union[Unset, str] = (
+    metric_system_prompt: str | Unset = (
         'I will give you two different texts, called the \\"ground truth\\" and the \\"response.\\"\n\nRead both texts, then tell me whether they are \\"equivalent,\\" in the sense that they basically mean the same thing.\n\nKeep the following guidelines in mind.\n\n- Two texts can be equivalent if they use different phrasing, as long as the phrasing doesn\'t affect meaning.\n- Two texts can be equivalent if there are _slight_ differences in meaning that wouldn\'t affect the conclusions that a reasonable reader would draw upon reading them.\n- Imagine that you are grading a free-response exam.  The ground truth given in the answer key for an exam question, and the response is a student\'s answer to the same question. If you would give the student full marks for this question, that means the two texts are equivalent. If you wouldn\'t, that means the two texts are not equivalent.\n\nRespond in the following JSON format:\n\n```\n{{\n    \\"explanation\\": string,\n    \\"equivalent\\": boolean\n}}\n```\n\n\\"explanation\\": A step-by-step breakdown of the similarities and differences between the text. For each difference you note (if any), consider why the difference might or might not make the texts non-equivalent, note down your reasoning clearly and explicitly, and ultimately draw a conclusion about whether that difference makes the text non-equivalent.\n\n\\"equivalent\\": `true` if the texts are equivalent in the sense given above, `false` if they are non-equivalent.\n\nYou must respond with valid JSON.'
     )
-    metric_description: Union[Unset, str] = (
+    metric_description: str | Unset = (
         "This metric computes whether a response from a large language model matches a provided ground truth text."
     )
-    value_field_name: Union[Unset, str] = "equivalent"
-    explanation_field_name: Union[Unset, str] = "explanation"
-    template: Union[Unset, str] = "Ground truth:\n\n```\n{ground_truth}\n```\n\nResponse:\n\n```\n{response}\n```"
-    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
-    response_schema: Union["GroundTruthAdherenceTemplateResponseSchemaType0", None, Unset] = UNSET
+    value_field_name: str | Unset = "equivalent"
+    explanation_field_name: str | Unset = "explanation"
+    template: str | Unset = "Ground truth:\n\n```\n{ground_truth}\n```\n\nResponse:\n\n```\n{response}\n```"
+    metric_few_shot_examples: list[FewShotExample] | Unset = UNSET
+    response_schema: GroundTruthAdherenceTemplateResponseSchemaType0 | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -76,14 +77,14 @@ class GroundTruthAdherenceTemplate:
 
         template = self.template
 
-        metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
+        metric_few_shot_examples: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
             metric_few_shot_examples = []
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        response_schema: Union[None, Unset, dict[str, Any]]
+        response_schema: dict[str, Any] | None | Unset
         if isinstance(self.response_schema, Unset):
             response_schema = UNSET
         elif isinstance(self.response_schema, GroundTruthAdherenceTemplateResponseSchemaType0):
@@ -129,16 +130,16 @@ class GroundTruthAdherenceTemplate:
 
         template = d.pop("template", UNSET)
 
-        metric_few_shot_examples = []
         _metric_few_shot_examples = d.pop("metric_few_shot_examples", UNSET)
-        for metric_few_shot_examples_item_data in _metric_few_shot_examples or []:
-            metric_few_shot_examples_item = FewShotExample.from_dict(metric_few_shot_examples_item_data)
+        metric_few_shot_examples: list[FewShotExample] | Unset = UNSET
+        if _metric_few_shot_examples is not UNSET:
+            metric_few_shot_examples = []
+            for metric_few_shot_examples_item_data in _metric_few_shot_examples:
+                metric_few_shot_examples_item = FewShotExample.from_dict(metric_few_shot_examples_item_data)
 
-            metric_few_shot_examples.append(metric_few_shot_examples_item)
+                metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        def _parse_response_schema(
-            data: object,
-        ) -> Union["GroundTruthAdherenceTemplateResponseSchemaType0", None, Unset]:
+        def _parse_response_schema(data: object) -> GroundTruthAdherenceTemplateResponseSchemaType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -150,7 +151,7 @@ class GroundTruthAdherenceTemplate:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["GroundTruthAdherenceTemplateResponseSchemaType0", None, Unset], data)
+            return cast(GroundTruthAdherenceTemplateResponseSchemaType0 | None | Unset, data)
 
         response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
 

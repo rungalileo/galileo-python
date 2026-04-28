@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,13 +22,13 @@ class UncertaintyScorer:
     """
     Attributes
     ----------
-        name (Union[Literal['uncertainty'], Unset]):  Default: 'uncertainty'.
-        filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]): List of filters
-            to apply to the scorer.
+        name (Literal['uncertainty'] | Unset):  Default: 'uncertainty'.
+        filters (list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset): List of filters to apply to the
+            scorer.
     """
 
-    name: Union[Literal["uncertainty"], Unset] = "uncertainty"
-    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
+    name: Literal["uncertainty"] | Unset = "uncertainty"
+    filters: list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,14 +37,14 @@ class UncertaintyScorer:
 
         name = self.name
 
-        filters: Union[None, Unset, list[dict[str, Any]]]
+        filters: list[dict[str, Any]] | None | Unset
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, (NodeNameFilter, MetadataFilter)):
+                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -69,13 +71,11 @@ class UncertaintyScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
-        name = cast(Union[Literal["uncertainty"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["uncertainty"] | Unset, d.pop("name", UNSET))
         if name != "uncertainty" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'uncertainty', got '{name}'")
 
-        def _parse_filters(
-            data: object,
-        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
+        def _parse_filters(data: object) -> list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -87,9 +87,7 @@ class UncertaintyScorer:
                 _filters_type_0 = data
                 for filters_type_0_item_data in _filters_type_0:
 
-                    def _parse_filters_type_0_item(
-                        data: object,
-                    ) -> Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]:
+                    def _parse_filters_type_0_item(data: object) -> MetadataFilter | ModalityFilter | NodeNameFilter:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -115,7 +113,7 @@ class UncertaintyScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
+            return cast(list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset, data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 

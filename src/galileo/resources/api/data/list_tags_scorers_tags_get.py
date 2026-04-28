@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 import httpx
 
@@ -81,7 +81,7 @@ def sync_detailed(*, client: ApiClient) -> Response[list[str]]:
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient) -> Optional[list[str]]:
+def sync(*, client: ApiClient) -> list[str] | None:
     """List Tags.
 
     Raises
@@ -115,7 +115,7 @@ async def asyncio_detailed(*, client: ApiClient) -> Response[list[str]]:
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient) -> Optional[list[str]]:
+async def asyncio(*, client: ApiClient) -> list[str] | None:
     """List Tags.
 
     Raises
