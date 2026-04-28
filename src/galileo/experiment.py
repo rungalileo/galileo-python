@@ -142,6 +142,20 @@ class Experiment(StateManagementMixin):
             project_name="My AI Project"
         )
         experiment.create()
+
+        # Check results after the run completes
+        experiment.refresh()
+        metrics = experiment.aggregate_metrics
+        print(f"Average correctness: {metrics['average_correctness']}")
+
+        # Re-run with a different name
+        experiment2 = Experiment(
+            name=f"{experiment.name}-rerun-1",
+            dataset_name=experiment.dataset_name,
+            prompt_name=experiment.prompt_name,
+            metrics=experiment.metrics,
+            project_name=experiment.project_name,
+        ).create()
     """
 
     id: str | None
@@ -321,6 +335,11 @@ class Experiment(StateManagementMixin):
 
         # TODO: Delegate the responsibilities to the serializer.
         if prompt is not None:
+            if prompt_name is not None:
+                _logger.warning(
+                    "Experiment.__init__: both 'prompt' and 'prompt_name' were provided; "
+                    "'prompt' takes precedence and 'prompt_name' will be ignored."
+                )
             # Local import to avoid circular dependency
             from galileo.prompt import Prompt
 
