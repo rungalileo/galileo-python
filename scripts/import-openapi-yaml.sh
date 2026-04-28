@@ -34,67 +34,19 @@ curl -s "${HOST_URL}/openapi.json" | poetry run python -c 'import sys, json, yam
 #   - ProjectCollectionParams.properties.sort.default = "None"
 #   - galileo_core__schemas__shared__scorers__scorer_name__ScorerName.title = "CoreScorerName"
 #   - galileo_core__schemas__shared__scorers__scorer_name__ScorerName.enum |= unique
-#   - /llm_integrations/projects/{project_id}/runs/{run_id}.get.responses[200].description = "Successful Response" (missing required field)
 #   - /llm_integrations/projects/{project_id}/runs/{run_id}.get.responses[200].schema.title = "GetRunIntegrationsResponse" (Windows filename length fix)
 #   - Document.properties.page_content -> Document.properties.content (Fix field name mismatch with API)
-<<<<<<< HEAD
-#   - Rename long schema titles to shorter ones (Windows filename length fix - prevents "Filename too long" errors).
-#     The discriminated union includes LogRecordsFullyAnnotatedFilter (added orbit PR #414/#506), so keys contain
-#     __LogRecordsFullyAnnotatedFilter__ before ___FieldInfo:
-#     - AndNode_..._LogRecordsFullyAnnotatedFilter___FieldInfo....title = "AndNodeLogRecordsFilter"
-#     - FilterExpression_..._LogRecordsFullyAnnotatedFilter___FieldInfo....title = "FilterExpressionLogRecordsFilter"
-#     - FilterLeaf_..._LogRecordsFullyAnnotatedFilter___FieldInfo....title = "FilterLeafLogRecordsFilter"
-#     - NotNode_..._LogRecordsFullyAnnotatedFilter___FieldInfo....title = "NotNodeLogRecordsFilter"
-#     - OrNode_..._LogRecordsFullyAnnotatedFilter___FieldInfo....title = "OrNodeLogRecordsFilter"
-#   - Same schemas also emit -Input/-Output variants with duplicate titles — renamed to *FilterInput/*FilterOutput
-#   - PromptRunSettings-Input/PromptRunSettings-Output have duplicate title "PromptRunSettings" — renamed to PromptRunSettings/PromptRunSettingsOutput
-=======
 #   - Rename long schema titles to shorter ones (Windows filename length fix - prevents "Filename too long" errors):
 #     - AndNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____.title = "AndNodeLogRecordsFilter"
 #     - FilterExpression_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____.title = "FilterExpressionLogRecordsFilter"
 #     - FilterLeaf_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____.title = "FilterLeafLogRecordsFilter"
 #     - NotNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____.title = "NotNodeLogRecordsFilter"
 #     - OrNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____.title = "OrNodeLogRecordsFilter"
->>>>>>> main
 #
 # If you run into related issues with the auto-generate-api-client.sh script, add the openapi.yaml patches here.
 
 # Apply all patches using yq in a single command
-<<<<<<< HEAD
-poetry run python -m yq --in-place -Y \
-  '.components.schemas.api__schemas__project_v2__GetProjectsPaginatedResponse.title = "GetProjectsPaginatedResponseV2"
-  | .components.schemas.galileo_core__schemas__shared__message__Message.title = "MessagesListItem"
-  | .components.schemas.galileo_core__schemas__shared__message_role__MessageRole.title = "MessagesListItemRole"
-  | .components.schemas.ListDatasetParams.properties.sort.default = "None"
-  | .components.schemas.ListPromptTemplateParams.properties.sort.default = "None"
-  | .components.schemas.ProjectCollectionParams.properties.sort.default = "None"
-  | .components.schemas.galileo_core__schemas__shared__scorers__scorer_name__ScorerName.title = "CoreScorerName"
-  | .components.schemas.galileo_core__schemas__shared__scorers__scorer_name__ScorerName.enum |= unique
-  | .paths["/llm_integrations/projects/{project_id}/runs/{run_id}"].get.responses["200"].description = "Successful Response"
-  | .paths["/llm_integrations/projects/{project_id}/runs/{run_id}"].get.responses["200"].content["application/json"].schema.title = "GetRunIntegrationsResponse"
-  | .components.schemas.Document.properties.content = .components.schemas.Document.properties.page_content
-  | del(.components.schemas.Document.properties.page_content)
-  | .components.schemas.Document.properties.content.title = "Content"
-  | .components.schemas.Document.required = ["content"]
-  | .components.schemas["AndNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____"].title = "AndNodeLogRecordsFilter"
-  | .components.schemas["FilterExpression_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____"].title = "FilterExpressionLogRecordsFilter"
-  | .components.schemas["FilterLeaf_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____"].title = "FilterLeafLogRecordsFilter"
-  | .components.schemas["NotNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____"].title = "NotNodeLogRecordsFilter"
-  | .components.schemas["OrNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____"].title = "OrNodeLogRecordsFilter"
-  | .components.schemas["AndNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____-Input"].title = "AndNodeLogRecordsFilterInput"
-  | .components.schemas["AndNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____-Output"].title = "AndNodeLogRecordsFilterOutput"
-  | .components.schemas["FilterExpression_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____-Input"].title = "FilterExpressionLogRecordsFilterInput"
-  | .components.schemas["FilterExpression_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____-Output"].title = "FilterExpressionLogRecordsFilterOutput"
-  | .components.schemas["NotNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____-Input"].title = "NotNodeLogRecordsFilterInput"
-  | .components.schemas["NotNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____-Output"].title = "NotNodeLogRecordsFilterOutput"
-  | .components.schemas["OrNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____-Input"].title = "OrNodeLogRecordsFilterInput"
-  | .components.schemas["OrNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____-Output"].title = "OrNodeLogRecordsFilterOutput"
-  | .components.schemas["PromptRunSettings-Input"].title = "PromptRunSettings"
-  | .components.schemas["PromptRunSettings-Output"].title = "PromptRunSettingsOutput"' \
-  "$HOME_DIR/openapi.yaml"
-=======
 poetry run python -m yq --in-place -Y '.components.schemas.api__schemas__project_v2__GetProjectsPaginatedResponse.title = "GetProjectsPaginatedResponseV2" | .components.schemas.galileo_core__schemas__shared__message__Message.title = "MessagesListItem" | .components.schemas.galileo_core__schemas__shared__message_role__MessageRole.title = "MessagesListItemRole" | .components.schemas.ListDatasetParams.properties.sort.default = "None" | .components.schemas.ListPromptTemplateParams.properties.sort.default = "None" | .components.schemas.ProjectCollectionParams.properties.sort.default = "None" | .components.schemas.galileo_core__schemas__shared__scorers__scorer_name__ScorerName.title = "CoreScorerName" | .components.schemas.galileo_core__schemas__shared__scorers__scorer_name__ScorerName.enum |= unique | .paths["/llm_integrations/projects/{project_id}/runs/{run_id}"].get.responses["200"].content["application/json"].schema.title = "GetRunIntegrationsResponse" | .components.schemas.Document.properties.content = .components.schemas.Document.properties.page_content | del(.components.schemas.Document.properties.page_content) | .components.schemas.Document.properties.content.title = "Content" | .components.schemas.Document.required = ["content"] | .components.schemas["AndNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____"].title = "AndNodeLogRecordsFilter" | .components.schemas["FilterExpression_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____"].title = "FilterExpressionLogRecordsFilter" | .components.schemas["FilterLeaf_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____"].title = "FilterLeafLogRecordsFilter" | .components.schemas["NotNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____"].title = "NotNodeLogRecordsFilter" | .components.schemas["OrNode_Annotated_Union_LogRecordsIDFilter__LogRecordsDateFilter__LogRecordsNumberFilter__LogRecordsBooleanFilter__LogRecordsCollectionFilter__LogRecordsTextFilter__LogRecordsFullyAnnotatedFilter___FieldInfo_annotation_NoneType__required_True__discriminator__type____"].title = "OrNodeLogRecordsFilter"'  "$HOME_DIR/openapi.yaml"
->>>>>>> main
 
 # Check if the command was successful
 if [ $? -eq 0 ]; then
