@@ -11,3 +11,4 @@ from galileo.schema.logged import (
     TextOrContentBlocks,
 )
 from galileo.schema.message import LoggedMessage
+from galileo.schema.stub_records import StubSpanRecord, StubTraceRecord, is_stub_record
