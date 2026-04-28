@@ -9,7 +9,7 @@ import os
 import time
 import uuid
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Union
 
 import backoff
@@ -452,7 +452,7 @@ class GalileoLogger(TracesLogger):
         stub_trace = LoggedTrace(
             input="",
             name=STUB_TRACE_NAME,
-            created_at=datetime.now(),
+            created_at=datetime.now(timezone.utc),
             id=uuid.UUID(self.trace_id),
             metrics=Metrics(duration_ns=0),
         )
@@ -467,7 +467,7 @@ class GalileoLogger(TracesLogger):
             stub_span = LoggedWorkflowSpan(
                 input="",
                 name="stub_parent_span",
-                created_at=datetime.now(),
+                created_at=datetime.now(timezone.utc),
                 id=uuid.UUID(self.span_id),
                 metrics=Metrics(duration_ns=0),
             )
