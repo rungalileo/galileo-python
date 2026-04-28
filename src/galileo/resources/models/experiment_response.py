@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     )
     from ..models.experiment_response_tags import ExperimentResponseTags
     from ..models.experiment_status import ExperimentStatus
-    from ..models.prompt_run_settings_output import PromptRunSettingsOutput
+    from ..models.prompt_run_settings import PromptRunSettings
     from ..models.user_info import UserInfo
 
 
@@ -33,7 +33,8 @@ T = TypeVar("T", bound="ExperimentResponse")
 @_attrs_define
 class ExperimentResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str): Galileo ID of the experiment
         project_id (str): Galileo ID of the project associated with this experiment
         task_type (TaskType): Valid task types for modeling.
@@ -60,7 +61,7 @@ class ExperimentResponse:
         winner (bool | None | Unset):
         playground_id (None | str | Unset):
         playground (ExperimentPlayground | None | Unset):
-        prompt_run_settings (None | PromptRunSettingsOutput | Unset):
+        prompt_run_settings (None | PromptRunSettings | Unset):
         prompt_model (None | str | Unset):
         prompt (ExperimentPrompt | None | Unset):
         tags (ExperimentResponseTags | Unset):
@@ -87,7 +88,7 @@ class ExperimentResponse:
     winner: bool | None | Unset = UNSET
     playground_id: None | str | Unset = UNSET
     playground: ExperimentPlayground | None | Unset = UNSET
-    prompt_run_settings: None | PromptRunSettingsOutput | Unset = UNSET
+    prompt_run_settings: None | PromptRunSettings | Unset = UNSET
     prompt_model: None | str | Unset = UNSET
     prompt: ExperimentPrompt | None | Unset = UNSET
     tags: ExperimentResponseTags | Unset = UNSET
@@ -101,7 +102,7 @@ class ExperimentResponse:
         from ..models.experiment_response_structured_aggregate_metrics_type_0 import (
             ExperimentResponseStructuredAggregateMetricsType0,
         )
-        from ..models.prompt_run_settings_output import PromptRunSettingsOutput
+        from ..models.prompt_run_settings import PromptRunSettings
         from ..models.user_info import UserInfo
 
         id = self.id
@@ -125,10 +126,7 @@ class ExperimentResponse:
         name = self.name
 
         created_by: None | str | Unset
-        if isinstance(self.created_by, Unset):
-            created_by = UNSET
-        else:
-            created_by = self.created_by
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
         created_by_user: dict[str, Any] | None | Unset
         if isinstance(self.created_by_user, Unset):
@@ -139,16 +137,10 @@ class ExperimentResponse:
             created_by_user = self.created_by_user
 
         num_spans: int | None | Unset
-        if isinstance(self.num_spans, Unset):
-            num_spans = UNSET
-        else:
-            num_spans = self.num_spans
+        num_spans = UNSET if isinstance(self.num_spans, Unset) else self.num_spans
 
         num_traces: int | None | Unset
-        if isinstance(self.num_traces, Unset):
-            num_traces = UNSET
-        else:
-            num_traces = self.num_traces
+        num_traces = UNSET if isinstance(self.num_traces, Unset) else self.num_traces
 
         dataset: dict[str, Any] | None | Unset
         if isinstance(self.dataset, Unset):
@@ -179,28 +171,16 @@ class ExperimentResponse:
             rating_aggregates = self.rating_aggregates.to_dict()
 
         ranking_score: float | None | Unset
-        if isinstance(self.ranking_score, Unset):
-            ranking_score = UNSET
-        else:
-            ranking_score = self.ranking_score
+        ranking_score = UNSET if isinstance(self.ranking_score, Unset) else self.ranking_score
 
         rank: int | None | Unset
-        if isinstance(self.rank, Unset):
-            rank = UNSET
-        else:
-            rank = self.rank
+        rank = UNSET if isinstance(self.rank, Unset) else self.rank
 
         winner: bool | None | Unset
-        if isinstance(self.winner, Unset):
-            winner = UNSET
-        else:
-            winner = self.winner
+        winner = UNSET if isinstance(self.winner, Unset) else self.winner
 
         playground_id: None | str | Unset
-        if isinstance(self.playground_id, Unset):
-            playground_id = UNSET
-        else:
-            playground_id = self.playground_id
+        playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
 
         playground: dict[str, Any] | None | Unset
         if isinstance(self.playground, Unset):
@@ -213,16 +193,13 @@ class ExperimentResponse:
         prompt_run_settings: dict[str, Any] | None | Unset
         if isinstance(self.prompt_run_settings, Unset):
             prompt_run_settings = UNSET
-        elif isinstance(self.prompt_run_settings, PromptRunSettingsOutput):
+        elif isinstance(self.prompt_run_settings, PromptRunSettings):
             prompt_run_settings = self.prompt_run_settings.to_dict()
         else:
             prompt_run_settings = self.prompt_run_settings
 
         prompt_model: None | str | Unset
-        if isinstance(self.prompt_model, Unset):
-            prompt_model = UNSET
-        else:
-            prompt_model = self.prompt_model
+        prompt_model = UNSET if isinstance(self.prompt_model, Unset) else self.prompt_model
 
         prompt: dict[str, Any] | None | Unset
         if isinstance(self.prompt, Unset):
@@ -303,7 +280,7 @@ class ExperimentResponse:
         )
         from ..models.experiment_response_tags import ExperimentResponseTags
         from ..models.experiment_status import ExperimentStatus
-        from ..models.prompt_run_settings_output import PromptRunSettingsOutput
+        from ..models.prompt_run_settings import PromptRunSettings
         from ..models.user_info import UserInfo
 
         d = dict(src_dict)
@@ -315,10 +292,7 @@ class ExperimentResponse:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: datetime.datetime | Unset
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         def _parse_updated_at(data: object) -> datetime.datetime | None | Unset:
             if data is None:
@@ -328,9 +302,8 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                updated_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return updated_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -356,9 +329,8 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                created_by_user_type_0 = UserInfo.from_dict(data)
+                return UserInfo.from_dict(data)
 
-                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UserInfo, data)
@@ -391,9 +363,8 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                dataset_type_0 = ExperimentDataset.from_dict(data)
+                return ExperimentDataset.from_dict(data)
 
-                return dataset_type_0
             except:  # noqa: E722
                 pass
             return cast(ExperimentDataset | None | Unset, data)
@@ -417,9 +388,8 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                structured_aggregate_metrics_type_0 = ExperimentResponseStructuredAggregateMetricsType0.from_dict(data)
+                return ExperimentResponseStructuredAggregateMetricsType0.from_dict(data)
 
-                return structured_aggregate_metrics_type_0
             except:  # noqa: E722
                 pass
             return cast(ExperimentResponseStructuredAggregateMetricsType0 | None | Unset, data)
@@ -484,16 +454,15 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                playground_type_0 = ExperimentPlayground.from_dict(data)
+                return ExperimentPlayground.from_dict(data)
 
-                return playground_type_0
             except:  # noqa: E722
                 pass
             return cast(ExperimentPlayground | None | Unset, data)
 
         playground = _parse_playground(d.pop("playground", UNSET))
 
-        def _parse_prompt_run_settings(data: object) -> None | PromptRunSettingsOutput | Unset:
+        def _parse_prompt_run_settings(data: object) -> None | PromptRunSettings | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -501,12 +470,11 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                prompt_run_settings_type_0 = PromptRunSettingsOutput.from_dict(data)
+                return PromptRunSettings.from_dict(data)
 
-                return prompt_run_settings_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | PromptRunSettingsOutput | Unset, data)
+            return cast(None | PromptRunSettings | Unset, data)
 
         prompt_run_settings = _parse_prompt_run_settings(d.pop("prompt_run_settings", UNSET))
 
@@ -527,9 +495,8 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                prompt_type_0 = ExperimentPrompt.from_dict(data)
+                return ExperimentPrompt.from_dict(data)
 
-                return prompt_type_0
             except:  # noqa: E722
                 pass
             return cast(ExperimentPrompt | None | Unset, data)
@@ -538,17 +505,11 @@ class ExperimentResponse:
 
         _tags = d.pop("tags", UNSET)
         tags: ExperimentResponseTags | Unset
-        if isinstance(_tags, Unset):
-            tags = UNSET
-        else:
-            tags = ExperimentResponseTags.from_dict(_tags)
+        tags = UNSET if isinstance(_tags, Unset) else ExperimentResponseTags.from_dict(_tags)
 
         _status = d.pop("status", UNSET)
         status: ExperimentStatus | Unset
-        if isinstance(_status, Unset):
-            status = UNSET
-        else:
-            status = ExperimentStatus.from_dict(_status)
+        status = UNSET if isinstance(_status, Unset) else ExperimentStatus.from_dict(_status)
 
         experiment_response = cls(
             id=id,

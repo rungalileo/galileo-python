@@ -14,7 +14,8 @@ T = TypeVar("T", bound="BaseRegisteredScorerDB")
 @_attrs_define
 class BaseRegisteredScorerDB:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (str):
         score_type (None | str | Unset):
@@ -31,10 +32,7 @@ class BaseRegisteredScorerDB:
         name = self.name
 
         score_type: None | str | Unset
-        if isinstance(self.score_type, Unset):
-            score_type = UNSET
-        else:
-            score_type = self.score_type
+        score_type = UNSET if isinstance(self.score_type, Unset) else self.score_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

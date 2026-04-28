@@ -17,7 +17,7 @@ T = TypeVar("T", bound="ExtendedTraceRecordWithChildrenAnnotations")
 
 @_attrs_define
 class ExtendedTraceRecordWithChildrenAnnotations:
-    """Annotations keyed by template ID and annotator ID"""
+    """Annotations keyed by template ID and annotator ID."""
 
     additional_properties: dict[str, ExtendedTraceRecordWithChildrenAnnotationsAdditionalProperty] = _attrs_field(
         init=False, factory=dict

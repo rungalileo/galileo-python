@@ -22,14 +22,15 @@ T = TypeVar("T", bound="LogRecordsMetricsResponse")
 @_attrs_define
 class LogRecordsMetricsResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         group_by_columns (list[str]):
         aggregate_metrics (LogRecordsMetricsResponseAggregateMetrics):
         bucketed_metrics (LogRecordsMetricsResponseBucketedMetrics):
         ems_captured_error (bool | Unset): Whether any EMS error codes were encountered in the queried metrics Default:
             False.
         standard_errors (LogRecordsMetricsResponseStandardErrorsType0 | None | Unset): Structured EMS errors for each
-            error code encountered, keyed by code
+            error code encountered, keyed by code.
     """
 
     group_by_columns: list[str]
@@ -101,9 +102,8 @@ class LogRecordsMetricsResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                standard_errors_type_0 = LogRecordsMetricsResponseStandardErrorsType0.from_dict(data)
+                return LogRecordsMetricsResponseStandardErrorsType0.from_dict(data)
 
-                return standard_errors_type_0
             except:  # noqa: E722
                 pass
             return cast(LogRecordsMetricsResponseStandardErrorsType0 | None | Unset, data)

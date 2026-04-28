@@ -15,7 +15,8 @@ T = TypeVar("T", bound="LogRecordsFullyAnnotatedFilter")
 class LogRecordsFullyAnnotatedFilter:
     """Queue-scoped filter for records rated across all queue templates.
 
-    Attributes:
+    Attributes
+    ----------
         column_id (Literal['fully_annotated'] | Unset): Queue-scoped filter identifier. This filter only works for
             annotation-queue searches that provide queue context. Default: 'fully_annotated'.
         type_ (Literal['fully_annotated'] | Unset):  Default: 'fully_annotated'.
@@ -73,9 +74,8 @@ class LogRecordsFullyAnnotatedFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                user_ids_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return user_ids_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)

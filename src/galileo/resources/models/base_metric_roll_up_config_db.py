@@ -16,7 +16,8 @@ T = TypeVar("T", bound="BaseMetricRollUpConfigDB")
 class BaseMetricRollUpConfigDB:
     """Configuration for rolling up metrics to parent/trace/session.
 
-    Attributes:
+    Attributes
+    ----------
         roll_up_methods (list[CategoricalRollUpMethod] | list[NumericRollUpMethod]): List of roll up methods to apply to
             the metric. For numeric scorers we support doing multiple roll up types per metric.
     """

@@ -20,7 +20,8 @@ T = TypeVar("T", bound="LogStreamResponse")
 @_attrs_define
 class LogStreamResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
@@ -59,10 +60,7 @@ class LogStreamResponse:
         project_id = self.project_id
 
         created_by: None | str | Unset
-        if isinstance(self.created_by, Unset):
-            created_by = UNSET
-        else:
-            created_by = self.created_by
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
         created_by_user: dict[str, Any] | None | Unset
         if isinstance(self.created_by_user, Unset):
@@ -73,16 +71,10 @@ class LogStreamResponse:
             created_by_user = self.created_by_user
 
         num_spans: int | None | Unset
-        if isinstance(self.num_spans, Unset):
-            num_spans = UNSET
-        else:
-            num_spans = self.num_spans
+        num_spans = UNSET if isinstance(self.num_spans, Unset) else self.num_spans
 
         num_traces: int | None | Unset
-        if isinstance(self.num_traces, Unset):
-            num_traces = UNSET
-        else:
-            num_traces = self.num_traces
+        num_traces = UNSET if isinstance(self.num_traces, Unset) else self.num_traces
 
         has_user_created_sessions = self.has_user_created_sessions
 
@@ -136,9 +128,8 @@ class LogStreamResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                created_by_user_type_0 = UserInfo.from_dict(data)
+                return UserInfo.from_dict(data)
 
-                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UserInfo, data)

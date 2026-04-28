@@ -18,7 +18,8 @@ T = TypeVar("T", bound="VegasGatewayIntegration")
 @_attrs_define
 class VegasGatewayIntegration:
     """
-    Attributes:
+    Attributes
+    ----------
         id (None | str | Unset):
         name (Literal['vegas_gateway'] | Unset):  Default: 'vegas_gateway'.
         extra (None | Unset | VegasGatewayIntegrationExtraType0):
@@ -33,10 +34,7 @@ class VegasGatewayIntegration:
         from ..models.vegas_gateway_integration_extra_type_0 import VegasGatewayIntegrationExtraType0
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
@@ -87,9 +85,8 @@ class VegasGatewayIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = VegasGatewayIntegrationExtraType0.from_dict(data)
+                return VegasGatewayIntegrationExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | VegasGatewayIntegrationExtraType0, data)

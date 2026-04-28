@@ -14,7 +14,8 @@ T = TypeVar("T", bound="DatasetCreatedAtSort")
 @_attrs_define
 class DatasetCreatedAtSort:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Literal['created_at'] | Unset):  Default: 'created_at'.
         ascending (bool | Unset):  Default: True.
         sort_type (Literal['column'] | Unset):  Default: 'column'.

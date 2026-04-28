@@ -15,7 +15,8 @@ T = TypeVar("T", bound="ScorerTypeFilter")
 @_attrs_define
 class ScorerTypeFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (ScorerTypeFilterOperator):
         value (list[str] | str):
         name (Literal['scorer_type'] | Unset):  Default: 'scorer_type'.
@@ -30,11 +31,7 @@ class ScorerTypeFilter:
         operator = self.operator.value
 
         value: list[str] | str
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         name = self.name
 
@@ -55,9 +52,8 @@ class ScorerTypeFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

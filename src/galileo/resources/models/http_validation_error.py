@@ -18,7 +18,8 @@ T = TypeVar("T", bound="HTTPValidationError")
 @_attrs_define
 class HTTPValidationError:
     """
-    Attributes:
+    Attributes
+    ----------
         detail (list[ValidationError] | Unset):
     """
 

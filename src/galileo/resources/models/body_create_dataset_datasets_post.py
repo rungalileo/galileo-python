@@ -16,7 +16,8 @@ T = TypeVar("T", bound="BodyCreateDatasetDatasetsPost")
 @_attrs_define
 class BodyCreateDatasetDatasetsPost:
     """
-    Attributes:
+    Attributes
+    ----------
         draft (bool | Unset):  Default: False.
         hidden (bool | Unset):  Default: False.
         name (None | str | Unset):
@@ -43,10 +44,7 @@ class BodyCreateDatasetDatasetsPost:
         hidden = self.hidden
 
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         append_suffix_if_duplicate = self.append_suffix_if_duplicate
 
@@ -60,10 +58,7 @@ class BodyCreateDatasetDatasetsPost:
             file = self.file
 
         copy_from_dataset_id: None | str | Unset
-        if isinstance(self.copy_from_dataset_id, Unset):
-            copy_from_dataset_id = UNSET
-        else:
-            copy_from_dataset_id = self.copy_from_dataset_id
+        copy_from_dataset_id = UNSET if isinstance(self.copy_from_dataset_id, Unset) else self.copy_from_dataset_id
 
         copy_from_dataset_version_index: int | None | Unset
         if isinstance(self.copy_from_dataset_version_index, Unset):
@@ -72,10 +67,7 @@ class BodyCreateDatasetDatasetsPost:
             copy_from_dataset_version_index = self.copy_from_dataset_version_index
 
         project_id: None | str | Unset
-        if isinstance(self.project_id, Unset):
-            project_id = UNSET
-        else:
-            project_id = self.project_id
+        project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -184,9 +176,8 @@ class BodyCreateDatasetDatasetsPost:
             try:
                 if not isinstance(data, bytes):
                     raise TypeError()
-                file_type_0 = File(payload=BytesIO(data))
+                return File(payload=BytesIO(data))
 
-                return file_type_0
             except:  # noqa: E722
                 pass
             return cast(File | None | Unset, data)

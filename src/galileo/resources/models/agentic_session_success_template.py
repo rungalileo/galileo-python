@@ -23,7 +23,8 @@ class AgenticSessionSuccessTemplate:
     r"""Template for the agentic session success metric,
     containing all the info necessary to send the agentic session success prompt.
 
-        Attributes:
+    Attributes
+    ----------
             metric_system_prompt (str | Unset):  Default: 'You will receive the complete chat history from a chatbot
                 application between a user and an assistant.\n\nIn the chat history, the user will ask questions, which are
                 answered with words, or make requests that require calling tools and resolving actions. Sometimes these are
@@ -205,9 +206,8 @@ class AgenticSessionSuccessTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = AgenticSessionSuccessTemplateResponseSchemaType0.from_dict(data)
+                return AgenticSessionSuccessTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(AgenticSessionSuccessTemplateResponseSchemaType0 | None | Unset, data)

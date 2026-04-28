@@ -20,7 +20,8 @@ T = TypeVar("T", bound="ListPromptTemplateVersionParams")
 @_attrs_define
 class ListPromptTemplateVersionParams:
     """
-    Attributes:
+    Attributes
+    ----------
         sort (None | PromptTemplateVersionCreatedAtSort | PromptTemplateVersionNumberSort |
             PromptTemplateVersionUpdatedAtSort | Unset):
     """
@@ -42,11 +43,10 @@ class ListPromptTemplateVersionParams:
         sort: dict[str, Any] | None | Unset
         if isinstance(self.sort, Unset):
             sort = UNSET
-        elif isinstance(self.sort, PromptTemplateVersionNumberSort):
-            sort = self.sort.to_dict()
-        elif isinstance(self.sort, PromptTemplateVersionCreatedAtSort):
-            sort = self.sort.to_dict()
-        elif isinstance(self.sort, PromptTemplateVersionUpdatedAtSort):
+        elif isinstance(
+            self.sort,
+            PromptTemplateVersionNumberSort | PromptTemplateVersionCreatedAtSort | PromptTemplateVersionUpdatedAtSort,
+        ):
             sort = self.sort.to_dict()
         else:
             sort = self.sort
@@ -83,25 +83,22 @@ class ListPromptTemplateVersionParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                sort_type_0_type_0 = PromptTemplateVersionNumberSort.from_dict(data)
+                return PromptTemplateVersionNumberSort.from_dict(data)
 
-                return sort_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                sort_type_0_type_1 = PromptTemplateVersionCreatedAtSort.from_dict(data)
+                return PromptTemplateVersionCreatedAtSort.from_dict(data)
 
-                return sort_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                sort_type_0_type_2 = PromptTemplateVersionUpdatedAtSort.from_dict(data)
+                return PromptTemplateVersionUpdatedAtSort.from_dict(data)
 
-                return sort_type_0_type_2
             except:  # noqa: E722
                 pass
             return cast(

@@ -22,7 +22,8 @@ T = TypeVar("T", bound="MetricCritiqueJobConfiguration")
 class MetricCritiqueJobConfiguration:
     """Info necessary to execute a metric critique job.
 
-    Attributes:
+    Attributes
+    ----------
         project_type (Literal['gen_ai'] | Literal['llm_monitor'] | Literal['prompt_evaluation']):
         metric_name (str):
         critique_ids (list[str]):
@@ -59,21 +60,15 @@ class MetricCritiqueJobConfiguration:
         critique_ids = self.critique_ids
 
         scorer_id: None | str | Unset
-        if isinstance(self.scorer_id, Unset):
-            scorer_id = UNSET
-        else:
-            scorer_id = self.scorer_id
+        scorer_id = UNSET if isinstance(self.scorer_id, Unset) else self.scorer_id
 
         recompute_settings: dict[str, Any] | None | Unset
         if isinstance(self.recompute_settings, Unset):
             recompute_settings = UNSET
-        elif isinstance(self.recompute_settings, RecomputeSettingsRuns):
-            recompute_settings = self.recompute_settings.to_dict()
-        elif isinstance(self.recompute_settings, RecomputeSettingsProject):
-            recompute_settings = self.recompute_settings.to_dict()
-        elif isinstance(self.recompute_settings, RecomputeSettingsObserve):
-            recompute_settings = self.recompute_settings.to_dict()
-        elif isinstance(self.recompute_settings, RecomputeSettingsLogStream):
+        elif isinstance(
+            self.recompute_settings,
+            RecomputeSettingsRuns | RecomputeSettingsProject | RecomputeSettingsObserve | RecomputeSettingsLogStream,
+        ):
             recompute_settings = self.recompute_settings.to_dict()
         else:
             recompute_settings = self.recompute_settings
@@ -147,33 +142,29 @@ class MetricCritiqueJobConfiguration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                recompute_settings_type_0_type_0 = RecomputeSettingsRuns.from_dict(data)
+                return RecomputeSettingsRuns.from_dict(data)
 
-                return recompute_settings_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                recompute_settings_type_0_type_1 = RecomputeSettingsProject.from_dict(data)
+                return RecomputeSettingsProject.from_dict(data)
 
-                return recompute_settings_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                recompute_settings_type_0_type_2 = RecomputeSettingsObserve.from_dict(data)
+                return RecomputeSettingsObserve.from_dict(data)
 
-                return recompute_settings_type_0_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                recompute_settings_type_0_type_3 = RecomputeSettingsLogStream.from_dict(data)
+                return RecomputeSettingsLogStream.from_dict(data)
 
-                return recompute_settings_type_0_type_3
             except:  # noqa: E722
                 pass
             return cast(

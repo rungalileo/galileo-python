@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -30,10 +30,7 @@ def _get_kwargs(
     params: dict[str, Any] = {}
 
     json_run_id: None | str | Unset
-    if isinstance(run_id, Unset):
-        json_run_id = UNSET
-    else:
-        json_run_id = run_id
+    json_run_id = UNSET if isinstance(run_id, Unset) else run_id
     params["run_id"] = json_run_id
 
     params["starting_token"] = starting_token
@@ -45,7 +42,7 @@ def _get_kwargs(
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": "/scorers/{scorer_id}/versions".format(scorer_id=scorer_id),
+        "path": f"/scorers/{scorer_id}/versions",
         "params": params,
     }
 
@@ -57,14 +54,10 @@ def _get_kwargs(
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ListScorerVersionsResponse:
     if response.status_code == 200:
-        response_200 = ListScorerVersionsResponse.from_dict(response.json())
-
-        return response_200
+        return ListScorerVersionsResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -103,7 +96,7 @@ def sync_detailed(
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
 ) -> Response[HTTPValidationError | ListScorerVersionsResponse]:
-    """List All Versions For Scorer
+    """List All Versions For Scorer.
 
     Args:
         scorer_id (str):
@@ -111,14 +104,15 @@ def sync_detailed(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | ListScorerVersionsResponse]
     """
-
     kwargs = _get_kwargs(scorer_id=scorer_id, run_id=run_id, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -133,8 +127,8 @@ def sync(
     run_id: None | str | Unset = UNSET,
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
-) -> Optional[HTTPValidationError | ListScorerVersionsResponse]:
-    """List All Versions For Scorer
+) -> HTTPValidationError | ListScorerVersionsResponse | None:
+    """List All Versions For Scorer.
 
     Args:
         scorer_id (str):
@@ -142,14 +136,15 @@ def sync(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | ListScorerVersionsResponse
     """
-
     return sync_detailed(
         scorer_id=scorer_id, client=client, run_id=run_id, starting_token=starting_token, limit=limit
     ).parsed
@@ -163,7 +158,7 @@ async def asyncio_detailed(
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
 ) -> Response[HTTPValidationError | ListScorerVersionsResponse]:
-    """List All Versions For Scorer
+    """List All Versions For Scorer.
 
     Args:
         scorer_id (str):
@@ -171,14 +166,15 @@ async def asyncio_detailed(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | ListScorerVersionsResponse]
     """
-
     kwargs = _get_kwargs(scorer_id=scorer_id, run_id=run_id, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -193,8 +189,8 @@ async def asyncio(
     run_id: None | str | Unset = UNSET,
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
-) -> Optional[HTTPValidationError | ListScorerVersionsResponse]:
-    """List All Versions For Scorer
+) -> HTTPValidationError | ListScorerVersionsResponse | None:
+    """List All Versions For Scorer.
 
     Args:
         scorer_id (str):
@@ -202,14 +198,15 @@ async def asyncio(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | ListScorerVersionsResponse
     """
-
     return (
         await asyncio_detailed(
             scorer_id=scorer_id, client=client, run_id=run_id, starting_token=starting_token, limit=limit

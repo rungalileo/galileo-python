@@ -18,7 +18,8 @@ T = TypeVar("T", bound="OpenAIIntegration")
 @_attrs_define
 class OpenAIIntegration:
     """
-    Attributes:
+    Attributes
+    ----------
         organization_id (None | str | Unset):
         id (None | str | Unset):
         name (Literal['openai'] | Unset):  Default: 'openai'.
@@ -35,16 +36,10 @@ class OpenAIIntegration:
         from ..models.open_ai_integration_extra_type_0 import OpenAIIntegrationExtraType0
 
         organization_id: None | str | Unset
-        if isinstance(self.organization_id, Unset):
-            organization_id = UNSET
-        else:
-            organization_id = self.organization_id
+        organization_id = UNSET if isinstance(self.organization_id, Unset) else self.organization_id
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
@@ -106,9 +101,8 @@ class OpenAIIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = OpenAIIntegrationExtraType0.from_dict(data)
+                return OpenAIIntegrationExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(None | OpenAIIntegrationExtraType0 | Unset, data)

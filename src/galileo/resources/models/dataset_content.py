@@ -18,7 +18,8 @@ T = TypeVar("T", bound="DatasetContent")
 @_attrs_define
 class DatasetContent:
     """
-    Attributes:
+    Attributes
+    ----------
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
         paginated (bool | Unset):  Default: False.
@@ -45,20 +46,14 @@ class DatasetContent:
         paginated = self.paginated
 
         next_starting_token: int | None | Unset
-        if isinstance(self.next_starting_token, Unset):
-            next_starting_token = UNSET
-        else:
-            next_starting_token = self.next_starting_token
+        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
         column_names: list[str] | Unset = UNSET
         if not isinstance(self.column_names, Unset):
             column_names = self.column_names
 
         warning_message: None | str | Unset
-        if isinstance(self.warning_message, Unset):
-            warning_message = UNSET
-        else:
-            warning_message = self.warning_message
+        warning_message = UNSET if isinstance(self.warning_message, Unset) else self.warning_message
 
         rows: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.rows, Unset):

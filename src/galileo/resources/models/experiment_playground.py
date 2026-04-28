@@ -14,7 +14,8 @@ T = TypeVar("T", bound="ExperimentPlayground")
 @_attrs_define
 class ExperimentPlayground:
     """
-    Attributes:
+    Attributes
+    ----------
         playground_id (None | str | Unset):
         name (None | str | Unset):
     """
@@ -25,16 +26,10 @@ class ExperimentPlayground:
 
     def to_dict(self) -> dict[str, Any]:
         playground_id: None | str | Unset
-        if isinstance(self.playground_id, Unset):
-            playground_id = UNSET
-        else:
-            playground_id = self.playground_id
+        playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
 
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

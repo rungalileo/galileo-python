@@ -16,9 +16,10 @@ T = TypeVar("T", bound="BodyCreateCodeScorerVersionScorersScorerIdVersionCodePos
 @_attrs_define
 class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
     """
-    Attributes:
+    Attributes
+    ----------
         file (File):
-        validation_result (None | str | Unset): Pre-validated result as JSON string to skip validation
+        validation_result (None | str | Unset): Pre-validated result as JSON string to skip validation.
     """
 
     file: File
@@ -29,10 +30,7 @@ class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
         file = self.file.to_tuple()
 
         validation_result: None | str | Unset
-        if isinstance(self.validation_result, Unset):
-            validation_result = UNSET
-        else:
-            validation_result = self.validation_result
+        validation_result = UNSET if isinstance(self.validation_result, Unset) else self.validation_result
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

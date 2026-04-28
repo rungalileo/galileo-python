@@ -21,7 +21,8 @@ T = TypeVar("T", bound="IntegrationDB")
 @_attrs_define
 class IntegrationDB:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (IntegrationName):
         created_at (datetime.datetime):

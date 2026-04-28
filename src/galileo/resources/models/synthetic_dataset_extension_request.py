@@ -21,7 +21,8 @@ T = TypeVar("T", bound="SyntheticDatasetExtensionRequest")
 class SyntheticDatasetExtensionRequest:
     """Request for a synthetic dataset run job.
 
-    Attributes:
+    Attributes
+    ----------
         prompt_settings (PromptRunSettings | Unset): Prompt run settings.
         prompt (None | str | Unset):
         instructions (None | str | Unset):
@@ -50,16 +51,10 @@ class SyntheticDatasetExtensionRequest:
             prompt_settings = self.prompt_settings.to_dict()
 
         prompt: None | str | Unset
-        if isinstance(self.prompt, Unset):
-            prompt = UNSET
-        else:
-            prompt = self.prompt
+        prompt = UNSET if isinstance(self.prompt, Unset) else self.prompt
 
         instructions: None | str | Unset
-        if isinstance(self.instructions, Unset):
-            instructions = UNSET
-        else:
-            instructions = self.instructions
+        instructions = UNSET if isinstance(self.instructions, Unset) else self.instructions
 
         examples: list[str] | Unset = UNSET
         if not isinstance(self.examples, Unset):
@@ -88,10 +83,7 @@ class SyntheticDatasetExtensionRequest:
         count = self.count
 
         project_id: None | str | Unset
-        if isinstance(self.project_id, Unset):
-            project_id = UNSET
-        else:
-            project_id = self.project_id
+        project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -156,9 +148,8 @@ class SyntheticDatasetExtensionRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                source_dataset_type_0 = SyntheticDataSourceDataset.from_dict(data)
+                return SyntheticDataSourceDataset.from_dict(data)
 
-                return source_dataset_type_0
             except:  # noqa: E722
                 pass
             return cast(None | SyntheticDataSourceDataset | Unset, data)

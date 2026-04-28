@@ -15,7 +15,8 @@ T = TypeVar("T", bound="InsightSummary")
 @_attrs_define
 class InsightSummary:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         title (str):
         observation (str):
@@ -95,9 +96,8 @@ class InsightSummary:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                priority_category_type_0 = InsightSummaryPriorityCategoryType0(data)
+                return InsightSummaryPriorityCategoryType0(data)
 
-                return priority_category_type_0
             except:  # noqa: E722
                 pass
             return cast(InsightSummaryPriorityCategoryType0 | None | Unset, data)

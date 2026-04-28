@@ -14,7 +14,8 @@ T = TypeVar("T", bound="RecomputeSettingsLogStream")
 @_attrs_define
 class RecomputeSettingsLogStream:
     """
-    Attributes:
+    Attributes
+    ----------
         run_id (str):
         filters (list[Any]):
         mode (Literal['log_stream_filters'] | Unset):  Default: 'log_stream_filters'.

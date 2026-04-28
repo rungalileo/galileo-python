@@ -16,7 +16,8 @@ class ScorerExcludeSlmScorersFilter:
     """Internal filter: excludes scorers with model_type == slm while including
     scorers where model_type IS NULL. Auto-appended by the service layer.
 
-        Attributes:
+    Attributes
+    ----------
             name (Literal['exclude_slm_scorers'] | Unset):  Default: 'exclude_slm_scorers'.
     """
 

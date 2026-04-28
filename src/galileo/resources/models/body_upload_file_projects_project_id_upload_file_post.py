@@ -16,7 +16,8 @@ T = TypeVar("T", bound="BodyUploadFileProjectsProjectIdUploadFilePost")
 @_attrs_define
 class BodyUploadFileProjectsProjectIdUploadFilePost:
     """
-    Attributes:
+    Attributes
+    ----------
         file (File):
         upload_metadata (str):
     """

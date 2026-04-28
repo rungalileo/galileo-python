@@ -19,7 +19,8 @@ T = TypeVar("T", bound="RunScorerSettingsPatchRequest")
 @_attrs_define
 class RunScorerSettingsPatchRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         run_id (str): ID of the run.
         scorers (list[ScorerConfig] | None | Unset): List of Galileo scorers to enable.
         segment_filters (list[SegmentFilter] | None | Unset): List of segment filters to apply to the run.

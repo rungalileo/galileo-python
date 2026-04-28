@@ -14,7 +14,8 @@ T = TypeVar("T", bound="DatasetUsedInProjectFilter")
 @_attrs_define
 class DatasetUsedInProjectFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (str):
         name (Literal['used_in_project'] | Unset):  Default: 'used_in_project'.
     """

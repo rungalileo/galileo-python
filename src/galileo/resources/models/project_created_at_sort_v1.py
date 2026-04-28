@@ -14,7 +14,8 @@ T = TypeVar("T", bound="ProjectCreatedAtSortV1")
 @_attrs_define
 class ProjectCreatedAtSortV1:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Literal['created_at'] | Unset):  Default: 'created_at'.
         ascending (bool | Unset):  Default: True.
         sort_type (Literal['column'] | Unset):  Default: 'column'.

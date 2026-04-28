@@ -14,7 +14,8 @@ T = TypeVar("T", bound="ExperimentDataset")
 @_attrs_define
 class ExperimentDataset:
     """
-    Attributes:
+    Attributes
+    ----------
         dataset_id (None | str | Unset):
         version_index (int | None | Unset):
         name (None | str | Unset):
@@ -27,22 +28,13 @@ class ExperimentDataset:
 
     def to_dict(self) -> dict[str, Any]:
         dataset_id: None | str | Unset
-        if isinstance(self.dataset_id, Unset):
-            dataset_id = UNSET
-        else:
-            dataset_id = self.dataset_id
+        dataset_id = UNSET if isinstance(self.dataset_id, Unset) else self.dataset_id
 
         version_index: int | None | Unset
-        if isinstance(self.version_index, Unset):
-            version_index = UNSET
-        else:
-            version_index = self.version_index
+        version_index = UNSET if isinstance(self.version_index, Unset) else self.version_index
 
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

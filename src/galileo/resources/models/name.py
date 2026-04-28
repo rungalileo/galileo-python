@@ -15,7 +15,8 @@ T = TypeVar("T", bound="Name")
 class Name:
     """Global name class for handling unique naming across the application.
 
-    Attributes:
+    Attributes
+    ----------
         value (str):
         append_suffix_if_duplicate (bool | Unset):  Default: False.
     """

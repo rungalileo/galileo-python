@@ -12,7 +12,8 @@ T = TypeVar("T", bound="ScoreBucket")
 @_attrs_define
 class ScoreBucket:
     """
-    Attributes:
+    Attributes
+    ----------
         min_inclusive (int):
         max_exclusive (int | None):
         count (int):

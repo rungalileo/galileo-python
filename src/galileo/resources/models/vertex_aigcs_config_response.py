@@ -13,7 +13,8 @@ T = TypeVar("T", bound="VertexAIGCSConfigResponse")
 class VertexAIGCSConfigResponse:
     """GCS config response model — credentials are never exposed in GET responses.
 
-    Attributes:
+    Attributes
+    ----------
         bucket_name (str):
         object_path_prefix (str):
     """

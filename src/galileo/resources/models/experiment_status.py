@@ -18,7 +18,8 @@ T = TypeVar("T", bound="ExperimentStatus")
 @_attrs_define
 class ExperimentStatus:
     """
-    Attributes:
+    Attributes
+    ----------
         log_generation (ExperimentPhaseStatus | Unset):
     """
 

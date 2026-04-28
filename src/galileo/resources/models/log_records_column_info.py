@@ -26,7 +26,8 @@ T = TypeVar("T", bound="LogRecordsColumnInfo")
 @_attrs_define
 class LogRecordsColumnInfo:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str): Column id.  Must be universally unique.
         category (ColumnCategory):
         data_type (DataType | None): Data type of the column. This is used to determine how to format the data on the
@@ -92,28 +93,16 @@ class LogRecordsColumnInfo:
         category = self.category.value
 
         data_type: None | str
-        if isinstance(self.data_type, DataType):
-            data_type = self.data_type.value
-        else:
-            data_type = self.data_type
+        data_type = self.data_type.value if isinstance(self.data_type, DataType) else self.data_type
 
         label: None | str | Unset
-        if isinstance(self.label, Unset):
-            label = UNSET
-        else:
-            label = self.label
+        label = UNSET if isinstance(self.label, Unset) else self.label
 
         description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         group_label: None | str | Unset
-        if isinstance(self.group_label, Unset):
-            group_label = UNSET
-        else:
-            group_label = self.group_label
+        group_label = UNSET if isinstance(self.group_label, Unset) else self.group_label
 
         data_unit: None | str | Unset
         if isinstance(self.data_unit, Unset):
@@ -152,10 +141,7 @@ class LogRecordsColumnInfo:
         is_optional = self.is_optional
 
         roll_up_method: None | str | Unset
-        if isinstance(self.roll_up_method, Unset):
-            roll_up_method = UNSET
-        else:
-            roll_up_method = self.roll_up_method
+        roll_up_method = UNSET if isinstance(self.roll_up_method, Unset) else self.roll_up_method
 
         scorer_config: dict[str, Any] | None | Unset
         if isinstance(self.scorer_config, Unset):
@@ -166,10 +152,7 @@ class LogRecordsColumnInfo:
             scorer_config = self.scorer_config
 
         scorer_id: None | str | Unset
-        if isinstance(self.scorer_id, Unset):
-            scorer_id = UNSET
-        else:
-            scorer_id = self.scorer_id
+        scorer_id = UNSET if isinstance(self.scorer_id, Unset) else self.scorer_id
 
         insight_type: None | str | Unset
         if isinstance(self.insight_type, Unset):
@@ -204,10 +187,7 @@ class LogRecordsColumnInfo:
             label_color = self.label_color
 
         metric_key_alias: None | str | Unset
-        if isinstance(self.metric_key_alias, Unset):
-            metric_key_alias = UNSET
-        else:
-            metric_key_alias = self.metric_key_alias
+        metric_key_alias = UNSET if isinstance(self.metric_key_alias, Unset) else self.metric_key_alias
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -271,9 +251,8 @@ class LogRecordsColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_type_type_0 = DataType(data)
+                return DataType(data)
 
-                return data_type_type_0
             except:  # noqa: E722
                 pass
             return cast(DataType | None, data)
@@ -315,9 +294,8 @@ class LogRecordsColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_unit_type_0 = DataUnit(data)
+                return DataUnit(data)
 
-                return data_unit_type_0
             except:  # noqa: E722
                 pass
             return cast(DataUnit | None | Unset, data)
@@ -334,9 +312,8 @@ class LogRecordsColumnInfo:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                allowed_values_type_0 = cast(list[Any], data)
+                return cast(list[Any], data)
 
-                return allowed_values_type_0
             except:  # noqa: E722
                 pass
             return cast(list[Any] | None | Unset, data)
@@ -379,9 +356,8 @@ class LogRecordsColumnInfo:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                scorer_config_type_0 = ScorerConfig.from_dict(data)
+                return ScorerConfig.from_dict(data)
 
-                return scorer_config_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ScorerConfig | Unset, data)
@@ -405,9 +381,8 @@ class LogRecordsColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                insight_type_type_0 = InsightType(data)
+                return InsightType(data)
 
-                return insight_type_type_0
             except:  # noqa: E722
                 pass
             return cast(InsightType | None | Unset, data)
@@ -422,9 +397,8 @@ class LogRecordsColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                filter_type_type_0 = LogRecordsFilterType(data)
+                return LogRecordsFilterType(data)
 
-                return filter_type_type_0
             except:  # noqa: E722
                 pass
             return cast(LogRecordsFilterType | None | Unset, data)
@@ -439,9 +413,8 @@ class LogRecordsColumnInfo:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                threshold_type_0 = MetricThreshold.from_dict(data)
+                return MetricThreshold.from_dict(data)
 
-                return threshold_type_0
             except:  # noqa: E722
                 pass
             return cast(MetricThreshold | None | Unset, data)
@@ -456,9 +429,8 @@ class LogRecordsColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                label_color_type_0 = LogRecordsColumnInfoLabelColorType0(data)
+                return LogRecordsColumnInfoLabelColorType0(data)
 
-                return label_color_type_0
             except:  # noqa: E722
                 pass
             return cast(LogRecordsColumnInfoLabelColorType0 | None | Unset, data)

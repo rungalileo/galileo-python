@@ -18,7 +18,8 @@ T = TypeVar("T", bound="DatasetPrependRow")
 @_attrs_define
 class DatasetPrependRow:
     """
-    Attributes:
+    Attributes
+    ----------
         values (DatasetPrependRowValues):
         edit_type (Literal['prepend_row'] | Unset):  Default: 'prepend_row'.
         row_id (None | str | Unset):
@@ -35,10 +36,7 @@ class DatasetPrependRow:
         edit_type = self.edit_type
 
         row_id: None | str | Unset
-        if isinstance(self.row_id, Unset):
-            row_id = UNSET
-        else:
-            row_id = self.row_id
+        row_id = UNSET if isinstance(self.row_id, Unset) else self.row_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

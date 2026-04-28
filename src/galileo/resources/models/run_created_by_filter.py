@@ -15,7 +15,8 @@ T = TypeVar("T", bound="RunCreatedByFilter")
 @_attrs_define
 class RunCreatedByFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (list[str] | str):
         name (Literal['created_by'] | Unset):  Default: 'created_by'.
         operator (RunCreatedByFilterOperator | Unset):  Default: RunCreatedByFilterOperator.EQ.
@@ -86,10 +87,7 @@ class RunCreatedByFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: RunCreatedByFilterOperator | Unset
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = RunCreatedByFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else RunCreatedByFilterOperator(_operator)
 
         run_created_by_filter = cls(value=value, name=name, operator=operator)
 

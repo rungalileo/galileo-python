@@ -19,7 +19,8 @@ T = TypeVar("T", bound="GetProjectsPaginatedResponseV2")
 class GetProjectsPaginatedResponseV2:
     """Response model for the V2 projects paginated endpoint.
 
-    Attributes:
+    Attributes
+    ----------
         projects (list[ProjectItem]):
         total_count (int): Total number of projects matching the filters.
         starting_token (int | Unset):  Default: 0.
@@ -51,10 +52,7 @@ class GetProjectsPaginatedResponseV2:
         paginated = self.paginated
 
         next_starting_token: int | None | Unset
-        if isinstance(self.next_starting_token, Unset):
-            next_starting_token = UNSET
-        else:
-            next_starting_token = self.next_starting_token
+        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

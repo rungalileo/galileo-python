@@ -14,7 +14,8 @@ T = TypeVar("T", bound="LogTraceUpdateResponse")
 @_attrs_define
 class LogTraceUpdateResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         project_id (str): Project id associated with the traces.
         project_name (str): Project name associated with the traces.
         records_count (int): Total number of records ingested
@@ -45,28 +46,16 @@ class LogTraceUpdateResponse:
         trace_id = self.trace_id
 
         log_stream_id: None | str | Unset
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: None | str | Unset
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         metrics_testing_id: None | str | Unset
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         session_id: None | str | Unset
-        if isinstance(self.session_id, Unset):
-            session_id = UNSET
-        else:
-            session_id = self.session_id
+        session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

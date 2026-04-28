@@ -23,7 +23,8 @@ T = TypeVar("T", bound="Model")
 @_attrs_define
 class Model:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
         alias (str):
         integration (LLMIntegration | Unset):
@@ -94,16 +95,10 @@ class Model:
             integration = self.integration.value
 
         user_role: None | str | Unset
-        if isinstance(self.user_role, Unset):
-            user_role = UNSET
-        else:
-            user_role = self.user_role
+        user_role = UNSET if isinstance(self.user_role, Unset) else self.user_role
 
         assistant_role: None | str | Unset
-        if isinstance(self.assistant_role, Unset):
-            assistant_role = UNSET
-        else:
-            assistant_role = self.assistant_role
+        assistant_role = UNSET if isinstance(self.assistant_role, Unset) else self.assistant_role
 
         system_supported = self.system_supported
 
@@ -119,22 +114,13 @@ class Model:
             alternative_names = self.alternative_names
 
         input_token_limit: int | None | Unset
-        if isinstance(self.input_token_limit, Unset):
-            input_token_limit = UNSET
-        else:
-            input_token_limit = self.input_token_limit
+        input_token_limit = UNSET if isinstance(self.input_token_limit, Unset) else self.input_token_limit
 
         output_token_limit: int | None | Unset
-        if isinstance(self.output_token_limit, Unset):
-            output_token_limit = UNSET
-        else:
-            output_token_limit = self.output_token_limit
+        output_token_limit = UNSET if isinstance(self.output_token_limit, Unset) else self.output_token_limit
 
         token_limit: int | None | Unset
-        if isinstance(self.token_limit, Unset):
-            token_limit = UNSET
-        else:
-            token_limit = self.token_limit
+        token_limit = UNSET if isinstance(self.token_limit, Unset) else self.token_limit
 
         output_price = self.output_price
 
@@ -153,20 +139,14 @@ class Model:
         response_prefix_tokens = self.response_prefix_tokens
 
         api_version: None | str | Unset
-        if isinstance(self.api_version, Unset):
-            api_version = UNSET
-        else:
-            api_version = self.api_version
+        api_version = UNSET if isinstance(self.api_version, Unset) else self.api_version
 
         legacy_mistral_prompt_format = self.legacy_mistral_prompt_format
 
         requires_max_tokens = self.requires_max_tokens
 
         max_top_p: float | None | Unset
-        if isinstance(self.max_top_p, Unset):
-            max_top_p = UNSET
-        else:
-            max_top_p = self.max_top_p
+        max_top_p = UNSET if isinstance(self.max_top_p, Unset) else self.max_top_p
 
         params_map: dict[str, Any] | Unset = UNSET
         if not isinstance(self.params_map, Unset):
@@ -253,10 +233,7 @@ class Model:
 
         _integration = d.pop("integration", UNSET)
         integration: LLMIntegration | Unset
-        if isinstance(_integration, Unset):
-            integration = UNSET
-        else:
-            integration = LLMIntegration(_integration)
+        integration = UNSET if isinstance(_integration, Unset) else LLMIntegration(_integration)
 
         def _parse_user_role(data: object) -> None | str | Unset:
             if data is None:
@@ -322,10 +299,7 @@ class Model:
 
         _cost_by = d.pop("cost_by", UNSET)
         cost_by: ModelCostBy | Unset
-        if isinstance(_cost_by, Unset):
-            cost_by = UNSET
-        else:
-            cost_by = ModelCostBy(_cost_by)
+        cost_by = UNSET if isinstance(_cost_by, Unset) else ModelCostBy(_cost_by)
 
         is_chat = d.pop("is_chat", UNSET)
 
@@ -359,10 +333,7 @@ class Model:
 
         _params_map = d.pop("params_map", UNSET)
         params_map: RunParamsMap | Unset
-        if isinstance(_params_map, Unset):
-            params_map = UNSET
-        else:
-            params_map = RunParamsMap.from_dict(_params_map)
+        params_map = UNSET if isinstance(_params_map, Unset) else RunParamsMap.from_dict(_params_map)
 
         def _parse_output_map(data: object) -> None | OutputMap | Unset:
             if data is None:
@@ -372,9 +343,8 @@ class Model:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                output_map_type_0 = OutputMap.from_dict(data)
+                return OutputMap.from_dict(data)
 
-                return output_map_type_0
             except:  # noqa: E722
                 pass
             return cast(None | OutputMap | Unset, data)
@@ -389,9 +359,8 @@ class Model:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                input_map_type_0 = InputMap.from_dict(data)
+                return InputMap.from_dict(data)
 
-                return input_map_type_0
             except:  # noqa: E722
                 pass
             return cast(InputMap | None | Unset, data)

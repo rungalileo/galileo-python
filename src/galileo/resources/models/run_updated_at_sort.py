@@ -14,7 +14,8 @@ T = TypeVar("T", bound="RunUpdatedAtSort")
 @_attrs_define
 class RunUpdatedAtSort:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Literal['updated_at'] | Unset):  Default: 'updated_at'.
         ascending (bool | Unset):  Default: True.
         sort_type (Literal['column'] | Unset):  Default: 'column'.

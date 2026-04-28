@@ -21,7 +21,8 @@ T = TypeVar("T", bound="DatasetDB")
 @_attrs_define
 class DatasetDB:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (str):
         created_at (datetime.datetime):
@@ -65,11 +66,7 @@ class DatasetDB:
         num_rows = self.num_rows
 
         column_names: list[str] | None
-        if isinstance(self.column_names, list):
-            column_names = self.column_names
-
-        else:
-            column_names = self.column_names
+        column_names = self.column_names if isinstance(self.column_names, list) else self.column_names
 
         created_by_user: dict[str, Any] | None
         if isinstance(self.created_by_user, UserInfo):
@@ -138,9 +135,8 @@ class DatasetDB:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                column_names_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return column_names_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None, data)
@@ -153,9 +149,8 @@ class DatasetDB:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                created_by_user_type_0 = UserInfo.from_dict(data)
+                return UserInfo.from_dict(data)
 
-                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(None | UserInfo, data)

@@ -26,9 +26,10 @@ class UpdateDatasetContentRequest:
         - EditMode.id: The edit is performed on the index (numeric index). DEPRECATED
         - EditMode.row_id: The edit is performed on the row_id of the row.
     - Global edits: These edits are performed on the entire dataset and should not be mixed with row edits.
-        - EditMode.global_edit
+        - EditMode.global_edit.
 
-        Attributes:
+    Attributes
+    ----------
             edits (list[DatasetAppendRow | DatasetCopyRecordData | DatasetDeleteRow | DatasetFilterRows | DatasetPrependRow
                 | DatasetUpdateRow]):
     """
@@ -53,15 +54,10 @@ class UpdateDatasetContentRequest:
         edits = []
         for edits_item_data in self.edits:
             edits_item: dict[str, Any]
-            if isinstance(edits_item_data, DatasetPrependRow):
-                edits_item = edits_item_data.to_dict()
-            elif isinstance(edits_item_data, DatasetAppendRow):
-                edits_item = edits_item_data.to_dict()
-            elif isinstance(edits_item_data, DatasetUpdateRow):
-                edits_item = edits_item_data.to_dict()
-            elif isinstance(edits_item_data, DatasetDeleteRow):
-                edits_item = edits_item_data.to_dict()
-            elif isinstance(edits_item_data, DatasetFilterRows):
+            if isinstance(
+                edits_item_data,
+                DatasetPrependRow | DatasetAppendRow | DatasetUpdateRow | DatasetDeleteRow | DatasetFilterRows,
+            ):
                 edits_item = edits_item_data.to_dict()
             else:
                 edits_item = edits_item_data.to_dict()
@@ -101,48 +97,41 @@ class UpdateDatasetContentRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    edits_item_type_0 = DatasetPrependRow.from_dict(data)
+                    return DatasetPrependRow.from_dict(data)
 
-                    return edits_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    edits_item_type_1 = DatasetAppendRow.from_dict(data)
+                    return DatasetAppendRow.from_dict(data)
 
-                    return edits_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    edits_item_type_2 = DatasetUpdateRow.from_dict(data)
+                    return DatasetUpdateRow.from_dict(data)
 
-                    return edits_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    edits_item_type_3 = DatasetDeleteRow.from_dict(data)
+                    return DatasetDeleteRow.from_dict(data)
 
-                    return edits_item_type_3
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    edits_item_type_4 = DatasetFilterRows.from_dict(data)
+                    return DatasetFilterRows.from_dict(data)
 
-                    return edits_item_type_4
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                edits_item_type_5 = DatasetCopyRecordData.from_dict(data)
-
-                return edits_item_type_5
+                return DatasetCopyRecordData.from_dict(data)
 
             edits_item = _parse_edits_item(edits_item_data)
 

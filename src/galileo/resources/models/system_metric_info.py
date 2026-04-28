@@ -19,7 +19,8 @@ T = TypeVar("T", bound="SystemMetricInfo")
 @_attrs_define
 class SystemMetricInfo:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str): Unique identifier for the metric
         label (str): Human-readable display name for the metric
         unit (DataUnit | None | Unset): Unit of measurement, if any
@@ -32,7 +33,7 @@ class SystemMetricInfo:
         p95 (float | None | Unset): 95th percentile of the metric values
         min_ (float | None | Unset): Minimum value in the metric dataset
         max_ (float | None | Unset): Maximum value in the metric dataset
-        histogram (Histogram | None | Unset): Histogram representation of the metric distribution
+        histogram (Histogram | None | Unset): Histogram representation of the metric distribution.
     """
 
     name: str
@@ -70,52 +71,28 @@ class SystemMetricInfo:
             values = self.values
 
         mean: float | None | Unset
-        if isinstance(self.mean, Unset):
-            mean = UNSET
-        else:
-            mean = self.mean
+        mean = UNSET if isinstance(self.mean, Unset) else self.mean
 
         median: float | None | Unset
-        if isinstance(self.median, Unset):
-            median = UNSET
-        else:
-            median = self.median
+        median = UNSET if isinstance(self.median, Unset) else self.median
 
         p5: float | None | Unset
-        if isinstance(self.p5, Unset):
-            p5 = UNSET
-        else:
-            p5 = self.p5
+        p5 = UNSET if isinstance(self.p5, Unset) else self.p5
 
         p25: float | None | Unset
-        if isinstance(self.p25, Unset):
-            p25 = UNSET
-        else:
-            p25 = self.p25
+        p25 = UNSET if isinstance(self.p25, Unset) else self.p25
 
         p75: float | None | Unset
-        if isinstance(self.p75, Unset):
-            p75 = UNSET
-        else:
-            p75 = self.p75
+        p75 = UNSET if isinstance(self.p75, Unset) else self.p75
 
         p95: float | None | Unset
-        if isinstance(self.p95, Unset):
-            p95 = UNSET
-        else:
-            p95 = self.p95
+        p95 = UNSET if isinstance(self.p95, Unset) else self.p95
 
         min_: float | None | Unset
-        if isinstance(self.min_, Unset):
-            min_ = UNSET
-        else:
-            min_ = self.min_
+        min_ = UNSET if isinstance(self.min_, Unset) else self.min_
 
         max_: float | None | Unset
-        if isinstance(self.max_, Unset):
-            max_ = UNSET
-        else:
-            max_ = self.max_
+        max_ = UNSET if isinstance(self.max_, Unset) else self.max_
 
         histogram: dict[str, Any] | None | Unset
         if isinstance(self.histogram, Unset):
@@ -170,9 +147,8 @@ class SystemMetricInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                unit_type_0 = DataUnit(data)
+                return DataUnit(data)
 
-                return unit_type_0
             except:  # noqa: E722
                 pass
             return cast(DataUnit | None | Unset, data)
@@ -261,9 +237,8 @@ class SystemMetricInfo:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                histogram_type_0 = Histogram.from_dict(data)
+                return Histogram.from_dict(data)
 
-                return histogram_type_0
             except:  # noqa: E722
                 pass
             return cast(Histogram | None | Unset, data)

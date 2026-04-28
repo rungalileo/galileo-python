@@ -14,7 +14,8 @@ T = TypeVar("T", bound="Payload")
 @_attrs_define
 class Payload:
     """
-    Attributes:
+    Attributes
+    ----------
         input_ (None | str | Unset): Input text to be processed.
         output (None | str | Unset): Output text to be processed.
     """
@@ -25,16 +26,10 @@ class Payload:
 
     def to_dict(self) -> dict[str, Any]:
         input_: None | str | Unset
-        if isinstance(self.input_, Unset):
-            input_ = UNSET
-        else:
-            input_ = self.input_
+        input_ = UNSET if isinstance(self.input_, Unset) else self.input_
 
         output: None | str | Unset
-        if isinstance(self.output, Unset):
-            output = UNSET
-        else:
-            output = self.output
+        output = UNSET if isinstance(self.output, Unset) else self.output
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

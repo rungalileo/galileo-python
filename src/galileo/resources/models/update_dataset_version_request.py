@@ -14,7 +14,8 @@ T = TypeVar("T", bound="UpdateDatasetVersionRequest")
 @_attrs_define
 class UpdateDatasetVersionRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (None | str | Unset):
     """
 
@@ -23,10 +24,7 @@ class UpdateDatasetVersionRequest:
 
     def to_dict(self) -> dict[str, Any]:
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

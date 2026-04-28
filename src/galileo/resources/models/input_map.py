@@ -14,7 +14,8 @@ T = TypeVar("T", bound="InputMap")
 @_attrs_define
 class InputMap:
     """
-    Attributes:
+    Attributes
+    ----------
         prompt (str):
         prefix (str | Unset):  Default: ''.
         suffix (str | Unset):  Default: ''.

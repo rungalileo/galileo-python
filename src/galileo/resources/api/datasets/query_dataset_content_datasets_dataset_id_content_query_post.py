@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -39,7 +39,7 @@ def _get_kwargs(
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": "/datasets/{dataset_id}/content/query".format(dataset_id=dataset_id),
+        "path": f"/datasets/{dataset_id}/content/query",
         "params": params,
     }
 
@@ -57,14 +57,10 @@ def _get_kwargs(
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> DatasetContent | HTTPValidationError:
     if response.status_code == 200:
-        response_200 = DatasetContent.from_dict(response.json())
-
-        return response_200
+        return DatasetContent.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -101,7 +97,7 @@ def sync_detailed(
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
 ) -> Response[DatasetContent | HTTPValidationError]:
-    """Query Dataset Content
+    """Query Dataset Content.
 
     Args:
         dataset_id (str):
@@ -109,14 +105,15 @@ def sync_detailed(
         limit (int | Unset):  Default: 100.
         body (QueryDatasetParams | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[DatasetContent | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -131,8 +128,8 @@ def sync(
     body: QueryDatasetParams | Unset,
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
-) -> Optional[DatasetContent | HTTPValidationError]:
-    """Query Dataset Content
+) -> DatasetContent | HTTPValidationError | None:
+    """Query Dataset Content.
 
     Args:
         dataset_id (str):
@@ -140,14 +137,15 @@ def sync(
         limit (int | Unset):  Default: 100.
         body (QueryDatasetParams | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         DatasetContent | HTTPValidationError
     """
-
     return sync_detailed(
         dataset_id=dataset_id, client=client, body=body, starting_token=starting_token, limit=limit
     ).parsed
@@ -161,7 +159,7 @@ async def asyncio_detailed(
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
 ) -> Response[DatasetContent | HTTPValidationError]:
-    """Query Dataset Content
+    """Query Dataset Content.
 
     Args:
         dataset_id (str):
@@ -169,14 +167,15 @@ async def asyncio_detailed(
         limit (int | Unset):  Default: 100.
         body (QueryDatasetParams | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[DatasetContent | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -191,8 +190,8 @@ async def asyncio(
     body: QueryDatasetParams | Unset,
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
-) -> Optional[DatasetContent | HTTPValidationError]:
-    """Query Dataset Content
+) -> DatasetContent | HTTPValidationError | None:
+    """Query Dataset Content.
 
     Args:
         dataset_id (str):
@@ -200,14 +199,15 @@ async def asyncio(
         limit (int | Unset):  Default: 100.
         body (QueryDatasetParams | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         DatasetContent | HTTPValidationError
     """
-
     return (
         await asyncio_detailed(
             dataset_id=dataset_id, client=client, body=body, starting_token=starting_token, limit=limit

@@ -15,7 +15,8 @@ T = TypeVar("T", bound="DatasetFilterRows")
 class DatasetFilterRows:
     """This global operation filters a set of rows and discard the rest.
 
-    Attributes:
+    Attributes
+    ----------
         row_ids (list[str]):
         edit_type (Literal['filter_rows'] | Unset):  Default: 'filter_rows'.
     """

@@ -19,7 +19,8 @@ T = TypeVar("T", bound="MetricSettingsRequest")
 @_attrs_define
 class MetricSettingsRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         scorers (list[ScorerConfig] | None | Unset): List of Galileo scorers to enable.
         segment_filters (list[SegmentFilter] | None | Unset): List of segment filters to apply to the run.
     """

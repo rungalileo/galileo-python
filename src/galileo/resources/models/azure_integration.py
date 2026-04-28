@@ -24,7 +24,8 @@ T = TypeVar("T", bound="AzureIntegration")
 @_attrs_define
 class AzureIntegration:
     """
-    Attributes:
+    Attributes
+    ----------
         endpoint (str):
         multi_modal_config (MultiModalModelIntegrationConfig | None | Unset): Configuration for multi-modal (file
             upload) capabilities.
@@ -83,20 +84,14 @@ class AzureIntegration:
         api_version = self.api_version
 
         azure_deployment: None | str | Unset
-        if isinstance(self.azure_deployment, Unset):
-            azure_deployment = UNSET
-        else:
-            azure_deployment = self.azure_deployment
+        azure_deployment = UNSET if isinstance(self.azure_deployment, Unset) else self.azure_deployment
 
         authentication_type: str | Unset = UNSET
         if not isinstance(self.authentication_type, Unset):
             authentication_type = self.authentication_type.value
 
         authentication_scope: None | str | Unset
-        if isinstance(self.authentication_scope, Unset):
-            authentication_scope = UNSET
-        else:
-            authentication_scope = self.authentication_scope
+        authentication_scope = UNSET if isinstance(self.authentication_scope, Unset) else self.authentication_scope
 
         default_headers: dict[str, Any] | None | Unset
         if isinstance(self.default_headers, Unset):
@@ -111,10 +106,7 @@ class AzureIntegration:
             deployments = self.deployments.to_dict()
 
         oauth2_token_url: None | str | Unset
-        if isinstance(self.oauth2_token_url, Unset):
-            oauth2_token_url = UNSET
-        else:
-            oauth2_token_url = self.oauth2_token_url
+        oauth2_token_url = UNSET if isinstance(self.oauth2_token_url, Unset) else self.oauth2_token_url
 
         custom_header_mapping: dict[str, Any] | None | Unset
         if isinstance(self.custom_header_mapping, Unset):
@@ -137,10 +129,7 @@ class AzureIntegration:
             available_deployments = self.available_deployments
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
@@ -206,9 +195,8 @@ class AzureIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
+                return MultiModalModelIntegrationConfig.from_dict(data)
 
-                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
             return cast(MultiModalModelIntegrationConfig | None | Unset, data)
@@ -252,9 +240,8 @@ class AzureIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                default_headers_type_0 = AzureIntegrationDefaultHeadersType0.from_dict(data)
+                return AzureIntegrationDefaultHeadersType0.from_dict(data)
 
-                return default_headers_type_0
             except:  # noqa: E722
                 pass
             return cast(AzureIntegrationDefaultHeadersType0 | None | Unset, data)
@@ -263,10 +250,7 @@ class AzureIntegration:
 
         _deployments = d.pop("deployments", UNSET)
         deployments: AzureIntegrationDeployments | Unset
-        if isinstance(_deployments, Unset):
-            deployments = UNSET
-        else:
-            deployments = AzureIntegrationDeployments.from_dict(_deployments)
+        deployments = UNSET if isinstance(_deployments, Unset) else AzureIntegrationDeployments.from_dict(_deployments)
 
         def _parse_oauth2_token_url(data: object) -> None | str | Unset:
             if data is None:
@@ -285,9 +269,8 @@ class AzureIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                custom_header_mapping_type_0 = AzureIntegrationCustomHeaderMappingType0.from_dict(data)
+                return AzureIntegrationCustomHeaderMappingType0.from_dict(data)
 
-                return custom_header_mapping_type_0
             except:  # noqa: E722
                 pass
             return cast(AzureIntegrationCustomHeaderMappingType0 | None | Unset, data)
@@ -339,9 +322,8 @@ class AzureIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = AzureIntegrationExtraType0.from_dict(data)
+                return AzureIntegrationExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(AzureIntegrationExtraType0 | None | Unset, data)

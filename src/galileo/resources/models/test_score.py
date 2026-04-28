@@ -15,7 +15,8 @@ T = TypeVar("T", bound="TestScore")
 @_attrs_define
 class TestScore:
     """
-    Attributes:
+    Attributes
+    ----------
         node_type (NodeType):
         score (bool | float | int | None | str | Unset):
     """
@@ -28,10 +29,7 @@ class TestScore:
         node_type = self.node_type.value
 
         score: bool | float | int | None | str | Unset
-        if isinstance(self.score, Unset):
-            score = UNSET
-        else:
-            score = self.score
+        score = UNSET if isinstance(self.score, Unset) else self.score
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

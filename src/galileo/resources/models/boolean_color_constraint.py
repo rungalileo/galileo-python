@@ -23,7 +23,8 @@ class BooleanColorConstraint:
         {"color": "green", "operator": "eq", "value": true}
         {"color": "red", "operator": "eq", "value": false}
 
-        Attributes:
+    Attributes
+    ----------
             color (MetricColor): Allowed colors for metric threshold visualization in the UI.
             operator (Literal['eq']):
             value (bool):

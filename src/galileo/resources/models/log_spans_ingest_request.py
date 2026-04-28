@@ -25,7 +25,8 @@ T = TypeVar("T", bound="LogSpansIngestRequest")
 class LogSpansIngestRequest:
     """Request model for ingesting spans.
 
-    Attributes:
+    Attributes
+    ----------
         spans (list[AgentSpan | ControlSpan | LlmSpan | RetrieverSpan | ToolSpan | WorkflowSpan]): List of spans to log.
         trace_id (str): Trace id associated with the spans.
         parent_id (str): Parent trace or span id.
@@ -61,15 +62,7 @@ class LogSpansIngestRequest:
         spans = []
         for spans_item_data in self.spans:
             spans_item: dict[str, Any]
-            if isinstance(spans_item_data, AgentSpan):
-                spans_item = spans_item_data.to_dict()
-            elif isinstance(spans_item_data, WorkflowSpan):
-                spans_item = spans_item_data.to_dict()
-            elif isinstance(spans_item_data, LlmSpan):
-                spans_item = spans_item_data.to_dict()
-            elif isinstance(spans_item_data, RetrieverSpan):
-                spans_item = spans_item_data.to_dict()
-            elif isinstance(spans_item_data, ToolSpan):
+            if isinstance(spans_item_data, AgentSpan | WorkflowSpan | LlmSpan | RetrieverSpan | ToolSpan):
                 spans_item = spans_item_data.to_dict()
             else:
                 spans_item = spans_item_data.to_dict()
@@ -81,32 +74,20 @@ class LogSpansIngestRequest:
         parent_id = self.parent_id
 
         log_stream_id: None | str | Unset
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: None | str | Unset
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         metrics_testing_id: None | str | Unset
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         logging_method: str | Unset = UNSET
         if not isinstance(self.logging_method, Unset):
             logging_method = self.logging_method.value
 
         client_version: None | str | Unset
-        if isinstance(self.client_version, Unset):
-            client_version = UNSET
-        else:
-            client_version = self.client_version
+        client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
 
         reliable = self.reliable
 
@@ -148,48 +129,41 @@ class LogSpansIngestRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_0 = AgentSpan.from_dict(data)
+                    return AgentSpan.from_dict(data)
 
-                    return spans_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_1 = WorkflowSpan.from_dict(data)
+                    return WorkflowSpan.from_dict(data)
 
-                    return spans_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_2 = LlmSpan.from_dict(data)
+                    return LlmSpan.from_dict(data)
 
-                    return spans_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_3 = RetrieverSpan.from_dict(data)
+                    return RetrieverSpan.from_dict(data)
 
-                    return spans_item_type_3
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_4 = ToolSpan.from_dict(data)
+                    return ToolSpan.from_dict(data)
 
-                    return spans_item_type_4
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                spans_item_type_5 = ControlSpan.from_dict(data)
-
-                return spans_item_type_5
+                return ControlSpan.from_dict(data)
 
             spans_item = _parse_spans_item(spans_item_data)
 
@@ -228,10 +202,7 @@ class LogSpansIngestRequest:
 
         _logging_method = d.pop("logging_method", UNSET)
         logging_method: LoggingMethod | Unset
-        if isinstance(_logging_method, Unset):
-            logging_method = UNSET
-        else:
-            logging_method = LoggingMethod(_logging_method)
+        logging_method = UNSET if isinstance(_logging_method, Unset) else LoggingMethod(_logging_method)
 
         def _parse_client_version(data: object) -> None | str | Unset:
             if data is None:

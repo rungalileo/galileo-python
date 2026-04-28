@@ -14,7 +14,8 @@ T = TypeVar("T", bound="IntegrationDisableRequest")
 @_attrs_define
 class IntegrationDisableRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         integration_name (IntegrationName):
     """
 

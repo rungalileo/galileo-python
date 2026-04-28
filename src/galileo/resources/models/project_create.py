@@ -15,7 +15,8 @@ T = TypeVar("T", bound="ProjectCreate")
 @_attrs_define
 class ProjectCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
         created_by (None | str | Unset):
         type_ (ProjectType | Unset):
@@ -32,10 +33,7 @@ class ProjectCreate:
         name = self.name
 
         created_by: None | str | Unset
-        if isinstance(self.created_by, Unset):
-            created_by = UNSET
-        else:
-            created_by = self.created_by
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
         type_: str | Unset = UNSET
         if not isinstance(self.type_, Unset):
@@ -71,10 +69,7 @@ class ProjectCreate:
 
         _type_ = d.pop("type", UNSET)
         type_: ProjectType | Unset
-        if isinstance(_type_, Unset):
-            type_ = UNSET
-        else:
-            type_ = ProjectType(_type_)
+        type_ = UNSET if isinstance(_type_, Unset) else ProjectType(_type_)
 
         create_example_templates = d.pop("create_example_templates", UNSET)
 

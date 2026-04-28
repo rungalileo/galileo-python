@@ -16,7 +16,8 @@ T = TypeVar("T", bound="CreateScorerVersionRequest")
 @_attrs_define
 class CreateScorerVersionRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         model_name (None | str | Unset):
         num_judges (int | None | Unset):
         scoreable_node_types (list[str] | None | Unset):
@@ -35,16 +36,10 @@ class CreateScorerVersionRequest:
 
     def to_dict(self) -> dict[str, Any]:
         model_name: None | str | Unset
-        if isinstance(self.model_name, Unset):
-            model_name = UNSET
-        else:
-            model_name = self.model_name
+        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
         num_judges: int | None | Unset
-        if isinstance(self.num_judges, Unset):
-            num_judges = UNSET
-        else:
-            num_judges = self.num_judges
+        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
         scoreable_node_types: list[str] | None | Unset
         if isinstance(self.scoreable_node_types, Unset):
@@ -56,10 +51,7 @@ class CreateScorerVersionRequest:
             scoreable_node_types = self.scoreable_node_types
 
         cot_enabled: bool | None | Unset
-        if isinstance(self.cot_enabled, Unset):
-            cot_enabled = UNSET
-        else:
-            cot_enabled = self.cot_enabled
+        cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
         output_type: None | str | Unset
         if isinstance(self.output_type, Unset):
@@ -125,9 +117,8 @@ class CreateScorerVersionRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                scoreable_node_types_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)
@@ -151,9 +142,8 @@ class CreateScorerVersionRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                output_type_type_0 = OutputTypeEnum(data)
+                return OutputTypeEnum(data)
 
-                return output_type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | OutputTypeEnum | Unset, data)
@@ -168,9 +158,8 @@ class CreateScorerVersionRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                input_type_type_0 = InputTypeEnum(data)
+                return InputTypeEnum(data)
 
-                return input_type_type_0
             except:  # noqa: E722
                 pass
             return cast(InputTypeEnum | None | Unset, data)

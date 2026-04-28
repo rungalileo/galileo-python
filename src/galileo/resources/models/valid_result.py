@@ -20,7 +20,8 @@ T = TypeVar("T", bound="ValidResult")
 @_attrs_define
 class ValidResult:
     """
-    Attributes:
+    Attributes
+    ----------
         score_type (str):
         scoreable_node_types (list[NodeType]):
         test_scores (list[TestScore]):
@@ -111,9 +112,8 @@ class ValidResult:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                chain_aggregation_type_0 = ChainAggregationStrategy(data)
+                return ChainAggregationStrategy(data)
 
-                return chain_aggregation_type_0
             except:  # noqa: E722
                 pass
             return cast(ChainAggregationStrategy | None | Unset, data)

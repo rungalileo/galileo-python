@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -27,9 +27,7 @@ def _get_kwargs(integration_id: str, group_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.DELETE,
         "return_raw_response": True,
-        "path": "/integrations/{integration_id}/groups/{group_id}".format(
-            integration_id=integration_id, group_id=group_id
-        ),
+        "path": f"/integrations/{integration_id}/groups/{group_id}",
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -40,13 +38,10 @@ def _get_kwargs(integration_id: str, group_id: str) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 200:
-        response_200 = response.json()
-        return response_200
+        return response.json()
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -76,7 +71,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(integration_id: str, group_id: str, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
-    """Delete Group Integration Collaborator
+    """Delete Group Integration Collaborator.
 
      Remove a group's access to an integration.
 
@@ -84,14 +79,15 @@ def sync_detailed(integration_id: str, group_id: str, *, client: ApiClient) -> R
         integration_id (str):
         group_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Any | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(integration_id=integration_id, group_id=group_id)
 
     response = client.request(**kwargs)
@@ -99,8 +95,8 @@ def sync_detailed(integration_id: str, group_id: str, *, client: ApiClient) -> R
     return _build_response(client=client, response=response)
 
 
-def sync(integration_id: str, group_id: str, *, client: ApiClient) -> Optional[Any | HTTPValidationError]:
-    """Delete Group Integration Collaborator
+def sync(integration_id: str, group_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
+    """Delete Group Integration Collaborator.
 
      Remove a group's access to an integration.
 
@@ -108,21 +104,22 @@ def sync(integration_id: str, group_id: str, *, client: ApiClient) -> Optional[A
         integration_id (str):
         group_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Any | HTTPValidationError
     """
-
     return sync_detailed(integration_id=integration_id, group_id=group_id, client=client).parsed
 
 
 async def asyncio_detailed(
     integration_id: str, group_id: str, *, client: ApiClient
 ) -> Response[Any | HTTPValidationError]:
-    """Delete Group Integration Collaborator
+    """Delete Group Integration Collaborator.
 
      Remove a group's access to an integration.
 
@@ -130,14 +127,15 @@ async def asyncio_detailed(
         integration_id (str):
         group_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Any | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(integration_id=integration_id, group_id=group_id)
 
     response = await client.arequest(**kwargs)
@@ -145,8 +143,8 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(integration_id: str, group_id: str, *, client: ApiClient) -> Optional[Any | HTTPValidationError]:
-    """Delete Group Integration Collaborator
+async def asyncio(integration_id: str, group_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
+    """Delete Group Integration Collaborator.
 
      Remove a group's access to an integration.
 
@@ -154,12 +152,13 @@ async def asyncio(integration_id: str, group_id: str, *, client: ApiClient) -> O
         integration_id (str):
         group_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Any | HTTPValidationError
     """
-
     return (await asyncio_detailed(integration_id=integration_id, group_id=group_id, client=client)).parsed

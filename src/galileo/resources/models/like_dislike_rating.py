@@ -14,25 +14,26 @@ T = TypeVar("T", bound="LikeDislikeRating")
 @_attrs_define
 class LikeDislikeRating:
     """
-    Attributes:
+    Attributes
+    ----------
         value (bool):
-        annotation_type (Literal['like_dislike'] | Unset):  Default: 'like_dislike'.
+        feedback_type (Literal['like_dislike'] | Unset):  Default: 'like_dislike'.
     """
 
     value: bool
-    annotation_type: Literal["like_dislike"] | Unset = "like_dislike"
+    feedback_type: Literal["like_dislike"] | Unset = "like_dislike"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         value = self.value
 
-        annotation_type = self.annotation_type
+        feedback_type = self.feedback_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"value": value})
-        if annotation_type is not UNSET:
-            field_dict["annotation_type"] = annotation_type
+        if feedback_type is not UNSET:
+            field_dict["feedback_type"] = feedback_type
 
         return field_dict
 
@@ -41,11 +42,11 @@ class LikeDislikeRating:
         d = dict(src_dict)
         value = d.pop("value")
 
-        annotation_type = cast(Literal["like_dislike"] | Unset, d.pop("annotation_type", UNSET))
-        if annotation_type != "like_dislike" and not isinstance(annotation_type, Unset):
-            raise ValueError(f"annotation_type must match const 'like_dislike', got '{annotation_type}'")
+        feedback_type = cast(Literal["like_dislike"] | Unset, d.pop("feedback_type", UNSET))
+        if feedback_type != "like_dislike" and not isinstance(feedback_type, Unset):
+            raise ValueError(f"feedback_type must match const 'like_dislike', got '{feedback_type}'")
 
-        like_dislike_rating = cls(value=value, annotation_type=annotation_type)
+        like_dislike_rating = cls(value=value, feedback_type=feedback_type)
 
         like_dislike_rating.additional_properties = d
         return like_dislike_rating

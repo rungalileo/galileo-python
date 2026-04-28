@@ -25,7 +25,8 @@ class MCPCallEvent:
     MCP is a protocol for connecting LLMs to external tools/data sources.
     This is distinct from internal tools because it involves external integrations.
 
-        Attributes:
+    Attributes
+    ----------
             type_ (Literal['mcp_call'] | Unset):  Default: 'mcp_call'.
             id (None | str | Unset): Unique identifier for the event
             status (EventStatus | None | Unset): Status of the event
@@ -56,10 +57,7 @@ class MCPCallEvent:
         type_ = self.type_
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         status: None | str | Unset
         if isinstance(self.status, Unset):
@@ -78,22 +76,13 @@ class MCPCallEvent:
             metadata = self.metadata
 
         error_message: None | str | Unset
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         tool_name: None | str | Unset
-        if isinstance(self.tool_name, Unset):
-            tool_name = UNSET
-        else:
-            tool_name = self.tool_name
+        tool_name = UNSET if isinstance(self.tool_name, Unset) else self.tool_name
 
         server_name: None | str | Unset
-        if isinstance(self.server_name, Unset):
-            server_name = UNSET
-        else:
-            server_name = self.server_name
+        server_name = UNSET if isinstance(self.server_name, Unset) else self.server_name
 
         arguments: dict[str, Any] | None | Unset
         if isinstance(self.arguments, Unset):
@@ -163,9 +152,8 @@ class MCPCallEvent:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                status_type_0 = EventStatus(data)
+                return EventStatus(data)
 
-                return status_type_0
             except:  # noqa: E722
                 pass
             return cast(EventStatus | None | Unset, data)
@@ -180,9 +168,8 @@ class MCPCallEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = MCPCallEventMetadataType0.from_dict(data)
+                return MCPCallEventMetadataType0.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(MCPCallEventMetadataType0 | None | Unset, data)
@@ -224,9 +211,8 @@ class MCPCallEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                arguments_type_0 = MCPCallEventArgumentsType0.from_dict(data)
+                return MCPCallEventArgumentsType0.from_dict(data)
 
-                return arguments_type_0
             except:  # noqa: E722
                 pass
             return cast(MCPCallEventArgumentsType0 | None | Unset, data)
@@ -241,9 +227,8 @@ class MCPCallEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                result_type_0 = MCPCallEventResultType0.from_dict(data)
+                return MCPCallEventResultType0.from_dict(data)
 
-                return result_type_0
             except:  # noqa: E722
                 pass
             return cast(MCPCallEventResultType0 | None | Unset, data)

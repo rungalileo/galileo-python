@@ -21,7 +21,8 @@ class ChainPollTemplate:
     """Template for a chainpoll metric prompt,
     containing all the info necessary to send a chainpoll prompt.
 
-        Attributes:
+    Attributes
+    ----------
             template (str): Chainpoll prompt template.
             metric_system_prompt (None | str | Unset): System prompt for the metric.
             metric_description (None | str | Unset): Description of what the metric should do.
@@ -48,16 +49,10 @@ class ChainPollTemplate:
         template = self.template
 
         metric_system_prompt: None | str | Unset
-        if isinstance(self.metric_system_prompt, Unset):
-            metric_system_prompt = UNSET
-        else:
-            metric_system_prompt = self.metric_system_prompt
+        metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
 
         metric_description: None | str | Unset
-        if isinstance(self.metric_description, Unset):
-            metric_description = UNSET
-        else:
-            metric_description = self.metric_description
+        metric_description = UNSET if isinstance(self.metric_description, Unset) else self.metric_description
 
         value_field_name = self.value_field_name
 
@@ -143,9 +138,8 @@ class ChainPollTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = ChainPollTemplateResponseSchemaType0.from_dict(data)
+                return ChainPollTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(ChainPollTemplateResponseSchemaType0 | None | Unset, data)

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -28,10 +28,7 @@ def _get_kwargs(project_id: str, run_id: str, *, status: None | str | Unset = UN
     params: dict[str, Any] = {}
 
     json_status: None | str | Unset
-    if isinstance(status, Unset):
-        json_status = UNSET
-    else:
-        json_status = status
+    json_status = UNSET if isinstance(status, Unset) else status
     params["status"] = json_status
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
@@ -39,7 +36,7 @@ def _get_kwargs(project_id: str, run_id: str, *, status: None | str | Unset = UN
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/runs/{run_id}/jobs".format(project_id=project_id, run_id=run_id),
+        "path": f"/projects/{project_id}/runs/{run_id}/jobs",
         "params": params,
     }
 
@@ -61,9 +58,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
         return response_200
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -95,7 +90,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(
     project_id: str, run_id: str, *, client: ApiClient, status: None | str | Unset = UNSET
 ) -> Response[HTTPValidationError | list[JobDB]]:
-    """Get Jobs For Project Run
+    """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.
 
@@ -106,14 +101,15 @@ def sync_detailed(
         run_id (str):
         status (None | str | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | list[JobDB]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, status=status)
 
     response = client.request(**kwargs)
@@ -123,8 +119,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, run_id: str, *, client: ApiClient, status: None | str | Unset = UNSET
-) -> Optional[HTTPValidationError | list[JobDB]]:
-    """Get Jobs For Project Run
+) -> HTTPValidationError | list[JobDB] | None:
+    """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.
 
@@ -135,21 +131,22 @@ def sync(
         run_id (str):
         status (None | str | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | list[JobDB]
     """
-
     return sync_detailed(project_id=project_id, run_id=run_id, client=client, status=status).parsed
 
 
 async def asyncio_detailed(
     project_id: str, run_id: str, *, client: ApiClient, status: None | str | Unset = UNSET
 ) -> Response[HTTPValidationError | list[JobDB]]:
-    """Get Jobs For Project Run
+    """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.
 
@@ -160,14 +157,15 @@ async def asyncio_detailed(
         run_id (str):
         status (None | str | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | list[JobDB]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, status=status)
 
     response = await client.arequest(**kwargs)
@@ -177,8 +175,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, run_id: str, *, client: ApiClient, status: None | str | Unset = UNSET
-) -> Optional[HTTPValidationError | list[JobDB]]:
-    """Get Jobs For Project Run
+) -> HTTPValidationError | list[JobDB] | None:
+    """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.
 
@@ -189,12 +187,13 @@ async def asyncio(
         run_id (str):
         status (None | str | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | list[JobDB]
     """
-
     return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client, status=status)).parsed

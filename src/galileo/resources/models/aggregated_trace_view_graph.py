@@ -20,10 +20,11 @@ T = TypeVar("T", bound="AggregatedTraceViewGraph")
 @_attrs_define
 class AggregatedTraceViewGraph:
     """
-    Attributes:
+    Attributes
+    ----------
         nodes (list[AggregatedTraceViewNode]):
         edges (list[AggregatedTraceViewEdge]):
-        edge_occurrences_histogram (Histogram | None | Unset): Histogram of edge occurrence counts across the graph
+        edge_occurrences_histogram (Histogram | None | Unset): Histogram of edge occurrence counts across the graph.
     """
 
     nodes: list[AggregatedTraceViewNode]
@@ -89,9 +90,8 @@ class AggregatedTraceViewGraph:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                edge_occurrences_histogram_type_0 = Histogram.from_dict(data)
+                return Histogram.from_dict(data)
 
-                return edge_occurrences_histogram_type_0
             except:  # noqa: E722
                 pass
             return cast(Histogram | None | Unset, data)

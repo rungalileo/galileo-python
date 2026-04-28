@@ -18,7 +18,8 @@ T = TypeVar("T", bound="ListDatasetVersionParams")
 @_attrs_define
 class ListDatasetVersionParams:
     """
-    Attributes:
+    Attributes
+    ----------
         sort (DatasetVersionIndexSort | None | Unset):
     """
 
@@ -58,9 +59,8 @@ class ListDatasetVersionParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                sort_type_0 = DatasetVersionIndexSort.from_dict(data)
+                return DatasetVersionIndexSort.from_dict(data)
 
-                return sort_type_0
             except:  # noqa: E722
                 pass
             return cast(DatasetVersionIndexSort | None | Unset, data)

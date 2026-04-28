@@ -15,7 +15,8 @@ T = TypeVar("T", bound="RunIDFilter")
 @_attrs_define
 class RunIDFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (list[str] | str):
         name (Literal['id'] | Unset):  Default: 'id'.
         operator (RunIDFilterOperator | Unset):  Default: RunIDFilterOperator.EQ.
@@ -86,10 +87,7 @@ class RunIDFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: RunIDFilterOperator | Unset
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = RunIDFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else RunIDFilterOperator(_operator)
 
         run_id_filter = cls(value=value, name=name, operator=operator)
 

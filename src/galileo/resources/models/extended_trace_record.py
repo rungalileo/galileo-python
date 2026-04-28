@@ -13,11 +13,15 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.extended_trace_record_annotation_aggregates import ExtendedTraceRecordAnnotationAggregates
+    from ..models.extended_trace_record_annotation_agreement import ExtendedTraceRecordAnnotationAgreement
     from ..models.extended_trace_record_annotations import ExtendedTraceRecordAnnotations
     from ..models.extended_trace_record_dataset_metadata import ExtendedTraceRecordDatasetMetadata
     from ..models.extended_trace_record_feedback_rating_info import ExtendedTraceRecordFeedbackRatingInfo
     from ..models.extended_trace_record_files_type_0 import ExtendedTraceRecordFilesType0
     from ..models.extended_trace_record_metric_info_type_0 import ExtendedTraceRecordMetricInfoType0
+    from ..models.extended_trace_record_overall_annotation_agreement import (
+        ExtendedTraceRecordOverallAnnotationAgreement,
+    )
     from ..models.extended_trace_record_user_metadata import ExtendedTraceRecordUserMetadata
     from ..models.file_content_part import FileContentPart
     from ..models.metrics import Metrics
@@ -30,7 +34,8 @@ T = TypeVar("T", bound="ExtendedTraceRecord")
 @_attrs_define
 class ExtendedTraceRecord:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str): Galileo ID of the trace
         session_id (str): Galileo ID of the session containing the trace (or the same value as id for a trace)
         trace_id (str): Galileo ID of the trace containing the span (or the same value as id for a trace)
@@ -64,6 +69,10 @@ class ExtendedTraceRecord:
         file_modalities (list[ContentModality] | Unset): Modalities of files associated with this record
         annotation_aggregates (ExtendedTraceRecordAnnotationAggregates | Unset): Annotation aggregate information keyed
             by template ID
+        annotation_agreement (ExtendedTraceRecordAnnotationAgreement | Unset): Annotation agreement scores keyed by
+            template ID
+        overall_annotation_agreement (ExtendedTraceRecordOverallAnnotationAgreement | Unset): Average annotation
+            agreement per queue (keyed by queue ID)
         annotation_queue_ids (list[str] | Unset): IDs of annotation queues this record is in
         metric_info (ExtendedTraceRecordMetricInfoType0 | None | Unset): Detailed information about the metrics
             associated with this trace or span
@@ -102,6 +111,8 @@ class ExtendedTraceRecord:
     file_ids: list[str] | Unset = UNSET
     file_modalities: list[ContentModality] | Unset = UNSET
     annotation_aggregates: ExtendedTraceRecordAnnotationAggregates | Unset = UNSET
+    annotation_agreement: ExtendedTraceRecordAnnotationAgreement | Unset = UNSET
+    overall_annotation_agreement: ExtendedTraceRecordOverallAnnotationAgreement | Unset = UNSET
     annotation_queue_ids: list[str] | Unset = UNSET
     metric_info: ExtendedTraceRecordMetricInfoType0 | None | Unset = UNSET
     files: ExtendedTraceRecordFilesType0 | None | Unset = UNSET
@@ -209,32 +220,20 @@ class ExtendedTraceRecord:
             tags = self.tags
 
         status_code: int | None | Unset
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         metrics: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
         external_id: None | str | Unset
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         dataset_input: None | str | Unset
-        if isinstance(self.dataset_input, Unset):
-            dataset_input = UNSET
-        else:
-            dataset_input = self.dataset_input
+        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
         dataset_output: None | str | Unset
-        if isinstance(self.dataset_output, Unset):
-            dataset_output = UNSET
-        else:
-            dataset_output = self.dataset_output
+        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
         dataset_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.dataset_metadata, Unset):
@@ -249,22 +248,13 @@ class ExtendedTraceRecord:
             updated_at = self.updated_at
 
         has_children: bool | None | Unset
-        if isinstance(self.has_children, Unset):
-            has_children = UNSET
-        else:
-            has_children = self.has_children
+        has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
 
         metrics_batch_id: None | str | Unset
-        if isinstance(self.metrics_batch_id, Unset):
-            metrics_batch_id = UNSET
-        else:
-            metrics_batch_id = self.metrics_batch_id
+        metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
 
         session_batch_id: None | str | Unset
-        if isinstance(self.session_batch_id, Unset):
-            session_batch_id = UNSET
-        else:
-            session_batch_id = self.session_batch_id
+        session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
         feedback_rating_info: dict[str, Any] | Unset = UNSET
         if not isinstance(self.feedback_rating_info, Unset):
@@ -289,6 +279,14 @@ class ExtendedTraceRecord:
         if not isinstance(self.annotation_aggregates, Unset):
             annotation_aggregates = self.annotation_aggregates.to_dict()
 
+        annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.annotation_agreement, Unset):
+            annotation_agreement = self.annotation_agreement.to_dict()
+
+        overall_annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.overall_annotation_agreement, Unset):
+            overall_annotation_agreement = self.overall_annotation_agreement.to_dict()
+
         annotation_queue_ids: list[str] | Unset = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
             annotation_queue_ids = self.annotation_queue_ids
@@ -312,10 +310,7 @@ class ExtendedTraceRecord:
         is_complete = self.is_complete
 
         num_spans: int | None | Unset
-        if isinstance(self.num_spans, Unset):
-            num_spans = UNSET
-        else:
-            num_spans = self.num_spans
+        num_spans = UNSET if isinstance(self.num_spans, Unset) else self.num_spans
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -370,6 +365,10 @@ class ExtendedTraceRecord:
             field_dict["file_modalities"] = file_modalities
         if annotation_aggregates is not UNSET:
             field_dict["annotation_aggregates"] = annotation_aggregates
+        if annotation_agreement is not UNSET:
+            field_dict["annotation_agreement"] = annotation_agreement
+        if overall_annotation_agreement is not UNSET:
+            field_dict["overall_annotation_agreement"] = overall_annotation_agreement
         if annotation_queue_ids is not UNSET:
             field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
@@ -386,11 +385,15 @@ class ExtendedTraceRecord:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.extended_trace_record_annotation_aggregates import ExtendedTraceRecordAnnotationAggregates
+        from ..models.extended_trace_record_annotation_agreement import ExtendedTraceRecordAnnotationAgreement
         from ..models.extended_trace_record_annotations import ExtendedTraceRecordAnnotations
         from ..models.extended_trace_record_dataset_metadata import ExtendedTraceRecordDatasetMetadata
         from ..models.extended_trace_record_feedback_rating_info import ExtendedTraceRecordFeedbackRatingInfo
         from ..models.extended_trace_record_files_type_0 import ExtendedTraceRecordFilesType0
         from ..models.extended_trace_record_metric_info_type_0 import ExtendedTraceRecordMetricInfoType0
+        from ..models.extended_trace_record_overall_annotation_agreement import (
+            ExtendedTraceRecordOverallAnnotationAgreement,
+        )
         from ..models.extended_trace_record_user_metadata import ExtendedTraceRecordUserMetadata
         from ..models.file_content_part import FileContentPart
         from ..models.metrics import Metrics
@@ -425,16 +428,13 @@ class ExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            input_type_1_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return input_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        input_type_1_item_type_1 = FileContentPart.from_dict(data)
-
-                        return input_type_1_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     input_type_1_item = _parse_input_type_1_item(input_type_1_item_data)
 
@@ -463,16 +463,13 @@ class ExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            redacted_input_type_1_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return redacted_input_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        redacted_input_type_1_item_type_1 = FileContentPart.from_dict(data)
-
-                        return redacted_input_type_1_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     redacted_input_type_1_item = _parse_redacted_input_type_1_item(redacted_input_type_1_item_data)
 
@@ -501,16 +498,13 @@ class ExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            output_type_1_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return output_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        output_type_1_item_type_1 = FileContentPart.from_dict(data)
-
-                        return output_type_1_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     output_type_1_item = _parse_output_type_1_item(output_type_1_item_data)
 
@@ -539,16 +533,13 @@ class ExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            redacted_output_type_1_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return redacted_output_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        redacted_output_type_1_item_type_1 = FileContentPart.from_dict(data)
-
-                        return redacted_output_type_1_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     redacted_output_type_1_item = _parse_redacted_output_type_1_item(redacted_output_type_1_item_data)
 
@@ -565,10 +556,7 @@ class ExtendedTraceRecord:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: datetime.datetime | Unset
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
         user_metadata: ExtendedTraceRecordUserMetadata | Unset
@@ -590,10 +578,7 @@ class ExtendedTraceRecord:
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Metrics | Unset
-        if isinstance(_metrics, Unset):
-            metrics = UNSET
-        else:
-            metrics = Metrics.from_dict(_metrics)
+        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
         def _parse_external_id(data: object) -> None | str | Unset:
             if data is None:
@@ -637,9 +622,8 @@ class ExtendedTraceRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                updated_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return updated_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -704,6 +688,22 @@ class ExtendedTraceRecord:
             annotation_aggregates = UNSET
         else:
             annotation_aggregates = ExtendedTraceRecordAnnotationAggregates.from_dict(_annotation_aggregates)
+
+        _annotation_agreement = d.pop("annotation_agreement", UNSET)
+        annotation_agreement: ExtendedTraceRecordAnnotationAgreement | Unset
+        if isinstance(_annotation_agreement, Unset):
+            annotation_agreement = UNSET
+        else:
+            annotation_agreement = ExtendedTraceRecordAnnotationAgreement.from_dict(_annotation_agreement)
+
+        _overall_annotation_agreement = d.pop("overall_annotation_agreement", UNSET)
+        overall_annotation_agreement: ExtendedTraceRecordOverallAnnotationAgreement | Unset
+        if isinstance(_overall_annotation_agreement, Unset):
+            overall_annotation_agreement = UNSET
+        else:
+            overall_annotation_agreement = ExtendedTraceRecordOverallAnnotationAgreement.from_dict(
+                _overall_annotation_agreement
+            )
 
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
 
@@ -771,9 +771,8 @@ class ExtendedTraceRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_info_type_0 = ExtendedTraceRecordMetricInfoType0.from_dict(data)
+                return ExtendedTraceRecordMetricInfoType0.from_dict(data)
 
-                return metric_info_type_0
             except:  # noqa: E722
                 pass
             return cast(ExtendedTraceRecordMetricInfoType0 | None | Unset, data)
@@ -844,9 +843,8 @@ class ExtendedTraceRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                files_type_0 = ExtendedTraceRecordFilesType0.from_dict(data)
+                return ExtendedTraceRecordFilesType0.from_dict(data)
 
-                return files_type_0
             except:  # noqa: E722
                 pass
             return cast(ExtendedTraceRecordFilesType0 | None | Unset, data)
@@ -894,6 +892,8 @@ class ExtendedTraceRecord:
             file_ids=file_ids,
             file_modalities=file_modalities,
             annotation_aggregates=annotation_aggregates,
+            annotation_agreement=annotation_agreement,
+            overall_annotation_agreement=overall_annotation_agreement,
             annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
             files=files,

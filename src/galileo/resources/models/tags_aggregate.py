@@ -18,7 +18,8 @@ T = TypeVar("T", bound="TagsAggregate")
 @_attrs_define
 class TagsAggregate:
     """
-    Attributes:
+    Attributes
+    ----------
         counts (TagsAggregateCounts):
         unrated_count (int):
         feedback_type (Literal['tags'] | Unset):  Default: 'tags'.

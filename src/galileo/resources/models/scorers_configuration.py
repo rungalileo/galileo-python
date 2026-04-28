@@ -18,7 +18,8 @@ class ScorersConfiguration:
     The keys here are sorted by their approximate execution time to execute the scorers that we anticipate will be the
     fastest first, and the slowest last.
 
-        Attributes:
+    Attributes
+    ----------
             latency (bool | Unset):  Default: True.
             cost (bool | Unset):  Default: True.
             pii (bool | Unset):  Default: False.

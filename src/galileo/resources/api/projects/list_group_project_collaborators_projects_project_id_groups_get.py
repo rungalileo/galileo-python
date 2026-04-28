@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -36,7 +36,7 @@ def _get_kwargs(project_id: str, *, starting_token: int | Unset = 0, limit: int 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/groups".format(project_id=project_id),
+        "path": f"/projects/{project_id}/groups",
         "params": params,
     }
 
@@ -50,14 +50,10 @@ def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> HTTPValidationError | ListGroupCollaboratorsResponse:
     if response.status_code == 200:
-        response_200 = ListGroupCollaboratorsResponse.from_dict(response.json())
-
-        return response_200
+        return ListGroupCollaboratorsResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -91,7 +87,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
 ) -> Response[HTTPValidationError | ListGroupCollaboratorsResponse]:
-    """List Group Project Collaborators
+    """List Group Project Collaborators.
 
      List the groups with which the project has been shared.
 
@@ -100,14 +96,15 @@ def sync_detailed(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | ListGroupCollaboratorsResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -117,8 +114,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Optional[HTTPValidationError | ListGroupCollaboratorsResponse]:
-    """List Group Project Collaborators
+) -> HTTPValidationError | ListGroupCollaboratorsResponse | None:
+    """List Group Project Collaborators.
 
      List the groups with which the project has been shared.
 
@@ -127,21 +124,22 @@ def sync(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | ListGroupCollaboratorsResponse
     """
-
     return sync_detailed(project_id=project_id, client=client, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
 ) -> Response[HTTPValidationError | ListGroupCollaboratorsResponse]:
-    """List Group Project Collaborators
+    """List Group Project Collaborators.
 
      List the groups with which the project has been shared.
 
@@ -150,14 +148,15 @@ async def asyncio_detailed(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | ListGroupCollaboratorsResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -167,8 +166,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Optional[HTTPValidationError | ListGroupCollaboratorsResponse]:
-    """List Group Project Collaborators
+) -> HTTPValidationError | ListGroupCollaboratorsResponse | None:
+    """List Group Project Collaborators.
 
      List the groups with which the project has been shared.
 
@@ -177,14 +176,15 @@ async def asyncio(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | ListGroupCollaboratorsResponse
     """
-
     return (
         await asyncio_detailed(project_id=project_id, client=client, starting_token=starting_token, limit=limit)
     ).parsed

@@ -16,7 +16,8 @@ T = TypeVar("T", bound="PromptOptimizationConfiguration")
 class PromptOptimizationConfiguration:
     """Configuration for prompt optimization.
 
-    Attributes:
+    Attributes
+    ----------
         prompt (str):
         evaluation_criteria (str):
         task_description (str):
@@ -73,16 +74,10 @@ class PromptOptimizationConfiguration:
             integration_name = self.integration_name.value
 
         reasoning_effort: None | str | Unset
-        if isinstance(self.reasoning_effort, Unset):
-            reasoning_effort = UNSET
-        else:
-            reasoning_effort = self.reasoning_effort
+        reasoning_effort = UNSET if isinstance(self.reasoning_effort, Unset) else self.reasoning_effort
 
         verbosity: None | str | Unset
-        if isinstance(self.verbosity, Unset):
-            verbosity = UNSET
-        else:
-            verbosity = self.verbosity
+        verbosity = UNSET if isinstance(self.verbosity, Unset) else self.verbosity
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -134,10 +129,7 @@ class PromptOptimizationConfiguration:
 
         _integration_name = d.pop("integration_name", UNSET)
         integration_name: LLMIntegration | Unset
-        if isinstance(_integration_name, Unset):
-            integration_name = UNSET
-        else:
-            integration_name = LLMIntegration(_integration_name)
+        integration_name = UNSET if isinstance(_integration_name, Unset) else LLMIntegration(_integration_name)
 
         def _parse_reasoning_effort(data: object) -> None | str | Unset:
             if data is None:

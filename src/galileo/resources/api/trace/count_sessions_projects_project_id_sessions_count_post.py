@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsQueryCountRequest) -> dict[s
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/sessions/count".format(project_id=project_id),
+        "path": f"/projects/{project_id}/sessions/count",
     }
 
     _kwargs["json"] = body.to_dict()
@@ -46,14 +46,10 @@ def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> HTTPValidationError | LogRecordsQueryCountResponse:
     if response.status_code == 200:
-        response_200 = LogRecordsQueryCountResponse.from_dict(response.json())
-
-        return response_200
+        return LogRecordsQueryCountResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -87,7 +83,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsQueryCountRequest
 ) -> Response[HTTPValidationError | LogRecordsQueryCountResponse]:
-    """Count Sessions
+    """Count Sessions.
 
     Args:
         project_id (str):
@@ -95,14 +91,15 @@ def sync_detailed(
             'name': 'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}],
             'log_stream_id': '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | LogRecordsQueryCountResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = client.request(**kwargs)
@@ -112,8 +109,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: LogRecordsQueryCountRequest
-) -> Optional[HTTPValidationError | LogRecordsQueryCountResponse]:
-    """Count Sessions
+) -> HTTPValidationError | LogRecordsQueryCountResponse | None:
+    """Count Sessions.
 
     Args:
         project_id (str):
@@ -121,21 +118,22 @@ def sync(
             'name': 'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}],
             'log_stream_id': '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | LogRecordsQueryCountResponse
     """
-
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsQueryCountRequest
 ) -> Response[HTTPValidationError | LogRecordsQueryCountResponse]:
-    """Count Sessions
+    """Count Sessions.
 
     Args:
         project_id (str):
@@ -143,14 +141,15 @@ async def asyncio_detailed(
             'name': 'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}],
             'log_stream_id': '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | LogRecordsQueryCountResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -160,8 +159,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsQueryCountRequest
-) -> Optional[HTTPValidationError | LogRecordsQueryCountResponse]:
-    """Count Sessions
+) -> HTTPValidationError | LogRecordsQueryCountResponse | None:
+    """Count Sessions.
 
     Args:
         project_id (str):
@@ -169,12 +168,13 @@ async def asyncio(
             'name': 'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}],
             'log_stream_id': '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | LogRecordsQueryCountResponse
     """
-
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

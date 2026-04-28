@@ -15,7 +15,8 @@ T = TypeVar("T", bound="ScorerScoreableNodeTypesFilter")
 @_attrs_define
 class ScorerScoreableNodeTypesFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (ScorerScoreableNodeTypesFilterOperator):
         value (list[str] | str):
         name (Literal['scoreable_node_types'] | Unset):  Default: 'scoreable_node_types'.
@@ -32,11 +33,7 @@ class ScorerScoreableNodeTypesFilter:
         operator = self.operator.value
 
         value: list[str] | str
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         name = self.name
 
@@ -61,9 +58,8 @@ class ScorerScoreableNodeTypesFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

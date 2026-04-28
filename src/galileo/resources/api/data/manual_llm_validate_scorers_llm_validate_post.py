@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -46,14 +46,10 @@ def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> GeneratedScorerValidationResponse | HTTPValidationError:
     if response.status_code == 200:
-        response_200 = GeneratedScorerValidationResponse.from_dict(response.json())
-
-        return response_200
+        return GeneratedScorerValidationResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -87,19 +83,20 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
 ) -> Response[GeneratedScorerValidationResponse | HTTPValidationError]:
-    """Manual Llm Validate
+    """Manual Llm Validate.
 
     Args:
         body (ManualLlmValidateScorersLlmValidatePostBody):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[GeneratedScorerValidationResponse | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -109,39 +106,41 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
-) -> Optional[GeneratedScorerValidationResponse | HTTPValidationError]:
-    """Manual Llm Validate
+) -> GeneratedScorerValidationResponse | HTTPValidationError | None:
+    """Manual Llm Validate.
 
     Args:
         body (ManualLlmValidateScorersLlmValidatePostBody):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         GeneratedScorerValidationResponse | HTTPValidationError
     """
-
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
 ) -> Response[GeneratedScorerValidationResponse | HTTPValidationError]:
-    """Manual Llm Validate
+    """Manual Llm Validate.
 
     Args:
         body (ManualLlmValidateScorersLlmValidatePostBody):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[GeneratedScorerValidationResponse | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -151,18 +150,19 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
-) -> Optional[GeneratedScorerValidationResponse | HTTPValidationError]:
-    """Manual Llm Validate
+) -> GeneratedScorerValidationResponse | HTTPValidationError | None:
+    """Manual Llm Validate.
 
     Args:
         body (ManualLlmValidateScorersLlmValidatePostBody):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         GeneratedScorerValidationResponse | HTTPValidationError
     """
-
     return (await asyncio_detailed(client=client, body=body)).parsed

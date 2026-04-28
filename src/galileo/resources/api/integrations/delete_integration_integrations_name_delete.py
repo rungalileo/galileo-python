@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -28,7 +28,7 @@ def _get_kwargs(name: IntegrationName) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.DELETE,
         "return_raw_response": True,
-        "path": "/integrations/{name}".format(name=name),
+        "path": f"/integrations/{name}",
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -39,13 +39,10 @@ def _get_kwargs(name: IntegrationName) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 200:
-        response_200 = response.json()
-        return response_200
+        return response.json()
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -75,21 +72,22 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
-    """Delete Integration
+    """Delete Integration.
 
      Delete an integration. Admins can delete integrations created by other admins in the same org.
 
     Args:
         name (IntegrationName):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Any | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(name=name)
 
     response = client.request(**kwargs)
@@ -97,41 +95,43 @@ def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[Any |
     return _build_response(client=client, response=response)
 
 
-def sync(name: IntegrationName, *, client: ApiClient) -> Optional[Any | HTTPValidationError]:
-    """Delete Integration
+def sync(name: IntegrationName, *, client: ApiClient) -> Any | HTTPValidationError | None:
+    """Delete Integration.
 
      Delete an integration. Admins can delete integrations created by other admins in the same org.
 
     Args:
         name (IntegrationName):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Any | HTTPValidationError
     """
-
     return sync_detailed(name=name, client=client).parsed
 
 
 async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
-    """Delete Integration
+    """Delete Integration.
 
      Delete an integration. Admins can delete integrations created by other admins in the same org.
 
     Args:
         name (IntegrationName):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Any | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(name=name)
 
     response = await client.arequest(**kwargs)
@@ -139,20 +139,21 @@ async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Respo
     return _build_response(client=client, response=response)
 
 
-async def asyncio(name: IntegrationName, *, client: ApiClient) -> Optional[Any | HTTPValidationError]:
-    """Delete Integration
+async def asyncio(name: IntegrationName, *, client: ApiClient) -> Any | HTTPValidationError | None:
+    """Delete Integration.
 
      Delete an integration. Admins can delete integrations created by other admins in the same org.
 
     Args:
         name (IntegrationName):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Any | HTTPValidationError
     """
-
     return (await asyncio_detailed(name=name, client=client)).parsed

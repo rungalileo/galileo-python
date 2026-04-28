@@ -22,7 +22,8 @@ T = TypeVar("T", bound="RunDB")
 @_attrs_define
 class RunDB:
     """
-    Attributes:
+    Attributes
+    ----------
         created_by (str):
         num_samples (int):
         winner (bool):
@@ -83,28 +84,16 @@ class RunDB:
         logged_inference_names = self.logged_inference_names
 
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         project_id: None | str | Unset
-        if isinstance(self.project_id, Unset):
-            project_id = UNSET
-        else:
-            project_id = self.project_id
+        project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
         dataset_hash: None | str | Unset
-        if isinstance(self.dataset_hash, Unset):
-            dataset_hash = UNSET
-        else:
-            dataset_hash = self.dataset_hash
+        dataset_hash = UNSET if isinstance(self.dataset_hash, Unset) else self.dataset_hash
 
         dataset_version_id: None | str | Unset
-        if isinstance(self.dataset_version_id, Unset):
-            dataset_version_id = UNSET
-        else:
-            dataset_version_id = self.dataset_version_id
+        dataset_version_id = UNSET if isinstance(self.dataset_version_id, Unset) else self.dataset_version_id
 
         task_type: int | None | Unset
         if isinstance(self.task_type, Unset):
@@ -122,10 +111,7 @@ class RunDB:
                 run_tags.append(run_tags_item)
 
         example_content_id: None | str | Unset
-        if isinstance(self.example_content_id, Unset):
-            example_content_id = UNSET
-        else:
-            example_content_id = self.example_content_id
+        example_content_id = UNSET if isinstance(self.example_content_id, Unset) else self.example_content_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -230,9 +216,8 @@ class RunDB:
             try:
                 if not isinstance(data, int):
                     raise TypeError()
-                task_type_type_0 = TaskType(data)
+                return TaskType(data)
 
-                return task_type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | TaskType | Unset, data)

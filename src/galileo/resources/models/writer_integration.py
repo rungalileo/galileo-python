@@ -18,7 +18,8 @@ T = TypeVar("T", bound="WriterIntegration")
 @_attrs_define
 class WriterIntegration:
     """
-    Attributes:
+    Attributes
+    ----------
         organization_id (str):
         id (None | str | Unset):
         name (Literal['writer'] | Unset):  Default: 'writer'.
@@ -37,10 +38,7 @@ class WriterIntegration:
         organization_id = self.organization_id
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
@@ -92,9 +90,8 @@ class WriterIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = WriterIntegrationExtraType0.from_dict(data)
+                return WriterIntegrationExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | WriterIntegrationExtraType0, data)

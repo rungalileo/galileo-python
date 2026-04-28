@@ -15,7 +15,8 @@ T = TypeVar("T", bound="DatasetCopyRecordData")
 class DatasetCopyRecordData:
     """Prepend or append trace or span data to dataset.
 
-    Attributes:
+    Attributes
+    ----------
         ids (list[str]): List of trace or span IDs to copy data from
         edit_type (Literal['copy_record_data'] | Unset):  Default: 'copy_record_data'.
         project_id (None | str | Unset):
@@ -39,16 +40,10 @@ class DatasetCopyRecordData:
         edit_type = self.edit_type
 
         project_id: None | str | Unset
-        if isinstance(self.project_id, Unset):
-            project_id = UNSET
-        else:
-            project_id = self.project_id
+        project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
         queue_id: None | str | Unset
-        if isinstance(self.queue_id, Unset):
-            queue_id = UNSET
-        else:
-            queue_id = self.queue_id
+        queue_id = UNSET if isinstance(self.queue_id, Unset) else self.queue_id
 
         prepend = self.prepend
 

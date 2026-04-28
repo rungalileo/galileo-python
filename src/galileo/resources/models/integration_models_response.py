@@ -19,7 +19,8 @@ T = TypeVar("T", bound="IntegrationModelsResponse")
 @_attrs_define
 class IntegrationModelsResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         integration_name (str):
         models (list[str]):
         scorer_models (list[str]):

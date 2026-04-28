@@ -12,7 +12,8 @@ T = TypeVar("T", bound="LogStreamUpdateRequest")
 @_attrs_define
 class LogStreamUpdateRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
     """
 

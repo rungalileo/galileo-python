@@ -16,7 +16,8 @@ T = TypeVar("T", bound="BodyValidateCodeScorerLogRecordScorersCodeValidateLogRec
 @_attrs_define
 class BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost:
     """
-    Attributes:
+    Attributes
+    ----------
         file (File):
         log_stream_id (None | str | Unset):
         experiment_id (None | str | Unset):
@@ -43,36 +44,21 @@ class BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost:
         file = self.file.to_tuple()
 
         log_stream_id: None | str | Unset
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: None | str | Unset
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         limit = self.limit
 
         starting_token: int | None | Unset
-        if isinstance(self.starting_token, Unset):
-            starting_token = UNSET
-        else:
-            starting_token = self.starting_token
+        starting_token = UNSET if isinstance(self.starting_token, Unset) else self.starting_token
 
         filters: None | str | Unset
-        if isinstance(self.filters, Unset):
-            filters = UNSET
-        else:
-            filters = self.filters
+        filters = UNSET if isinstance(self.filters, Unset) else self.filters
 
         sort: None | str | Unset
-        if isinstance(self.sort, Unset):
-            sort = UNSET
-        else:
-            sort = self.sort
+        sort = UNSET if isinstance(self.sort, Unset) else self.sort
 
         required_scorers: list[str] | None | str | Unset
         if isinstance(self.required_scorers, Unset):
@@ -242,9 +228,8 @@ class BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                required_scorers_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return required_scorers_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | str | Unset, data)
@@ -259,9 +244,8 @@ class BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                scoreable_node_types_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return scoreable_node_types_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | str | Unset, data)

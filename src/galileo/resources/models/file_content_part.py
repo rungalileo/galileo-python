@@ -19,7 +19,8 @@ class FileContentPart:
     trace/span detail responses, which contains metadata such as
     modality, MIME type, and a presigned download URL.
 
-        Attributes:
+    Attributes
+    ----------
             file_id (str):
             type_ (Literal['file'] | Unset):  Default: 'file'.
     """

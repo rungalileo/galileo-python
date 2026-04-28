@@ -17,7 +17,7 @@ T = TypeVar("T", bound="ExperimentResponseRatingAggregates")
 
 @_attrs_define
 class ExperimentResponseRatingAggregates:
-    """Annotation aggregates keyed by template ID and root type"""
+    """Annotation aggregates keyed by template ID and root type."""
 
     additional_properties: dict[str, ExperimentResponseRatingAggregatesAdditionalProperty] = _attrs_field(
         init=False, factory=dict

@@ -20,7 +20,8 @@ T = TypeVar("T", bound="SegmentFilter")
 @_attrs_define
 class SegmentFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         sample_rate (float): The fraction of the data to sample. Must be between 0 and 1, inclusive.
         filter_ (MetadataFilter | ModalityFilter | NodeNameFilter | None | Unset): Filter to apply to the segment. By
             default sample on all data.
@@ -42,11 +43,7 @@ class SegmentFilter:
         filter_: dict[str, Any] | None | Unset
         if isinstance(self.filter_, Unset):
             filter_ = UNSET
-        elif isinstance(self.filter_, NodeNameFilter):
-            filter_ = self.filter_.to_dict()
-        elif isinstance(self.filter_, MetadataFilter):
-            filter_ = self.filter_.to_dict()
-        elif isinstance(self.filter_, ModalityFilter):
+        elif isinstance(self.filter_, NodeNameFilter | MetadataFilter | ModalityFilter):
             filter_ = self.filter_.to_dict()
         else:
             filter_ = self.filter_
@@ -80,25 +77,22 @@ class SegmentFilter:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                filter_type_0_type_0 = NodeNameFilter.from_dict(data)
+                return NodeNameFilter.from_dict(data)
 
-                return filter_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                filter_type_0_type_1 = MetadataFilter.from_dict(data)
+                return MetadataFilter.from_dict(data)
 
-                return filter_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                filter_type_0_type_2 = ModalityFilter.from_dict(data)
+                return ModalityFilter.from_dict(data)
 
-                return filter_type_0_type_2
             except:  # noqa: E722
                 pass
             return cast(MetadataFilter | ModalityFilter | NodeNameFilter | None | Unset, data)

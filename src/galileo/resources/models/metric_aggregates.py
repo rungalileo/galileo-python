@@ -19,7 +19,8 @@ T = TypeVar("T", bound="MetricAggregates")
 class MetricAggregates:
     """Structured aggregate values for a single metric, computed from ClickHouse row-level data.
 
-    Attributes:
+    Attributes
+    ----------
         avg (float | None | Unset):
         sum_ (float | None | Unset):
         min_ (float | None | Unset):
@@ -52,64 +53,34 @@ class MetricAggregates:
         from ..models.metric_aggregates_value_distribution_type_0 import MetricAggregatesValueDistributionType0
 
         avg: float | None | Unset
-        if isinstance(self.avg, Unset):
-            avg = UNSET
-        else:
-            avg = self.avg
+        avg = UNSET if isinstance(self.avg, Unset) else self.avg
 
         sum_: float | None | Unset
-        if isinstance(self.sum_, Unset):
-            sum_ = UNSET
-        else:
-            sum_ = self.sum_
+        sum_ = UNSET if isinstance(self.sum_, Unset) else self.sum_
 
         min_: float | None | Unset
-        if isinstance(self.min_, Unset):
-            min_ = UNSET
-        else:
-            min_ = self.min_
+        min_ = UNSET if isinstance(self.min_, Unset) else self.min_
 
         max_: float | None | Unset
-        if isinstance(self.max_, Unset):
-            max_ = UNSET
-        else:
-            max_ = self.max_
+        max_ = UNSET if isinstance(self.max_, Unset) else self.max_
 
         count: int | None | Unset
-        if isinstance(self.count, Unset):
-            count = UNSET
-        else:
-            count = self.count
+        count = UNSET if isinstance(self.count, Unset) else self.count
 
         pct: float | None | Unset
-        if isinstance(self.pct, Unset):
-            pct = UNSET
-        else:
-            pct = self.pct
+        pct = UNSET if isinstance(self.pct, Unset) else self.pct
 
         p50: float | None | Unset
-        if isinstance(self.p50, Unset):
-            p50 = UNSET
-        else:
-            p50 = self.p50
+        p50 = UNSET if isinstance(self.p50, Unset) else self.p50
 
         p90: float | None | Unset
-        if isinstance(self.p90, Unset):
-            p90 = UNSET
-        else:
-            p90 = self.p90
+        p90 = UNSET if isinstance(self.p90, Unset) else self.p90
 
         p95: float | None | Unset
-        if isinstance(self.p95, Unset):
-            p95 = UNSET
-        else:
-            p95 = self.p95
+        p95 = UNSET if isinstance(self.p95, Unset) else self.p95
 
         p99: float | None | Unset
-        if isinstance(self.p99, Unset):
-            p99 = UNSET
-        else:
-            p99 = self.p99
+        p99 = UNSET if isinstance(self.p99, Unset) else self.p99
 
         value_distribution: dict[str, Any] | None | Unset
         if isinstance(self.value_distribution, Unset):
@@ -251,9 +222,8 @@ class MetricAggregates:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                value_distribution_type_0 = MetricAggregatesValueDistributionType0.from_dict(data)
+                return MetricAggregatesValueDistributionType0.from_dict(data)
 
-                return value_distribution_type_0
             except:  # noqa: E722
                 pass
             return cast(MetricAggregatesValueDistributionType0 | None | Unset, data)

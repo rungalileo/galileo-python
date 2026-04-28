@@ -12,7 +12,8 @@ T = TypeVar("T", bound="GenerationResponse")
 @_attrs_define
 class GenerationResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         task_result_id (str):
     """
 

@@ -12,7 +12,8 @@ T = TypeVar("T", bound="MistralIntegrationCreate")
 @_attrs_define
 class MistralIntegrationCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         token (str):
     """
 

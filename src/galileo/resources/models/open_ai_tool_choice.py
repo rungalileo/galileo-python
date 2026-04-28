@@ -18,7 +18,8 @@ T = TypeVar("T", bound="OpenAIToolChoice")
 @_attrs_define
 class OpenAIToolChoice:
     """
-    Attributes:
+    Attributes
+    ----------
         function (OpenAIFunction):
         type_ (str | Unset):  Default: 'function'.
     """

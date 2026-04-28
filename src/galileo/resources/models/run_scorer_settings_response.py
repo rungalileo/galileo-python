@@ -19,7 +19,8 @@ T = TypeVar("T", bound="RunScorerSettingsResponse")
 @_attrs_define
 class RunScorerSettingsResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         scorers (list[ScorerConfig]):
         run_id (str): ID of the run.
         segment_filters (list[SegmentFilter] | None | Unset): List of segment filters to apply to the run.

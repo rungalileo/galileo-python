@@ -18,7 +18,8 @@ T = TypeVar("T", bound="ListDatasetVersionResponse")
 @_attrs_define
 class ListDatasetVersionResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         versions (list[DatasetVersionDB]):
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
@@ -46,10 +47,7 @@ class ListDatasetVersionResponse:
         paginated = self.paginated
 
         next_starting_token: int | None | Unset
-        if isinstance(self.next_starting_token, Unset):
-            next_starting_token = UNSET
-        else:
-            next_starting_token = self.next_starting_token
+        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

@@ -16,7 +16,8 @@ T = TypeVar("T", bound="NodeNameFilter")
 class NodeNameFilter:
     """Filters on node names in scorer jobs.
 
-    Attributes:
+    Attributes
+    ----------
         operator (NodeNameFilterOperator):
         value (list[str] | str):
         name (Literal['node_name'] | Unset):  Default: 'node_name'.
@@ -33,11 +34,7 @@ class NodeNameFilter:
         operator = self.operator.value
 
         value: list[str] | str
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         name = self.name
 
@@ -62,9 +59,8 @@ class NodeNameFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

@@ -14,7 +14,8 @@ T = TypeVar("T", bound="PromptTemplateNotInProjectFilter")
 @_attrs_define
 class PromptTemplateNotInProjectFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (str):
         name (Literal['not_in_project'] | Unset):  Default: 'not_in_project'.
     """

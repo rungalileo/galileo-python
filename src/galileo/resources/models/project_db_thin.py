@@ -22,7 +22,8 @@ T = TypeVar("T", bound="ProjectDBThin")
 @_attrs_define
 class ProjectDBThin:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         created_by (str):
         runs (list[RunDBThin]):
@@ -67,10 +68,7 @@ class ProjectDBThin:
                 permissions.append(permissions_item)
 
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         type_: None | str | Unset
         if isinstance(self.type_, Unset):
@@ -145,9 +143,8 @@ class ProjectDBThin:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                type_type_0 = ProjectType(data)
+                return ProjectType(data)
 
-                return type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ProjectType | Unset, data)

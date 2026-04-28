@@ -22,7 +22,8 @@ T = TypeVar("T", bound="GeneratedScorerResponse")
 @_attrs_define
 class GeneratedScorerResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (str):
         chain_poll_template (ChainPollTemplate): Template for a chainpoll metric prompt,
@@ -74,16 +75,10 @@ class GeneratedScorerResponse:
         scorer_configuration = self.scorer_configuration.to_dict()
 
         instructions: None | str | Unset
-        if isinstance(self.instructions, Unset):
-            instructions = UNSET
-        else:
-            instructions = self.instructions
+        instructions = UNSET if isinstance(self.instructions, Unset) else self.instructions
 
         user_prompt: None | str | Unset
-        if isinstance(self.user_prompt, Unset):
-            user_prompt = UNSET
-        else:
-            user_prompt = self.user_prompt
+        user_prompt = UNSET if isinstance(self.user_prompt, Unset) else self.user_prompt
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -27,10 +27,7 @@ def _get_kwargs(scorer_id: str, *, version: int | None | Unset = UNSET) -> dict[
     params: dict[str, Any] = {}
 
     json_version: int | None | Unset
-    if isinstance(version, Unset):
-        json_version = UNSET
-    else:
-        json_version = version
+    json_version = UNSET if isinstance(version, Unset) else version
     params["version"] = json_version
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
@@ -38,7 +35,7 @@ def _get_kwargs(scorer_id: str, *, version: int | None | Unset = UNSET) -> dict[
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": "/scorers/{scorer_id}/version/code".format(scorer_id=scorer_id),
+        "path": f"/scorers/{scorer_id}/version/code",
         "params": params,
     }
 
@@ -50,13 +47,10 @@ def _get_kwargs(scorer_id: str, *, version: int | None | Unset = UNSET) -> dict[
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 200:
-        response_200 = response.json()
-        return response_200
+        return response.json()
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -88,20 +82,21 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(
     scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET
 ) -> Response[Any | HTTPValidationError]:
-    """Get Scorer Version Code
+    """Get Scorer Version Code.
 
     Args:
         scorer_id (str):
         version (int | None | Unset): version number, defaults to latest version
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Any | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(scorer_id=scorer_id, version=version)
 
     response = client.request(**kwargs)
@@ -109,43 +104,43 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(
-    scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET
-) -> Optional[Any | HTTPValidationError]:
-    """Get Scorer Version Code
+def sync(scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET) -> Any | HTTPValidationError | None:
+    """Get Scorer Version Code.
 
     Args:
         scorer_id (str):
         version (int | None | Unset): version number, defaults to latest version
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Any | HTTPValidationError
     """
-
     return sync_detailed(scorer_id=scorer_id, client=client, version=version).parsed
 
 
 async def asyncio_detailed(
     scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET
 ) -> Response[Any | HTTPValidationError]:
-    """Get Scorer Version Code
+    """Get Scorer Version Code.
 
     Args:
         scorer_id (str):
         version (int | None | Unset): version number, defaults to latest version
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Any | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(scorer_id=scorer_id, version=version)
 
     response = await client.arequest(**kwargs)
@@ -155,19 +150,20 @@ async def asyncio_detailed(
 
 async def asyncio(
     scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET
-) -> Optional[Any | HTTPValidationError]:
-    """Get Scorer Version Code
+) -> Any | HTTPValidationError | None:
+    """Get Scorer Version Code.
 
     Args:
         scorer_id (str):
         version (int | None | Unset): version number, defaults to latest version
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Any | HTTPValidationError
     """
-
     return (await asyncio_detailed(scorer_id=scorer_id, client=client, version=version)).parsed

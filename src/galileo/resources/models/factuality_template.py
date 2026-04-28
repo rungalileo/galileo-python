@@ -19,7 +19,8 @@ T = TypeVar("T", bound="FactualityTemplate")
 @_attrs_define
 class FactualityTemplate:
     r"""
-    Attributes:
+    Attributes
+    ----------
         metric_system_prompt (str | Unset):  Default: '# Task\n\nYou will be given a prompt that was sent to a large
             language model (LLM), and the LLM\'s response. Your task is to assess whether the response is factually
             correct.\n\n## Task output format\n\nYou must respond in the following JSON format:\n\n```\n{\n
@@ -54,7 +55,7 @@ class FactualityTemplate:
             texts when evaluating the response. Evaluate the response as though the reference texts were NOT provided. Do
             NOT refer to these texts in your evaluation.'.
         metric_few_shot_examples (list[FewShotExample] | Unset):
-        response_schema (FactualityTemplateResponseSchemaType0 | None | Unset): Response schema for the output
+        response_schema (FactualityTemplateResponseSchemaType0 | None | Unset): Response schema for the output.
     """
 
     metric_system_prompt: str | Unset = (
@@ -76,10 +77,7 @@ class FactualityTemplate:
         metric_system_prompt = self.metric_system_prompt
 
         metric_description: None | str | Unset
-        if isinstance(self.metric_description, Unset):
-            metric_description = UNSET
-        else:
-            metric_description = self.metric_description
+        metric_description = UNSET if isinstance(self.metric_description, Unset) else self.metric_description
 
         value_field_name = self.value_field_name
 
@@ -162,9 +160,8 @@ class FactualityTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = FactualityTemplateResponseSchemaType0.from_dict(data)
+                return FactualityTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(FactualityTemplateResponseSchemaType0 | None | Unset, data)

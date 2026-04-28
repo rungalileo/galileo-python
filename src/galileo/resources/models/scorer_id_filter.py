@@ -15,7 +15,8 @@ T = TypeVar("T", bound="ScorerIDFilter")
 @_attrs_define
 class ScorerIDFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (list[str] | str):
         name (Literal['id'] | Unset):  Default: 'id'.
         operator (ScorerIDFilterOperator | Unset):  Default: ScorerIDFilterOperator.EQ.
@@ -86,10 +87,7 @@ class ScorerIDFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: ScorerIDFilterOperator | Unset
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = ScorerIDFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else ScorerIDFilterOperator(_operator)
 
         scorer_id_filter = cls(value=value, name=name, operator=operator)
 

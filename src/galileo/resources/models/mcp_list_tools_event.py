@@ -21,7 +21,8 @@ T = TypeVar("T", bound="MCPListToolsEvent")
 class MCPListToolsEvent:
     """MCP list tools event - when the model queries available MCP tools.
 
-    Attributes:
+    Attributes
+    ----------
         type_ (Literal['mcp_list_tools'] | Unset):  Default: 'mcp_list_tools'.
         id (None | str | Unset): Unique identifier for the event
         status (EventStatus | None | Unset): Status of the event
@@ -46,10 +47,7 @@ class MCPListToolsEvent:
         type_ = self.type_
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         status: None | str | Unset
         if isinstance(self.status, Unset):
@@ -68,16 +66,10 @@ class MCPListToolsEvent:
             metadata = self.metadata
 
         error_message: None | str | Unset
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         server_name: None | str | Unset
-        if isinstance(self.server_name, Unset):
-            server_name = UNSET
-        else:
-            server_name = self.server_name
+        server_name = UNSET if isinstance(self.server_name, Unset) else self.server_name
 
         tools: list[dict[str, Any]] | None | Unset
         if isinstance(self.tools, Unset):
@@ -138,9 +130,8 @@ class MCPListToolsEvent:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                status_type_0 = EventStatus(data)
+                return EventStatus(data)
 
-                return status_type_0
             except:  # noqa: E722
                 pass
             return cast(EventStatus | None | Unset, data)
@@ -155,9 +146,8 @@ class MCPListToolsEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = MCPListToolsEventMetadataType0.from_dict(data)
+                return MCPListToolsEventMetadataType0.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(MCPListToolsEventMetadataType0 | None | Unset, data)

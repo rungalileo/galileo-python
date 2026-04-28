@@ -18,7 +18,8 @@ T = TypeVar("T", bound="ProjectUpdateResponse")
 @_attrs_define
 class ProjectUpdateResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
@@ -47,16 +48,10 @@ class ProjectUpdateResponse:
         updated_at = self.updated_at.isoformat()
 
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         created_by: None | str | Unset
-        if isinstance(self.created_by, Unset):
-            created_by = UNSET
-        else:
-            created_by = self.created_by
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
         type_: None | str | Unset
         if isinstance(self.type_, Unset):
@@ -74,10 +69,7 @@ class ProjectUpdateResponse:
                 labels.append(labels_item)
 
         description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -130,9 +122,8 @@ class ProjectUpdateResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                type_type_0 = ProjectType(data)
+                return ProjectType(data)
 
-                return type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ProjectType | Unset, data)

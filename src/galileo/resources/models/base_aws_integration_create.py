@@ -21,14 +21,15 @@ T = TypeVar("T", bound="BaseAwsIntegrationCreate")
 @_attrs_define
 class BaseAwsIntegrationCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         token (BaseAwsIntegrationCreateToken):
         multi_modal_config (MultiModalModelIntegrationConfig | None | Unset): Configuration for multi-modal (file
             upload) capabilities.
         credential_type (AwsCredentialType | Unset):
         region (str | Unset):  Default: 'us-west-2'.
         inference_profiles (BaseAwsIntegrationCreateInferenceProfiles | Unset): Mapping from model name (Foundation
-            model ID) to inference profile ARN or ID
+            model ID) to inference profile ARN or ID.
     """
 
     token: BaseAwsIntegrationCreateToken
@@ -92,9 +93,8 @@ class BaseAwsIntegrationCreate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
+                return MultiModalModelIntegrationConfig.from_dict(data)
 
-                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
             return cast(MultiModalModelIntegrationConfig | None | Unset, data)
@@ -103,10 +103,7 @@ class BaseAwsIntegrationCreate:
 
         _credential_type = d.pop("credential_type", UNSET)
         credential_type: AwsCredentialType | Unset
-        if isinstance(_credential_type, Unset):
-            credential_type = UNSET
-        else:
-            credential_type = AwsCredentialType(_credential_type)
+        credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
 
         region = d.pop("region", UNSET)
 

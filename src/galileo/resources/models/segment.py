@@ -14,7 +14,8 @@ T = TypeVar("T", bound="Segment")
 @_attrs_define
 class Segment:
     """
-    Attributes:
+    Attributes
+    ----------
         start (int):
         end (int):
         value (float | int | str):
@@ -36,10 +37,7 @@ class Segment:
         value = self.value
 
         prob: float | None | Unset
-        if isinstance(self.prob, Unset):
-            prob = UNSET
-        else:
-            prob = self.prob
+        prob = UNSET if isinstance(self.prob, Unset) else self.prob
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

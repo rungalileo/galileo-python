@@ -15,7 +15,8 @@ T = TypeVar("T", bound="ProjectTypeFilter")
 @_attrs_define
 class ProjectTypeFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (ProjectTypeFilterOperator):
         value (list[str] | str):
         name (Literal['type'] | Unset):  Default: 'type'.
@@ -30,11 +31,7 @@ class ProjectTypeFilter:
         operator = self.operator.value
 
         value: list[str] | str
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         name = self.name
 
@@ -55,9 +52,8 @@ class ProjectTypeFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

@@ -28,7 +28,8 @@ T = TypeVar("T", bound="CreateScorerRequest")
 @_attrs_define
 class CreateScorerRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
         scorer_type (ScorerTypes):
         description (str | Unset):  Default: ''.
@@ -101,10 +102,7 @@ class CreateScorerRequest:
             defaults = self.defaults
 
         deprecated: bool | None | Unset
-        if isinstance(self.deprecated, Unset):
-            deprecated = UNSET
-        else:
-            deprecated = self.deprecated
+        deprecated = UNSET if isinstance(self.deprecated, Unset) else self.deprecated
 
         model_type: None | str | Unset
         if isinstance(self.model_type, Unset):
@@ -115,22 +113,13 @@ class CreateScorerRequest:
             model_type = self.model_type
 
         ground_truth: bool | None | Unset
-        if isinstance(self.ground_truth, Unset):
-            ground_truth = UNSET
-        else:
-            ground_truth = self.ground_truth
+        ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
 
         default_version_id: None | str | Unset
-        if isinstance(self.default_version_id, Unset):
-            default_version_id = UNSET
-        else:
-            default_version_id = self.default_version_id
+        default_version_id = UNSET if isinstance(self.default_version_id, Unset) else self.default_version_id
 
         user_prompt: None | str | Unset
-        if isinstance(self.user_prompt, Unset):
-            user_prompt = UNSET
-        else:
-            user_prompt = self.user_prompt
+        user_prompt = UNSET if isinstance(self.user_prompt, Unset) else self.user_prompt
 
         scoreable_node_types: list[str] | None | Unset
         if isinstance(self.scoreable_node_types, Unset):
@@ -189,13 +178,13 @@ class CreateScorerRequest:
         metric_color_picker_config: dict[str, Any] | None | Unset
         if isinstance(self.metric_color_picker_config, Unset):
             metric_color_picker_config = UNSET
-        elif isinstance(self.metric_color_picker_config, MetricColorPickerNumeric):
-            metric_color_picker_config = self.metric_color_picker_config.to_dict()
-        elif isinstance(self.metric_color_picker_config, MetricColorPickerBoolean):
-            metric_color_picker_config = self.metric_color_picker_config.to_dict()
-        elif isinstance(self.metric_color_picker_config, MetricColorPickerCategorical):
-            metric_color_picker_config = self.metric_color_picker_config.to_dict()
-        elif isinstance(self.metric_color_picker_config, MetricColorPickerMultiLabel):
+        elif isinstance(
+            self.metric_color_picker_config,
+            MetricColorPickerNumeric
+            | MetricColorPickerBoolean
+            | MetricColorPickerCategorical
+            | MetricColorPickerMultiLabel,
+        ):
             metric_color_picker_config = self.metric_color_picker_config.to_dict()
         else:
             metric_color_picker_config = self.metric_color_picker_config
@@ -261,9 +250,8 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                defaults_type_0 = ScorerDefaults.from_dict(data)
+                return ScorerDefaults.from_dict(data)
 
-                return defaults_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ScorerDefaults | Unset, data)
@@ -287,9 +275,8 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                model_type_type_0 = ModelType(data)
+                return ModelType(data)
 
-                return model_type_type_0
             except:  # noqa: E722
                 pass
             return cast(ModelType | None | Unset, data)
@@ -331,9 +318,8 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                scoreable_node_types_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)
@@ -348,9 +334,8 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                output_type_type_0 = OutputTypeEnum(data)
+                return OutputTypeEnum(data)
 
-                return output_type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | OutputTypeEnum | Unset, data)
@@ -365,9 +350,8 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                input_type_type_0 = InputTypeEnum(data)
+                return InputTypeEnum(data)
 
-                return input_type_type_0
             except:  # noqa: E722
                 pass
             return cast(InputTypeEnum | None | Unset, data)
@@ -404,9 +388,8 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                required_scorers_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return required_scorers_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)
@@ -421,9 +404,8 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                roll_up_method_type_0 = RollUpMethodDisplayOptions(data)
+                return RollUpMethodDisplayOptions(data)
 
-                return roll_up_method_type_0
             except:  # noqa: E722
                 pass
             return cast(None | RollUpMethodDisplayOptions | Unset, data)
@@ -447,33 +429,29 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_color_picker_config_type_0_type_0 = MetricColorPickerNumeric.from_dict(data)
+                return MetricColorPickerNumeric.from_dict(data)
 
-                return metric_color_picker_config_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_color_picker_config_type_0_type_1 = MetricColorPickerBoolean.from_dict(data)
+                return MetricColorPickerBoolean.from_dict(data)
 
-                return metric_color_picker_config_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_color_picker_config_type_0_type_2 = MetricColorPickerCategorical.from_dict(data)
+                return MetricColorPickerCategorical.from_dict(data)
 
-                return metric_color_picker_config_type_0_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_color_picker_config_type_0_type_3 = MetricColorPickerMultiLabel.from_dict(data)
+                return MetricColorPickerMultiLabel.from_dict(data)
 
-                return metric_color_picker_config_type_0_type_3
             except:  # noqa: E722
                 pass
             return cast(

@@ -19,7 +19,8 @@ T = TypeVar("T", bound="UpdateDatasetRequest")
 @_attrs_define
 class UpdateDatasetRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Name | None | str | Unset):
         column_mapping (ColumnMapping | None | Unset):
         draft (bool | None | Unset):
@@ -51,10 +52,7 @@ class UpdateDatasetRequest:
             column_mapping = self.column_mapping
 
         draft: bool | None | Unset
-        if isinstance(self.draft, Unset):
-            draft = UNSET
-        else:
-            draft = self.draft
+        draft = UNSET if isinstance(self.draft, Unset) else self.draft
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -83,9 +81,8 @@ class UpdateDatasetRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                name_type_1 = Name.from_dict(data)
+                return Name.from_dict(data)
 
-                return name_type_1
             except:  # noqa: E722
                 pass
             return cast(Name | None | str | Unset, data)
@@ -100,9 +97,8 @@ class UpdateDatasetRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                column_mapping_type_0 = ColumnMapping.from_dict(data)
+                return ColumnMapping.from_dict(data)
 
-                return column_mapping_type_0
             except:  # noqa: E722
                 pass
             return cast(ColumnMapping | None | Unset, data)

@@ -19,7 +19,8 @@ T = TypeVar("T", bound="VertexAIIntegrationCreate")
 @_attrs_define
 class VertexAIIntegrationCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         token (str):
         multi_modal_config (MultiModalModelIntegrationConfig | None | Unset): Configuration for multi-modal (file
             upload) capabilities.
@@ -79,9 +80,8 @@ class VertexAIIntegrationCreate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
+                return MultiModalModelIntegrationConfig.from_dict(data)
 
-                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
             return cast(MultiModalModelIntegrationConfig | None | Unset, data)
@@ -96,9 +96,8 @@ class VertexAIIntegrationCreate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                gcs_config_type_0 = VertexAIGCSConfig.from_dict(data)
+                return VertexAIGCSConfig.from_dict(data)
 
-                return gcs_config_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | VertexAIGCSConfig, data)

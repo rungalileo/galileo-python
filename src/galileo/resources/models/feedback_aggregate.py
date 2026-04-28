@@ -20,7 +20,8 @@ T = TypeVar("T", bound="FeedbackAggregate")
 @_attrs_define
 class FeedbackAggregate:
     """
-    Attributes:
+    Attributes
+    ----------
         aggregate (LikeDislikeAggregate | ScoreAggregate | StarAggregate | TagsAggregate | TextAggregate):
     """
 
@@ -34,13 +35,7 @@ class FeedbackAggregate:
         from ..models.tags_aggregate import TagsAggregate
 
         aggregate: dict[str, Any]
-        if isinstance(self.aggregate, LikeDislikeAggregate):
-            aggregate = self.aggregate.to_dict()
-        elif isinstance(self.aggregate, StarAggregate):
-            aggregate = self.aggregate.to_dict()
-        elif isinstance(self.aggregate, ScoreAggregate):
-            aggregate = self.aggregate.to_dict()
-        elif isinstance(self.aggregate, TagsAggregate):
+        if isinstance(self.aggregate, LikeDislikeAggregate | StarAggregate | ScoreAggregate | TagsAggregate):
             aggregate = self.aggregate.to_dict()
         else:
             aggregate = self.aggregate.to_dict()
@@ -67,40 +62,34 @@ class FeedbackAggregate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                aggregate_type_0 = LikeDislikeAggregate.from_dict(data)
+                return LikeDislikeAggregate.from_dict(data)
 
-                return aggregate_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                aggregate_type_1 = StarAggregate.from_dict(data)
+                return StarAggregate.from_dict(data)
 
-                return aggregate_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                aggregate_type_2 = ScoreAggregate.from_dict(data)
+                return ScoreAggregate.from_dict(data)
 
-                return aggregate_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                aggregate_type_3 = TagsAggregate.from_dict(data)
+                return TagsAggregate.from_dict(data)
 
-                return aggregate_type_3
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            aggregate_type_4 = TextAggregate.from_dict(data)
-
-            return aggregate_type_4
+            return TextAggregate.from_dict(data)
 
         aggregate = _parse_aggregate(d.pop("aggregate"))
 

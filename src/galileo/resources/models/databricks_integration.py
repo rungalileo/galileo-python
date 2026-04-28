@@ -18,7 +18,8 @@ T = TypeVar("T", bound="DatabricksIntegration")
 @_attrs_define
 class DatabricksIntegration:
     """
-    Attributes:
+    Attributes
+    ----------
         id (None | str | Unset):
         name (Literal['databricks'] | Unset):  Default: 'databricks'.
         extra (DatabricksIntegrationExtraType0 | None | Unset):
@@ -33,10 +34,7 @@ class DatabricksIntegration:
         from ..models.databricks_integration_extra_type_0 import DatabricksIntegrationExtraType0
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
@@ -87,9 +85,8 @@ class DatabricksIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = DatabricksIntegrationExtraType0.from_dict(data)
+                return DatabricksIntegrationExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(DatabricksIntegrationExtraType0 | None | Unset, data)

@@ -20,7 +20,8 @@ T = TypeVar("T", bound="RegisteredScorer")
 @_attrs_define
 class RegisteredScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         id (None | str | Unset):
         name (None | str | Unset):
         filters (list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset):
@@ -36,16 +37,10 @@ class RegisteredScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         filters: list[dict[str, Any]] | None | Unset
         if isinstance(self.filters, Unset):
@@ -54,9 +49,7 @@ class RegisteredScorer:
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, NodeNameFilter):
-                    filters_type_0_item = filters_type_0_item_data.to_dict()
-                elif isinstance(filters_type_0_item_data, MetadataFilter):
+                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -120,24 +113,20 @@ class RegisteredScorer:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+                            return NodeNameFilter.from_dict(data)
 
-                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
+                            return MetadataFilter.from_dict(data)
 
-                            return filters_type_0_item_type_1
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_type_0_item_type_2 = ModalityFilter.from_dict(data)
-
-                        return filters_type_0_item_type_2
+                        return ModalityFilter.from_dict(data)
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 

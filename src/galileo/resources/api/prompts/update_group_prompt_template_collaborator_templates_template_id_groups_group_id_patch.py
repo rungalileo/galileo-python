@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(template_id: str, group_id: str, *, body: CollaboratorUpdate) ->
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PATCH,
         "return_raw_response": True,
-        "path": "/templates/{template_id}/groups/{group_id}".format(template_id=template_id, group_id=group_id),
+        "path": f"/templates/{template_id}/groups/{group_id}",
     }
 
     _kwargs["json"] = body.to_dict()
@@ -44,14 +44,10 @@ def _get_kwargs(template_id: str, group_id: str, *, body: CollaboratorUpdate) ->
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> GroupCollaborator | HTTPValidationError:
     if response.status_code == 200:
-        response_200 = GroupCollaborator.from_dict(response.json())
-
-        return response_200
+        return GroupCollaborator.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -85,7 +81,7 @@ def _build_response(
 def sync_detailed(
     template_id: str, group_id: str, *, client: ApiClient, body: CollaboratorUpdate
 ) -> Response[GroupCollaborator | HTTPValidationError]:
-    """Update Group Prompt Template Collaborator
+    """Update Group Prompt Template Collaborator.
 
      Update the sharing permissions of a group on a prompt template.
 
@@ -94,14 +90,15 @@ def sync_detailed(
         group_id (str):
         body (CollaboratorUpdate):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[GroupCollaborator | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(template_id=template_id, group_id=group_id, body=body)
 
     response = client.request(**kwargs)
@@ -111,8 +108,8 @@ def sync_detailed(
 
 def sync(
     template_id: str, group_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Optional[GroupCollaborator | HTTPValidationError]:
-    """Update Group Prompt Template Collaborator
+) -> GroupCollaborator | HTTPValidationError | None:
+    """Update Group Prompt Template Collaborator.
 
      Update the sharing permissions of a group on a prompt template.
 
@@ -121,21 +118,22 @@ def sync(
         group_id (str):
         body (CollaboratorUpdate):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         GroupCollaborator | HTTPValidationError
     """
-
     return sync_detailed(template_id=template_id, group_id=group_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     template_id: str, group_id: str, *, client: ApiClient, body: CollaboratorUpdate
 ) -> Response[GroupCollaborator | HTTPValidationError]:
-    """Update Group Prompt Template Collaborator
+    """Update Group Prompt Template Collaborator.
 
      Update the sharing permissions of a group on a prompt template.
 
@@ -144,14 +142,15 @@ async def asyncio_detailed(
         group_id (str):
         body (CollaboratorUpdate):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[GroupCollaborator | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(template_id=template_id, group_id=group_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -161,8 +160,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     template_id: str, group_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Optional[GroupCollaborator | HTTPValidationError]:
-    """Update Group Prompt Template Collaborator
+) -> GroupCollaborator | HTTPValidationError | None:
+    """Update Group Prompt Template Collaborator.
 
      Update the sharing permissions of a group on a prompt template.
 
@@ -171,12 +170,13 @@ async def asyncio(
         group_id (str):
         body (CollaboratorUpdate):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         GroupCollaborator | HTTPValidationError
     """
-
     return (await asyncio_detailed(template_id=template_id, group_id=group_id, client=client, body=body)).parsed

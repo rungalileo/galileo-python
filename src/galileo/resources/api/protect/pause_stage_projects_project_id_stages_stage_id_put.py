@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -34,7 +34,7 @@ def _get_kwargs(project_id: str, stage_id: str, *, pause: bool | Unset = False) 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PUT,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/stages/{stage_id}".format(project_id=project_id, stage_id=stage_id),
+        "path": f"/projects/{project_id}/stages/{stage_id}",
         "params": params,
     }
 
@@ -46,14 +46,10 @@ def _get_kwargs(project_id: str, stage_id: str, *, pause: bool | Unset = False) 
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | StageDB:
     if response.status_code == 200:
-        response_200 = StageDB.from_dict(response.json())
-
-        return response_200
+        return StageDB.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -85,21 +81,22 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(
     project_id: str, stage_id: str, *, client: ApiClient, pause: bool | Unset = False
 ) -> Response[HTTPValidationError | StageDB]:
-    """Pause Stage
+    """Pause Stage.
 
     Args:
         project_id (str):
         stage_id (str):
         pause (bool | Unset):  Default: False.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | StageDB]
     """
-
     kwargs = _get_kwargs(project_id=project_id, stage_id=stage_id, pause=pause)
 
     response = client.request(**kwargs)
@@ -109,43 +106,45 @@ def sync_detailed(
 
 def sync(
     project_id: str, stage_id: str, *, client: ApiClient, pause: bool | Unset = False
-) -> Optional[HTTPValidationError | StageDB]:
-    """Pause Stage
+) -> HTTPValidationError | StageDB | None:
+    """Pause Stage.
 
     Args:
         project_id (str):
         stage_id (str):
         pause (bool | Unset):  Default: False.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | StageDB
     """
-
     return sync_detailed(project_id=project_id, stage_id=stage_id, client=client, pause=pause).parsed
 
 
 async def asyncio_detailed(
     project_id: str, stage_id: str, *, client: ApiClient, pause: bool | Unset = False
 ) -> Response[HTTPValidationError | StageDB]:
-    """Pause Stage
+    """Pause Stage.
 
     Args:
         project_id (str):
         stage_id (str):
         pause (bool | Unset):  Default: False.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | StageDB]
     """
-
     kwargs = _get_kwargs(project_id=project_id, stage_id=stage_id, pause=pause)
 
     response = await client.arequest(**kwargs)
@@ -155,20 +154,21 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, stage_id: str, *, client: ApiClient, pause: bool | Unset = False
-) -> Optional[HTTPValidationError | StageDB]:
-    """Pause Stage
+) -> HTTPValidationError | StageDB | None:
+    """Pause Stage.
 
     Args:
         project_id (str):
         stage_id (str):
         pause (bool | Unset):  Default: False.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | StageDB
     """
-
     return (await asyncio_detailed(project_id=project_id, stage_id=stage_id, client=client, pause=pause)).parsed

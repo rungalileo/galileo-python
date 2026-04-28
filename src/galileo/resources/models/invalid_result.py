@@ -14,7 +14,8 @@ T = TypeVar("T", bound="InvalidResult")
 @_attrs_define
 class InvalidResult:
     """
-    Attributes:
+    Attributes
+    ----------
         error_message (str):
         result_type (Literal['invalid'] | Unset):  Default: 'invalid'.
     """

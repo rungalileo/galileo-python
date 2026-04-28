@@ -14,7 +14,8 @@ T = TypeVar("T", bound="RecomputeSettingsObserve")
 @_attrs_define
 class RecomputeSettingsObserve:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (list[Any]):
         mode (Literal['observe_filters'] | Unset):  Default: 'observe_filters'.
     """

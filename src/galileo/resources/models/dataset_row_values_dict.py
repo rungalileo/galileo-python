@@ -55,9 +55,8 @@ class DatasetRowValuesDict:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    additional_property_type_3 = DatasetRowValuesDictAdditionalPropertyType3.from_dict(data)
+                    return DatasetRowValuesDictAdditionalPropertyType3.from_dict(data)
 
-                    return additional_property_type_3
                 except:  # noqa: E722
                     pass
                 return cast(DatasetRowValuesDictAdditionalPropertyType3 | float | int | None | str, data)

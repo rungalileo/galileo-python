@@ -14,7 +14,8 @@ T = TypeVar("T", bound="CreateLLMScorerAutogenRequest")
 @_attrs_define
 class CreateLLMScorerAutogenRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         instructions (str):
         model_name (str):
         output_type (OutputTypeEnum): Enumeration of output types.

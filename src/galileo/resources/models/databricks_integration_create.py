@@ -14,7 +14,8 @@ T = TypeVar("T", bound="DatabricksIntegrationCreate")
 @_attrs_define
 class DatabricksIntegrationCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         token (str):
         hostname (str):
         default_catalog_name (None | str | Unset):
@@ -37,16 +38,10 @@ class DatabricksIntegrationCreate:
         hostname = self.hostname
 
         default_catalog_name: None | str | Unset
-        if isinstance(self.default_catalog_name, Unset):
-            default_catalog_name = UNSET
-        else:
-            default_catalog_name = self.default_catalog_name
+        default_catalog_name = UNSET if isinstance(self.default_catalog_name, Unset) else self.default_catalog_name
 
         path: None | str | Unset
-        if isinstance(self.path, Unset):
-            path = UNSET
-        else:
-            path = self.path
+        path = UNSET if isinstance(self.path, Unset) else self.path
 
         llm = self.llm
 

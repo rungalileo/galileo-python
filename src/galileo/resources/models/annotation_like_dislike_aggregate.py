@@ -14,7 +14,8 @@ T = TypeVar("T", bound="AnnotationLikeDislikeAggregate")
 @_attrs_define
 class AnnotationLikeDislikeAggregate:
     """
-    Attributes:
+    Attributes
+    ----------
         like_count (int):
         dislike_count (int):
         unrated_count (int):
@@ -39,10 +40,7 @@ class AnnotationLikeDislikeAggregate:
         annotation_type = self.annotation_type
 
         tie_count: int | None | Unset
-        if isinstance(self.tie_count, Unset):
-            tie_count = UNSET
-        else:
-            tie_count = self.tie_count
+        tie_count = UNSET if isinstance(self.tie_count, Unset) else self.tie_count
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

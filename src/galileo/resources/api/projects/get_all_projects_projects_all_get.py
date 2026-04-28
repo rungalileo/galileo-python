@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -64,9 +64,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
         return response_200
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -100,7 +98,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, type_: None | ProjectType | Unset = UNSET
 ) -> Response[HTTPValidationError | list[ProjectDBThin]]:
-    """Get All Projects
+    """Get All Projects.
 
      Gets all public projects and all private projects that the user has access to.
 
@@ -111,14 +109,15 @@ def sync_detailed(
     Args:
         type_ (None | ProjectType | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | list[ProjectDBThin]]
     """
-
     kwargs = _get_kwargs(type_=type_)
 
     response = client.request(**kwargs)
@@ -128,8 +127,8 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, type_: None | ProjectType | Unset = UNSET
-) -> Optional[HTTPValidationError | list[ProjectDBThin]]:
-    """Get All Projects
+) -> HTTPValidationError | list[ProjectDBThin] | None:
+    """Get All Projects.
 
      Gets all public projects and all private projects that the user has access to.
 
@@ -140,21 +139,22 @@ def sync(
     Args:
         type_ (None | ProjectType | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | list[ProjectDBThin]
     """
-
     return sync_detailed(client=client, type_=type_).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, type_: None | ProjectType | Unset = UNSET
 ) -> Response[HTTPValidationError | list[ProjectDBThin]]:
-    """Get All Projects
+    """Get All Projects.
 
      Gets all public projects and all private projects that the user has access to.
 
@@ -165,14 +165,15 @@ async def asyncio_detailed(
     Args:
         type_ (None | ProjectType | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | list[ProjectDBThin]]
     """
-
     kwargs = _get_kwargs(type_=type_)
 
     response = await client.arequest(**kwargs)
@@ -182,8 +183,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, type_: None | ProjectType | Unset = UNSET
-) -> Optional[HTTPValidationError | list[ProjectDBThin]]:
-    """Get All Projects
+) -> HTTPValidationError | list[ProjectDBThin] | None:
+    """Get All Projects.
 
      Gets all public projects and all private projects that the user has access to.
 
@@ -194,12 +195,13 @@ async def asyncio(
     Args:
         type_ (None | ProjectType | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | list[ProjectDBThin]
     """
-
     return (await asyncio_detailed(client=client, type_=type_)).parsed

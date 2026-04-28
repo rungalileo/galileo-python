@@ -20,7 +20,8 @@ T = TypeVar("T", bound="AggregatedTraceViewNode")
 @_attrs_define
 class AggregatedTraceViewNode:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (None | str):
         type_ (StepType):
@@ -64,10 +65,7 @@ class AggregatedTraceViewNode:
         weight = self.weight
 
         parent_id: None | str | Unset
-        if isinstance(self.parent_id, Unset):
-            parent_id = UNSET
-        else:
-            parent_id = self.parent_id
+        parent_id = UNSET if isinstance(self.parent_id, Unset) else self.parent_id
 
         insights: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.insights, Unset):

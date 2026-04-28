@@ -16,7 +16,8 @@ T = TypeVar("T", bound="LogTraceUpdateRequest")
 class LogTraceUpdateRequest:
     """Request model for updating a trace.
 
-    Attributes:
+    Attributes
+    ----------
         trace_id (str): Trace id to update.
         log_stream_id (None | str | Unset): Log stream id associated with the traces.
         experiment_id (None | str | Unset): Experiment id associated with the traces.
@@ -54,52 +55,31 @@ class LogTraceUpdateRequest:
         trace_id = self.trace_id
 
         log_stream_id: None | str | Unset
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: None | str | Unset
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         metrics_testing_id: None | str | Unset
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         logging_method: str | Unset = UNSET
         if not isinstance(self.logging_method, Unset):
             logging_method = self.logging_method.value
 
         client_version: None | str | Unset
-        if isinstance(self.client_version, Unset):
-            client_version = UNSET
-        else:
-            client_version = self.client_version
+        client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
 
         reliable = self.reliable
 
         input_: None | str | Unset
-        if isinstance(self.input_, Unset):
-            input_ = UNSET
-        else:
-            input_ = self.input_
+        input_ = UNSET if isinstance(self.input_, Unset) else self.input_
 
         output: None | str | Unset
-        if isinstance(self.output, Unset):
-            output = UNSET
-        else:
-            output = self.output
+        output = UNSET if isinstance(self.output, Unset) else self.output
 
         status_code: int | None | Unset
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         tags: list[str] | None | Unset
         if isinstance(self.tags, Unset):
@@ -111,16 +91,10 @@ class LogTraceUpdateRequest:
             tags = self.tags
 
         is_complete: bool | None | Unset
-        if isinstance(self.is_complete, Unset):
-            is_complete = UNSET
-        else:
-            is_complete = self.is_complete
+        is_complete = UNSET if isinstance(self.is_complete, Unset) else self.is_complete
 
         duration_ns: int | None | Unset
-        if isinstance(self.duration_ns, Unset):
-            duration_ns = UNSET
-        else:
-            duration_ns = self.duration_ns
+        duration_ns = UNSET if isinstance(self.duration_ns, Unset) else self.duration_ns
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -186,10 +160,7 @@ class LogTraceUpdateRequest:
 
         _logging_method = d.pop("logging_method", UNSET)
         logging_method: LoggingMethod | Unset
-        if isinstance(_logging_method, Unset):
-            logging_method = UNSET
-        else:
-            logging_method = LoggingMethod(_logging_method)
+        logging_method = UNSET if isinstance(_logging_method, Unset) else LoggingMethod(_logging_method)
 
         def _parse_client_version(data: object) -> None | str | Unset:
             if data is None:
@@ -237,9 +208,8 @@ class LogTraceUpdateRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                tags_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return tags_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)

@@ -15,7 +15,8 @@ T = TypeVar("T", bound="WebSearchAction")
 class WebSearchAction:
     """Action payload for a web search call event.
 
-    Attributes:
+    Attributes
+    ----------
         type_ (Literal['search']): Type of web search action
         query (None | str | Unset): Search query string
         sources (Any | None | Unset): Optional provider-specific sources
@@ -30,16 +31,10 @@ class WebSearchAction:
         type_ = self.type_
 
         query: None | str | Unset
-        if isinstance(self.query, Unset):
-            query = UNSET
-        else:
-            query = self.query
+        query = UNSET if isinstance(self.query, Unset) else self.query
 
         sources: Any | None | Unset
-        if isinstance(self.sources, Unset):
-            sources = UNSET
-        else:
-            sources = self.sources
+        sources = UNSET if isinstance(self.sources, Unset) else self.sources
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

@@ -26,7 +26,8 @@ class CategoricalColorConstraint:
         {"color": "green", "operator": "eq", "value": "pass"}
         {"color": "red", "operator": "one_of", "value": ["fail", "error"]}
 
-        Attributes:
+    Attributes
+    ----------
             color (MetricColor): Allowed colors for metric threshold visualization in the UI.
             operator (CategoricalColorConstraintOperator):
             value (list[str] | str):
@@ -43,11 +44,7 @@ class CategoricalColorConstraint:
         operator = self.operator.value
 
         value: list[str] | str
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -66,9 +63,8 @@ class CategoricalColorConstraint:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

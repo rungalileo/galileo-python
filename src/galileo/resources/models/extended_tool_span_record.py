@@ -13,11 +13,15 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.extended_tool_span_record_annotation_aggregates import ExtendedToolSpanRecordAnnotationAggregates
+    from ..models.extended_tool_span_record_annotation_agreement import ExtendedToolSpanRecordAnnotationAgreement
     from ..models.extended_tool_span_record_annotations import ExtendedToolSpanRecordAnnotations
     from ..models.extended_tool_span_record_dataset_metadata import ExtendedToolSpanRecordDatasetMetadata
     from ..models.extended_tool_span_record_feedback_rating_info import ExtendedToolSpanRecordFeedbackRatingInfo
     from ..models.extended_tool_span_record_files_type_0 import ExtendedToolSpanRecordFilesType0
     from ..models.extended_tool_span_record_metric_info_type_0 import ExtendedToolSpanRecordMetricInfoType0
+    from ..models.extended_tool_span_record_overall_annotation_agreement import (
+        ExtendedToolSpanRecordOverallAnnotationAgreement,
+    )
     from ..models.extended_tool_span_record_user_metadata import ExtendedToolSpanRecordUserMetadata
     from ..models.metrics import Metrics
 
@@ -28,7 +32,8 @@ T = TypeVar("T", bound="ExtendedToolSpanRecord")
 @_attrs_define
 class ExtendedToolSpanRecord:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str): Galileo ID of the session, trace or span
         session_id (str): Galileo ID of the session containing the trace (or the same value as id for a trace)
         project_id (str): Galileo ID of the project associated with this trace or span
@@ -62,6 +67,10 @@ class ExtendedToolSpanRecord:
         file_modalities (list[ContentModality] | Unset): Modalities of files associated with this record
         annotation_aggregates (ExtendedToolSpanRecordAnnotationAggregates | Unset): Annotation aggregate information
             keyed by template ID
+        annotation_agreement (ExtendedToolSpanRecordAnnotationAgreement | Unset): Annotation agreement scores keyed by
+            template ID
+        overall_annotation_agreement (ExtendedToolSpanRecordOverallAnnotationAgreement | Unset): Average annotation
+            agreement per queue (keyed by queue ID)
         annotation_queue_ids (list[str] | Unset): IDs of annotation queues this record is in
         metric_info (ExtendedToolSpanRecordMetricInfoType0 | None | Unset): Detailed information about the metrics
             associated with this trace or span
@@ -102,6 +111,8 @@ class ExtendedToolSpanRecord:
     file_ids: list[str] | Unset = UNSET
     file_modalities: list[ContentModality] | Unset = UNSET
     annotation_aggregates: ExtendedToolSpanRecordAnnotationAggregates | Unset = UNSET
+    annotation_agreement: ExtendedToolSpanRecordAnnotationAgreement | Unset = UNSET
+    overall_annotation_agreement: ExtendedToolSpanRecordOverallAnnotationAgreement | Unset = UNSET
     annotation_queue_ids: list[str] | Unset = UNSET
     metric_info: ExtendedToolSpanRecordMetricInfoType0 | None | Unset = UNSET
     files: ExtendedToolSpanRecordFilesType0 | None | Unset = UNSET
@@ -129,22 +140,13 @@ class ExtendedToolSpanRecord:
         input_ = self.input_
 
         redacted_input: None | str | Unset
-        if isinstance(self.redacted_input, Unset):
-            redacted_input = UNSET
-        else:
-            redacted_input = self.redacted_input
+        redacted_input = UNSET if isinstance(self.redacted_input, Unset) else self.redacted_input
 
         output: None | str | Unset
-        if isinstance(self.output, Unset):
-            output = UNSET
-        else:
-            output = self.output
+        output = UNSET if isinstance(self.output, Unset) else self.output
 
         redacted_output: None | str | Unset
-        if isinstance(self.redacted_output, Unset):
-            redacted_output = UNSET
-        else:
-            redacted_output = self.redacted_output
+        redacted_output = UNSET if isinstance(self.redacted_output, Unset) else self.redacted_output
 
         name = self.name
 
@@ -161,42 +163,27 @@ class ExtendedToolSpanRecord:
             tags = self.tags
 
         status_code: int | None | Unset
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         metrics: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
         external_id: None | str | Unset
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         dataset_input: None | str | Unset
-        if isinstance(self.dataset_input, Unset):
-            dataset_input = UNSET
-        else:
-            dataset_input = self.dataset_input
+        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
         dataset_output: None | str | Unset
-        if isinstance(self.dataset_output, Unset):
-            dataset_output = UNSET
-        else:
-            dataset_output = self.dataset_output
+        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
         dataset_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
         trace_id: None | str | Unset
-        if isinstance(self.trace_id, Unset):
-            trace_id = UNSET
-        else:
-            trace_id = self.trace_id
+        trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
         updated_at: None | str | Unset
         if isinstance(self.updated_at, Unset):
@@ -207,22 +194,13 @@ class ExtendedToolSpanRecord:
             updated_at = self.updated_at
 
         has_children: bool | None | Unset
-        if isinstance(self.has_children, Unset):
-            has_children = UNSET
-        else:
-            has_children = self.has_children
+        has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
 
         metrics_batch_id: None | str | Unset
-        if isinstance(self.metrics_batch_id, Unset):
-            metrics_batch_id = UNSET
-        else:
-            metrics_batch_id = self.metrics_batch_id
+        metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
 
         session_batch_id: None | str | Unset
-        if isinstance(self.session_batch_id, Unset):
-            session_batch_id = UNSET
-        else:
-            session_batch_id = self.session_batch_id
+        session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
         feedback_rating_info: dict[str, Any] | Unset = UNSET
         if not isinstance(self.feedback_rating_info, Unset):
@@ -247,6 +225,14 @@ class ExtendedToolSpanRecord:
         if not isinstance(self.annotation_aggregates, Unset):
             annotation_aggregates = self.annotation_aggregates.to_dict()
 
+        annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.annotation_agreement, Unset):
+            annotation_agreement = self.annotation_agreement.to_dict()
+
+        overall_annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.overall_annotation_agreement, Unset):
+            overall_annotation_agreement = self.overall_annotation_agreement.to_dict()
+
         annotation_queue_ids: list[str] | Unset = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
             annotation_queue_ids = self.annotation_queue_ids
@@ -270,16 +256,10 @@ class ExtendedToolSpanRecord:
         is_complete = self.is_complete
 
         step_number: int | None | Unset
-        if isinstance(self.step_number, Unset):
-            step_number = UNSET
-        else:
-            step_number = self.step_number
+        step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
 
         tool_call_id: None | str | Unset
-        if isinstance(self.tool_call_id, Unset):
-            tool_call_id = UNSET
-        else:
-            tool_call_id = self.tool_call_id
+        tool_call_id = UNSET if isinstance(self.tool_call_id, Unset) else self.tool_call_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -336,6 +316,10 @@ class ExtendedToolSpanRecord:
             field_dict["file_modalities"] = file_modalities
         if annotation_aggregates is not UNSET:
             field_dict["annotation_aggregates"] = annotation_aggregates
+        if annotation_agreement is not UNSET:
+            field_dict["annotation_agreement"] = annotation_agreement
+        if overall_annotation_agreement is not UNSET:
+            field_dict["overall_annotation_agreement"] = overall_annotation_agreement
         if annotation_queue_ids is not UNSET:
             field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
@@ -354,11 +338,15 @@ class ExtendedToolSpanRecord:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.extended_tool_span_record_annotation_aggregates import ExtendedToolSpanRecordAnnotationAggregates
+        from ..models.extended_tool_span_record_annotation_agreement import ExtendedToolSpanRecordAnnotationAgreement
         from ..models.extended_tool_span_record_annotations import ExtendedToolSpanRecordAnnotations
         from ..models.extended_tool_span_record_dataset_metadata import ExtendedToolSpanRecordDatasetMetadata
         from ..models.extended_tool_span_record_feedback_rating_info import ExtendedToolSpanRecordFeedbackRatingInfo
         from ..models.extended_tool_span_record_files_type_0 import ExtendedToolSpanRecordFilesType0
         from ..models.extended_tool_span_record_metric_info_type_0 import ExtendedToolSpanRecordMetricInfoType0
+        from ..models.extended_tool_span_record_overall_annotation_agreement import (
+            ExtendedToolSpanRecordOverallAnnotationAgreement,
+        )
         from ..models.extended_tool_span_record_user_metadata import ExtendedToolSpanRecordUserMetadata
         from ..models.metrics import Metrics
 
@@ -410,10 +398,7 @@ class ExtendedToolSpanRecord:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: datetime.datetime | Unset
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
         user_metadata: ExtendedToolSpanRecordUserMetadata | Unset
@@ -435,10 +420,7 @@ class ExtendedToolSpanRecord:
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Metrics | Unset
-        if isinstance(_metrics, Unset):
-            metrics = UNSET
-        else:
-            metrics = Metrics.from_dict(_metrics)
+        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
         def _parse_external_id(data: object) -> None | str | Unset:
             if data is None:
@@ -491,9 +473,8 @@ class ExtendedToolSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                updated_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return updated_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -559,6 +540,22 @@ class ExtendedToolSpanRecord:
         else:
             annotation_aggregates = ExtendedToolSpanRecordAnnotationAggregates.from_dict(_annotation_aggregates)
 
+        _annotation_agreement = d.pop("annotation_agreement", UNSET)
+        annotation_agreement: ExtendedToolSpanRecordAnnotationAgreement | Unset
+        if isinstance(_annotation_agreement, Unset):
+            annotation_agreement = UNSET
+        else:
+            annotation_agreement = ExtendedToolSpanRecordAnnotationAgreement.from_dict(_annotation_agreement)
+
+        _overall_annotation_agreement = d.pop("overall_annotation_agreement", UNSET)
+        overall_annotation_agreement: ExtendedToolSpanRecordOverallAnnotationAgreement | Unset
+        if isinstance(_overall_annotation_agreement, Unset):
+            overall_annotation_agreement = UNSET
+        else:
+            overall_annotation_agreement = ExtendedToolSpanRecordOverallAnnotationAgreement.from_dict(
+                _overall_annotation_agreement
+            )
+
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
 
         def _parse_metric_info(data: object) -> ExtendedToolSpanRecordMetricInfoType0 | None | Unset:
@@ -569,9 +566,8 @@ class ExtendedToolSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_info_type_0 = ExtendedToolSpanRecordMetricInfoType0.from_dict(data)
+                return ExtendedToolSpanRecordMetricInfoType0.from_dict(data)
 
-                return metric_info_type_0
             except:  # noqa: E722
                 pass
             return cast(ExtendedToolSpanRecordMetricInfoType0 | None | Unset, data)
@@ -586,9 +582,8 @@ class ExtendedToolSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                files_type_0 = ExtendedToolSpanRecordFilesType0.from_dict(data)
+                return ExtendedToolSpanRecordFilesType0.from_dict(data)
 
-                return files_type_0
             except:  # noqa: E722
                 pass
             return cast(ExtendedToolSpanRecordFilesType0 | None | Unset, data)
@@ -646,6 +641,8 @@ class ExtendedToolSpanRecord:
             file_ids=file_ids,
             file_modalities=file_modalities,
             annotation_aggregates=annotation_aggregates,
+            annotation_agreement=annotation_agreement,
+            overall_annotation_agreement=overall_annotation_agreement,
             annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
             files=files,

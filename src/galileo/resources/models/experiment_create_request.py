@@ -20,7 +20,8 @@ T = TypeVar("T", bound="ExperimentCreateRequest")
 @_attrs_define
 class ExperimentCreateRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
         task_type (Literal[16] | Literal[17] | Unset):  Default: 16.
         playground_id (None | str | Unset):
@@ -50,16 +51,10 @@ class ExperimentCreateRequest:
         name = self.name
 
         task_type: Literal[16] | Literal[17] | Unset
-        if isinstance(self.task_type, Unset):
-            task_type = UNSET
-        else:
-            task_type = self.task_type
+        task_type = UNSET if isinstance(self.task_type, Unset) else self.task_type
 
         playground_id: None | str | Unset
-        if isinstance(self.playground_id, Unset):
-            playground_id = UNSET
-        else:
-            playground_id = self.playground_id
+        playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
 
         prompt_template_version_id: None | str | Unset
         if isinstance(self.prompt_template_version_id, Unset):
@@ -76,10 +71,7 @@ class ExperimentCreateRequest:
             dataset = self.dataset
 
         playground_prompt_id: None | str | Unset
-        if isinstance(self.playground_prompt_id, Unset):
-            playground_prompt_id = UNSET
-        else:
-            playground_prompt_id = self.playground_prompt_id
+        playground_prompt_id = UNSET if isinstance(self.playground_prompt_id, Unset) else self.playground_prompt_id
 
         prompt_settings: dict[str, Any] | None | Unset
         if isinstance(self.prompt_settings, Unset):
@@ -169,9 +161,8 @@ class ExperimentCreateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                dataset_type_0 = ExperimentDatasetRequest.from_dict(data)
+                return ExperimentDatasetRequest.from_dict(data)
 
-                return dataset_type_0
             except:  # noqa: E722
                 pass
             return cast(ExperimentDatasetRequest | None | Unset, data)
@@ -195,9 +186,8 @@ class ExperimentCreateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                prompt_settings_type_0 = PromptRunSettings.from_dict(data)
+                return PromptRunSettings.from_dict(data)
 
-                return prompt_settings_type_0
             except:  # noqa: E722
                 pass
             return cast(None | PromptRunSettings | Unset, data)

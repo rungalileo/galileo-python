@@ -25,7 +25,8 @@ class InternalToolCall:
     This represents internal tools like web search, code execution, file search, etc.
     that the model invokes (not user-defined functions or MCP tools).
 
-        Attributes:
+    Attributes
+    ----------
             name (str): Name of the internal tool (e.g., 'web_search', 'code_interpreter', 'file_search')
             type_ (Literal['internal_tool_call'] | Unset):  Default: 'internal_tool_call'.
             id (None | str | Unset): Unique identifier for the event
@@ -56,10 +57,7 @@ class InternalToolCall:
         type_ = self.type_
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         status: None | str | Unset
         if isinstance(self.status, Unset):
@@ -78,10 +76,7 @@ class InternalToolCall:
             metadata = self.metadata
 
         error_message: None | str | Unset
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         input_: dict[str, Any] | None | Unset
         if isinstance(self.input_, Unset):
@@ -149,9 +144,8 @@ class InternalToolCall:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                status_type_0 = EventStatus(data)
+                return EventStatus(data)
 
-                return status_type_0
             except:  # noqa: E722
                 pass
             return cast(EventStatus | None | Unset, data)
@@ -166,9 +160,8 @@ class InternalToolCall:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = InternalToolCallMetadataType0.from_dict(data)
+                return InternalToolCallMetadataType0.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(InternalToolCallMetadataType0 | None | Unset, data)
@@ -192,9 +185,8 @@ class InternalToolCall:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                input_type_0 = InternalToolCallInputType0.from_dict(data)
+                return InternalToolCallInputType0.from_dict(data)
 
-                return input_type_0
             except:  # noqa: E722
                 pass
             return cast(InternalToolCallInputType0 | None | Unset, data)
@@ -209,9 +201,8 @@ class InternalToolCall:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                output_type_0 = InternalToolCallOutputType0.from_dict(data)
+                return InternalToolCallOutputType0.from_dict(data)
 
-                return output_type_0
             except:  # noqa: E722
                 pass
             return cast(InternalToolCallOutputType0 | None | Unset, data)

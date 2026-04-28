@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -60,14 +60,10 @@ def _get_kwargs(
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ListDatasetResponse:
     if response.status_code == 200:
-        response_200 = ListDatasetResponse.from_dict(response.json())
-
-        return response_200
+        return ListDatasetResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -105,21 +101,22 @@ def sync_detailed(
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
 ) -> Response[HTTPValidationError | ListDatasetResponse]:
-    """List Datasets
+    """List Datasets.
 
     Args:
         actions (list[DatasetAction] | Unset): Actions to include in the 'permissions' field.
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | ListDatasetResponse]
     """
-
     kwargs = _get_kwargs(actions=actions, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -133,22 +130,23 @@ def sync(
     actions: list[DatasetAction] | Unset = UNSET,
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
-) -> Optional[HTTPValidationError | ListDatasetResponse]:
-    """List Datasets
+) -> HTTPValidationError | ListDatasetResponse | None:
+    """List Datasets.
 
     Args:
         actions (list[DatasetAction] | Unset): Actions to include in the 'permissions' field.
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | ListDatasetResponse
     """
-
     return sync_detailed(client=client, actions=actions, starting_token=starting_token, limit=limit).parsed
 
 
@@ -159,21 +157,22 @@ async def asyncio_detailed(
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
 ) -> Response[HTTPValidationError | ListDatasetResponse]:
-    """List Datasets
+    """List Datasets.
 
     Args:
         actions (list[DatasetAction] | Unset): Actions to include in the 'permissions' field.
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | ListDatasetResponse]
     """
-
     kwargs = _get_kwargs(actions=actions, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -187,20 +186,21 @@ async def asyncio(
     actions: list[DatasetAction] | Unset = UNSET,
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
-) -> Optional[HTTPValidationError | ListDatasetResponse]:
-    """List Datasets
+) -> HTTPValidationError | ListDatasetResponse | None:
+    """List Datasets.
 
     Args:
         actions (list[DatasetAction] | Unset): Actions to include in the 'permissions' field.
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | ListDatasetResponse
     """
-
     return (await asyncio_detailed(client=client, actions=actions, starting_token=starting_token, limit=limit)).parsed

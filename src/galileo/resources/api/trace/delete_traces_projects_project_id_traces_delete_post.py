@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsDeleteRequest) -> dict[str, 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/traces/delete".format(project_id=project_id),
+        "path": f"/projects/{project_id}/traces/delete",
     }
 
     _kwargs["json"] = body.to_dict()
@@ -44,14 +44,10 @@ def _get_kwargs(project_id: str, *, body: LogRecordsDeleteRequest) -> dict[str, 
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | LogRecordsDeleteResponse:
     if response.status_code == 200:
-        response_200 = LogRecordsDeleteResponse.from_dict(response.json())
-
-        return response_200
+        return LogRecordsDeleteResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -85,7 +81,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
 ) -> Response[HTTPValidationError | LogRecordsDeleteResponse]:
-    """Delete Traces
+    """Delete Traces.
 
      Delete all trace records that match the provided filters.
 
@@ -95,14 +91,15 @@ def sync_detailed(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | LogRecordsDeleteResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = client.request(**kwargs)
@@ -112,8 +109,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
-) -> Optional[HTTPValidationError | LogRecordsDeleteResponse]:
-    """Delete Traces
+) -> HTTPValidationError | LogRecordsDeleteResponse | None:
+    """Delete Traces.
 
      Delete all trace records that match the provided filters.
 
@@ -123,21 +120,22 @@ def sync(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | LogRecordsDeleteResponse
     """
-
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
 ) -> Response[HTTPValidationError | LogRecordsDeleteResponse]:
-    """Delete Traces
+    """Delete Traces.
 
      Delete all trace records that match the provided filters.
 
@@ -147,14 +145,15 @@ async def asyncio_detailed(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | LogRecordsDeleteResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -164,8 +163,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
-) -> Optional[HTTPValidationError | LogRecordsDeleteResponse]:
-    """Delete Traces
+) -> HTTPValidationError | LogRecordsDeleteResponse | None:
+    """Delete Traces.
 
      Delete all trace records that match the provided filters.
 
@@ -175,12 +174,13 @@ async def asyncio(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | LogRecordsDeleteResponse
     """
-
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

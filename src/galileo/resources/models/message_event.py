@@ -22,7 +22,8 @@ T = TypeVar("T", bound="MessageEvent")
 class MessageEvent:
     """An output message from the model.
 
-    Attributes:
+    Attributes
+    ----------
         role (MessageRole):
         type_ (Literal['message'] | Unset):  Default: 'message'.
         id (None | str | Unset): Unique identifier for the event
@@ -52,10 +53,7 @@ class MessageEvent:
         type_ = self.type_
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         status: None | str | Unset
         if isinstance(self.status, Unset):
@@ -74,16 +72,10 @@ class MessageEvent:
             metadata = self.metadata
 
         error_message: None | str | Unset
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         content: None | str | Unset
-        if isinstance(self.content, Unset):
-            content = UNSET
-        else:
-            content = self.content
+        content = UNSET if isinstance(self.content, Unset) else self.content
 
         content_parts: list[dict[str, Any]] | None | Unset
         if isinstance(self.content_parts, Unset):
@@ -146,9 +138,8 @@ class MessageEvent:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                status_type_0 = EventStatus(data)
+                return EventStatus(data)
 
-                return status_type_0
             except:  # noqa: E722
                 pass
             return cast(EventStatus | None | Unset, data)
@@ -163,9 +154,8 @@ class MessageEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = MessageEventMetadataType0.from_dict(data)
+                return MessageEventMetadataType0.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(MessageEventMetadataType0 | None | Unset, data)

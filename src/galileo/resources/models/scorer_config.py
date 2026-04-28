@@ -10,6 +10,7 @@ from ..models.input_type_enum import InputTypeEnum
 from ..models.model_type import ModelType
 from ..models.multimodal_capability import MultimodalCapability
 from ..models.output_type_enum import OutputTypeEnum
+from ..models.roll_up_method_display_options import RollUpMethodDisplayOptions
 from ..models.scorer_types import ScorerTypes
 from ..types import UNSET, Unset
 
@@ -27,7 +28,8 @@ T = TypeVar("T", bound="ScorerConfig")
 class ScorerConfig:
     """Used for configuring a scorer for a scorer job.
 
-    Attributes:
+    Attributes
+    ----------
         id (str):
         scorer_type (ScorerTypes):
         model_name (None | str | Unset):
@@ -49,7 +51,7 @@ class ScorerConfig:
             latest version will be used.
         multimodal_capabilities (list[MultimodalCapability] | None | Unset): Multimodal capabilities which this scorer
             can utilize in its evaluation.
-        roll_up_method (None | str | Unset):
+        roll_up_method (None | RollUpMethodDisplayOptions | Unset):
         score_type (None | str | Unset): Return type of code scorers (e.g., 'bool', 'int', 'float', 'str').
     """
 
@@ -66,7 +68,7 @@ class ScorerConfig:
     model_type: ModelType | None | Unset = UNSET
     scorer_version: BaseScorerVersionDB | None | Unset = UNSET
     multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET
-    roll_up_method: None | str | Unset = UNSET
+    roll_up_method: None | RollUpMethodDisplayOptions | Unset = UNSET
     score_type: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -80,16 +82,10 @@ class ScorerConfig:
         scorer_type = self.scorer_type.value
 
         model_name: None | str | Unset
-        if isinstance(self.model_name, Unset):
-            model_name = UNSET
-        else:
-            model_name = self.model_name
+        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
         num_judges: int | None | Unset
-        if isinstance(self.num_judges, Unset):
-            num_judges = UNSET
-        else:
-            num_judges = self.num_judges
+        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
         filters: list[dict[str, Any]] | None | Unset
         if isinstance(self.filters, Unset):
@@ -98,9 +94,7 @@ class ScorerConfig:
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, NodeNameFilter):
-                    filters_type_0_item = filters_type_0_item_data.to_dict()
-                elif isinstance(filters_type_0_item_data, MetadataFilter):
+                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -120,10 +114,7 @@ class ScorerConfig:
             scoreable_node_types = self.scoreable_node_types
 
         cot_enabled: bool | None | Unset
-        if isinstance(self.cot_enabled, Unset):
-            cot_enabled = UNSET
-        else:
-            cot_enabled = self.cot_enabled
+        cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
         output_type: None | str | Unset
         if isinstance(self.output_type, Unset):
@@ -142,10 +133,7 @@ class ScorerConfig:
             input_type = self.input_type
 
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         model_type: None | str | Unset
         if isinstance(self.model_type, Unset):
@@ -178,14 +166,13 @@ class ScorerConfig:
         roll_up_method: None | str | Unset
         if isinstance(self.roll_up_method, Unset):
             roll_up_method = UNSET
+        elif isinstance(self.roll_up_method, RollUpMethodDisplayOptions):
+            roll_up_method = self.roll_up_method.value
         else:
             roll_up_method = self.roll_up_method
 
         score_type: None | str | Unset
-        if isinstance(self.score_type, Unset):
-            score_type = UNSET
-        else:
-            score_type = self.score_type
+        score_type = UNSET if isinstance(self.score_type, Unset) else self.score_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -265,24 +252,20 @@ class ScorerConfig:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+                            return NodeNameFilter.from_dict(data)
 
-                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
+                            return MetadataFilter.from_dict(data)
 
-                            return filters_type_0_item_type_1
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_type_0_item_type_2 = ModalityFilter.from_dict(data)
-
-                        return filters_type_0_item_type_2
+                        return ModalityFilter.from_dict(data)
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -303,9 +286,8 @@ class ScorerConfig:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                scoreable_node_types_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)
@@ -329,9 +311,8 @@ class ScorerConfig:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                output_type_type_0 = OutputTypeEnum(data)
+                return OutputTypeEnum(data)
 
-                return output_type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | OutputTypeEnum | Unset, data)
@@ -346,9 +327,8 @@ class ScorerConfig:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                input_type_type_0 = InputTypeEnum(data)
+                return InputTypeEnum(data)
 
-                return input_type_type_0
             except:  # noqa: E722
                 pass
             return cast(InputTypeEnum | None | Unset, data)
@@ -372,9 +352,8 @@ class ScorerConfig:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                model_type_type_0 = ModelType(data)
+                return ModelType(data)
 
-                return model_type_type_0
             except:  # noqa: E722
                 pass
             return cast(ModelType | None | Unset, data)
@@ -389,9 +368,8 @@ class ScorerConfig:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                scorer_version_type_0 = BaseScorerVersionDB.from_dict(data)
+                return BaseScorerVersionDB.from_dict(data)
 
-                return scorer_version_type_0
             except:  # noqa: E722
                 pass
             return cast(BaseScorerVersionDB | None | Unset, data)
@@ -420,12 +398,19 @@ class ScorerConfig:
 
         multimodal_capabilities = _parse_multimodal_capabilities(d.pop("multimodal_capabilities", UNSET))
 
-        def _parse_roll_up_method(data: object) -> None | str | Unset:
+        def _parse_roll_up_method(data: object) -> None | RollUpMethodDisplayOptions | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return RollUpMethodDisplayOptions(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(None | RollUpMethodDisplayOptions | Unset, data)
 
         roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
 

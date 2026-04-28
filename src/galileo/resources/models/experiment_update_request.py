@@ -14,7 +14,8 @@ T = TypeVar("T", bound="ExperimentUpdateRequest")
 @_attrs_define
 class ExperimentUpdateRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
         task_type (Literal[16] | Literal[17] | Unset):  Default: 16.
     """
@@ -27,10 +28,7 @@ class ExperimentUpdateRequest:
         name = self.name
 
         task_type: Literal[16] | Literal[17] | Unset
-        if isinstance(self.task_type, Unset):
-            task_type = UNSET
-        else:
-            task_type = self.task_type
+        task_type = UNSET if isinstance(self.task_type, Unset) else self.task_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

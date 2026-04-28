@@ -12,7 +12,8 @@ T = TypeVar("T", bound="AggregatedTraceViewEdge")
 @_attrs_define
 class AggregatedTraceViewEdge:
     """
-    Attributes:
+    Attributes
+    ----------
         source (str):
         target (str):
         weight (float):

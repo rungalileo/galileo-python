@@ -23,7 +23,8 @@ class ToolSelectionQualityTemplate:
     r"""Template for the tool selection quality metric,
     containing all the info necessary to send the tool selection quality prompt.
 
-        Attributes:
+    Attributes
+    ----------
             metric_system_prompt (str | Unset):  Default: 'You will receive the chat history from a chatbot application. At
                 the end of the  conversation, it will be the bot’s turn to act. The bot has several options: it can reflect and
                 plan its next steps, choose to call tools, or respond directly to the user. If the bot opts to use tools, the
@@ -155,9 +156,8 @@ class ToolSelectionQualityTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = ToolSelectionQualityTemplateResponseSchemaType0.from_dict(data)
+                return ToolSelectionQualityTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ToolSelectionQualityTemplateResponseSchemaType0 | Unset, data)

@@ -12,7 +12,8 @@ T = TypeVar("T", bound="AzureModelDeployment")
 @_attrs_define
 class AzureModelDeployment:
     """
-    Attributes:
+    Attributes
+    ----------
         model (str): The name of the model.
         id (str): The ID of the deployment.
     """

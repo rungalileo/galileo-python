@@ -24,7 +24,8 @@ T = TypeVar("T", bound="LogSpanUpdateRequest")
 class LogSpanUpdateRequest:
     """Request model for updating a span.
 
-    Attributes:
+    Attributes
+    ----------
         span_id (str): Span id to update.
         log_stream_id (None | str | Unset): Log stream id associated with the traces.
         experiment_id (None | str | Unset): Experiment id associated with the traces.
@@ -68,32 +69,20 @@ class LogSpanUpdateRequest:
         span_id = self.span_id
 
         log_stream_id: None | str | Unset
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: None | str | Unset
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         metrics_testing_id: None | str | Unset
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         logging_method: str | Unset = UNSET
         if not isinstance(self.logging_method, Unset):
             logging_method = self.logging_method.value
 
         client_version: None | str | Unset
-        if isinstance(self.client_version, Unset):
-            client_version = UNSET
-        else:
-            client_version = self.client_version
+        client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
 
         reliable = self.reliable
 
@@ -157,16 +146,10 @@ class LogSpanUpdateRequest:
             tags = self.tags
 
         status_code: int | None | Unset
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         duration_ns: int | None | Unset
-        if isinstance(self.duration_ns, Unset):
-            duration_ns = UNSET
-        else:
-            duration_ns = self.duration_ns
+        duration_ns = UNSET if isinstance(self.duration_ns, Unset) else self.duration_ns
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -236,10 +219,7 @@ class LogSpanUpdateRequest:
 
         _logging_method = d.pop("logging_method", UNSET)
         logging_method: LoggingMethod | Unset
-        if isinstance(_logging_method, Unset):
-            logging_method = UNSET
-        else:
-            logging_method = LoggingMethod(_logging_method)
+        logging_method = UNSET if isinstance(_logging_method, Unset) else LoggingMethod(_logging_method)
 
         def _parse_client_version(data: object) -> None | str | Unset:
             if data is None:
@@ -281,16 +261,13 @@ class LogSpanUpdateRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            input_type_2_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return input_type_2_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        input_type_2_item_type_1 = FileContentPart.from_dict(data)
-
-                        return input_type_2_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     input_type_2_item = _parse_input_type_2_item(input_type_2_item_data)
 
@@ -313,9 +290,8 @@ class LogSpanUpdateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                output_type_1 = Message.from_dict(data)
+                return Message.from_dict(data)
 
-                return output_type_1
             except:  # noqa: E722
                 pass
             try:
@@ -342,16 +318,13 @@ class LogSpanUpdateRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            output_type_3_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return output_type_3_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        output_type_3_item_type_1 = FileContentPart.from_dict(data)
-
-                        return output_type_3_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     output_type_3_item = _parse_output_type_3_item(output_type_3_item_data)
 
@@ -363,9 +336,8 @@ class LogSpanUpdateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                output_type_4 = ControlResult.from_dict(data)
+                return ControlResult.from_dict(data)
 
-                return output_type_4
             except:  # noqa: E722
                 pass
             return cast(
@@ -383,9 +355,8 @@ class LogSpanUpdateRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                tags_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return tags_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)

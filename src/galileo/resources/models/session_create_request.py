@@ -19,7 +19,8 @@ T = TypeVar("T", bound="SessionCreateRequest")
 @_attrs_define
 class SessionCreateRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         log_stream_id (None | str | Unset): Log stream id associated with the traces.
         experiment_id (None | str | Unset): Experiment id associated with the traces.
         metrics_testing_id (None | str | Unset): Metrics testing id associated with the traces.
@@ -51,52 +52,31 @@ class SessionCreateRequest:
         from ..models.session_create_request_user_metadata_type_0 import SessionCreateRequestUserMetadataType0
 
         log_stream_id: None | str | Unset
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: None | str | Unset
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         metrics_testing_id: None | str | Unset
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         logging_method: str | Unset = UNSET
         if not isinstance(self.logging_method, Unset):
             logging_method = self.logging_method.value
 
         client_version: None | str | Unset
-        if isinstance(self.client_version, Unset):
-            client_version = UNSET
-        else:
-            client_version = self.client_version
+        client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
 
         reliable = self.reliable
 
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         previous_session_id: None | str | Unset
-        if isinstance(self.previous_session_id, Unset):
-            previous_session_id = UNSET
-        else:
-            previous_session_id = self.previous_session_id
+        previous_session_id = UNSET if isinstance(self.previous_session_id, Unset) else self.previous_session_id
 
         external_id: None | str | Unset
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         user_metadata: dict[str, Any] | None | Unset
         if isinstance(self.user_metadata, Unset):
@@ -167,10 +147,7 @@ class SessionCreateRequest:
 
         _logging_method = d.pop("logging_method", UNSET)
         logging_method: LoggingMethod | Unset
-        if isinstance(_logging_method, Unset):
-            logging_method = UNSET
-        else:
-            logging_method = LoggingMethod(_logging_method)
+        logging_method = UNSET if isinstance(_logging_method, Unset) else LoggingMethod(_logging_method)
 
         def _parse_client_version(data: object) -> None | str | Unset:
             if data is None:
@@ -218,9 +195,8 @@ class SessionCreateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                user_metadata_type_0 = SessionCreateRequestUserMetadataType0.from_dict(data)
+                return SessionCreateRequestUserMetadataType0.from_dict(data)
 
-                return user_metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(None | SessionCreateRequestUserMetadataType0 | Unset, data)

@@ -22,7 +22,8 @@ T = TypeVar("T", bound="ProtectRequest")
 class ProtectRequest:
     """Protect request schema with custom OpenAPI title.
 
-    Attributes:
+    Attributes
+    ----------
         payload (Payload):
         prioritized_rulesets (list[Ruleset] | Unset): Rulesets to be applied to the payload.
         project_name (None | str | Unset): Project name.
@@ -65,34 +66,19 @@ class ProtectRequest:
                 prioritized_rulesets.append(prioritized_rulesets_item)
 
         project_name: None | str | Unset
-        if isinstance(self.project_name, Unset):
-            project_name = UNSET
-        else:
-            project_name = self.project_name
+        project_name = UNSET if isinstance(self.project_name, Unset) else self.project_name
 
         project_id: None | str | Unset
-        if isinstance(self.project_id, Unset):
-            project_id = UNSET
-        else:
-            project_id = self.project_id
+        project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
         stage_name: None | str | Unset
-        if isinstance(self.stage_name, Unset):
-            stage_name = UNSET
-        else:
-            stage_name = self.stage_name
+        stage_name = UNSET if isinstance(self.stage_name, Unset) else self.stage_name
 
         stage_id: None | str | Unset
-        if isinstance(self.stage_id, Unset):
-            stage_id = UNSET
-        else:
-            stage_id = self.stage_id
+        stage_id = UNSET if isinstance(self.stage_id, Unset) else self.stage_id
 
         stage_version: int | None | Unset
-        if isinstance(self.stage_version, Unset):
-            stage_version = UNSET
-        else:
-            stage_version = self.stage_version
+        stage_version = UNSET if isinstance(self.stage_version, Unset) else self.stage_version
 
         timeout = self.timeout
 
@@ -210,9 +196,8 @@ class ProtectRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = ProtectRequestMetadataType0.from_dict(data)
+                return ProtectRequestMetadataType0.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ProtectRequestMetadataType0 | Unset, data)
@@ -227,9 +212,8 @@ class ProtectRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                headers_type_0 = ProtectRequestHeadersType0.from_dict(data)
+                return ProtectRequestHeadersType0.from_dict(data)
 
-                return headers_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ProtectRequestHeadersType0 | Unset, data)

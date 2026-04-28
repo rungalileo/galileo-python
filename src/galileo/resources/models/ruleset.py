@@ -20,7 +20,8 @@ T = TypeVar("T", bound="Ruleset")
 @_attrs_define
 class Ruleset:
     """
-    Attributes:
+    Attributes
+    ----------
         rules (list[Rule] | Unset): List of rules to evaluate. Atleast 1 rule is required.
         action (OverrideAction | PassthroughAction | Unset): Action to take if all the rules are met.
         description (None | str | Unset): Description of the ruleset.
@@ -50,10 +51,7 @@ class Ruleset:
             action = self.action.to_dict()
 
         description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -89,16 +87,13 @@ class Ruleset:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                action_type_0 = OverrideAction.from_dict(data)
+                return OverrideAction.from_dict(data)
 
-                return action_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            action_type_1 = PassthroughAction.from_dict(data)
-
-            return action_type_1
+            return PassthroughAction.from_dict(data)
 
         action = _parse_action(d.pop("action", UNSET))
 

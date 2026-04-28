@@ -16,7 +16,8 @@ T = TypeVar("T", bound="BodyValidateCodeScorerScorersCodeValidatePost")
 @_attrs_define
 class BodyValidateCodeScorerScorersCodeValidatePost:
     """
-    Attributes:
+    Attributes
+    ----------
         file (File):
         test_input (None | str | Unset):
         test_output (None | str | Unset):
@@ -35,16 +36,10 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
         file = self.file.to_tuple()
 
         test_input: None | str | Unset
-        if isinstance(self.test_input, Unset):
-            test_input = UNSET
-        else:
-            test_input = self.test_input
+        test_input = UNSET if isinstance(self.test_input, Unset) else self.test_input
 
         test_output: None | str | Unset
-        if isinstance(self.test_output, Unset):
-            test_output = UNSET
-        else:
-            test_output = self.test_output
+        test_output = UNSET if isinstance(self.test_output, Unset) else self.test_output
 
         required_scorers: list[str] | None | str | Unset
         if isinstance(self.required_scorers, Unset):
@@ -156,9 +151,8 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                required_scorers_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return required_scorers_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | str | Unset, data)
@@ -173,9 +167,8 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                scoreable_node_types_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return scoreable_node_types_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | str | Unset, data)

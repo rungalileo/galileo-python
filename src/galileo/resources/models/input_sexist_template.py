@@ -21,7 +21,8 @@ class InputSexistTemplate:
     r"""Template for the sexism metric,
     containing all the info necessary to send the sexism prompt.
 
-        Attributes:
+    Attributes
+    ----------
             metric_system_prompt (str | Unset):  Default: 'The user will provide you with a text. You need to determine if
                 the text is sexist or not.\n\nA text is considered sexist if it:\n- Reinforces gender stereotypes (e.g.,
                 assuming specific roles or behaviors based on gender).\n- Discriminates based on gender (e.g., promoting unequal
@@ -134,9 +135,8 @@ class InputSexistTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = InputSexistTemplateResponseSchemaType0.from_dict(data)
+                return InputSexistTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(InputSexistTemplateResponseSchemaType0 | None | Unset, data)

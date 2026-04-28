@@ -17,7 +17,8 @@ T = TypeVar("T", bound="ProjectUpdatedAtFilter")
 @_attrs_define
 class ProjectUpdatedAtFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (ProjectUpdatedAtFilterOperator):
         value (datetime.datetime):
         name (Literal['updated_at'] | Unset):  Default: 'updated_at'.

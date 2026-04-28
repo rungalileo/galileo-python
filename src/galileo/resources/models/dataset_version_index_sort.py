@@ -14,7 +14,8 @@ T = TypeVar("T", bound="DatasetVersionIndexSort")
 @_attrs_define
 class DatasetVersionIndexSort:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Literal['version_index'] | Unset):  Default: 'version_index'.
         ascending (bool | Unset):  Default: True.
         sort_type (Literal['column'] | Unset):  Default: 'column'.

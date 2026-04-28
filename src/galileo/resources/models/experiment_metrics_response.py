@@ -18,7 +18,8 @@ T = TypeVar("T", bound="ExperimentMetricsResponse")
 @_attrs_define
 class ExperimentMetricsResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         metrics (list[BucketedMetric] | Unset): List of metrics for the experiment, including categorical and quartile
             metrics.
     """

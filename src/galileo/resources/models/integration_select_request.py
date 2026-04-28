@@ -14,7 +14,8 @@ T = TypeVar("T", bound="IntegrationSelectRequest")
 @_attrs_define
 class IntegrationSelectRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         integration_name (IntegrationName):
         integration_id (str):
     """

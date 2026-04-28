@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.metric_computation_status import MetricComputationStatus
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -18,16 +19,17 @@ T = TypeVar("T", bound="MetricComputation")
 @_attrs_define
 class MetricComputation:
     """
-    Attributes:
+    Attributes
+    ----------
         value (float | int | list[float | int | None | str] | MetricComputationValueType4 | None | str | Unset):
         execution_time (float | None | Unset):
-        status (str | Unset):
+        status (MetricComputationStatus | None | Unset):
         error_message (None | str | Unset):
     """
 
     value: float | int | list[float | int | None | str] | MetricComputationValueType4 | None | str | Unset = UNSET
     execution_time: float | None | Unset = UNSET
-    status: str | Unset = UNSET
+    status: MetricComputationStatus | None | Unset = UNSET
     error_message: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -50,18 +52,18 @@ class MetricComputation:
             value = self.value
 
         execution_time: float | None | Unset
-        if isinstance(self.execution_time, Unset):
-            execution_time = UNSET
-        else:
-            execution_time = self.execution_time
+        execution_time = UNSET if isinstance(self.execution_time, Unset) else self.execution_time
 
-        status = self.status
+        status: None | str | Unset
+        if isinstance(self.status, Unset):
+            status = UNSET
+        elif isinstance(self.status, MetricComputationStatus):
+            status = self.status.value
+        else:
+            status = self.status
 
         error_message: None | str | Unset
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -112,9 +114,8 @@ class MetricComputation:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                value_type_4 = MetricComputationValueType4.from_dict(data)
+                return MetricComputationValueType4.from_dict(data)
 
-                return value_type_4
             except:  # noqa: E722
                 pass
             return cast(
@@ -132,7 +133,21 @@ class MetricComputation:
 
         execution_time = _parse_execution_time(d.pop("execution_time", UNSET))
 
-        status = d.pop("status", UNSET)
+        def _parse_status(data: object) -> MetricComputationStatus | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return MetricComputationStatus(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(MetricComputationStatus | None | Unset, data)
+
+        status = _parse_status(d.pop("status", UNSET))
 
         def _parse_error_message(data: object) -> None | str | Unset:
             if data is None:

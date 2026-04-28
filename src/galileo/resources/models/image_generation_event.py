@@ -21,7 +21,8 @@ T = TypeVar("T", bound="ImageGenerationEvent")
 class ImageGenerationEvent:
     """An image generation event from the model.
 
-    Attributes:
+    Attributes
+    ----------
         type_ (Literal['image_generation'] | Unset):  Default: 'image_generation'.
         id (None | str | Unset): Unique identifier for the event
         status (EventStatus | None | Unset): Status of the event
@@ -48,10 +49,7 @@ class ImageGenerationEvent:
         type_ = self.type_
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         status: None | str | Unset
         if isinstance(self.status, Unset):
@@ -70,16 +68,10 @@ class ImageGenerationEvent:
             metadata = self.metadata
 
         error_message: None | str | Unset
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         prompt: None | str | Unset
-        if isinstance(self.prompt, Unset):
-            prompt = UNSET
-        else:
-            prompt = self.prompt
+        prompt = UNSET if isinstance(self.prompt, Unset) else self.prompt
 
         images: list[dict[str, Any]] | None | Unset
         if isinstance(self.images, Unset):
@@ -94,10 +86,7 @@ class ImageGenerationEvent:
             images = self.images
 
         model: None | str | Unset
-        if isinstance(self.model, Unset):
-            model = UNSET
-        else:
-            model = self.model
+        model = UNSET if isinstance(self.model, Unset) else self.model
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -148,9 +137,8 @@ class ImageGenerationEvent:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                status_type_0 = EventStatus(data)
+                return EventStatus(data)
 
-                return status_type_0
             except:  # noqa: E722
                 pass
             return cast(EventStatus | None | Unset, data)
@@ -165,9 +153,8 @@ class ImageGenerationEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = ImageGenerationEventMetadataType0.from_dict(data)
+                return ImageGenerationEventMetadataType0.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(ImageGenerationEventMetadataType0 | None | Unset, data)

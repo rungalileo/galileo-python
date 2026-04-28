@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -40,7 +40,7 @@ def _get_kwargs(
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": "/scorers/versions/{scorer_version_id}/projects".format(scorer_version_id=scorer_version_id),
+        "path": f"/scorers/versions/{scorer_version_id}/projects",
         "params": params,
     }
 
@@ -54,14 +54,10 @@ def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> GetProjectsPaginatedResponseV2 | HTTPValidationError:
     if response.status_code == 200:
-        response_200 = GetProjectsPaginatedResponseV2.from_dict(response.json())
-
-        return response_200
+        return GetProjectsPaginatedResponseV2.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -100,7 +96,7 @@ def sync_detailed(
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
 ) -> Response[GetProjectsPaginatedResponseV2 | HTTPValidationError]:
-    """List Projects For Scorer Version Route
+    """List Projects For Scorer Version Route.
 
      List all projects associated with a specific scorer version.
 
@@ -110,14 +106,15 @@ def sync_detailed(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[GetProjectsPaginatedResponseV2 | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(
         scorer_version_id=scorer_version_id, scorer_id=scorer_id, starting_token=starting_token, limit=limit
     )
@@ -134,8 +131,8 @@ def sync(
     scorer_id: str,
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
-) -> Optional[GetProjectsPaginatedResponseV2 | HTTPValidationError]:
-    """List Projects For Scorer Version Route
+) -> GetProjectsPaginatedResponseV2 | HTTPValidationError | None:
+    """List Projects For Scorer Version Route.
 
      List all projects associated with a specific scorer version.
 
@@ -145,14 +142,15 @@ def sync(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         GetProjectsPaginatedResponseV2 | HTTPValidationError
     """
-
     return sync_detailed(
         scorer_version_id=scorer_version_id,
         client=client,
@@ -170,7 +168,7 @@ async def asyncio_detailed(
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
 ) -> Response[GetProjectsPaginatedResponseV2 | HTTPValidationError]:
-    """List Projects For Scorer Version Route
+    """List Projects For Scorer Version Route.
 
      List all projects associated with a specific scorer version.
 
@@ -180,14 +178,15 @@ async def asyncio_detailed(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[GetProjectsPaginatedResponseV2 | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(
         scorer_version_id=scorer_version_id, scorer_id=scorer_id, starting_token=starting_token, limit=limit
     )
@@ -204,8 +203,8 @@ async def asyncio(
     scorer_id: str,
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
-) -> Optional[GetProjectsPaginatedResponseV2 | HTTPValidationError]:
-    """List Projects For Scorer Version Route
+) -> GetProjectsPaginatedResponseV2 | HTTPValidationError | None:
+    """List Projects For Scorer Version Route.
 
      List all projects associated with a specific scorer version.
 
@@ -215,14 +214,15 @@ async def asyncio(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         GetProjectsPaginatedResponseV2 | HTTPValidationError
     """
-
     return (
         await asyncio_detailed(
             scorer_version_id=scorer_version_id,

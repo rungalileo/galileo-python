@@ -19,7 +19,8 @@ class UserCollaboratorCreate:
     When using email, if the user doesn't exist in the organization,
     they will be invited automatically.
 
-        Attributes:
+    Attributes
+    ----------
             role (CollaboratorRole | Unset):
             user_id (None | str | Unset):
             user_email (None | str | Unset):
@@ -36,16 +37,10 @@ class UserCollaboratorCreate:
             role = self.role.value
 
         user_id: None | str | Unset
-        if isinstance(self.user_id, Unset):
-            user_id = UNSET
-        else:
-            user_id = self.user_id
+        user_id = UNSET if isinstance(self.user_id, Unset) else self.user_id
 
         user_email: None | str | Unset
-        if isinstance(self.user_email, Unset):
-            user_email = UNSET
-        else:
-            user_email = self.user_email
+        user_email = UNSET if isinstance(self.user_email, Unset) else self.user_email
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -64,10 +59,7 @@ class UserCollaboratorCreate:
         d = dict(src_dict)
         _role = d.pop("role", UNSET)
         role: CollaboratorRole | Unset
-        if isinstance(_role, Unset):
-            role = UNSET
-        else:
-            role = CollaboratorRole(_role)
+        role = UNSET if isinstance(_role, Unset) else CollaboratorRole(_role)
 
         def _parse_user_id(data: object) -> None | str | Unset:
             if data is None:

@@ -22,7 +22,8 @@ T = TypeVar("T", bound="PromptRunSettings")
 class PromptRunSettings:
     """Prompt run settings.
 
-    Attributes:
+    Attributes
+    ----------
         logprobs (bool | Unset):  Default: True.
         top_logprobs (int | Unset):  Default: 5.
         echo (bool | Unset):  Default: False.
@@ -82,18 +83,12 @@ class PromptRunSettings:
         verbosity = self.verbosity
 
         deployment_name: None | str | Unset
-        if isinstance(self.deployment_name, Unset):
-            deployment_name = UNSET
-        else:
-            deployment_name = self.deployment_name
+        deployment_name = UNSET if isinstance(self.deployment_name, Unset) else self.deployment_name
 
         model_alias = self.model_alias
 
         temperature: float | None | Unset
-        if isinstance(self.temperature, Unset):
-            temperature = UNSET
-        else:
-            temperature = self.temperature
+        temperature = UNSET if isinstance(self.temperature, Unset) else self.temperature
 
         max_tokens = self.max_tokens
 
@@ -243,9 +238,8 @@ class PromptRunSettings:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                stop_sequences_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return stop_sequences_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)
@@ -290,9 +284,8 @@ class PromptRunSettings:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                tool_choice_type_1 = OpenAIToolChoice.from_dict(data)
+                return OpenAIToolChoice.from_dict(data)
 
-                return tool_choice_type_1
             except:  # noqa: E722
                 pass
             return cast(None | OpenAIToolChoice | str | Unset, data)
@@ -307,9 +300,8 @@ class PromptRunSettings:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_format_type_0 = PromptRunSettingsResponseFormatType0.from_dict(data)
+                return PromptRunSettingsResponseFormatType0.from_dict(data)
 
-                return response_format_type_0
             except:  # noqa: E722
                 pass
             return cast(None | PromptRunSettingsResponseFormatType0 | Unset, data)

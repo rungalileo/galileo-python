@@ -18,7 +18,8 @@ T = TypeVar("T", bound="UpdatePromptTemplateRequest")
 @_attrs_define
 class UpdatePromptTemplateRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Name | None | str | Unset):
     """
 
@@ -58,9 +59,8 @@ class UpdatePromptTemplateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                name_type_1 = Name.from_dict(data)
+                return Name.from_dict(data)
 
-                return name_type_1
             except:  # noqa: E722
                 pass
             return cast(Name | None | str | Unset, data)

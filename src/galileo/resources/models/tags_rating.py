@@ -14,25 +14,26 @@ T = TypeVar("T", bound="TagsRating")
 @_attrs_define
 class TagsRating:
     """
-    Attributes:
+    Attributes
+    ----------
         value (list[str]):
-        annotation_type (Literal['tags'] | Unset):  Default: 'tags'.
+        feedback_type (Literal['tags'] | Unset):  Default: 'tags'.
     """
 
     value: list[str]
-    annotation_type: Literal["tags"] | Unset = "tags"
+    feedback_type: Literal["tags"] | Unset = "tags"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         value = self.value
 
-        annotation_type = self.annotation_type
+        feedback_type = self.feedback_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"value": value})
-        if annotation_type is not UNSET:
-            field_dict["annotation_type"] = annotation_type
+        if feedback_type is not UNSET:
+            field_dict["feedback_type"] = feedback_type
 
         return field_dict
 
@@ -41,11 +42,11 @@ class TagsRating:
         d = dict(src_dict)
         value = cast(list[str], d.pop("value"))
 
-        annotation_type = cast(Literal["tags"] | Unset, d.pop("annotation_type", UNSET))
-        if annotation_type != "tags" and not isinstance(annotation_type, Unset):
-            raise ValueError(f"annotation_type must match const 'tags', got '{annotation_type}'")
+        feedback_type = cast(Literal["tags"] | Unset, d.pop("feedback_type", UNSET))
+        if feedback_type != "tags" and not isinstance(feedback_type, Unset):
+            raise ValueError(f"feedback_type must match const 'tags', got '{feedback_type}'")
 
-        tags_rating = cls(value=value, annotation_type=annotation_type)
+        tags_rating = cls(value=value, feedback_type=feedback_type)
 
         tags_rating.additional_properties = d
         return tags_rating

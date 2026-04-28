@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(dataset_id: str, *, body: RollbackRequest | UpsertDatasetContent
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PUT,
         "return_raw_response": True,
-        "path": "/datasets/{dataset_id}/content".format(dataset_id=dataset_id),
+        "path": f"/datasets/{dataset_id}/content",
     }
 
     _kwargs["json"]: dict[str, Any]
@@ -48,13 +48,10 @@ def _get_kwargs(dataset_id: str, *, body: RollbackRequest | UpsertDatasetContent
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 204:
-        response_204 = cast(Any, None)
-        return response_204
+        return cast(Any, None)
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -86,7 +83,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(
     dataset_id: str, *, client: ApiClient, body: RollbackRequest | UpsertDatasetContentRequest
 ) -> Response[Any | HTTPValidationError]:
-    """Upsert Dataset Content
+    """Upsert Dataset Content.
 
      Rollback the content of a dataset to a previous version.
 
@@ -94,14 +91,15 @@ def sync_detailed(
         dataset_id (str):
         body (RollbackRequest | UpsertDatasetContentRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Any | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
 
     response = client.request(**kwargs)
@@ -111,8 +109,8 @@ def sync_detailed(
 
 def sync(
     dataset_id: str, *, client: ApiClient, body: RollbackRequest | UpsertDatasetContentRequest
-) -> Optional[Any | HTTPValidationError]:
-    """Upsert Dataset Content
+) -> Any | HTTPValidationError | None:
+    """Upsert Dataset Content.
 
      Rollback the content of a dataset to a previous version.
 
@@ -120,21 +118,22 @@ def sync(
         dataset_id (str):
         body (RollbackRequest | UpsertDatasetContentRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Any | HTTPValidationError
     """
-
     return sync_detailed(dataset_id=dataset_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     dataset_id: str, *, client: ApiClient, body: RollbackRequest | UpsertDatasetContentRequest
 ) -> Response[Any | HTTPValidationError]:
-    """Upsert Dataset Content
+    """Upsert Dataset Content.
 
      Rollback the content of a dataset to a previous version.
 
@@ -142,14 +141,15 @@ async def asyncio_detailed(
         dataset_id (str):
         body (RollbackRequest | UpsertDatasetContentRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Any | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -159,8 +159,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     dataset_id: str, *, client: ApiClient, body: RollbackRequest | UpsertDatasetContentRequest
-) -> Optional[Any | HTTPValidationError]:
-    """Upsert Dataset Content
+) -> Any | HTTPValidationError | None:
+    """Upsert Dataset Content.
 
      Rollback the content of a dataset to a previous version.
 
@@ -168,12 +168,13 @@ async def asyncio(
         dataset_id (str):
         body (RollbackRequest | UpsertDatasetContentRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Any | HTTPValidationError
     """
-
     return (await asyncio_detailed(dataset_id=dataset_id, client=client, body=body)).parsed

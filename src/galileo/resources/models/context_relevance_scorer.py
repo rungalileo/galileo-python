@@ -20,7 +20,8 @@ T = TypeVar("T", bound="ContextRelevanceScorer")
 @_attrs_define
 class ContextRelevanceScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Literal['context_relevance'] | Unset):  Default: 'context_relevance'.
         filters (list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset): List of filters to apply to the
             scorer.
@@ -43,9 +44,7 @@ class ContextRelevanceScorer:
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, NodeNameFilter):
-                    filters_type_0_item = filters_type_0_item_data.to_dict()
-                elif isinstance(filters_type_0_item_data, MetadataFilter):
+                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -92,24 +91,20 @@ class ContextRelevanceScorer:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+                            return NodeNameFilter.from_dict(data)
 
-                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
+                            return MetadataFilter.from_dict(data)
 
-                            return filters_type_0_item_type_1
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_type_0_item_type_2 = ModalityFilter.from_dict(data)
-
-                        return filters_type_0_item_type_2
+                        return ModalityFilter.from_dict(data)
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 

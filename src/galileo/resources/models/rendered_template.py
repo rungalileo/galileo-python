@@ -14,7 +14,8 @@ T = TypeVar("T", bound="RenderedTemplate")
 @_attrs_define
 class RenderedTemplate:
     """
-    Attributes:
+    Attributes
+    ----------
         result (str):
         warning (None | str | Unset):
     """
@@ -27,10 +28,7 @@ class RenderedTemplate:
         result = self.result
 
         warning: None | str | Unset
-        if isinstance(self.warning, Unset):
-            warning = UNSET
-        else:
-            warning = self.warning
+        warning = UNSET if isinstance(self.warning, Unset) else self.warning
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

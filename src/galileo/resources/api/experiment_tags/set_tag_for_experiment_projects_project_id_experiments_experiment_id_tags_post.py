@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -29,9 +29,7 @@ def _get_kwargs(project_id: str, experiment_id: str, *, body: RunTagCreateReques
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/experiments/{experiment_id}/tags".format(
-            project_id=project_id, experiment_id=experiment_id
-        ),
+        "path": f"/projects/{project_id}/experiments/{experiment_id}/tags",
     }
 
     _kwargs["json"] = body.to_dict()
@@ -46,14 +44,10 @@ def _get_kwargs(project_id: str, experiment_id: str, *, body: RunTagCreateReques
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | RunTagDB:
     if response.status_code == 200:
-        response_200 = RunTagDB.from_dict(response.json())
-
-        return response_200
+        return RunTagDB.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -85,7 +79,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient, body: RunTagCreateRequest
 ) -> Response[HTTPValidationError | RunTagDB]:
-    """Set Tag For Experiment
+    """Set Tag For Experiment.
 
      Sets a tag for an experiment.
 
@@ -94,14 +88,15 @@ def sync_detailed(
         experiment_id (str):
         body (RunTagCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | RunTagDB]
     """
-
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, body=body)
 
     response = client.request(**kwargs)
@@ -111,8 +106,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, experiment_id: str, *, client: ApiClient, body: RunTagCreateRequest
-) -> Optional[HTTPValidationError | RunTagDB]:
-    """Set Tag For Experiment
+) -> HTTPValidationError | RunTagDB | None:
+    """Set Tag For Experiment.
 
      Sets a tag for an experiment.
 
@@ -121,21 +116,22 @@ def sync(
         experiment_id (str):
         body (RunTagCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | RunTagDB
     """
-
     return sync_detailed(project_id=project_id, experiment_id=experiment_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient, body: RunTagCreateRequest
 ) -> Response[HTTPValidationError | RunTagDB]:
-    """Set Tag For Experiment
+    """Set Tag For Experiment.
 
      Sets a tag for an experiment.
 
@@ -144,14 +140,15 @@ async def asyncio_detailed(
         experiment_id (str):
         body (RunTagCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | RunTagDB]
     """
-
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -161,8 +158,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, experiment_id: str, *, client: ApiClient, body: RunTagCreateRequest
-) -> Optional[HTTPValidationError | RunTagDB]:
-    """Set Tag For Experiment
+) -> HTTPValidationError | RunTagDB | None:
+    """Set Tag For Experiment.
 
      Sets a tag for an experiment.
 
@@ -171,12 +168,13 @@ async def asyncio(
         experiment_id (str):
         body (RunTagCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | RunTagDB
     """
-
     return (await asyncio_detailed(project_id=project_id, experiment_id=experiment_id, client=client, body=body)).parsed

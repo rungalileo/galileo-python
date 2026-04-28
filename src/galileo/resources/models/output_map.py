@@ -14,7 +14,8 @@ T = TypeVar("T", bound="OutputMap")
 @_attrs_define
 class OutputMap:
     """
-    Attributes:
+    Attributes
+    ----------
         response (str):
         token_count (None | str | Unset):
         input_token_count (None | str | Unset):
@@ -33,28 +34,16 @@ class OutputMap:
         response = self.response
 
         token_count: None | str | Unset
-        if isinstance(self.token_count, Unset):
-            token_count = UNSET
-        else:
-            token_count = self.token_count
+        token_count = UNSET if isinstance(self.token_count, Unset) else self.token_count
 
         input_token_count: None | str | Unset
-        if isinstance(self.input_token_count, Unset):
-            input_token_count = UNSET
-        else:
-            input_token_count = self.input_token_count
+        input_token_count = UNSET if isinstance(self.input_token_count, Unset) else self.input_token_count
 
         output_token_count: None | str | Unset
-        if isinstance(self.output_token_count, Unset):
-            output_token_count = UNSET
-        else:
-            output_token_count = self.output_token_count
+        output_token_count = UNSET if isinstance(self.output_token_count, Unset) else self.output_token_count
 
         completion_reason: None | str | Unset
-        if isinstance(self.completion_reason, Unset):
-            completion_reason = UNSET
-        else:
-            completion_reason = self.completion_reason
+        completion_reason = UNSET if isinstance(self.completion_reason, Unset) else self.completion_reason
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

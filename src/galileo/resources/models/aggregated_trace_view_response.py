@@ -20,13 +20,14 @@ T = TypeVar("T", bound="AggregatedTraceViewResponse")
 @_attrs_define
 class AggregatedTraceViewResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         graph (AggregatedTraceViewGraph):
         num_traces (int): Number of traces in the aggregated view
         num_sessions (int): Number of sessions in the aggregated view
         has_all_traces (bool): Whether all traces were returned
         start_time (datetime.datetime | None | Unset): created_at of earliest record of the aggregated view
-        end_time (datetime.datetime | None | Unset): created_at of latest record of the aggregated view
+        end_time (datetime.datetime | None | Unset): created_at of latest record of the aggregated view.
     """
 
     graph: AggregatedTraceViewGraph
@@ -95,9 +96,8 @@ class AggregatedTraceViewResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                start_time_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return start_time_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -112,9 +112,8 @@ class AggregatedTraceViewResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                end_time_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return end_time_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)

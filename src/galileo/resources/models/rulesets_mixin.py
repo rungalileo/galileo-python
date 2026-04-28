@@ -18,7 +18,8 @@ T = TypeVar("T", bound="RulesetsMixin")
 @_attrs_define
 class RulesetsMixin:
     """
-    Attributes:
+    Attributes
+    ----------
         prioritized_rulesets (list[Ruleset] | Unset): Rulesets to be applied to the payload.
     """
 

@@ -23,7 +23,8 @@ class AgenticWorkflowSuccessTemplate:
     r"""Template for the agentic workflow success metric,
     containing all the info necessary to send the agentic workflow success prompt.
 
-        Attributes:
+    Attributes
+    ----------
             metric_system_prompt (str | Unset):  Default: 'You will receive the chat history from a chatbot application
                 between a user and an AI. At the end of the chat history, it is AI’s turn to act.\n\nIn the chat history, the
                 user can either ask questions, which are answered with words, or make requests that require calling tools and
@@ -183,9 +184,8 @@ class AgenticWorkflowSuccessTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = AgenticWorkflowSuccessTemplateResponseSchemaType0.from_dict(data)
+                return AgenticWorkflowSuccessTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(AgenticWorkflowSuccessTemplateResponseSchemaType0 | None | Unset, data)

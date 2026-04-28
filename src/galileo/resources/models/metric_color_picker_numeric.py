@@ -33,7 +33,8 @@ class MetricColorPickerNumeric:
             ]
         }
 
-        Attributes:
+    Attributes
+    ----------
             constraints (list[NumericColorConstraint]):
             type_ (Literal['numeric'] | Unset):  Default: 'numeric'.
     """

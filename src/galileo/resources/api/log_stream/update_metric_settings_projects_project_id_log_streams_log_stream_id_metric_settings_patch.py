@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -29,9 +29,7 @@ def _get_kwargs(project_id: str, log_stream_id: str, *, body: MetricSettingsRequ
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PATCH,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/log_streams/{log_stream_id}/metric_settings".format(
-            project_id=project_id, log_stream_id=log_stream_id
-        ),
+        "path": f"/projects/{project_id}/log_streams/{log_stream_id}/metric_settings",
     }
 
     _kwargs["json"] = body.to_dict()
@@ -46,14 +44,10 @@ def _get_kwargs(project_id: str, log_stream_id: str, *, body: MetricSettingsRequ
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | MetricSettingsResponse:
     if response.status_code == 200:
-        response_200 = MetricSettingsResponse.from_dict(response.json())
-
-        return response_200
+        return MetricSettingsResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -87,21 +81,22 @@ def _build_response(
 def sync_detailed(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: MetricSettingsRequest
 ) -> Response[HTTPValidationError | MetricSettingsResponse]:
-    """Update Metric Settings
+    """Update Metric Settings.
 
     Args:
         project_id (str):
         log_stream_id (str):
         body (MetricSettingsRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | MetricSettingsResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id, body=body)
 
     response = client.request(**kwargs)
@@ -111,43 +106,45 @@ def sync_detailed(
 
 def sync(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: MetricSettingsRequest
-) -> Optional[HTTPValidationError | MetricSettingsResponse]:
-    """Update Metric Settings
+) -> HTTPValidationError | MetricSettingsResponse | None:
+    """Update Metric Settings.
 
     Args:
         project_id (str):
         log_stream_id (str):
         body (MetricSettingsRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | MetricSettingsResponse
     """
-
     return sync_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: MetricSettingsRequest
 ) -> Response[HTTPValidationError | MetricSettingsResponse]:
-    """Update Metric Settings
+    """Update Metric Settings.
 
     Args:
         project_id (str):
         log_stream_id (str):
         body (MetricSettingsRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | MetricSettingsResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -157,20 +154,21 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: MetricSettingsRequest
-) -> Optional[HTTPValidationError | MetricSettingsResponse]:
-    """Update Metric Settings
+) -> HTTPValidationError | MetricSettingsResponse | None:
+    """Update Metric Settings.
 
     Args:
         project_id (str):
         log_stream_id (str):
         body (MetricSettingsRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | MetricSettingsResponse
     """
-
     return (await asyncio_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client, body=body)).parsed

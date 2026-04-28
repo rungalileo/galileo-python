@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -44,14 +44,10 @@ def _get_kwargs(*, body: BulkDeleteDatasetsRequest) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> BulkDeleteDatasetsResponse | HTTPValidationError:
     if response.status_code == 200:
-        response_200 = BulkDeleteDatasetsResponse.from_dict(response.json())
-
-        return response_200
+        return BulkDeleteDatasetsResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -85,7 +81,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
 ) -> Response[BulkDeleteDatasetsResponse | HTTPValidationError]:
-    """Bulk Delete Datasets
+    """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
 
@@ -111,14 +107,15 @@ def sync_detailed(
     Args:
         body (BulkDeleteDatasetsRequest): Request to delete multiple datasets.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[BulkDeleteDatasetsResponse | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -128,8 +125,8 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
-) -> Optional[BulkDeleteDatasetsResponse | HTTPValidationError]:
-    """Bulk Delete Datasets
+) -> BulkDeleteDatasetsResponse | HTTPValidationError | None:
+    """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
 
@@ -155,21 +152,22 @@ def sync(
     Args:
         body (BulkDeleteDatasetsRequest): Request to delete multiple datasets.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         BulkDeleteDatasetsResponse | HTTPValidationError
     """
-
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
 ) -> Response[BulkDeleteDatasetsResponse | HTTPValidationError]:
-    """Bulk Delete Datasets
+    """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
 
@@ -195,14 +193,15 @@ async def asyncio_detailed(
     Args:
         body (BulkDeleteDatasetsRequest): Request to delete multiple datasets.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[BulkDeleteDatasetsResponse | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -212,8 +211,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
-) -> Optional[BulkDeleteDatasetsResponse | HTTPValidationError]:
-    """Bulk Delete Datasets
+) -> BulkDeleteDatasetsResponse | HTTPValidationError | None:
+    """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
 
@@ -239,12 +238,13 @@ async def asyncio(
     Args:
         body (BulkDeleteDatasetsRequest): Request to delete multiple datasets.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         BulkDeleteDatasetsResponse | HTTPValidationError
     """
-
     return (await asyncio_detailed(client=client, body=body)).parsed

@@ -17,7 +17,8 @@ class ScorerExcludeMultimodalScorersFilter:
 
     Auto-appended by the service layer when the `multimodal` feature flag is disabled.
 
-        Attributes:
+    Attributes
+    ----------
             name (Literal['exclude_multimodal_scorers'] | Unset):  Default: 'exclude_multimodal_scorers'.
     """
 

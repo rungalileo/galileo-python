@@ -31,7 +31,8 @@ class MetricColorPickerCategorical:
             ]
         }
 
-        Attributes:
+    Attributes
+    ----------
             constraints (list[CategoricalColorConstraint]):
             type_ (Literal['categorical'] | Unset):  Default: 'categorical'.
     """

@@ -15,7 +15,8 @@ T = TypeVar("T", bound="DatasetContentFilter")
 @_attrs_define
 class DatasetContentFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         column_name (str):
         value (str):
         operator (DatasetContentFilterOperator | Unset):
@@ -52,10 +53,7 @@ class DatasetContentFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: DatasetContentFilterOperator | Unset
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = DatasetContentFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else DatasetContentFilterOperator(_operator)
 
         dataset_content_filter = cls(column_name=column_name, value=value, operator=operator)
 

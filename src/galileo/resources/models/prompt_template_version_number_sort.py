@@ -14,7 +14,8 @@ T = TypeVar("T", bound="PromptTemplateVersionNumberSort")
 @_attrs_define
 class PromptTemplateVersionNumberSort:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Literal['version'] | Unset):  Default: 'version'.
         ascending (bool | Unset):  Default: True.
         sort_type (Literal['column'] | Unset):  Default: 'column'.

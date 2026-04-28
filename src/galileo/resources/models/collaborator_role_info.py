@@ -14,7 +14,8 @@ T = TypeVar("T", bound="CollaboratorRoleInfo")
 @_attrs_define
 class CollaboratorRoleInfo:
     """
-    Attributes:
+    Attributes
+    ----------
         name (CollaboratorRole):
         display_name (str):
         description (str):

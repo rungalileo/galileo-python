@@ -14,7 +14,8 @@ T = TypeVar("T", bound="TraceMetadata")
 @_attrs_define
 class TraceMetadata:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str | Unset): Unique identifier for the request.
         received_at (int | Unset): Time the request was received by the server in nanoseconds.
         response_at (int | Unset): Time the response was sent by the server in nanoseconds.

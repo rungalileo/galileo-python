@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -57,14 +57,10 @@ def _get_kwargs(
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ListPromptTemplateResponse:
     if response.status_code == 200:
-        response_200 = ListPromptTemplateResponse.from_dict(response.json())
-
-        return response_200
+        return ListPromptTemplateResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -102,7 +98,7 @@ def sync_detailed(
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
 ) -> Response[HTTPValidationError | ListPromptTemplateResponse]:
-    """Query Templates
+    """Query Templates.
 
      Query prompt templates the user has access to.
 
@@ -125,14 +121,15 @@ def sync_detailed(
         limit (int | Unset):  Default: 100.
         body (ListPromptTemplateParams | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | ListPromptTemplateResponse]
     """
-
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -146,8 +143,8 @@ def sync(
     body: ListPromptTemplateParams | Unset,
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
-) -> Optional[HTTPValidationError | ListPromptTemplateResponse]:
-    """Query Templates
+) -> HTTPValidationError | ListPromptTemplateResponse | None:
+    """Query Templates.
 
      Query prompt templates the user has access to.
 
@@ -170,14 +167,15 @@ def sync(
         limit (int | Unset):  Default: 100.
         body (ListPromptTemplateParams | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | ListPromptTemplateResponse
     """
-
     return sync_detailed(client=client, body=body, starting_token=starting_token, limit=limit).parsed
 
 
@@ -188,7 +186,7 @@ async def asyncio_detailed(
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
 ) -> Response[HTTPValidationError | ListPromptTemplateResponse]:
-    """Query Templates
+    """Query Templates.
 
      Query prompt templates the user has access to.
 
@@ -211,14 +209,15 @@ async def asyncio_detailed(
         limit (int | Unset):  Default: 100.
         body (ListPromptTemplateParams | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | ListPromptTemplateResponse]
     """
-
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -232,8 +231,8 @@ async def asyncio(
     body: ListPromptTemplateParams | Unset,
     starting_token: int | Unset = 0,
     limit: int | Unset = 100,
-) -> Optional[HTTPValidationError | ListPromptTemplateResponse]:
-    """Query Templates
+) -> HTTPValidationError | ListPromptTemplateResponse | None:
+    """Query Templates.
 
      Query prompt templates the user has access to.
 
@@ -256,12 +255,13 @@ async def asyncio(
         limit (int | Unset):  Default: 100.
         body (ListPromptTemplateParams | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | ListPromptTemplateResponse
     """
-
     return (await asyncio_detailed(client=client, body=body, starting_token=starting_token, limit=limit)).parsed

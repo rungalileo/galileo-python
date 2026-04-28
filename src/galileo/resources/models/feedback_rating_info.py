@@ -14,7 +14,8 @@ T = TypeVar("T", bound="FeedbackRatingInfo")
 @_attrs_define
 class FeedbackRatingInfo:
     """
-    Attributes:
+    Attributes
+    ----------
         feedback_type (FeedbackType):
         value (bool | int | list[str] | str):
         explanation (None | str):
@@ -29,11 +30,7 @@ class FeedbackRatingInfo:
         feedback_type = self.feedback_type.value
 
         value: bool | int | list[str] | str
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         explanation: None | str
         explanation = self.explanation
@@ -53,9 +50,8 @@ class FeedbackRatingInfo:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_3 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return value_type_3
             except:  # noqa: E722
                 pass
             return cast(bool | int | list[str] | str, data)

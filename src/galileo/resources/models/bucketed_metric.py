@@ -20,7 +20,8 @@ T = TypeVar("T", bound="BucketedMetric")
 @_attrs_define
 class BucketedMetric:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
         buckets (BucketedMetricBuckets):
         average (float | None | Unset):
@@ -41,10 +42,7 @@ class BucketedMetric:
         buckets = self.buckets.to_dict()
 
         average: float | None | Unset
-        if isinstance(self.average, Unset):
-            average = UNSET
-        else:
-            average = self.average
+        average = UNSET if isinstance(self.average, Unset) else self.average
 
         roll_up_method: None | str | Unset
         if isinstance(self.roll_up_method, Unset):
@@ -100,9 +98,8 @@ class BucketedMetric:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                roll_up_method_type_0 = RollUpMethodDisplayOptions(data)
+                return RollUpMethodDisplayOptions(data)
 
-                return roll_up_method_type_0
             except:  # noqa: E722
                 pass
             return cast(None | RollUpMethodDisplayOptions | Unset, data)
@@ -117,9 +114,8 @@ class BucketedMetric:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_type_type_0 = OutputTypeEnum(data)
+                return OutputTypeEnum(data)
 
-                return data_type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | OutputTypeEnum | Unset, data)

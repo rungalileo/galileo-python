@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -31,10 +31,7 @@ def _get_kwargs(
     params: dict[str, Any] = {}
 
     json_project_name: None | str | Unset
-    if isinstance(project_name, Unset):
-        json_project_name = UNSET
-    else:
-        json_project_name = project_name
+    json_project_name = UNSET if isinstance(project_name, Unset) else project_name
     params["project_name"] = json_project_name
 
     json_type_: None | str | Unset
@@ -73,9 +70,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
         return response_200
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -107,7 +102,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(
     *, client: ApiClient, project_name: None | str | Unset = UNSET, type_: None | ProjectType | Unset = UNSET
 ) -> Response[HTTPValidationError | list[ProjectDB]]:
-    """Get Projects
+    """Get Projects.
 
      Gets projects for a user.
 
@@ -119,14 +114,15 @@ def sync_detailed(
         project_name (None | str | Unset):
         type_ (None | ProjectType | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | list[ProjectDB]]
     """
-
     kwargs = _get_kwargs(project_name=project_name, type_=type_)
 
     response = client.request(**kwargs)
@@ -136,8 +132,8 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, project_name: None | str | Unset = UNSET, type_: None | ProjectType | Unset = UNSET
-) -> Optional[HTTPValidationError | list[ProjectDB]]:
-    """Get Projects
+) -> HTTPValidationError | list[ProjectDB] | None:
+    """Get Projects.
 
      Gets projects for a user.
 
@@ -149,21 +145,22 @@ def sync(
         project_name (None | str | Unset):
         type_ (None | ProjectType | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | list[ProjectDB]
     """
-
     return sync_detailed(client=client, project_name=project_name, type_=type_).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, project_name: None | str | Unset = UNSET, type_: None | ProjectType | Unset = UNSET
 ) -> Response[HTTPValidationError | list[ProjectDB]]:
-    """Get Projects
+    """Get Projects.
 
      Gets projects for a user.
 
@@ -175,14 +172,15 @@ async def asyncio_detailed(
         project_name (None | str | Unset):
         type_ (None | ProjectType | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | list[ProjectDB]]
     """
-
     kwargs = _get_kwargs(project_name=project_name, type_=type_)
 
     response = await client.arequest(**kwargs)
@@ -192,8 +190,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, project_name: None | str | Unset = UNSET, type_: None | ProjectType | Unset = UNSET
-) -> Optional[HTTPValidationError | list[ProjectDB]]:
-    """Get Projects
+) -> HTTPValidationError | list[ProjectDB] | None:
+    """Get Projects.
 
      Gets projects for a user.
 
@@ -205,12 +203,13 @@ async def asyncio(
         project_name (None | str | Unset):
         type_ (None | ProjectType | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | list[ProjectDB]
     """
-
     return (await asyncio_detailed(client=client, project_name=project_name, type_=type_)).parsed

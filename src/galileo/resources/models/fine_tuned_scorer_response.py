@@ -28,7 +28,8 @@ T = TypeVar("T", bound="FineTunedScorerResponse")
 @_attrs_define
 class FineTunedScorerResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (str):
         lora_task_id (int):
@@ -84,10 +85,7 @@ class FineTunedScorerResponse:
         created_by = self.created_by
 
         lora_weights_path: None | str | Unset
-        if isinstance(self.lora_weights_path, Unset):
-            lora_weights_path = UNSET
-        else:
-            lora_weights_path = self.lora_weights_path
+        lora_weights_path = UNSET if isinstance(self.lora_weights_path, Unset) else self.lora_weights_path
 
         luna_input_type: None | str | Unset
         if isinstance(self.luna_input_type, Unset):
@@ -108,9 +106,10 @@ class FineTunedScorerResponse:
         class_name_to_vocab_ix: dict[str, Any] | None | Unset
         if isinstance(self.class_name_to_vocab_ix, Unset):
             class_name_to_vocab_ix = UNSET
-        elif isinstance(self.class_name_to_vocab_ix, FineTunedScorerResponseClassNameToVocabIxType0):
-            class_name_to_vocab_ix = self.class_name_to_vocab_ix.to_dict()
-        elif isinstance(self.class_name_to_vocab_ix, FineTunedScorerResponseClassNameToVocabIxType1):
+        elif isinstance(
+            self.class_name_to_vocab_ix,
+            FineTunedScorerResponseClassNameToVocabIxType0 | FineTunedScorerResponseClassNameToVocabIxType1,
+        ):
             class_name_to_vocab_ix = self.class_name_to_vocab_ix.to_dict()
         else:
             class_name_to_vocab_ix = self.class_name_to_vocab_ix
@@ -190,9 +189,8 @@ class FineTunedScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                luna_input_type_type_0 = LunaInputTypeEnum(data)
+                return LunaInputTypeEnum(data)
 
-                return luna_input_type_type_0
             except:  # noqa: E722
                 pass
             return cast(LunaInputTypeEnum | None | Unset, data)
@@ -207,9 +205,8 @@ class FineTunedScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                luna_output_type_type_0 = LunaOutputTypeEnum(data)
+                return LunaOutputTypeEnum(data)
 
-                return luna_output_type_type_0
             except:  # noqa: E722
                 pass
             return cast(LunaOutputTypeEnum | None | Unset, data)
@@ -231,17 +228,15 @@ class FineTunedScorerResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                class_name_to_vocab_ix_type_0 = FineTunedScorerResponseClassNameToVocabIxType0.from_dict(data)
+                return FineTunedScorerResponseClassNameToVocabIxType0.from_dict(data)
 
-                return class_name_to_vocab_ix_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                class_name_to_vocab_ix_type_1 = FineTunedScorerResponseClassNameToVocabIxType1.from_dict(data)
+                return FineTunedScorerResponseClassNameToVocabIxType1.from_dict(data)
 
-                return class_name_to_vocab_ix_type_1
             except:  # noqa: E722
                 pass
             return cast(
@@ -262,9 +257,8 @@ class FineTunedScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                executor_type_0 = CoreScorerName(data)
+                return CoreScorerName(data)
 
-                return executor_type_0
             except:  # noqa: E722
                 pass
             return cast(CoreScorerName | None | Unset, data)

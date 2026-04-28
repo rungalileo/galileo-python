@@ -27,7 +27,8 @@ class NumericColorConstraint:
         {"color": "green", "operator": "gte", "value": 0.8}
         {"color": "yellow", "operator": "between", "value": [0.3, 0.7]}
 
-        Attributes:
+    Attributes
+    ----------
             color (MetricColor): Allowed colors for metric threshold visualization in the UI.
             operator (NumericColorConstraintOperator):
             value (float | list[float]):
@@ -44,11 +45,7 @@ class NumericColorConstraint:
         operator = self.operator.value
 
         value: float | list[float]
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -67,9 +64,8 @@ class NumericColorConstraint:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_1 = cast(list[float], data)
+                return cast(list[float], data)
 
-                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(float | list[float], data)

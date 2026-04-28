@@ -19,7 +19,8 @@ T = TypeVar("T", bound="BasePromptTemplateVersion")
 @_attrs_define
 class BasePromptTemplateVersion:
     """
-    Attributes:
+    Attributes
+    ----------
         template (list[MessagesListItem] | str):
         raw (bool | Unset):  Default: False.
         version (int | None | Unset):
@@ -48,20 +49,14 @@ class BasePromptTemplateVersion:
         raw = self.raw
 
         version: int | None | Unset
-        if isinstance(self.version, Unset):
-            version = UNSET
-        else:
-            version = self.version
+        version = UNSET if isinstance(self.version, Unset) else self.version
 
         settings: dict[str, Any] | Unset = UNSET
         if not isinstance(self.settings, Unset):
             settings = self.settings.to_dict()
 
         output_type: None | str | Unset
-        if isinstance(self.output_type, Unset):
-            output_type = UNSET
-        else:
-            output_type = self.output_type
+        output_type = UNSET if isinstance(self.output_type, Unset) else self.output_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -115,10 +110,7 @@ class BasePromptTemplateVersion:
 
         _settings = d.pop("settings", UNSET)
         settings: PromptRunSettings | Unset
-        if isinstance(_settings, Unset):
-            settings = UNSET
-        else:
-            settings = PromptRunSettings.from_dict(_settings)
+        settings = UNSET if isinstance(_settings, Unset) else PromptRunSettings.from_dict(_settings)
 
         def _parse_output_type(data: object) -> None | str | Unset:
             if data is None:

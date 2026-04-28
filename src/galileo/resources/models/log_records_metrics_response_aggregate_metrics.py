@@ -55,11 +55,8 @@ class LogRecordsMetricsResponseAggregateMetrics:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    additional_property_type_2 = (
-                        LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2.from_dict(data)
-                    )
+                    return LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2.from_dict(data)
 
-                    return additional_property_type_2
                 except:  # noqa: E722
                     pass
                 return cast(float | int | LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2, data)

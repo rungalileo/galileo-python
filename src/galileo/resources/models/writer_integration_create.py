@@ -12,7 +12,8 @@ T = TypeVar("T", bound="WriterIntegrationCreate")
 @_attrs_define
 class WriterIntegrationCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         organization_id (str):
         token (str):
     """

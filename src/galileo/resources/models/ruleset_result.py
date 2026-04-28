@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.execution_status import ExecutionStatus
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -21,15 +22,16 @@ T = TypeVar("T", bound="RulesetResult")
 @_attrs_define
 class RulesetResult:
     """
-    Attributes:
-        status (str | Unset): Status of the execution.
+    Attributes
+    ----------
+        status (ExecutionStatus | Unset): Status of the execution.
         rules (list[Rule] | Unset): List of rules to evaluate. Atleast 1 rule is required.
         action (OverrideAction | PassthroughAction | Unset): Action to take if all the rules are met.
         description (None | str | Unset): Description of the ruleset.
         rule_results (list[RuleResult] | Unset): Results of the rule execution.
     """
 
-    status: str | Unset = UNSET
+    status: ExecutionStatus | Unset = UNSET
     rules: list[Rule] | Unset = UNSET
     action: OverrideAction | PassthroughAction | Unset = UNSET
     description: None | str | Unset = UNSET
@@ -39,7 +41,9 @@ class RulesetResult:
     def to_dict(self) -> dict[str, Any]:
         from ..models.override_action import OverrideAction
 
-        status = self.status
+        status: str | Unset = UNSET
+        if not isinstance(self.status, Unset):
+            status = self.status.value
 
         rules: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.rules, Unset):
@@ -57,10 +61,7 @@ class RulesetResult:
             action = self.action.to_dict()
 
         description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         rule_results: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.rule_results, Unset):
@@ -93,7 +94,9 @@ class RulesetResult:
         from ..models.rule_result import RuleResult
 
         d = dict(src_dict)
-        status = d.pop("status", UNSET)
+        _status = d.pop("status", UNSET)
+        status: ExecutionStatus | Unset
+        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
 
         _rules = d.pop("rules", UNSET)
         rules: list[Rule] | Unset = UNSET
@@ -110,16 +113,13 @@ class RulesetResult:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                action_type_0 = OverrideAction.from_dict(data)
+                return OverrideAction.from_dict(data)
 
-                return action_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            action_type_1 = PassthroughAction.from_dict(data)
-
-            return action_type_1
+            return PassthroughAction.from_dict(data)
 
         action = _parse_action(d.pop("action", UNSET))
 

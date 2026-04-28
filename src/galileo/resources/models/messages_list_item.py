@@ -19,7 +19,8 @@ T = TypeVar("T", bound="MessagesListItem")
 @_attrs_define
 class MessagesListItem:
     """
-    Attributes:
+    Attributes
+    ----------
         content (list[FileContentPart | TextContentPart] | str):
         role (MessagesListItemRole | str):
     """
@@ -47,10 +48,7 @@ class MessagesListItem:
             content = self.content
 
         role: str
-        if isinstance(self.role, MessagesListItemRole):
-            role = self.role.value
-        else:
-            role = self.role
+        role = self.role.value if isinstance(self.role, MessagesListItemRole) else self.role
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -77,16 +75,13 @@ class MessagesListItem:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            content_type_1_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return content_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        content_type_1_item_type_1 = FileContentPart.from_dict(data)
-
-                        return content_type_1_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     content_type_1_item = _parse_content_type_1_item(content_type_1_item_data)
 
@@ -103,9 +98,8 @@ class MessagesListItem:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                role_type_1 = MessagesListItemRole(data)
+                return MessagesListItemRole(data)
 
-                return role_type_1
             except:  # noqa: E722
                 pass
             return cast(MessagesListItemRole | str, data)

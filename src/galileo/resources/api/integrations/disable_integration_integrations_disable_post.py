@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -43,13 +43,10 @@ def _get_kwargs(*, body: IntegrationDisableRequest) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 200:
-        response_200 = response.json()
-        return response_200
+        return response.json()
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -79,7 +76,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(*, client: ApiClient, body: IntegrationDisableRequest) -> Response[Any | HTTPValidationError]:
-    """Disable Integration
+    """Disable Integration.
 
      Disable an integration type for this user.
 
@@ -88,14 +85,15 @@ def sync_detailed(*, client: ApiClient, body: IntegrationDisableRequest) -> Resp
     Args:
         body (IntegrationDisableRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Any | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -103,8 +101,8 @@ def sync_detailed(*, client: ApiClient, body: IntegrationDisableRequest) -> Resp
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: IntegrationDisableRequest) -> Optional[Any | HTTPValidationError]:
-    """Disable Integration
+def sync(*, client: ApiClient, body: IntegrationDisableRequest) -> Any | HTTPValidationError | None:
+    """Disable Integration.
 
      Disable an integration type for this user.
 
@@ -113,21 +111,22 @@ def sync(*, client: ApiClient, body: IntegrationDisableRequest) -> Optional[Any 
     Args:
         body (IntegrationDisableRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Any | HTTPValidationError
     """
-
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: IntegrationDisableRequest
 ) -> Response[Any | HTTPValidationError]:
-    """Disable Integration
+    """Disable Integration.
 
      Disable an integration type for this user.
 
@@ -136,14 +135,15 @@ async def asyncio_detailed(
     Args:
         body (IntegrationDisableRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Any | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -151,8 +151,8 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: IntegrationDisableRequest) -> Optional[Any | HTTPValidationError]:
-    """Disable Integration
+async def asyncio(*, client: ApiClient, body: IntegrationDisableRequest) -> Any | HTTPValidationError | None:
+    """Disable Integration.
 
      Disable an integration type for this user.
 
@@ -161,12 +161,13 @@ async def asyncio(*, client: ApiClient, body: IntegrationDisableRequest) -> Opti
     Args:
         body (IntegrationDisableRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Any | HTTPValidationError
     """
-
     return (await asyncio_detailed(client=client, body=body)).parsed

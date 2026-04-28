@@ -12,7 +12,8 @@ T = TypeVar("T", bound="NvidiaIntegrationCreate")
 @_attrs_define
 class NvidiaIntegrationCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         token (str):
         hostname (str):
     """

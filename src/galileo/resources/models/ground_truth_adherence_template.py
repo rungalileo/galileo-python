@@ -21,7 +21,8 @@ T = TypeVar("T", bound="GroundTruthAdherenceTemplate")
 @_attrs_define
 class GroundTruthAdherenceTemplate:
     r"""
-    Attributes:
+    Attributes
+    ----------
         metric_system_prompt (str | Unset):  Default: 'I will give you two different texts, called the \\"ground
             truth\\" and the \\"response.\\"\n\nRead both texts, then tell me whether they are \\"equivalent,\\" in the
             sense that they basically mean the same thing.\n\nKeep the following guidelines in mind.\n\n- Two texts can be
@@ -45,7 +46,7 @@ class GroundTruthAdherenceTemplate:
         template (str | Unset):  Default: 'Ground
             truth:\n\n```\n{ground_truth}\n```\n\nResponse:\n\n```\n{response}\n```'.
         metric_few_shot_examples (list[FewShotExample] | Unset): Few-shot examples for the metric.
-        response_schema (GroundTruthAdherenceTemplateResponseSchemaType0 | None | Unset): Response schema for the output
+        response_schema (GroundTruthAdherenceTemplateResponseSchemaType0 | None | Unset): Response schema for the output.
     """
 
     metric_system_prompt: str | Unset = (
@@ -146,9 +147,8 @@ class GroundTruthAdherenceTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = GroundTruthAdherenceTemplateResponseSchemaType0.from_dict(data)
+                return GroundTruthAdherenceTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(GroundTruthAdherenceTemplateResponseSchemaType0 | None | Unset, data)

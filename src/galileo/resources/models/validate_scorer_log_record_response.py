@@ -14,20 +14,26 @@ class ValidateScorerLogRecordResponse:
     """Response model for validating a scorer based on log records.
 
     Returns the uuid of the experiment created with the copied log records to store the metric testing results.
+    Also returns the project_id so callers can poll /projects/{project_id}/traces/search.
 
-        Attributes:
+    Attributes
+    ----------
             metrics_experiment_id (str):
+            project_id (str):
     """
 
     metrics_experiment_id: str
+    project_id: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         metrics_experiment_id = self.metrics_experiment_id
 
+        project_id = self.project_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"metrics_experiment_id": metrics_experiment_id})
+        field_dict.update({"metrics_experiment_id": metrics_experiment_id, "project_id": project_id})
 
         return field_dict
 
@@ -36,7 +42,9 @@ class ValidateScorerLogRecordResponse:
         d = dict(src_dict)
         metrics_experiment_id = d.pop("metrics_experiment_id")
 
-        validate_scorer_log_record_response = cls(metrics_experiment_id=metrics_experiment_id)
+        project_id = d.pop("project_id")
+
+        validate_scorer_log_record_response = cls(metrics_experiment_id=metrics_experiment_id, project_id=project_id)
 
         validate_scorer_log_record_response.additional_properties = d
         return validate_scorer_log_record_response

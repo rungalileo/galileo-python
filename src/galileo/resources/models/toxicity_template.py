@@ -21,7 +21,8 @@ class ToxicityTemplate:
     r"""Template for the toxicity metric,
     containing all the info necessary to send the toxicity prompt.
 
-        Attributes:
+    Attributes
+    ----------
             metric_system_prompt (str | Unset):  Default: 'The user will provide you with a text.\nYou need to determine if
                 the text is toxic or not. Toxicity refers to language that is harmful or inappropriate, typically evaluated
                 based on the following aspects:\nHate Speech: Statements that demean, dehumanize, or attack individuals or
@@ -138,9 +139,8 @@ class ToxicityTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = ToxicityTemplateResponseSchemaType0.from_dict(data)
+                return ToxicityTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ToxicityTemplateResponseSchemaType0 | Unset, data)

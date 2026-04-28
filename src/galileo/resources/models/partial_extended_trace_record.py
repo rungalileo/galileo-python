@@ -18,11 +18,17 @@ if TYPE_CHECKING:
     from ..models.partial_extended_trace_record_annotation_aggregates import (
         PartialExtendedTraceRecordAnnotationAggregates,
     )
+    from ..models.partial_extended_trace_record_annotation_agreement import (
+        PartialExtendedTraceRecordAnnotationAgreement,
+    )
     from ..models.partial_extended_trace_record_annotations import PartialExtendedTraceRecordAnnotations
     from ..models.partial_extended_trace_record_dataset_metadata import PartialExtendedTraceRecordDatasetMetadata
     from ..models.partial_extended_trace_record_feedback_rating_info import PartialExtendedTraceRecordFeedbackRatingInfo
     from ..models.partial_extended_trace_record_files_type_0 import PartialExtendedTraceRecordFilesType0
     from ..models.partial_extended_trace_record_metric_info_type_0 import PartialExtendedTraceRecordMetricInfoType0
+    from ..models.partial_extended_trace_record_overall_annotation_agreement import (
+        PartialExtendedTraceRecordOverallAnnotationAgreement,
+    )
     from ..models.partial_extended_trace_record_user_metadata import PartialExtendedTraceRecordUserMetadata
     from ..models.text_content_part import TextContentPart
 
@@ -33,7 +39,8 @@ T = TypeVar("T", bound="PartialExtendedTraceRecord")
 @_attrs_define
 class PartialExtendedTraceRecord:
     """
-    Attributes:
+    Attributes
+    ----------
         type_ (Literal['trace'] | Unset): Type of the trace, span or session. Default: 'trace'.
         input_ (list[FileContentPart | TextContentPart] | str | Unset): Input to the trace or span. Default: ''.
         redacted_input (list[FileContentPart | TextContentPart] | None | str | Unset): Redacted input of the trace or
@@ -71,6 +78,10 @@ class PartialExtendedTraceRecord:
         file_modalities (list[ContentModality] | Unset): Modalities of files associated with this record
         annotation_aggregates (PartialExtendedTraceRecordAnnotationAggregates | Unset): Annotation aggregate information
             keyed by template ID
+        annotation_agreement (PartialExtendedTraceRecordAnnotationAgreement | Unset): Annotation agreement scores keyed
+            by template ID
+        overall_annotation_agreement (PartialExtendedTraceRecordOverallAnnotationAgreement | Unset): Average annotation
+            agreement per queue (keyed by queue ID)
         annotation_queue_ids (list[str] | Unset): IDs of annotation queues this record is in
         metric_info (None | PartialExtendedTraceRecordMetricInfoType0 | Unset): Detailed information about the metrics
             associated with this trace or span
@@ -108,6 +119,8 @@ class PartialExtendedTraceRecord:
     file_ids: list[str] | Unset = UNSET
     file_modalities: list[ContentModality] | Unset = UNSET
     annotation_aggregates: PartialExtendedTraceRecordAnnotationAggregates | Unset = UNSET
+    annotation_agreement: PartialExtendedTraceRecordAnnotationAgreement | Unset = UNSET
+    overall_annotation_agreement: PartialExtendedTraceRecordOverallAnnotationAgreement | Unset = UNSET
     annotation_queue_ids: list[str] | Unset = UNSET
     metric_info: None | PartialExtendedTraceRecordMetricInfoType0 | Unset = UNSET
     files: None | PartialExtendedTraceRecordFilesType0 | Unset = UNSET
@@ -204,32 +217,20 @@ class PartialExtendedTraceRecord:
             tags = self.tags
 
         status_code: int | None | Unset
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         metrics: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
         external_id: None | str | Unset
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         dataset_input: None | str | Unset
-        if isinstance(self.dataset_input, Unset):
-            dataset_input = UNSET
-        else:
-            dataset_input = self.dataset_input
+        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
         dataset_output: None | str | Unset
-        if isinstance(self.dataset_output, Unset):
-            dataset_output = UNSET
-        else:
-            dataset_output = self.dataset_output
+        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
         dataset_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.dataset_metadata, Unset):
@@ -284,22 +285,13 @@ class PartialExtendedTraceRecord:
             updated_at = self.updated_at
 
         has_children: bool | None | Unset
-        if isinstance(self.has_children, Unset):
-            has_children = UNSET
-        else:
-            has_children = self.has_children
+        has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
 
         metrics_batch_id: None | str | Unset
-        if isinstance(self.metrics_batch_id, Unset):
-            metrics_batch_id = UNSET
-        else:
-            metrics_batch_id = self.metrics_batch_id
+        metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
 
         session_batch_id: None | str | Unset
-        if isinstance(self.session_batch_id, Unset):
-            session_batch_id = UNSET
-        else:
-            session_batch_id = self.session_batch_id
+        session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
         feedback_rating_info: dict[str, Any] | Unset = UNSET
         if not isinstance(self.feedback_rating_info, Unset):
@@ -323,6 +315,14 @@ class PartialExtendedTraceRecord:
         annotation_aggregates: dict[str, Any] | Unset = UNSET
         if not isinstance(self.annotation_aggregates, Unset):
             annotation_aggregates = self.annotation_aggregates.to_dict()
+
+        annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.annotation_agreement, Unset):
+            annotation_agreement = self.annotation_agreement.to_dict()
+
+        overall_annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.overall_annotation_agreement, Unset):
+            overall_annotation_agreement = self.overall_annotation_agreement.to_dict()
 
         annotation_queue_ids: list[str] | Unset = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
@@ -407,6 +407,10 @@ class PartialExtendedTraceRecord:
             field_dict["file_modalities"] = file_modalities
         if annotation_aggregates is not UNSET:
             field_dict["annotation_aggregates"] = annotation_aggregates
+        if annotation_agreement is not UNSET:
+            field_dict["annotation_agreement"] = annotation_agreement
+        if overall_annotation_agreement is not UNSET:
+            field_dict["overall_annotation_agreement"] = overall_annotation_agreement
         if annotation_queue_ids is not UNSET:
             field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
@@ -425,6 +429,9 @@ class PartialExtendedTraceRecord:
         from ..models.partial_extended_trace_record_annotation_aggregates import (
             PartialExtendedTraceRecordAnnotationAggregates,
         )
+        from ..models.partial_extended_trace_record_annotation_agreement import (
+            PartialExtendedTraceRecordAnnotationAgreement,
+        )
         from ..models.partial_extended_trace_record_annotations import PartialExtendedTraceRecordAnnotations
         from ..models.partial_extended_trace_record_dataset_metadata import PartialExtendedTraceRecordDatasetMetadata
         from ..models.partial_extended_trace_record_feedback_rating_info import (
@@ -432,6 +439,9 @@ class PartialExtendedTraceRecord:
         )
         from ..models.partial_extended_trace_record_files_type_0 import PartialExtendedTraceRecordFilesType0
         from ..models.partial_extended_trace_record_metric_info_type_0 import PartialExtendedTraceRecordMetricInfoType0
+        from ..models.partial_extended_trace_record_overall_annotation_agreement import (
+            PartialExtendedTraceRecordOverallAnnotationAgreement,
+        )
         from ..models.partial_extended_trace_record_user_metadata import PartialExtendedTraceRecordUserMetadata
         from ..models.text_content_part import TextContentPart
 
@@ -454,16 +464,13 @@ class PartialExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            input_type_1_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return input_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        input_type_1_item_type_1 = FileContentPart.from_dict(data)
-
-                        return input_type_1_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     input_type_1_item = _parse_input_type_1_item(input_type_1_item_data)
 
@@ -492,16 +499,13 @@ class PartialExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            redacted_input_type_1_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return redacted_input_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        redacted_input_type_1_item_type_1 = FileContentPart.from_dict(data)
-
-                        return redacted_input_type_1_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     redacted_input_type_1_item = _parse_redacted_input_type_1_item(redacted_input_type_1_item_data)
 
@@ -530,16 +534,13 @@ class PartialExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            output_type_1_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return output_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        output_type_1_item_type_1 = FileContentPart.from_dict(data)
-
-                        return output_type_1_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     output_type_1_item = _parse_output_type_1_item(output_type_1_item_data)
 
@@ -568,16 +569,13 @@ class PartialExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            redacted_output_type_1_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return redacted_output_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        redacted_output_type_1_item_type_1 = FileContentPart.from_dict(data)
-
-                        return redacted_output_type_1_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     redacted_output_type_1_item = _parse_redacted_output_type_1_item(redacted_output_type_1_item_data)
 
@@ -594,10 +592,7 @@ class PartialExtendedTraceRecord:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: datetime.datetime | Unset
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
         user_metadata: PartialExtendedTraceRecordUserMetadata | Unset
@@ -619,10 +614,7 @@ class PartialExtendedTraceRecord:
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Metrics | Unset
-        if isinstance(_metrics, Unset):
-            metrics = UNSET
-        else:
-            metrics = Metrics.from_dict(_metrics)
+        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
         def _parse_external_id(data: object) -> None | str | Unset:
             if data is None:
@@ -666,9 +658,8 @@ class PartialExtendedTraceRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                id_type_0 = UUID(data)
+                return UUID(data)
 
-                return id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -683,9 +674,8 @@ class PartialExtendedTraceRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                session_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return session_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -700,9 +690,8 @@ class PartialExtendedTraceRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                trace_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return trace_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -717,9 +706,8 @@ class PartialExtendedTraceRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                project_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return project_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -734,9 +722,8 @@ class PartialExtendedTraceRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                run_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return run_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -751,9 +738,8 @@ class PartialExtendedTraceRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                updated_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return updated_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -818,6 +804,22 @@ class PartialExtendedTraceRecord:
             annotation_aggregates = UNSET
         else:
             annotation_aggregates = PartialExtendedTraceRecordAnnotationAggregates.from_dict(_annotation_aggregates)
+
+        _annotation_agreement = d.pop("annotation_agreement", UNSET)
+        annotation_agreement: PartialExtendedTraceRecordAnnotationAgreement | Unset
+        if isinstance(_annotation_agreement, Unset):
+            annotation_agreement = UNSET
+        else:
+            annotation_agreement = PartialExtendedTraceRecordAnnotationAgreement.from_dict(_annotation_agreement)
+
+        _overall_annotation_agreement = d.pop("overall_annotation_agreement", UNSET)
+        overall_annotation_agreement: PartialExtendedTraceRecordOverallAnnotationAgreement | Unset
+        if isinstance(_overall_annotation_agreement, Unset):
+            overall_annotation_agreement = UNSET
+        else:
+            overall_annotation_agreement = PartialExtendedTraceRecordOverallAnnotationAgreement.from_dict(
+                _overall_annotation_agreement
+            )
 
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
 
@@ -885,9 +887,8 @@ class PartialExtendedTraceRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_info_type_0 = PartialExtendedTraceRecordMetricInfoType0.from_dict(data)
+                return PartialExtendedTraceRecordMetricInfoType0.from_dict(data)
 
-                return metric_info_type_0
             except:  # noqa: E722
                 pass
             return cast(None | PartialExtendedTraceRecordMetricInfoType0 | Unset, data)
@@ -958,9 +959,8 @@ class PartialExtendedTraceRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                files_type_0 = PartialExtendedTraceRecordFilesType0.from_dict(data)
+                return PartialExtendedTraceRecordFilesType0.from_dict(data)
 
-                return files_type_0
             except:  # noqa: E722
                 pass
             return cast(None | PartialExtendedTraceRecordFilesType0 | Unset, data)
@@ -999,6 +999,8 @@ class PartialExtendedTraceRecord:
             file_ids=file_ids,
             file_modalities=file_modalities,
             annotation_aggregates=annotation_aggregates,
+            annotation_agreement=annotation_agreement,
+            overall_annotation_agreement=overall_annotation_agreement,
             annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
             files=files,

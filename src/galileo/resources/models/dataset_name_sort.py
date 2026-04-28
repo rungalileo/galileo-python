@@ -14,7 +14,8 @@ T = TypeVar("T", bound="DatasetNameSort")
 @_attrs_define
 class DatasetNameSort:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Literal['name'] | Unset):  Default: 'name'.
         ascending (bool | Unset):  Default: True.
         sort_type (Literal['column'] | Unset):  Default: 'column'.

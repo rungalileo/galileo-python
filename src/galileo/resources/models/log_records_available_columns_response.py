@@ -18,7 +18,8 @@ T = TypeVar("T", bound="LogRecordsAvailableColumnsResponse")
 @_attrs_define
 class LogRecordsAvailableColumnsResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         columns (list[LogRecordsColumnInfo] | Unset):
     """
 

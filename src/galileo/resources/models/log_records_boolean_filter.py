@@ -15,7 +15,8 @@ T = TypeVar("T", bound="LogRecordsBooleanFilter")
 @_attrs_define
 class LogRecordsBooleanFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         column_id (str): ID of the column to filter.
         value (bool):
         operator (LogRecordsBooleanFilterOperator | Unset):  Default: LogRecordsBooleanFilterOperator.EQ.
@@ -58,10 +59,7 @@ class LogRecordsBooleanFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: LogRecordsBooleanFilterOperator | Unset
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = LogRecordsBooleanFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else LogRecordsBooleanFilterOperator(_operator)
 
         type_ = cast(Literal["boolean"] | Unset, d.pop("type", UNSET))
         if type_ != "boolean" and not isinstance(type_, Unset):

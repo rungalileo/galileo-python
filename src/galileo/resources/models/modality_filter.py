@@ -17,7 +17,8 @@ class ModalityFilter:
     """Filters on content modalities in scorer jobs.
     Matches if at least one of the specified modalities is present.
 
-        Attributes:
+    Attributes
+    ----------
             operator (ModalityFilterOperator):
             value (list[str] | str):
             name (Literal['modality'] | Unset):  Default: 'modality'.
@@ -32,11 +33,7 @@ class ModalityFilter:
         operator = self.operator.value
 
         value: list[str] | str
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         name = self.name
 
@@ -57,9 +54,8 @@ class ModalityFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

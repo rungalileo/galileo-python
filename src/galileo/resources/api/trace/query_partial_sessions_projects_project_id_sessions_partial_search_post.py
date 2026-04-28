@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsPartialQueryRequest) -> dict
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/sessions/partial_search".format(project_id=project_id),
+        "path": f"/projects/{project_id}/sessions/partial_search",
     }
 
     _kwargs["json"] = body.to_dict()
@@ -46,14 +46,10 @@ def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> HTTPValidationError | LogRecordsPartialQueryResponse:
     if response.status_code == 200:
-        response_200 = LogRecordsPartialQueryResponse.from_dict(response.json())
-
-        return response_200
+        return LogRecordsPartialQueryResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -87,21 +83,22 @@ def _build_response(
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsPartialQueryRequest
 ) -> Response[HTTPValidationError | LogRecordsPartialQueryResponse]:
-    """Query Partial Sessions
+    """Query Partial Sessions.
 
     Args:
         project_id (str):
         body (LogRecordsPartialQueryRequest): Request to query a genai project run (log stream or
             experiment) with partial results.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | LogRecordsPartialQueryResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = client.request(**kwargs)
@@ -111,43 +108,45 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: LogRecordsPartialQueryRequest
-) -> Optional[HTTPValidationError | LogRecordsPartialQueryResponse]:
-    """Query Partial Sessions
+) -> HTTPValidationError | LogRecordsPartialQueryResponse | None:
+    """Query Partial Sessions.
 
     Args:
         project_id (str):
         body (LogRecordsPartialQueryRequest): Request to query a genai project run (log stream or
             experiment) with partial results.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | LogRecordsPartialQueryResponse
     """
-
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsPartialQueryRequest
 ) -> Response[HTTPValidationError | LogRecordsPartialQueryResponse]:
-    """Query Partial Sessions
+    """Query Partial Sessions.
 
     Args:
         project_id (str):
         body (LogRecordsPartialQueryRequest): Request to query a genai project run (log stream or
             experiment) with partial results.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | LogRecordsPartialQueryResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -157,20 +156,21 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsPartialQueryRequest
-) -> Optional[HTTPValidationError | LogRecordsPartialQueryResponse]:
-    """Query Partial Sessions
+) -> HTTPValidationError | LogRecordsPartialQueryResponse | None:
+    """Query Partial Sessions.
 
     Args:
         project_id (str):
         body (LogRecordsPartialQueryRequest): Request to query a genai project run (log stream or
             experiment) with partial results.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | LogRecordsPartialQueryResponse
     """
-
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

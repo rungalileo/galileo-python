@@ -14,7 +14,8 @@ T = TypeVar("T", bound="ScorerNameSort")
 @_attrs_define
 class ScorerNameSort:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Literal['name'] | Unset):  Default: 'name'.
         ascending (bool | Unset):  Default: True.
         sort_type (Literal['column'] | Unset):  Default: 'column'.

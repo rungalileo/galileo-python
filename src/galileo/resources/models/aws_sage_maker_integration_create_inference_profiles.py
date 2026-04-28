@@ -11,7 +11,7 @@ T = TypeVar("T", bound="AwsSageMakerIntegrationCreateInferenceProfiles")
 
 @_attrs_define
 class AwsSageMakerIntegrationCreateInferenceProfiles:
-    """Mapping from model name (Foundation model ID) to inference profile ARN or ID"""
+    """Mapping from model name (Foundation model ID) to inference profile ARN or ID."""
 
     additional_properties: dict[str, str] = _attrs_field(init=False, factory=dict)
 

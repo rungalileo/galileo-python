@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -29,9 +29,7 @@ def _get_kwargs(project_id: str, experiment_id: str, *, body: ExperimentUpdateRe
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PUT,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/experiments/{experiment_id}".format(
-            project_id=project_id, experiment_id=experiment_id
-        ),
+        "path": f"/projects/{project_id}/experiments/{experiment_id}",
     }
 
     _kwargs["json"] = body.to_dict()
@@ -46,14 +44,10 @@ def _get_kwargs(project_id: str, experiment_id: str, *, body: ExperimentUpdateRe
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> ExperimentResponse | HTTPValidationError:
     if response.status_code == 200:
-        response_200 = ExperimentResponse.from_dict(response.json())
-
-        return response_200
+        return ExperimentResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -87,7 +81,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient, body: ExperimentUpdateRequest
 ) -> Response[ExperimentResponse | HTTPValidationError]:
-    """Update Experiment
+    """Update Experiment.
 
      Update a specific experiment.
 
@@ -96,14 +90,15 @@ def sync_detailed(
         experiment_id (str):
         body (ExperimentUpdateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[ExperimentResponse | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, body=body)
 
     response = client.request(**kwargs)
@@ -113,8 +108,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, experiment_id: str, *, client: ApiClient, body: ExperimentUpdateRequest
-) -> Optional[ExperimentResponse | HTTPValidationError]:
-    """Update Experiment
+) -> ExperimentResponse | HTTPValidationError | None:
+    """Update Experiment.
 
      Update a specific experiment.
 
@@ -123,21 +118,22 @@ def sync(
         experiment_id (str):
         body (ExperimentUpdateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         ExperimentResponse | HTTPValidationError
     """
-
     return sync_detailed(project_id=project_id, experiment_id=experiment_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient, body: ExperimentUpdateRequest
 ) -> Response[ExperimentResponse | HTTPValidationError]:
-    """Update Experiment
+    """Update Experiment.
 
      Update a specific experiment.
 
@@ -146,14 +142,15 @@ async def asyncio_detailed(
         experiment_id (str):
         body (ExperimentUpdateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[ExperimentResponse | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -163,8 +160,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, experiment_id: str, *, client: ApiClient, body: ExperimentUpdateRequest
-) -> Optional[ExperimentResponse | HTTPValidationError]:
-    """Update Experiment
+) -> ExperimentResponse | HTTPValidationError | None:
+    """Update Experiment.
 
      Update a specific experiment.
 
@@ -173,12 +170,13 @@ async def asyncio(
         experiment_id (str):
         body (ExperimentUpdateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         ExperimentResponse | HTTPValidationError
     """
-
     return (await asyncio_detailed(project_id=project_id, experiment_id=experiment_id, client=client, body=body)).parsed

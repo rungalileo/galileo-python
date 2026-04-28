@@ -24,7 +24,8 @@ T = TypeVar("T", bound="ListPromptTemplateParams")
 @_attrs_define
 class ListPromptTemplateParams:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (list[PromptTemplateCreatedByFilter | PromptTemplateNameFilter | PromptTemplateNotInProjectFilter |
             PromptTemplateUsedInProjectFilter] | Unset):
         sort (None | PromptTemplateCreatedAtSort | PromptTemplateNameSort | PromptTemplateUpdatedAtSort | Unset):
@@ -56,11 +57,10 @@ class ListPromptTemplateParams:
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
-                if isinstance(filters_item_data, PromptTemplateNameFilter):
-                    filters_item = filters_item_data.to_dict()
-                elif isinstance(filters_item_data, PromptTemplateCreatedByFilter):
-                    filters_item = filters_item_data.to_dict()
-                elif isinstance(filters_item_data, PromptTemplateUsedInProjectFilter):
+                if isinstance(
+                    filters_item_data,
+                    PromptTemplateNameFilter | PromptTemplateCreatedByFilter | PromptTemplateUsedInProjectFilter,
+                ):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
@@ -70,11 +70,7 @@ class ListPromptTemplateParams:
         sort: dict[str, Any] | None | Unset
         if isinstance(self.sort, Unset):
             sort = UNSET
-        elif isinstance(self.sort, PromptTemplateNameSort):
-            sort = self.sort.to_dict()
-        elif isinstance(self.sort, PromptTemplateCreatedAtSort):
-            sort = self.sort.to_dict()
-        elif isinstance(self.sort, PromptTemplateUpdatedAtSort):
+        elif isinstance(self.sort, PromptTemplateNameSort | PromptTemplateCreatedAtSort | PromptTemplateUpdatedAtSort):
             sort = self.sort.to_dict()
         else:
             sort = self.sort
@@ -125,32 +121,27 @@ class ListPromptTemplateParams:
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_item_type_0 = PromptTemplateNameFilter.from_dict(data)
+                        return PromptTemplateNameFilter.from_dict(data)
 
-                        return filters_item_type_0
                     except:  # noqa: E722
                         pass
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_item_type_1 = PromptTemplateCreatedByFilter.from_dict(data)
+                        return PromptTemplateCreatedByFilter.from_dict(data)
 
-                        return filters_item_type_1
                     except:  # noqa: E722
                         pass
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_item_type_2 = PromptTemplateUsedInProjectFilter.from_dict(data)
+                        return PromptTemplateUsedInProjectFilter.from_dict(data)
 
-                        return filters_item_type_2
                     except:  # noqa: E722
                         pass
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_3 = PromptTemplateNotInProjectFilter.from_dict(data)
-
-                    return filters_item_type_3
+                    return PromptTemplateNotInProjectFilter.from_dict(data)
 
                 filters_item = _parse_filters_item(filters_item_data)
 
@@ -166,25 +157,22 @@ class ListPromptTemplateParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                sort_type_0_type_0 = PromptTemplateNameSort.from_dict(data)
+                return PromptTemplateNameSort.from_dict(data)
 
-                return sort_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                sort_type_0_type_1 = PromptTemplateCreatedAtSort.from_dict(data)
+                return PromptTemplateCreatedAtSort.from_dict(data)
 
-                return sort_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                sort_type_0_type_2 = PromptTemplateUpdatedAtSort.from_dict(data)
+                return PromptTemplateUpdatedAtSort.from_dict(data)
 
-                return sort_type_0_type_2
             except:  # noqa: E722
                 pass
             return cast(

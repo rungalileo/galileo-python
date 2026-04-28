@@ -21,7 +21,8 @@ T = TypeVar("T", bound="AwsSageMakerIntegration")
 @_attrs_define
 class AwsSageMakerIntegration:
     """
-    Attributes:
+    Attributes
+    ----------
         credential_type (AwsCredentialType | Unset):
         region (str | Unset):  Default: 'us-west-2'.
         multi_modal_config (MultiModalModelIntegrationConfig | None | Unset): Configuration for multi-modal (file
@@ -67,10 +68,7 @@ class AwsSageMakerIntegration:
                 models.append(models_item)
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
@@ -111,10 +109,7 @@ class AwsSageMakerIntegration:
         d = dict(src_dict)
         _credential_type = d.pop("credential_type", UNSET)
         credential_type: AwsCredentialType | Unset
-        if isinstance(_credential_type, Unset):
-            credential_type = UNSET
-        else:
-            credential_type = AwsCredentialType(_credential_type)
+        credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
 
         region = d.pop("region", UNSET)
 
@@ -126,9 +121,8 @@ class AwsSageMakerIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
+                return MultiModalModelIntegrationConfig.from_dict(data)
 
-                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
             return cast(MultiModalModelIntegrationConfig | None | Unset, data)
@@ -165,9 +159,8 @@ class AwsSageMakerIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = AwsSageMakerIntegrationExtraType0.from_dict(data)
+                return AwsSageMakerIntegrationExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(AwsSageMakerIntegrationExtraType0 | None | Unset, data)

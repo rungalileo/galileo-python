@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -36,7 +36,7 @@ def _get_kwargs(integration_id: str, *, starting_token: int | Unset = 0, limit: 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": "/integrations/{integration_id}/users".format(integration_id=integration_id),
+        "path": f"/integrations/{integration_id}/users",
         "params": params,
     }
 
@@ -50,14 +50,10 @@ def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> HTTPValidationError | ListUserCollaboratorsResponse:
     if response.status_code == 200:
-        response_200 = ListUserCollaboratorsResponse.from_dict(response.json())
-
-        return response_200
+        return ListUserCollaboratorsResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -91,7 +87,7 @@ def _build_response(
 def sync_detailed(
     integration_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
 ) -> Response[HTTPValidationError | ListUserCollaboratorsResponse]:
-    """List User Integration Collaborators
+    """List User Integration Collaborators.
 
      List the users with which the integration has been shared.
 
@@ -100,14 +96,15 @@ def sync_detailed(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | ListUserCollaboratorsResponse]
     """
-
     kwargs = _get_kwargs(integration_id=integration_id, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -117,8 +114,8 @@ def sync_detailed(
 
 def sync(
     integration_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Optional[HTTPValidationError | ListUserCollaboratorsResponse]:
-    """List User Integration Collaborators
+) -> HTTPValidationError | ListUserCollaboratorsResponse | None:
+    """List User Integration Collaborators.
 
      List the users with which the integration has been shared.
 
@@ -127,14 +124,15 @@ def sync(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | ListUserCollaboratorsResponse
     """
-
     return sync_detailed(
         integration_id=integration_id, client=client, starting_token=starting_token, limit=limit
     ).parsed
@@ -143,7 +141,7 @@ def sync(
 async def asyncio_detailed(
     integration_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
 ) -> Response[HTTPValidationError | ListUserCollaboratorsResponse]:
-    """List User Integration Collaborators
+    """List User Integration Collaborators.
 
      List the users with which the integration has been shared.
 
@@ -152,14 +150,15 @@ async def asyncio_detailed(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | ListUserCollaboratorsResponse]
     """
-
     kwargs = _get_kwargs(integration_id=integration_id, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -169,8 +168,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     integration_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Optional[HTTPValidationError | ListUserCollaboratorsResponse]:
-    """List User Integration Collaborators
+) -> HTTPValidationError | ListUserCollaboratorsResponse | None:
+    """List User Integration Collaborators.
 
      List the users with which the integration has been shared.
 
@@ -179,14 +178,15 @@ async def asyncio(
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | ListUserCollaboratorsResponse
     """
-
     return (
         await asyncio_detailed(integration_id=integration_id, client=client, starting_token=starting_token, limit=limit)
     ).parsed

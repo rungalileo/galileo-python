@@ -27,7 +27,8 @@ T = TypeVar("T", bound="ToolSpan")
 @_attrs_define
 class ToolSpan:
     """
-    Attributes:
+    Attributes
+    ----------
         type_ (Literal['tool'] | Unset): Type of the trace, span or session. Default: 'tool'.
         input_ (str | Unset): Input to the trace or span. Default: ''.
         redacted_input (None | str | Unset): Redacted input of the trace or span.
@@ -87,22 +88,13 @@ class ToolSpan:
         input_ = self.input_
 
         redacted_input: None | str | Unset
-        if isinstance(self.redacted_input, Unset):
-            redacted_input = UNSET
-        else:
-            redacted_input = self.redacted_input
+        redacted_input = UNSET if isinstance(self.redacted_input, Unset) else self.redacted_input
 
         output: None | str | Unset
-        if isinstance(self.output, Unset):
-            output = UNSET
-        else:
-            output = self.output
+        output = UNSET if isinstance(self.output, Unset) else self.output
 
         redacted_output: None | str | Unset
-        if isinstance(self.redacted_output, Unset):
-            redacted_output = UNSET
-        else:
-            redacted_output = self.redacted_output
+        redacted_output = UNSET if isinstance(self.redacted_output, Unset) else self.redacted_output
 
         name = self.name
 
@@ -119,81 +111,46 @@ class ToolSpan:
             tags = self.tags
 
         status_code: int | None | Unset
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         metrics: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
         external_id: None | str | Unset
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         dataset_input: None | str | Unset
-        if isinstance(self.dataset_input, Unset):
-            dataset_input = UNSET
-        else:
-            dataset_input = self.dataset_input
+        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
         dataset_output: None | str | Unset
-        if isinstance(self.dataset_output, Unset):
-            dataset_output = UNSET
-        else:
-            dataset_output = self.dataset_output
+        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
         dataset_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         session_id: None | str | Unset
-        if isinstance(self.session_id, Unset):
-            session_id = UNSET
-        else:
-            session_id = self.session_id
+        session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
 
         trace_id: None | str | Unset
-        if isinstance(self.trace_id, Unset):
-            trace_id = UNSET
-        else:
-            trace_id = self.trace_id
+        trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
         step_number: int | None | Unset
-        if isinstance(self.step_number, Unset):
-            step_number = UNSET
-        else:
-            step_number = self.step_number
+        step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
 
         parent_id: None | str | Unset
-        if isinstance(self.parent_id, Unset):
-            parent_id = UNSET
-        else:
-            parent_id = self.parent_id
+        parent_id = UNSET if isinstance(self.parent_id, Unset) else self.parent_id
 
         spans: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.spans, Unset):
             spans = []
             for spans_item_data in self.spans:
                 spans_item: dict[str, Any]
-                if isinstance(spans_item_data, AgentSpan):
-                    spans_item = spans_item_data.to_dict()
-                elif isinstance(spans_item_data, WorkflowSpan):
-                    spans_item = spans_item_data.to_dict()
-                elif isinstance(spans_item_data, LlmSpan):
-                    spans_item = spans_item_data.to_dict()
-                elif isinstance(spans_item_data, RetrieverSpan):
-                    spans_item = spans_item_data.to_dict()
-                elif isinstance(spans_item_data, ToolSpan):
+                if isinstance(spans_item_data, AgentSpan | WorkflowSpan | LlmSpan | RetrieverSpan | ToolSpan):
                     spans_item = spans_item_data.to_dict()
                 else:
                     spans_item = spans_item_data.to_dict()
@@ -201,10 +158,7 @@ class ToolSpan:
                 spans.append(spans_item)
 
         tool_call_id: None | str | Unset
-        if isinstance(self.tool_call_id, Unset):
-            tool_call_id = UNSET
-        else:
-            tool_call_id = self.tool_call_id
+        tool_call_id = UNSET if isinstance(self.tool_call_id, Unset) else self.tool_call_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -305,17 +259,11 @@ class ToolSpan:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: datetime.datetime | Unset
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
         user_metadata: ToolSpanUserMetadata | Unset
-        if isinstance(_user_metadata, Unset):
-            user_metadata = UNSET
-        else:
-            user_metadata = ToolSpanUserMetadata.from_dict(_user_metadata)
+        user_metadata = UNSET if isinstance(_user_metadata, Unset) else ToolSpanUserMetadata.from_dict(_user_metadata)
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
@@ -330,10 +278,7 @@ class ToolSpan:
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Metrics | Unset
-        if isinstance(_metrics, Unset):
-            metrics = UNSET
-        else:
-            metrics = Metrics.from_dict(_metrics)
+        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
         def _parse_external_id(data: object) -> None | str | Unset:
             if data is None:
@@ -426,48 +371,41 @@ class ToolSpan:
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        spans_item_type_0 = AgentSpan.from_dict(data)
+                        return AgentSpan.from_dict(data)
 
-                        return spans_item_type_0
                     except:  # noqa: E722
                         pass
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        spans_item_type_1 = WorkflowSpan.from_dict(data)
+                        return WorkflowSpan.from_dict(data)
 
-                        return spans_item_type_1
                     except:  # noqa: E722
                         pass
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        spans_item_type_2 = LlmSpan.from_dict(data)
+                        return LlmSpan.from_dict(data)
 
-                        return spans_item_type_2
                     except:  # noqa: E722
                         pass
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        spans_item_type_3 = RetrieverSpan.from_dict(data)
+                        return RetrieverSpan.from_dict(data)
 
-                        return spans_item_type_3
                     except:  # noqa: E722
                         pass
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        spans_item_type_4 = ToolSpan.from_dict(data)
+                        return ToolSpan.from_dict(data)
 
-                        return spans_item_type_4
                     except:  # noqa: E722
                         pass
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_5 = ControlSpan.from_dict(data)
-
-                    return spans_item_type_5
+                    return ControlSpan.from_dict(data)
 
                 spans_item = _parse_spans_item(spans_item_data)
 

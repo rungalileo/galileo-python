@@ -17,7 +17,7 @@ T = TypeVar("T", bound="PartialExtendedControlSpanRecordAnnotations")
 
 @_attrs_define
 class PartialExtendedControlSpanRecordAnnotations:
-    """Annotations keyed by template ID and annotator ID"""
+    """Annotations keyed by template ID and annotator ID."""
 
     additional_properties: dict[str, PartialExtendedControlSpanRecordAnnotationsAdditionalProperty] = _attrs_field(
         init=False, factory=dict

@@ -15,7 +15,8 @@ T = TypeVar("T", bound="PromptTemplateCreatedByFilter")
 @_attrs_define
 class PromptTemplateCreatedByFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (list[str] | str):
         name (Literal['creator'] | Unset):  Default: 'creator'.
         operator (PromptTemplateCreatedByFilterOperator | Unset):  Default: PromptTemplateCreatedByFilterOperator.EQ.
@@ -86,10 +87,7 @@ class PromptTemplateCreatedByFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: PromptTemplateCreatedByFilterOperator | Unset
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = PromptTemplateCreatedByFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else PromptTemplateCreatedByFilterOperator(_operator)
 
         prompt_template_created_by_filter = cls(value=value, name=name, operator=operator)
 

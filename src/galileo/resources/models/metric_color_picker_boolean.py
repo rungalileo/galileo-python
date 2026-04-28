@@ -30,7 +30,8 @@ class MetricColorPickerBoolean:
             ]
         }
 
-        Attributes:
+    Attributes
+    ----------
             constraints (list[BooleanColorConstraint]):
             type_ (Literal['boolean'] | Unset):  Default: 'boolean'.
     """

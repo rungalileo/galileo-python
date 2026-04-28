@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -55,14 +55,10 @@ def _get_kwargs(
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | RenderTemplateResponse:
     if response.status_code == 200:
-        response_200 = RenderTemplateResponse.from_dict(response.json())
-
-        return response_200
+        return RenderTemplateResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -96,21 +92,22 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
 ) -> Response[HTTPValidationError | RenderTemplateResponse]:
-    """Render Template
+    """Render Template.
 
     Args:
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
         body (RenderTemplateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | RenderTemplateResponse]
     """
-
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -120,43 +117,45 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Optional[HTTPValidationError | RenderTemplateResponse]:
-    """Render Template
+) -> HTTPValidationError | RenderTemplateResponse | None:
+    """Render Template.
 
     Args:
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
         body (RenderTemplateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | RenderTemplateResponse
     """
-
     return sync_detailed(client=client, body=body, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
 ) -> Response[HTTPValidationError | RenderTemplateResponse]:
-    """Render Template
+    """Render Template.
 
     Args:
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
         body (RenderTemplateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | RenderTemplateResponse]
     """
-
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -166,20 +165,21 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Optional[HTTPValidationError | RenderTemplateResponse]:
-    """Render Template
+) -> HTTPValidationError | RenderTemplateResponse | None:
+    """Render Template.
 
     Args:
         starting_token (int | Unset):  Default: 0.
         limit (int | Unset):  Default: 100.
         body (RenderTemplateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | RenderTemplateResponse
     """
-
     return (await asyncio_detailed(client=client, body=body, starting_token=starting_token, limit=limit)).parsed

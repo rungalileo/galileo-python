@@ -12,7 +12,8 @@ T = TypeVar("T", bound="LogStreamCreateRequest")
 @_attrs_define
 class LogStreamCreateRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
     """
 

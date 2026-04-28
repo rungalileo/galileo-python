@@ -16,7 +16,8 @@ T = TypeVar("T", bound="ModelProperties")
 @_attrs_define
 class ModelProperties:
     """
-    Attributes:
+    Attributes
+    ----------
         alias (str):
         name (str):
         input_modalities (list[ContentModality]):

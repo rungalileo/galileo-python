@@ -13,7 +13,8 @@ T = TypeVar("T", bound="VertexAIGCSConfig")
 class VertexAIGCSConfig:
     """Configuration for GCS file uploads in Vertex AI.
 
-    Attributes:
+    Attributes
+    ----------
         service_account_credentials (str):
         bucket_name (str):
         object_path_prefix (str):

@@ -14,7 +14,8 @@ T = TypeVar("T", bound="ExperimentPrompt")
 @_attrs_define
 class ExperimentPrompt:
     """
-    Attributes:
+    Attributes
+    ----------
         prompt_template_id (None | str | Unset):
         version_index (int | None | Unset):
         name (None | str | Unset):
@@ -29,28 +30,16 @@ class ExperimentPrompt:
 
     def to_dict(self) -> dict[str, Any]:
         prompt_template_id: None | str | Unset
-        if isinstance(self.prompt_template_id, Unset):
-            prompt_template_id = UNSET
-        else:
-            prompt_template_id = self.prompt_template_id
+        prompt_template_id = UNSET if isinstance(self.prompt_template_id, Unset) else self.prompt_template_id
 
         version_index: int | None | Unset
-        if isinstance(self.version_index, Unset):
-            version_index = UNSET
-        else:
-            version_index = self.version_index
+        version_index = UNSET if isinstance(self.version_index, Unset) else self.version_index
 
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         content: None | str | Unset
-        if isinstance(self.content, Unset):
-            content = UNSET
-        else:
-            content = self.content
+        content = UNSET if isinstance(self.content, Unset) else self.content
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

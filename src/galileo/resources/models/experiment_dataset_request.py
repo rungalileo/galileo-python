@@ -12,7 +12,8 @@ T = TypeVar("T", bound="ExperimentDatasetRequest")
 @_attrs_define
 class ExperimentDatasetRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         dataset_id (str):
         version_index (int):
     """

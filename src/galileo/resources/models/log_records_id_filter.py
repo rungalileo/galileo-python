@@ -15,7 +15,8 @@ T = TypeVar("T", bound="LogRecordsIDFilter")
 @_attrs_define
 class LogRecordsIDFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         column_id (str): ID of the column to filter.
         value (list[str] | str):
         operator (LogRecordsIDFilterOperator | Unset):  Default: LogRecordsIDFilterOperator.EQ.
@@ -87,10 +88,7 @@ class LogRecordsIDFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: LogRecordsIDFilterOperator | Unset
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = LogRecordsIDFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else LogRecordsIDFilterOperator(_operator)
 
         type_ = cast(Literal["id"] | Unset, d.pop("type", UNSET))
         if type_ != "id" and not isinstance(type_, Unset):

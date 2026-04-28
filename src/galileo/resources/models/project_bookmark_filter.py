@@ -14,7 +14,8 @@ T = TypeVar("T", bound="ProjectBookmarkFilter")
 @_attrs_define
 class ProjectBookmarkFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (bool):
         name (Literal['bookmark'] | Unset):  Default: 'bookmark'.
     """

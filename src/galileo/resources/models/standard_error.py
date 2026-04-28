@@ -20,7 +20,8 @@ T = TypeVar("T", bound="StandardError")
 @_attrs_define
 class StandardError:
     """
-    Attributes:
+    Attributes
+    ----------
         error_code (int):
         error_type (ErrorType):
         error_group (str):
@@ -61,32 +62,20 @@ class StandardError:
         message = self.message
 
         user_action: None | str | Unset
-        if isinstance(self.user_action, Unset):
-            user_action = UNSET
-        else:
-            user_action = self.user_action
+        user_action = UNSET if isinstance(self.user_action, Unset) else self.user_action
 
         documentation_link: None | str | Unset
-        if isinstance(self.documentation_link, Unset):
-            documentation_link = UNSET
-        else:
-            documentation_link = self.documentation_link
+        documentation_link = UNSET if isinstance(self.documentation_link, Unset) else self.documentation_link
 
         retriable = self.retriable
 
         blocking = self.blocking
 
         http_status_code: int | None | Unset
-        if isinstance(self.http_status_code, Unset):
-            http_status_code = UNSET
-        else:
-            http_status_code = self.http_status_code
+        http_status_code = UNSET if isinstance(self.http_status_code, Unset) else self.http_status_code
 
         source_service: None | str | Unset
-        if isinstance(self.source_service, Unset):
-            source_service = UNSET
-        else:
-            source_service = self.source_service
+        source_service = UNSET if isinstance(self.source_service, Unset) else self.source_service
 
         context: dict[str, Any] | Unset = UNSET
         if not isinstance(self.context, Unset):
@@ -177,10 +166,7 @@ class StandardError:
 
         _context = d.pop("context", UNSET)
         context: StandardErrorContext | Unset
-        if isinstance(_context, Unset):
-            context = UNSET
-        else:
-            context = StandardErrorContext.from_dict(_context)
+        context = UNSET if isinstance(_context, Unset) else StandardErrorContext.from_dict(_context)
 
         standard_error = cls(
             error_code=error_code,

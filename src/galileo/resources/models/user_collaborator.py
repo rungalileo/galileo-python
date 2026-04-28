@@ -21,7 +21,8 @@ T = TypeVar("T", bound="UserCollaborator")
 @_attrs_define
 class UserCollaborator:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         role (CollaboratorRole):
         created_at (datetime.datetime):

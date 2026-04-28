@@ -14,7 +14,8 @@ T = TypeVar("T", bound="DatasetProjectLastUsedAtSort")
 @_attrs_define
 class DatasetProjectLastUsedAtSort:
     """
-    Attributes:
+    Attributes
+    ----------
         value (str):
         name (Literal['project_last_used_at'] | Unset):  Default: 'project_last_used_at'.
         ascending (bool | Unset):  Default: True.

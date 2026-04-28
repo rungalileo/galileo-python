@@ -14,7 +14,8 @@ T = TypeVar("T", bound="JobProgress")
 @_attrs_define
 class JobProgress:
     """
-    Attributes:
+    Attributes
+    ----------
         progress_message (None | str | Unset):
         steps_completed (int | None | Unset):
         steps_total (int | None | Unset):
@@ -27,22 +28,13 @@ class JobProgress:
 
     def to_dict(self) -> dict[str, Any]:
         progress_message: None | str | Unset
-        if isinstance(self.progress_message, Unset):
-            progress_message = UNSET
-        else:
-            progress_message = self.progress_message
+        progress_message = UNSET if isinstance(self.progress_message, Unset) else self.progress_message
 
         steps_completed: int | None | Unset
-        if isinstance(self.steps_completed, Unset):
-            steps_completed = UNSET
-        else:
-            steps_completed = self.steps_completed
+        steps_completed = UNSET if isinstance(self.steps_completed, Unset) else self.steps_completed
 
         steps_total: int | None | Unset
-        if isinstance(self.steps_total, Unset):
-            steps_total = UNSET
-        else:
-            steps_total = self.steps_total
+        steps_total = UNSET if isinstance(self.steps_total, Unset) else self.steps_total
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

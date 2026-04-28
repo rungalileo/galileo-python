@@ -21,7 +21,8 @@ T = TypeVar("T", bound="AnthropicIntegration")
 @_attrs_define
 class AnthropicIntegration:
     """
-    Attributes:
+    Attributes
+    ----------
         multi_modal_config (MultiModalModelIntegrationConfig | None | Unset): Configuration for multi-modal (file
             upload) capabilities.
         authentication_type (AnthropicAuthenticationType | Unset):
@@ -66,22 +67,13 @@ class AnthropicIntegration:
             authentication_type = self.authentication_type.value
 
         endpoint: None | str | Unset
-        if isinstance(self.endpoint, Unset):
-            endpoint = UNSET
-        else:
-            endpoint = self.endpoint
+        endpoint = UNSET if isinstance(self.endpoint, Unset) else self.endpoint
 
         authentication_scope: None | str | Unset
-        if isinstance(self.authentication_scope, Unset):
-            authentication_scope = UNSET
-        else:
-            authentication_scope = self.authentication_scope
+        authentication_scope = UNSET if isinstance(self.authentication_scope, Unset) else self.authentication_scope
 
         oauth2_token_url: None | str | Unset
-        if isinstance(self.oauth2_token_url, Unset):
-            oauth2_token_url = UNSET
-        else:
-            oauth2_token_url = self.oauth2_token_url
+        oauth2_token_url = UNSET if isinstance(self.oauth2_token_url, Unset) else self.oauth2_token_url
 
         custom_header_mapping: dict[str, Any] | None | Unset
         if isinstance(self.custom_header_mapping, Unset):
@@ -92,10 +84,7 @@ class AnthropicIntegration:
             custom_header_mapping = self.custom_header_mapping
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
@@ -149,9 +138,8 @@ class AnthropicIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
+                return MultiModalModelIntegrationConfig.from_dict(data)
 
-                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
             return cast(MultiModalModelIntegrationConfig | None | Unset, data)
@@ -200,9 +188,8 @@ class AnthropicIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                custom_header_mapping_type_0 = AnthropicIntegrationCustomHeaderMappingType0.from_dict(data)
+                return AnthropicIntegrationCustomHeaderMappingType0.from_dict(data)
 
-                return custom_header_mapping_type_0
             except:  # noqa: E722
                 pass
             return cast(AnthropicIntegrationCustomHeaderMappingType0 | None | Unset, data)
@@ -230,9 +217,8 @@ class AnthropicIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = AnthropicIntegrationExtraType0.from_dict(data)
+                return AnthropicIntegrationExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(AnthropicIntegrationExtraType0 | None | Unset, data)

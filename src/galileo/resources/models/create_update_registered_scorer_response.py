@@ -16,7 +16,8 @@ T = TypeVar("T", bound="CreateUpdateRegisteredScorerResponse")
 @_attrs_define
 class CreateUpdateRegisteredScorerResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (str):
         score_type (None | str):
@@ -52,10 +53,7 @@ class CreateUpdateRegisteredScorerResponse:
         created_by = self.created_by
 
         data_type: None | str
-        if isinstance(self.data_type, DataTypeOptions):
-            data_type = self.data_type.value
-        else:
-            data_type = self.data_type
+        data_type = self.data_type.value if isinstance(self.data_type, DataTypeOptions) else self.data_type
 
         scoreable_node_types: list[str] | None
         if isinstance(self.scoreable_node_types, list):
@@ -107,9 +105,8 @@ class CreateUpdateRegisteredScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_type_type_0 = DataTypeOptions(data)
+                return DataTypeOptions(data)
 
-                return data_type_type_0
             except:  # noqa: E722
                 pass
             return cast(DataTypeOptions | None, data)
@@ -122,9 +119,8 @@ class CreateUpdateRegisteredScorerResponse:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                scoreable_node_types_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None, data)

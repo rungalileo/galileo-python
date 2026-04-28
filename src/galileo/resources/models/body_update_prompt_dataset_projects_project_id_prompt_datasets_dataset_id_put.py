@@ -16,7 +16,8 @@ T = TypeVar("T", bound="BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDa
 @_attrs_define
 class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
     """
-    Attributes:
+    Attributes
+    ----------
         file (File | None | Unset):
         column_names (list[str] | None | Unset):
     """
@@ -87,9 +88,8 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
             try:
                 if not isinstance(data, bytes):
                     raise TypeError()
-                file_type_0 = File(payload=BytesIO(data))
+                return File(payload=BytesIO(data))
 
-                return file_type_0
             except:  # noqa: E722
                 pass
             return cast(File | None | Unset, data)
@@ -104,9 +104,8 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                column_names_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return column_names_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)

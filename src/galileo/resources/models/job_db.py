@@ -20,7 +20,8 @@ T = TypeVar("T", bound="JobDB")
 @_attrs_define
 class JobDB:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
@@ -34,7 +35,7 @@ class JobDB:
         completed_at (datetime.datetime | None | Unset):
         processing_started (datetime.datetime | None | Unset):
         migration_name (None | str | Unset):
-        batch_id (None | str | Unset):
+        monitor_batch_id (None | str | Unset):
         error_message (None | str | Unset):
         progress_message (None | str | Unset):
         steps_completed (int | Unset):  Default: 0.
@@ -55,7 +56,7 @@ class JobDB:
     completed_at: datetime.datetime | None | Unset = UNSET
     processing_started: datetime.datetime | None | Unset = UNSET
     migration_name: None | str | Unset = UNSET
-    batch_id: None | str | Unset = UNSET
+    monitor_batch_id: None | str | Unset = UNSET
     error_message: None | str | Unset = UNSET
     progress_message: None | str | Unset = UNSET
     steps_completed: int | Unset = 0
@@ -107,28 +108,16 @@ class JobDB:
             processing_started = self.processing_started
 
         migration_name: None | str | Unset
-        if isinstance(self.migration_name, Unset):
-            migration_name = UNSET
-        else:
-            migration_name = self.migration_name
+        migration_name = UNSET if isinstance(self.migration_name, Unset) else self.migration_name
 
-        batch_id: None | str | Unset
-        if isinstance(self.batch_id, Unset):
-            batch_id = UNSET
-        else:
-            batch_id = self.batch_id
+        monitor_batch_id: None | str | Unset
+        monitor_batch_id = UNSET if isinstance(self.monitor_batch_id, Unset) else self.monitor_batch_id
 
         error_message: None | str | Unset
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         progress_message: None | str | Unset
-        if isinstance(self.progress_message, Unset):
-            progress_message = UNSET
-        else:
-            progress_message = self.progress_message
+        progress_message = UNSET if isinstance(self.progress_message, Unset) else self.progress_message
 
         steps_completed = self.steps_completed
 
@@ -159,8 +148,8 @@ class JobDB:
             field_dict["processing_started"] = processing_started
         if migration_name is not UNSET:
             field_dict["migration_name"] = migration_name
-        if batch_id is not UNSET:
-            field_dict["batch_id"] = batch_id
+        if monitor_batch_id is not UNSET:
+            field_dict["monitor_batch_id"] = monitor_batch_id
         if error_message is not UNSET:
             field_dict["error_message"] = error_message
         if progress_message is not UNSET:
@@ -205,9 +194,8 @@ class JobDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                failed_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return failed_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -222,9 +210,8 @@ class JobDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                completed_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return completed_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -239,9 +226,8 @@ class JobDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                processing_started_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return processing_started_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -257,14 +243,14 @@ class JobDB:
 
         migration_name = _parse_migration_name(d.pop("migration_name", UNSET))
 
-        def _parse_batch_id(data: object) -> None | str | Unset:
+        def _parse_monitor_batch_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(None | str | Unset, data)
 
-        batch_id = _parse_batch_id(d.pop("batch_id", UNSET))
+        monitor_batch_id = _parse_monitor_batch_id(d.pop("monitor_batch_id", UNSET))
 
         def _parse_error_message(data: object) -> None | str | Unset:
             if data is None:
@@ -304,7 +290,7 @@ class JobDB:
             completed_at=completed_at,
             processing_started=processing_started,
             migration_name=migration_name,
-            batch_id=batch_id,
+            monitor_batch_id=monitor_batch_id,
             error_message=error_message,
             progress_message=progress_message,
             steps_completed=steps_completed,

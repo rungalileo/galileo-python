@@ -21,7 +21,8 @@ T = TypeVar("T", bound="GroupCollaborator")
 @_attrs_define
 class GroupCollaborator:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         role (CollaboratorRole):
         created_at (datetime.datetime):

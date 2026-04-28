@@ -18,7 +18,8 @@ T = TypeVar("T", bound="MistralIntegration")
 @_attrs_define
 class MistralIntegration:
     """
-    Attributes:
+    Attributes
+    ----------
         id (None | str | Unset):
         name (Literal['mistral'] | Unset):  Default: 'mistral'.
         extra (MistralIntegrationExtraType0 | None | Unset):
@@ -33,10 +34,7 @@ class MistralIntegration:
         from ..models.mistral_integration_extra_type_0 import MistralIntegrationExtraType0
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
@@ -87,9 +85,8 @@ class MistralIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = MistralIntegrationExtraType0.from_dict(data)
+                return MistralIntegrationExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(MistralIntegrationExtraType0 | None | Unset, data)

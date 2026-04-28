@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -40,14 +40,10 @@ def _get_kwargs(*, body: BodyLoginEmailLoginPost) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | Token:
     if response.status_code == 200:
-        response_200 = Token.from_dict(response.json())
-
-        return response_200
+        return Token.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -77,19 +73,20 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Response[HTTPValidationError | Token]:
-    """Login Email
+    """Login Email.
 
     Args:
         body (BodyLoginEmailLoginPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | Token]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -97,39 +94,41 @@ def sync_detailed(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Respon
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Optional[HTTPValidationError | Token]:
-    """Login Email
+def sync(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> HTTPValidationError | Token | None:
+    """Login Email.
 
     Args:
         body (BodyLoginEmailLoginPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | Token
     """
-
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BodyLoginEmailLoginPost
 ) -> Response[HTTPValidationError | Token]:
-    """Login Email
+    """Login Email.
 
     Args:
         body (BodyLoginEmailLoginPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | Token]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -137,18 +136,19 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Optional[HTTPValidationError | Token]:
-    """Login Email
+async def asyncio(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> HTTPValidationError | Token | None:
+    """Login Email.
 
     Args:
         body (BodyLoginEmailLoginPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | Token
     """
-
     return (await asyncio_detailed(client=client, body=body)).parsed

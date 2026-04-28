@@ -14,7 +14,8 @@ T = TypeVar("T", bound="TextAggregate")
 @_attrs_define
 class TextAggregate:
     """
-    Attributes:
+    Attributes
+    ----------
         count (int):
         unrated_count (int):
         feedback_type (Literal['text'] | Unset):  Default: 'text'.

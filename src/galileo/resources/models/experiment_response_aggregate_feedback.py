@@ -15,7 +15,7 @@ T = TypeVar("T", bound="ExperimentResponseAggregateFeedback")
 
 @_attrs_define
 class ExperimentResponseAggregateFeedback:
-    """Aggregate feedback information related to the experiment (traces only)"""
+    """Aggregate feedback information related to the experiment (traces only)."""
 
     additional_properties: dict[str, FeedbackAggregate] = _attrs_field(init=False, factory=dict)
 

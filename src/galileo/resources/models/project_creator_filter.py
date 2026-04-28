@@ -15,7 +15,8 @@ T = TypeVar("T", bound="ProjectCreatorFilter")
 @_attrs_define
 class ProjectCreatorFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (list[str] | str):
         name (Literal['creator'] | Unset):  Default: 'creator'.
         operator (ProjectCreatorFilterOperator | Unset):  Default: ProjectCreatorFilterOperator.EQ.
@@ -86,10 +87,7 @@ class ProjectCreatorFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: ProjectCreatorFilterOperator | Unset
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = ProjectCreatorFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else ProjectCreatorFilterOperator(_operator)
 
         project_creator_filter = cls(value=value, name=name, operator=operator)
 

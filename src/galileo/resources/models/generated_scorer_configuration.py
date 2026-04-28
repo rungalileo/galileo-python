@@ -15,7 +15,8 @@ T = TypeVar("T", bound="GeneratedScorerConfiguration")
 @_attrs_define
 class GeneratedScorerConfiguration:
     """
-    Attributes:
+    Attributes
+    ----------
         model_alias (str | Unset):  Default: 'gpt-4.1-mini'.
         num_judges (int | Unset):  Default: 3.
         output_type (OutputTypeEnum | Unset): Enumeration of output types.
@@ -76,10 +77,7 @@ class GeneratedScorerConfiguration:
 
         _output_type = d.pop("output_type", UNSET)
         output_type: OutputTypeEnum | Unset
-        if isinstance(_output_type, Unset):
-            output_type = UNSET
-        else:
-            output_type = OutputTypeEnum(_output_type)
+        output_type = UNSET if isinstance(_output_type, Unset) else OutputTypeEnum(_output_type)
 
         scoreable_node_types = cast(list[str], d.pop("scoreable_node_types", UNSET))
 

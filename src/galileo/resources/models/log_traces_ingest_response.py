@@ -14,7 +14,8 @@ T = TypeVar("T", bound="LogTracesIngestResponse")
 @_attrs_define
 class LogTracesIngestResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         project_id (str): Project id associated with the traces.
         project_name (str): Project name associated with the traces.
         records_count (int): Total number of records ingested
@@ -48,28 +49,16 @@ class LogTracesIngestResponse:
         traces_count = self.traces_count
 
         log_stream_id: None | str | Unset
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: None | str | Unset
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         metrics_testing_id: None | str | Unset
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         session_id: None | str | Unset
-        if isinstance(self.session_id, Unset):
-            session_id = UNSET
-        else:
-            session_id = self.session_id
+        session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
 
         trace_ids: list[str] | None | Unset
         if isinstance(self.trace_ids, Unset):
@@ -158,9 +147,8 @@ class LogTracesIngestResponse:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                trace_ids_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return trace_ids_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)

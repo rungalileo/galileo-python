@@ -12,8 +12,9 @@ T = TypeVar("T", bound="LogRecordsQueryCountResponse")
 @_attrs_define
 class LogRecordsQueryCountResponse:
     """
-    Attributes:
-        total_count (int): Total number of records matching the query
+    Attributes
+    ----------
+        total_count (int): Total number of records matching the query.
     """
 
     total_count: int

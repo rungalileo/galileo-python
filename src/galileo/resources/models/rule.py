@@ -14,7 +14,8 @@ T = TypeVar("T", bound="Rule")
 @_attrs_define
 class Rule:
     """
-    Attributes:
+    Attributes
+    ----------
         metric (str): Name of the metric.
         operator (RuleOperator):
         target_value (float | int | list[Any] | None | str): Value to compare with for this metric (right hand side).
@@ -31,11 +32,7 @@ class Rule:
         operator = self.operator.value
 
         target_value: float | int | list[Any] | None | str
-        if isinstance(self.target_value, list):
-            target_value = self.target_value
-
-        else:
-            target_value = self.target_value
+        target_value = self.target_value if isinstance(self.target_value, list) else self.target_value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -56,9 +53,8 @@ class Rule:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                target_value_type_3 = cast(list[Any], data)
+                return cast(list[Any], data)
 
-                return target_value_type_3
             except:  # noqa: E722
                 pass
             return cast(float | int | list[Any] | None | str, data)

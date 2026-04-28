@@ -14,7 +14,8 @@ T = TypeVar("T", bound="UpsertDatasetContentRequest")
 @_attrs_define
 class UpsertDatasetContentRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         dataset_id (str): The ID of the dataset to copy content from.
         version_index (int | None | Unset): The version index of the dataset to copy content from. If not provided, the
             content will be copied from the latest version of the dataset.
@@ -28,10 +29,7 @@ class UpsertDatasetContentRequest:
         dataset_id = self.dataset_id
 
         version_index: int | None | Unset
-        if isinstance(self.version_index, Unset):
-            version_index = UNSET
-        else:
-            version_index = self.version_index
+        version_index = UNSET if isinstance(self.version_index, Unset) else self.version_index
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

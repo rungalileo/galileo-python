@@ -15,7 +15,8 @@ T = TypeVar("T", bound="TextContentPart")
 class TextContentPart:
     """A text segment within a message.
 
-    Attributes:
+    Attributes
+    ----------
         text (str):
         type_ (Literal['text'] | Unset):  Default: 'text'.
     """

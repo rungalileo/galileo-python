@@ -32,7 +32,8 @@ T = TypeVar("T", bound="ScorerResponse")
 @_attrs_define
 class ScorerResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (str):
         scorer_type (ScorerTypes):
@@ -50,6 +51,7 @@ class ScorerResponse:
         multimodal_capabilities (list[MultimodalCapability] | None | Unset):
         required_scorers (list[str] | None | Unset):
         deprecated (bool | None | Unset):
+        roll_up_method (None | RollUpMethodDisplayOptions | Unset):
         roll_up_config (BaseMetricRollUpConfigDB | None | Unset):
         label (None | str | Unset):  Default: ''.
         included_fields (list[str] | Unset): Fields that can be used in the scorer to configure it. i.e. model,
@@ -58,7 +60,6 @@ class ScorerResponse:
         created_by (None | str | Unset):
         created_at (datetime.datetime | None | Unset):
         updated_at (datetime.datetime | None | Unset):
-        roll_up_method (None | RollUpMethodDisplayOptions | Unset):
         metric_color_picker_config (MetricColorPickerBoolean | MetricColorPickerCategorical |
             MetricColorPickerMultiLabel | MetricColorPickerNumeric | None | Unset):
         metric_name (None | str | Unset):
@@ -81,6 +82,7 @@ class ScorerResponse:
     multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET
     required_scorers: list[str] | None | Unset = UNSET
     deprecated: bool | None | Unset = UNSET
+    roll_up_method: None | RollUpMethodDisplayOptions | Unset = UNSET
     roll_up_config: BaseMetricRollUpConfigDB | None | Unset = UNSET
     label: None | str | Unset = ""
     included_fields: list[str] | Unset = UNSET
@@ -88,7 +90,6 @@ class ScorerResponse:
     created_by: None | str | Unset = UNSET
     created_at: datetime.datetime | None | Unset = UNSET
     updated_at: datetime.datetime | None | Unset = UNSET
-    roll_up_method: None | RollUpMethodDisplayOptions | Unset = UNSET
     metric_color_picker_config: (
         MetricColorPickerBoolean
         | MetricColorPickerCategorical
@@ -142,16 +143,10 @@ class ScorerResponse:
             model_type = self.model_type
 
         ground_truth: bool | None | Unset
-        if isinstance(self.ground_truth, Unset):
-            ground_truth = UNSET
-        else:
-            ground_truth = self.ground_truth
+        ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
 
         default_version_id: None | str | Unset
-        if isinstance(self.default_version_id, Unset):
-            default_version_id = UNSET
-        else:
-            default_version_id = self.default_version_id
+        default_version_id = UNSET if isinstance(self.default_version_id, Unset) else self.default_version_id
 
         default_version: dict[str, Any] | None | Unset
         if isinstance(self.default_version, Unset):
@@ -162,10 +157,7 @@ class ScorerResponse:
             default_version = self.default_version
 
         user_prompt: None | str | Unset
-        if isinstance(self.user_prompt, Unset):
-            user_prompt = UNSET
-        else:
-            user_prompt = self.user_prompt
+        user_prompt = UNSET if isinstance(self.user_prompt, Unset) else self.user_prompt
 
         scoreable_node_types: list[str] | None | Unset
         if isinstance(self.scoreable_node_types, Unset):
@@ -214,10 +206,15 @@ class ScorerResponse:
             required_scorers = self.required_scorers
 
         deprecated: bool | None | Unset
-        if isinstance(self.deprecated, Unset):
-            deprecated = UNSET
+        deprecated = UNSET if isinstance(self.deprecated, Unset) else self.deprecated
+
+        roll_up_method: None | str | Unset
+        if isinstance(self.roll_up_method, Unset):
+            roll_up_method = UNSET
+        elif isinstance(self.roll_up_method, RollUpMethodDisplayOptions):
+            roll_up_method = self.roll_up_method.value
         else:
-            deprecated = self.deprecated
+            roll_up_method = self.roll_up_method
 
         roll_up_config: dict[str, Any] | None | Unset
         if isinstance(self.roll_up_config, Unset):
@@ -228,26 +225,17 @@ class ScorerResponse:
             roll_up_config = self.roll_up_config
 
         label: None | str | Unset
-        if isinstance(self.label, Unset):
-            label = UNSET
-        else:
-            label = self.label
+        label = UNSET if isinstance(self.label, Unset) else self.label
 
         included_fields: list[str] | Unset = UNSET
         if not isinstance(self.included_fields, Unset):
             included_fields = self.included_fields
 
         description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         created_by: None | str | Unset
-        if isinstance(self.created_by, Unset):
-            created_by = UNSET
-        else:
-            created_by = self.created_by
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
         created_at: None | str | Unset
         if isinstance(self.created_at, Unset):
@@ -265,33 +253,22 @@ class ScorerResponse:
         else:
             updated_at = self.updated_at
 
-        roll_up_method: None | str | Unset
-        if isinstance(self.roll_up_method, Unset):
-            roll_up_method = UNSET
-        elif isinstance(self.roll_up_method, RollUpMethodDisplayOptions):
-            roll_up_method = self.roll_up_method.value
-        else:
-            roll_up_method = self.roll_up_method
-
         metric_color_picker_config: dict[str, Any] | None | Unset
         if isinstance(self.metric_color_picker_config, Unset):
             metric_color_picker_config = UNSET
-        elif isinstance(self.metric_color_picker_config, MetricColorPickerNumeric):
-            metric_color_picker_config = self.metric_color_picker_config.to_dict()
-        elif isinstance(self.metric_color_picker_config, MetricColorPickerBoolean):
-            metric_color_picker_config = self.metric_color_picker_config.to_dict()
-        elif isinstance(self.metric_color_picker_config, MetricColorPickerCategorical):
-            metric_color_picker_config = self.metric_color_picker_config.to_dict()
-        elif isinstance(self.metric_color_picker_config, MetricColorPickerMultiLabel):
+        elif isinstance(
+            self.metric_color_picker_config,
+            MetricColorPickerNumeric
+            | MetricColorPickerBoolean
+            | MetricColorPickerCategorical
+            | MetricColorPickerMultiLabel,
+        ):
             metric_color_picker_config = self.metric_color_picker_config.to_dict()
         else:
             metric_color_picker_config = self.metric_color_picker_config
 
         metric_name: None | str | Unset
-        if isinstance(self.metric_name, Unset):
-            metric_name = UNSET
-        else:
-            metric_name = self.metric_name
+        metric_name = UNSET if isinstance(self.metric_name, Unset) else self.metric_name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -322,6 +299,8 @@ class ScorerResponse:
             field_dict["required_scorers"] = required_scorers
         if deprecated is not UNSET:
             field_dict["deprecated"] = deprecated
+        if roll_up_method is not UNSET:
+            field_dict["roll_up_method"] = roll_up_method
         if roll_up_config is not UNSET:
             field_dict["roll_up_config"] = roll_up_config
         if label is not UNSET:
@@ -336,8 +315,6 @@ class ScorerResponse:
             field_dict["created_at"] = created_at
         if updated_at is not UNSET:
             field_dict["updated_at"] = updated_at
-        if roll_up_method is not UNSET:
-            field_dict["roll_up_method"] = roll_up_method
         if metric_color_picker_config is not UNSET:
             field_dict["metric_color_picker_config"] = metric_color_picker_config
         if metric_name is not UNSET:
@@ -372,9 +349,8 @@ class ScorerResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                defaults_type_0 = ScorerDefaults.from_dict(data)
+                return ScorerDefaults.from_dict(data)
 
-                return defaults_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ScorerDefaults | Unset, data)
@@ -389,9 +365,8 @@ class ScorerResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                latest_version_type_0 = BaseScorerVersionDB.from_dict(data)
+                return BaseScorerVersionDB.from_dict(data)
 
-                return latest_version_type_0
             except:  # noqa: E722
                 pass
             return cast(BaseScorerVersionDB | None | Unset, data)
@@ -406,9 +381,8 @@ class ScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                model_type_type_0 = ModelType(data)
+                return ModelType(data)
 
-                return model_type_type_0
             except:  # noqa: E722
                 pass
             return cast(ModelType | None | Unset, data)
@@ -441,9 +415,8 @@ class ScorerResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                default_version_type_0 = BaseScorerVersionDB.from_dict(data)
+                return BaseScorerVersionDB.from_dict(data)
 
-                return default_version_type_0
             except:  # noqa: E722
                 pass
             return cast(BaseScorerVersionDB | None | Unset, data)
@@ -467,9 +440,8 @@ class ScorerResponse:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                scoreable_node_types_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)
@@ -484,9 +456,8 @@ class ScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                output_type_type_0 = OutputTypeEnum(data)
+                return OutputTypeEnum(data)
 
-                return output_type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | OutputTypeEnum | Unset, data)
@@ -501,9 +472,8 @@ class ScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                input_type_type_0 = InputTypeEnum(data)
+                return InputTypeEnum(data)
 
-                return input_type_type_0
             except:  # noqa: E722
                 pass
             return cast(InputTypeEnum | None | Unset, data)
@@ -540,9 +510,8 @@ class ScorerResponse:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                required_scorers_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return required_scorers_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)
@@ -558,6 +527,22 @@ class ScorerResponse:
 
         deprecated = _parse_deprecated(d.pop("deprecated", UNSET))
 
+        def _parse_roll_up_method(data: object) -> None | RollUpMethodDisplayOptions | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return RollUpMethodDisplayOptions(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(None | RollUpMethodDisplayOptions | Unset, data)
+
+        roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
+
         def _parse_roll_up_config(data: object) -> BaseMetricRollUpConfigDB | None | Unset:
             if data is None:
                 return data
@@ -566,9 +551,8 @@ class ScorerResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                roll_up_config_type_0 = BaseMetricRollUpConfigDB.from_dict(data)
+                return BaseMetricRollUpConfigDB.from_dict(data)
 
-                return roll_up_config_type_0
             except:  # noqa: E722
                 pass
             return cast(BaseMetricRollUpConfigDB | None | Unset, data)
@@ -612,9 +596,8 @@ class ScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                created_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return created_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -629,31 +612,13 @@ class ScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                updated_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return updated_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
 
         updated_at = _parse_updated_at(d.pop("updated_at", UNSET))
-
-        def _parse_roll_up_method(data: object) -> None | RollUpMethodDisplayOptions | Unset:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                roll_up_method_type_0 = RollUpMethodDisplayOptions(data)
-
-                return roll_up_method_type_0
-            except:  # noqa: E722
-                pass
-            return cast(None | RollUpMethodDisplayOptions | Unset, data)
-
-        roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
 
         def _parse_metric_color_picker_config(
             data: object,
@@ -672,33 +637,29 @@ class ScorerResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_color_picker_config_type_0_type_0 = MetricColorPickerNumeric.from_dict(data)
+                return MetricColorPickerNumeric.from_dict(data)
 
-                return metric_color_picker_config_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_color_picker_config_type_0_type_1 = MetricColorPickerBoolean.from_dict(data)
+                return MetricColorPickerBoolean.from_dict(data)
 
-                return metric_color_picker_config_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_color_picker_config_type_0_type_2 = MetricColorPickerCategorical.from_dict(data)
+                return MetricColorPickerCategorical.from_dict(data)
 
-                return metric_color_picker_config_type_0_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_color_picker_config_type_0_type_3 = MetricColorPickerMultiLabel.from_dict(data)
+                return MetricColorPickerMultiLabel.from_dict(data)
 
-                return metric_color_picker_config_type_0_type_3
             except:  # noqa: E722
                 pass
             return cast(
@@ -740,6 +701,7 @@ class ScorerResponse:
             multimodal_capabilities=multimodal_capabilities,
             required_scorers=required_scorers,
             deprecated=deprecated,
+            roll_up_method=roll_up_method,
             roll_up_config=roll_up_config,
             label=label,
             included_fields=included_fields,
@@ -747,7 +709,6 @@ class ScorerResponse:
             created_by=created_by,
             created_at=created_at,
             updated_at=updated_at,
-            roll_up_method=roll_up_method,
             metric_color_picker_config=metric_color_picker_config,
             metric_name=metric_name,
         )

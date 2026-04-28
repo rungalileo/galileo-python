@@ -13,7 +13,8 @@ T = TypeVar("T", bound="BulkDeletePromptTemplatesRequest")
 class BulkDeletePromptTemplatesRequest:
     """Request to delete multiple prompt templates.
 
-    Attributes:
+    Attributes
+    ----------
         template_ids (list[str]):
     """
 

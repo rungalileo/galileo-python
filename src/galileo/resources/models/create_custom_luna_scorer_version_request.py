@@ -17,7 +17,8 @@ T = TypeVar("T", bound="CreateCustomLunaScorerVersionRequest")
 @_attrs_define
 class CreateCustomLunaScorerVersionRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         lora_task_id (int):
         prompt (str):
         lora_weights_path (None | str | Unset):
@@ -41,10 +42,7 @@ class CreateCustomLunaScorerVersionRequest:
         prompt = self.prompt
 
         lora_weights_path: None | str | Unset
-        if isinstance(self.lora_weights_path, Unset):
-            lora_weights_path = UNSET
-        else:
-            lora_weights_path = self.lora_weights_path
+        lora_weights_path = UNSET if isinstance(self.lora_weights_path, Unset) else self.lora_weights_path
 
         executor: None | str | Unset
         if isinstance(self.executor, Unset):
@@ -108,9 +106,8 @@ class CreateCustomLunaScorerVersionRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                executor_type_0 = CoreScorerName(data)
+                return CoreScorerName(data)
 
-                return executor_type_0
             except:  # noqa: E722
                 pass
             return cast(CoreScorerName | None | Unset, data)
@@ -125,9 +122,8 @@ class CreateCustomLunaScorerVersionRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                luna_input_type_type_0 = LunaInputTypeEnum(data)
+                return LunaInputTypeEnum(data)
 
-                return luna_input_type_type_0
             except:  # noqa: E722
                 pass
             return cast(LunaInputTypeEnum | None | Unset, data)
@@ -142,9 +138,8 @@ class CreateCustomLunaScorerVersionRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                luna_output_type_type_0 = LunaOutputTypeEnum(data)
+                return LunaOutputTypeEnum(data)
 
-                return luna_output_type_type_0
             except:  # noqa: E722
                 pass
             return cast(LunaOutputTypeEnum | None | Unset, data)

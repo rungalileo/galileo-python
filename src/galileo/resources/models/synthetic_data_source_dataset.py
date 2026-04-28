@@ -15,7 +15,8 @@ T = TypeVar("T", bound="SyntheticDataSourceDataset")
 class SyntheticDataSourceDataset:
     """Configuration for dataset examples in synthetic data generation.
 
-    Attributes:
+    Attributes
+    ----------
         dataset_id (str):
         dataset_version_index (int | None | Unset):
         row_ids (list[str] | None | Unset):
@@ -30,10 +31,7 @@ class SyntheticDataSourceDataset:
         dataset_id = self.dataset_id
 
         dataset_version_index: int | None | Unset
-        if isinstance(self.dataset_version_index, Unset):
-            dataset_version_index = UNSET
-        else:
-            dataset_version_index = self.dataset_version_index
+        dataset_version_index = UNSET if isinstance(self.dataset_version_index, Unset) else self.dataset_version_index
 
         row_ids: list[str] | None | Unset
         if isinstance(self.row_ids, Unset):
@@ -76,9 +74,8 @@ class SyntheticDataSourceDataset:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                row_ids_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return row_ids_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)

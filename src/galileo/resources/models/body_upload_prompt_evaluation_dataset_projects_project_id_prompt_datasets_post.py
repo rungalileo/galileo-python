@@ -16,7 +16,8 @@ T = TypeVar("T", bound="BodyUploadPromptEvaluationDatasetProjectsProjectIdPrompt
 @_attrs_define
 class BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost:
     """
-    Attributes:
+    Attributes
+    ----------
         file (File):
     """
 

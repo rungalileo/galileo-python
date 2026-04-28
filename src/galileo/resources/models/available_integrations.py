@@ -14,7 +14,8 @@ T = TypeVar("T", bound="AvailableIntegrations")
 @_attrs_define
 class AvailableIntegrations:
     """
-    Attributes:
+    Attributes
+    ----------
         integrations (list[IntegrationName]):
     """
 

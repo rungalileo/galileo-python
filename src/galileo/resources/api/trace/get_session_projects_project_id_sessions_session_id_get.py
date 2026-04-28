@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -17,6 +17,7 @@ from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
 
 from ... import errors
+from ...models.extended_session_record_with_children import ExtendedSessionRecordWithChildren
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
@@ -33,7 +34,7 @@ def _get_kwargs(project_id: str, session_id: str, *, include_presigned_urls: boo
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/sessions/{session_id}".format(project_id=project_id, session_id=session_id),
+        "path": f"/projects/{project_id}/sessions/{session_id}",
         "params": params,
     }
 
@@ -43,11 +44,14 @@ def _get_kwargs(project_id: str, session_id: str, *, include_presigned_urls: boo
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError:
-    if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> ExtendedSessionRecordWithChildren | HTTPValidationError:
+    if response.status_code == 200:
+        return ExtendedSessionRecordWithChildren.from_dict(response.json())
 
-        return response_422
+    if response.status_code == 422:
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -67,7 +71,9 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError]:
+def _build_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Response[ExtendedSessionRecordWithChildren | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -78,22 +84,23 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 def sync_detailed(
     project_id: str, session_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
-) -> Response[HTTPValidationError]:
-    """Get Session
+) -> Response[ExtendedSessionRecordWithChildren | HTTPValidationError]:
+    """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
         include_presigned_urls (bool | Unset):  Default: False.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
-        Response[HTTPValidationError]
+    Returns
+    -------
+        Response[ExtendedSessionRecordWithChildren | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(project_id=project_id, session_id=session_id, include_presigned_urls=include_presigned_urls)
 
     response = client.request(**kwargs)
@@ -103,22 +110,23 @@ def sync_detailed(
 
 def sync(
     project_id: str, session_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
-) -> Optional[HTTPValidationError]:
-    """Get Session
+) -> ExtendedSessionRecordWithChildren | HTTPValidationError | None:
+    """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
         include_presigned_urls (bool | Unset):  Default: False.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
-        HTTPValidationError
+    Returns
+    -------
+        ExtendedSessionRecordWithChildren | HTTPValidationError
     """
-
     return sync_detailed(
         project_id=project_id, session_id=session_id, client=client, include_presigned_urls=include_presigned_urls
     ).parsed
@@ -126,22 +134,23 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, session_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
-) -> Response[HTTPValidationError]:
-    """Get Session
+) -> Response[ExtendedSessionRecordWithChildren | HTTPValidationError]:
+    """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
         include_presigned_urls (bool | Unset):  Default: False.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
-        Response[HTTPValidationError]
+    Returns
+    -------
+        Response[ExtendedSessionRecordWithChildren | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(project_id=project_id, session_id=session_id, include_presigned_urls=include_presigned_urls)
 
     response = await client.arequest(**kwargs)
@@ -151,22 +160,23 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, session_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
-) -> Optional[HTTPValidationError]:
-    """Get Session
+) -> ExtendedSessionRecordWithChildren | HTTPValidationError | None:
+    """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
         include_presigned_urls (bool | Unset):  Default: False.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
-        HTTPValidationError
+    Returns
+    -------
+        ExtendedSessionRecordWithChildren | HTTPValidationError
     """
-
     return (
         await asyncio_detailed(
             project_id=project_id, session_id=session_id, client=client, include_presigned_urls=include_presigned_urls

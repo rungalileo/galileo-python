@@ -22,7 +22,8 @@ T = TypeVar("T", bound="UserDB")
 @_attrs_define
 class UserDB:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         email (str):
         organization_id (str):
@@ -72,16 +73,10 @@ class UserDB:
                 permissions.append(permissions_item)
 
         first_name: None | str | Unset
-        if isinstance(self.first_name, Unset):
-            first_name = UNSET
-        else:
-            first_name = self.first_name
+        first_name = UNSET if isinstance(self.first_name, Unset) else self.first_name
 
         last_name: None | str | Unset
-        if isinstance(self.last_name, Unset):
-            last_name = UNSET
-        else:
-            last_name = self.last_name
+        last_name = UNSET if isinstance(self.last_name, Unset) else self.last_name
 
         auth_method: str | Unset = UNSET
         if not isinstance(self.auth_method, Unset):
@@ -92,10 +87,7 @@ class UserDB:
             role = self.role.value
 
         email_is_verified: bool | None | Unset
-        if isinstance(self.email_is_verified, Unset):
-            email_is_verified = UNSET
-        else:
-            email_is_verified = self.email_is_verified
+        email_is_verified = UNSET if isinstance(self.email_is_verified, Unset) else self.email_is_verified
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -170,17 +162,11 @@ class UserDB:
 
         _auth_method = d.pop("auth_method", UNSET)
         auth_method: AuthMethod | Unset
-        if isinstance(_auth_method, Unset):
-            auth_method = UNSET
-        else:
-            auth_method = AuthMethod(_auth_method)
+        auth_method = UNSET if isinstance(_auth_method, Unset) else AuthMethod(_auth_method)
 
         _role = d.pop("role", UNSET)
         role: UserRole | Unset
-        if isinstance(_role, Unset):
-            role = UNSET
-        else:
-            role = UserRole(_role)
+        role = UNSET if isinstance(_role, Unset) else UserRole(_role)
 
         def _parse_email_is_verified(data: object) -> bool | None | Unset:
             if data is None:

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -31,7 +31,7 @@ def _get_kwargs(name: IntegrationName) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": "/integrations/{name}/status".format(name=name),
+        "path": f"/integrations/{name}/status",
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -47,16 +47,12 @@ def _parse_response(
     | HTTPValidationError
 ):
     if response.status_code == 200:
-        response_200 = GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet.from_dict(
+        return GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet.from_dict(
             response.json()
         )
 
-        return response_200
-
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -96,21 +92,22 @@ def sync_detailed(
     GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
     | HTTPValidationError
 ]:
-    """Get Integration Status
+    """Get Integration Status.
 
      Checks if the integration status is active or not.
 
     Args:
         name (IntegrationName):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(name=name)
 
     response = client.request(**kwargs)
@@ -120,25 +117,27 @@ def sync_detailed(
 
 def sync(
     name: IntegrationName, *, client: ApiClient
-) -> Optional[
+) -> (
     GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
     | HTTPValidationError
-]:
-    """Get Integration Status
+    | None
+):
+    """Get Integration Status.
 
      Checks if the integration status is active or not.
 
     Args:
         name (IntegrationName):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError
     """
-
     return sync_detailed(name=name, client=client).parsed
 
 
@@ -148,21 +147,22 @@ async def asyncio_detailed(
     GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
     | HTTPValidationError
 ]:
-    """Get Integration Status
+    """Get Integration Status.
 
      Checks if the integration status is active or not.
 
     Args:
         name (IntegrationName):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError]
     """
-
     kwargs = _get_kwargs(name=name)
 
     response = await client.arequest(**kwargs)
@@ -172,23 +172,25 @@ async def asyncio_detailed(
 
 async def asyncio(
     name: IntegrationName, *, client: ApiClient
-) -> Optional[
+) -> (
     GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
     | HTTPValidationError
-]:
-    """Get Integration Status
+    | None
+):
+    """Get Integration Status.
 
      Checks if the integration status is active or not.
 
     Args:
         name (IntegrationName):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError
     """
-
     return (await asyncio_detailed(name=name, client=client)).parsed

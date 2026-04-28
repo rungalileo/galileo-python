@@ -19,7 +19,8 @@ T = TypeVar("T", bound="MetricSettingsResponse")
 @_attrs_define
 class MetricSettingsResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         scorers (list[ScorerConfig]):
         segment_filters (list[SegmentFilter] | None | Unset): List of segment filters to apply to the run.
     """

@@ -14,7 +14,8 @@ T = TypeVar("T", bound="PromptTemplateCreatedAtSort")
 @_attrs_define
 class PromptTemplateCreatedAtSort:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Literal['created_at'] | Unset):  Default: 'created_at'.
         ascending (bool | Unset):  Default: True.
         sort_type (Literal['column'] | Unset):  Default: 'column'.

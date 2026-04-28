@@ -14,7 +14,8 @@ T = TypeVar("T", bound="HallucinationSegment")
 @_attrs_define
 class HallucinationSegment:
     """
-    Attributes:
+    Attributes
+    ----------
         start (int):
         end (int):
         hallucination (float):

@@ -15,7 +15,8 @@ T = TypeVar("T", bound="DatasetDraftFilter")
 @_attrs_define
 class DatasetDraftFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (bool):
         name (Literal['draft'] | Unset):  Default: 'draft'.
         operator (DatasetDraftFilterOperator | Unset):  Default: DatasetDraftFilterOperator.EQ.
@@ -56,10 +57,7 @@ class DatasetDraftFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: DatasetDraftFilterOperator | Unset
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = DatasetDraftFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else DatasetDraftFilterOperator(_operator)
 
         dataset_draft_filter = cls(value=value, name=name, operator=operator)
 

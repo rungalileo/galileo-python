@@ -13,7 +13,8 @@ T = TypeVar("T", bound="SyntheticDatasetExtensionResponse")
 class SyntheticDatasetExtensionResponse:
     """Response for synthetic dataset extension requests.
 
-    Attributes:
+    Attributes
+    ----------
         dataset_id (str):
     """
 

@@ -15,7 +15,8 @@ T = TypeVar("T", bound="DatasetIDFilter")
 @_attrs_define
 class DatasetIDFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (list[str] | str):
         name (Literal['id'] | Unset):  Default: 'id'.
         operator (DatasetIDFilterOperator | Unset):  Default: DatasetIDFilterOperator.EQ.
@@ -86,10 +87,7 @@ class DatasetIDFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: DatasetIDFilterOperator | Unset
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = DatasetIDFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else DatasetIDFilterOperator(_operator)
 
         dataset_id_filter = cls(value=value, name=name, operator=operator)
 

@@ -18,7 +18,8 @@ T = TypeVar("T", bound="AnnotationScoreAggregate")
 @_attrs_define
 class AnnotationScoreAggregate:
     """
-    Attributes:
+    Attributes
+    ----------
         buckets (list[ScoreBucket]):
         average (float):
         unrated_count (int):

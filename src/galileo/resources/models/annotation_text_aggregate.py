@@ -14,7 +14,8 @@ T = TypeVar("T", bound="AnnotationTextAggregate")
 @_attrs_define
 class AnnotationTextAggregate:
     """
-    Attributes:
+    Attributes
+    ----------
         count (int):
         unrated_count (int):
         annotation_type (Literal['text'] | Unset):  Default: 'text'.

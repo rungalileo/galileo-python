@@ -14,7 +14,8 @@ T = TypeVar("T", bound="SelectColumns")
 @_attrs_define
 class SelectColumns:
     """
-    Attributes:
+    Attributes
+    ----------
         column_ids (list[str] | Unset):
         include_all_metrics (bool | Unset):  Default: False.
         include_all_feedback (bool | Unset):  Default: False.

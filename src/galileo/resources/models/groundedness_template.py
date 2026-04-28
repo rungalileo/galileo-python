@@ -21,7 +21,8 @@ class GroundednessTemplate:
     r"""Template for the groundedness metric,
     containing all the info necessary to send the groundedness prompt.
 
-        Attributes:
+    Attributes
+    ----------
             metric_system_prompt (str | Unset):  Default: 'The user will provide you with a prompt that was sent to an
                 automatic question-answering system, and that system\'s response. Both will be provided as JSON strings.\n\nThe
                 prompt will contain one or more documents intended as context which the question-answering system was given as
@@ -139,9 +140,8 @@ class GroundednessTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = GroundednessTemplateResponseSchemaType0.from_dict(data)
+                return GroundednessTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(GroundednessTemplateResponseSchemaType0 | None | Unset, data)

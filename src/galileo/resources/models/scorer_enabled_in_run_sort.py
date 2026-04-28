@@ -14,7 +14,8 @@ T = TypeVar("T", bound="ScorerEnabledInRunSort")
 @_attrs_define
 class ScorerEnabledInRunSort:
     """
-    Attributes:
+    Attributes
+    ----------
         value (str):
         name (Literal['enabled_in_run'] | Unset):  Default: 'enabled_in_run'.
         ascending (bool | Unset):  Default: True.

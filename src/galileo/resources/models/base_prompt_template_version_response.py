@@ -12,7 +12,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.messages_list_item import MessagesListItem
-    from ..models.prompt_run_settings_output import PromptRunSettingsOutput
+    from ..models.prompt_run_settings import PromptRunSettings
     from ..models.user_info import UserInfo
 
 
@@ -23,10 +23,11 @@ T = TypeVar("T", bound="BasePromptTemplateVersionResponse")
 class BasePromptTemplateVersionResponse:
     """Base response from API for a prompt template version.
 
-    Attributes:
+    Attributes
+    ----------
         template (list[MessagesListItem] | str):
         version (int):
-        settings (PromptRunSettingsOutput): Prompt run settings.
+        settings (PromptRunSettings): Prompt run settings.
         id (str):
         model_changed (bool):
         settings_changed (bool):
@@ -43,7 +44,7 @@ class BasePromptTemplateVersionResponse:
 
     template: list[MessagesListItem] | str
     version: int
-    settings: PromptRunSettingsOutput
+    settings: PromptRunSettings
     id: str
     model_changed: bool
     settings_changed: bool
@@ -96,10 +97,7 @@ class BasePromptTemplateVersionResponse:
         raw = self.raw
 
         output_type: None | str | Unset
-        if isinstance(self.output_type, Unset):
-            output_type = UNSET
-        else:
-            output_type = self.output_type
+        output_type = UNSET if isinstance(self.output_type, Unset) else self.output_type
 
         lines_added = self.lines_added
 
@@ -139,7 +137,7 @@ class BasePromptTemplateVersionResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.messages_list_item import MessagesListItem
-        from ..models.prompt_run_settings_output import PromptRunSettingsOutput
+        from ..models.prompt_run_settings import PromptRunSettings
         from ..models.user_info import UserInfo
 
         d = dict(src_dict)
@@ -164,7 +162,7 @@ class BasePromptTemplateVersionResponse:
 
         version = d.pop("version")
 
-        settings = PromptRunSettingsOutput.from_dict(d.pop("settings"))
+        settings = PromptRunSettings.from_dict(d.pop("settings"))
 
         id = d.pop("id")
 
@@ -184,9 +182,8 @@ class BasePromptTemplateVersionResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                created_by_user_type_0 = UserInfo.from_dict(data)
+                return UserInfo.from_dict(data)
 
-                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(None | UserInfo, data)

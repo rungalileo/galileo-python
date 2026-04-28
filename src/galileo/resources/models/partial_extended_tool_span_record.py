@@ -17,6 +17,9 @@ if TYPE_CHECKING:
     from ..models.partial_extended_tool_span_record_annotation_aggregates import (
         PartialExtendedToolSpanRecordAnnotationAggregates,
     )
+    from ..models.partial_extended_tool_span_record_annotation_agreement import (
+        PartialExtendedToolSpanRecordAnnotationAgreement,
+    )
     from ..models.partial_extended_tool_span_record_annotations import PartialExtendedToolSpanRecordAnnotations
     from ..models.partial_extended_tool_span_record_dataset_metadata import PartialExtendedToolSpanRecordDatasetMetadata
     from ..models.partial_extended_tool_span_record_feedback_rating_info import (
@@ -25,6 +28,9 @@ if TYPE_CHECKING:
     from ..models.partial_extended_tool_span_record_files_type_0 import PartialExtendedToolSpanRecordFilesType0
     from ..models.partial_extended_tool_span_record_metric_info_type_0 import (
         PartialExtendedToolSpanRecordMetricInfoType0,
+    )
+    from ..models.partial_extended_tool_span_record_overall_annotation_agreement import (
+        PartialExtendedToolSpanRecordOverallAnnotationAgreement,
     )
     from ..models.partial_extended_tool_span_record_user_metadata import PartialExtendedToolSpanRecordUserMetadata
 
@@ -35,7 +41,8 @@ T = TypeVar("T", bound="PartialExtendedToolSpanRecord")
 @_attrs_define
 class PartialExtendedToolSpanRecord:
     """
-    Attributes:
+    Attributes
+    ----------
         type_ (Literal['tool'] | Unset): Type of the trace, span or session. Default: 'tool'.
         input_ (str | Unset): Input to the trace or span. Default: ''.
         redacted_input (None | str | Unset): Redacted input of the trace or span.
@@ -71,6 +78,10 @@ class PartialExtendedToolSpanRecord:
         file_modalities (list[ContentModality] | Unset): Modalities of files associated with this record
         annotation_aggregates (PartialExtendedToolSpanRecordAnnotationAggregates | Unset): Annotation aggregate
             information keyed by template ID
+        annotation_agreement (PartialExtendedToolSpanRecordAnnotationAgreement | Unset): Annotation agreement scores
+            keyed by template ID
+        overall_annotation_agreement (PartialExtendedToolSpanRecordOverallAnnotationAgreement | Unset): Average
+            annotation agreement per queue (keyed by queue ID)
         annotation_queue_ids (list[str] | Unset): IDs of annotation queues this record is in
         metric_info (None | PartialExtendedToolSpanRecordMetricInfoType0 | Unset): Detailed information about the
             metrics associated with this trace or span
@@ -111,6 +122,8 @@ class PartialExtendedToolSpanRecord:
     file_ids: list[str] | Unset = UNSET
     file_modalities: list[ContentModality] | Unset = UNSET
     annotation_aggregates: PartialExtendedToolSpanRecordAnnotationAggregates | Unset = UNSET
+    annotation_agreement: PartialExtendedToolSpanRecordAnnotationAgreement | Unset = UNSET
+    overall_annotation_agreement: PartialExtendedToolSpanRecordOverallAnnotationAgreement | Unset = UNSET
     annotation_queue_ids: list[str] | Unset = UNSET
     metric_info: None | PartialExtendedToolSpanRecordMetricInfoType0 | Unset = UNSET
     files: None | PartialExtendedToolSpanRecordFilesType0 | Unset = UNSET
@@ -131,22 +144,13 @@ class PartialExtendedToolSpanRecord:
         input_ = self.input_
 
         redacted_input: None | str | Unset
-        if isinstance(self.redacted_input, Unset):
-            redacted_input = UNSET
-        else:
-            redacted_input = self.redacted_input
+        redacted_input = UNSET if isinstance(self.redacted_input, Unset) else self.redacted_input
 
         output: None | str | Unset
-        if isinstance(self.output, Unset):
-            output = UNSET
-        else:
-            output = self.output
+        output = UNSET if isinstance(self.output, Unset) else self.output
 
         redacted_output: None | str | Unset
-        if isinstance(self.redacted_output, Unset):
-            redacted_output = UNSET
-        else:
-            redacted_output = self.redacted_output
+        redacted_output = UNSET if isinstance(self.redacted_output, Unset) else self.redacted_output
 
         name = self.name
 
@@ -163,32 +167,20 @@ class PartialExtendedToolSpanRecord:
             tags = self.tags
 
         status_code: int | None | Unset
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         metrics: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
         external_id: None | str | Unset
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         dataset_input: None | str | Unset
-        if isinstance(self.dataset_input, Unset):
-            dataset_input = UNSET
-        else:
-            dataset_input = self.dataset_input
+        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
         dataset_output: None | str | Unset
-        if isinstance(self.dataset_output, Unset):
-            dataset_output = UNSET
-        else:
-            dataset_output = self.dataset_output
+        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
         dataset_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.dataset_metadata, Unset):
@@ -211,10 +203,7 @@ class PartialExtendedToolSpanRecord:
             session_id = self.session_id
 
         trace_id: None | str | Unset
-        if isinstance(self.trace_id, Unset):
-            trace_id = UNSET
-        else:
-            trace_id = self.trace_id
+        trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
         project_id: None | str | Unset
         if isinstance(self.project_id, Unset):
@@ -241,22 +230,13 @@ class PartialExtendedToolSpanRecord:
             updated_at = self.updated_at
 
         has_children: bool | None | Unset
-        if isinstance(self.has_children, Unset):
-            has_children = UNSET
-        else:
-            has_children = self.has_children
+        has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
 
         metrics_batch_id: None | str | Unset
-        if isinstance(self.metrics_batch_id, Unset):
-            metrics_batch_id = UNSET
-        else:
-            metrics_batch_id = self.metrics_batch_id
+        metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
 
         session_batch_id: None | str | Unset
-        if isinstance(self.session_batch_id, Unset):
-            session_batch_id = UNSET
-        else:
-            session_batch_id = self.session_batch_id
+        session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
         feedback_rating_info: dict[str, Any] | Unset = UNSET
         if not isinstance(self.feedback_rating_info, Unset):
@@ -280,6 +260,14 @@ class PartialExtendedToolSpanRecord:
         annotation_aggregates: dict[str, Any] | Unset = UNSET
         if not isinstance(self.annotation_aggregates, Unset):
             annotation_aggregates = self.annotation_aggregates.to_dict()
+
+        annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.annotation_agreement, Unset):
+            annotation_agreement = self.annotation_agreement.to_dict()
+
+        overall_annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.overall_annotation_agreement, Unset):
+            overall_annotation_agreement = self.overall_annotation_agreement.to_dict()
 
         annotation_queue_ids: list[str] | Unset = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
@@ -312,16 +300,10 @@ class PartialExtendedToolSpanRecord:
         is_complete = self.is_complete
 
         step_number: int | None | Unset
-        if isinstance(self.step_number, Unset):
-            step_number = UNSET
-        else:
-            step_number = self.step_number
+        step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
 
         tool_call_id: None | str | Unset
-        if isinstance(self.tool_call_id, Unset):
-            tool_call_id = UNSET
-        else:
-            tool_call_id = self.tool_call_id
+        tool_call_id = UNSET if isinstance(self.tool_call_id, Unset) else self.tool_call_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -384,6 +366,10 @@ class PartialExtendedToolSpanRecord:
             field_dict["file_modalities"] = file_modalities
         if annotation_aggregates is not UNSET:
             field_dict["annotation_aggregates"] = annotation_aggregates
+        if annotation_agreement is not UNSET:
+            field_dict["annotation_agreement"] = annotation_agreement
+        if overall_annotation_agreement is not UNSET:
+            field_dict["overall_annotation_agreement"] = overall_annotation_agreement
         if annotation_queue_ids is not UNSET:
             field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
@@ -407,6 +393,9 @@ class PartialExtendedToolSpanRecord:
         from ..models.partial_extended_tool_span_record_annotation_aggregates import (
             PartialExtendedToolSpanRecordAnnotationAggregates,
         )
+        from ..models.partial_extended_tool_span_record_annotation_agreement import (
+            PartialExtendedToolSpanRecordAnnotationAgreement,
+        )
         from ..models.partial_extended_tool_span_record_annotations import PartialExtendedToolSpanRecordAnnotations
         from ..models.partial_extended_tool_span_record_dataset_metadata import (
             PartialExtendedToolSpanRecordDatasetMetadata,
@@ -417,6 +406,9 @@ class PartialExtendedToolSpanRecord:
         from ..models.partial_extended_tool_span_record_files_type_0 import PartialExtendedToolSpanRecordFilesType0
         from ..models.partial_extended_tool_span_record_metric_info_type_0 import (
             PartialExtendedToolSpanRecordMetricInfoType0,
+        )
+        from ..models.partial_extended_tool_span_record_overall_annotation_agreement import (
+            PartialExtendedToolSpanRecordOverallAnnotationAgreement,
         )
         from ..models.partial_extended_tool_span_record_user_metadata import PartialExtendedToolSpanRecordUserMetadata
 
@@ -458,10 +450,7 @@ class PartialExtendedToolSpanRecord:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: datetime.datetime | Unset
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
         user_metadata: PartialExtendedToolSpanRecordUserMetadata | Unset
@@ -483,10 +472,7 @@ class PartialExtendedToolSpanRecord:
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Metrics | Unset
-        if isinstance(_metrics, Unset):
-            metrics = UNSET
-        else:
-            metrics = Metrics.from_dict(_metrics)
+        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
         def _parse_external_id(data: object) -> None | str | Unset:
             if data is None:
@@ -530,9 +516,8 @@ class PartialExtendedToolSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                id_type_0 = UUID(data)
+                return UUID(data)
 
-                return id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -547,9 +532,8 @@ class PartialExtendedToolSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                session_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return session_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -573,9 +557,8 @@ class PartialExtendedToolSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                project_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return project_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -590,9 +573,8 @@ class PartialExtendedToolSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                run_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return run_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -607,9 +589,8 @@ class PartialExtendedToolSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                updated_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return updated_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -675,6 +656,22 @@ class PartialExtendedToolSpanRecord:
         else:
             annotation_aggregates = PartialExtendedToolSpanRecordAnnotationAggregates.from_dict(_annotation_aggregates)
 
+        _annotation_agreement = d.pop("annotation_agreement", UNSET)
+        annotation_agreement: PartialExtendedToolSpanRecordAnnotationAgreement | Unset
+        if isinstance(_annotation_agreement, Unset):
+            annotation_agreement = UNSET
+        else:
+            annotation_agreement = PartialExtendedToolSpanRecordAnnotationAgreement.from_dict(_annotation_agreement)
+
+        _overall_annotation_agreement = d.pop("overall_annotation_agreement", UNSET)
+        overall_annotation_agreement: PartialExtendedToolSpanRecordOverallAnnotationAgreement | Unset
+        if isinstance(_overall_annotation_agreement, Unset):
+            overall_annotation_agreement = UNSET
+        else:
+            overall_annotation_agreement = PartialExtendedToolSpanRecordOverallAnnotationAgreement.from_dict(
+                _overall_annotation_agreement
+            )
+
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
 
         def _parse_metric_info(data: object) -> None | PartialExtendedToolSpanRecordMetricInfoType0 | Unset:
@@ -685,9 +682,8 @@ class PartialExtendedToolSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_info_type_0 = PartialExtendedToolSpanRecordMetricInfoType0.from_dict(data)
+                return PartialExtendedToolSpanRecordMetricInfoType0.from_dict(data)
 
-                return metric_info_type_0
             except:  # noqa: E722
                 pass
             return cast(None | PartialExtendedToolSpanRecordMetricInfoType0 | Unset, data)
@@ -702,9 +698,8 @@ class PartialExtendedToolSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                files_type_0 = PartialExtendedToolSpanRecordFilesType0.from_dict(data)
+                return PartialExtendedToolSpanRecordFilesType0.from_dict(data)
 
-                return files_type_0
             except:  # noqa: E722
                 pass
             return cast(None | PartialExtendedToolSpanRecordFilesType0 | Unset, data)
@@ -719,9 +714,8 @@ class PartialExtendedToolSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                parent_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return parent_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -778,6 +772,8 @@ class PartialExtendedToolSpanRecord:
             file_ids=file_ids,
             file_modalities=file_modalities,
             annotation_aggregates=annotation_aggregates,
+            annotation_agreement=annotation_agreement,
+            overall_annotation_agreement=overall_annotation_agreement,
             annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
             files=files,

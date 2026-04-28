@@ -28,7 +28,8 @@ T = TypeVar("T", bound="ControlSpan")
 @_attrs_define
 class ControlSpan:
     """
-    Attributes:
+    Attributes
+    ----------
         type_ (Literal['control'] | Unset): Type of the trace, span or session. Default: 'control'.
         input_ (list[FileContentPart | TextContentPart] | list[Message] | str | Unset): Input to the trace or span.
             Default: ''.
@@ -174,78 +175,45 @@ class ControlSpan:
             tags = self.tags
 
         status_code: int | None | Unset
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         metrics: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
         external_id: None | str | Unset
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         dataset_input: None | str | Unset
-        if isinstance(self.dataset_input, Unset):
-            dataset_input = UNSET
-        else:
-            dataset_input = self.dataset_input
+        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
         dataset_output: None | str | Unset
-        if isinstance(self.dataset_output, Unset):
-            dataset_output = UNSET
-        else:
-            dataset_output = self.dataset_output
+        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
         dataset_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         session_id: None | str | Unset
-        if isinstance(self.session_id, Unset):
-            session_id = UNSET
-        else:
-            session_id = self.session_id
+        session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
 
         trace_id: None | str | Unset
-        if isinstance(self.trace_id, Unset):
-            trace_id = UNSET
-        else:
-            trace_id = self.trace_id
+        trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
         step_number: int | None | Unset
-        if isinstance(self.step_number, Unset):
-            step_number = UNSET
-        else:
-            step_number = self.step_number
+        step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
 
         parent_id: None | str | Unset
-        if isinstance(self.parent_id, Unset):
-            parent_id = UNSET
-        else:
-            parent_id = self.parent_id
+        parent_id = UNSET if isinstance(self.parent_id, Unset) else self.parent_id
 
         control_id: int | None | Unset
-        if isinstance(self.control_id, Unset):
-            control_id = UNSET
-        else:
-            control_id = self.control_id
+        control_id = UNSET if isinstance(self.control_id, Unset) else self.control_id
 
         agent_name: None | str | Unset
-        if isinstance(self.agent_name, Unset):
-            agent_name = UNSET
-        else:
-            agent_name = self.agent_name
+        agent_name = UNSET if isinstance(self.agent_name, Unset) else self.agent_name
 
         check_stage: None | str | Unset
         if isinstance(self.check_stage, Unset):
@@ -264,16 +232,10 @@ class ControlSpan:
             applies_to = self.applies_to
 
         evaluator_name: None | str | Unset
-        if isinstance(self.evaluator_name, Unset):
-            evaluator_name = UNSET
-        else:
-            evaluator_name = self.evaluator_name
+        evaluator_name = UNSET if isinstance(self.evaluator_name, Unset) else self.evaluator_name
 
         selector_path: None | str | Unset
-        if isinstance(self.selector_path, Unset):
-            selector_path = UNSET
-        else:
-            selector_path = self.selector_path
+        selector_path = UNSET if isinstance(self.selector_path, Unset) else self.selector_path
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -375,16 +337,13 @@ class ControlSpan:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            input_type_2_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return input_type_2_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        input_type_2_item_type_1 = FileContentPart.from_dict(data)
-
-                        return input_type_2_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     input_type_2_item = _parse_input_type_2_item(input_type_2_item_data)
 
@@ -428,16 +387,13 @@ class ControlSpan:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            redacted_input_type_2_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return redacted_input_type_2_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        redacted_input_type_2_item_type_1 = FileContentPart.from_dict(data)
-
-                        return redacted_input_type_2_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     redacted_input_type_2_item = _parse_redacted_input_type_2_item(redacted_input_type_2_item_data)
 
@@ -458,9 +414,8 @@ class ControlSpan:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                output_type_0 = ControlResult.from_dict(data)
+                return ControlResult.from_dict(data)
 
-                return output_type_0
             except:  # noqa: E722
                 pass
             return cast(ControlResult | None | Unset, data)
@@ -475,9 +430,8 @@ class ControlSpan:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                redacted_output_type_0 = ControlResult.from_dict(data)
+                return ControlResult.from_dict(data)
 
-                return redacted_output_type_0
             except:  # noqa: E722
                 pass
             return cast(ControlResult | None | Unset, data)
@@ -488,10 +442,7 @@ class ControlSpan:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: datetime.datetime | Unset
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
         user_metadata: ControlSpanUserMetadata | Unset
@@ -513,10 +464,7 @@ class ControlSpan:
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Metrics | Unset
-        if isinstance(_metrics, Unset):
-            metrics = UNSET
-        else:
-            metrics = Metrics.from_dict(_metrics)
+        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
         def _parse_external_id(data: object) -> None | str | Unset:
             if data is None:
@@ -623,9 +571,8 @@ class ControlSpan:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                check_stage_type_0 = ControlCheckStage(data)
+                return ControlCheckStage(data)
 
-                return check_stage_type_0
             except:  # noqa: E722
                 pass
             return cast(ControlCheckStage | None | Unset, data)
@@ -640,9 +587,8 @@ class ControlSpan:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                applies_to_type_0 = ControlAppliesTo(data)
+                return ControlAppliesTo(data)
 
-                return applies_to_type_0
             except:  # noqa: E722
                 pass
             return cast(ControlAppliesTo | None | Unset, data)

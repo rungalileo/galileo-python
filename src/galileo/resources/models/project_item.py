@@ -12,6 +12,7 @@ from ..models.project_labels import ProjectLabels
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.log_stream_info import LogStreamInfo
     from ..models.permission import Permission
     from ..models.user_info import UserInfo
 
@@ -23,7 +24,8 @@ T = TypeVar("T", bound="ProjectItem")
 class ProjectItem:
     """Represents a single project item for the UI list.
 
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (str):
         created_at (datetime.datetime):
@@ -35,6 +37,8 @@ class ProjectItem:
         created_by_user (None | Unset | UserInfo):
         description (None | str | Unset):
         labels (list[ProjectLabels] | Unset): List of labels associated with the project.
+        log_streams (list[LogStreamInfo] | None | Unset): Log streams for this project. Only populated when
+            include_logstreams=True.
     """
 
     id: str
@@ -48,6 +52,7 @@ class ProjectItem:
     created_by_user: None | Unset | UserInfo = UNSET
     description: None | str | Unset = UNSET
     labels: list[ProjectLabels] | Unset = UNSET
+    log_streams: list[LogStreamInfo] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -71,16 +76,10 @@ class ProjectItem:
         bookmark = self.bookmark
 
         num_logstreams: int | None | Unset
-        if isinstance(self.num_logstreams, Unset):
-            num_logstreams = UNSET
-        else:
-            num_logstreams = self.num_logstreams
+        num_logstreams = UNSET if isinstance(self.num_logstreams, Unset) else self.num_logstreams
 
         num_experiments: int | None | Unset
-        if isinstance(self.num_experiments, Unset):
-            num_experiments = UNSET
-        else:
-            num_experiments = self.num_experiments
+        num_experiments = UNSET if isinstance(self.num_experiments, Unset) else self.num_experiments
 
         created_by_user: dict[str, Any] | None | Unset
         if isinstance(self.created_by_user, Unset):
@@ -91,10 +90,7 @@ class ProjectItem:
             created_by_user = self.created_by_user
 
         description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         labels: list[str] | Unset = UNSET
         if not isinstance(self.labels, Unset):
@@ -102,6 +98,18 @@ class ProjectItem:
             for labels_item_data in self.labels:
                 labels_item = labels_item_data.value
                 labels.append(labels_item)
+
+        log_streams: list[dict[str, Any]] | None | Unset
+        if isinstance(self.log_streams, Unset):
+            log_streams = UNSET
+        elif isinstance(self.log_streams, list):
+            log_streams = []
+            for log_streams_type_0_item_data in self.log_streams:
+                log_streams_type_0_item = log_streams_type_0_item_data.to_dict()
+                log_streams.append(log_streams_type_0_item)
+
+        else:
+            log_streams = self.log_streams
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -120,11 +128,14 @@ class ProjectItem:
             field_dict["description"] = description
         if labels is not UNSET:
             field_dict["labels"] = labels
+        if log_streams is not UNSET:
+            field_dict["log_streams"] = log_streams
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.log_stream_info import LogStreamInfo
         from ..models.permission import Permission
         from ..models.user_info import UserInfo
 
@@ -174,9 +185,8 @@ class ProjectItem:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                created_by_user_type_0 = UserInfo.from_dict(data)
+                return UserInfo.from_dict(data)
 
-                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UserInfo, data)
@@ -201,6 +211,28 @@ class ProjectItem:
 
                 labels.append(labels_item)
 
+        def _parse_log_streams(data: object) -> list[LogStreamInfo] | None | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                log_streams_type_0 = []
+                _log_streams_type_0 = data
+                for log_streams_type_0_item_data in _log_streams_type_0:
+                    log_streams_type_0_item = LogStreamInfo.from_dict(log_streams_type_0_item_data)
+
+                    log_streams_type_0.append(log_streams_type_0_item)
+
+                return log_streams_type_0
+            except:  # noqa: E722
+                pass
+            return cast(list[LogStreamInfo] | None | Unset, data)
+
+        log_streams = _parse_log_streams(d.pop("log_streams", UNSET))
+
         project_item = cls(
             id=id,
             name=name,
@@ -213,6 +245,7 @@ class ProjectItem:
             created_by_user=created_by_user,
             description=description,
             labels=labels,
+            log_streams=log_streams,
         )
 
         project_item.additional_properties = d

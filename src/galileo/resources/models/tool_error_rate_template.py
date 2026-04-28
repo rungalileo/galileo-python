@@ -21,7 +21,8 @@ class ToolErrorRateTemplate:
     r"""Template for the tool error rate metric,
     containing all the info necessary to send the tool error rate prompt.
 
-        Attributes:
+    Attributes
+    ----------
             metric_system_prompt (str | Unset):  Default: 'One or more functions have been called, and you will receive
                 their output. The output format could be a string containing the tool\'s result, it could be in JSON or XML
                 format with additional metadata and information, or it could be a list of the outputs in any such
@@ -141,9 +142,8 @@ class ToolErrorRateTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = ToolErrorRateTemplateResponseSchemaType0.from_dict(data)
+                return ToolErrorRateTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ToolErrorRateTemplateResponseSchemaType0 | Unset, data)

@@ -15,7 +15,8 @@ T = TypeVar("T", bound="ControlResult")
 @_attrs_define
 class ControlResult:
     """
-    Attributes:
+    Attributes
+    ----------
         action (ControlAction):
         matched (bool): Whether the control matched. False covers both non-match and error cases; use error_message to
             distinguish errors.
@@ -36,16 +37,10 @@ class ControlResult:
         matched = self.matched
 
         confidence: float | None | Unset
-        if isinstance(self.confidence, Unset):
-            confidence = UNSET
-        else:
-            confidence = self.confidence
+        confidence = UNSET if isinstance(self.confidence, Unset) else self.confidence
 
         error_message: None | str | Unset
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

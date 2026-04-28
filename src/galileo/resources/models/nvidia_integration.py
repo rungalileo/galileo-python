@@ -18,7 +18,8 @@ T = TypeVar("T", bound="NvidiaIntegration")
 @_attrs_define
 class NvidiaIntegration:
     """
-    Attributes:
+    Attributes
+    ----------
         id (None | str | Unset):
         name (Literal['nvidia'] | Unset):  Default: 'nvidia'.
         extra (None | NvidiaIntegrationExtraType0 | Unset):
@@ -33,10 +34,7 @@ class NvidiaIntegration:
         from ..models.nvidia_integration_extra_type_0 import NvidiaIntegrationExtraType0
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
@@ -87,9 +85,8 @@ class NvidiaIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = NvidiaIntegrationExtraType0.from_dict(data)
+                return NvidiaIntegrationExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(None | NvidiaIntegrationExtraType0 | Unset, data)

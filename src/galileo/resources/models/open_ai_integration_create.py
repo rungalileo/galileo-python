@@ -14,7 +14,8 @@ T = TypeVar("T", bound="OpenAIIntegrationCreate")
 @_attrs_define
 class OpenAIIntegrationCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         token (str):
         organization_id (None | str | Unset):
     """
@@ -27,10 +28,7 @@ class OpenAIIntegrationCreate:
         token = self.token
 
         organization_id: None | str | Unset
-        if isinstance(self.organization_id, Unset):
-            organization_id = UNSET
-        else:
-            organization_id = self.organization_id
+        organization_id = UNSET if isinstance(self.organization_id, Unset) else self.organization_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

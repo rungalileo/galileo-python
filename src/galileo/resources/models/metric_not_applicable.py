@@ -19,13 +19,14 @@ T = TypeVar("T", bound="MetricNotApplicable")
 @_attrs_define
 class MetricNotApplicable:
     """
-    Attributes:
+    Attributes
+    ----------
         status_type (Literal['not_applicable'] | Unset):  Default: 'not_applicable'.
         scorer_type (None | ScorerType | Unset):
         metric_key_alias (None | str | Unset):
         message (str | Unset):  Default: 'Metric not applicable.'.
         ems_error_code (int | None | Unset): EMS error code from errors.yaml catalog for this not-applicable reason
-        standard_error (None | StandardError | Unset): Structured EMS error resolved on-the-fly from errors.yaml catalog
+        standard_error (None | StandardError | Unset): Structured EMS error resolved on-the-fly from errors.yaml catalog.
     """
 
     status_type: Literal["not_applicable"] | Unset = "not_applicable"
@@ -50,18 +51,12 @@ class MetricNotApplicable:
             scorer_type = self.scorer_type
 
         metric_key_alias: None | str | Unset
-        if isinstance(self.metric_key_alias, Unset):
-            metric_key_alias = UNSET
-        else:
-            metric_key_alias = self.metric_key_alias
+        metric_key_alias = UNSET if isinstance(self.metric_key_alias, Unset) else self.metric_key_alias
 
         message = self.message
 
         ems_error_code: int | None | Unset
-        if isinstance(self.ems_error_code, Unset):
-            ems_error_code = UNSET
-        else:
-            ems_error_code = self.ems_error_code
+        ems_error_code = UNSET if isinstance(self.ems_error_code, Unset) else self.ems_error_code
 
         standard_error: dict[str, Any] | None | Unset
         if isinstance(self.standard_error, Unset):
@@ -106,9 +101,8 @@ class MetricNotApplicable:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                scorer_type_type_0 = ScorerType(data)
+                return ScorerType(data)
 
-                return scorer_type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ScorerType | Unset, data)
@@ -143,9 +137,8 @@ class MetricNotApplicable:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                standard_error_type_0 = StandardError.from_dict(data)
+                return StandardError.from_dict(data)
 
-                return standard_error_type_0
             except:  # noqa: E722
                 pass
             return cast(None | StandardError | Unset, data)

@@ -21,7 +21,8 @@ T = TypeVar("T", bound="RegisteredScorerTaskResultResponse")
 @_attrs_define
 class RegisteredScorerTaskResultResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
@@ -84,9 +85,8 @@ class RegisteredScorerTaskResultResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                result_type_0 = ValidateRegisteredScorerResult.from_dict(data)
+                return ValidateRegisteredScorerResult.from_dict(data)
 
-                return result_type_0
             except:  # noqa: E722
                 pass
             return cast(None | str | Unset | ValidateRegisteredScorerResult, data)

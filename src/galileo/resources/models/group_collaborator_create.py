@@ -15,7 +15,8 @@ T = TypeVar("T", bound="GroupCollaboratorCreate")
 @_attrs_define
 class GroupCollaboratorCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         group_id (str):
         role (CollaboratorRole | Unset):
     """
@@ -46,10 +47,7 @@ class GroupCollaboratorCreate:
 
         _role = d.pop("role", UNSET)
         role: CollaboratorRole | Unset
-        if isinstance(_role, Unset):
-            role = UNSET
-        else:
-            role = CollaboratorRole(_role)
+        role = UNSET if isinstance(_role, Unset) else CollaboratorRole(_role)
 
         group_collaborator_create = cls(group_id=group_id, role=role)
 

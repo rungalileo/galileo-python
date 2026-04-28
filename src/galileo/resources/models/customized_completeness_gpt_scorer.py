@@ -41,7 +41,8 @@ T = TypeVar("T", bound="CustomizedCompletenessGPTScorer")
 @_attrs_define
 class CustomizedCompletenessGPTScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         scorer_name (Literal['_customized_completeness_gpt'] | Unset):  Default: '_customized_completeness_gpt'.
         model_alias (str | Unset):  Default: 'gpt-4.1-mini'.
         num_judges (int | Unset):  Default: 3.
@@ -198,9 +199,7 @@ class CustomizedCompletenessGPTScorer:
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, NodeNameFilter):
-                    filters_type_0_item = filters_type_0_item_data.to_dict()
-                elif isinstance(filters_type_0_item_data, MetadataFilter):
+                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -211,64 +210,37 @@ class CustomizedCompletenessGPTScorer:
             filters = self.filters
 
         metric_name: None | str | Unset
-        if isinstance(self.metric_name, Unset):
-            metric_name = UNSET
-        else:
-            metric_name = self.metric_name
+        metric_name = UNSET if isinstance(self.metric_name, Unset) else self.metric_name
 
         description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         chainpoll_template: dict[str, Any] | Unset = UNSET
         if not isinstance(self.chainpoll_template, Unset):
             chainpoll_template = self.chainpoll_template.to_dict()
 
         default_model_alias: None | str | Unset
-        if isinstance(self.default_model_alias, Unset):
-            default_model_alias = UNSET
-        else:
-            default_model_alias = self.default_model_alias
+        default_model_alias = UNSET if isinstance(self.default_model_alias, Unset) else self.default_model_alias
 
         ground_truth: bool | None | Unset
-        if isinstance(self.ground_truth, Unset):
-            ground_truth = UNSET
-        else:
-            ground_truth = self.ground_truth
+        ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
 
         regex_field = self.regex_field
 
         registered_scorer_id: None | str | Unset
-        if isinstance(self.registered_scorer_id, Unset):
-            registered_scorer_id = UNSET
-        else:
-            registered_scorer_id = self.registered_scorer_id
+        registered_scorer_id = UNSET if isinstance(self.registered_scorer_id, Unset) else self.registered_scorer_id
 
         generated_scorer_id: None | str | Unset
-        if isinstance(self.generated_scorer_id, Unset):
-            generated_scorer_id = UNSET
-        else:
-            generated_scorer_id = self.generated_scorer_id
+        generated_scorer_id = UNSET if isinstance(self.generated_scorer_id, Unset) else self.generated_scorer_id
 
         scorer_version_id: None | str | Unset
-        if isinstance(self.scorer_version_id, Unset):
-            scorer_version_id = UNSET
-        else:
-            scorer_version_id = self.scorer_version_id
+        scorer_version_id = UNSET if isinstance(self.scorer_version_id, Unset) else self.scorer_version_id
 
         user_code: None | str | Unset
-        if isinstance(self.user_code, Unset):
-            user_code = UNSET
-        else:
-            user_code = self.user_code
+        user_code = UNSET if isinstance(self.user_code, Unset) else self.user_code
 
         can_copy_to_llm: bool | None | Unset
-        if isinstance(self.can_copy_to_llm, Unset):
-            can_copy_to_llm = UNSET
-        else:
-            can_copy_to_llm = self.can_copy_to_llm
+        can_copy_to_llm = UNSET if isinstance(self.can_copy_to_llm, Unset) else self.can_copy_to_llm
 
         scoreable_node_types: list[str] | None | Unset
         if isinstance(self.scoreable_node_types, Unset):
@@ -283,10 +255,7 @@ class CustomizedCompletenessGPTScorer:
             scoreable_node_types = self.scoreable_node_types
 
         cot_enabled: bool | None | Unset
-        if isinstance(self.cot_enabled, Unset):
-            cot_enabled = UNSET
-        else:
-            cot_enabled = self.cot_enabled
+        cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
         output_type: None | str | Unset
         if isinstance(self.output_type, Unset):
@@ -352,22 +321,13 @@ class CustomizedCompletenessGPTScorer:
             roll_up_methods = self.roll_up_methods
 
         prompt: None | str | Unset
-        if isinstance(self.prompt, Unset):
-            prompt = UNSET
-        else:
-            prompt = self.prompt
+        prompt = UNSET if isinstance(self.prompt, Unset) else self.prompt
 
         lora_task_id: int | None | Unset
-        if isinstance(self.lora_task_id, Unset):
-            lora_task_id = UNSET
-        else:
-            lora_task_id = self.lora_task_id
+        lora_task_id = UNSET if isinstance(self.lora_task_id, Unset) else self.lora_task_id
 
         lora_weights_path: None | str | Unset
-        if isinstance(self.lora_weights_path, Unset):
-            lora_weights_path = UNSET
-        else:
-            lora_weights_path = self.lora_weights_path
+        lora_weights_path = UNSET if isinstance(self.lora_weights_path, Unset) else self.lora_weights_path
 
         luna_input_type: None | str | Unset
         if isinstance(self.luna_input_type, Unset):
@@ -388,9 +348,11 @@ class CustomizedCompletenessGPTScorer:
         class_name_to_vocab_ix: dict[str, Any] | None | Unset
         if isinstance(self.class_name_to_vocab_ix, Unset):
             class_name_to_vocab_ix = UNSET
-        elif isinstance(self.class_name_to_vocab_ix, CustomizedCompletenessGPTScorerClassNameToVocabIxType0):
-            class_name_to_vocab_ix = self.class_name_to_vocab_ix.to_dict()
-        elif isinstance(self.class_name_to_vocab_ix, CustomizedCompletenessGPTScorerClassNameToVocabIxType1):
+        elif isinstance(
+            self.class_name_to_vocab_ix,
+            CustomizedCompletenessGPTScorerClassNameToVocabIxType0
+            | CustomizedCompletenessGPTScorerClassNameToVocabIxType1,
+        ):
             class_name_to_vocab_ix = self.class_name_to_vocab_ix.to_dict()
         else:
             class_name_to_vocab_ix = self.class_name_to_vocab_ix
@@ -511,9 +473,8 @@ class CustomizedCompletenessGPTScorer:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                scores_type_0 = cast(list[Any], data)
+                return cast(list[Any], data)
 
-                return scores_type_0
             except:  # noqa: E722
                 pass
             return cast(list[Any] | None | Unset, data)
@@ -528,9 +489,8 @@ class CustomizedCompletenessGPTScorer:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                indices_type_0 = cast(list[int], data)
+                return cast(list[int], data)
 
-                return indices_type_0
             except:  # noqa: E722
                 pass
             return cast(list[int] | None | Unset, data)
@@ -545,9 +505,8 @@ class CustomizedCompletenessGPTScorer:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                aggregates_type_0 = CustomizedCompletenessGPTScorerAggregatesType0.from_dict(data)
+                return CustomizedCompletenessGPTScorerAggregatesType0.from_dict(data)
 
-                return aggregates_type_0
             except:  # noqa: E722
                 pass
             return cast(CustomizedCompletenessGPTScorerAggregatesType0 | None | Unset, data)
@@ -564,9 +523,8 @@ class CustomizedCompletenessGPTScorer:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = CustomizedCompletenessGPTScorerExtraType0.from_dict(data)
+                return CustomizedCompletenessGPTScorerExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(CustomizedCompletenessGPTScorerExtraType0 | None | Unset, data)
@@ -598,24 +556,20 @@ class CustomizedCompletenessGPTScorer:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+                            return NodeNameFilter.from_dict(data)
 
-                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
+                            return MetadataFilter.from_dict(data)
 
-                            return filters_type_0_item_type_1
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_type_0_item_type_2 = ModalityFilter.from_dict(data)
-
-                        return filters_type_0_item_type_2
+                        return ModalityFilter.from_dict(data)
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -757,9 +711,8 @@ class CustomizedCompletenessGPTScorer:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                output_type_type_0 = OutputTypeEnum(data)
+                return OutputTypeEnum(data)
 
-                return output_type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | OutputTypeEnum | Unset, data)
@@ -774,9 +727,8 @@ class CustomizedCompletenessGPTScorer:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                input_type_type_0 = InputTypeEnum(data)
+                return InputTypeEnum(data)
 
-                return input_type_type_0
             except:  # noqa: E722
                 pass
             return cast(InputTypeEnum | None | Unset, data)
@@ -813,9 +765,8 @@ class CustomizedCompletenessGPTScorer:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                required_scorers_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return required_scorers_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)
@@ -830,9 +781,8 @@ class CustomizedCompletenessGPTScorer:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                roll_up_strategy_type_0 = RollUpStrategy(data)
+                return RollUpStrategy(data)
 
-                return roll_up_strategy_type_0
             except:  # noqa: E722
                 pass
             return cast(None | RollUpStrategy | Unset, data)
@@ -911,9 +861,8 @@ class CustomizedCompletenessGPTScorer:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                luna_input_type_type_0 = LunaInputTypeEnum(data)
+                return LunaInputTypeEnum(data)
 
-                return luna_input_type_type_0
             except:  # noqa: E722
                 pass
             return cast(LunaInputTypeEnum | None | Unset, data)
@@ -928,9 +877,8 @@ class CustomizedCompletenessGPTScorer:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                luna_output_type_type_0 = LunaOutputTypeEnum(data)
+                return LunaOutputTypeEnum(data)
 
-                return luna_output_type_type_0
             except:  # noqa: E722
                 pass
             return cast(LunaOutputTypeEnum | None | Unset, data)
@@ -952,17 +900,15 @@ class CustomizedCompletenessGPTScorer:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                class_name_to_vocab_ix_type_0 = CustomizedCompletenessGPTScorerClassNameToVocabIxType0.from_dict(data)
+                return CustomizedCompletenessGPTScorerClassNameToVocabIxType0.from_dict(data)
 
-                return class_name_to_vocab_ix_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                class_name_to_vocab_ix_type_1 = CustomizedCompletenessGPTScorerClassNameToVocabIxType1.from_dict(data)
+                return CustomizedCompletenessGPTScorerClassNameToVocabIxType1.from_dict(data)
 
-                return class_name_to_vocab_ix_type_1
             except:  # noqa: E722
                 pass
             return cast(

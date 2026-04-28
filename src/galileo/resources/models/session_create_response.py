@@ -14,7 +14,8 @@ T = TypeVar("T", bound="SessionCreateResponse")
 @_attrs_define
 class SessionCreateResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str): Session id associated with the session.
         name (None | str): Name of the session.
         project_id (str): Project id associated with the session.
@@ -42,16 +43,10 @@ class SessionCreateResponse:
         project_name = self.project_name
 
         previous_session_id: None | str | Unset
-        if isinstance(self.previous_session_id, Unset):
-            previous_session_id = UNSET
-        else:
-            previous_session_id = self.previous_session_id
+        previous_session_id = UNSET if isinstance(self.previous_session_id, Unset) else self.previous_session_id
 
         external_id: None | str | Unset
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

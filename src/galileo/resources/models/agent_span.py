@@ -33,7 +33,8 @@ T = TypeVar("T", bound="AgentSpan")
 @_attrs_define
 class AgentSpan:
     """
-    Attributes:
+    Attributes
+    ----------
         type_ (Literal['agent'] | Unset): Type of the trace, span or session. Default: 'agent'.
         input_ (list[FileContentPart | TextContentPart] | list[Message] | str | Unset): Input to the trace or span.
             Default: ''.
@@ -216,81 +217,46 @@ class AgentSpan:
             tags = self.tags
 
         status_code: int | None | Unset
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         metrics: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
         external_id: None | str | Unset
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         dataset_input: None | str | Unset
-        if isinstance(self.dataset_input, Unset):
-            dataset_input = UNSET
-        else:
-            dataset_input = self.dataset_input
+        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
         dataset_output: None | str | Unset
-        if isinstance(self.dataset_output, Unset):
-            dataset_output = UNSET
-        else:
-            dataset_output = self.dataset_output
+        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
         dataset_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         session_id: None | str | Unset
-        if isinstance(self.session_id, Unset):
-            session_id = UNSET
-        else:
-            session_id = self.session_id
+        session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
 
         trace_id: None | str | Unset
-        if isinstance(self.trace_id, Unset):
-            trace_id = UNSET
-        else:
-            trace_id = self.trace_id
+        trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
         step_number: int | None | Unset
-        if isinstance(self.step_number, Unset):
-            step_number = UNSET
-        else:
-            step_number = self.step_number
+        step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
 
         parent_id: None | str | Unset
-        if isinstance(self.parent_id, Unset):
-            parent_id = UNSET
-        else:
-            parent_id = self.parent_id
+        parent_id = UNSET if isinstance(self.parent_id, Unset) else self.parent_id
 
         spans: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.spans, Unset):
             spans = []
             for spans_item_data in self.spans:
                 spans_item: dict[str, Any]
-                if isinstance(spans_item_data, AgentSpan):
-                    spans_item = spans_item_data.to_dict()
-                elif isinstance(spans_item_data, WorkflowSpan):
-                    spans_item = spans_item_data.to_dict()
-                elif isinstance(spans_item_data, LlmSpan):
-                    spans_item = spans_item_data.to_dict()
-                elif isinstance(spans_item_data, RetrieverSpan):
-                    spans_item = spans_item_data.to_dict()
-                elif isinstance(spans_item_data, ToolSpan):
+                if isinstance(spans_item_data, AgentSpan | WorkflowSpan | LlmSpan | RetrieverSpan | ToolSpan):
                     spans_item = spans_item_data.to_dict()
                 else:
                     spans_item = spans_item_data.to_dict()
@@ -399,16 +365,13 @@ class AgentSpan:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            input_type_2_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return input_type_2_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        input_type_2_item_type_1 = FileContentPart.from_dict(data)
-
-                        return input_type_2_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     input_type_2_item = _parse_input_type_2_item(input_type_2_item_data)
 
@@ -452,16 +415,13 @@ class AgentSpan:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            redacted_input_type_2_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return redacted_input_type_2_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        redacted_input_type_2_item_type_1 = FileContentPart.from_dict(data)
-
-                        return redacted_input_type_2_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     redacted_input_type_2_item = _parse_redacted_input_type_2_item(redacted_input_type_2_item_data)
 
@@ -484,9 +444,8 @@ class AgentSpan:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                output_type_1 = Message.from_dict(data)
+                return Message.from_dict(data)
 
-                return output_type_1
             except:  # noqa: E722
                 pass
             try:
@@ -513,16 +472,13 @@ class AgentSpan:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            output_type_3_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return output_type_3_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        output_type_3_item_type_1 = FileContentPart.from_dict(data)
-
-                        return output_type_3_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     output_type_3_item = _parse_output_type_3_item(output_type_3_item_data)
 
@@ -534,9 +490,8 @@ class AgentSpan:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                output_type_4 = ControlResult.from_dict(data)
+                return ControlResult.from_dict(data)
 
-                return output_type_4
             except:  # noqa: E722
                 pass
             return cast(
@@ -556,9 +511,8 @@ class AgentSpan:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                redacted_output_type_1 = Message.from_dict(data)
+                return Message.from_dict(data)
 
-                return redacted_output_type_1
             except:  # noqa: E722
                 pass
             try:
@@ -585,16 +539,13 @@ class AgentSpan:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            redacted_output_type_3_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return redacted_output_type_3_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        redacted_output_type_3_item_type_1 = FileContentPart.from_dict(data)
-
-                        return redacted_output_type_3_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     redacted_output_type_3_item = _parse_redacted_output_type_3_item(redacted_output_type_3_item_data)
 
@@ -606,9 +557,8 @@ class AgentSpan:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                redacted_output_type_4 = ControlResult.from_dict(data)
+                return ControlResult.from_dict(data)
 
-                return redacted_output_type_4
             except:  # noqa: E722
                 pass
             return cast(
@@ -622,17 +572,11 @@ class AgentSpan:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: datetime.datetime | Unset
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
         user_metadata: AgentSpanUserMetadata | Unset
-        if isinstance(_user_metadata, Unset):
-            user_metadata = UNSET
-        else:
-            user_metadata = AgentSpanUserMetadata.from_dict(_user_metadata)
+        user_metadata = UNSET if isinstance(_user_metadata, Unset) else AgentSpanUserMetadata.from_dict(_user_metadata)
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
@@ -647,10 +591,7 @@ class AgentSpan:
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Metrics | Unset
-        if isinstance(_metrics, Unset):
-            metrics = UNSET
-        else:
-            metrics = Metrics.from_dict(_metrics)
+        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
         def _parse_external_id(data: object) -> None | str | Unset:
             if data is None:
@@ -743,48 +684,41 @@ class AgentSpan:
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        spans_item_type_0 = AgentSpan.from_dict(data)
+                        return AgentSpan.from_dict(data)
 
-                        return spans_item_type_0
                     except:  # noqa: E722
                         pass
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        spans_item_type_1 = WorkflowSpan.from_dict(data)
+                        return WorkflowSpan.from_dict(data)
 
-                        return spans_item_type_1
                     except:  # noqa: E722
                         pass
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        spans_item_type_2 = LlmSpan.from_dict(data)
+                        return LlmSpan.from_dict(data)
 
-                        return spans_item_type_2
                     except:  # noqa: E722
                         pass
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        spans_item_type_3 = RetrieverSpan.from_dict(data)
+                        return RetrieverSpan.from_dict(data)
 
-                        return spans_item_type_3
                     except:  # noqa: E722
                         pass
                     try:
                         if not isinstance(data, dict):
                             raise TypeError()
-                        spans_item_type_4 = ToolSpan.from_dict(data)
+                        return ToolSpan.from_dict(data)
 
-                        return spans_item_type_4
                     except:  # noqa: E722
                         pass
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_5 = ControlSpan.from_dict(data)
-
-                    return spans_item_type_5
+                    return ControlSpan.from_dict(data)
 
                 spans_item = _parse_spans_item(spans_item_data)
 
@@ -792,10 +726,7 @@ class AgentSpan:
 
         _agent_type = d.pop("agent_type", UNSET)
         agent_type: AgentType | Unset
-        if isinstance(_agent_type, Unset):
-            agent_type = UNSET
-        else:
-            agent_type = AgentType(_agent_type)
+        agent_type = UNSET if isinstance(_agent_type, Unset) else AgentType(_agent_type)
 
         agent_span = cls(
             type_=type_,

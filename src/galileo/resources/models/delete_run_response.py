@@ -12,7 +12,8 @@ T = TypeVar("T", bound="DeleteRunResponse")
 @_attrs_define
 class DeleteRunResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         message (str):
     """
 

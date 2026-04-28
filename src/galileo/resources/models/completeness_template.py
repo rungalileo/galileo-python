@@ -19,7 +19,8 @@ T = TypeVar("T", bound="CompletenessTemplate")
 @_attrs_define
 class CompletenessTemplate:
     r"""
-    Attributes:
+    Attributes
+    ----------
         metric_system_prompt (None | str | Unset): System prompt for the metric.
         metric_description (None | str | Unset): Description of what the metric should do.
         value_field_name (str | Unset):  Default: 'completeness'.
@@ -39,7 +40,7 @@ class CompletenessTemplate:
             response, divided by the total amount of relevant information in the documents.\n\nYou must respond with a valid
             JSON string.'.
         metric_few_shot_examples (list[FewShotExample] | Unset): Few-shot examples for the metric.
-        response_schema (CompletenessTemplateResponseSchemaType0 | None | Unset): Response schema for the output
+        response_schema (CompletenessTemplateResponseSchemaType0 | None | Unset): Response schema for the output.
     """
 
     metric_system_prompt: None | str | Unset = UNSET
@@ -57,16 +58,10 @@ class CompletenessTemplate:
         from ..models.completeness_template_response_schema_type_0 import CompletenessTemplateResponseSchemaType0
 
         metric_system_prompt: None | str | Unset
-        if isinstance(self.metric_system_prompt, Unset):
-            metric_system_prompt = UNSET
-        else:
-            metric_system_prompt = self.metric_system_prompt
+        metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
 
         metric_description: None | str | Unset
-        if isinstance(self.metric_description, Unset):
-            metric_description = UNSET
-        else:
-            metric_description = self.metric_description
+        metric_description = UNSET if isinstance(self.metric_description, Unset) else self.metric_description
 
         value_field_name = self.value_field_name
 
@@ -157,9 +152,8 @@ class CompletenessTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = CompletenessTemplateResponseSchemaType0.from_dict(data)
+                return CompletenessTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(CompletenessTemplateResponseSchemaType0 | None | Unset, data)

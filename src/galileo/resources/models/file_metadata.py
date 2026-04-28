@@ -23,7 +23,8 @@ class FileMetadata:
     Contains presigned URLs and properties for displaying multimodal
     content in the Galileo console and SDKs.
 
-        Attributes:
+    Attributes
+    ----------
             file_id (str):
             modality (ContentModality): Classification of content modality
             source (FileSource): Source of the file data.
@@ -56,16 +57,10 @@ class FileMetadata:
         status = self.status.value
 
         content_type: None | str | Unset
-        if isinstance(self.content_type, Unset):
-            content_type = UNSET
-        else:
-            content_type = self.content_type
+        content_type = UNSET if isinstance(self.content_type, Unset) else self.content_type
 
         url: None | str | Unset
-        if isinstance(self.url, Unset):
-            url = UNSET
-        else:
-            url = self.url
+        url = UNSET if isinstance(self.url, Unset) else self.url
 
         url_expires_at: None | str | Unset
         if isinstance(self.url_expires_at, Unset):
@@ -76,16 +71,10 @@ class FileMetadata:
             url_expires_at = self.url_expires_at
 
         size_bytes: int | None | Unset
-        if isinstance(self.size_bytes, Unset):
-            size_bytes = UNSET
-        else:
-            size_bytes = self.size_bytes
+        size_bytes = UNSET if isinstance(self.size_bytes, Unset) else self.size_bytes
 
         filename: None | str | Unset
-        if isinstance(self.filename, Unset):
-            filename = UNSET
-        else:
-            filename = self.filename
+        filename = UNSET if isinstance(self.filename, Unset) else self.filename
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -140,9 +129,8 @@ class FileMetadata:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                url_expires_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return url_expires_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)

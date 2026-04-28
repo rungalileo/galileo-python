@@ -20,7 +20,8 @@ T = TypeVar("T", bound="LogTracesIngestRequest")
 class LogTracesIngestRequest:
     """Request model for ingesting traces.
 
-    Attributes:
+    Attributes
+    ----------
         traces (list[Trace]): List of traces to log.
         log_stream_id (None | str | Unset): Log stream id associated with the traces.
         experiment_id (None | str | Unset): Experiment id associated with the traces.
@@ -59,46 +60,28 @@ class LogTracesIngestRequest:
             traces.append(traces_item)
 
         log_stream_id: None | str | Unset
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: None | str | Unset
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         metrics_testing_id: None | str | Unset
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         logging_method: str | Unset = UNSET
         if not isinstance(self.logging_method, Unset):
             logging_method = self.logging_method.value
 
         client_version: None | str | Unset
-        if isinstance(self.client_version, Unset):
-            client_version = UNSET
-        else:
-            client_version = self.client_version
+        client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
 
         reliable = self.reliable
 
         session_id: None | str | Unset
-        if isinstance(self.session_id, Unset):
-            session_id = UNSET
-        else:
-            session_id = self.session_id
+        session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
 
         session_external_id: None | str | Unset
-        if isinstance(self.session_external_id, Unset):
-            session_external_id = UNSET
-        else:
-            session_external_id = self.session_external_id
+        session_external_id = UNSET if isinstance(self.session_external_id, Unset) else self.session_external_id
 
         is_complete = self.is_complete
 
@@ -171,10 +154,7 @@ class LogTracesIngestRequest:
 
         _logging_method = d.pop("logging_method", UNSET)
         logging_method: LoggingMethod | Unset
-        if isinstance(_logging_method, Unset):
-            logging_method = UNSET
-        else:
-            logging_method = LoggingMethod(_logging_method)
+        logging_method = UNSET if isinstance(_logging_method, Unset) else LoggingMethod(_logging_method)
 
         def _parse_client_version(data: object) -> None | str | Unset:
             if data is None:

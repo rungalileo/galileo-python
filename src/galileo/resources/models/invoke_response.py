@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.execution_status import ExecutionStatus
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -24,12 +25,13 @@ T = TypeVar("T", bound="InvokeResponse")
 @_attrs_define
 class InvokeResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         text (str): Text from the request after processing the rules.
         trace_metadata (TraceMetadata):
         stage_metadata (StageMetadata):
         action_result (ActionResult):
-        status (str | Unset): Status of the execution.
+        status (ExecutionStatus | Unset): Status of the execution.
         api_version (str | Unset):  Default: '1.0.0'.
         ruleset_results (list[RulesetResult] | Unset): Results of the rule execution.
         metric_results (InvokeResponseMetricResults | Unset): Results of the metric computation.
@@ -43,7 +45,7 @@ class InvokeResponse:
     trace_metadata: TraceMetadata
     stage_metadata: StageMetadata
     action_result: ActionResult
-    status: str | Unset = UNSET
+    status: ExecutionStatus | Unset = UNSET
     api_version: str | Unset = "1.0.0"
     ruleset_results: list[RulesetResult] | Unset = UNSET
     metric_results: InvokeResponseMetricResults | Unset = UNSET
@@ -63,7 +65,9 @@ class InvokeResponse:
 
         action_result = self.action_result.to_dict()
 
-        status = self.status
+        status: str | Unset = UNSET
+        if not isinstance(self.status, Unset):
+            status = self.status.value
 
         api_version = self.api_version
 
@@ -138,7 +142,9 @@ class InvokeResponse:
 
         action_result = ActionResult.from_dict(d.pop("action_result"))
 
-        status = d.pop("status", UNSET)
+        _status = d.pop("status", UNSET)
+        status: ExecutionStatus | Unset
+        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
 
         api_version = d.pop("api_version", UNSET)
 
@@ -166,9 +172,8 @@ class InvokeResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = InvokeResponseMetadataType0.from_dict(data)
+                return InvokeResponseMetadataType0.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(InvokeResponseMetadataType0 | None | Unset, data)
@@ -183,9 +188,8 @@ class InvokeResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                headers_type_0 = InvokeResponseHeadersType0.from_dict(data)
+                return InvokeResponseHeadersType0.from_dict(data)
 
-                return headers_type_0
             except:  # noqa: E722
                 pass
             return cast(InvokeResponseHeadersType0 | None | Unset, data)

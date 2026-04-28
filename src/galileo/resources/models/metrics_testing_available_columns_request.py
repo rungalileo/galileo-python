@@ -16,7 +16,8 @@ T = TypeVar("T", bound="MetricsTestingAvailableColumnsRequest")
 class MetricsTestingAvailableColumnsRequest:
     """Request to get the available columns for the metrics testing table.
 
-    Attributes:
+    Attributes
+    ----------
         name (str): Name of the metric that we are testing.
         log_stream_id (None | str | Unset): Log stream id associated with the traces.
         experiment_id (None | str | Unset): Experiment id associated with the traces.
@@ -47,22 +48,13 @@ class MetricsTestingAvailableColumnsRequest:
         name = self.name
 
         log_stream_id: None | str | Unset
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: None | str | Unset
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         metrics_testing_id: None | str | Unset
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         output_type: str | Unset = UNSET
         if not isinstance(self.output_type, Unset):
@@ -82,10 +74,7 @@ class MetricsTestingAvailableColumnsRequest:
             required_scorers = self.required_scorers
 
         score_type: None | str | Unset
-        if isinstance(self.score_type, Unset):
-            score_type = UNSET
-        else:
-            score_type = self.score_type
+        score_type = UNSET if isinstance(self.score_type, Unset) else self.score_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -143,10 +132,7 @@ class MetricsTestingAvailableColumnsRequest:
 
         _output_type = d.pop("output_type", UNSET)
         output_type: OutputTypeEnum | Unset
-        if isinstance(_output_type, Unset):
-            output_type = UNSET
-        else:
-            output_type = OutputTypeEnum(_output_type)
+        output_type = UNSET if isinstance(_output_type, Unset) else OutputTypeEnum(_output_type)
 
         cot_enabled = d.pop("cot_enabled", UNSET)
 
@@ -160,9 +146,8 @@ class MetricsTestingAvailableColumnsRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                required_scorers_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return required_scorers_type_0
             except:  # noqa: E722
                 pass
             return cast(list[str] | None | Unset, data)

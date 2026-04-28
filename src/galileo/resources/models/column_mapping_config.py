@@ -14,7 +14,8 @@ T = TypeVar("T", bound="ColumnMappingConfig")
 @_attrs_define
 class ColumnMappingConfig:
     """
-    Attributes:
+    Attributes
+    ----------
         columns (list[str]):
         flatten (bool | Unset):  Default: False.
     """

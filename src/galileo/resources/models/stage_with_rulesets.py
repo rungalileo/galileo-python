@@ -19,7 +19,8 @@ T = TypeVar("T", bound="StageWithRulesets")
 @_attrs_define
 class StageWithRulesets:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str): Name of the stage. Must be unique within the project.
         project_id (str): ID of the project to which this stage belongs.
         prioritized_rulesets (list[Ruleset] | Unset): Rulesets to be applied to the payload.
@@ -49,10 +50,7 @@ class StageWithRulesets:
                 prioritized_rulesets.append(prioritized_rulesets_item)
 
         description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         type_: str | Unset = UNSET
         if not isinstance(self.type_, Unset):
@@ -103,10 +101,7 @@ class StageWithRulesets:
 
         _type_ = d.pop("type", UNSET)
         type_: StageType | Unset
-        if isinstance(_type_, Unset):
-            type_ = UNSET
-        else:
-            type_ = StageType(_type_)
+        type_ = UNSET if isinstance(_type_, Unset) else StageType(_type_)
 
         paused = d.pop("paused", UNSET)
 

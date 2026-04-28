@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -41,17 +41,11 @@ def _get_kwargs(
     params: dict[str, Any] = {}
 
     json_file_name: None | str | Unset
-    if isinstance(file_name, Unset):
-        json_file_name = UNSET
-    else:
-        json_file_name = file_name
+    json_file_name = UNSET if isinstance(file_name, Unset) else file_name
     params["file_name"] = json_file_name
 
     json_num_rows: int | None | Unset
-    if isinstance(num_rows, Unset):
-        json_num_rows = UNSET
-    else:
-        json_num_rows = num_rows
+    json_num_rows = UNSET if isinstance(num_rows, Unset) else num_rows
     params["num_rows"] = json_num_rows
 
     json_format_: str | Unset = UNSET
@@ -67,9 +61,7 @@ def _get_kwargs(
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PUT,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/prompt_datasets/{dataset_id}".format(
-            project_id=project_id, dataset_id=dataset_id
-        ),
+        "path": f"/projects/{project_id}/prompt_datasets/{dataset_id}",
         "params": params,
     }
 
@@ -84,14 +76,10 @@ def _get_kwargs(
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | PromptDatasetDB:
     if response.status_code == 200:
-        response_200 = PromptDatasetDB.from_dict(response.json())
-
-        return response_200
+        return PromptDatasetDB.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -131,7 +119,7 @@ def sync_detailed(
     format_: DatasetFormat | Unset = UNSET,
     hidden: bool | Unset = False,
 ) -> Response[HTTPValidationError | PromptDatasetDB]:
-    """Update Prompt Dataset
+    """Update Prompt Dataset.
 
     Args:
         project_id (str):
@@ -142,14 +130,15 @@ def sync_detailed(
         hidden (bool | Unset):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | PromptDatasetDB]
     """
-
     kwargs = _get_kwargs(
         project_id=project_id,
         dataset_id=dataset_id,
@@ -175,8 +164,8 @@ def sync(
     num_rows: int | None | Unset = UNSET,
     format_: DatasetFormat | Unset = UNSET,
     hidden: bool | Unset = False,
-) -> Optional[HTTPValidationError | PromptDatasetDB]:
-    """Update Prompt Dataset
+) -> HTTPValidationError | PromptDatasetDB | None:
+    """Update Prompt Dataset.
 
     Args:
         project_id (str):
@@ -187,14 +176,15 @@ def sync(
         hidden (bool | Unset):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | PromptDatasetDB
     """
-
     return sync_detailed(
         project_id=project_id,
         dataset_id=dataset_id,
@@ -218,7 +208,7 @@ async def asyncio_detailed(
     format_: DatasetFormat | Unset = UNSET,
     hidden: bool | Unset = False,
 ) -> Response[HTTPValidationError | PromptDatasetDB]:
-    """Update Prompt Dataset
+    """Update Prompt Dataset.
 
     Args:
         project_id (str):
@@ -229,14 +219,15 @@ async def asyncio_detailed(
         hidden (bool | Unset):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | PromptDatasetDB]
     """
-
     kwargs = _get_kwargs(
         project_id=project_id,
         dataset_id=dataset_id,
@@ -262,8 +253,8 @@ async def asyncio(
     num_rows: int | None | Unset = UNSET,
     format_: DatasetFormat | Unset = UNSET,
     hidden: bool | Unset = False,
-) -> Optional[HTTPValidationError | PromptDatasetDB]:
-    """Update Prompt Dataset
+) -> HTTPValidationError | PromptDatasetDB | None:
+    """Update Prompt Dataset.
 
     Args:
         project_id (str):
@@ -274,14 +265,15 @@ async def asyncio(
         hidden (bool | Unset):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut | Unset):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | PromptDatasetDB
     """
-
     return (
         await asyncio_detailed(
             project_id=project_id,

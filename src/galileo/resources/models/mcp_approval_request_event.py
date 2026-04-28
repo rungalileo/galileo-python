@@ -21,7 +21,8 @@ T = TypeVar("T", bound="MCPApprovalRequestEvent")
 class MCPApprovalRequestEvent:
     """MCP approval request - when human approval is needed for an MCP tool call.
 
-    Attributes:
+    Attributes
+    ----------
         type_ (Literal['mcp_approval_request'] | Unset):  Default: 'mcp_approval_request'.
         id (None | str | Unset): Unique identifier for the event
         status (EventStatus | None | Unset): Status of the event
@@ -52,10 +53,7 @@ class MCPApprovalRequestEvent:
         type_ = self.type_
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         status: None | str | Unset
         if isinstance(self.status, Unset):
@@ -74,16 +72,10 @@ class MCPApprovalRequestEvent:
             metadata = self.metadata
 
         error_message: None | str | Unset
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         tool_name: None | str | Unset
-        if isinstance(self.tool_name, Unset):
-            tool_name = UNSET
-        else:
-            tool_name = self.tool_name
+        tool_name = UNSET if isinstance(self.tool_name, Unset) else self.tool_name
 
         tool_invocation: dict[str, Any] | None | Unset
         if isinstance(self.tool_invocation, Unset):
@@ -94,10 +86,7 @@ class MCPApprovalRequestEvent:
             tool_invocation = self.tool_invocation
 
         approved: bool | None | Unset
-        if isinstance(self.approved, Unset):
-            approved = UNSET
-        else:
-            approved = self.approved
+        approved = UNSET if isinstance(self.approved, Unset) else self.approved
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -150,9 +139,8 @@ class MCPApprovalRequestEvent:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                status_type_0 = EventStatus(data)
+                return EventStatus(data)
 
-                return status_type_0
             except:  # noqa: E722
                 pass
             return cast(EventStatus | None | Unset, data)
@@ -167,9 +155,8 @@ class MCPApprovalRequestEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = MCPApprovalRequestEventMetadataType0.from_dict(data)
+                return MCPApprovalRequestEventMetadataType0.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(MCPApprovalRequestEventMetadataType0 | None | Unset, data)
@@ -202,9 +189,8 @@ class MCPApprovalRequestEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                tool_invocation_type_0 = MCPApprovalRequestEventToolInvocationType0.from_dict(data)
+                return MCPApprovalRequestEventToolInvocationType0.from_dict(data)
 
-                return tool_invocation_type_0
             except:  # noqa: E722
                 pass
             return cast(MCPApprovalRequestEventToolInvocationType0 | None | Unset, data)

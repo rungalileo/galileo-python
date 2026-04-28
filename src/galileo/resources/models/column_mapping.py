@@ -16,7 +16,8 @@ T = TypeVar("T", bound="ColumnMapping")
 @_attrs_define
 class ColumnMapping:
     """
-    Attributes:
+    Attributes
+    ----------
         input_ (ColumnMappingConfig | list[str] | None):
         output (ColumnMappingConfig | list[str] | None):
         generated_output (ColumnMappingConfig | list[str] | None):
@@ -88,17 +89,15 @@ class ColumnMapping:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                input_type_0 = ColumnMappingConfig.from_dict(data)
+                return ColumnMappingConfig.from_dict(data)
 
-                return input_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                input_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return input_type_1
             except:  # noqa: E722
                 pass
             return cast(ColumnMappingConfig | list[str] | None, data)
@@ -111,17 +110,15 @@ class ColumnMapping:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                output_type_0 = ColumnMappingConfig.from_dict(data)
+                return ColumnMappingConfig.from_dict(data)
 
-                return output_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                output_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return output_type_1
             except:  # noqa: E722
                 pass
             return cast(ColumnMappingConfig | list[str] | None, data)
@@ -134,17 +131,15 @@ class ColumnMapping:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                generated_output_type_0 = ColumnMappingConfig.from_dict(data)
+                return ColumnMappingConfig.from_dict(data)
 
-                return generated_output_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                generated_output_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return generated_output_type_1
             except:  # noqa: E722
                 pass
             return cast(ColumnMappingConfig | list[str] | None, data)
@@ -157,17 +152,15 @@ class ColumnMapping:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = ColumnMappingConfig.from_dict(data)
+                return ColumnMappingConfig.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                metadata_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return metadata_type_1
             except:  # noqa: E722
                 pass
             return cast(ColumnMappingConfig | list[str] | None, data)

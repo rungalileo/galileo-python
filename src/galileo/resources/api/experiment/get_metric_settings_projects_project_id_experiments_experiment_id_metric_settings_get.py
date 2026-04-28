@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -28,9 +28,7 @@ def _get_kwargs(project_id: str, experiment_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/experiments/{experiment_id}/metric_settings".format(
-            project_id=project_id, experiment_id=experiment_id
-        ),
+        "path": f"/projects/{project_id}/experiments/{experiment_id}/metric_settings",
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -41,14 +39,10 @@ def _get_kwargs(project_id: str, experiment_id: str) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | MetricSettingsResponse:
     if response.status_code == 200:
-        response_200 = MetricSettingsResponse.from_dict(response.json())
-
-        return response_200
+        return MetricSettingsResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -82,20 +76,21 @@ def _build_response(
 def sync_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient
 ) -> Response[HTTPValidationError | MetricSettingsResponse]:
-    """Get Metric Settings
+    """Get Metric Settings.
 
     Args:
         project_id (str):
         experiment_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | MetricSettingsResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id)
 
     response = client.request(**kwargs)
@@ -105,41 +100,43 @@ def sync_detailed(
 
 def sync(
     project_id: str, experiment_id: str, *, client: ApiClient
-) -> Optional[HTTPValidationError | MetricSettingsResponse]:
-    """Get Metric Settings
+) -> HTTPValidationError | MetricSettingsResponse | None:
+    """Get Metric Settings.
 
     Args:
         project_id (str):
         experiment_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | MetricSettingsResponse
     """
-
     return sync_detailed(project_id=project_id, experiment_id=experiment_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient
 ) -> Response[HTTPValidationError | MetricSettingsResponse]:
-    """Get Metric Settings
+    """Get Metric Settings.
 
     Args:
         project_id (str):
         experiment_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | MetricSettingsResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id)
 
     response = await client.arequest(**kwargs)
@@ -149,19 +146,20 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, experiment_id: str, *, client: ApiClient
-) -> Optional[HTTPValidationError | MetricSettingsResponse]:
-    """Get Metric Settings
+) -> HTTPValidationError | MetricSettingsResponse | None:
+    """Get Metric Settings.
 
     Args:
         project_id (str):
         experiment_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | MetricSettingsResponse
     """
-
     return (await asyncio_detailed(project_id=project_id, experiment_id=experiment_id, client=client)).parsed

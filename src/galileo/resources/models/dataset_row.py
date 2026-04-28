@@ -18,7 +18,8 @@ T = TypeVar("T", bound="DatasetRow")
 @_attrs_define
 class DatasetRow:
     """
-    Attributes:
+    Attributes
+    ----------
         row_id (str):
         index (int):
         values (list[DatasetRowValuesItemType3 | float | int | None | str]):
@@ -53,10 +54,7 @@ class DatasetRow:
         values_dict = self.values_dict.to_dict()
 
         metadata: dict[str, Any] | None
-        if isinstance(self.metadata, DatasetRowMetadata):
-            metadata = self.metadata.to_dict()
-        else:
-            metadata = self.metadata
+        metadata = self.metadata.to_dict() if isinstance(self.metadata, DatasetRowMetadata) else self.metadata
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -87,9 +85,8 @@ class DatasetRow:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    values_item_type_3 = DatasetRowValuesItemType3.from_dict(data)
+                    return DatasetRowValuesItemType3.from_dict(data)
 
-                    return values_item_type_3
                 except:  # noqa: E722
                     pass
                 return cast(DatasetRowValuesItemType3 | float | int | None | str, data)
@@ -106,9 +103,8 @@ class DatasetRow:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = DatasetRowMetadata.from_dict(data)
+                return DatasetRowMetadata.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(DatasetRowMetadata | None, data)

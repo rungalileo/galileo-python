@@ -31,7 +31,8 @@ class MetricColorPickerMultiLabel:
             ]
         }
 
-        Attributes:
+    Attributes
+    ----------
             constraints (list[CategoricalColorConstraint]):
             type_ (Literal['multi_label'] | Unset):  Default: 'multi_label'.
     """

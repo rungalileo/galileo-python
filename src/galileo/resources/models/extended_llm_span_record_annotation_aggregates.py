@@ -15,7 +15,7 @@ T = TypeVar("T", bound="ExtendedLlmSpanRecordAnnotationAggregates")
 
 @_attrs_define
 class ExtendedLlmSpanRecordAnnotationAggregates:
-    """Annotation aggregate information keyed by template ID"""
+    """Annotation aggregate information keyed by template ID."""
 
     additional_properties: dict[str, AnnotationAggregate] = _attrs_field(init=False, factory=dict)
 

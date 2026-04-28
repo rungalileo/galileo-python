@@ -21,7 +21,8 @@ T = TypeVar("T", bound="Message")
 @_attrs_define
 class Message:
     """
-    Attributes:
+    Attributes
+    ----------
         content (list[FileContentPart | TextContentPart] | str):
         role (MessageRole):
         tool_call_id (None | str | Unset):
@@ -55,10 +56,7 @@ class Message:
         role = self.role.value
 
         tool_call_id: None | str | Unset
-        if isinstance(self.tool_call_id, Unset):
-            tool_call_id = UNSET
-        else:
-            tool_call_id = self.tool_call_id
+        tool_call_id = UNSET if isinstance(self.tool_call_id, Unset) else self.tool_call_id
 
         tool_calls: list[dict[str, Any]] | None | Unset
         if isinstance(self.tool_calls, Unset):
@@ -102,16 +100,13 @@ class Message:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            content_type_1_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return content_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        content_type_1_item_type_1 = FileContentPart.from_dict(data)
-
-                        return content_type_1_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     content_type_1_item = _parse_content_type_1_item(content_type_1_item_data)
 

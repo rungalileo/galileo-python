@@ -21,7 +21,8 @@ T = TypeVar("T", bound="ChunkAttributionUtilizationTemplate")
 @_attrs_define
 class ChunkAttributionUtilizationTemplate:
     r"""
-    Attributes:
+    Attributes
+    ----------
         metric_system_prompt (None | str | Unset): System prompt for the metric.
         metric_description (None | str | Unset): Description of what the metric should do.
         value_field_name (str | Unset): Field name to look for in the chainpoll response, for the rating. Default:
@@ -41,7 +42,7 @@ class ChunkAttributionUtilizationTemplate:
             been removed from the document without affecting the answer.\n\nYou must respond with a valid JSON string.'.
         metric_few_shot_examples (list[FewShotExample] | Unset): Few-shot examples for the metric.
         response_schema (ChunkAttributionUtilizationTemplateResponseSchemaType0 | None | Unset): Response schema for the
-            output
+            output.
     """
 
     metric_system_prompt: None | str | Unset = UNSET
@@ -61,16 +62,10 @@ class ChunkAttributionUtilizationTemplate:
         )
 
         metric_system_prompt: None | str | Unset
-        if isinstance(self.metric_system_prompt, Unset):
-            metric_system_prompt = UNSET
-        else:
-            metric_system_prompt = self.metric_system_prompt
+        metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
 
         metric_description: None | str | Unset
-        if isinstance(self.metric_description, Unset):
-            metric_description = UNSET
-        else:
-            metric_description = self.metric_description
+        metric_description = UNSET if isinstance(self.metric_description, Unset) else self.metric_description
 
         value_field_name = self.value_field_name
 
@@ -165,9 +160,8 @@ class ChunkAttributionUtilizationTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = ChunkAttributionUtilizationTemplateResponseSchemaType0.from_dict(data)
+                return ChunkAttributionUtilizationTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(ChunkAttributionUtilizationTemplateResponseSchemaType0 | None | Unset, data)

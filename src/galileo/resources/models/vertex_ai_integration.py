@@ -20,7 +20,8 @@ T = TypeVar("T", bound="VertexAIIntegration")
 @_attrs_define
 class VertexAIIntegration:
     """
-    Attributes:
+    Attributes
+    ----------
         multi_modal_config (MultiModalModelIntegrationConfig | None | Unset): Configuration for multi-modal (file
             upload) capabilities.
         gcs_config (None | Unset | VertexAIGCSConfigResponse):
@@ -58,10 +59,7 @@ class VertexAIIntegration:
             gcs_config = self.gcs_config
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
@@ -105,9 +103,8 @@ class VertexAIIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
+                return MultiModalModelIntegrationConfig.from_dict(data)
 
-                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
             return cast(MultiModalModelIntegrationConfig | None | Unset, data)
@@ -122,9 +119,8 @@ class VertexAIIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                gcs_config_type_0 = VertexAIGCSConfigResponse.from_dict(data)
+                return VertexAIGCSConfigResponse.from_dict(data)
 
-                return gcs_config_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | VertexAIGCSConfigResponse, data)
@@ -152,9 +148,8 @@ class VertexAIIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = VertexAIIntegrationExtraType0.from_dict(data)
+                return VertexAIIntegrationExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | VertexAIIntegrationExtraType0, data)

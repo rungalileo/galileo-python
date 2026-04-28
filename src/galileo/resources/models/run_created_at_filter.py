@@ -17,7 +17,8 @@ T = TypeVar("T", bound="RunCreatedAtFilter")
 @_attrs_define
 class RunCreatedAtFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (RunCreatedAtFilterOperator):
         value (datetime.datetime):
         name (Literal['created_at'] | Unset):  Default: 'created_at'.

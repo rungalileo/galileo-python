@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -43,9 +43,7 @@ def _get_kwargs(*, body: BulkDeletePromptTemplatesRequest) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError:
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -75,7 +73,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> Response[HTTPValidationError]:
-    """Bulk Delete Global Templates
+    """Bulk Delete Global Templates.
 
      Delete multiple global prompt templates in bulk.
 
@@ -101,14 +99,15 @@ def sync_detailed(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) 
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -116,8 +115,8 @@ def sync_detailed(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) 
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> Optional[HTTPValidationError]:
-    """Bulk Delete Global Templates
+def sync(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> HTTPValidationError | None:
+    """Bulk Delete Global Templates.
 
      Delete multiple global prompt templates in bulk.
 
@@ -143,21 +142,22 @@ def sync(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> Option
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError
     """
-
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BulkDeletePromptTemplatesRequest
 ) -> Response[HTTPValidationError]:
-    """Bulk Delete Global Templates
+    """Bulk Delete Global Templates.
 
      Delete multiple global prompt templates in bulk.
 
@@ -183,14 +183,15 @@ async def asyncio_detailed(
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -198,8 +199,8 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> Optional[HTTPValidationError]:
-    """Bulk Delete Global Templates
+async def asyncio(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> HTTPValidationError | None:
+    """Bulk Delete Global Templates.
 
      Delete multiple global prompt templates in bulk.
 
@@ -225,12 +226,13 @@ async def asyncio(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) 
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError
     """
-
     return (await asyncio_detailed(client=client, body=body)).parsed

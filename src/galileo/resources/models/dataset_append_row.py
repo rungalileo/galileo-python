@@ -18,7 +18,8 @@ T = TypeVar("T", bound="DatasetAppendRow")
 @_attrs_define
 class DatasetAppendRow:
     """
-    Attributes:
+    Attributes
+    ----------
         values (DatasetAppendRowValues):
         edit_type (Literal['append_row'] | Unset):  Default: 'append_row'.
         row_id (None | str | Unset):
@@ -35,10 +36,7 @@ class DatasetAppendRow:
         edit_type = self.edit_type
 
         row_id: None | str | Unset
-        if isinstance(self.row_id, Unset):
-            row_id = UNSET
-        else:
-            row_id = self.row_id
+        row_id = UNSET if isinstance(self.row_id, Unset) else self.row_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

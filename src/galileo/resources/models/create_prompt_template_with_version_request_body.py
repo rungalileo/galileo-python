@@ -23,7 +23,8 @@ class CreatePromptTemplateWithVersionRequestBody:
 
     This is only used for parsing the body from the request.
 
-        Attributes:
+    Attributes
+    ----------
             template (list[MessagesListItem] | str):
             name (Name | str):
             raw (bool | Unset):  Default: False.
@@ -56,28 +57,19 @@ class CreatePromptTemplateWithVersionRequestBody:
             template = self.template
 
         name: dict[str, Any] | str
-        if isinstance(self.name, Name):
-            name = self.name.to_dict()
-        else:
-            name = self.name
+        name = self.name.to_dict() if isinstance(self.name, Name) else self.name
 
         raw = self.raw
 
         version: int | None | Unset
-        if isinstance(self.version, Unset):
-            version = UNSET
-        else:
-            version = self.version
+        version = UNSET if isinstance(self.version, Unset) else self.version
 
         settings: dict[str, Any] | Unset = UNSET
         if not isinstance(self.settings, Unset):
             settings = self.settings.to_dict()
 
         output_type: None | str | Unset
-        if isinstance(self.output_type, Unset):
-            output_type = UNSET
-        else:
-            output_type = self.output_type
+        output_type = UNSET if isinstance(self.output_type, Unset) else self.output_type
 
         hidden = self.hidden
 
@@ -127,9 +119,8 @@ class CreatePromptTemplateWithVersionRequestBody:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                name_type_1 = Name.from_dict(data)
+                return Name.from_dict(data)
 
-                return name_type_1
             except:  # noqa: E722
                 pass
             return cast(Name | str, data)
@@ -149,10 +140,7 @@ class CreatePromptTemplateWithVersionRequestBody:
 
         _settings = d.pop("settings", UNSET)
         settings: PromptRunSettings | Unset
-        if isinstance(_settings, Unset):
-            settings = UNSET
-        else:
-            settings = PromptRunSettings.from_dict(_settings)
+        settings = UNSET if isinstance(_settings, Unset) else PromptRunSettings.from_dict(_settings)
 
         def _parse_output_type(data: object) -> None | str | Unset:
             if data is None:

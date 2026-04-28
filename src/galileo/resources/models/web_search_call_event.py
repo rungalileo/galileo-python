@@ -21,7 +21,8 @@ T = TypeVar("T", bound="WebSearchCallEvent")
 class WebSearchCallEvent:
     """An OpenAI-style web search call event.
 
-    Attributes:
+    Attributes
+    ----------
         action (WebSearchAction): Action payload for a web search call event.
         type_ (Literal['web_search_call'] | Unset):  Default: 'web_search_call'.
         id (None | str | Unset): Unique identifier for the event
@@ -46,10 +47,7 @@ class WebSearchCallEvent:
         type_ = self.type_
 
         id: None | str | Unset
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        id = UNSET if isinstance(self.id, Unset) else self.id
 
         status: None | str | Unset
         if isinstance(self.status, Unset):
@@ -68,10 +66,7 @@ class WebSearchCallEvent:
             metadata = self.metadata
 
         error_message: None | str | Unset
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -118,9 +113,8 @@ class WebSearchCallEvent:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                status_type_0 = EventStatus(data)
+                return EventStatus(data)
 
-                return status_type_0
             except:  # noqa: E722
                 pass
             return cast(EventStatus | None | Unset, data)
@@ -135,9 +129,8 @@ class WebSearchCallEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = WebSearchCallEventMetadataType0.from_dict(data)
+                return WebSearchCallEventMetadataType0.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | WebSearchCallEventMetadataType0, data)

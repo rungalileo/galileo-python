@@ -24,7 +24,8 @@ T = TypeVar("T", bound="ProjectDB")
 @_attrs_define
 class ProjectDB:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         created_by (str):
         created_by_user (UserInfo): A user's basic information, used for display purposes.
@@ -77,10 +78,7 @@ class ProjectDB:
                 permissions.append(permissions_item)
 
         name: None | str | Unset
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         type_: None | str | Unset
         if isinstance(self.type_, Unset):
@@ -93,10 +91,7 @@ class ProjectDB:
         bookmark = self.bookmark
 
         description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         labels: list[str] | Unset = UNSET
         if not isinstance(self.labels, Unset):
@@ -182,9 +177,8 @@ class ProjectDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                type_type_0 = ProjectType(data)
+                return ProjectType(data)
 
-                return type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ProjectType | Unset, data)

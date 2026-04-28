@@ -15,7 +15,8 @@ T = TypeVar("T", bound="MetricPending")
 @_attrs_define
 class MetricPending:
     """
-    Attributes:
+    Attributes
+    ----------
         status_type (Literal['pending'] | Unset):  Default: 'pending'.
         scorer_type (None | ScorerType | Unset):
         metric_key_alias (None | str | Unset):
@@ -38,10 +39,7 @@ class MetricPending:
             scorer_type = self.scorer_type
 
         metric_key_alias: None | str | Unset
-        if isinstance(self.metric_key_alias, Unset):
-            metric_key_alias = UNSET
-        else:
-            metric_key_alias = self.metric_key_alias
+        metric_key_alias = UNSET if isinstance(self.metric_key_alias, Unset) else self.metric_key_alias
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -70,9 +68,8 @@ class MetricPending:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                scorer_type_type_0 = ScorerType(data)
+                return ScorerType(data)
 
-                return scorer_type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ScorerType | Unset, data)

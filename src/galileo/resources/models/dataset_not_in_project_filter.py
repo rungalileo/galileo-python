@@ -14,7 +14,8 @@ T = TypeVar("T", bound="DatasetNotInProjectFilter")
 @_attrs_define
 class DatasetNotInProjectFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (str):
         name (Literal['not_in_project'] | Unset):  Default: 'not_in_project'.
     """

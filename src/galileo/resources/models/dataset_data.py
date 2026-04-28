@@ -14,7 +14,8 @@ T = TypeVar("T", bound="DatasetData")
 @_attrs_define
 class DatasetData:
     """
-    Attributes:
+    Attributes
+    ----------
         dataset_id (str):
         dataset_version_index (int | None | Unset):
     """
@@ -27,10 +28,7 @@ class DatasetData:
         dataset_id = self.dataset_id
 
         dataset_version_index: int | None | Unset
-        if isinstance(self.dataset_version_index, Unset):
-            dataset_version_index = UNSET
-        else:
-            dataset_version_index = self.dataset_version_index
+        dataset_version_index = UNSET if isinstance(self.dataset_version_index, Unset) else self.dataset_version_index
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

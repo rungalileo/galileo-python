@@ -21,7 +21,8 @@ T = TypeVar("T", bound="InstructionAdherenceTemplate")
 @_attrs_define
 class InstructionAdherenceTemplate:
     r"""
-    Attributes:
+    Attributes
+    ----------
         metric_system_prompt (str | Unset):  Default: 'The user will provide you with a prompt that was sent to a
             chatbot system, and the chatbot\'s latest response. Both will be provided as JSON strings.\n\nIn some cases, the
             prompt may be split up into multiple messages. If so, each message will begin with one of the following
@@ -53,7 +54,7 @@ class InstructionAdherenceTemplate:
         template (str | Unset):  Default: 'Prompt JSON:\n\n```\n{query_json}\n```\n\nResponse
             JSON:\n\n```\n{response_json}\n```'.
         metric_few_shot_examples (list[FewShotExample] | Unset):
-        response_schema (InstructionAdherenceTemplateResponseSchemaType0 | None | Unset): Response schema for the output
+        response_schema (InstructionAdherenceTemplateResponseSchemaType0 | None | Unset): Response schema for the output.
     """
 
     metric_system_prompt: str | Unset = (
@@ -154,9 +155,8 @@ class InstructionAdherenceTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_schema_type_0 = InstructionAdherenceTemplateResponseSchemaType0.from_dict(data)
+                return InstructionAdherenceTemplateResponseSchemaType0.from_dict(data)
 
-                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(InstructionAdherenceTemplateResponseSchemaType0 | None | Unset, data)

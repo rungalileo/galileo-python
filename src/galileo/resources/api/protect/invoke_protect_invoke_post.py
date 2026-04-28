@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -48,25 +48,18 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_0 = ProtectResponse.from_dict(data)
+                return ProtectResponse.from_dict(data)
 
-                return response_200_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            response_200_type_1 = InvokeResponse.from_dict(data)
+            return InvokeResponse.from_dict(data)
 
-            return response_200_type_1
-
-        response_200 = _parse_response_200(response.json())
-
-        return response_200
+        return _parse_response_200(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -100,19 +93,20 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: ProtectRequest
 ) -> Response[HTTPValidationError | InvokeResponse | ProtectResponse]:
-    """Invoke
+    """Invoke.
 
     Args:
         body (ProtectRequest): Protect request schema with custom OpenAPI title.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | InvokeResponse | ProtectResponse]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -120,41 +114,41 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *, client: ApiClient, body: ProtectRequest
-) -> Optional[HTTPValidationError | InvokeResponse | ProtectResponse]:
-    """Invoke
+def sync(*, client: ApiClient, body: ProtectRequest) -> HTTPValidationError | InvokeResponse | ProtectResponse | None:
+    """Invoke.
 
     Args:
         body (ProtectRequest): Protect request schema with custom OpenAPI title.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | InvokeResponse | ProtectResponse
     """
-
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: ProtectRequest
 ) -> Response[HTTPValidationError | InvokeResponse | ProtectResponse]:
-    """Invoke
+    """Invoke.
 
     Args:
         body (ProtectRequest): Protect request schema with custom OpenAPI title.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | InvokeResponse | ProtectResponse]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -164,18 +158,19 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: ProtectRequest
-) -> Optional[HTTPValidationError | InvokeResponse | ProtectResponse]:
-    """Invoke
+) -> HTTPValidationError | InvokeResponse | ProtectResponse | None:
+    """Invoke.
 
     Args:
         body (ProtectRequest): Protect request schema with custom OpenAPI title.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | InvokeResponse | ProtectResponse
     """
-
     return (await asyncio_detailed(client=client, body=body)).parsed

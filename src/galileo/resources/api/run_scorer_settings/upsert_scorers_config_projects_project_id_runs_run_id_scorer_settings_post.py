@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(project_id: str, run_id: str, *, body: RunScorerSettingsPatchReq
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": "/projects/{project_id}/runs/{run_id}/scorer-settings".format(project_id=project_id, run_id=run_id),
+        "path": f"/projects/{project_id}/runs/{run_id}/scorer-settings",
     }
 
     _kwargs["json"] = body.to_dict()
@@ -44,14 +44,10 @@ def _get_kwargs(project_id: str, run_id: str, *, body: RunScorerSettingsPatchReq
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | RunScorerSettingsResponse:
     if response.status_code == 200:
-        response_200 = RunScorerSettingsResponse.from_dict(response.json())
-
-        return response_200
+        return RunScorerSettingsResponse.from_dict(response.json())
 
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
+        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -85,21 +81,22 @@ def _build_response(
 def sync_detailed(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
 ) -> Response[HTTPValidationError | RunScorerSettingsResponse]:
-    """Upsert Scorers Config
+    """Upsert Scorers Config.
 
     Args:
         project_id (str):
         run_id (str):
         body (RunScorerSettingsPatchRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | RunScorerSettingsResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
 
     response = client.request(**kwargs)
@@ -109,43 +106,45 @@ def sync_detailed(
 
 def sync(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
-) -> Optional[HTTPValidationError | RunScorerSettingsResponse]:
-    """Upsert Scorers Config
+) -> HTTPValidationError | RunScorerSettingsResponse | None:
+    """Upsert Scorers Config.
 
     Args:
         project_id (str):
         run_id (str):
         body (RunScorerSettingsPatchRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | RunScorerSettingsResponse
     """
-
     return sync_detailed(project_id=project_id, run_id=run_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
 ) -> Response[HTTPValidationError | RunScorerSettingsResponse]:
-    """Upsert Scorers Config
+    """Upsert Scorers Config.
 
     Args:
         project_id (str):
         run_id (str):
         body (RunScorerSettingsPatchRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[HTTPValidationError | RunScorerSettingsResponse]
     """
-
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -155,20 +154,21 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
-) -> Optional[HTTPValidationError | RunScorerSettingsResponse]:
-    """Upsert Scorers Config
+) -> HTTPValidationError | RunScorerSettingsResponse | None:
+    """Upsert Scorers Config.
 
     Args:
         project_id (str):
         run_id (str):
         body (RunScorerSettingsPatchRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         HTTPValidationError | RunScorerSettingsResponse
     """
-
     return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client, body=body)).parsed

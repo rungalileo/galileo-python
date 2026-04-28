@@ -24,6 +24,9 @@ if TYPE_CHECKING:
     from ..models.partial_extended_llm_span_record_annotation_aggregates import (
         PartialExtendedLlmSpanRecordAnnotationAggregates,
     )
+    from ..models.partial_extended_llm_span_record_annotation_agreement import (
+        PartialExtendedLlmSpanRecordAnnotationAgreement,
+    )
     from ..models.partial_extended_llm_span_record_annotations import PartialExtendedLlmSpanRecordAnnotations
     from ..models.partial_extended_llm_span_record_dataset_metadata import PartialExtendedLlmSpanRecordDatasetMetadata
     from ..models.partial_extended_llm_span_record_feedback_rating_info import (
@@ -31,6 +34,9 @@ if TYPE_CHECKING:
     )
     from ..models.partial_extended_llm_span_record_files_type_0 import PartialExtendedLlmSpanRecordFilesType0
     from ..models.partial_extended_llm_span_record_metric_info_type_0 import PartialExtendedLlmSpanRecordMetricInfoType0
+    from ..models.partial_extended_llm_span_record_overall_annotation_agreement import (
+        PartialExtendedLlmSpanRecordOverallAnnotationAgreement,
+    )
     from ..models.partial_extended_llm_span_record_tools_type_0_item import PartialExtendedLlmSpanRecordToolsType0Item
     from ..models.partial_extended_llm_span_record_user_metadata import PartialExtendedLlmSpanRecordUserMetadata
     from ..models.reasoning_event import ReasoningEvent
@@ -43,7 +49,8 @@ T = TypeVar("T", bound="PartialExtendedLlmSpanRecord")
 @_attrs_define
 class PartialExtendedLlmSpanRecord:
     """
-    Attributes:
+    Attributes
+    ----------
         type_ (Literal['llm'] | Unset): Type of the trace, span or session. Default: 'llm'.
         input_ (list[Message] | Unset): Input to the trace or span.
         redacted_input (list[Message] | None | Unset): Redacted input of the trace or span.
@@ -78,6 +85,10 @@ class PartialExtendedLlmSpanRecord:
         file_modalities (list[ContentModality] | Unset): Modalities of files associated with this record
         annotation_aggregates (PartialExtendedLlmSpanRecordAnnotationAggregates | Unset): Annotation aggregate
             information keyed by template ID
+        annotation_agreement (PartialExtendedLlmSpanRecordAnnotationAgreement | Unset): Annotation agreement scores
+            keyed by template ID
+        overall_annotation_agreement (PartialExtendedLlmSpanRecordOverallAnnotationAgreement | Unset): Average
+            annotation agreement per queue (keyed by queue ID)
         annotation_queue_ids (list[str] | Unset): IDs of annotation queues this record is in
         metric_info (None | PartialExtendedLlmSpanRecordMetricInfoType0 | Unset): Detailed information about the metrics
             associated with this trace or span
@@ -125,6 +136,8 @@ class PartialExtendedLlmSpanRecord:
     file_ids: list[str] | Unset = UNSET
     file_modalities: list[ContentModality] | Unset = UNSET
     annotation_aggregates: PartialExtendedLlmSpanRecordAnnotationAggregates | Unset = UNSET
+    annotation_agreement: PartialExtendedLlmSpanRecordAnnotationAgreement | Unset = UNSET
+    overall_annotation_agreement: PartialExtendedLlmSpanRecordOverallAnnotationAgreement | Unset = UNSET
     annotation_queue_ids: list[str] | Unset = UNSET
     metric_info: None | PartialExtendedLlmSpanRecordMetricInfoType0 | Unset = UNSET
     files: None | PartialExtendedLlmSpanRecordFilesType0 | Unset = UNSET
@@ -213,32 +226,20 @@ class PartialExtendedLlmSpanRecord:
             tags = self.tags
 
         status_code: int | None | Unset
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         metrics: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
         external_id: None | str | Unset
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         dataset_input: None | str | Unset
-        if isinstance(self.dataset_input, Unset):
-            dataset_input = UNSET
-        else:
-            dataset_input = self.dataset_input
+        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
         dataset_output: None | str | Unset
-        if isinstance(self.dataset_output, Unset):
-            dataset_output = UNSET
-        else:
-            dataset_output = self.dataset_output
+        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
         dataset_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.dataset_metadata, Unset):
@@ -261,10 +262,7 @@ class PartialExtendedLlmSpanRecord:
             session_id = self.session_id
 
         trace_id: None | str | Unset
-        if isinstance(self.trace_id, Unset):
-            trace_id = UNSET
-        else:
-            trace_id = self.trace_id
+        trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
         project_id: None | str | Unset
         if isinstance(self.project_id, Unset):
@@ -291,22 +289,13 @@ class PartialExtendedLlmSpanRecord:
             updated_at = self.updated_at
 
         has_children: bool | None | Unset
-        if isinstance(self.has_children, Unset):
-            has_children = UNSET
-        else:
-            has_children = self.has_children
+        has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
 
         metrics_batch_id: None | str | Unset
-        if isinstance(self.metrics_batch_id, Unset):
-            metrics_batch_id = UNSET
-        else:
-            metrics_batch_id = self.metrics_batch_id
+        metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
 
         session_batch_id: None | str | Unset
-        if isinstance(self.session_batch_id, Unset):
-            session_batch_id = UNSET
-        else:
-            session_batch_id = self.session_batch_id
+        session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
         feedback_rating_info: dict[str, Any] | Unset = UNSET
         if not isinstance(self.feedback_rating_info, Unset):
@@ -330,6 +319,14 @@ class PartialExtendedLlmSpanRecord:
         annotation_aggregates: dict[str, Any] | Unset = UNSET
         if not isinstance(self.annotation_aggregates, Unset):
             annotation_aggregates = self.annotation_aggregates.to_dict()
+
+        annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.annotation_agreement, Unset):
+            annotation_agreement = self.annotation_agreement.to_dict()
+
+        overall_annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.overall_annotation_agreement, Unset):
+            overall_annotation_agreement = self.overall_annotation_agreement.to_dict()
 
         annotation_queue_ids: list[str] | Unset = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
@@ -362,10 +359,7 @@ class PartialExtendedLlmSpanRecord:
         is_complete = self.is_complete
 
         step_number: int | None | Unset
-        if isinstance(self.step_number, Unset):
-            step_number = UNSET
-        else:
-            step_number = self.step_number
+        step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
 
         tools: list[dict[str, Any]] | None | Unset
         if isinstance(self.tools, Unset):
@@ -386,19 +380,15 @@ class PartialExtendedLlmSpanRecord:
             events = []
             for events_type_0_item_data in self.events:
                 events_type_0_item: dict[str, Any]
-                if isinstance(events_type_0_item_data, MessageEvent):
-                    events_type_0_item = events_type_0_item_data.to_dict()
-                elif isinstance(events_type_0_item_data, ReasoningEvent):
-                    events_type_0_item = events_type_0_item_data.to_dict()
-                elif isinstance(events_type_0_item_data, InternalToolCall):
-                    events_type_0_item = events_type_0_item_data.to_dict()
-                elif isinstance(events_type_0_item_data, WebSearchCallEvent):
-                    events_type_0_item = events_type_0_item_data.to_dict()
-                elif isinstance(events_type_0_item_data, ImageGenerationEvent):
-                    events_type_0_item = events_type_0_item_data.to_dict()
-                elif isinstance(events_type_0_item_data, MCPCallEvent):
-                    events_type_0_item = events_type_0_item_data.to_dict()
-                elif isinstance(events_type_0_item_data, MCPListToolsEvent):
+                if isinstance(
+                    events_type_0_item_data,
+                    MessageEvent
+                    | ReasoningEvent
+                    | InternalToolCall
+                    | WebSearchCallEvent
+                    | (ImageGenerationEvent | MCPCallEvent)
+                    | MCPListToolsEvent,
+                ):
                     events_type_0_item = events_type_0_item_data.to_dict()
                 else:
                     events_type_0_item = events_type_0_item_data.to_dict()
@@ -409,22 +399,13 @@ class PartialExtendedLlmSpanRecord:
             events = self.events
 
         model: None | str | Unset
-        if isinstance(self.model, Unset):
-            model = UNSET
-        else:
-            model = self.model
+        model = UNSET if isinstance(self.model, Unset) else self.model
 
         temperature: float | None | Unset
-        if isinstance(self.temperature, Unset):
-            temperature = UNSET
-        else:
-            temperature = self.temperature
+        temperature = UNSET if isinstance(self.temperature, Unset) else self.temperature
 
         finish_reason: None | str | Unset
-        if isinstance(self.finish_reason, Unset):
-            finish_reason = UNSET
-        else:
-            finish_reason = self.finish_reason
+        finish_reason = UNSET if isinstance(self.finish_reason, Unset) else self.finish_reason
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -487,6 +468,10 @@ class PartialExtendedLlmSpanRecord:
             field_dict["file_modalities"] = file_modalities
         if annotation_aggregates is not UNSET:
             field_dict["annotation_aggregates"] = annotation_aggregates
+        if annotation_agreement is not UNSET:
+            field_dict["annotation_agreement"] = annotation_agreement
+        if overall_annotation_agreement is not UNSET:
+            field_dict["overall_annotation_agreement"] = overall_annotation_agreement
         if annotation_queue_ids is not UNSET:
             field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
@@ -525,6 +510,9 @@ class PartialExtendedLlmSpanRecord:
         from ..models.partial_extended_llm_span_record_annotation_aggregates import (
             PartialExtendedLlmSpanRecordAnnotationAggregates,
         )
+        from ..models.partial_extended_llm_span_record_annotation_agreement import (
+            PartialExtendedLlmSpanRecordAnnotationAgreement,
+        )
         from ..models.partial_extended_llm_span_record_annotations import PartialExtendedLlmSpanRecordAnnotations
         from ..models.partial_extended_llm_span_record_dataset_metadata import (
             PartialExtendedLlmSpanRecordDatasetMetadata,
@@ -535,6 +523,9 @@ class PartialExtendedLlmSpanRecord:
         from ..models.partial_extended_llm_span_record_files_type_0 import PartialExtendedLlmSpanRecordFilesType0
         from ..models.partial_extended_llm_span_record_metric_info_type_0 import (
             PartialExtendedLlmSpanRecordMetricInfoType0,
+        )
+        from ..models.partial_extended_llm_span_record_overall_annotation_agreement import (
+            PartialExtendedLlmSpanRecordOverallAnnotationAgreement,
         )
         from ..models.partial_extended_llm_span_record_tools_type_0_item import (
             PartialExtendedLlmSpanRecordToolsType0Item,
@@ -581,10 +572,7 @@ class PartialExtendedLlmSpanRecord:
 
         _output = d.pop("output", UNSET)
         output: Message | Unset
-        if isinstance(_output, Unset):
-            output = UNSET
-        else:
-            output = Message.from_dict(_output)
+        output = UNSET if isinstance(_output, Unset) else Message.from_dict(_output)
 
         def _parse_redacted_output(data: object) -> Message | None | Unset:
             if data is None:
@@ -594,9 +582,8 @@ class PartialExtendedLlmSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                redacted_output_type_0 = Message.from_dict(data)
+                return Message.from_dict(data)
 
-                return redacted_output_type_0
             except:  # noqa: E722
                 pass
             return cast(Message | None | Unset, data)
@@ -607,10 +594,7 @@ class PartialExtendedLlmSpanRecord:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: datetime.datetime | Unset
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
         user_metadata: PartialExtendedLlmSpanRecordUserMetadata | Unset
@@ -632,10 +616,7 @@ class PartialExtendedLlmSpanRecord:
 
         _metrics = d.pop("metrics", UNSET)
         metrics: LlmMetrics | Unset
-        if isinstance(_metrics, Unset):
-            metrics = UNSET
-        else:
-            metrics = LlmMetrics.from_dict(_metrics)
+        metrics = UNSET if isinstance(_metrics, Unset) else LlmMetrics.from_dict(_metrics)
 
         def _parse_external_id(data: object) -> None | str | Unset:
             if data is None:
@@ -679,9 +660,8 @@ class PartialExtendedLlmSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                id_type_0 = UUID(data)
+                return UUID(data)
 
-                return id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -696,9 +676,8 @@ class PartialExtendedLlmSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                session_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return session_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -722,9 +701,8 @@ class PartialExtendedLlmSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                project_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return project_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -739,9 +717,8 @@ class PartialExtendedLlmSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                run_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return run_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -756,9 +733,8 @@ class PartialExtendedLlmSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                updated_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return updated_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -824,6 +800,22 @@ class PartialExtendedLlmSpanRecord:
         else:
             annotation_aggregates = PartialExtendedLlmSpanRecordAnnotationAggregates.from_dict(_annotation_aggregates)
 
+        _annotation_agreement = d.pop("annotation_agreement", UNSET)
+        annotation_agreement: PartialExtendedLlmSpanRecordAnnotationAgreement | Unset
+        if isinstance(_annotation_agreement, Unset):
+            annotation_agreement = UNSET
+        else:
+            annotation_agreement = PartialExtendedLlmSpanRecordAnnotationAgreement.from_dict(_annotation_agreement)
+
+        _overall_annotation_agreement = d.pop("overall_annotation_agreement", UNSET)
+        overall_annotation_agreement: PartialExtendedLlmSpanRecordOverallAnnotationAgreement | Unset
+        if isinstance(_overall_annotation_agreement, Unset):
+            overall_annotation_agreement = UNSET
+        else:
+            overall_annotation_agreement = PartialExtendedLlmSpanRecordOverallAnnotationAgreement.from_dict(
+                _overall_annotation_agreement
+            )
+
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
 
         def _parse_metric_info(data: object) -> None | PartialExtendedLlmSpanRecordMetricInfoType0 | Unset:
@@ -834,9 +826,8 @@ class PartialExtendedLlmSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_info_type_0 = PartialExtendedLlmSpanRecordMetricInfoType0.from_dict(data)
+                return PartialExtendedLlmSpanRecordMetricInfoType0.from_dict(data)
 
-                return metric_info_type_0
             except:  # noqa: E722
                 pass
             return cast(None | PartialExtendedLlmSpanRecordMetricInfoType0 | Unset, data)
@@ -851,9 +842,8 @@ class PartialExtendedLlmSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                files_type_0 = PartialExtendedLlmSpanRecordFilesType0.from_dict(data)
+                return PartialExtendedLlmSpanRecordFilesType0.from_dict(data)
 
-                return files_type_0
             except:  # noqa: E722
                 pass
             return cast(None | PartialExtendedLlmSpanRecordFilesType0 | Unset, data)
@@ -868,9 +858,8 @@ class PartialExtendedLlmSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                parent_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return parent_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -952,64 +941,55 @@ class PartialExtendedLlmSpanRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            events_type_0_item_type_0 = MessageEvent.from_dict(data)
+                            return MessageEvent.from_dict(data)
 
-                            return events_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            events_type_0_item_type_1 = ReasoningEvent.from_dict(data)
+                            return ReasoningEvent.from_dict(data)
 
-                            return events_type_0_item_type_1
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            events_type_0_item_type_2 = InternalToolCall.from_dict(data)
+                            return InternalToolCall.from_dict(data)
 
-                            return events_type_0_item_type_2
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            events_type_0_item_type_3 = WebSearchCallEvent.from_dict(data)
+                            return WebSearchCallEvent.from_dict(data)
 
-                            return events_type_0_item_type_3
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            events_type_0_item_type_4 = ImageGenerationEvent.from_dict(data)
+                            return ImageGenerationEvent.from_dict(data)
 
-                            return events_type_0_item_type_4
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            events_type_0_item_type_5 = MCPCallEvent.from_dict(data)
+                            return MCPCallEvent.from_dict(data)
 
-                            return events_type_0_item_type_5
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            events_type_0_item_type_6 = MCPListToolsEvent.from_dict(data)
+                            return MCPListToolsEvent.from_dict(data)
 
-                            return events_type_0_item_type_6
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        events_type_0_item_type_7 = MCPApprovalRequestEvent.from_dict(data)
-
-                        return events_type_0_item_type_7
+                        return MCPApprovalRequestEvent.from_dict(data)
 
                     events_type_0_item = _parse_events_type_0_item(events_type_0_item_data)
 
@@ -1093,6 +1073,8 @@ class PartialExtendedLlmSpanRecord:
             file_ids=file_ids,
             file_modalities=file_modalities,
             annotation_aggregates=annotation_aggregates,
+            annotation_agreement=annotation_agreement,
+            overall_annotation_agreement=overall_annotation_agreement,
             annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
             files=files,

@@ -16,7 +16,8 @@ T = TypeVar("T", bound="LogRecordsAvailableColumnsRequest")
 @_attrs_define
 class LogRecordsAvailableColumnsRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         log_stream_id (None | str | Unset): Log stream id associated with the traces.
         experiment_id (None | str | Unset): Experiment id associated with the traces.
         metrics_testing_id (None | str | Unset): Metrics testing id associated with the traces.
@@ -33,22 +34,13 @@ class LogRecordsAvailableColumnsRequest:
 
     def to_dict(self) -> dict[str, Any]:
         log_stream_id: None | str | Unset
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: None | str | Unset
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         metrics_testing_id: None | str | Unset
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         start_time: None | str | Unset
         if isinstance(self.start_time, Unset):
@@ -121,9 +113,8 @@ class LogRecordsAvailableColumnsRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                start_time_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return start_time_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -138,9 +129,8 @@ class LogRecordsAvailableColumnsRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                end_time_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return end_time_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)

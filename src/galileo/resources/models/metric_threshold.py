@@ -18,7 +18,8 @@ class MetricThreshold:
     Defines how metric values are bucketed and displayed, including whether
     lower or higher values are considered better.
 
-        Attributes:
+    Attributes
+    ----------
             inverted (bool | Unset): Whether the column should be inverted for thresholds, i.e. if True, lower is better.
                 Default: False.
             buckets (list[float | int] | Unset): Threshold buckets for the column. If the column is a metric, these are the

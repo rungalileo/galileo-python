@@ -15,7 +15,8 @@ T = TypeVar("T", bound="MultiModalModelIntegrationConfig")
 class MultiModalModelIntegrationConfig:
     """Configuration for multi-modal capabilities (file uploads).
 
-    Attributes:
+    Attributes
+    ----------
         max_files (int | None | Unset): Maximum number of files allowed per request. None means no limit.
         max_file_size_bytes (int | None | Unset): Maximum file size in bytes per file. None means no limit.
     """
@@ -26,16 +27,10 @@ class MultiModalModelIntegrationConfig:
 
     def to_dict(self) -> dict[str, Any]:
         max_files: int | None | Unset
-        if isinstance(self.max_files, Unset):
-            max_files = UNSET
-        else:
-            max_files = self.max_files
+        max_files = UNSET if isinstance(self.max_files, Unset) else self.max_files
 
         max_file_size_bytes: int | None | Unset
-        if isinstance(self.max_file_size_bytes, Unset):
-            max_file_size_bytes = UNSET
-        else:
-            max_file_size_bytes = self.max_file_size_bytes
+        max_file_size_bytes = UNSET if isinstance(self.max_file_size_bytes, Unset) else self.max_file_size_bytes
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

@@ -14,7 +14,8 @@ T = TypeVar("T", bound="BodyLoginEmailLoginPost")
 @_attrs_define
 class BodyLoginEmailLoginPost:
     """
-    Attributes:
+    Attributes
+    ----------
         username (str):
         password (str):
         grant_type (None | str | Unset):
@@ -37,24 +38,15 @@ class BodyLoginEmailLoginPost:
         password = self.password
 
         grant_type: None | str | Unset
-        if isinstance(self.grant_type, Unset):
-            grant_type = UNSET
-        else:
-            grant_type = self.grant_type
+        grant_type = UNSET if isinstance(self.grant_type, Unset) else self.grant_type
 
         scope = self.scope
 
         client_id: None | str | Unset
-        if isinstance(self.client_id, Unset):
-            client_id = UNSET
-        else:
-            client_id = self.client_id
+        client_id = UNSET if isinstance(self.client_id, Unset) else self.client_id
 
         client_secret: None | str | Unset
-        if isinstance(self.client_secret, Unset):
-            client_secret = UNSET
-        else:
-            client_secret = self.client_secret
+        client_secret = UNSET if isinstance(self.client_secret, Unset) else self.client_secret
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

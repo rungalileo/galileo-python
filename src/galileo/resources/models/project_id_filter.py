@@ -15,7 +15,8 @@ T = TypeVar("T", bound="ProjectIDFilter")
 @_attrs_define
 class ProjectIDFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (list[str] | str):
         name (Literal['id'] | Unset):  Default: 'id'.
         operator (ProjectIDFilterOperator | Unset):  Default: ProjectIDFilterOperator.EQ.
@@ -86,10 +87,7 @@ class ProjectIDFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: ProjectIDFilterOperator | Unset
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = ProjectIDFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else ProjectIDFilterOperator(_operator)
 
         project_id_filter = cls(value=value, name=name, operator=operator)
 

@@ -24,7 +24,8 @@ T = TypeVar("T", bound="BasePromptTemplateResponse")
 class BasePromptTemplateResponse:
     """Response from API to get a prompt template version.
 
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (Name | str):
         template (str):
@@ -62,10 +63,7 @@ class BasePromptTemplateResponse:
         id = self.id
 
         name: dict[str, Any] | str
-        if isinstance(self.name, Name):
-            name = self.name.to_dict()
-        else:
-            name = self.name
+        name = self.name.to_dict() if isinstance(self.name, Name) else self.name
 
         template = self.template
 
@@ -141,9 +139,8 @@ class BasePromptTemplateResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                name_type_1 = Name.from_dict(data)
+                return Name.from_dict(data)
 
-                return name_type_1
             except:  # noqa: E722
                 pass
             return cast(Name | str, data)
@@ -172,9 +169,8 @@ class BasePromptTemplateResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                created_by_user_type_0 = UserInfo.from_dict(data)
+                return UserInfo.from_dict(data)
 
-                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(None | UserInfo, data)

@@ -18,7 +18,8 @@ T = TypeVar("T", bound="ColumnInfo")
 @_attrs_define
 class ColumnInfo:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str): Column id.  Must be universally unique.
         category (ColumnCategory):
         data_type (DataType | None): Data type of the column. This is used to determine how to format the data on the
@@ -64,28 +65,16 @@ class ColumnInfo:
         category = self.category.value
 
         data_type: None | str
-        if isinstance(self.data_type, DataType):
-            data_type = self.data_type.value
-        else:
-            data_type = self.data_type
+        data_type = self.data_type.value if isinstance(self.data_type, DataType) else self.data_type
 
         label: None | str | Unset
-        if isinstance(self.label, Unset):
-            label = UNSET
-        else:
-            label = self.label
+        label = UNSET if isinstance(self.label, Unset) else self.label
 
         description: None | str | Unset
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         group_label: None | str | Unset
-        if isinstance(self.group_label, Unset):
-            group_label = UNSET
-        else:
-            group_label = self.group_label
+        group_label = UNSET if isinstance(self.group_label, Unset) else self.group_label
 
         data_unit: None | str | Unset
         if isinstance(self.data_unit, Unset):
@@ -124,10 +113,7 @@ class ColumnInfo:
         is_optional = self.is_optional
 
         roll_up_method: None | str | Unset
-        if isinstance(self.roll_up_method, Unset):
-            roll_up_method = UNSET
-        else:
-            roll_up_method = self.roll_up_method
+        roll_up_method = UNSET if isinstance(self.roll_up_method, Unset) else self.roll_up_method
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -174,9 +160,8 @@ class ColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_type_type_0 = DataType(data)
+                return DataType(data)
 
-                return data_type_type_0
             except:  # noqa: E722
                 pass
             return cast(DataType | None, data)
@@ -218,9 +203,8 @@ class ColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_unit_type_0 = DataUnit(data)
+                return DataUnit(data)
 
-                return data_unit_type_0
             except:  # noqa: E722
                 pass
             return cast(DataUnit | None | Unset, data)
@@ -237,9 +221,8 @@ class ColumnInfo:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                allowed_values_type_0 = cast(list[Any], data)
+                return cast(list[Any], data)
 
-                return allowed_values_type_0
             except:  # noqa: E722
                 pass
             return cast(list[Any] | None | Unset, data)

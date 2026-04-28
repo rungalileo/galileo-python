@@ -22,6 +22,9 @@ if TYPE_CHECKING:
     from ..models.partial_extended_control_span_record_annotation_aggregates import (
         PartialExtendedControlSpanRecordAnnotationAggregates,
     )
+    from ..models.partial_extended_control_span_record_annotation_agreement import (
+        PartialExtendedControlSpanRecordAnnotationAgreement,
+    )
     from ..models.partial_extended_control_span_record_annotations import PartialExtendedControlSpanRecordAnnotations
     from ..models.partial_extended_control_span_record_dataset_metadata import (
         PartialExtendedControlSpanRecordDatasetMetadata,
@@ -33,6 +36,9 @@ if TYPE_CHECKING:
     from ..models.partial_extended_control_span_record_metric_info_type_0 import (
         PartialExtendedControlSpanRecordMetricInfoType0,
     )
+    from ..models.partial_extended_control_span_record_overall_annotation_agreement import (
+        PartialExtendedControlSpanRecordOverallAnnotationAgreement,
+    )
     from ..models.partial_extended_control_span_record_user_metadata import PartialExtendedControlSpanRecordUserMetadata
     from ..models.text_content_part import TextContentPart
 
@@ -43,7 +49,8 @@ T = TypeVar("T", bound="PartialExtendedControlSpanRecord")
 @_attrs_define
 class PartialExtendedControlSpanRecord:
     """
-    Attributes:
+    Attributes
+    ----------
         type_ (Literal['control'] | Unset): Type of the trace, span or session. Default: 'control'.
         input_ (list[FileContentPart | TextContentPart] | list[Message] | str | Unset): Input to the trace or span.
             Default: ''.
@@ -82,6 +89,10 @@ class PartialExtendedControlSpanRecord:
         file_modalities (list[ContentModality] | Unset): Modalities of files associated with this record
         annotation_aggregates (PartialExtendedControlSpanRecordAnnotationAggregates | Unset): Annotation aggregate
             information keyed by template ID
+        annotation_agreement (PartialExtendedControlSpanRecordAnnotationAgreement | Unset): Annotation agreement scores
+            keyed by template ID
+        overall_annotation_agreement (PartialExtendedControlSpanRecordOverallAnnotationAgreement | Unset): Average
+            annotation agreement per queue (keyed by queue ID)
         annotation_queue_ids (list[str] | Unset): IDs of annotation queues this record is in
         metric_info (None | PartialExtendedControlSpanRecordMetricInfoType0 | Unset): Detailed information about the
             metrics associated with this trace or span
@@ -131,6 +142,8 @@ class PartialExtendedControlSpanRecord:
     file_ids: list[str] | Unset = UNSET
     file_modalities: list[ContentModality] | Unset = UNSET
     annotation_aggregates: PartialExtendedControlSpanRecordAnnotationAggregates | Unset = UNSET
+    annotation_agreement: PartialExtendedControlSpanRecordAnnotationAgreement | Unset = UNSET
+    overall_annotation_agreement: PartialExtendedControlSpanRecordOverallAnnotationAgreement | Unset = UNSET
     annotation_queue_ids: list[str] | Unset = UNSET
     metric_info: None | PartialExtendedControlSpanRecordMetricInfoType0 | Unset = UNSET
     files: None | PartialExtendedControlSpanRecordFilesType0 | Unset = UNSET
@@ -234,32 +247,20 @@ class PartialExtendedControlSpanRecord:
             tags = self.tags
 
         status_code: int | None | Unset
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         metrics: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
         external_id: None | str | Unset
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         dataset_input: None | str | Unset
-        if isinstance(self.dataset_input, Unset):
-            dataset_input = UNSET
-        else:
-            dataset_input = self.dataset_input
+        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
         dataset_output: None | str | Unset
-        if isinstance(self.dataset_output, Unset):
-            dataset_output = UNSET
-        else:
-            dataset_output = self.dataset_output
+        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
         dataset_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.dataset_metadata, Unset):
@@ -282,10 +283,7 @@ class PartialExtendedControlSpanRecord:
             session_id = self.session_id
 
         trace_id: None | str | Unset
-        if isinstance(self.trace_id, Unset):
-            trace_id = UNSET
-        else:
-            trace_id = self.trace_id
+        trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
         project_id: None | str | Unset
         if isinstance(self.project_id, Unset):
@@ -312,22 +310,13 @@ class PartialExtendedControlSpanRecord:
             updated_at = self.updated_at
 
         has_children: bool | None | Unset
-        if isinstance(self.has_children, Unset):
-            has_children = UNSET
-        else:
-            has_children = self.has_children
+        has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
 
         metrics_batch_id: None | str | Unset
-        if isinstance(self.metrics_batch_id, Unset):
-            metrics_batch_id = UNSET
-        else:
-            metrics_batch_id = self.metrics_batch_id
+        metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
 
         session_batch_id: None | str | Unset
-        if isinstance(self.session_batch_id, Unset):
-            session_batch_id = UNSET
-        else:
-            session_batch_id = self.session_batch_id
+        session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
         feedback_rating_info: dict[str, Any] | Unset = UNSET
         if not isinstance(self.feedback_rating_info, Unset):
@@ -351,6 +340,14 @@ class PartialExtendedControlSpanRecord:
         annotation_aggregates: dict[str, Any] | Unset = UNSET
         if not isinstance(self.annotation_aggregates, Unset):
             annotation_aggregates = self.annotation_aggregates.to_dict()
+
+        annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.annotation_agreement, Unset):
+            annotation_agreement = self.annotation_agreement.to_dict()
+
+        overall_annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.overall_annotation_agreement, Unset):
+            overall_annotation_agreement = self.overall_annotation_agreement.to_dict()
 
         annotation_queue_ids: list[str] | Unset = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
@@ -383,22 +380,13 @@ class PartialExtendedControlSpanRecord:
         is_complete = self.is_complete
 
         step_number: int | None | Unset
-        if isinstance(self.step_number, Unset):
-            step_number = UNSET
-        else:
-            step_number = self.step_number
+        step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
 
         control_id: int | None | Unset
-        if isinstance(self.control_id, Unset):
-            control_id = UNSET
-        else:
-            control_id = self.control_id
+        control_id = UNSET if isinstance(self.control_id, Unset) else self.control_id
 
         agent_name: None | str | Unset
-        if isinstance(self.agent_name, Unset):
-            agent_name = UNSET
-        else:
-            agent_name = self.agent_name
+        agent_name = UNSET if isinstance(self.agent_name, Unset) else self.agent_name
 
         check_stage: None | str | Unset
         if isinstance(self.check_stage, Unset):
@@ -417,16 +405,10 @@ class PartialExtendedControlSpanRecord:
             applies_to = self.applies_to
 
         evaluator_name: None | str | Unset
-        if isinstance(self.evaluator_name, Unset):
-            evaluator_name = UNSET
-        else:
-            evaluator_name = self.evaluator_name
+        evaluator_name = UNSET if isinstance(self.evaluator_name, Unset) else self.evaluator_name
 
         selector_path: None | str | Unset
-        if isinstance(self.selector_path, Unset):
-            selector_path = UNSET
-        else:
-            selector_path = self.selector_path
+        selector_path = UNSET if isinstance(self.selector_path, Unset) else self.selector_path
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -489,6 +471,10 @@ class PartialExtendedControlSpanRecord:
             field_dict["file_modalities"] = file_modalities
         if annotation_aggregates is not UNSET:
             field_dict["annotation_aggregates"] = annotation_aggregates
+        if annotation_agreement is not UNSET:
+            field_dict["annotation_agreement"] = annotation_agreement
+        if overall_annotation_agreement is not UNSET:
+            field_dict["overall_annotation_agreement"] = overall_annotation_agreement
         if annotation_queue_ids is not UNSET:
             field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
@@ -525,6 +511,9 @@ class PartialExtendedControlSpanRecord:
         from ..models.partial_extended_control_span_record_annotation_aggregates import (
             PartialExtendedControlSpanRecordAnnotationAggregates,
         )
+        from ..models.partial_extended_control_span_record_annotation_agreement import (
+            PartialExtendedControlSpanRecordAnnotationAgreement,
+        )
         from ..models.partial_extended_control_span_record_annotations import (
             PartialExtendedControlSpanRecordAnnotations,
         )
@@ -539,6 +528,9 @@ class PartialExtendedControlSpanRecord:
         )
         from ..models.partial_extended_control_span_record_metric_info_type_0 import (
             PartialExtendedControlSpanRecordMetricInfoType0,
+        )
+        from ..models.partial_extended_control_span_record_overall_annotation_agreement import (
+            PartialExtendedControlSpanRecordOverallAnnotationAgreement,
         )
         from ..models.partial_extended_control_span_record_user_metadata import (
             PartialExtendedControlSpanRecordUserMetadata,
@@ -577,16 +569,13 @@ class PartialExtendedControlSpanRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            input_type_2_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return input_type_2_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        input_type_2_item_type_1 = FileContentPart.from_dict(data)
-
-                        return input_type_2_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     input_type_2_item = _parse_input_type_2_item(input_type_2_item_data)
 
@@ -630,16 +619,13 @@ class PartialExtendedControlSpanRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            redacted_input_type_2_item_type_0 = TextContentPart.from_dict(data)
+                            return TextContentPart.from_dict(data)
 
-                            return redacted_input_type_2_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        redacted_input_type_2_item_type_1 = FileContentPart.from_dict(data)
-
-                        return redacted_input_type_2_item_type_1
+                        return FileContentPart.from_dict(data)
 
                     redacted_input_type_2_item = _parse_redacted_input_type_2_item(redacted_input_type_2_item_data)
 
@@ -660,9 +646,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                output_type_0 = ControlResult.from_dict(data)
+                return ControlResult.from_dict(data)
 
-                return output_type_0
             except:  # noqa: E722
                 pass
             return cast(ControlResult | None | Unset, data)
@@ -677,9 +662,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                redacted_output_type_0 = ControlResult.from_dict(data)
+                return ControlResult.from_dict(data)
 
-                return redacted_output_type_0
             except:  # noqa: E722
                 pass
             return cast(ControlResult | None | Unset, data)
@@ -690,10 +674,7 @@ class PartialExtendedControlSpanRecord:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: datetime.datetime | Unset
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
         user_metadata: PartialExtendedControlSpanRecordUserMetadata | Unset
@@ -715,10 +696,7 @@ class PartialExtendedControlSpanRecord:
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Metrics | Unset
-        if isinstance(_metrics, Unset):
-            metrics = UNSET
-        else:
-            metrics = Metrics.from_dict(_metrics)
+        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
         def _parse_external_id(data: object) -> None | str | Unset:
             if data is None:
@@ -762,9 +740,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                id_type_0 = UUID(data)
+                return UUID(data)
 
-                return id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -779,9 +756,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                session_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return session_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -805,9 +781,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                project_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return project_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -822,9 +797,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                run_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return run_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -839,9 +813,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                updated_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return updated_at_type_0
             except:  # noqa: E722
                 pass
             return cast(datetime.datetime | None | Unset, data)
@@ -909,6 +882,22 @@ class PartialExtendedControlSpanRecord:
                 _annotation_aggregates
             )
 
+        _annotation_agreement = d.pop("annotation_agreement", UNSET)
+        annotation_agreement: PartialExtendedControlSpanRecordAnnotationAgreement | Unset
+        if isinstance(_annotation_agreement, Unset):
+            annotation_agreement = UNSET
+        else:
+            annotation_agreement = PartialExtendedControlSpanRecordAnnotationAgreement.from_dict(_annotation_agreement)
+
+        _overall_annotation_agreement = d.pop("overall_annotation_agreement", UNSET)
+        overall_annotation_agreement: PartialExtendedControlSpanRecordOverallAnnotationAgreement | Unset
+        if isinstance(_overall_annotation_agreement, Unset):
+            overall_annotation_agreement = UNSET
+        else:
+            overall_annotation_agreement = PartialExtendedControlSpanRecordOverallAnnotationAgreement.from_dict(
+                _overall_annotation_agreement
+            )
+
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
 
         def _parse_metric_info(data: object) -> None | PartialExtendedControlSpanRecordMetricInfoType0 | Unset:
@@ -919,9 +908,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_info_type_0 = PartialExtendedControlSpanRecordMetricInfoType0.from_dict(data)
+                return PartialExtendedControlSpanRecordMetricInfoType0.from_dict(data)
 
-                return metric_info_type_0
             except:  # noqa: E722
                 pass
             return cast(None | PartialExtendedControlSpanRecordMetricInfoType0 | Unset, data)
@@ -936,9 +924,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                files_type_0 = PartialExtendedControlSpanRecordFilesType0.from_dict(data)
+                return PartialExtendedControlSpanRecordFilesType0.from_dict(data)
 
-                return files_type_0
             except:  # noqa: E722
                 pass
             return cast(None | PartialExtendedControlSpanRecordFilesType0 | Unset, data)
@@ -953,9 +940,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                parent_id_type_0 = UUID(data)
+                return UUID(data)
 
-                return parent_id_type_0
             except:  # noqa: E722
                 pass
             return cast(None | Unset | UUID, data)
@@ -999,9 +985,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                check_stage_type_0 = ControlCheckStage(data)
+                return ControlCheckStage(data)
 
-                return check_stage_type_0
             except:  # noqa: E722
                 pass
             return cast(ControlCheckStage | None | Unset, data)
@@ -1016,9 +1001,8 @@ class PartialExtendedControlSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                applies_to_type_0 = ControlAppliesTo(data)
+                return ControlAppliesTo(data)
 
-                return applies_to_type_0
             except:  # noqa: E722
                 pass
             return cast(ControlAppliesTo | None | Unset, data)
@@ -1073,6 +1057,8 @@ class PartialExtendedControlSpanRecord:
             file_ids=file_ids,
             file_modalities=file_modalities,
             annotation_aggregates=annotation_aggregates,
+            annotation_agreement=annotation_agreement,
+            overall_annotation_agreement=overall_annotation_agreement,
             annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
             files=files,

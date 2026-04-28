@@ -18,7 +18,8 @@ T = TypeVar("T", bound="VegasGatewayIntegrationCreate")
 @_attrs_define
 class VegasGatewayIntegrationCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         endpoint (str):
         use_case (str):
         token (str):
@@ -76,9 +77,8 @@ class VegasGatewayIntegrationCreate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
+                return MultiModalModelIntegrationConfig.from_dict(data)
 
-                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
             return cast(MultiModalModelIntegrationConfig | None | Unset, data)
