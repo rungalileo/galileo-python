@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,9 +42,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsDeleteRequest) -> dict[str, 
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, LogRecordsDeleteResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | LogRecordsDeleteResponse:
     if response.status_code == 200:
         return LogRecordsDeleteResponse.from_dict(response.json())
 
@@ -71,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
+) -> Response[HTTPValidationError | LogRecordsDeleteResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
-) -> Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
+) -> Response[HTTPValidationError | LogRecordsDeleteResponse]:
     """Delete Sessions.
 
      Delete all session records that match the provided filters.
@@ -100,7 +98,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]
+        Response[HTTPValidationError | LogRecordsDeleteResponse]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -111,7 +109,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
+) -> HTTPValidationError | LogRecordsDeleteResponse | None:
     """Delete Sessions.
 
      Delete all session records that match the provided filters.
@@ -129,14 +127,14 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, LogRecordsDeleteResponse]
+        HTTPValidationError | LogRecordsDeleteResponse
     """
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
-) -> Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
+) -> Response[HTTPValidationError | LogRecordsDeleteResponse]:
     """Delete Sessions.
 
      Delete all session records that match the provided filters.
@@ -154,7 +152,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]
+        Response[HTTPValidationError | LogRecordsDeleteResponse]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -165,7 +163,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
+) -> HTTPValidationError | LogRecordsDeleteResponse | None:
     """Delete Sessions.
 
      Delete all session records that match the provided filters.
@@ -183,6 +181,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, LogRecordsDeleteResponse]
+        HTTPValidationError | LogRecordsDeleteResponse
     """
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

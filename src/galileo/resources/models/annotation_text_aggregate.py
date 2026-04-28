@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,12 +18,12 @@ class AnnotationTextAggregate:
     ----------
         count (int):
         unrated_count (int):
-        annotation_type (Union[Literal['text'], Unset]):  Default: 'text'.
+        annotation_type (Literal['text'] | Unset):  Default: 'text'.
     """
 
     count: int
     unrated_count: int
-    annotation_type: Union[Literal["text"], Unset] = "text"
+    annotation_type: Literal["text"] | Unset = "text"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,7 +48,7 @@ class AnnotationTextAggregate:
 
         unrated_count = d.pop("unrated_count")
 
-        annotation_type = cast(Union[Literal["text"], Unset], d.pop("annotation_type", UNSET))
+        annotation_type = cast(Literal["text"] | Unset, d.pop("annotation_type", UNSET))
         if annotation_type != "text" and not isinstance(annotation_type, Unset):
             raise ValueError(f"annotation_type must match const 'text', got '{annotation_type}'")
 

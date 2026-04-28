@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,25 +23,25 @@ class ExperimentCreateRequest:
     Attributes
     ----------
         name (str):
-        task_type (Union[Literal[16], Literal[17], Unset]):  Default: 16.
-        playground_id (Union[None, Unset, str]):
-        prompt_template_version_id (Union[None, Unset, str]):
-        dataset (Union['ExperimentDatasetRequest', None, Unset]):
-        playground_prompt_id (Union[None, Unset, str]):
-        prompt_settings (Union['PromptRunSettings', None, Unset]):
-        scorers (Union[Unset, list['ScorerConfig']]):
-        trigger (Union[Unset, bool]):  Default: False.
+        task_type (Literal[16] | Literal[17] | Unset):  Default: 16.
+        playground_id (None | str | Unset):
+        prompt_template_version_id (None | str | Unset):
+        dataset (ExperimentDatasetRequest | None | Unset):
+        playground_prompt_id (None | str | Unset):
+        prompt_settings (None | PromptRunSettings | Unset):
+        scorers (list[ScorerConfig] | Unset):
+        trigger (bool | Unset):  Default: False.
     """
 
     name: str
-    task_type: Union[Literal[16], Literal[17], Unset] = 16
-    playground_id: Union[None, Unset, str] = UNSET
-    prompt_template_version_id: Union[None, Unset, str] = UNSET
-    dataset: Union["ExperimentDatasetRequest", None, Unset] = UNSET
-    playground_prompt_id: Union[None, Unset, str] = UNSET
-    prompt_settings: Union["PromptRunSettings", None, Unset] = UNSET
-    scorers: Union[Unset, list["ScorerConfig"]] = UNSET
-    trigger: Union[Unset, bool] = False
+    task_type: Literal[16] | Literal[17] | Unset = 16
+    playground_id: None | str | Unset = UNSET
+    prompt_template_version_id: None | str | Unset = UNSET
+    dataset: ExperimentDatasetRequest | None | Unset = UNSET
+    playground_prompt_id: None | str | Unset = UNSET
+    prompt_settings: None | PromptRunSettings | Unset = UNSET
+    scorers: list[ScorerConfig] | Unset = UNSET
+    trigger: bool | Unset = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -48,19 +50,19 @@ class ExperimentCreateRequest:
 
         name = self.name
 
-        task_type: Union[Literal[16], Literal[17], Unset]
+        task_type: Literal[16] | Literal[17] | Unset
         task_type = UNSET if isinstance(self.task_type, Unset) else self.task_type
 
-        playground_id: Union[None, Unset, str]
+        playground_id: None | str | Unset
         playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
 
-        prompt_template_version_id: Union[None, Unset, str]
+        prompt_template_version_id: None | str | Unset
         if isinstance(self.prompt_template_version_id, Unset):
             prompt_template_version_id = UNSET
         else:
             prompt_template_version_id = self.prompt_template_version_id
 
-        dataset: Union[None, Unset, dict[str, Any]]
+        dataset: dict[str, Any] | None | Unset
         if isinstance(self.dataset, Unset):
             dataset = UNSET
         elif isinstance(self.dataset, ExperimentDatasetRequest):
@@ -68,10 +70,10 @@ class ExperimentCreateRequest:
         else:
             dataset = self.dataset
 
-        playground_prompt_id: Union[None, Unset, str]
+        playground_prompt_id: None | str | Unset
         playground_prompt_id = UNSET if isinstance(self.playground_prompt_id, Unset) else self.playground_prompt_id
 
-        prompt_settings: Union[None, Unset, dict[str, Any]]
+        prompt_settings: dict[str, Any] | None | Unset
         if isinstance(self.prompt_settings, Unset):
             prompt_settings = UNSET
         elif isinstance(self.prompt_settings, PromptRunSettings):
@@ -79,7 +81,7 @@ class ExperimentCreateRequest:
         else:
             prompt_settings = self.prompt_settings
 
-        scorers: Union[Unset, list[dict[str, Any]]] = UNSET
+        scorers: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.scorers, Unset):
             scorers = []
             for scorers_item_data in self.scorers:
@@ -119,7 +121,7 @@ class ExperimentCreateRequest:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_task_type(data: object) -> Union[Literal[16], Literal[17], Unset]:
+        def _parse_task_type(data: object) -> Literal[16] | Literal[17] | Unset:
             if isinstance(data, Unset):
                 return data
             task_type_type_0 = cast(Literal[16], data)
@@ -133,25 +135,25 @@ class ExperimentCreateRequest:
 
         task_type = _parse_task_type(d.pop("task_type", UNSET))
 
-        def _parse_playground_id(data: object) -> Union[None, Unset, str]:
+        def _parse_playground_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         playground_id = _parse_playground_id(d.pop("playground_id", UNSET))
 
-        def _parse_prompt_template_version_id(data: object) -> Union[None, Unset, str]:
+        def _parse_prompt_template_version_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         prompt_template_version_id = _parse_prompt_template_version_id(d.pop("prompt_template_version_id", UNSET))
 
-        def _parse_dataset(data: object) -> Union["ExperimentDatasetRequest", None, Unset]:
+        def _parse_dataset(data: object) -> ExperimentDatasetRequest | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -163,20 +165,20 @@ class ExperimentCreateRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["ExperimentDatasetRequest", None, Unset], data)
+            return cast(ExperimentDatasetRequest | None | Unset, data)
 
         dataset = _parse_dataset(d.pop("dataset", UNSET))
 
-        def _parse_playground_prompt_id(data: object) -> Union[None, Unset, str]:
+        def _parse_playground_prompt_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         playground_prompt_id = _parse_playground_prompt_id(d.pop("playground_prompt_id", UNSET))
 
-        def _parse_prompt_settings(data: object) -> Union["PromptRunSettings", None, Unset]:
+        def _parse_prompt_settings(data: object) -> None | PromptRunSettings | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -188,16 +190,18 @@ class ExperimentCreateRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["PromptRunSettings", None, Unset], data)
+            return cast(None | PromptRunSettings | Unset, data)
 
         prompt_settings = _parse_prompt_settings(d.pop("prompt_settings", UNSET))
 
-        scorers = []
         _scorers = d.pop("scorers", UNSET)
-        for scorers_item_data in _scorers or []:
-            scorers_item = ScorerConfig.from_dict(scorers_item_data)
+        scorers: list[ScorerConfig] | Unset = UNSET
+        if _scorers is not UNSET:
+            scorers = []
+            for scorers_item_data in _scorers:
+                scorers_item = ScorerConfig.from_dict(scorers_item_data)
 
-            scorers.append(scorers_item)
+                scorers.append(scorers_item)
 
         trigger = d.pop("trigger", UNSET)
 

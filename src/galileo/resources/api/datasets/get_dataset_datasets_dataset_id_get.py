@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -37,7 +37,7 @@ def _get_kwargs(dataset_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[DatasetDB, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> DatasetDB | HTTPValidationError:
     if response.status_code == 200:
         return DatasetDB.from_dict(response.json())
 
@@ -62,7 +62,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Dat
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[DatasetDB, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[DatasetDB | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -71,7 +71,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[Union[DatasetDB, HTTPValidationError]]:
+def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[DatasetDB | HTTPValidationError]:
     """Get Dataset.
 
     Args:
@@ -84,7 +84,7 @@ def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[Union[Datas
 
     Returns
     -------
-        Response[Union[DatasetDB, HTTPValidationError]]
+        Response[DatasetDB | HTTPValidationError]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id)
 
@@ -93,7 +93,7 @@ def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[Union[Datas
     return _build_response(client=client, response=response)
 
 
-def sync(dataset_id: str, *, client: ApiClient) -> Optional[Union[DatasetDB, HTTPValidationError]]:
+def sync(dataset_id: str, *, client: ApiClient) -> DatasetDB | HTTPValidationError | None:
     """Get Dataset.
 
     Args:
@@ -106,12 +106,12 @@ def sync(dataset_id: str, *, client: ApiClient) -> Optional[Union[DatasetDB, HTT
 
     Returns
     -------
-        Union[DatasetDB, HTTPValidationError]
+        DatasetDB | HTTPValidationError
     """
     return sync_detailed(dataset_id=dataset_id, client=client).parsed
 
 
-async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[Union[DatasetDB, HTTPValidationError]]:
+async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[DatasetDB | HTTPValidationError]:
     """Get Dataset.
 
     Args:
@@ -124,7 +124,7 @@ async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[Un
 
     Returns
     -------
-        Response[Union[DatasetDB, HTTPValidationError]]
+        Response[DatasetDB | HTTPValidationError]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id)
 
@@ -133,7 +133,7 @@ async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[Un
     return _build_response(client=client, response=response)
 
 
-async def asyncio(dataset_id: str, *, client: ApiClient) -> Optional[Union[DatasetDB, HTTPValidationError]]:
+async def asyncio(dataset_id: str, *, client: ApiClient) -> DatasetDB | HTTPValidationError | None:
     """Get Dataset.
 
     Args:
@@ -146,6 +146,6 @@ async def asyncio(dataset_id: str, *, client: ApiClient) -> Optional[Union[Datas
 
     Returns
     -------
-        Union[DatasetDB, HTTPValidationError]
+        DatasetDB | HTTPValidationError
     """
     return (await asyncio_detailed(dataset_id=dataset_id, client=client)).parsed

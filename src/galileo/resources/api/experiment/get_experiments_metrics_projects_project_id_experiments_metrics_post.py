@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,9 +42,7 @@ def _get_kwargs(project_id: str, *, body: ExperimentMetricsRequest) -> dict[str,
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[ExperimentMetricsResponse, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> ExperimentMetricsResponse | HTTPValidationError:
     if response.status_code == 200:
         return ExperimentMetricsResponse.from_dict(response.json())
 
@@ -71,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[ExperimentMetricsResponse, HTTPValidationError]]:
+) -> Response[ExperimentMetricsResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: ExperimentMetricsRequest
-) -> Response[Union[ExperimentMetricsResponse, HTTPValidationError]]:
+) -> Response[ExperimentMetricsResponse | HTTPValidationError]:
     """Get Experiments Metrics.
 
      Retrieve metrics for all experiments in a project.
@@ -98,7 +96,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[ExperimentMetricsResponse, HTTPValidationError]]
+        Response[ExperimentMetricsResponse | HTTPValidationError]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -109,7 +107,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: ExperimentMetricsRequest
-) -> Optional[Union[ExperimentMetricsResponse, HTTPValidationError]]:
+) -> ExperimentMetricsResponse | HTTPValidationError | None:
     """Get Experiments Metrics.
 
      Retrieve metrics for all experiments in a project.
@@ -125,14 +123,14 @@ def sync(
 
     Returns
     -------
-        Union[ExperimentMetricsResponse, HTTPValidationError]
+        ExperimentMetricsResponse | HTTPValidationError
     """
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: ExperimentMetricsRequest
-) -> Response[Union[ExperimentMetricsResponse, HTTPValidationError]]:
+) -> Response[ExperimentMetricsResponse | HTTPValidationError]:
     """Get Experiments Metrics.
 
      Retrieve metrics for all experiments in a project.
@@ -148,7 +146,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[ExperimentMetricsResponse, HTTPValidationError]]
+        Response[ExperimentMetricsResponse | HTTPValidationError]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -159,7 +157,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: ExperimentMetricsRequest
-) -> Optional[Union[ExperimentMetricsResponse, HTTPValidationError]]:
+) -> ExperimentMetricsResponse | HTTPValidationError | None:
     """Get Experiments Metrics.
 
      Retrieve metrics for all experiments in a project.
@@ -175,6 +173,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[ExperimentMetricsResponse, HTTPValidationError]
+        ExperimentMetricsResponse | HTTPValidationError
     """
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

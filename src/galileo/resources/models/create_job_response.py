@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from io import BytesIO
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -75,161 +77,156 @@ class CreateJobResponse:
         run_id (str):
         message (str):
         link (str):
-        resource_limits (Union['TaskResourceLimits', None, Unset]):
-        job_id (Union[None, Unset, str]):
-        job_name (Union[Unset, str]):  Default: 'default'.
-        should_retry (Union[Unset, bool]):  Default: True.
-        user_id (Union[None, Unset, str]):
-        task_type (Union[None, TaskType, Unset]):
-        labels (Union[Unset, list[list[str]], list[str]]):
-        ner_labels (Union[None, Unset, list[str]]):
-        tasks (Union[None, Unset, list[str]]):
-        non_inference_logged (Union[Unset, bool]):  Default: False.
-        migration_name (Union[None, Unset, str]):
-        xray (Union[Unset, bool]):  Default: True.
-        process_existing_inference_runs (Union[Unset, bool]):  Default: False.
-        feature_names (Union[None, Unset, list[str]]):
-        prompt_dataset_id (Union[None, Unset, str]):
-        dataset_id (Union[None, Unset, str]):
-        dataset_version_index (Union[None, Unset, int]):
-        prompt_template_version_id (Union[None, Unset, str]):
-        monitor_batch_id (Union[None, Unset, str]):
-        protect_trace_id (Union[None, Unset, str]):
-        protect_scorer_payload (Union[File, None, Unset]):
-        prompt_settings (Union['PromptRunSettings', None, Unset]):
-        scorers (Union[None, Unset, list['ScorerConfig'], list[Union['AgenticSessionSuccessScorer',
-            'AgenticWorkflowSuccessScorer', 'BleuScorer', 'ChunkAttributionUtilizationScorer', 'CompletenessScorer',
-            'ContextAdherenceScorer', 'ContextRelevanceScorer', 'CorrectnessScorer', 'GroundTruthAdherenceScorer',
-            'InputPIIScorer', 'InputSexistScorer', 'InputToneScorer', 'InputToxicityScorer', 'InstructionAdherenceScorer',
-            'OutputPIIScorer', 'OutputSexistScorer', 'OutputToneScorer', 'OutputToxicityScorer', 'PromptInjectionScorer',
-            'PromptPerplexityScorer', 'RougeScorer', 'ToolErrorRateScorer', 'ToolSelectionQualityScorer',
-            'UncertaintyScorer']]]): For G2.0 we send all scorers as ScorerConfig, for G1.0 we send preset scorers  as
-            GalileoScorer
-        prompt_registered_scorers_configuration (Union[None, Unset, list['RegisteredScorer']]):
-        prompt_generated_scorers_configuration (Union[None, Unset, list[str]]):
-        prompt_finetuned_scorers_configuration (Union[None, Unset, list['FineTunedScorer']]):
-        prompt_scorers_configuration (Union['ScorersConfiguration', None, Unset]):
-        prompt_customized_scorers_configuration (Union[None, Unset,
-            list[Union['CustomizedAgenticSessionSuccessGPTScorer', 'CustomizedAgenticWorkflowSuccessGPTScorer',
-            'CustomizedChunkAttributionUtilizationGPTScorer', 'CustomizedCompletenessGPTScorer',
-            'CustomizedFactualityGPTScorer', 'CustomizedGroundTruthAdherenceGPTScorer', 'CustomizedGroundednessGPTScorer',
-            'CustomizedInputSexistGPTScorer', 'CustomizedInputToxicityGPTScorer', 'CustomizedInstructionAdherenceGPTScorer',
-            'CustomizedPromptInjectionGPTScorer', 'CustomizedSexistGPTScorer', 'CustomizedToolErrorRateGPTScorer',
-            'CustomizedToolSelectionQualityGPTScorer', 'CustomizedToxicityGPTScorer']]]):
-        prompt_scorer_settings (Union['BaseScorer', None, Unset]):
-        scorer_config (Union['ScorerConfig', None, Unset]):
-        sub_scorers (Union[Unset, list[ScorerName]]):
-        luna_model (Union[None, Unset, str]):
-        segment_filters (Union[None, Unset, list['SegmentFilter']]):
-        prompt_optimization_configuration (Union['PromptOptimizationConfiguration', None, Unset]):
-        epoch (Union[Unset, int]):  Default: 0.
-        metric_critique_configuration (Union['MetricCritiqueJobConfiguration', None, Unset]):
-        is_session (Union[None, Unset, bool]):
-        upload_data_in_separate_task (Union[Unset, bool]):  Default: True.
-        log_metric_computing_records (Union[Unset, bool]):  Default: True.
-        stream_metrics (Union[Unset, bool]):  Default: False.
-        multijudge_average_boolean_metrics (Union[Unset, bool]):  Default: False.
+        resource_limits (None | TaskResourceLimits | Unset):
+        job_id (None | str | Unset):
+        job_name (str | Unset):  Default: 'default'.
+        should_retry (bool | Unset):  Default: True.
+        user_id (None | str | Unset):
+        task_type (None | TaskType | Unset):
+        labels (list[list[str]] | list[str] | Unset):
+        ner_labels (list[str] | None | Unset):
+        tasks (list[str] | None | Unset):
+        non_inference_logged (bool | Unset):  Default: False.
+        migration_name (None | str | Unset):
+        xray (bool | Unset):  Default: True.
+        process_existing_inference_runs (bool | Unset):  Default: False.
+        feature_names (list[str] | None | Unset):
+        prompt_dataset_id (None | str | Unset):
+        dataset_id (None | str | Unset):
+        dataset_version_index (int | None | Unset):
+        prompt_template_version_id (None | str | Unset):
+        monitor_batch_id (None | str | Unset):
+        protect_trace_id (None | str | Unset):
+        protect_scorer_payload (File | None | Unset):
+        prompt_settings (None | PromptRunSettings | Unset):
+        scorers (list[AgenticSessionSuccessScorer | AgenticWorkflowSuccessScorer | BleuScorer |
+            ChunkAttributionUtilizationScorer | CompletenessScorer | ContextAdherenceScorer | ContextRelevanceScorer |
+            CorrectnessScorer | GroundTruthAdherenceScorer | InputPIIScorer | InputSexistScorer | InputToneScorer |
+            InputToxicityScorer | InstructionAdherenceScorer | OutputPIIScorer | OutputSexistScorer | OutputToneScorer |
+            OutputToxicityScorer | PromptInjectionScorer | PromptPerplexityScorer | RougeScorer | ToolErrorRateScorer |
+            ToolSelectionQualityScorer | UncertaintyScorer] | list[ScorerConfig] | None | Unset): For G2.0 we send all
+            scorers as ScorerConfig, for G1.0 we send preset scorers  as GalileoScorer
+        prompt_registered_scorers_configuration (list[RegisteredScorer] | None | Unset):
+        prompt_generated_scorers_configuration (list[str] | None | Unset):
+        prompt_finetuned_scorers_configuration (list[FineTunedScorer] | None | Unset):
+        prompt_scorers_configuration (None | ScorersConfiguration | Unset):
+        prompt_customized_scorers_configuration (list[CustomizedAgenticSessionSuccessGPTScorer |
+            CustomizedAgenticWorkflowSuccessGPTScorer | CustomizedChunkAttributionUtilizationGPTScorer |
+            CustomizedCompletenessGPTScorer | CustomizedFactualityGPTScorer | CustomizedGroundednessGPTScorer |
+            CustomizedGroundTruthAdherenceGPTScorer | CustomizedInputSexistGPTScorer | CustomizedInputToxicityGPTScorer |
+            CustomizedInstructionAdherenceGPTScorer | CustomizedPromptInjectionGPTScorer | CustomizedSexistGPTScorer |
+            CustomizedToolErrorRateGPTScorer | CustomizedToolSelectionQualityGPTScorer | CustomizedToxicityGPTScorer] | None
+            | Unset):
+        prompt_scorer_settings (BaseScorer | None | Unset):
+        scorer_config (None | ScorerConfig | Unset):
+        sub_scorers (list[ScorerName] | Unset):
+        luna_model (None | str | Unset):
+        segment_filters (list[SegmentFilter] | None | Unset):
+        prompt_optimization_configuration (None | PromptOptimizationConfiguration | Unset):
+        epoch (int | Unset):  Default: 0.
+        metric_critique_configuration (MetricCritiqueJobConfiguration | None | Unset):
+        is_session (bool | None | Unset):
+        upload_data_in_separate_task (bool | Unset):  Default: True.
+        log_metric_computing_records (bool | Unset):  Default: True.
+        stream_metrics (bool | Unset):  Default: False.
+        multijudge_average_boolean_metrics (bool | Unset):  Default: False.
     """
 
     project_id: str
     run_id: str
     message: str
     link: str
-    resource_limits: Union["TaskResourceLimits", None, Unset] = UNSET
-    job_id: Union[None, Unset, str] = UNSET
-    job_name: Union[Unset, str] = "default"
-    should_retry: Union[Unset, bool] = True
-    user_id: Union[None, Unset, str] = UNSET
-    task_type: Union[None, TaskType, Unset] = UNSET
-    labels: Union[Unset, list[list[str]], list[str]] = UNSET
-    ner_labels: Union[None, Unset, list[str]] = UNSET
-    tasks: Union[None, Unset, list[str]] = UNSET
-    non_inference_logged: Union[Unset, bool] = False
-    migration_name: Union[None, Unset, str] = UNSET
-    xray: Union[Unset, bool] = True
-    process_existing_inference_runs: Union[Unset, bool] = False
-    feature_names: Union[None, Unset, list[str]] = UNSET
-    prompt_dataset_id: Union[None, Unset, str] = UNSET
-    dataset_id: Union[None, Unset, str] = UNSET
-    dataset_version_index: Union[None, Unset, int] = UNSET
-    prompt_template_version_id: Union[None, Unset, str] = UNSET
-    monitor_batch_id: Union[None, Unset, str] = UNSET
-    protect_trace_id: Union[None, Unset, str] = UNSET
-    protect_scorer_payload: Union[File, None, Unset] = UNSET
-    prompt_settings: Union["PromptRunSettings", None, Unset] = UNSET
-    scorers: Union[
-        None,
-        Unset,
-        list["ScorerConfig"],
+    resource_limits: None | TaskResourceLimits | Unset = UNSET
+    job_id: None | str | Unset = UNSET
+    job_name: str | Unset = "default"
+    should_retry: bool | Unset = True
+    user_id: None | str | Unset = UNSET
+    task_type: None | TaskType | Unset = UNSET
+    labels: list[list[str]] | list[str] | Unset = UNSET
+    ner_labels: list[str] | None | Unset = UNSET
+    tasks: list[str] | None | Unset = UNSET
+    non_inference_logged: bool | Unset = False
+    migration_name: None | str | Unset = UNSET
+    xray: bool | Unset = True
+    process_existing_inference_runs: bool | Unset = False
+    feature_names: list[str] | None | Unset = UNSET
+    prompt_dataset_id: None | str | Unset = UNSET
+    dataset_id: None | str | Unset = UNSET
+    dataset_version_index: int | None | Unset = UNSET
+    prompt_template_version_id: None | str | Unset = UNSET
+    monitor_batch_id: None | str | Unset = UNSET
+    protect_trace_id: None | str | Unset = UNSET
+    protect_scorer_payload: File | None | Unset = UNSET
+    prompt_settings: None | PromptRunSettings | Unset = UNSET
+    scorers: (
         list[
-            Union[
-                "AgenticSessionSuccessScorer",
-                "AgenticWorkflowSuccessScorer",
-                "BleuScorer",
-                "ChunkAttributionUtilizationScorer",
-                "CompletenessScorer",
-                "ContextAdherenceScorer",
-                "ContextRelevanceScorer",
-                "CorrectnessScorer",
-                "GroundTruthAdherenceScorer",
-                "InputPIIScorer",
-                "InputSexistScorer",
-                "InputToneScorer",
-                "InputToxicityScorer",
-                "InstructionAdherenceScorer",
-                "OutputPIIScorer",
-                "OutputSexistScorer",
-                "OutputToneScorer",
-                "OutputToxicityScorer",
-                "PromptInjectionScorer",
-                "PromptPerplexityScorer",
-                "RougeScorer",
-                "ToolErrorRateScorer",
-                "ToolSelectionQualityScorer",
-                "UncertaintyScorer",
-            ]
-        ],
-    ] = UNSET
-    prompt_registered_scorers_configuration: Union[None, Unset, list["RegisteredScorer"]] = UNSET
-    prompt_generated_scorers_configuration: Union[None, Unset, list[str]] = UNSET
-    prompt_finetuned_scorers_configuration: Union[None, Unset, list["FineTunedScorer"]] = UNSET
-    prompt_scorers_configuration: Union["ScorersConfiguration", None, Unset] = UNSET
-    prompt_customized_scorers_configuration: Union[
-        None,
-        Unset,
+            AgenticSessionSuccessScorer
+            | AgenticWorkflowSuccessScorer
+            | BleuScorer
+            | ChunkAttributionUtilizationScorer
+            | CompletenessScorer
+            | ContextAdherenceScorer
+            | ContextRelevanceScorer
+            | CorrectnessScorer
+            | GroundTruthAdherenceScorer
+            | InputPIIScorer
+            | InputSexistScorer
+            | InputToneScorer
+            | InputToxicityScorer
+            | InstructionAdherenceScorer
+            | OutputPIIScorer
+            | OutputSexistScorer
+            | OutputToneScorer
+            | OutputToxicityScorer
+            | PromptInjectionScorer
+            | PromptPerplexityScorer
+            | RougeScorer
+            | ToolErrorRateScorer
+            | ToolSelectionQualityScorer
+            | UncertaintyScorer
+        ]
+        | list[ScorerConfig]
+        | None
+        | Unset
+    ) = UNSET
+    prompt_registered_scorers_configuration: list[RegisteredScorer] | None | Unset = UNSET
+    prompt_generated_scorers_configuration: list[str] | None | Unset = UNSET
+    prompt_finetuned_scorers_configuration: list[FineTunedScorer] | None | Unset = UNSET
+    prompt_scorers_configuration: None | ScorersConfiguration | Unset = UNSET
+    prompt_customized_scorers_configuration: (
         list[
-            Union[
-                "CustomizedAgenticSessionSuccessGPTScorer",
-                "CustomizedAgenticWorkflowSuccessGPTScorer",
-                "CustomizedChunkAttributionUtilizationGPTScorer",
-                "CustomizedCompletenessGPTScorer",
-                "CustomizedFactualityGPTScorer",
-                "CustomizedGroundTruthAdherenceGPTScorer",
-                "CustomizedGroundednessGPTScorer",
-                "CustomizedInputSexistGPTScorer",
-                "CustomizedInputToxicityGPTScorer",
-                "CustomizedInstructionAdherenceGPTScorer",
-                "CustomizedPromptInjectionGPTScorer",
-                "CustomizedSexistGPTScorer",
-                "CustomizedToolErrorRateGPTScorer",
-                "CustomizedToolSelectionQualityGPTScorer",
-                "CustomizedToxicityGPTScorer",
-            ]
-        ],
-    ] = UNSET
-    prompt_scorer_settings: Union["BaseScorer", None, Unset] = UNSET
-    scorer_config: Union["ScorerConfig", None, Unset] = UNSET
-    sub_scorers: Union[Unset, list[ScorerName]] = UNSET
-    luna_model: Union[None, Unset, str] = UNSET
-    segment_filters: Union[None, Unset, list["SegmentFilter"]] = UNSET
-    prompt_optimization_configuration: Union["PromptOptimizationConfiguration", None, Unset] = UNSET
-    epoch: Union[Unset, int] = 0
-    metric_critique_configuration: Union["MetricCritiqueJobConfiguration", None, Unset] = UNSET
-    is_session: Union[None, Unset, bool] = UNSET
-    upload_data_in_separate_task: Union[Unset, bool] = True
-    log_metric_computing_records: Union[Unset, bool] = True
-    stream_metrics: Union[Unset, bool] = False
-    multijudge_average_boolean_metrics: Union[Unset, bool] = False
+            CustomizedAgenticSessionSuccessGPTScorer
+            | CustomizedAgenticWorkflowSuccessGPTScorer
+            | CustomizedChunkAttributionUtilizationGPTScorer
+            | CustomizedCompletenessGPTScorer
+            | CustomizedFactualityGPTScorer
+            | CustomizedGroundednessGPTScorer
+            | CustomizedGroundTruthAdherenceGPTScorer
+            | CustomizedInputSexistGPTScorer
+            | CustomizedInputToxicityGPTScorer
+            | CustomizedInstructionAdherenceGPTScorer
+            | CustomizedPromptInjectionGPTScorer
+            | CustomizedSexistGPTScorer
+            | CustomizedToolErrorRateGPTScorer
+            | CustomizedToolSelectionQualityGPTScorer
+            | CustomizedToxicityGPTScorer
+        ]
+        | None
+        | Unset
+    ) = UNSET
+    prompt_scorer_settings: BaseScorer | None | Unset = UNSET
+    scorer_config: None | ScorerConfig | Unset = UNSET
+    sub_scorers: list[ScorerName] | Unset = UNSET
+    luna_model: None | str | Unset = UNSET
+    segment_filters: list[SegmentFilter] | None | Unset = UNSET
+    prompt_optimization_configuration: None | PromptOptimizationConfiguration | Unset = UNSET
+    epoch: int | Unset = 0
+    metric_critique_configuration: MetricCritiqueJobConfiguration | None | Unset = UNSET
+    is_session: bool | None | Unset = UNSET
+    upload_data_in_separate_task: bool | Unset = True
+    log_metric_computing_records: bool | Unset = True
+    stream_metrics: bool | Unset = False
+    multijudge_average_boolean_metrics: bool | Unset = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -288,7 +285,7 @@ class CreateJobResponse:
 
         link = self.link
 
-        resource_limits: Union[None, Unset, dict[str, Any]]
+        resource_limits: dict[str, Any] | None | Unset
         if isinstance(self.resource_limits, Unset):
             resource_limits = UNSET
         elif isinstance(self.resource_limits, TaskResourceLimits):
@@ -296,17 +293,17 @@ class CreateJobResponse:
         else:
             resource_limits = self.resource_limits
 
-        job_id: Union[None, Unset, str]
+        job_id: None | str | Unset
         job_id = UNSET if isinstance(self.job_id, Unset) else self.job_id
 
         job_name = self.job_name
 
         should_retry = self.should_retry
 
-        user_id: Union[None, Unset, str]
+        user_id: None | str | Unset
         user_id = UNSET if isinstance(self.user_id, Unset) else self.user_id
 
-        task_type: Union[None, Unset, int]
+        task_type: int | None | Unset
         if isinstance(self.task_type, Unset):
             task_type = UNSET
         elif isinstance(self.task_type, TaskType):
@@ -314,7 +311,7 @@ class CreateJobResponse:
         else:
             task_type = self.task_type
 
-        labels: Union[Unset, list[list[str]], list[str]]
+        labels: list[list[str]] | list[str] | Unset
         if isinstance(self.labels, Unset):
             labels = UNSET
         elif isinstance(self.labels, list):
@@ -327,7 +324,7 @@ class CreateJobResponse:
         else:
             labels = self.labels
 
-        ner_labels: Union[None, Unset, list[str]]
+        ner_labels: list[str] | None | Unset
         if isinstance(self.ner_labels, Unset):
             ner_labels = UNSET
         elif isinstance(self.ner_labels, list):
@@ -336,7 +333,7 @@ class CreateJobResponse:
         else:
             ner_labels = self.ner_labels
 
-        tasks: Union[None, Unset, list[str]]
+        tasks: list[str] | None | Unset
         if isinstance(self.tasks, Unset):
             tasks = UNSET
         elif isinstance(self.tasks, list):
@@ -347,14 +344,14 @@ class CreateJobResponse:
 
         non_inference_logged = self.non_inference_logged
 
-        migration_name: Union[None, Unset, str]
+        migration_name: None | str | Unset
         migration_name = UNSET if isinstance(self.migration_name, Unset) else self.migration_name
 
         xray = self.xray
 
         process_existing_inference_runs = self.process_existing_inference_runs
 
-        feature_names: Union[None, Unset, list[str]]
+        feature_names: list[str] | None | Unset
         if isinstance(self.feature_names, Unset):
             feature_names = UNSET
         elif isinstance(self.feature_names, list):
@@ -363,28 +360,28 @@ class CreateJobResponse:
         else:
             feature_names = self.feature_names
 
-        prompt_dataset_id: Union[None, Unset, str]
+        prompt_dataset_id: None | str | Unset
         prompt_dataset_id = UNSET if isinstance(self.prompt_dataset_id, Unset) else self.prompt_dataset_id
 
-        dataset_id: Union[None, Unset, str]
+        dataset_id: None | str | Unset
         dataset_id = UNSET if isinstance(self.dataset_id, Unset) else self.dataset_id
 
-        dataset_version_index: Union[None, Unset, int]
+        dataset_version_index: int | None | Unset
         dataset_version_index = UNSET if isinstance(self.dataset_version_index, Unset) else self.dataset_version_index
 
-        prompt_template_version_id: Union[None, Unset, str]
+        prompt_template_version_id: None | str | Unset
         if isinstance(self.prompt_template_version_id, Unset):
             prompt_template_version_id = UNSET
         else:
             prompt_template_version_id = self.prompt_template_version_id
 
-        monitor_batch_id: Union[None, Unset, str]
+        monitor_batch_id: None | str | Unset
         monitor_batch_id = UNSET if isinstance(self.monitor_batch_id, Unset) else self.monitor_batch_id
 
-        protect_trace_id: Union[None, Unset, str]
+        protect_trace_id: None | str | Unset
         protect_trace_id = UNSET if isinstance(self.protect_trace_id, Unset) else self.protect_trace_id
 
-        protect_scorer_payload: Union[FileTypes, None, Unset]
+        protect_scorer_payload: FileTypes | None | Unset
         if isinstance(self.protect_scorer_payload, Unset):
             protect_scorer_payload = UNSET
         elif isinstance(self.protect_scorer_payload, File):
@@ -393,7 +390,7 @@ class CreateJobResponse:
         else:
             protect_scorer_payload = self.protect_scorer_payload
 
-        prompt_settings: Union[None, Unset, dict[str, Any]]
+        prompt_settings: dict[str, Any] | None | Unset
         if isinstance(self.prompt_settings, Unset):
             prompt_settings = UNSET
         elif isinstance(self.prompt_settings, PromptRunSettings):
@@ -401,7 +398,7 @@ class CreateJobResponse:
         else:
             prompt_settings = self.prompt_settings
 
-        scorers: Union[None, Unset, list[dict[str, Any]]]
+        scorers: list[dict[str, Any]] | None | Unset
         if isinstance(self.scorers, Unset):
             scorers = UNSET
         elif isinstance(self.scorers, list):
@@ -416,30 +413,24 @@ class CreateJobResponse:
                 scorers_type_1_item: dict[str, Any]
                 if isinstance(
                     scorers_type_1_item_data,
-                    (
-                        AgenticWorkflowSuccessScorer,
-                        AgenticSessionSuccessScorer,
-                        BleuScorer,
-                        ChunkAttributionUtilizationScorer,
-                        CompletenessScorer,
-                        ContextAdherenceScorer,
-                        ContextRelevanceScorer,
-                        CorrectnessScorer,
-                        GroundTruthAdherenceScorer,
-                        InputPIIScorer,
-                        InputSexistScorer,
-                        InputToneScorer,
-                        InputToxicityScorer,
-                        InstructionAdherenceScorer,
-                        OutputPIIScorer,
-                        OutputSexistScorer,
-                        OutputToneScorer,
-                        OutputToxicityScorer,
-                        PromptInjectionScorer,
-                        PromptPerplexityScorer,
-                        RougeScorer,
-                        ToolErrorRateScorer,
-                        ToolSelectionQualityScorer,
+                    AgenticWorkflowSuccessScorer
+                    | AgenticSessionSuccessScorer
+                    | BleuScorer
+                    | ChunkAttributionUtilizationScorer
+                    | (CompletenessScorer | ContextAdherenceScorer)
+                    | ContextRelevanceScorer
+                    | CorrectnessScorer
+                    | (GroundTruthAdherenceScorer | InputPIIScorer | InputSexistScorer | InputToneScorer)
+                    | (InputToxicityScorer | InstructionAdherenceScorer)
+                    | OutputPIIScorer
+                    | OutputSexistScorer
+                    | (
+                        OutputToneScorer
+                        | OutputToxicityScorer
+                        | PromptInjectionScorer
+                        | PromptPerplexityScorer
+                        | (RougeScorer | ToolErrorRateScorer)
+                        | ToolSelectionQualityScorer
                     ),
                 ):
                     scorers_type_1_item = scorers_type_1_item_data.to_dict()
@@ -451,7 +442,7 @@ class CreateJobResponse:
         else:
             scorers = self.scorers
 
-        prompt_registered_scorers_configuration: Union[None, Unset, list[dict[str, Any]]]
+        prompt_registered_scorers_configuration: list[dict[str, Any]] | None | Unset
         if isinstance(self.prompt_registered_scorers_configuration, Unset):
             prompt_registered_scorers_configuration = UNSET
         elif isinstance(self.prompt_registered_scorers_configuration, list):
@@ -467,7 +458,7 @@ class CreateJobResponse:
         else:
             prompt_registered_scorers_configuration = self.prompt_registered_scorers_configuration
 
-        prompt_generated_scorers_configuration: Union[None, Unset, list[str]]
+        prompt_generated_scorers_configuration: list[str] | None | Unset
         if isinstance(self.prompt_generated_scorers_configuration, Unset):
             prompt_generated_scorers_configuration = UNSET
         elif isinstance(self.prompt_generated_scorers_configuration, list):
@@ -476,7 +467,7 @@ class CreateJobResponse:
         else:
             prompt_generated_scorers_configuration = self.prompt_generated_scorers_configuration
 
-        prompt_finetuned_scorers_configuration: Union[None, Unset, list[dict[str, Any]]]
+        prompt_finetuned_scorers_configuration: list[dict[str, Any]] | None | Unset
         if isinstance(self.prompt_finetuned_scorers_configuration, Unset):
             prompt_finetuned_scorers_configuration = UNSET
         elif isinstance(self.prompt_finetuned_scorers_configuration, list):
@@ -490,7 +481,7 @@ class CreateJobResponse:
         else:
             prompt_finetuned_scorers_configuration = self.prompt_finetuned_scorers_configuration
 
-        prompt_scorers_configuration: Union[None, Unset, dict[str, Any]]
+        prompt_scorers_configuration: dict[str, Any] | None | Unset
         if isinstance(self.prompt_scorers_configuration, Unset):
             prompt_scorers_configuration = UNSET
         elif isinstance(self.prompt_scorers_configuration, ScorersConfiguration):
@@ -498,7 +489,7 @@ class CreateJobResponse:
         else:
             prompt_scorers_configuration = self.prompt_scorers_configuration
 
-        prompt_customized_scorers_configuration: Union[None, Unset, list[dict[str, Any]]]
+        prompt_customized_scorers_configuration: list[dict[str, Any]] | None | Unset
         if isinstance(self.prompt_customized_scorers_configuration, Unset):
             prompt_customized_scorers_configuration = UNSET
         elif isinstance(self.prompt_customized_scorers_configuration, list):
@@ -509,22 +500,20 @@ class CreateJobResponse:
                 prompt_customized_scorers_configuration_type_0_item: dict[str, Any]
                 if isinstance(
                     prompt_customized_scorers_configuration_type_0_item_data,
-                    (
-                        CustomizedAgenticSessionSuccessGPTScorer,
-                        CustomizedAgenticWorkflowSuccessGPTScorer,
-                        CustomizedChunkAttributionUtilizationGPTScorer,
-                        CustomizedCompletenessGPTScorer,
-                        CustomizedFactualityGPTScorer,
-                        CustomizedGroundednessGPTScorer,
-                        CustomizedInstructionAdherenceGPTScorer,
-                        CustomizedGroundTruthAdherenceGPTScorer,
-                        CustomizedPromptInjectionGPTScorer,
-                        CustomizedSexistGPTScorer,
-                        CustomizedInputSexistGPTScorer,
-                        CustomizedToolSelectionQualityGPTScorer,
-                        CustomizedToolErrorRateGPTScorer,
-                        CustomizedToxicityGPTScorer,
-                    ),
+                    CustomizedAgenticSessionSuccessGPTScorer
+                    | CustomizedAgenticWorkflowSuccessGPTScorer
+                    | CustomizedChunkAttributionUtilizationGPTScorer
+                    | CustomizedCompletenessGPTScorer
+                    | (CustomizedFactualityGPTScorer | CustomizedGroundednessGPTScorer)
+                    | CustomizedInstructionAdherenceGPTScorer
+                    | CustomizedGroundTruthAdherenceGPTScorer
+                    | (
+                        CustomizedPromptInjectionGPTScorer
+                        | CustomizedSexistGPTScorer
+                        | CustomizedInputSexistGPTScorer
+                        | CustomizedToolSelectionQualityGPTScorer
+                    )
+                    | (CustomizedToolErrorRateGPTScorer | CustomizedToxicityGPTScorer),
                 ):
                     prompt_customized_scorers_configuration_type_0_item = (
                         prompt_customized_scorers_configuration_type_0_item_data.to_dict()
@@ -539,7 +528,7 @@ class CreateJobResponse:
         else:
             prompt_customized_scorers_configuration = self.prompt_customized_scorers_configuration
 
-        prompt_scorer_settings: Union[None, Unset, dict[str, Any]]
+        prompt_scorer_settings: dict[str, Any] | None | Unset
         if isinstance(self.prompt_scorer_settings, Unset):
             prompt_scorer_settings = UNSET
         elif isinstance(self.prompt_scorer_settings, BaseScorer):
@@ -547,7 +536,7 @@ class CreateJobResponse:
         else:
             prompt_scorer_settings = self.prompt_scorer_settings
 
-        scorer_config: Union[None, Unset, dict[str, Any]]
+        scorer_config: dict[str, Any] | None | Unset
         if isinstance(self.scorer_config, Unset):
             scorer_config = UNSET
         elif isinstance(self.scorer_config, ScorerConfig):
@@ -555,17 +544,17 @@ class CreateJobResponse:
         else:
             scorer_config = self.scorer_config
 
-        sub_scorers: Union[Unset, list[str]] = UNSET
+        sub_scorers: list[str] | Unset = UNSET
         if not isinstance(self.sub_scorers, Unset):
             sub_scorers = []
             for sub_scorers_item_data in self.sub_scorers:
                 sub_scorers_item = sub_scorers_item_data.value
                 sub_scorers.append(sub_scorers_item)
 
-        luna_model: Union[None, Unset, str]
+        luna_model: None | str | Unset
         luna_model = UNSET if isinstance(self.luna_model, Unset) else self.luna_model
 
-        segment_filters: Union[None, Unset, list[dict[str, Any]]]
+        segment_filters: list[dict[str, Any]] | None | Unset
         if isinstance(self.segment_filters, Unset):
             segment_filters = UNSET
         elif isinstance(self.segment_filters, list):
@@ -577,7 +566,7 @@ class CreateJobResponse:
         else:
             segment_filters = self.segment_filters
 
-        prompt_optimization_configuration: Union[None, Unset, dict[str, Any]]
+        prompt_optimization_configuration: dict[str, Any] | None | Unset
         if isinstance(self.prompt_optimization_configuration, Unset):
             prompt_optimization_configuration = UNSET
         elif isinstance(self.prompt_optimization_configuration, PromptOptimizationConfiguration):
@@ -587,7 +576,7 @@ class CreateJobResponse:
 
         epoch = self.epoch
 
-        metric_critique_configuration: Union[None, Unset, dict[str, Any]]
+        metric_critique_configuration: dict[str, Any] | None | Unset
         if isinstance(self.metric_critique_configuration, Unset):
             metric_critique_configuration = UNSET
         elif isinstance(self.metric_critique_configuration, MetricCritiqueJobConfiguration):
@@ -595,7 +584,7 @@ class CreateJobResponse:
         else:
             metric_critique_configuration = self.metric_critique_configuration
 
-        is_session: Union[None, Unset, bool]
+        is_session: bool | None | Unset
         is_session = UNSET if isinstance(self.is_session, Unset) else self.is_session
 
         upload_data_in_separate_task = self.upload_data_in_separate_task
@@ -757,7 +746,7 @@ class CreateJobResponse:
 
         link = d.pop("link")
 
-        def _parse_resource_limits(data: object) -> Union["TaskResourceLimits", None, Unset]:
+        def _parse_resource_limits(data: object) -> None | TaskResourceLimits | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -769,16 +758,16 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["TaskResourceLimits", None, Unset], data)
+            return cast(None | TaskResourceLimits | Unset, data)
 
         resource_limits = _parse_resource_limits(d.pop("resource_limits", UNSET))
 
-        def _parse_job_id(data: object) -> Union[None, Unset, str]:
+        def _parse_job_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         job_id = _parse_job_id(d.pop("job_id", UNSET))
 
@@ -786,16 +775,16 @@ class CreateJobResponse:
 
         should_retry = d.pop("should_retry", UNSET)
 
-        def _parse_user_id(data: object) -> Union[None, Unset, str]:
+        def _parse_user_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         user_id = _parse_user_id(d.pop("user_id", UNSET))
 
-        def _parse_task_type(data: object) -> Union[None, TaskType, Unset]:
+        def _parse_task_type(data: object) -> None | TaskType | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -807,11 +796,11 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, TaskType, Unset], data)
+            return cast(None | TaskType | Unset, data)
 
         task_type = _parse_task_type(d.pop("task_type", UNSET))
 
-        def _parse_labels(data: object) -> Union[Unset, list[list[str]], list[str]]:
+        def _parse_labels(data: object) -> list[list[str]] | list[str] | Unset:
             if isinstance(data, Unset):
                 return data
             try:
@@ -833,7 +822,7 @@ class CreateJobResponse:
 
         labels = _parse_labels(d.pop("labels", UNSET))
 
-        def _parse_ner_labels(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_ner_labels(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -845,11 +834,11 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         ner_labels = _parse_ner_labels(d.pop("ner_labels", UNSET))
 
-        def _parse_tasks(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_tasks(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -861,18 +850,18 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         tasks = _parse_tasks(d.pop("tasks", UNSET))
 
         non_inference_logged = d.pop("non_inference_logged", UNSET)
 
-        def _parse_migration_name(data: object) -> Union[None, Unset, str]:
+        def _parse_migration_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         migration_name = _parse_migration_name(d.pop("migration_name", UNSET))
 
@@ -880,7 +869,7 @@ class CreateJobResponse:
 
         process_existing_inference_runs = d.pop("process_existing_inference_runs", UNSET)
 
-        def _parse_feature_names(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_feature_names(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -892,65 +881,65 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         feature_names = _parse_feature_names(d.pop("feature_names", UNSET))
 
-        def _parse_prompt_dataset_id(data: object) -> Union[None, Unset, str]:
+        def _parse_prompt_dataset_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         prompt_dataset_id = _parse_prompt_dataset_id(d.pop("prompt_dataset_id", UNSET))
 
-        def _parse_dataset_id(data: object) -> Union[None, Unset, str]:
+        def _parse_dataset_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         dataset_id = _parse_dataset_id(d.pop("dataset_id", UNSET))
 
-        def _parse_dataset_version_index(data: object) -> Union[None, Unset, int]:
+        def _parse_dataset_version_index(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         dataset_version_index = _parse_dataset_version_index(d.pop("dataset_version_index", UNSET))
 
-        def _parse_prompt_template_version_id(data: object) -> Union[None, Unset, str]:
+        def _parse_prompt_template_version_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         prompt_template_version_id = _parse_prompt_template_version_id(d.pop("prompt_template_version_id", UNSET))
 
-        def _parse_monitor_batch_id(data: object) -> Union[None, Unset, str]:
+        def _parse_monitor_batch_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         monitor_batch_id = _parse_monitor_batch_id(d.pop("monitor_batch_id", UNSET))
 
-        def _parse_protect_trace_id(data: object) -> Union[None, Unset, str]:
+        def _parse_protect_trace_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         protect_trace_id = _parse_protect_trace_id(d.pop("protect_trace_id", UNSET))
 
-        def _parse_protect_scorer_payload(data: object) -> Union[File, None, Unset]:
+        def _parse_protect_scorer_payload(data: object) -> File | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -962,11 +951,11 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[File, None, Unset], data)
+            return cast(File | None | Unset, data)
 
         protect_scorer_payload = _parse_protect_scorer_payload(d.pop("protect_scorer_payload", UNSET))
 
-        def _parse_prompt_settings(data: object) -> Union["PromptRunSettings", None, Unset]:
+        def _parse_prompt_settings(data: object) -> None | PromptRunSettings | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -978,45 +967,43 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["PromptRunSettings", None, Unset], data)
+            return cast(None | PromptRunSettings | Unset, data)
 
         prompt_settings = _parse_prompt_settings(d.pop("prompt_settings", UNSET))
 
         def _parse_scorers(
             data: object,
-        ) -> Union[
-            None,
-            Unset,
-            list["ScorerConfig"],
+        ) -> (
             list[
-                Union[
-                    "AgenticSessionSuccessScorer",
-                    "AgenticWorkflowSuccessScorer",
-                    "BleuScorer",
-                    "ChunkAttributionUtilizationScorer",
-                    "CompletenessScorer",
-                    "ContextAdherenceScorer",
-                    "ContextRelevanceScorer",
-                    "CorrectnessScorer",
-                    "GroundTruthAdherenceScorer",
-                    "InputPIIScorer",
-                    "InputSexistScorer",
-                    "InputToneScorer",
-                    "InputToxicityScorer",
-                    "InstructionAdherenceScorer",
-                    "OutputPIIScorer",
-                    "OutputSexistScorer",
-                    "OutputToneScorer",
-                    "OutputToxicityScorer",
-                    "PromptInjectionScorer",
-                    "PromptPerplexityScorer",
-                    "RougeScorer",
-                    "ToolErrorRateScorer",
-                    "ToolSelectionQualityScorer",
-                    "UncertaintyScorer",
-                ]
-            ],
-        ]:
+                AgenticSessionSuccessScorer
+                | AgenticWorkflowSuccessScorer
+                | BleuScorer
+                | ChunkAttributionUtilizationScorer
+                | CompletenessScorer
+                | ContextAdherenceScorer
+                | ContextRelevanceScorer
+                | CorrectnessScorer
+                | GroundTruthAdherenceScorer
+                | InputPIIScorer
+                | InputSexistScorer
+                | InputToneScorer
+                | InputToxicityScorer
+                | InstructionAdherenceScorer
+                | OutputPIIScorer
+                | OutputSexistScorer
+                | OutputToneScorer
+                | OutputToxicityScorer
+                | PromptInjectionScorer
+                | PromptPerplexityScorer
+                | RougeScorer
+                | ToolErrorRateScorer
+                | ToolSelectionQualityScorer
+                | UncertaintyScorer
+            ]
+            | list[ScorerConfig]
+            | None
+            | Unset
+        ):
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1043,32 +1030,32 @@ class CreateJobResponse:
 
                     def _parse_scorers_type_1_item(
                         data: object,
-                    ) -> Union[
-                        "AgenticSessionSuccessScorer",
-                        "AgenticWorkflowSuccessScorer",
-                        "BleuScorer",
-                        "ChunkAttributionUtilizationScorer",
-                        "CompletenessScorer",
-                        "ContextAdherenceScorer",
-                        "ContextRelevanceScorer",
-                        "CorrectnessScorer",
-                        "GroundTruthAdherenceScorer",
-                        "InputPIIScorer",
-                        "InputSexistScorer",
-                        "InputToneScorer",
-                        "InputToxicityScorer",
-                        "InstructionAdherenceScorer",
-                        "OutputPIIScorer",
-                        "OutputSexistScorer",
-                        "OutputToneScorer",
-                        "OutputToxicityScorer",
-                        "PromptInjectionScorer",
-                        "PromptPerplexityScorer",
-                        "RougeScorer",
-                        "ToolErrorRateScorer",
-                        "ToolSelectionQualityScorer",
-                        "UncertaintyScorer",
-                    ]:
+                    ) -> (
+                        AgenticSessionSuccessScorer
+                        | AgenticWorkflowSuccessScorer
+                        | BleuScorer
+                        | ChunkAttributionUtilizationScorer
+                        | CompletenessScorer
+                        | ContextAdherenceScorer
+                        | ContextRelevanceScorer
+                        | CorrectnessScorer
+                        | GroundTruthAdherenceScorer
+                        | InputPIIScorer
+                        | InputSexistScorer
+                        | InputToneScorer
+                        | InputToxicityScorer
+                        | InstructionAdherenceScorer
+                        | OutputPIIScorer
+                        | OutputSexistScorer
+                        | OutputToneScorer
+                        | OutputToxicityScorer
+                        | PromptInjectionScorer
+                        | PromptPerplexityScorer
+                        | RougeScorer
+                        | ToolErrorRateScorer
+                        | ToolSelectionQualityScorer
+                        | UncertaintyScorer
+                    ):
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -1242,47 +1229,41 @@ class CreateJobResponse:
             except:  # noqa: E722
                 pass
             return cast(
-                Union[
-                    None,
-                    Unset,
-                    list["ScorerConfig"],
-                    list[
-                        Union[
-                            "AgenticSessionSuccessScorer",
-                            "AgenticWorkflowSuccessScorer",
-                            "BleuScorer",
-                            "ChunkAttributionUtilizationScorer",
-                            "CompletenessScorer",
-                            "ContextAdherenceScorer",
-                            "ContextRelevanceScorer",
-                            "CorrectnessScorer",
-                            "GroundTruthAdherenceScorer",
-                            "InputPIIScorer",
-                            "InputSexistScorer",
-                            "InputToneScorer",
-                            "InputToxicityScorer",
-                            "InstructionAdherenceScorer",
-                            "OutputPIIScorer",
-                            "OutputSexistScorer",
-                            "OutputToneScorer",
-                            "OutputToxicityScorer",
-                            "PromptInjectionScorer",
-                            "PromptPerplexityScorer",
-                            "RougeScorer",
-                            "ToolErrorRateScorer",
-                            "ToolSelectionQualityScorer",
-                            "UncertaintyScorer",
-                        ]
-                    ],
-                ],
+                list[
+                    AgenticSessionSuccessScorer
+                    | AgenticWorkflowSuccessScorer
+                    | BleuScorer
+                    | ChunkAttributionUtilizationScorer
+                    | CompletenessScorer
+                    | ContextAdherenceScorer
+                    | ContextRelevanceScorer
+                    | CorrectnessScorer
+                    | GroundTruthAdherenceScorer
+                    | InputPIIScorer
+                    | InputSexistScorer
+                    | InputToneScorer
+                    | InputToxicityScorer
+                    | InstructionAdherenceScorer
+                    | OutputPIIScorer
+                    | OutputSexistScorer
+                    | OutputToneScorer
+                    | OutputToxicityScorer
+                    | PromptInjectionScorer
+                    | PromptPerplexityScorer
+                    | RougeScorer
+                    | ToolErrorRateScorer
+                    | ToolSelectionQualityScorer
+                    | UncertaintyScorer
+                ]
+                | list[ScorerConfig]
+                | None
+                | Unset,
                 data,
             )
 
         scorers = _parse_scorers(d.pop("scorers", UNSET))
 
-        def _parse_prompt_registered_scorers_configuration(
-            data: object,
-        ) -> Union[None, Unset, list["RegisteredScorer"]]:
+        def _parse_prompt_registered_scorers_configuration(data: object) -> list[RegisteredScorer] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1306,13 +1287,13 @@ class CreateJobResponse:
                 return prompt_registered_scorers_configuration_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["RegisteredScorer"]], data)
+            return cast(list[RegisteredScorer] | None | Unset, data)
 
         prompt_registered_scorers_configuration = _parse_prompt_registered_scorers_configuration(
             d.pop("prompt_registered_scorers_configuration", UNSET)
         )
 
-        def _parse_prompt_generated_scorers_configuration(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_prompt_generated_scorers_configuration(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1324,13 +1305,13 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         prompt_generated_scorers_configuration = _parse_prompt_generated_scorers_configuration(
             d.pop("prompt_generated_scorers_configuration", UNSET)
         )
 
-        def _parse_prompt_finetuned_scorers_configuration(data: object) -> Union[None, Unset, list["FineTunedScorer"]]:
+        def _parse_prompt_finetuned_scorers_configuration(data: object) -> list[FineTunedScorer] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1354,13 +1335,13 @@ class CreateJobResponse:
                 return prompt_finetuned_scorers_configuration_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["FineTunedScorer"]], data)
+            return cast(list[FineTunedScorer] | None | Unset, data)
 
         prompt_finetuned_scorers_configuration = _parse_prompt_finetuned_scorers_configuration(
             d.pop("prompt_finetuned_scorers_configuration", UNSET)
         )
 
-        def _parse_prompt_scorers_configuration(data: object) -> Union["ScorersConfiguration", None, Unset]:
+        def _parse_prompt_scorers_configuration(data: object) -> None | ScorersConfiguration | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1372,35 +1353,33 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["ScorersConfiguration", None, Unset], data)
+            return cast(None | ScorersConfiguration | Unset, data)
 
         prompt_scorers_configuration = _parse_prompt_scorers_configuration(d.pop("prompt_scorers_configuration", UNSET))
 
         def _parse_prompt_customized_scorers_configuration(
             data: object,
-        ) -> Union[
-            None,
-            Unset,
+        ) -> (
             list[
-                Union[
-                    "CustomizedAgenticSessionSuccessGPTScorer",
-                    "CustomizedAgenticWorkflowSuccessGPTScorer",
-                    "CustomizedChunkAttributionUtilizationGPTScorer",
-                    "CustomizedCompletenessGPTScorer",
-                    "CustomizedFactualityGPTScorer",
-                    "CustomizedGroundTruthAdherenceGPTScorer",
-                    "CustomizedGroundednessGPTScorer",
-                    "CustomizedInputSexistGPTScorer",
-                    "CustomizedInputToxicityGPTScorer",
-                    "CustomizedInstructionAdherenceGPTScorer",
-                    "CustomizedPromptInjectionGPTScorer",
-                    "CustomizedSexistGPTScorer",
-                    "CustomizedToolErrorRateGPTScorer",
-                    "CustomizedToolSelectionQualityGPTScorer",
-                    "CustomizedToxicityGPTScorer",
-                ]
-            ],
-        ]:
+                CustomizedAgenticSessionSuccessGPTScorer
+                | CustomizedAgenticWorkflowSuccessGPTScorer
+                | CustomizedChunkAttributionUtilizationGPTScorer
+                | CustomizedCompletenessGPTScorer
+                | CustomizedFactualityGPTScorer
+                | CustomizedGroundednessGPTScorer
+                | CustomizedGroundTruthAdherenceGPTScorer
+                | CustomizedInputSexistGPTScorer
+                | CustomizedInputToxicityGPTScorer
+                | CustomizedInstructionAdherenceGPTScorer
+                | CustomizedPromptInjectionGPTScorer
+                | CustomizedSexistGPTScorer
+                | CustomizedToolErrorRateGPTScorer
+                | CustomizedToolSelectionQualityGPTScorer
+                | CustomizedToxicityGPTScorer
+            ]
+            | None
+            | Unset
+        ):
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1416,23 +1395,23 @@ class CreateJobResponse:
 
                     def _parse_prompt_customized_scorers_configuration_type_0_item(
                         data: object,
-                    ) -> Union[
-                        "CustomizedAgenticSessionSuccessGPTScorer",
-                        "CustomizedAgenticWorkflowSuccessGPTScorer",
-                        "CustomizedChunkAttributionUtilizationGPTScorer",
-                        "CustomizedCompletenessGPTScorer",
-                        "CustomizedFactualityGPTScorer",
-                        "CustomizedGroundTruthAdherenceGPTScorer",
-                        "CustomizedGroundednessGPTScorer",
-                        "CustomizedInputSexistGPTScorer",
-                        "CustomizedInputToxicityGPTScorer",
-                        "CustomizedInstructionAdherenceGPTScorer",
-                        "CustomizedPromptInjectionGPTScorer",
-                        "CustomizedSexistGPTScorer",
-                        "CustomizedToolErrorRateGPTScorer",
-                        "CustomizedToolSelectionQualityGPTScorer",
-                        "CustomizedToxicityGPTScorer",
-                    ]:
+                    ) -> (
+                        CustomizedAgenticSessionSuccessGPTScorer
+                        | CustomizedAgenticWorkflowSuccessGPTScorer
+                        | CustomizedChunkAttributionUtilizationGPTScorer
+                        | CustomizedCompletenessGPTScorer
+                        | CustomizedFactualityGPTScorer
+                        | CustomizedGroundednessGPTScorer
+                        | CustomizedGroundTruthAdherenceGPTScorer
+                        | CustomizedInputSexistGPTScorer
+                        | CustomizedInputToxicityGPTScorer
+                        | CustomizedInstructionAdherenceGPTScorer
+                        | CustomizedPromptInjectionGPTScorer
+                        | CustomizedSexistGPTScorer
+                        | CustomizedToolErrorRateGPTScorer
+                        | CustomizedToolSelectionQualityGPTScorer
+                        | CustomizedToxicityGPTScorer
+                    ):
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -1549,29 +1528,25 @@ class CreateJobResponse:
             except:  # noqa: E722
                 pass
             return cast(
-                Union[
-                    None,
-                    Unset,
-                    list[
-                        Union[
-                            "CustomizedAgenticSessionSuccessGPTScorer",
-                            "CustomizedAgenticWorkflowSuccessGPTScorer",
-                            "CustomizedChunkAttributionUtilizationGPTScorer",
-                            "CustomizedCompletenessGPTScorer",
-                            "CustomizedFactualityGPTScorer",
-                            "CustomizedGroundTruthAdherenceGPTScorer",
-                            "CustomizedGroundednessGPTScorer",
-                            "CustomizedInputSexistGPTScorer",
-                            "CustomizedInputToxicityGPTScorer",
-                            "CustomizedInstructionAdherenceGPTScorer",
-                            "CustomizedPromptInjectionGPTScorer",
-                            "CustomizedSexistGPTScorer",
-                            "CustomizedToolErrorRateGPTScorer",
-                            "CustomizedToolSelectionQualityGPTScorer",
-                            "CustomizedToxicityGPTScorer",
-                        ]
-                    ],
-                ],
+                list[
+                    CustomizedAgenticSessionSuccessGPTScorer
+                    | CustomizedAgenticWorkflowSuccessGPTScorer
+                    | CustomizedChunkAttributionUtilizationGPTScorer
+                    | CustomizedCompletenessGPTScorer
+                    | CustomizedFactualityGPTScorer
+                    | CustomizedGroundednessGPTScorer
+                    | CustomizedGroundTruthAdherenceGPTScorer
+                    | CustomizedInputSexistGPTScorer
+                    | CustomizedInputToxicityGPTScorer
+                    | CustomizedInstructionAdherenceGPTScorer
+                    | CustomizedPromptInjectionGPTScorer
+                    | CustomizedSexistGPTScorer
+                    | CustomizedToolErrorRateGPTScorer
+                    | CustomizedToolSelectionQualityGPTScorer
+                    | CustomizedToxicityGPTScorer
+                ]
+                | None
+                | Unset,
                 data,
             )
 
@@ -1579,7 +1554,7 @@ class CreateJobResponse:
             d.pop("prompt_customized_scorers_configuration", UNSET)
         )
 
-        def _parse_prompt_scorer_settings(data: object) -> Union["BaseScorer", None, Unset]:
+        def _parse_prompt_scorer_settings(data: object) -> BaseScorer | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1591,11 +1566,11 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["BaseScorer", None, Unset], data)
+            return cast(BaseScorer | None | Unset, data)
 
         prompt_scorer_settings = _parse_prompt_scorer_settings(d.pop("prompt_scorer_settings", UNSET))
 
-        def _parse_scorer_config(data: object) -> Union["ScorerConfig", None, Unset]:
+        def _parse_scorer_config(data: object) -> None | ScorerConfig | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1607,27 +1582,29 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["ScorerConfig", None, Unset], data)
+            return cast(None | ScorerConfig | Unset, data)
 
         scorer_config = _parse_scorer_config(d.pop("scorer_config", UNSET))
 
-        sub_scorers = []
         _sub_scorers = d.pop("sub_scorers", UNSET)
-        for sub_scorers_item_data in _sub_scorers or []:
-            sub_scorers_item = ScorerName(sub_scorers_item_data)
+        sub_scorers: list[ScorerName] | Unset = UNSET
+        if _sub_scorers is not UNSET:
+            sub_scorers = []
+            for sub_scorers_item_data in _sub_scorers:
+                sub_scorers_item = ScorerName(sub_scorers_item_data)
 
-            sub_scorers.append(sub_scorers_item)
+                sub_scorers.append(sub_scorers_item)
 
-        def _parse_luna_model(data: object) -> Union[None, Unset, str]:
+        def _parse_luna_model(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         luna_model = _parse_luna_model(d.pop("luna_model", UNSET))
 
-        def _parse_segment_filters(data: object) -> Union[None, Unset, list["SegmentFilter"]]:
+        def _parse_segment_filters(data: object) -> list[SegmentFilter] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1645,13 +1622,11 @@ class CreateJobResponse:
                 return segment_filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["SegmentFilter"]], data)
+            return cast(list[SegmentFilter] | None | Unset, data)
 
         segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
 
-        def _parse_prompt_optimization_configuration(
-            data: object,
-        ) -> Union["PromptOptimizationConfiguration", None, Unset]:
+        def _parse_prompt_optimization_configuration(data: object) -> None | PromptOptimizationConfiguration | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1663,7 +1638,7 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["PromptOptimizationConfiguration", None, Unset], data)
+            return cast(None | PromptOptimizationConfiguration | Unset, data)
 
         prompt_optimization_configuration = _parse_prompt_optimization_configuration(
             d.pop("prompt_optimization_configuration", UNSET)
@@ -1671,7 +1646,7 @@ class CreateJobResponse:
 
         epoch = d.pop("epoch", UNSET)
 
-        def _parse_metric_critique_configuration(data: object) -> Union["MetricCritiqueJobConfiguration", None, Unset]:
+        def _parse_metric_critique_configuration(data: object) -> MetricCritiqueJobConfiguration | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1683,18 +1658,18 @@ class CreateJobResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["MetricCritiqueJobConfiguration", None, Unset], data)
+            return cast(MetricCritiqueJobConfiguration | None | Unset, data)
 
         metric_critique_configuration = _parse_metric_critique_configuration(
             d.pop("metric_critique_configuration", UNSET)
         )
 
-        def _parse_is_session(data: object) -> Union[None, Unset, bool]:
+        def _parse_is_session(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         is_session = _parse_is_session(d.pop("is_session", UNSET))
 

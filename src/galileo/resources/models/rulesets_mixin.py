@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,14 +20,14 @@ class RulesetsMixin:
     """
     Attributes
     ----------
-        prioritized_rulesets (Union[Unset, list['Ruleset']]): Rulesets to be applied to the payload.
+        prioritized_rulesets (list[Ruleset] | Unset): Rulesets to be applied to the payload.
     """
 
-    prioritized_rulesets: Union[Unset, list["Ruleset"]] = UNSET
+    prioritized_rulesets: list[Ruleset] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        prioritized_rulesets: Union[Unset, list[dict[str, Any]]] = UNSET
+        prioritized_rulesets: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.prioritized_rulesets, Unset):
             prioritized_rulesets = []
             for prioritized_rulesets_item_data in self.prioritized_rulesets:
@@ -45,12 +47,14 @@ class RulesetsMixin:
         from ..models.ruleset import Ruleset
 
         d = dict(src_dict)
-        prioritized_rulesets = []
         _prioritized_rulesets = d.pop("prioritized_rulesets", UNSET)
-        for prioritized_rulesets_item_data in _prioritized_rulesets or []:
-            prioritized_rulesets_item = Ruleset.from_dict(prioritized_rulesets_item_data)
+        prioritized_rulesets: list[Ruleset] | Unset = UNSET
+        if _prioritized_rulesets is not UNSET:
+            prioritized_rulesets = []
+            for prioritized_rulesets_item_data in _prioritized_rulesets:
+                prioritized_rulesets_item = Ruleset.from_dict(prioritized_rulesets_item_data)
 
-            prioritized_rulesets.append(prioritized_rulesets_item)
+                prioritized_rulesets.append(prioritized_rulesets_item)
 
         rulesets_mixin = cls(prioritized_rulesets=prioritized_rulesets)
 

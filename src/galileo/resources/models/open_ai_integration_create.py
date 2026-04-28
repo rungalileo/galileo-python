@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,17 +17,17 @@ class OpenAIIntegrationCreate:
     Attributes
     ----------
         token (str):
-        organization_id (Union[None, Unset, str]):
+        organization_id (None | str | Unset):
     """
 
     token: str
-    organization_id: Union[None, Unset, str] = UNSET
+    organization_id: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         token = self.token
 
-        organization_id: Union[None, Unset, str]
+        organization_id: None | str | Unset
         organization_id = UNSET if isinstance(self.organization_id, Unset) else self.organization_id
 
         field_dict: dict[str, Any] = {}
@@ -41,12 +43,12 @@ class OpenAIIntegrationCreate:
         d = dict(src_dict)
         token = d.pop("token")
 
-        def _parse_organization_id(data: object) -> Union[None, Unset, str]:
+        def _parse_organization_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         organization_id = _parse_organization_id(d.pop("organization_id", UNSET))
 

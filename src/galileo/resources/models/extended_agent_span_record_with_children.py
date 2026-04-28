@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -11,9 +13,13 @@ from ..models.content_modality import ContentModality
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.control_result import ControlResult
     from ..models.document import Document
     from ..models.extended_agent_span_record_with_children_annotation_aggregates import (
         ExtendedAgentSpanRecordWithChildrenAnnotationAggregates,
+    )
+    from ..models.extended_agent_span_record_with_children_annotation_agreement import (
+        ExtendedAgentSpanRecordWithChildrenAnnotationAgreement,
     )
     from ..models.extended_agent_span_record_with_children_annotations import (
         ExtendedAgentSpanRecordWithChildrenAnnotations,
@@ -30,9 +36,13 @@ if TYPE_CHECKING:
     from ..models.extended_agent_span_record_with_children_metric_info_type_0 import (
         ExtendedAgentSpanRecordWithChildrenMetricInfoType0,
     )
+    from ..models.extended_agent_span_record_with_children_overall_annotation_agreement import (
+        ExtendedAgentSpanRecordWithChildrenOverallAnnotationAgreement,
+    )
     from ..models.extended_agent_span_record_with_children_user_metadata import (
         ExtendedAgentSpanRecordWithChildrenUserMetadata,
     )
+    from ..models.extended_control_span_record import ExtendedControlSpanRecord
     from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
     from ..models.extended_retriever_span_record_with_children import ExtendedRetrieverSpanRecordWithChildren
     from ..models.extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
@@ -56,53 +66,55 @@ class ExtendedAgentSpanRecordWithChildren:
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
         parent_id (str): Galileo ID of the parent of this span
-        spans (Union[Unset, list[Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord',
-            'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren',
-            'ExtendedWorkflowSpanRecordWithChildren']]]):
-        type_ (Union[Literal['agent'], Unset]): Type of the trace, span or session. Default: 'agent'.
-        input_ (Union[Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]): Input to the
-            trace or span. Default: ''.
-        redacted_input (Union[None, Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]):
-            Redacted input of the trace or span.
-        output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart', 'TextContentPart']],
-            str]): Output of the trace or span.
-        redacted_output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart',
-            'TextContentPart']], str]): Redacted output of the trace or span.
-        name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
-        created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
-        user_metadata (Union[Unset, ExtendedAgentSpanRecordWithChildrenUserMetadata]): Metadata associated with this
-            trace or span.
-        tags (Union[Unset, list[str]]): Tags associated with this trace or span.
-        status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
-            states.
-        metrics (Union[Unset, Metrics]):
-        external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
-        dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
-        dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
-        dataset_metadata (Union[Unset, ExtendedAgentSpanRecordWithChildrenDatasetMetadata]): Metadata from the dataset
+        spans (list[ExtendedAgentSpanRecordWithChildren | ExtendedControlSpanRecord | ExtendedLlmSpanRecord |
+            ExtendedRetrieverSpanRecordWithChildren | ExtendedToolSpanRecordWithChildren |
+            ExtendedWorkflowSpanRecordWithChildren] | Unset):
+        type_ (Literal['agent'] | Unset): Type of the trace, span or session. Default: 'agent'.
+        input_ (list[FileContentPart | TextContentPart] | list[Message] | str | Unset): Input to the trace or span.
+            Default: ''.
+        redacted_input (list[FileContentPart | TextContentPart] | list[Message] | None | str | Unset): Redacted input of
+            the trace or span.
+        output (ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str |
+            Unset): Output of the trace or span.
+        redacted_output (ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str
+            | Unset): Redacted output of the trace or span.
+        name (str | Unset): Name of the trace, span or session. Default: ''.
+        created_at (datetime.datetime | Unset): Timestamp of the trace or span's creation.
+        user_metadata (ExtendedAgentSpanRecordWithChildrenUserMetadata | Unset): Metadata associated with this trace or
+            span.
+        tags (list[str] | Unset): Tags associated with this trace or span.
+        status_code (int | None | Unset): Status code of the trace or span. Used for logging failure or error states.
+        metrics (Metrics | Unset):
+        external_id (None | str | Unset): A user-provided session, trace or span ID.
+        dataset_input (None | str | Unset): Input to the dataset associated with this trace
+        dataset_output (None | str | Unset): Output from the dataset associated with this trace
+        dataset_metadata (ExtendedAgentSpanRecordWithChildrenDatasetMetadata | Unset): Metadata from the dataset
             associated with this trace
-        trace_id (Union[None, Unset, str]): Galileo ID of the trace containing the span (or the same value as id for a
-            trace)
-        updated_at (Union[None, Unset, datetime.datetime]): Timestamp of the session or trace or span's last update
-        has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
-        metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
-        session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
-        feedback_rating_info (Union[Unset, ExtendedAgentSpanRecordWithChildrenFeedbackRatingInfo]): Feedback information
+        trace_id (None | str | Unset): Galileo ID of the trace containing the span (or the same value as id for a trace)
+        updated_at (datetime.datetime | None | Unset): Timestamp of the session or trace or span's last update
+        has_children (bool | None | Unset): Whether or not this trace or span has child spans
+        metrics_batch_id (None | str | Unset): Galileo ID of the metrics batch associated with this trace or span
+        session_batch_id (None | str | Unset): Galileo ID of the metrics batch associated with this trace or span
+        feedback_rating_info (ExtendedAgentSpanRecordWithChildrenFeedbackRatingInfo | Unset): Feedback information
             related to the record
-        annotations (Union[Unset, ExtendedAgentSpanRecordWithChildrenAnnotations]): Annotations keyed by template ID and
+        annotations (ExtendedAgentSpanRecordWithChildrenAnnotations | Unset): Annotations keyed by template ID and
             annotator ID
-        file_ids (Union[Unset, list[str]]): IDs of files associated with this record
-        file_modalities (Union[Unset, list[ContentModality]]): Modalities of files associated with this record
-        annotation_aggregates (Union[Unset, ExtendedAgentSpanRecordWithChildrenAnnotationAggregates]): Annotation
-            aggregate information keyed by template ID
-        annotation_queue_ids (Union[Unset, list[str]]): IDs of annotation queues this record is in
-        metric_info (Union['ExtendedAgentSpanRecordWithChildrenMetricInfoType0', None, Unset]): Detailed information
-            about the metrics associated with this trace or span
-        files (Union['ExtendedAgentSpanRecordWithChildrenFilesType0', None, Unset]): File metadata keyed by file ID for
-            files associated with this record
-        is_complete (Union[Unset, bool]): Whether the parent trace is complete or not Default: True.
-        step_number (Union[None, Unset, int]): Topological step number of the span.
-        agent_type (Union[Unset, AgentType]):
+        file_ids (list[str] | Unset): IDs of files associated with this record
+        file_modalities (list[ContentModality] | Unset): Modalities of files associated with this record
+        annotation_aggregates (ExtendedAgentSpanRecordWithChildrenAnnotationAggregates | Unset): Annotation aggregate
+            information keyed by template ID
+        annotation_agreement (ExtendedAgentSpanRecordWithChildrenAnnotationAgreement | Unset): Annotation agreement
+            scores keyed by template ID
+        overall_annotation_agreement (ExtendedAgentSpanRecordWithChildrenOverallAnnotationAgreement | Unset): Average
+            annotation agreement per queue (keyed by queue ID)
+        annotation_queue_ids (list[str] | Unset): IDs of annotation queues this record is in
+        metric_info (ExtendedAgentSpanRecordWithChildrenMetricInfoType0 | None | Unset): Detailed information about the
+            metrics associated with this trace or span
+        files (ExtendedAgentSpanRecordWithChildrenFilesType0 | None | Unset): File metadata keyed by file ID for files
+            associated with this record
+        is_complete (bool | Unset): Whether the parent trace is complete or not Default: True.
+        step_number (int | None | Unset): Topological step number of the span.
+        agent_type (AgentType | Unset):
     """
 
     id: str
@@ -110,56 +122,58 @@ class ExtendedAgentSpanRecordWithChildren:
     project_id: str
     run_id: str
     parent_id: str
-    spans: Union[
-        Unset,
+    spans: (
         list[
-            Union[
-                "ExtendedAgentSpanRecordWithChildren",
-                "ExtendedLlmSpanRecord",
-                "ExtendedRetrieverSpanRecordWithChildren",
-                "ExtendedToolSpanRecordWithChildren",
-                "ExtendedWorkflowSpanRecordWithChildren",
-            ]
-        ],
-    ] = UNSET
-    type_: Union[Literal["agent"], Unset] = "agent"
-    input_: Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = ""
-    redacted_input: Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
-    output: Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str] = (
+            ExtendedAgentSpanRecordWithChildren
+            | ExtendedControlSpanRecord
+            | ExtendedLlmSpanRecord
+            | ExtendedRetrieverSpanRecordWithChildren
+            | ExtendedToolSpanRecordWithChildren
+            | ExtendedWorkflowSpanRecordWithChildren
+        ]
+        | Unset
+    ) = UNSET
+    type_: Literal["agent"] | Unset = "agent"
+    input_: list[FileContentPart | TextContentPart] | list[Message] | str | Unset = ""
+    redacted_input: list[FileContentPart | TextContentPart] | list[Message] | None | str | Unset = UNSET
+    output: ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str | Unset = (
         UNSET
     )
-    redacted_output: Union[
-        "Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str
-    ] = UNSET
-    name: Union[Unset, str] = ""
-    created_at: Union[Unset, datetime.datetime] = UNSET
-    user_metadata: Union[Unset, "ExtendedAgentSpanRecordWithChildrenUserMetadata"] = UNSET
-    tags: Union[Unset, list[str]] = UNSET
-    status_code: Union[None, Unset, int] = UNSET
-    metrics: Union[Unset, "Metrics"] = UNSET
-    external_id: Union[None, Unset, str] = UNSET
-    dataset_input: Union[None, Unset, str] = UNSET
-    dataset_output: Union[None, Unset, str] = UNSET
-    dataset_metadata: Union[Unset, "ExtendedAgentSpanRecordWithChildrenDatasetMetadata"] = UNSET
-    trace_id: Union[None, Unset, str] = UNSET
-    updated_at: Union[None, Unset, datetime.datetime] = UNSET
-    has_children: Union[None, Unset, bool] = UNSET
-    metrics_batch_id: Union[None, Unset, str] = UNSET
-    session_batch_id: Union[None, Unset, str] = UNSET
-    feedback_rating_info: Union[Unset, "ExtendedAgentSpanRecordWithChildrenFeedbackRatingInfo"] = UNSET
-    annotations: Union[Unset, "ExtendedAgentSpanRecordWithChildrenAnnotations"] = UNSET
-    file_ids: Union[Unset, list[str]] = UNSET
-    file_modalities: Union[Unset, list[ContentModality]] = UNSET
-    annotation_aggregates: Union[Unset, "ExtendedAgentSpanRecordWithChildrenAnnotationAggregates"] = UNSET
-    annotation_queue_ids: Union[Unset, list[str]] = UNSET
-    metric_info: Union["ExtendedAgentSpanRecordWithChildrenMetricInfoType0", None, Unset] = UNSET
-    files: Union["ExtendedAgentSpanRecordWithChildrenFilesType0", None, Unset] = UNSET
-    is_complete: Union[Unset, bool] = True
-    step_number: Union[None, Unset, int] = UNSET
-    agent_type: Union[Unset, AgentType] = UNSET
+    redacted_output: (
+        ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str | Unset
+    ) = UNSET
+    name: str | Unset = ""
+    created_at: datetime.datetime | Unset = UNSET
+    user_metadata: ExtendedAgentSpanRecordWithChildrenUserMetadata | Unset = UNSET
+    tags: list[str] | Unset = UNSET
+    status_code: int | None | Unset = UNSET
+    metrics: Metrics | Unset = UNSET
+    external_id: None | str | Unset = UNSET
+    dataset_input: None | str | Unset = UNSET
+    dataset_output: None | str | Unset = UNSET
+    dataset_metadata: ExtendedAgentSpanRecordWithChildrenDatasetMetadata | Unset = UNSET
+    trace_id: None | str | Unset = UNSET
+    updated_at: datetime.datetime | None | Unset = UNSET
+    has_children: bool | None | Unset = UNSET
+    metrics_batch_id: None | str | Unset = UNSET
+    session_batch_id: None | str | Unset = UNSET
+    feedback_rating_info: ExtendedAgentSpanRecordWithChildrenFeedbackRatingInfo | Unset = UNSET
+    annotations: ExtendedAgentSpanRecordWithChildrenAnnotations | Unset = UNSET
+    file_ids: list[str] | Unset = UNSET
+    file_modalities: list[ContentModality] | Unset = UNSET
+    annotation_aggregates: ExtendedAgentSpanRecordWithChildrenAnnotationAggregates | Unset = UNSET
+    annotation_agreement: ExtendedAgentSpanRecordWithChildrenAnnotationAgreement | Unset = UNSET
+    overall_annotation_agreement: ExtendedAgentSpanRecordWithChildrenOverallAnnotationAgreement | Unset = UNSET
+    annotation_queue_ids: list[str] | Unset = UNSET
+    metric_info: ExtendedAgentSpanRecordWithChildrenMetricInfoType0 | None | Unset = UNSET
+    files: ExtendedAgentSpanRecordWithChildrenFilesType0 | None | Unset = UNSET
+    is_complete: bool | Unset = True
+    step_number: int | None | Unset = UNSET
+    agent_type: AgentType | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.control_result import ControlResult
         from ..models.extended_agent_span_record_with_children_files_type_0 import (
             ExtendedAgentSpanRecordWithChildrenFilesType0,
         )
@@ -167,6 +181,7 @@ class ExtendedAgentSpanRecordWithChildren:
             ExtendedAgentSpanRecordWithChildrenMetricInfoType0,
         )
         from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+        from ..models.extended_retriever_span_record_with_children import ExtendedRetrieverSpanRecordWithChildren
         from ..models.extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
         from ..models.extended_workflow_span_record_with_children import ExtendedWorkflowSpanRecordWithChildren
         from ..models.message import Message
@@ -182,19 +197,18 @@ class ExtendedAgentSpanRecordWithChildren:
 
         parent_id = self.parent_id
 
-        spans: Union[Unset, list[dict[str, Any]]] = UNSET
+        spans: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.spans, Unset):
             spans = []
             for spans_item_data in self.spans:
                 spans_item: dict[str, Any]
                 if isinstance(
                     spans_item_data,
-                    (
-                        ExtendedAgentSpanRecordWithChildren,
-                        ExtendedWorkflowSpanRecordWithChildren,
-                        ExtendedLlmSpanRecord,
-                        ExtendedToolSpanRecordWithChildren,
-                    ),
+                    ExtendedAgentSpanRecordWithChildren
+                    | ExtendedWorkflowSpanRecordWithChildren
+                    | ExtendedLlmSpanRecord
+                    | ExtendedToolSpanRecordWithChildren
+                    | ExtendedRetrieverSpanRecordWithChildren,
                 ):
                     spans_item = spans_item_data.to_dict()
                 else:
@@ -204,7 +218,7 @@ class ExtendedAgentSpanRecordWithChildren:
 
         type_ = self.type_
 
-        input_: Union[Unset, list[dict[str, Any]], str]
+        input_: list[dict[str, Any]] | str | Unset
         if isinstance(self.input_, Unset):
             input_ = UNSET
         elif isinstance(self.input_, list):
@@ -227,7 +241,7 @@ class ExtendedAgentSpanRecordWithChildren:
         else:
             input_ = self.input_
 
-        redacted_input: Union[None, Unset, list[dict[str, Any]], str]
+        redacted_input: list[dict[str, Any]] | None | str | Unset
         if isinstance(self.redacted_input, Unset):
             redacted_input = UNSET
         elif isinstance(self.redacted_input, list):
@@ -250,7 +264,7 @@ class ExtendedAgentSpanRecordWithChildren:
         else:
             redacted_input = self.redacted_input
 
-        output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
+        output: dict[str, Any] | list[dict[str, Any]] | None | str | Unset
         if isinstance(self.output, Unset):
             output = UNSET
         elif isinstance(self.output, Message):
@@ -272,10 +286,12 @@ class ExtendedAgentSpanRecordWithChildren:
 
                 output.append(output_type_3_item)
 
+        elif isinstance(self.output, ControlResult):
+            output = self.output.to_dict()
         else:
             output = self.output
 
-        redacted_output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
+        redacted_output: dict[str, Any] | list[dict[str, Any]] | None | str | Unset
         if isinstance(self.redacted_output, Unset):
             redacted_output = UNSET
         elif isinstance(self.redacted_output, Message):
@@ -297,47 +313,49 @@ class ExtendedAgentSpanRecordWithChildren:
 
                 redacted_output.append(redacted_output_type_3_item)
 
+        elif isinstance(self.redacted_output, ControlResult):
+            redacted_output = self.redacted_output.to_dict()
         else:
             redacted_output = self.redacted_output
 
         name = self.name
 
-        created_at: Union[Unset, str] = UNSET
+        created_at: str | Unset = UNSET
         if not isinstance(self.created_at, Unset):
             created_at = self.created_at.isoformat()
 
-        user_metadata: Union[Unset, dict[str, Any]] = UNSET
+        user_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.user_metadata, Unset):
             user_metadata = self.user_metadata.to_dict()
 
-        tags: Union[Unset, list[str]] = UNSET
+        tags: list[str] | Unset = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
-        status_code: Union[None, Unset, int]
+        status_code: int | None | Unset
         status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
-        metrics: Union[Unset, dict[str, Any]] = UNSET
+        metrics: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
-        external_id: Union[None, Unset, str]
+        external_id: None | str | Unset
         external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
-        dataset_input: Union[None, Unset, str]
+        dataset_input: None | str | Unset
         dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
-        dataset_output: Union[None, Unset, str]
+        dataset_output: None | str | Unset
         dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
-        dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
+        dataset_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
-        trace_id: Union[None, Unset, str]
+        trace_id: None | str | Unset
         trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
-        updated_at: Union[None, Unset, str]
+        updated_at: None | str | Unset
         if isinstance(self.updated_at, Unset):
             updated_at = UNSET
         elif isinstance(self.updated_at, datetime.datetime):
@@ -345,43 +363,51 @@ class ExtendedAgentSpanRecordWithChildren:
         else:
             updated_at = self.updated_at
 
-        has_children: Union[None, Unset, bool]
+        has_children: bool | None | Unset
         has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
 
-        metrics_batch_id: Union[None, Unset, str]
+        metrics_batch_id: None | str | Unset
         metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
 
-        session_batch_id: Union[None, Unset, str]
+        session_batch_id: None | str | Unset
         session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
-        feedback_rating_info: Union[Unset, dict[str, Any]] = UNSET
+        feedback_rating_info: dict[str, Any] | Unset = UNSET
         if not isinstance(self.feedback_rating_info, Unset):
             feedback_rating_info = self.feedback_rating_info.to_dict()
 
-        annotations: Union[Unset, dict[str, Any]] = UNSET
+        annotations: dict[str, Any] | Unset = UNSET
         if not isinstance(self.annotations, Unset):
             annotations = self.annotations.to_dict()
 
-        file_ids: Union[Unset, list[str]] = UNSET
+        file_ids: list[str] | Unset = UNSET
         if not isinstance(self.file_ids, Unset):
             file_ids = self.file_ids
 
-        file_modalities: Union[Unset, list[str]] = UNSET
+        file_modalities: list[str] | Unset = UNSET
         if not isinstance(self.file_modalities, Unset):
             file_modalities = []
             for file_modalities_item_data in self.file_modalities:
                 file_modalities_item = file_modalities_item_data.value
                 file_modalities.append(file_modalities_item)
 
-        annotation_aggregates: Union[Unset, dict[str, Any]] = UNSET
+        annotation_aggregates: dict[str, Any] | Unset = UNSET
         if not isinstance(self.annotation_aggregates, Unset):
             annotation_aggregates = self.annotation_aggregates.to_dict()
 
-        annotation_queue_ids: Union[Unset, list[str]] = UNSET
+        annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.annotation_agreement, Unset):
+            annotation_agreement = self.annotation_agreement.to_dict()
+
+        overall_annotation_agreement: dict[str, Any] | Unset = UNSET
+        if not isinstance(self.overall_annotation_agreement, Unset):
+            overall_annotation_agreement = self.overall_annotation_agreement.to_dict()
+
+        annotation_queue_ids: list[str] | Unset = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
             annotation_queue_ids = self.annotation_queue_ids
 
-        metric_info: Union[None, Unset, dict[str, Any]]
+        metric_info: dict[str, Any] | None | Unset
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
         elif isinstance(self.metric_info, ExtendedAgentSpanRecordWithChildrenMetricInfoType0):
@@ -389,7 +415,7 @@ class ExtendedAgentSpanRecordWithChildren:
         else:
             metric_info = self.metric_info
 
-        files: Union[None, Unset, dict[str, Any]]
+        files: dict[str, Any] | None | Unset
         if isinstance(self.files, Unset):
             files = UNSET
         elif isinstance(self.files, ExtendedAgentSpanRecordWithChildrenFilesType0):
@@ -399,10 +425,10 @@ class ExtendedAgentSpanRecordWithChildren:
 
         is_complete = self.is_complete
 
-        step_number: Union[None, Unset, int]
+        step_number: int | None | Unset
         step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
 
-        agent_type: Union[Unset, str] = UNSET
+        agent_type: str | Unset = UNSET
         if not isinstance(self.agent_type, Unset):
             agent_type = self.agent_type.value
 
@@ -463,6 +489,10 @@ class ExtendedAgentSpanRecordWithChildren:
             field_dict["file_modalities"] = file_modalities
         if annotation_aggregates is not UNSET:
             field_dict["annotation_aggregates"] = annotation_aggregates
+        if annotation_agreement is not UNSET:
+            field_dict["annotation_agreement"] = annotation_agreement
+        if overall_annotation_agreement is not UNSET:
+            field_dict["overall_annotation_agreement"] = overall_annotation_agreement
         if annotation_queue_ids is not UNSET:
             field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
@@ -480,9 +510,13 @@ class ExtendedAgentSpanRecordWithChildren:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.control_result import ControlResult
         from ..models.document import Document
         from ..models.extended_agent_span_record_with_children_annotation_aggregates import (
             ExtendedAgentSpanRecordWithChildrenAnnotationAggregates,
+        )
+        from ..models.extended_agent_span_record_with_children_annotation_agreement import (
+            ExtendedAgentSpanRecordWithChildrenAnnotationAgreement,
         )
         from ..models.extended_agent_span_record_with_children_annotations import (
             ExtendedAgentSpanRecordWithChildrenAnnotations,
@@ -499,9 +533,13 @@ class ExtendedAgentSpanRecordWithChildren:
         from ..models.extended_agent_span_record_with_children_metric_info_type_0 import (
             ExtendedAgentSpanRecordWithChildrenMetricInfoType0,
         )
+        from ..models.extended_agent_span_record_with_children_overall_annotation_agreement import (
+            ExtendedAgentSpanRecordWithChildrenOverallAnnotationAgreement,
+        )
         from ..models.extended_agent_span_record_with_children_user_metadata import (
             ExtendedAgentSpanRecordWithChildrenUserMetadata,
         )
+        from ..models.extended_control_span_record import ExtendedControlSpanRecord
         from ..models.extended_retriever_span_record_with_children import ExtendedRetrieverSpanRecordWithChildren
         from ..models.extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
         from ..models.extended_workflow_span_record_with_children import ExtendedWorkflowSpanRecordWithChildren
@@ -521,125 +559,145 @@ class ExtendedAgentSpanRecordWithChildren:
 
         parent_id = d.pop("parent_id")
 
-        spans = []
         _spans = d.pop("spans", UNSET)
-        for spans_item_data in _spans or []:
+        spans: (
+            list[
+                ExtendedAgentSpanRecordWithChildren
+                | ExtendedControlSpanRecord
+                | ExtendedLlmSpanRecord
+                | ExtendedRetrieverSpanRecordWithChildren
+                | ExtendedToolSpanRecordWithChildren
+                | ExtendedWorkflowSpanRecordWithChildren
+            ]
+            | Unset
+        ) = UNSET
+        if _spans is not UNSET:
+            spans = []
+            for spans_item_data in _spans:
 
-            def _parse_spans_item(
-                data: object,
-            ) -> Union[
-                "ExtendedAgentSpanRecordWithChildren",
-                "ExtendedLlmSpanRecord",
-                "ExtendedRetrieverSpanRecordWithChildren",
-                "ExtendedToolSpanRecordWithChildren",
-                "ExtendedWorkflowSpanRecordWithChildren",
-            ]:
-                # Discriminator-aware parsing for Extended*Record types
-                if isinstance(data, dict) and "type" in data:
-                    type_value = data.get("type")
+                def _parse_spans_item(
+                    data: object,
+                ) -> (
+                    ExtendedAgentSpanRecordWithChildren
+                    | ExtendedControlSpanRecord
+                    | ExtendedLlmSpanRecord
+                    | ExtendedRetrieverSpanRecordWithChildren
+                    | ExtendedToolSpanRecordWithChildren
+                    | ExtendedWorkflowSpanRecordWithChildren
+                ):
+                    # Discriminator-aware parsing for Extended*Record types
+                    if isinstance(data, dict) and "type" in data:
+                        type_value = data.get("type")
 
-                    # Hardcoded discriminator mapping for Extended*Record types
-                    if type_value == "trace":
-                        try:
-                            from ..models.extended_trace_record import ExtendedTraceRecord
+                        # Hardcoded discriminator mapping for Extended*Record types
+                        if type_value == "trace":
+                            try:
+                                from ..models.extended_trace_record import ExtendedTraceRecord
 
-                            return ExtendedTraceRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "agent":
-                        try:
-                            from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+                                return ExtendedTraceRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "agent":
+                            try:
+                                from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
 
-                            return ExtendedAgentSpanRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "workflow":
-                        try:
-                            from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
+                                return ExtendedAgentSpanRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "workflow":
+                            try:
+                                from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
 
-                            return ExtendedWorkflowSpanRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "llm":
-                        try:
-                            from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+                                return ExtendedWorkflowSpanRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "llm":
+                            try:
+                                from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
 
-                            return ExtendedLlmSpanRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "tool":
-                        try:
-                            from ..models.extended_tool_span_record import ExtendedToolSpanRecord
+                                return ExtendedLlmSpanRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "tool":
+                            try:
+                                from ..models.extended_tool_span_record import ExtendedToolSpanRecord
 
-                            return ExtendedToolSpanRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "retriever":
-                        try:
-                            from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
+                                return ExtendedToolSpanRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "retriever":
+                            try:
+                                from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
 
-                            return ExtendedRetrieverSpanRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
-                    elif type_value == "session":
-                        try:
-                            from ..models.extended_session_record import ExtendedSessionRecord
+                                return ExtendedRetrieverSpanRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
+                        elif type_value == "session":
+                            try:
+                                from ..models.extended_session_record import ExtendedSessionRecord
 
-                            return ExtendedSessionRecord.from_dict(data)
-                        except:  # noqa: E722
-                            pass
+                                return ExtendedSessionRecord.from_dict(data)
+                            except:  # noqa: E722
+                                pass
 
-                # Fallback to standard union parsing
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return ExtendedAgentSpanRecordWithChildren.from_dict(data)
+                    # Fallback to standard union parsing
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return ExtendedAgentSpanRecordWithChildren.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return ExtendedWorkflowSpanRecordWithChildren.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return ExtendedWorkflowSpanRecordWithChildren.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return ExtendedLlmSpanRecord.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return ExtendedLlmSpanRecord.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return ExtendedToolSpanRecordWithChildren.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return ExtendedToolSpanRecordWithChildren.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return ExtendedRetrieverSpanRecordWithChildren.from_dict(data)
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return ExtendedRetrieverSpanRecordWithChildren.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                # If we reach here, none of the parsers succeeded
-                discriminator_info = f" (type={data.get('type')})" if isinstance(data, dict) and "type" in data else ""
-                raise ValueError(f"Could not parse union type for spans_item{discriminator_info}")
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return ExtendedControlSpanRecord.from_dict(data)
 
-            spans_item = _parse_spans_item(spans_item_data)
+                    except:  # noqa: E722
+                        pass
+                    # If we reach here, none of the parsers succeeded
+                    discriminator_info = (
+                        f" (type={data.get('type')})" if isinstance(data, dict) and "type" in data else ""
+                    )
+                    raise ValueError(f"Could not parse union type for spans_item{discriminator_info}")
 
-            spans.append(spans_item)
+                spans_item = _parse_spans_item(spans_item_data)
 
-        type_ = cast(Union[Literal["agent"], Unset], d.pop("type", UNSET))
+                spans.append(spans_item)
+
+        type_ = cast(Literal["agent"] | Unset, d.pop("type", UNSET))
         if type_ != "agent" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'agent', got '{type_}'")
 
-        def _parse_input_(
-            data: object,
-        ) -> Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        def _parse_input_(data: object) -> list[FileContentPart | TextContentPart] | list[Message] | str | Unset:
             if isinstance(data, Unset):
                 return data
             try:
@@ -662,7 +720,7 @@ class ExtendedAgentSpanRecordWithChildren:
                 _input_type_2 = data
                 for input_type_2_item_data in _input_type_2:
 
-                    def _parse_input_type_2_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                    def _parse_input_type_2_item(data: object) -> FileContentPart | TextContentPart:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -681,13 +739,13 @@ class ExtendedAgentSpanRecordWithChildren:
                 return input_type_2
             except:  # noqa: E722
                 pass
-            return cast(Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data)
+            return cast(list[FileContentPart | TextContentPart] | list[Message] | str | Unset, data)
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
         def _parse_redacted_input(
             data: object,
-        ) -> Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        ) -> list[FileContentPart | TextContentPart] | list[Message] | None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -712,7 +770,7 @@ class ExtendedAgentSpanRecordWithChildren:
                 _redacted_input_type_2 = data
                 for redacted_input_type_2_item_data in _redacted_input_type_2:
 
-                    def _parse_redacted_input_type_2_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                    def _parse_redacted_input_type_2_item(data: object) -> FileContentPart | TextContentPart:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -731,15 +789,13 @@ class ExtendedAgentSpanRecordWithChildren:
                 return redacted_input_type_2
             except:  # noqa: E722
                 pass
-            return cast(
-                Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data
-            )
+            return cast(list[FileContentPart | TextContentPart] | list[Message] | None | str | Unset, data)
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
         def _parse_output(
             data: object,
-        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        ) -> ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -771,7 +827,7 @@ class ExtendedAgentSpanRecordWithChildren:
                 _output_type_3 = data
                 for output_type_3_item_data in _output_type_3:
 
-                    def _parse_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                    def _parse_output_type_3_item(data: object) -> FileContentPart | TextContentPart:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -790,8 +846,15 @@ class ExtendedAgentSpanRecordWithChildren:
                 return output_type_3
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ControlResult.from_dict(data)
+
+            except:  # noqa: E722
+                pass
             return cast(
-                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str | Unset,
                 data,
             )
 
@@ -799,7 +862,7 @@ class ExtendedAgentSpanRecordWithChildren:
 
         def _parse_redacted_output(
             data: object,
-        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        ) -> ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -831,7 +894,7 @@ class ExtendedAgentSpanRecordWithChildren:
                 _redacted_output_type_3 = data
                 for redacted_output_type_3_item_data in _redacted_output_type_3:
 
-                    def _parse_redacted_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                    def _parse_redacted_output_type_3_item(data: object) -> FileContentPart | TextContentPart:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -850,8 +913,15 @@ class ExtendedAgentSpanRecordWithChildren:
                 return redacted_output_type_3
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ControlResult.from_dict(data)
+
+            except:  # noqa: E722
+                pass
             return cast(
-                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str | Unset,
                 data,
             )
 
@@ -860,11 +930,11 @@ class ExtendedAgentSpanRecordWithChildren:
         name = d.pop("name", UNSET)
 
         _created_at = d.pop("created_at", UNSET)
-        created_at: Union[Unset, datetime.datetime]
+        created_at: datetime.datetime | Unset
         created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
-        user_metadata: Union[Unset, ExtendedAgentSpanRecordWithChildrenUserMetadata]
+        user_metadata: ExtendedAgentSpanRecordWithChildrenUserMetadata | Unset
         if isinstance(_user_metadata, Unset):
             user_metadata = UNSET
         else:
@@ -872,63 +942,63 @@ class ExtendedAgentSpanRecordWithChildren:
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
-        def _parse_status_code(data: object) -> Union[None, Unset, int]:
+        def _parse_status_code(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
         _metrics = d.pop("metrics", UNSET)
-        metrics: Union[Unset, Metrics]
+        metrics: Metrics | Unset
         metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
-        def _parse_external_id(data: object) -> Union[None, Unset, str]:
+        def _parse_external_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         external_id = _parse_external_id(d.pop("external_id", UNSET))
 
-        def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
+        def _parse_dataset_input(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
 
-        def _parse_dataset_output(data: object) -> Union[None, Unset, str]:
+        def _parse_dataset_output(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
 
         _dataset_metadata = d.pop("dataset_metadata", UNSET)
-        dataset_metadata: Union[Unset, ExtendedAgentSpanRecordWithChildrenDatasetMetadata]
+        dataset_metadata: ExtendedAgentSpanRecordWithChildrenDatasetMetadata | Unset
         if isinstance(_dataset_metadata, Unset):
             dataset_metadata = UNSET
         else:
             dataset_metadata = ExtendedAgentSpanRecordWithChildrenDatasetMetadata.from_dict(_dataset_metadata)
 
-        def _parse_trace_id(data: object) -> Union[None, Unset, str]:
+        def _parse_trace_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
 
-        def _parse_updated_at(data: object) -> Union[None, Unset, datetime.datetime]:
+        def _parse_updated_at(data: object) -> datetime.datetime | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -940,39 +1010,39 @@ class ExtendedAgentSpanRecordWithChildren:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, datetime.datetime], data)
+            return cast(datetime.datetime | None | Unset, data)
 
         updated_at = _parse_updated_at(d.pop("updated_at", UNSET))
 
-        def _parse_has_children(data: object) -> Union[None, Unset, bool]:
+        def _parse_has_children(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
 
-        def _parse_metrics_batch_id(data: object) -> Union[None, Unset, str]:
+        def _parse_metrics_batch_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         metrics_batch_id = _parse_metrics_batch_id(d.pop("metrics_batch_id", UNSET))
 
-        def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
+        def _parse_session_batch_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
         _feedback_rating_info = d.pop("feedback_rating_info", UNSET)
-        feedback_rating_info: Union[Unset, ExtendedAgentSpanRecordWithChildrenFeedbackRatingInfo]
+        feedback_rating_info: ExtendedAgentSpanRecordWithChildrenFeedbackRatingInfo | Unset
         if isinstance(_feedback_rating_info, Unset):
             feedback_rating_info = UNSET
         else:
@@ -981,7 +1051,7 @@ class ExtendedAgentSpanRecordWithChildren:
             )
 
         _annotations = d.pop("annotations", UNSET)
-        annotations: Union[Unset, ExtendedAgentSpanRecordWithChildrenAnnotations]
+        annotations: ExtendedAgentSpanRecordWithChildrenAnnotations | Unset
         if isinstance(_annotations, Unset):
             annotations = UNSET
         else:
@@ -989,15 +1059,17 @@ class ExtendedAgentSpanRecordWithChildren:
 
         file_ids = cast(list[str], d.pop("file_ids", UNSET))
 
-        file_modalities = []
         _file_modalities = d.pop("file_modalities", UNSET)
-        for file_modalities_item_data in _file_modalities or []:
-            file_modalities_item = ContentModality(file_modalities_item_data)
+        file_modalities: list[ContentModality] | Unset = UNSET
+        if _file_modalities is not UNSET:
+            file_modalities = []
+            for file_modalities_item_data in _file_modalities:
+                file_modalities_item = ContentModality(file_modalities_item_data)
 
-            file_modalities.append(file_modalities_item)
+                file_modalities.append(file_modalities_item)
 
         _annotation_aggregates = d.pop("annotation_aggregates", UNSET)
-        annotation_aggregates: Union[Unset, ExtendedAgentSpanRecordWithChildrenAnnotationAggregates]
+        annotation_aggregates: ExtendedAgentSpanRecordWithChildrenAnnotationAggregates | Unset
         if isinstance(_annotation_aggregates, Unset):
             annotation_aggregates = UNSET
         else:
@@ -1005,11 +1077,27 @@ class ExtendedAgentSpanRecordWithChildren:
                 _annotation_aggregates
             )
 
+        _annotation_agreement = d.pop("annotation_agreement", UNSET)
+        annotation_agreement: ExtendedAgentSpanRecordWithChildrenAnnotationAgreement | Unset
+        if isinstance(_annotation_agreement, Unset):
+            annotation_agreement = UNSET
+        else:
+            annotation_agreement = ExtendedAgentSpanRecordWithChildrenAnnotationAgreement.from_dict(
+                _annotation_agreement
+            )
+
+        _overall_annotation_agreement = d.pop("overall_annotation_agreement", UNSET)
+        overall_annotation_agreement: ExtendedAgentSpanRecordWithChildrenOverallAnnotationAgreement | Unset
+        if isinstance(_overall_annotation_agreement, Unset):
+            overall_annotation_agreement = UNSET
+        else:
+            overall_annotation_agreement = ExtendedAgentSpanRecordWithChildrenOverallAnnotationAgreement.from_dict(
+                _overall_annotation_agreement
+            )
+
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
 
-        def _parse_metric_info(
-            data: object,
-        ) -> Union["ExtendedAgentSpanRecordWithChildrenMetricInfoType0", None, Unset]:
+        def _parse_metric_info(data: object) -> ExtendedAgentSpanRecordWithChildrenMetricInfoType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1077,11 +1165,11 @@ class ExtendedAgentSpanRecordWithChildren:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["ExtendedAgentSpanRecordWithChildrenMetricInfoType0", None, Unset], data)
+            return cast(ExtendedAgentSpanRecordWithChildrenMetricInfoType0 | None | Unset, data)
 
         metric_info = _parse_metric_info(d.pop("metric_info", UNSET))
 
-        def _parse_files(data: object) -> Union["ExtendedAgentSpanRecordWithChildrenFilesType0", None, Unset]:
+        def _parse_files(data: object) -> ExtendedAgentSpanRecordWithChildrenFilesType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1149,23 +1237,23 @@ class ExtendedAgentSpanRecordWithChildren:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["ExtendedAgentSpanRecordWithChildrenFilesType0", None, Unset], data)
+            return cast(ExtendedAgentSpanRecordWithChildrenFilesType0 | None | Unset, data)
 
         files = _parse_files(d.pop("files", UNSET))
 
         is_complete = d.pop("is_complete", UNSET)
 
-        def _parse_step_number(data: object) -> Union[None, Unset, int]:
+        def _parse_step_number(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         step_number = _parse_step_number(d.pop("step_number", UNSET))
 
         _agent_type = d.pop("agent_type", UNSET)
-        agent_type: Union[Unset, AgentType]
+        agent_type: AgentType | Unset
         agent_type = UNSET if isinstance(_agent_type, Unset) else AgentType(_agent_type)
 
         extended_agent_span_record_with_children = cls(
@@ -1200,6 +1288,8 @@ class ExtendedAgentSpanRecordWithChildren:
             file_ids=file_ids,
             file_modalities=file_modalities,
             annotation_aggregates=annotation_aggregates,
+            annotation_agreement=annotation_agreement,
+            overall_annotation_agreement=overall_annotation_agreement,
             annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
             files=files,

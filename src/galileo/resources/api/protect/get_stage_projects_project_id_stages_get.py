@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -23,17 +23,17 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    project_id: str, *, stage_name: Union[None, Unset, str] = UNSET, stage_id: Union[None, Unset, str] = UNSET
+    project_id: str, *, stage_name: None | str | Unset = UNSET, stage_id: None | str | Unset = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_stage_name: Union[None, Unset, str]
+    json_stage_name: None | str | Unset
     json_stage_name = UNSET if isinstance(stage_name, Unset) else stage_name
     params["stage_name"] = json_stage_name
 
-    json_stage_id: Union[None, Unset, str]
+    json_stage_id: None | str | Unset
     json_stage_id = UNSET if isinstance(stage_id, Unset) else stage_id
     params["stage_id"] = json_stage_id
 
@@ -52,7 +52,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, StageDB]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | StageDB:
     if response.status_code == 200:
         return StageDB.from_dict(response.json())
 
@@ -77,7 +77,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, StageDB]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | StageDB]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -87,18 +87,14 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(
-    project_id: str,
-    *,
-    client: ApiClient,
-    stage_name: Union[None, Unset, str] = UNSET,
-    stage_id: Union[None, Unset, str] = UNSET,
-) -> Response[Union[HTTPValidationError, StageDB]]:
+    project_id: str, *, client: ApiClient, stage_name: None | str | Unset = UNSET, stage_id: None | str | Unset = UNSET
+) -> Response[HTTPValidationError | StageDB]:
     """Get Stage.
 
     Args:
         project_id (str):
-        stage_name (Union[None, Unset, str]):
-        stage_id (Union[None, Unset, str]):
+        stage_name (None | str | Unset):
+        stage_id (None | str | Unset):
 
     Raises
     ------
@@ -107,7 +103,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, StageDB]]
+        Response[HTTPValidationError | StageDB]
     """
     kwargs = _get_kwargs(project_id=project_id, stage_name=stage_name, stage_id=stage_id)
 
@@ -117,18 +113,14 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str,
-    *,
-    client: ApiClient,
-    stage_name: Union[None, Unset, str] = UNSET,
-    stage_id: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[HTTPValidationError, StageDB]]:
+    project_id: str, *, client: ApiClient, stage_name: None | str | Unset = UNSET, stage_id: None | str | Unset = UNSET
+) -> HTTPValidationError | StageDB | None:
     """Get Stage.
 
     Args:
         project_id (str):
-        stage_name (Union[None, Unset, str]):
-        stage_id (Union[None, Unset, str]):
+        stage_name (None | str | Unset):
+        stage_id (None | str | Unset):
 
     Raises
     ------
@@ -137,24 +129,20 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, StageDB]
+        HTTPValidationError | StageDB
     """
     return sync_detailed(project_id=project_id, client=client, stage_name=stage_name, stage_id=stage_id).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    *,
-    client: ApiClient,
-    stage_name: Union[None, Unset, str] = UNSET,
-    stage_id: Union[None, Unset, str] = UNSET,
-) -> Response[Union[HTTPValidationError, StageDB]]:
+    project_id: str, *, client: ApiClient, stage_name: None | str | Unset = UNSET, stage_id: None | str | Unset = UNSET
+) -> Response[HTTPValidationError | StageDB]:
     """Get Stage.
 
     Args:
         project_id (str):
-        stage_name (Union[None, Unset, str]):
-        stage_id (Union[None, Unset, str]):
+        stage_name (None | str | Unset):
+        stage_id (None | str | Unset):
 
     Raises
     ------
@@ -163,7 +151,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, StageDB]]
+        Response[HTTPValidationError | StageDB]
     """
     kwargs = _get_kwargs(project_id=project_id, stage_name=stage_name, stage_id=stage_id)
 
@@ -173,18 +161,14 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    *,
-    client: ApiClient,
-    stage_name: Union[None, Unset, str] = UNSET,
-    stage_id: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[HTTPValidationError, StageDB]]:
+    project_id: str, *, client: ApiClient, stage_name: None | str | Unset = UNSET, stage_id: None | str | Unset = UNSET
+) -> HTTPValidationError | StageDB | None:
     """Get Stage.
 
     Args:
         project_id (str):
-        stage_name (Union[None, Unset, str]):
-        stage_id (Union[None, Unset, str]):
+        stage_name (None | str | Unset):
+        stage_id (None | str | Unset):
 
     Raises
     ------
@@ -193,7 +177,7 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, StageDB]
+        HTTPValidationError | StageDB
     """
     return (
         await asyncio_detailed(project_id=project_id, client=client, stage_name=stage_name, stage_id=stage_id)

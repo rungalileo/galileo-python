@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -37,7 +37,7 @@ def _get_kwargs(dataset_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, JobProgress]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | JobProgress:
     if response.status_code == 200:
         return JobProgress.from_dict(response.json())
 
@@ -62,9 +62,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, JobProgress]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | JobProgress]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -73,7 +71,7 @@ def _build_response(
     )
 
 
-def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[Union[HTTPValidationError, JobProgress]]:
+def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[HTTPValidationError | JobProgress]:
     """Get Dataset Synthetic Extend Status.
 
     Args:
@@ -86,7 +84,7 @@ def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[Union[HTTPV
 
     Returns
     -------
-        Response[Union[HTTPValidationError, JobProgress]]
+        Response[HTTPValidationError | JobProgress]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id)
 
@@ -95,7 +93,7 @@ def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[Union[HTTPV
     return _build_response(client=client, response=response)
 
 
-def sync(dataset_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, JobProgress]]:
+def sync(dataset_id: str, *, client: ApiClient) -> HTTPValidationError | JobProgress | None:
     """Get Dataset Synthetic Extend Status.
 
     Args:
@@ -108,12 +106,12 @@ def sync(dataset_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidation
 
     Returns
     -------
-        Union[HTTPValidationError, JobProgress]
+        HTTPValidationError | JobProgress
     """
     return sync_detailed(dataset_id=dataset_id, client=client).parsed
 
 
-async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[Union[HTTPValidationError, JobProgress]]:
+async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[HTTPValidationError | JobProgress]:
     """Get Dataset Synthetic Extend Status.
 
     Args:
@@ -126,7 +124,7 @@ async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[Un
 
     Returns
     -------
-        Response[Union[HTTPValidationError, JobProgress]]
+        Response[HTTPValidationError | JobProgress]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id)
 
@@ -135,7 +133,7 @@ async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[Un
     return _build_response(client=client, response=response)
 
 
-async def asyncio(dataset_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, JobProgress]]:
+async def asyncio(dataset_id: str, *, client: ApiClient) -> HTTPValidationError | JobProgress | None:
     """Get Dataset Synthetic Extend Status.
 
     Args:
@@ -148,6 +146,6 @@ async def asyncio(dataset_id: str, *, client: ApiClient) -> Optional[Union[HTTPV
 
     Returns
     -------
-        Union[HTTPValidationError, JobProgress]
+        HTTPValidationError | JobProgress
     """
     return (await asyncio_detailed(dataset_id=dataset_id, client=client)).parsed

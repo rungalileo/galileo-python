@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -24,7 +24,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *, body: ListScorersRequest, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    *, body: ListScorersRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -53,7 +53,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, ListScorersResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ListScorersResponse:
     if response.status_code == 200:
         return ListScorersResponse.from_dict(response.json())
 
@@ -80,7 +80,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
+) -> Response[HTTPValidationError | ListScorersResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -90,17 +90,13 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: ApiClient,
-    body: ListScorersRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
+    *, client: ApiClient, body: ListScorersRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+) -> Response[HTTPValidationError | ListScorersResponse]:
     """List Scorers With Filters.
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
         body (ListScorersRequest):
 
     Raises
@@ -110,7 +106,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, ListScorersResponse]]
+        Response[HTTPValidationError | ListScorersResponse]
     """
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
@@ -120,17 +116,13 @@ def sync_detailed(
 
 
 def sync(
-    *,
-    client: ApiClient,
-    body: ListScorersRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
+    *, client: ApiClient, body: ListScorersRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+) -> HTTPValidationError | ListScorersResponse | None:
     """List Scorers With Filters.
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
         body (ListScorersRequest):
 
     Raises
@@ -140,23 +132,19 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, ListScorersResponse]
+        HTTPValidationError | ListScorersResponse
     """
     return sync_detailed(client=client, body=body, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: ApiClient,
-    body: ListScorersRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
+    *, client: ApiClient, body: ListScorersRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+) -> Response[HTTPValidationError | ListScorersResponse]:
     """List Scorers With Filters.
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
         body (ListScorersRequest):
 
     Raises
@@ -166,7 +154,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, ListScorersResponse]]
+        Response[HTTPValidationError | ListScorersResponse]
     """
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
@@ -176,17 +164,13 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: ApiClient,
-    body: ListScorersRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
+    *, client: ApiClient, body: ListScorersRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+) -> HTTPValidationError | ListScorersResponse | None:
     """List Scorers With Filters.
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
         body (ListScorersRequest):
 
     Raises
@@ -196,6 +180,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, ListScorersResponse]
+        HTTPValidationError | ListScorersResponse
     """
     return (await asyncio_detailed(client=client, body=body, starting_token=starting_token, limit=limit)).parsed

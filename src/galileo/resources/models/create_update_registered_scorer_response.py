@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,22 +20,22 @@ class CreateUpdateRegisteredScorerResponse:
     ----------
         id (str):
         name (str):
-        score_type (Union[None, str]):
+        score_type (None | str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         created_by (str):
-        data_type (Union[DataTypeOptions, None]):
-        scoreable_node_types (Union[None, list[str]]):
+        data_type (DataTypeOptions | None):
+        scoreable_node_types (list[str] | None):
     """
 
     id: str
     name: str
-    score_type: Union[None, str]
+    score_type: None | str
     created_at: datetime.datetime
     updated_at: datetime.datetime
     created_by: str
-    data_type: Union[DataTypeOptions, None]
-    scoreable_node_types: Union[None, list[str]]
+    data_type: DataTypeOptions | None
+    scoreable_node_types: list[str] | None
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,7 +43,7 @@ class CreateUpdateRegisteredScorerResponse:
 
         name = self.name
 
-        score_type: Union[None, str]
+        score_type: None | str
         score_type = self.score_type
 
         created_at = self.created_at.isoformat()
@@ -50,10 +52,10 @@ class CreateUpdateRegisteredScorerResponse:
 
         created_by = self.created_by
 
-        data_type: Union[None, str]
+        data_type: None | str
         data_type = self.data_type.value if isinstance(self.data_type, DataTypeOptions) else self.data_type
 
-        scoreable_node_types: Union[None, list[str]]
+        scoreable_node_types: list[str] | None
         if isinstance(self.scoreable_node_types, list):
             scoreable_node_types = self.scoreable_node_types
 
@@ -84,10 +86,10 @@ class CreateUpdateRegisteredScorerResponse:
 
         name = d.pop("name")
 
-        def _parse_score_type(data: object) -> Union[None, str]:
+        def _parse_score_type(data: object) -> None | str:
             if data is None:
                 return data
-            return cast(Union[None, str], data)
+            return cast(None | str, data)
 
         score_type = _parse_score_type(d.pop("score_type"))
 
@@ -97,7 +99,7 @@ class CreateUpdateRegisteredScorerResponse:
 
         created_by = d.pop("created_by")
 
-        def _parse_data_type(data: object) -> Union[DataTypeOptions, None]:
+        def _parse_data_type(data: object) -> DataTypeOptions | None:
             if data is None:
                 return data
             try:
@@ -107,11 +109,11 @@ class CreateUpdateRegisteredScorerResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[DataTypeOptions, None], data)
+            return cast(DataTypeOptions | None, data)
 
         data_type = _parse_data_type(d.pop("data_type"))
 
-        def _parse_scoreable_node_types(data: object) -> Union[None, list[str]]:
+        def _parse_scoreable_node_types(data: object) -> list[str] | None:
             if data is None:
                 return data
             try:
@@ -121,7 +123,7 @@ class CreateUpdateRegisteredScorerResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, list[str]], data)
+            return cast(list[str] | None, data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types"))
 

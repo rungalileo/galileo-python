@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -43,88 +45,88 @@ class CustomizedToolSelectionQualityGPTScorer:
     """
     Attributes
     ----------
-        scorer_name (Union[Literal['_customized_tool_selection_quality'], Unset]):  Default:
+        scorer_name (Literal['_customized_tool_selection_quality'] | Unset):  Default:
             '_customized_tool_selection_quality'.
-        model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.
-        num_judges (Union[Unset, int]):  Default: 3.
-        name (Union[Literal['tool_selection_quality'], Unset]):  Default: 'tool_selection_quality'.
-        scores (Union[None, Unset, list[Any]]):
-        indices (Union[None, Unset, list[int]]):
-        aggregates (Union['CustomizedToolSelectionQualityGPTScorerAggregatesType0', None, Unset]):
-        aggregate_keys (Union[Unset, list[str]]):
-        extra (Union['CustomizedToolSelectionQualityGPTScorerExtraType0', None, Unset]):
-        sub_scorers (Union[Unset, list[ScorerName]]):
-        filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]):
-        metric_name (Union[None, Unset, str]):
-        description (Union[None, Unset, str]):
-        chainpoll_template (Union[Unset, ToolSelectionQualityTemplate]): Template for the tool selection quality metric,
+        model_alias (str | Unset):  Default: 'gpt-4.1-mini'.
+        num_judges (int | Unset):  Default: 3.
+        name (Literal['tool_selection_quality'] | Unset):  Default: 'tool_selection_quality'.
+        scores (list[Any] | None | Unset):
+        indices (list[int] | None | Unset):
+        aggregates (CustomizedToolSelectionQualityGPTScorerAggregatesType0 | None | Unset):
+        aggregate_keys (list[str] | Unset):
+        extra (CustomizedToolSelectionQualityGPTScorerExtraType0 | None | Unset):
+        sub_scorers (list[ScorerName] | Unset):
+        filters (list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset):
+        metric_name (None | str | Unset):
+        description (None | str | Unset):
+        chainpoll_template (ToolSelectionQualityTemplate | Unset): Template for the tool selection quality metric,
             containing all the info necessary to send the tool selection quality prompt.
-        default_model_alias (Union[None, Unset, str]):
-        ground_truth (Union[None, Unset, bool]):
-        regex_field (Union[Unset, str]):  Default: ''.
-        registered_scorer_id (Union[None, Unset, str]):
-        generated_scorer_id (Union[None, Unset, str]):
-        scorer_version_id (Union[None, Unset, str]):
-        user_code (Union[None, Unset, str]):
-        can_copy_to_llm (Union[None, Unset, bool]):
-        scoreable_node_types (Union[None, Unset, list[NodeType]]):
-        cot_enabled (Union[None, Unset, bool]):
-        output_type (Union[None, OutputTypeEnum, Unset]):
-        input_type (Union[InputTypeEnum, None, Unset]):
-        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
-        required_scorers (Union[None, Unset, list[str]]):
-        roll_up_strategy (Union[None, RollUpStrategy, Unset]):
-        roll_up_methods (Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]]):
-        prompt (Union[None, Unset, str]):
-        lora_task_id (Union[None, Unset, int]):
-        lora_weights_path (Union[None, Unset, str]):
-        luna_input_type (Union[LunaInputTypeEnum, None, Unset]):
-        luna_output_type (Union[LunaOutputTypeEnum, None, Unset]):
-        class_name_to_vocab_ix (Union['CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0',
-            'CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1', None, Unset]):
+        default_model_alias (None | str | Unset):
+        ground_truth (bool | None | Unset):
+        regex_field (str | Unset):  Default: ''.
+        registered_scorer_id (None | str | Unset):
+        generated_scorer_id (None | str | Unset):
+        scorer_version_id (None | str | Unset):
+        user_code (None | str | Unset):
+        can_copy_to_llm (bool | None | Unset):
+        scoreable_node_types (list[NodeType] | None | Unset):
+        cot_enabled (bool | None | Unset):
+        output_type (None | OutputTypeEnum | Unset):
+        input_type (InputTypeEnum | None | Unset):
+        multimodal_capabilities (list[MultimodalCapability] | None | Unset):
+        required_scorers (list[str] | None | Unset):
+        roll_up_strategy (None | RollUpStrategy | Unset):
+        roll_up_methods (list[CategoricalRollUpMethod] | list[NumericRollUpMethod] | None | Unset):
+        prompt (None | str | Unset):
+        lora_task_id (int | None | Unset):
+        lora_weights_path (None | str | Unset):
+        luna_input_type (LunaInputTypeEnum | None | Unset):
+        luna_output_type (LunaOutputTypeEnum | None | Unset):
+        class_name_to_vocab_ix (CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0 |
+            CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1 | None | Unset):
     """
 
-    scorer_name: Union[Literal["_customized_tool_selection_quality"], Unset] = "_customized_tool_selection_quality"
-    model_alias: Union[Unset, str] = "gpt-4.1-mini"
-    num_judges: Union[Unset, int] = 3
-    name: Union[Literal["tool_selection_quality"], Unset] = "tool_selection_quality"
-    scores: Union[None, Unset, list[Any]] = UNSET
-    indices: Union[None, Unset, list[int]] = UNSET
-    aggregates: Union["CustomizedToolSelectionQualityGPTScorerAggregatesType0", None, Unset] = UNSET
-    aggregate_keys: Union[Unset, list[str]] = UNSET
-    extra: Union["CustomizedToolSelectionQualityGPTScorerExtraType0", None, Unset] = UNSET
-    sub_scorers: Union[Unset, list[ScorerName]] = UNSET
-    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
-    metric_name: Union[None, Unset, str] = UNSET
-    description: Union[None, Unset, str] = UNSET
-    chainpoll_template: Union[Unset, "ToolSelectionQualityTemplate"] = UNSET
-    default_model_alias: Union[None, Unset, str] = UNSET
-    ground_truth: Union[None, Unset, bool] = UNSET
-    regex_field: Union[Unset, str] = ""
-    registered_scorer_id: Union[None, Unset, str] = UNSET
-    generated_scorer_id: Union[None, Unset, str] = UNSET
-    scorer_version_id: Union[None, Unset, str] = UNSET
-    user_code: Union[None, Unset, str] = UNSET
-    can_copy_to_llm: Union[None, Unset, bool] = UNSET
-    scoreable_node_types: Union[None, Unset, list[NodeType]] = UNSET
-    cot_enabled: Union[None, Unset, bool] = UNSET
-    output_type: Union[None, OutputTypeEnum, Unset] = UNSET
-    input_type: Union[InputTypeEnum, None, Unset] = UNSET
-    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
-    required_scorers: Union[None, Unset, list[str]] = UNSET
-    roll_up_strategy: Union[None, RollUpStrategy, Unset] = UNSET
-    roll_up_methods: Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]] = UNSET
-    prompt: Union[None, Unset, str] = UNSET
-    lora_task_id: Union[None, Unset, int] = UNSET
-    lora_weights_path: Union[None, Unset, str] = UNSET
-    luna_input_type: Union[LunaInputTypeEnum, None, Unset] = UNSET
-    luna_output_type: Union[LunaOutputTypeEnum, None, Unset] = UNSET
-    class_name_to_vocab_ix: Union[
-        "CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0",
-        "CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1",
-        None,
-        Unset,
-    ] = UNSET
+    scorer_name: Literal["_customized_tool_selection_quality"] | Unset = "_customized_tool_selection_quality"
+    model_alias: str | Unset = "gpt-4.1-mini"
+    num_judges: int | Unset = 3
+    name: Literal["tool_selection_quality"] | Unset = "tool_selection_quality"
+    scores: list[Any] | None | Unset = UNSET
+    indices: list[int] | None | Unset = UNSET
+    aggregates: CustomizedToolSelectionQualityGPTScorerAggregatesType0 | None | Unset = UNSET
+    aggregate_keys: list[str] | Unset = UNSET
+    extra: CustomizedToolSelectionQualityGPTScorerExtraType0 | None | Unset = UNSET
+    sub_scorers: list[ScorerName] | Unset = UNSET
+    filters: list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset = UNSET
+    metric_name: None | str | Unset = UNSET
+    description: None | str | Unset = UNSET
+    chainpoll_template: ToolSelectionQualityTemplate | Unset = UNSET
+    default_model_alias: None | str | Unset = UNSET
+    ground_truth: bool | None | Unset = UNSET
+    regex_field: str | Unset = ""
+    registered_scorer_id: None | str | Unset = UNSET
+    generated_scorer_id: None | str | Unset = UNSET
+    scorer_version_id: None | str | Unset = UNSET
+    user_code: None | str | Unset = UNSET
+    can_copy_to_llm: bool | None | Unset = UNSET
+    scoreable_node_types: list[NodeType] | None | Unset = UNSET
+    cot_enabled: bool | None | Unset = UNSET
+    output_type: None | OutputTypeEnum | Unset = UNSET
+    input_type: InputTypeEnum | None | Unset = UNSET
+    multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET
+    required_scorers: list[str] | None | Unset = UNSET
+    roll_up_strategy: None | RollUpStrategy | Unset = UNSET
+    roll_up_methods: list[CategoricalRollUpMethod] | list[NumericRollUpMethod] | None | Unset = UNSET
+    prompt: None | str | Unset = UNSET
+    lora_task_id: int | None | Unset = UNSET
+    lora_weights_path: None | str | Unset = UNSET
+    luna_input_type: LunaInputTypeEnum | None | Unset = UNSET
+    luna_output_type: LunaOutputTypeEnum | None | Unset = UNSET
+    class_name_to_vocab_ix: (
+        CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0
+        | CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1
+        | None
+        | Unset
+    ) = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -151,7 +153,7 @@ class CustomizedToolSelectionQualityGPTScorer:
 
         name = self.name
 
-        scores: Union[None, Unset, list[Any]]
+        scores: list[Any] | None | Unset
         if isinstance(self.scores, Unset):
             scores = UNSET
         elif isinstance(self.scores, list):
@@ -160,7 +162,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             scores = self.scores
 
-        indices: Union[None, Unset, list[int]]
+        indices: list[int] | None | Unset
         if isinstance(self.indices, Unset):
             indices = UNSET
         elif isinstance(self.indices, list):
@@ -169,7 +171,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             indices = self.indices
 
-        aggregates: Union[None, Unset, dict[str, Any]]
+        aggregates: dict[str, Any] | None | Unset
         if isinstance(self.aggregates, Unset):
             aggregates = UNSET
         elif isinstance(self.aggregates, CustomizedToolSelectionQualityGPTScorerAggregatesType0):
@@ -177,11 +179,11 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             aggregates = self.aggregates
 
-        aggregate_keys: Union[Unset, list[str]] = UNSET
+        aggregate_keys: list[str] | Unset = UNSET
         if not isinstance(self.aggregate_keys, Unset):
             aggregate_keys = self.aggregate_keys
 
-        extra: Union[None, Unset, dict[str, Any]]
+        extra: dict[str, Any] | None | Unset
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, CustomizedToolSelectionQualityGPTScorerExtraType0):
@@ -189,21 +191,21 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             extra = self.extra
 
-        sub_scorers: Union[Unset, list[str]] = UNSET
+        sub_scorers: list[str] | Unset = UNSET
         if not isinstance(self.sub_scorers, Unset):
             sub_scorers = []
             for sub_scorers_item_data in self.sub_scorers:
                 sub_scorers_item = sub_scorers_item_data.value
                 sub_scorers.append(sub_scorers_item)
 
-        filters: Union[None, Unset, list[dict[str, Any]]]
+        filters: list[dict[str, Any]] | None | Unset
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, (NodeNameFilter, MetadataFilter)):
+                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -213,40 +215,40 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             filters = self.filters
 
-        metric_name: Union[None, Unset, str]
+        metric_name: None | str | Unset
         metric_name = UNSET if isinstance(self.metric_name, Unset) else self.metric_name
 
-        description: Union[None, Unset, str]
+        description: None | str | Unset
         description = UNSET if isinstance(self.description, Unset) else self.description
 
-        chainpoll_template: Union[Unset, dict[str, Any]] = UNSET
+        chainpoll_template: dict[str, Any] | Unset = UNSET
         if not isinstance(self.chainpoll_template, Unset):
             chainpoll_template = self.chainpoll_template.to_dict()
 
-        default_model_alias: Union[None, Unset, str]
+        default_model_alias: None | str | Unset
         default_model_alias = UNSET if isinstance(self.default_model_alias, Unset) else self.default_model_alias
 
-        ground_truth: Union[None, Unset, bool]
+        ground_truth: bool | None | Unset
         ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
 
         regex_field = self.regex_field
 
-        registered_scorer_id: Union[None, Unset, str]
+        registered_scorer_id: None | str | Unset
         registered_scorer_id = UNSET if isinstance(self.registered_scorer_id, Unset) else self.registered_scorer_id
 
-        generated_scorer_id: Union[None, Unset, str]
+        generated_scorer_id: None | str | Unset
         generated_scorer_id = UNSET if isinstance(self.generated_scorer_id, Unset) else self.generated_scorer_id
 
-        scorer_version_id: Union[None, Unset, str]
+        scorer_version_id: None | str | Unset
         scorer_version_id = UNSET if isinstance(self.scorer_version_id, Unset) else self.scorer_version_id
 
-        user_code: Union[None, Unset, str]
+        user_code: None | str | Unset
         user_code = UNSET if isinstance(self.user_code, Unset) else self.user_code
 
-        can_copy_to_llm: Union[None, Unset, bool]
+        can_copy_to_llm: bool | None | Unset
         can_copy_to_llm = UNSET if isinstance(self.can_copy_to_llm, Unset) else self.can_copy_to_llm
 
-        scoreable_node_types: Union[None, Unset, list[str]]
+        scoreable_node_types: list[str] | None | Unset
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
         elif isinstance(self.scoreable_node_types, list):
@@ -258,10 +260,10 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             scoreable_node_types = self.scoreable_node_types
 
-        cot_enabled: Union[None, Unset, bool]
+        cot_enabled: bool | None | Unset
         cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
-        output_type: Union[None, Unset, str]
+        output_type: None | str | Unset
         if isinstance(self.output_type, Unset):
             output_type = UNSET
         elif isinstance(self.output_type, OutputTypeEnum):
@@ -269,7 +271,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             output_type = self.output_type
 
-        input_type: Union[None, Unset, str]
+        input_type: None | str | Unset
         if isinstance(self.input_type, Unset):
             input_type = UNSET
         elif isinstance(self.input_type, InputTypeEnum):
@@ -277,7 +279,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             input_type = self.input_type
 
-        multimodal_capabilities: Union[None, Unset, list[str]]
+        multimodal_capabilities: list[str] | None | Unset
         if isinstance(self.multimodal_capabilities, Unset):
             multimodal_capabilities = UNSET
         elif isinstance(self.multimodal_capabilities, list):
@@ -289,7 +291,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             multimodal_capabilities = self.multimodal_capabilities
 
-        required_scorers: Union[None, Unset, list[str]]
+        required_scorers: list[str] | None | Unset
         if isinstance(self.required_scorers, Unset):
             required_scorers = UNSET
         elif isinstance(self.required_scorers, list):
@@ -298,7 +300,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             required_scorers = self.required_scorers
 
-        roll_up_strategy: Union[None, Unset, str]
+        roll_up_strategy: None | str | Unset
         if isinstance(self.roll_up_strategy, Unset):
             roll_up_strategy = UNSET
         elif isinstance(self.roll_up_strategy, RollUpStrategy):
@@ -306,7 +308,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             roll_up_strategy = self.roll_up_strategy
 
-        roll_up_methods: Union[None, Unset, list[str]]
+        roll_up_methods: list[str] | None | Unset
         if isinstance(self.roll_up_methods, Unset):
             roll_up_methods = UNSET
         elif isinstance(self.roll_up_methods, list):
@@ -324,16 +326,16 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             roll_up_methods = self.roll_up_methods
 
-        prompt: Union[None, Unset, str]
+        prompt: None | str | Unset
         prompt = UNSET if isinstance(self.prompt, Unset) else self.prompt
 
-        lora_task_id: Union[None, Unset, int]
+        lora_task_id: int | None | Unset
         lora_task_id = UNSET if isinstance(self.lora_task_id, Unset) else self.lora_task_id
 
-        lora_weights_path: Union[None, Unset, str]
+        lora_weights_path: None | str | Unset
         lora_weights_path = UNSET if isinstance(self.lora_weights_path, Unset) else self.lora_weights_path
 
-        luna_input_type: Union[None, Unset, str]
+        luna_input_type: None | str | Unset
         if isinstance(self.luna_input_type, Unset):
             luna_input_type = UNSET
         elif isinstance(self.luna_input_type, LunaInputTypeEnum):
@@ -341,7 +343,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             luna_input_type = self.luna_input_type
 
-        luna_output_type: Union[None, Unset, str]
+        luna_output_type: None | str | Unset
         if isinstance(self.luna_output_type, Unset):
             luna_output_type = UNSET
         elif isinstance(self.luna_output_type, LunaOutputTypeEnum):
@@ -349,15 +351,13 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             luna_output_type = self.luna_output_type
 
-        class_name_to_vocab_ix: Union[None, Unset, dict[str, Any]]
+        class_name_to_vocab_ix: dict[str, Any] | None | Unset
         if isinstance(self.class_name_to_vocab_ix, Unset):
             class_name_to_vocab_ix = UNSET
         elif isinstance(
             self.class_name_to_vocab_ix,
-            (
-                CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0,
-                CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1,
-            ),
+            CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0
+            | CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1,
         ):
             class_name_to_vocab_ix = self.class_name_to_vocab_ix.to_dict()
         else:
@@ -461,7 +461,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         from ..models.tool_selection_quality_template import ToolSelectionQualityTemplate
 
         d = dict(src_dict)
-        scorer_name = cast(Union[Literal["_customized_tool_selection_quality"], Unset], d.pop("scorer_name", UNSET))
+        scorer_name = cast(Literal["_customized_tool_selection_quality"] | Unset, d.pop("scorer_name", UNSET))
         if scorer_name != "_customized_tool_selection_quality" and not isinstance(scorer_name, Unset):
             raise ValueError(f"scorer_name must match const '_customized_tool_selection_quality', got '{scorer_name}'")
 
@@ -469,11 +469,11 @@ class CustomizedToolSelectionQualityGPTScorer:
 
         num_judges = d.pop("num_judges", UNSET)
 
-        name = cast(Union[Literal["tool_selection_quality"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["tool_selection_quality"] | Unset, d.pop("name", UNSET))
         if name != "tool_selection_quality" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'tool_selection_quality', got '{name}'")
 
-        def _parse_scores(data: object) -> Union[None, Unset, list[Any]]:
+        def _parse_scores(data: object) -> list[Any] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -485,11 +485,11 @@ class CustomizedToolSelectionQualityGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[Any]], data)
+            return cast(list[Any] | None | Unset, data)
 
         scores = _parse_scores(d.pop("scores", UNSET))
 
-        def _parse_indices(data: object) -> Union[None, Unset, list[int]]:
+        def _parse_indices(data: object) -> list[int] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -501,13 +501,11 @@ class CustomizedToolSelectionQualityGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[int]], data)
+            return cast(list[int] | None | Unset, data)
 
         indices = _parse_indices(d.pop("indices", UNSET))
 
-        def _parse_aggregates(
-            data: object,
-        ) -> Union["CustomizedToolSelectionQualityGPTScorerAggregatesType0", None, Unset]:
+        def _parse_aggregates(data: object) -> CustomizedToolSelectionQualityGPTScorerAggregatesType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -519,13 +517,13 @@ class CustomizedToolSelectionQualityGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["CustomizedToolSelectionQualityGPTScorerAggregatesType0", None, Unset], data)
+            return cast(CustomizedToolSelectionQualityGPTScorerAggregatesType0 | None | Unset, data)
 
         aggregates = _parse_aggregates(d.pop("aggregates", UNSET))
 
         aggregate_keys = cast(list[str], d.pop("aggregate_keys", UNSET))
 
-        def _parse_extra(data: object) -> Union["CustomizedToolSelectionQualityGPTScorerExtraType0", None, Unset]:
+        def _parse_extra(data: object) -> CustomizedToolSelectionQualityGPTScorerExtraType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -537,20 +535,20 @@ class CustomizedToolSelectionQualityGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["CustomizedToolSelectionQualityGPTScorerExtraType0", None, Unset], data)
+            return cast(CustomizedToolSelectionQualityGPTScorerExtraType0 | None | Unset, data)
 
         extra = _parse_extra(d.pop("extra", UNSET))
 
-        sub_scorers = []
         _sub_scorers = d.pop("sub_scorers", UNSET)
-        for sub_scorers_item_data in _sub_scorers or []:
-            sub_scorers_item = ScorerName(sub_scorers_item_data)
+        sub_scorers: list[ScorerName] | Unset = UNSET
+        if _sub_scorers is not UNSET:
+            sub_scorers = []
+            for sub_scorers_item_data in _sub_scorers:
+                sub_scorers_item = ScorerName(sub_scorers_item_data)
 
-            sub_scorers.append(sub_scorers_item)
+                sub_scorers.append(sub_scorers_item)
 
-        def _parse_filters(
-            data: object,
-        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
+        def _parse_filters(data: object) -> list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -562,9 +560,7 @@ class CustomizedToolSelectionQualityGPTScorer:
                 _filters_type_0 = data
                 for filters_type_0_item_data in _filters_type_0:
 
-                    def _parse_filters_type_0_item(
-                        data: object,
-                    ) -> Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]:
+                    def _parse_filters_type_0_item(data: object) -> MetadataFilter | ModalityFilter | NodeNameFilter:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -590,101 +586,101 @@ class CustomizedToolSelectionQualityGPTScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
+            return cast(list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset, data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
-        def _parse_metric_name(data: object) -> Union[None, Unset, str]:
+        def _parse_metric_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         metric_name = _parse_metric_name(d.pop("metric_name", UNSET))
 
-        def _parse_description(data: object) -> Union[None, Unset, str]:
+        def _parse_description(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         description = _parse_description(d.pop("description", UNSET))
 
         _chainpoll_template = d.pop("chainpoll_template", UNSET)
-        chainpoll_template: Union[Unset, ToolSelectionQualityTemplate]
+        chainpoll_template: ToolSelectionQualityTemplate | Unset
         if isinstance(_chainpoll_template, Unset):
             chainpoll_template = UNSET
         else:
             chainpoll_template = ToolSelectionQualityTemplate.from_dict(_chainpoll_template)
 
-        def _parse_default_model_alias(data: object) -> Union[None, Unset, str]:
+        def _parse_default_model_alias(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         default_model_alias = _parse_default_model_alias(d.pop("default_model_alias", UNSET))
 
-        def _parse_ground_truth(data: object) -> Union[None, Unset, bool]:
+        def _parse_ground_truth(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         ground_truth = _parse_ground_truth(d.pop("ground_truth", UNSET))
 
         regex_field = d.pop("regex_field", UNSET)
 
-        def _parse_registered_scorer_id(data: object) -> Union[None, Unset, str]:
+        def _parse_registered_scorer_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         registered_scorer_id = _parse_registered_scorer_id(d.pop("registered_scorer_id", UNSET))
 
-        def _parse_generated_scorer_id(data: object) -> Union[None, Unset, str]:
+        def _parse_generated_scorer_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         generated_scorer_id = _parse_generated_scorer_id(d.pop("generated_scorer_id", UNSET))
 
-        def _parse_scorer_version_id(data: object) -> Union[None, Unset, str]:
+        def _parse_scorer_version_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         scorer_version_id = _parse_scorer_version_id(d.pop("scorer_version_id", UNSET))
 
-        def _parse_user_code(data: object) -> Union[None, Unset, str]:
+        def _parse_user_code(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         user_code = _parse_user_code(d.pop("user_code", UNSET))
 
-        def _parse_can_copy_to_llm(data: object) -> Union[None, Unset, bool]:
+        def _parse_can_copy_to_llm(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         can_copy_to_llm = _parse_can_copy_to_llm(d.pop("can_copy_to_llm", UNSET))
 
-        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[NodeType]]:
+        def _parse_scoreable_node_types(data: object) -> list[NodeType] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -702,20 +698,20 @@ class CustomizedToolSelectionQualityGPTScorer:
                 return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[NodeType]], data)
+            return cast(list[NodeType] | None | Unset, data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
-        def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
+        def _parse_cot_enabled(data: object) -> bool | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(bool | None | Unset, data)
 
         cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
 
-        def _parse_output_type(data: object) -> Union[None, OutputTypeEnum, Unset]:
+        def _parse_output_type(data: object) -> None | OutputTypeEnum | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -727,11 +723,11 @@ class CustomizedToolSelectionQualityGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, OutputTypeEnum, Unset], data)
+            return cast(None | OutputTypeEnum | Unset, data)
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 
-        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
+        def _parse_input_type(data: object) -> InputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -743,11 +739,11 @@ class CustomizedToolSelectionQualityGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[InputTypeEnum, None, Unset], data)
+            return cast(InputTypeEnum | None | Unset, data)
 
         input_type = _parse_input_type(d.pop("input_type", UNSET))
 
-        def _parse_multimodal_capabilities(data: object) -> Union[None, Unset, list[MultimodalCapability]]:
+        def _parse_multimodal_capabilities(data: object) -> list[MultimodalCapability] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -765,11 +761,11 @@ class CustomizedToolSelectionQualityGPTScorer:
                 return multimodal_capabilities_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[MultimodalCapability]], data)
+            return cast(list[MultimodalCapability] | None | Unset, data)
 
         multimodal_capabilities = _parse_multimodal_capabilities(d.pop("multimodal_capabilities", UNSET))
 
-        def _parse_required_scorers(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_required_scorers(data: object) -> list[str] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -781,11 +777,11 @@ class CustomizedToolSelectionQualityGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(list[str] | None | Unset, data)
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
-        def _parse_roll_up_strategy(data: object) -> Union[None, RollUpStrategy, Unset]:
+        def _parse_roll_up_strategy(data: object) -> None | RollUpStrategy | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -797,13 +793,13 @@ class CustomizedToolSelectionQualityGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, RollUpStrategy, Unset], data)
+            return cast(None | RollUpStrategy | Unset, data)
 
         roll_up_strategy = _parse_roll_up_strategy(d.pop("roll_up_strategy", UNSET))
 
         def _parse_roll_up_methods(
             data: object,
-        ) -> Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]]:
+        ) -> list[CategoricalRollUpMethod] | list[NumericRollUpMethod] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -834,38 +830,38 @@ class CustomizedToolSelectionQualityGPTScorer:
                 return roll_up_methods_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]], data)
+            return cast(list[CategoricalRollUpMethod] | list[NumericRollUpMethod] | None | Unset, data)
 
         roll_up_methods = _parse_roll_up_methods(d.pop("roll_up_methods", UNSET))
 
-        def _parse_prompt(data: object) -> Union[None, Unset, str]:
+        def _parse_prompt(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         prompt = _parse_prompt(d.pop("prompt", UNSET))
 
-        def _parse_lora_task_id(data: object) -> Union[None, Unset, int]:
+        def _parse_lora_task_id(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(int | None | Unset, data)
 
         lora_task_id = _parse_lora_task_id(d.pop("lora_task_id", UNSET))
 
-        def _parse_lora_weights_path(data: object) -> Union[None, Unset, str]:
+        def _parse_lora_weights_path(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         lora_weights_path = _parse_lora_weights_path(d.pop("lora_weights_path", UNSET))
 
-        def _parse_luna_input_type(data: object) -> Union[LunaInputTypeEnum, None, Unset]:
+        def _parse_luna_input_type(data: object) -> LunaInputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -877,11 +873,11 @@ class CustomizedToolSelectionQualityGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[LunaInputTypeEnum, None, Unset], data)
+            return cast(LunaInputTypeEnum | None | Unset, data)
 
         luna_input_type = _parse_luna_input_type(d.pop("luna_input_type", UNSET))
 
-        def _parse_luna_output_type(data: object) -> Union[LunaOutputTypeEnum, None, Unset]:
+        def _parse_luna_output_type(data: object) -> LunaOutputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -893,18 +889,18 @@ class CustomizedToolSelectionQualityGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[LunaOutputTypeEnum, None, Unset], data)
+            return cast(LunaOutputTypeEnum | None | Unset, data)
 
         luna_output_type = _parse_luna_output_type(d.pop("luna_output_type", UNSET))
 
         def _parse_class_name_to_vocab_ix(
             data: object,
-        ) -> Union[
-            "CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0",
-            "CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1",
-            None,
-            Unset,
-        ]:
+        ) -> (
+            CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0
+            | CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1
+            | None
+            | Unset
+        ):
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -924,12 +920,10 @@ class CustomizedToolSelectionQualityGPTScorer:
             except:  # noqa: E722
                 pass
             return cast(
-                Union[
-                    "CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0",
-                    "CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1",
-                    None,
-                    Unset,
-                ],
+                CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0
+                | CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1
+                | None
+                | Unset,
                 data,
             )
 

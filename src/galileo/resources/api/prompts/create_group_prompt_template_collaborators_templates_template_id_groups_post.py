@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -23,7 +23,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(template_id: str, *, body: list["GroupCollaboratorCreate"]) -> dict[str, Any]:
+def _get_kwargs(template_id: str, *, body: list[GroupCollaboratorCreate]) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
@@ -45,9 +45,7 @@ def _get_kwargs(template_id: str, *, body: list["GroupCollaboratorCreate"]) -> d
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, list["GroupCollaborator"]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list[GroupCollaborator]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -81,7 +79,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
+) -> Response[HTTPValidationError | list[GroupCollaborator]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -91,15 +89,15 @@ def _build_response(
 
 
 def sync_detailed(
-    template_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
+    template_id: str, *, client: ApiClient, body: list[GroupCollaboratorCreate]
+) -> Response[HTTPValidationError | list[GroupCollaborator]]:
     """Create Group Prompt Template Collaborators.
 
      Share a prompt template with groups.
 
     Args:
         template_id (str):
-        body (list['GroupCollaboratorCreate']):
+        body (list[GroupCollaboratorCreate]):
 
     Raises
     ------
@@ -108,7 +106,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, list['GroupCollaborator']]]
+        Response[HTTPValidationError | list[GroupCollaborator]]
     """
     kwargs = _get_kwargs(template_id=template_id, body=body)
 
@@ -118,15 +116,15 @@ def sync_detailed(
 
 
 def sync(
-    template_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
+    template_id: str, *, client: ApiClient, body: list[GroupCollaboratorCreate]
+) -> HTTPValidationError | list[GroupCollaborator] | None:
     """Create Group Prompt Template Collaborators.
 
      Share a prompt template with groups.
 
     Args:
         template_id (str):
-        body (list['GroupCollaboratorCreate']):
+        body (list[GroupCollaboratorCreate]):
 
     Raises
     ------
@@ -135,21 +133,21 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, list['GroupCollaborator']]
+        HTTPValidationError | list[GroupCollaborator]
     """
     return sync_detailed(template_id=template_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    template_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
+    template_id: str, *, client: ApiClient, body: list[GroupCollaboratorCreate]
+) -> Response[HTTPValidationError | list[GroupCollaborator]]:
     """Create Group Prompt Template Collaborators.
 
      Share a prompt template with groups.
 
     Args:
         template_id (str):
-        body (list['GroupCollaboratorCreate']):
+        body (list[GroupCollaboratorCreate]):
 
     Raises
     ------
@@ -158,7 +156,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, list['GroupCollaborator']]]
+        Response[HTTPValidationError | list[GroupCollaborator]]
     """
     kwargs = _get_kwargs(template_id=template_id, body=body)
 
@@ -168,15 +166,15 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    template_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
+    template_id: str, *, client: ApiClient, body: list[GroupCollaboratorCreate]
+) -> HTTPValidationError | list[GroupCollaborator] | None:
     """Create Group Prompt Template Collaborators.
 
      Share a prompt template with groups.
 
     Args:
         template_id (str):
-        body (list['GroupCollaboratorCreate']):
+        body (list[GroupCollaboratorCreate]):
 
     Raises
     ------
@@ -185,6 +183,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, list['GroupCollaborator']]
+        HTTPValidationError | list[GroupCollaborator]
     """
     return (await asyncio_detailed(template_id=template_id, client=client, body=body)).parsed

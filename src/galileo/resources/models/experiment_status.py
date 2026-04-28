@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,14 +20,14 @@ class ExperimentStatus:
     """
     Attributes
     ----------
-        log_generation (Union[Unset, ExperimentPhaseStatus]):
+        log_generation (ExperimentPhaseStatus | Unset):
     """
 
-    log_generation: Union[Unset, "ExperimentPhaseStatus"] = UNSET
+    log_generation: ExperimentPhaseStatus | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        log_generation: Union[Unset, dict[str, Any]] = UNSET
+        log_generation: dict[str, Any] | Unset = UNSET
         if not isinstance(self.log_generation, Unset):
             log_generation = self.log_generation.to_dict()
 
@@ -43,7 +45,7 @@ class ExperimentStatus:
 
         d = dict(src_dict)
         _log_generation = d.pop("log_generation", UNSET)
-        log_generation: Union[Unset, ExperimentPhaseStatus]
+        log_generation: ExperimentPhaseStatus | Unset
         if isinstance(_log_generation, Unset):
             log_generation = UNSET
         else:

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,19 +22,19 @@ class VertexAIIntegration:
     """
     Attributes
     ----------
-        multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
+        multi_modal_config (MultiModalModelIntegrationConfig | None | Unset): Configuration for multi-modal (file
             upload) capabilities.
-        gcs_config (Union['VertexAIGCSConfigResponse', None, Unset]):
-        id (Union[None, Unset, str]):
-        name (Union[Literal['vertex_ai'], Unset]):  Default: 'vertex_ai'.
-        extra (Union['VertexAIIntegrationExtraType0', None, Unset]):
+        gcs_config (None | Unset | VertexAIGCSConfigResponse):
+        id (None | str | Unset):
+        name (Literal['vertex_ai'] | Unset):  Default: 'vertex_ai'.
+        extra (None | Unset | VertexAIIntegrationExtraType0):
     """
 
-    multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
-    gcs_config: Union["VertexAIGCSConfigResponse", None, Unset] = UNSET
-    id: Union[None, Unset, str] = UNSET
-    name: Union[Literal["vertex_ai"], Unset] = "vertex_ai"
-    extra: Union["VertexAIIntegrationExtraType0", None, Unset] = UNSET
+    multi_modal_config: MultiModalModelIntegrationConfig | None | Unset = UNSET
+    gcs_config: None | Unset | VertexAIGCSConfigResponse = UNSET
+    id: None | str | Unset = UNSET
+    name: Literal["vertex_ai"] | Unset = "vertex_ai"
+    extra: None | Unset | VertexAIIntegrationExtraType0 = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,7 +42,7 @@ class VertexAIIntegration:
         from ..models.vertex_ai_integration_extra_type_0 import VertexAIIntegrationExtraType0
         from ..models.vertex_aigcs_config_response import VertexAIGCSConfigResponse
 
-        multi_modal_config: Union[None, Unset, dict[str, Any]]
+        multi_modal_config: dict[str, Any] | None | Unset
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -48,7 +50,7 @@ class VertexAIIntegration:
         else:
             multi_modal_config = self.multi_modal_config
 
-        gcs_config: Union[None, Unset, dict[str, Any]]
+        gcs_config: dict[str, Any] | None | Unset
         if isinstance(self.gcs_config, Unset):
             gcs_config = UNSET
         elif isinstance(self.gcs_config, VertexAIGCSConfigResponse):
@@ -56,12 +58,12 @@ class VertexAIIntegration:
         else:
             gcs_config = self.gcs_config
 
-        id: Union[None, Unset, str]
+        id: None | str | Unset
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
-        extra: Union[None, Unset, dict[str, Any]]
+        extra: dict[str, Any] | None | Unset
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, VertexAIIntegrationExtraType0):
@@ -93,7 +95,7 @@ class VertexAIIntegration:
 
         d = dict(src_dict)
 
-        def _parse_multi_modal_config(data: object) -> Union["MultiModalModelIntegrationConfig", None, Unset]:
+        def _parse_multi_modal_config(data: object) -> MultiModalModelIntegrationConfig | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -105,11 +107,11 @@ class VertexAIIntegration:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
+            return cast(MultiModalModelIntegrationConfig | None | Unset, data)
 
         multi_modal_config = _parse_multi_modal_config(d.pop("multi_modal_config", UNSET))
 
-        def _parse_gcs_config(data: object) -> Union["VertexAIGCSConfigResponse", None, Unset]:
+        def _parse_gcs_config(data: object) -> None | Unset | VertexAIGCSConfigResponse:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -121,24 +123,24 @@ class VertexAIIntegration:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["VertexAIGCSConfigResponse", None, Unset], data)
+            return cast(None | Unset | VertexAIGCSConfigResponse, data)
 
         gcs_config = _parse_gcs_config(d.pop("gcs_config", UNSET))
 
-        def _parse_id(data: object) -> Union[None, Unset, str]:
+        def _parse_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        name = cast(Union[Literal["vertex_ai"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["vertex_ai"] | Unset, d.pop("name", UNSET))
         if name != "vertex_ai" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'vertex_ai', got '{name}'")
 
-        def _parse_extra(data: object) -> Union["VertexAIIntegrationExtraType0", None, Unset]:
+        def _parse_extra(data: object) -> None | Unset | VertexAIIntegrationExtraType0:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -150,7 +152,7 @@ class VertexAIIntegration:
 
             except:  # noqa: E722
                 pass
-            return cast(Union["VertexAIIntegrationExtraType0", None, Unset], data)
+            return cast(None | Unset | VertexAIIntegrationExtraType0, data)
 
         extra = _parse_extra(d.pop("extra", UNSET))
 

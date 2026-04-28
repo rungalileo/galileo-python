@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -17,7 +19,7 @@ T = TypeVar("T", bound="PartialExtendedAgentSpanRecordAnnotations")
 class PartialExtendedAgentSpanRecordAnnotations:
     """Annotations keyed by template ID and annotator ID."""
 
-    additional_properties: dict[str, "PartialExtendedAgentSpanRecordAnnotationsAdditionalProperty"] = _attrs_field(
+    additional_properties: dict[str, PartialExtendedAgentSpanRecordAnnotationsAdditionalProperty] = _attrs_field(
         init=False, factory=dict
     )
 
@@ -50,10 +52,10 @@ class PartialExtendedAgentSpanRecordAnnotations:
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> "PartialExtendedAgentSpanRecordAnnotationsAdditionalProperty":
+    def __getitem__(self, key: str) -> PartialExtendedAgentSpanRecordAnnotationsAdditionalProperty:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: "PartialExtendedAgentSpanRecordAnnotationsAdditionalProperty") -> None:
+    def __setitem__(self, key: str, value: PartialExtendedAgentSpanRecordAnnotationsAdditionalProperty) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

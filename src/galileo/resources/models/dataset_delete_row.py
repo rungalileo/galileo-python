@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,11 +17,11 @@ class DatasetDeleteRow:
     Attributes
     ----------
         row_id (str):
-        edit_type (Union[Literal['delete_row'], Unset]):  Default: 'delete_row'.
+        edit_type (Literal['delete_row'] | Unset):  Default: 'delete_row'.
     """
 
     row_id: str
-    edit_type: Union[Literal["delete_row"], Unset] = "delete_row"
+    edit_type: Literal["delete_row"] | Unset = "delete_row"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,7 +42,7 @@ class DatasetDeleteRow:
         d = dict(src_dict)
         row_id = d.pop("row_id")
 
-        edit_type = cast(Union[Literal["delete_row"], Unset], d.pop("edit_type", UNSET))
+        edit_type = cast(Literal["delete_row"] | Unset, d.pop("edit_type", UNSET))
         if edit_type != "delete_row" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'delete_row', got '{edit_type}'")
 

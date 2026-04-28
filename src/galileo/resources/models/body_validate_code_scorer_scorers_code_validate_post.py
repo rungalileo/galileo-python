@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from io import BytesIO
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,29 +19,29 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
     Attributes
     ----------
         file (File):
-        test_input (Union[None, Unset, str]):
-        test_output (Union[None, Unset, str]):
-        required_scorers (Union[None, Unset, list[str], str]):
-        scoreable_node_types (Union[None, Unset, list[str], str]):
+        test_input (None | str | Unset):
+        test_output (None | str | Unset):
+        required_scorers (list[str] | None | str | Unset):
+        scoreable_node_types (list[str] | None | str | Unset):
     """
 
     file: File
-    test_input: Union[None, Unset, str] = UNSET
-    test_output: Union[None, Unset, str] = UNSET
-    required_scorers: Union[None, Unset, list[str], str] = UNSET
-    scoreable_node_types: Union[None, Unset, list[str], str] = UNSET
+    test_input: None | str | Unset = UNSET
+    test_output: None | str | Unset = UNSET
+    required_scorers: list[str] | None | str | Unset = UNSET
+    scoreable_node_types: list[str] | None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         file = self.file.to_tuple()
 
-        test_input: Union[None, Unset, str]
+        test_input: None | str | Unset
         test_input = UNSET if isinstance(self.test_input, Unset) else self.test_input
 
-        test_output: Union[None, Unset, str]
+        test_output: None | str | Unset
         test_output = UNSET if isinstance(self.test_output, Unset) else self.test_output
 
-        required_scorers: Union[None, Unset, list[str], str]
+        required_scorers: list[str] | None | str | Unset
         if isinstance(self.required_scorers, Unset):
             required_scorers = UNSET
         elif isinstance(self.required_scorers, list):
@@ -48,7 +50,7 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
         else:
             required_scorers = self.required_scorers
 
-        scoreable_node_types: Union[None, Unset, list[str], str]
+        scoreable_node_types: list[str] | None | str | Unset
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
         elif isinstance(self.scoreable_node_types, list):
@@ -123,25 +125,25 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
         d = dict(src_dict)
         file = File(payload=BytesIO(d.pop("file")))
 
-        def _parse_test_input(data: object) -> Union[None, Unset, str]:
+        def _parse_test_input(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         test_input = _parse_test_input(d.pop("test_input", UNSET))
 
-        def _parse_test_output(data: object) -> Union[None, Unset, str]:
+        def _parse_test_output(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         test_output = _parse_test_output(d.pop("test_output", UNSET))
 
-        def _parse_required_scorers(data: object) -> Union[None, Unset, list[str], str]:
+        def _parse_required_scorers(data: object) -> list[str] | None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -153,11 +155,11 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str], str], data)
+            return cast(list[str] | None | str | Unset, data)
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
-        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str], str]:
+        def _parse_scoreable_node_types(data: object) -> list[str] | None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -169,7 +171,7 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str], str], data)
+            return cast(list[str] | None | str | Unset, data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 

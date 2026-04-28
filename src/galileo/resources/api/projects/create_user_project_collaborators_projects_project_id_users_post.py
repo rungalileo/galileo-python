@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -23,7 +23,7 @@ from ...models.user_collaborator_create import UserCollaboratorCreate
 from ...types import Response
 
 
-def _get_kwargs(project_id: str, *, body: list["UserCollaboratorCreate"]) -> dict[str, Any]:
+def _get_kwargs(project_id: str, *, body: list[UserCollaboratorCreate]) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
@@ -45,9 +45,7 @@ def _get_kwargs(project_id: str, *, body: list["UserCollaboratorCreate"]) -> dic
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, list["UserCollaborator"]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list[UserCollaborator]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -81,7 +79,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, list["UserCollaborator"]]]:
+) -> Response[HTTPValidationError | list[UserCollaborator]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -91,15 +89,15 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, *, client: ApiClient, body: list["UserCollaboratorCreate"]
-) -> Response[Union[HTTPValidationError, list["UserCollaborator"]]]:
+    project_id: str, *, client: ApiClient, body: list[UserCollaboratorCreate]
+) -> Response[HTTPValidationError | list[UserCollaborator]]:
     """Create User Project Collaborators.
 
      Share a project with users.
 
     Args:
         project_id (str):
-        body (list['UserCollaboratorCreate']):
+        body (list[UserCollaboratorCreate]):
 
     Raises
     ------
@@ -108,7 +106,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, list['UserCollaborator']]]
+        Response[HTTPValidationError | list[UserCollaborator]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -118,15 +116,15 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str, *, client: ApiClient, body: list["UserCollaboratorCreate"]
-) -> Optional[Union[HTTPValidationError, list["UserCollaborator"]]]:
+    project_id: str, *, client: ApiClient, body: list[UserCollaboratorCreate]
+) -> HTTPValidationError | list[UserCollaborator] | None:
     """Create User Project Collaborators.
 
      Share a project with users.
 
     Args:
         project_id (str):
-        body (list['UserCollaboratorCreate']):
+        body (list[UserCollaboratorCreate]):
 
     Raises
     ------
@@ -135,21 +133,21 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, list['UserCollaborator']]
+        HTTPValidationError | list[UserCollaborator]
     """
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, *, client: ApiClient, body: list["UserCollaboratorCreate"]
-) -> Response[Union[HTTPValidationError, list["UserCollaborator"]]]:
+    project_id: str, *, client: ApiClient, body: list[UserCollaboratorCreate]
+) -> Response[HTTPValidationError | list[UserCollaborator]]:
     """Create User Project Collaborators.
 
      Share a project with users.
 
     Args:
         project_id (str):
-        body (list['UserCollaboratorCreate']):
+        body (list[UserCollaboratorCreate]):
 
     Raises
     ------
@@ -158,7 +156,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, list['UserCollaborator']]]
+        Response[HTTPValidationError | list[UserCollaborator]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -168,15 +166,15 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, *, client: ApiClient, body: list["UserCollaboratorCreate"]
-) -> Optional[Union[HTTPValidationError, list["UserCollaborator"]]]:
+    project_id: str, *, client: ApiClient, body: list[UserCollaboratorCreate]
+) -> HTTPValidationError | list[UserCollaborator] | None:
     """Create User Project Collaborators.
 
      Share a project with users.
 
     Args:
         project_id (str):
-        body (list['UserCollaboratorCreate']):
+        body (list[UserCollaboratorCreate]):
 
     Raises
     ------
@@ -185,6 +183,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, list['UserCollaborator']]
+        HTTPValidationError | list[UserCollaborator]
     """
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

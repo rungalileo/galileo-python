@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,7 +42,7 @@ def _get_kwargs(scorer_id: str, *, body: UpdateScorerRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, ScorerResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ScorerResponse:
     if response.status_code == 200:
         return ScorerResponse.from_dict(response.json())
 
@@ -67,9 +67,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, ScorerResponse]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | ScorerResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,7 +78,7 @@ def _build_response(
 
 def sync_detailed(
     scorer_id: str, *, client: ApiClient, body: UpdateScorerRequest
-) -> Response[Union[HTTPValidationError, ScorerResponse]]:
+) -> Response[HTTPValidationError | ScorerResponse]:
     """Update.
 
     Args:
@@ -94,7 +92,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, ScorerResponse]]
+        Response[HTTPValidationError | ScorerResponse]
     """
     kwargs = _get_kwargs(scorer_id=scorer_id, body=body)
 
@@ -105,7 +103,7 @@ def sync_detailed(
 
 def sync(
     scorer_id: str, *, client: ApiClient, body: UpdateScorerRequest
-) -> Optional[Union[HTTPValidationError, ScorerResponse]]:
+) -> HTTPValidationError | ScorerResponse | None:
     """Update.
 
     Args:
@@ -119,14 +117,14 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, ScorerResponse]
+        HTTPValidationError | ScorerResponse
     """
     return sync_detailed(scorer_id=scorer_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     scorer_id: str, *, client: ApiClient, body: UpdateScorerRequest
-) -> Response[Union[HTTPValidationError, ScorerResponse]]:
+) -> Response[HTTPValidationError | ScorerResponse]:
     """Update.
 
     Args:
@@ -140,7 +138,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, ScorerResponse]]
+        Response[HTTPValidationError | ScorerResponse]
     """
     kwargs = _get_kwargs(scorer_id=scorer_id, body=body)
 
@@ -151,7 +149,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     scorer_id: str, *, client: ApiClient, body: UpdateScorerRequest
-) -> Optional[Union[HTTPValidationError, ScorerResponse]]:
+) -> HTTPValidationError | ScorerResponse | None:
     """Update.
 
     Args:
@@ -165,6 +163,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, ScorerResponse]
+        HTTPValidationError | ScorerResponse
     """
     return (await asyncio_detailed(scorer_id=scorer_id, client=client, body=body)).parsed

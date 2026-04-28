@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,14 +19,14 @@ class LogRecordsBooleanFilter:
     ----------
         column_id (str): ID of the column to filter.
         value (bool):
-        operator (Union[Unset, LogRecordsBooleanFilterOperator]):  Default: LogRecordsBooleanFilterOperator.EQ.
-        type_ (Union[Literal['boolean'], Unset]):  Default: 'boolean'.
+        operator (LogRecordsBooleanFilterOperator | Unset):  Default: LogRecordsBooleanFilterOperator.EQ.
+        type_ (Literal['boolean'] | Unset):  Default: 'boolean'.
     """
 
     column_id: str
     value: bool
-    operator: Union[Unset, LogRecordsBooleanFilterOperator] = LogRecordsBooleanFilterOperator.EQ
-    type_: Union[Literal["boolean"], Unset] = "boolean"
+    operator: LogRecordsBooleanFilterOperator | Unset = LogRecordsBooleanFilterOperator.EQ
+    type_: Literal["boolean"] | Unset = "boolean"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,7 +34,7 @@ class LogRecordsBooleanFilter:
 
         value = self.value
 
-        operator: Union[Unset, str] = UNSET
+        operator: str | Unset = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -56,10 +58,10 @@ class LogRecordsBooleanFilter:
         value = d.pop("value")
 
         _operator = d.pop("operator", UNSET)
-        operator: Union[Unset, LogRecordsBooleanFilterOperator]
+        operator: LogRecordsBooleanFilterOperator | Unset
         operator = UNSET if isinstance(_operator, Unset) else LogRecordsBooleanFilterOperator(_operator)
 
-        type_ = cast(Union[Literal["boolean"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["boolean"] | Unset, d.pop("type", UNSET))
         if type_ != "boolean" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'boolean', got '{type_}'")
 

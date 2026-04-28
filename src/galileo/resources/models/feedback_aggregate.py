@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,10 +22,10 @@ class FeedbackAggregate:
     """
     Attributes
     ----------
-        aggregate (Union['LikeDislikeAggregate', 'ScoreAggregate', 'StarAggregate', 'TagsAggregate', 'TextAggregate']):
+        aggregate (LikeDislikeAggregate | ScoreAggregate | StarAggregate | TagsAggregate | TextAggregate):
     """
 
-    aggregate: Union["LikeDislikeAggregate", "ScoreAggregate", "StarAggregate", "TagsAggregate", "TextAggregate"]
+    aggregate: LikeDislikeAggregate | ScoreAggregate | StarAggregate | TagsAggregate | TextAggregate
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,7 +35,7 @@ class FeedbackAggregate:
         from ..models.tags_aggregate import TagsAggregate
 
         aggregate: dict[str, Any]
-        if isinstance(self.aggregate, (LikeDislikeAggregate, StarAggregate, ScoreAggregate, TagsAggregate)):
+        if isinstance(self.aggregate, LikeDislikeAggregate | StarAggregate | ScoreAggregate | TagsAggregate):
             aggregate = self.aggregate.to_dict()
         else:
             aggregate = self.aggregate.to_dict()
@@ -56,7 +58,7 @@ class FeedbackAggregate:
 
         def _parse_aggregate(
             data: object,
-        ) -> Union["LikeDislikeAggregate", "ScoreAggregate", "StarAggregate", "TagsAggregate", "TextAggregate"]:
+        ) -> LikeDislikeAggregate | ScoreAggregate | StarAggregate | TagsAggregate | TextAggregate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,32 +17,32 @@ class OutputMap:
     Attributes
     ----------
         response (str):
-        token_count (Union[None, Unset, str]):
-        input_token_count (Union[None, Unset, str]):
-        output_token_count (Union[None, Unset, str]):
-        completion_reason (Union[None, Unset, str]):
+        token_count (None | str | Unset):
+        input_token_count (None | str | Unset):
+        output_token_count (None | str | Unset):
+        completion_reason (None | str | Unset):
     """
 
     response: str
-    token_count: Union[None, Unset, str] = UNSET
-    input_token_count: Union[None, Unset, str] = UNSET
-    output_token_count: Union[None, Unset, str] = UNSET
-    completion_reason: Union[None, Unset, str] = UNSET
+    token_count: None | str | Unset = UNSET
+    input_token_count: None | str | Unset = UNSET
+    output_token_count: None | str | Unset = UNSET
+    completion_reason: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         response = self.response
 
-        token_count: Union[None, Unset, str]
+        token_count: None | str | Unset
         token_count = UNSET if isinstance(self.token_count, Unset) else self.token_count
 
-        input_token_count: Union[None, Unset, str]
+        input_token_count: None | str | Unset
         input_token_count = UNSET if isinstance(self.input_token_count, Unset) else self.input_token_count
 
-        output_token_count: Union[None, Unset, str]
+        output_token_count: None | str | Unset
         output_token_count = UNSET if isinstance(self.output_token_count, Unset) else self.output_token_count
 
-        completion_reason: Union[None, Unset, str]
+        completion_reason: None | str | Unset
         completion_reason = UNSET if isinstance(self.completion_reason, Unset) else self.completion_reason
 
         field_dict: dict[str, Any] = {}
@@ -62,39 +64,39 @@ class OutputMap:
         d = dict(src_dict)
         response = d.pop("response")
 
-        def _parse_token_count(data: object) -> Union[None, Unset, str]:
+        def _parse_token_count(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         token_count = _parse_token_count(d.pop("token_count", UNSET))
 
-        def _parse_input_token_count(data: object) -> Union[None, Unset, str]:
+        def _parse_input_token_count(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         input_token_count = _parse_input_token_count(d.pop("input_token_count", UNSET))
 
-        def _parse_output_token_count(data: object) -> Union[None, Unset, str]:
+        def _parse_output_token_count(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         output_token_count = _parse_output_token_count(d.pop("output_token_count", UNSET))
 
-        def _parse_completion_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_completion_reason(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | str | Unset, data)
 
         completion_reason = _parse_completion_reason(d.pop("completion_reason", UNSET))
 

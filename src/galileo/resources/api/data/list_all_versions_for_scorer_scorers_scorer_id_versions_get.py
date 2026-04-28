@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -23,17 +23,13 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    scorer_id: str,
-    *,
-    run_id: Union[None, Unset, str] = UNSET,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    scorer_id: str, *, run_id: None | str | Unset = UNSET, starting_token: int | Unset = 0, limit: int | Unset = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_run_id: Union[None, Unset, str]
+    json_run_id: None | str | Unset
     json_run_id = UNSET if isinstance(run_id, Unset) else run_id
     params["run_id"] = json_run_id
 
@@ -56,9 +52,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, ListScorerVersionsResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ListScorerVersionsResponse:
     if response.status_code == 200:
         return ListScorerVersionsResponse.from_dict(response.json())
 
@@ -85,7 +79,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, ListScorerVersionsResponse]]:
+) -> Response[HTTPValidationError | ListScorerVersionsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -98,17 +92,17 @@ def sync_detailed(
     scorer_id: str,
     *,
     client: ApiClient,
-    run_id: Union[None, Unset, str] = UNSET,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, ListScorerVersionsResponse]]:
+    run_id: None | str | Unset = UNSET,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> Response[HTTPValidationError | ListScorerVersionsResponse]:
     """List All Versions For Scorer.
 
     Args:
         scorer_id (str):
-        run_id (Union[None, Unset, str]):
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        run_id (None | str | Unset):
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
 
     Raises
     ------
@@ -117,7 +111,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, ListScorerVersionsResponse]]
+        Response[HTTPValidationError | ListScorerVersionsResponse]
     """
     kwargs = _get_kwargs(scorer_id=scorer_id, run_id=run_id, starting_token=starting_token, limit=limit)
 
@@ -130,17 +124,17 @@ def sync(
     scorer_id: str,
     *,
     client: ApiClient,
-    run_id: Union[None, Unset, str] = UNSET,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, ListScorerVersionsResponse]]:
+    run_id: None | str | Unset = UNSET,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> HTTPValidationError | ListScorerVersionsResponse | None:
     """List All Versions For Scorer.
 
     Args:
         scorer_id (str):
-        run_id (Union[None, Unset, str]):
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        run_id (None | str | Unset):
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
 
     Raises
     ------
@@ -149,7 +143,7 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, ListScorerVersionsResponse]
+        HTTPValidationError | ListScorerVersionsResponse
     """
     return sync_detailed(
         scorer_id=scorer_id, client=client, run_id=run_id, starting_token=starting_token, limit=limit
@@ -160,17 +154,17 @@ async def asyncio_detailed(
     scorer_id: str,
     *,
     client: ApiClient,
-    run_id: Union[None, Unset, str] = UNSET,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, ListScorerVersionsResponse]]:
+    run_id: None | str | Unset = UNSET,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> Response[HTTPValidationError | ListScorerVersionsResponse]:
     """List All Versions For Scorer.
 
     Args:
         scorer_id (str):
-        run_id (Union[None, Unset, str]):
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        run_id (None | str | Unset):
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
 
     Raises
     ------
@@ -179,7 +173,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, ListScorerVersionsResponse]]
+        Response[HTTPValidationError | ListScorerVersionsResponse]
     """
     kwargs = _get_kwargs(scorer_id=scorer_id, run_id=run_id, starting_token=starting_token, limit=limit)
 
@@ -192,17 +186,17 @@ async def asyncio(
     scorer_id: str,
     *,
     client: ApiClient,
-    run_id: Union[None, Unset, str] = UNSET,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, ListScorerVersionsResponse]]:
+    run_id: None | str | Unset = UNSET,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> HTTPValidationError | ListScorerVersionsResponse | None:
     """List All Versions For Scorer.
 
     Args:
         scorer_id (str):
-        run_id (Union[None, Unset, str]):
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        run_id (None | str | Unset):
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
 
     Raises
     ------
@@ -211,7 +205,7 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, ListScorerVersionsResponse]
+        HTTPValidationError | ListScorerVersionsResponse
     """
     return (
         await asyncio_detailed(
