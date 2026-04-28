@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 from uuid import uuid4
@@ -168,6 +169,30 @@ class TestExperimentInitialization:
         assert experiment.prompt_name is None
         assert experiment.dataset_name is None
         assert experiment.sync_state == SyncState.LOCAL_ONLY
+
+    def test_init_with_both_prompt_and_prompt_name_warns_and_prompt_wins(
+        self, reset_configuration: None, caplog: pytest.LogCaptureFixture, enable_galileo_logging: None
+    ) -> None:
+        """Test that providing both 'prompt' and 'prompt_name' logs a warning and 'prompt' takes precedence."""
+        # Given: both prompt and prompt_name provided
+        # When: creating an experiment while capturing warnings on the experiment logger
+        with caplog.at_level(logging.WARNING, logger="galileo.experiment"):
+            experiment = Experiment(
+                name="Test Experiment",
+                dataset_name="test-dataset",
+                prompt="winning-prompt",
+                prompt_name="losing-prompt",
+                project_name="Test Project",
+            )
+
+        # Then: a warning is logged and 'prompt' takes precedence over 'prompt_name'
+        assert any(
+            record.levelno == logging.WARNING
+            and "both 'prompt' and 'prompt_name' were provided" in record.message
+            and "'prompt' takes precedence" in record.message
+            for record in caplog.records
+        )
+        assert experiment.prompt_name == "winning-prompt"
 
 
 class TestExperimentEnvFallback:
