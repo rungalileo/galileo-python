@@ -963,6 +963,26 @@ class TestLogStreamColumns:
             with pytest.raises(ValueError, match="Unable to retrieve"):
                 getattr(log_stream, property_name)
 
+    def test_column_info_with_control_step_type_does_not_raise(self, reset_configuration: None) -> None:
+        """Regression test: 'control' is a valid StepType returned by the API (sc-62628)."""
+        from galileo.resources.models.log_records_column_info import LogRecordsColumnInfo
+        from galileo.resources.models.step_type import StepType
+
+        # Given: an API response payload containing 'control' in applicable_types
+        payload = {
+            "id": "some_column",
+            "category": "standard",
+            "data_type": "text",
+            "applicable_types": ["control", "llm"],
+        }
+
+        # When: parsing the column info
+        column_info = LogRecordsColumnInfo.from_dict(payload)
+
+        # Then: parsing succeeds and applicable_types contains the control step type
+        assert StepType.CONTROL in column_info.applicable_types
+        assert StepType.LLM in column_info.applicable_types
+
 
 class TestLogStreamMethods:
     """Test suite for other LogStream methods."""
