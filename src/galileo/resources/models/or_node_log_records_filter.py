@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,11 +18,15 @@ class OrNodeLogRecordsFilter:
     """
     Attributes
     ----------
-        or_ (list[AndNodeLogRecordsFilter | FilterLeafLogRecordsFilter | NotNodeLogRecordsFilter |
-            OrNodeLogRecordsFilter]):
+        or_ (list[Union['AndNodeLogRecordsFilter', 'FilterLeafLogRecordsFilter', 'NotNodeLogRecordsFilter',
+            'OrNodeLogRecordsFilter']]):
     """
 
-    or_: list[AndNodeLogRecordsFilter | FilterLeafLogRecordsFilter | NotNodeLogRecordsFilter | OrNodeLogRecordsFilter]
+    or_: list[
+        Union[
+            "AndNodeLogRecordsFilter", "FilterLeafLogRecordsFilter", "NotNodeLogRecordsFilter", "OrNodeLogRecordsFilter"
+        ]
+    ]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,7 +36,7 @@ class OrNodeLogRecordsFilter:
         or_ = []
         for or_item_data in self.or_:
             or_item: dict[str, Any]
-            if isinstance(or_item_data, FilterLeafLogRecordsFilter | AndNodeLogRecordsFilter | OrNodeLogRecordsFilter):
+            if isinstance(or_item_data, (FilterLeafLogRecordsFilter, AndNodeLogRecordsFilter, OrNodeLogRecordsFilter)):
                 or_item = or_item_data.to_dict()
             else:
                 or_item = or_item_data.to_dict()
@@ -60,9 +62,12 @@ class OrNodeLogRecordsFilter:
 
             def _parse_or_item(
                 data: object,
-            ) -> (
-                AndNodeLogRecordsFilter | FilterLeafLogRecordsFilter | NotNodeLogRecordsFilter | OrNodeLogRecordsFilter
-            ):
+            ) -> Union[
+                "AndNodeLogRecordsFilter",
+                "FilterLeafLogRecordsFilter",
+                "NotNodeLogRecordsFilter",
+                "OrNodeLogRecordsFilter",
+            ]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()

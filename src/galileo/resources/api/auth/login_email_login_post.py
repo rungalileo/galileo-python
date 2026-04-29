@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -38,7 +38,7 @@ def _get_kwargs(*, body: BodyLoginEmailLoginPost) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | Token:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, Token]:
     if response.status_code == 200:
         return Token.from_dict(response.json())
 
@@ -63,7 +63,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | Token]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, Token]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -72,7 +72,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Response[HTTPValidationError | Token]:
+def sync_detailed(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Response[Union[HTTPValidationError, Token]]:
     """Login Email.
 
     Args:
@@ -85,7 +85,7 @@ def sync_detailed(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Respon
 
     Returns
     -------
-        Response[HTTPValidationError | Token]
+        Response[Union[HTTPValidationError, Token]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -94,7 +94,7 @@ def sync_detailed(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Respon
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> HTTPValidationError | Token | None:
+def sync(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Optional[Union[HTTPValidationError, Token]]:
     """Login Email.
 
     Args:
@@ -107,14 +107,14 @@ def sync(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> HTTPValidationE
 
     Returns
     -------
-        HTTPValidationError | Token
+        Union[HTTPValidationError, Token]
     """
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BodyLoginEmailLoginPost
-) -> Response[HTTPValidationError | Token]:
+) -> Response[Union[HTTPValidationError, Token]]:
     """Login Email.
 
     Args:
@@ -127,7 +127,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | Token]
+        Response[Union[HTTPValidationError, Token]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -136,7 +136,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> HTTPValidationError | Token | None:
+async def asyncio(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Optional[Union[HTTPValidationError, Token]]:
     """Login Email.
 
     Args:
@@ -149,6 +149,6 @@ async def asyncio(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> HTTPVa
 
     Returns
     -------
-        HTTPValidationError | Token
+        Union[HTTPValidationError, Token]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

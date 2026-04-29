@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -39,7 +39,7 @@ def _get_kwargs(project_id: str, template_id: str, version: int) -> dict[str, An
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> BasePromptTemplateVersionResponse | HTTPValidationError:
+) -> Union[BasePromptTemplateVersionResponse, HTTPValidationError]:
     if response.status_code == 200:
         return BasePromptTemplateVersionResponse.from_dict(response.json())
 
@@ -66,7 +66,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
+) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -77,7 +77,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
+) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
     """Get Template Version.
 
      Get a specific version of a prompt template.
@@ -108,7 +108,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[BasePromptTemplateVersionResponse | HTTPValidationError]
+        Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
 
@@ -119,7 +119,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> BasePromptTemplateVersionResponse | HTTPValidationError | None:
+) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
     """Get Template Version.
 
      Get a specific version of a prompt template.
@@ -150,14 +150,14 @@ def sync(
 
     Returns
     -------
-        BasePromptTemplateVersionResponse | HTTPValidationError
+        Union[BasePromptTemplateVersionResponse, HTTPValidationError]
     """
     return sync_detailed(project_id=project_id, template_id=template_id, version=version, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
+) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
     """Get Template Version.
 
      Get a specific version of a prompt template.
@@ -188,7 +188,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[BasePromptTemplateVersionResponse | HTTPValidationError]
+        Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
 
@@ -199,7 +199,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> BasePromptTemplateVersionResponse | HTTPValidationError | None:
+) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
     """Get Template Version.
 
      Get a specific version of a prompt template.
@@ -230,7 +230,7 @@ async def asyncio(
 
     Returns
     -------
-        BasePromptTemplateVersionResponse | HTTPValidationError
+        Union[BasePromptTemplateVersionResponse, HTTPValidationError]
     """
     return (
         await asyncio_detailed(project_id=project_id, template_id=template_id, version=version, client=client)

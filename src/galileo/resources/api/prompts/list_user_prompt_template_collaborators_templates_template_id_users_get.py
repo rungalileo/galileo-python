@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -22,7 +22,9 @@ from ...models.list_user_collaborators_response import ListUserCollaboratorsResp
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(template_id: str, *, starting_token: int | Unset = 0, limit: int | Unset = 100) -> dict[str, Any]:
+def _get_kwargs(
+    template_id: str, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -48,7 +50,7 @@ def _get_kwargs(template_id: str, *, starting_token: int | Unset = 0, limit: int
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> HTTPValidationError | ListUserCollaboratorsResponse:
+) -> Union[HTTPValidationError, ListUserCollaboratorsResponse]:
     if response.status_code == 200:
         return ListUserCollaboratorsResponse.from_dict(response.json())
 
@@ -75,7 +77,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | ListUserCollaboratorsResponse]:
+) -> Response[Union[HTTPValidationError, ListUserCollaboratorsResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -85,16 +87,16 @@ def _build_response(
 
 
 def sync_detailed(
-    template_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Response[HTTPValidationError | ListUserCollaboratorsResponse]:
+    template_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Response[Union[HTTPValidationError, ListUserCollaboratorsResponse]]:
     """List User Prompt Template Collaborators.
 
      List the users with which the prompt template has been shared.
 
     Args:
         template_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -103,7 +105,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListUserCollaboratorsResponse]
+        Response[Union[HTTPValidationError, ListUserCollaboratorsResponse]]
     """
     kwargs = _get_kwargs(template_id=template_id, starting_token=starting_token, limit=limit)
 
@@ -113,16 +115,16 @@ def sync_detailed(
 
 
 def sync(
-    template_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> HTTPValidationError | ListUserCollaboratorsResponse | None:
+    template_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Optional[Union[HTTPValidationError, ListUserCollaboratorsResponse]]:
     """List User Prompt Template Collaborators.
 
      List the users with which the prompt template has been shared.
 
     Args:
         template_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -131,22 +133,22 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ListUserCollaboratorsResponse
+        Union[HTTPValidationError, ListUserCollaboratorsResponse]
     """
     return sync_detailed(template_id=template_id, client=client, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    template_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Response[HTTPValidationError | ListUserCollaboratorsResponse]:
+    template_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Response[Union[HTTPValidationError, ListUserCollaboratorsResponse]]:
     """List User Prompt Template Collaborators.
 
      List the users with which the prompt template has been shared.
 
     Args:
         template_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -155,7 +157,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListUserCollaboratorsResponse]
+        Response[Union[HTTPValidationError, ListUserCollaboratorsResponse]]
     """
     kwargs = _get_kwargs(template_id=template_id, starting_token=starting_token, limit=limit)
 
@@ -165,16 +167,16 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    template_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> HTTPValidationError | ListUserCollaboratorsResponse | None:
+    template_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Optional[Union[HTTPValidationError, ListUserCollaboratorsResponse]]:
     """List User Prompt Template Collaborators.
 
      List the users with which the prompt template has been shared.
 
     Args:
         template_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -183,7 +185,7 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ListUserCollaboratorsResponse
+        Union[HTTPValidationError, ListUserCollaboratorsResponse]
     """
     return (
         await asyncio_detailed(template_id=template_id, client=client, starting_token=starting_token, limit=limit)

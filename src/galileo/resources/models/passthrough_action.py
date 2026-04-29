@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,19 +18,19 @@ class PassthroughAction:
     """
     Attributes
     ----------
-        type_ (Literal['PASSTHROUGH'] | Unset):  Default: 'PASSTHROUGH'.
-        subscriptions (list[SubscriptionConfig] | Unset): List of subscriptions to send a notification to when this
-            action is applied and the ruleset status matches any of the configured statuses.
+        type_ (Union[Literal['PASSTHROUGH'], Unset]):  Default: 'PASSTHROUGH'.
+        subscriptions (Union[Unset, list['SubscriptionConfig']]): List of subscriptions to send a notification to when
+            this action is applied and the ruleset status matches any of the configured statuses.
     """
 
-    type_: Literal["PASSTHROUGH"] | Unset = "PASSTHROUGH"
-    subscriptions: list[SubscriptionConfig] | Unset = UNSET
+    type_: Union[Literal["PASSTHROUGH"], Unset] = "PASSTHROUGH"
+    subscriptions: Union[Unset, list["SubscriptionConfig"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         type_ = self.type_
 
-        subscriptions: list[dict[str, Any]] | Unset = UNSET
+        subscriptions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.subscriptions, Unset):
             subscriptions = []
             for subscriptions_item_data in self.subscriptions:
@@ -54,18 +52,16 @@ class PassthroughAction:
         from ..models.subscription_config import SubscriptionConfig
 
         d = dict(src_dict)
-        type_ = cast(Literal["PASSTHROUGH"] | Unset, d.pop("type", UNSET))
+        type_ = cast(Union[Literal["PASSTHROUGH"], Unset], d.pop("type", UNSET))
         if type_ != "PASSTHROUGH" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'PASSTHROUGH', got '{type_}'")
 
+        subscriptions = []
         _subscriptions = d.pop("subscriptions", UNSET)
-        subscriptions: list[SubscriptionConfig] | Unset = UNSET
-        if _subscriptions is not UNSET:
-            subscriptions = []
-            for subscriptions_item_data in _subscriptions:
-                subscriptions_item = SubscriptionConfig.from_dict(subscriptions_item_data)
+        for subscriptions_item_data in _subscriptions or []:
+            subscriptions_item = SubscriptionConfig.from_dict(subscriptions_item_data)
 
-                subscriptions.append(subscriptions_item)
+            subscriptions.append(subscriptions_item)
 
         passthrough_action = cls(type_=type_, subscriptions=subscriptions)
 

@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,22 +16,22 @@ class WebSearchAction:
     Attributes
     ----------
         type_ (Literal['search']): Type of web search action
-        query (None | str | Unset): Search query string
-        sources (Any | None | Unset): Optional provider-specific sources
+        query (Union[None, Unset, str]): Search query string
+        sources (Union[Any, None, Unset]): Optional provider-specific sources
     """
 
     type_: Literal["search"]
-    query: None | str | Unset = UNSET
-    sources: Any | None | Unset = UNSET
+    query: Union[None, Unset, str] = UNSET
+    sources: Union[Any, None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         type_ = self.type_
 
-        query: None | str | Unset
+        query: Union[None, Unset, str]
         query = UNSET if isinstance(self.query, Unset) else self.query
 
-        sources: Any | None | Unset
+        sources: Union[Any, None, Unset]
         sources = UNSET if isinstance(self.sources, Unset) else self.sources
 
         field_dict: dict[str, Any] = {}
@@ -53,21 +51,21 @@ class WebSearchAction:
         if type_ != "search":
             raise ValueError(f"type must match const 'search', got '{type_}'")
 
-        def _parse_query(data: object) -> None | str | Unset:
+        def _parse_query(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         query = _parse_query(d.pop("query", UNSET))
 
-        def _parse_sources(data: object) -> Any | None | Unset:
+        def _parse_sources(data: object) -> Union[Any, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Any | None | Unset, data)
+            return cast(Union[Any, None, Unset], data)
 
         sources = _parse_sources(d.pop("sources", UNSET))
 

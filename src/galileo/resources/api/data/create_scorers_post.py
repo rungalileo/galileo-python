@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -38,7 +38,7 @@ def _get_kwargs(*, body: CreateScorerRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ScorerResponse:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, ScorerResponse]:
     if response.status_code == 200:
         return ScorerResponse.from_dict(response.json())
 
@@ -63,7 +63,9 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | ScorerResponse]:
+def _build_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Response[Union[HTTPValidationError, ScorerResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -72,7 +74,9 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(*, client: ApiClient, body: CreateScorerRequest) -> Response[HTTPValidationError | ScorerResponse]:
+def sync_detailed(
+    *, client: ApiClient, body: CreateScorerRequest
+) -> Response[Union[HTTPValidationError, ScorerResponse]]:
     """Create.
 
     Args:
@@ -85,7 +89,7 @@ def sync_detailed(*, client: ApiClient, body: CreateScorerRequest) -> Response[H
 
     Returns
     -------
-        Response[HTTPValidationError | ScorerResponse]
+        Response[Union[HTTPValidationError, ScorerResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -94,7 +98,7 @@ def sync_detailed(*, client: ApiClient, body: CreateScorerRequest) -> Response[H
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: CreateScorerRequest) -> HTTPValidationError | ScorerResponse | None:
+def sync(*, client: ApiClient, body: CreateScorerRequest) -> Optional[Union[HTTPValidationError, ScorerResponse]]:
     """Create.
 
     Args:
@@ -107,14 +111,14 @@ def sync(*, client: ApiClient, body: CreateScorerRequest) -> HTTPValidationError
 
     Returns
     -------
-        HTTPValidationError | ScorerResponse
+        Union[HTTPValidationError, ScorerResponse]
     """
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: CreateScorerRequest
-) -> Response[HTTPValidationError | ScorerResponse]:
+) -> Response[Union[HTTPValidationError, ScorerResponse]]:
     """Create.
 
     Args:
@@ -127,7 +131,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ScorerResponse]
+        Response[Union[HTTPValidationError, ScorerResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -136,7 +140,9 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: CreateScorerRequest) -> HTTPValidationError | ScorerResponse | None:
+async def asyncio(
+    *, client: ApiClient, body: CreateScorerRequest
+) -> Optional[Union[HTTPValidationError, ScorerResponse]]:
     """Create.
 
     Args:
@@ -149,6 +155,6 @@ async def asyncio(*, client: ApiClient, body: CreateScorerRequest) -> HTTPValida
 
     Returns
     -------
-        HTTPValidationError | ScorerResponse
+        Union[HTTPValidationError, ScorerResponse]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -42,7 +42,9 @@ def _get_kwargs(project_id: str, *, body: LogRecordsMetricsQueryRequest) -> dict
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | LogRecordsMetricsResponse:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[HTTPValidationError, LogRecordsMetricsResponse]:
     if response.status_code == 200:
         return LogRecordsMetricsResponse.from_dict(response.json())
 
@@ -69,7 +71,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | LogRecordsMetricsResponse]:
+) -> Response[Union[HTTPValidationError, LogRecordsMetricsResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,7 +82,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsMetricsQueryRequest
-) -> Response[HTTPValidationError | LogRecordsMetricsResponse]:
+) -> Response[Union[HTTPValidationError, LogRecordsMetricsResponse]]:
     """Query Metrics V2.
 
      Same as /metrics/search but returns metrics with node-type counts: trace (requests_count),
@@ -98,7 +100,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | LogRecordsMetricsResponse]
+        Response[Union[HTTPValidationError, LogRecordsMetricsResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -109,7 +111,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: LogRecordsMetricsQueryRequest
-) -> HTTPValidationError | LogRecordsMetricsResponse | None:
+) -> Optional[Union[HTTPValidationError, LogRecordsMetricsResponse]]:
     """Query Metrics V2.
 
      Same as /metrics/search but returns metrics with node-type counts: trace (requests_count),
@@ -127,14 +129,14 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | LogRecordsMetricsResponse
+        Union[HTTPValidationError, LogRecordsMetricsResponse]
     """
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsMetricsQueryRequest
-) -> Response[HTTPValidationError | LogRecordsMetricsResponse]:
+) -> Response[Union[HTTPValidationError, LogRecordsMetricsResponse]]:
     """Query Metrics V2.
 
      Same as /metrics/search but returns metrics with node-type counts: trace (requests_count),
@@ -152,7 +154,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | LogRecordsMetricsResponse]
+        Response[Union[HTTPValidationError, LogRecordsMetricsResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -163,7 +165,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsMetricsQueryRequest
-) -> HTTPValidationError | LogRecordsMetricsResponse | None:
+) -> Optional[Union[HTTPValidationError, LogRecordsMetricsResponse]]:
     """Query Metrics V2.
 
      Same as /metrics/search but returns metrics with node-type counts: trace (requests_count),
@@ -181,6 +183,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | LogRecordsMetricsResponse
+        Union[HTTPValidationError, LogRecordsMetricsResponse]
     """
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

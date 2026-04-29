@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,17 +15,17 @@ class RenderedTemplate:
     Attributes
     ----------
         result (str):
-        warning (None | str | Unset):
+        warning (Union[None, Unset, str]):
     """
 
     result: str
-    warning: None | str | Unset = UNSET
+    warning: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         result = self.result
 
-        warning: None | str | Unset
+        warning: Union[None, Unset, str]
         warning = UNSET if isinstance(self.warning, Unset) else self.warning
 
         field_dict: dict[str, Any] = {}
@@ -43,12 +41,12 @@ class RenderedTemplate:
         d = dict(src_dict)
         result = d.pop("result")
 
-        def _parse_warning(data: object) -> None | str | Unset:
+        def _parse_warning(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         warning = _parse_warning(d.pop("warning", UNSET))
 

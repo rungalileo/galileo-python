@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,11 +15,11 @@ class InvalidResult:
     Attributes
     ----------
         error_message (str):
-        result_type (Literal['invalid'] | Unset):  Default: 'invalid'.
+        result_type (Union[Literal['invalid'], Unset]):  Default: 'invalid'.
     """
 
     error_message: str
-    result_type: Literal["invalid"] | Unset = "invalid"
+    result_type: Union[Literal["invalid"], Unset] = "invalid"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,7 +40,7 @@ class InvalidResult:
         d = dict(src_dict)
         error_message = d.pop("error_message")
 
-        result_type = cast(Literal["invalid"] | Unset, d.pop("result_type", UNSET))
+        result_type = cast(Union[Literal["invalid"], Unset], d.pop("result_type", UNSET))
         if result_type != "invalid" and not isinstance(result_type, Unset):
             raise ValueError(f"result_type must match const 'invalid', got '{result_type}'")
 

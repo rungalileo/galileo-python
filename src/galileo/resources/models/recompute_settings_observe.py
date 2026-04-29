@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,11 +15,11 @@ class RecomputeSettingsObserve:
     Attributes
     ----------
         filters (list[Any]):
-        mode (Literal['observe_filters'] | Unset):  Default: 'observe_filters'.
+        mode (Union[Literal['observe_filters'], Unset]):  Default: 'observe_filters'.
     """
 
     filters: list[Any]
-    mode: Literal["observe_filters"] | Unset = "observe_filters"
+    mode: Union[Literal["observe_filters"], Unset] = "observe_filters"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,7 +40,7 @@ class RecomputeSettingsObserve:
         d = dict(src_dict)
         filters = cast(list[Any], d.pop("filters"))
 
-        mode = cast(Literal["observe_filters"] | Unset, d.pop("mode", UNSET))
+        mode = cast(Union[Literal["observe_filters"], Unset], d.pop("mode", UNSET))
         if mode != "observe_filters" and not isinstance(mode, Unset):
             raise ValueError(f"mode must match const 'observe_filters', got '{mode}'")
 

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -24,7 +24,11 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    dataset_id: str, *, body: PreviewDatasetRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+    dataset_id: str,
+    *,
+    body: PreviewDatasetRequest,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -53,7 +57,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> DatasetContent | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[DatasetContent, HTTPValidationError]:
     if response.status_code == 200:
         return DatasetContent.from_dict(response.json())
 
@@ -78,7 +82,9 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> DatasetCo
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[DatasetContent | HTTPValidationError]:
+def _build_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Response[Union[DatasetContent, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -92,15 +98,15 @@ def sync_detailed(
     *,
     client: ApiClient,
     body: PreviewDatasetRequest,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> Response[DatasetContent | HTTPValidationError]:
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Response[Union[DatasetContent, HTTPValidationError]]:
     """Preview Dataset.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
         body (PreviewDatasetRequest):
 
     Raises
@@ -110,7 +116,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[DatasetContent | HTTPValidationError]
+        Response[Union[DatasetContent, HTTPValidationError]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, starting_token=starting_token, limit=limit)
 
@@ -124,15 +130,15 @@ def sync(
     *,
     client: ApiClient,
     body: PreviewDatasetRequest,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> DatasetContent | HTTPValidationError | None:
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Optional[Union[DatasetContent, HTTPValidationError]]:
     """Preview Dataset.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
         body (PreviewDatasetRequest):
 
     Raises
@@ -142,7 +148,7 @@ def sync(
 
     Returns
     -------
-        DatasetContent | HTTPValidationError
+        Union[DatasetContent, HTTPValidationError]
     """
     return sync_detailed(
         dataset_id=dataset_id, client=client, body=body, starting_token=starting_token, limit=limit
@@ -154,15 +160,15 @@ async def asyncio_detailed(
     *,
     client: ApiClient,
     body: PreviewDatasetRequest,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> Response[DatasetContent | HTTPValidationError]:
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Response[Union[DatasetContent, HTTPValidationError]]:
     """Preview Dataset.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
         body (PreviewDatasetRequest):
 
     Raises
@@ -172,7 +178,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[DatasetContent | HTTPValidationError]
+        Response[Union[DatasetContent, HTTPValidationError]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, starting_token=starting_token, limit=limit)
 
@@ -186,15 +192,15 @@ async def asyncio(
     *,
     client: ApiClient,
     body: PreviewDatasetRequest,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> DatasetContent | HTTPValidationError | None:
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Optional[Union[DatasetContent, HTTPValidationError]]:
     """Preview Dataset.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
         body (PreviewDatasetRequest):
 
     Raises
@@ -204,7 +210,7 @@ async def asyncio(
 
     Returns
     -------
-        DatasetContent | HTTPValidationError
+        Union[DatasetContent, HTTPValidationError]
     """
     return (
         await asyncio_detailed(

@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,41 +20,41 @@ class ColumnInfo:
     ----------
         id (str): Column id.  Must be universally unique.
         category (ColumnCategory):
-        data_type (DataType | None): Data type of the column. This is used to determine how to format the data on the
-            UI.
-        label (None | str | Unset): Display label of the column in the UI.
-        description (None | str | Unset): Description of the column.
-        group_label (None | str | Unset): Display label of the column group.
-        data_unit (DataUnit | None | Unset): Data unit of the column (optional).
-        multi_valued (bool | Unset): Whether the column is multi-valued. Default: False.
-        allowed_values (list[Any] | None | Unset): Allowed values for this column.
-        sortable (bool | Unset): Whether the column is sortable.
-        filterable (bool | Unset): Whether the column is filterable.
-        is_empty (bool | Unset): Indicates whether the column is empty and should be hidden. Default: False.
-        applicable_types (list[StepType] | Unset): List of types applicable for this column.
-        complex_ (bool | Unset): Whether the column requires special handling in the UI. Setting this to True will hide
-            the column in the UI until the UI adds support for it. Default: False.
-        is_optional (bool | Unset): Whether the column is optional. Default: False.
-        roll_up_method (None | str | Unset): Default roll-up aggregation method for this metric (e.g., 'sum',
+        data_type (Union[DataType, None]): Data type of the column. This is used to determine how to format the data on
+            the UI.
+        label (Union[None, Unset, str]): Display label of the column in the UI.
+        description (Union[None, Unset, str]): Description of the column.
+        group_label (Union[None, Unset, str]): Display label of the column group.
+        data_unit (Union[DataUnit, None, Unset]): Data unit of the column (optional).
+        multi_valued (Union[Unset, bool]): Whether the column is multi-valued. Default: False.
+        allowed_values (Union[None, Unset, list[Any]]): Allowed values for this column.
+        sortable (Union[Unset, bool]): Whether the column is sortable.
+        filterable (Union[Unset, bool]): Whether the column is filterable.
+        is_empty (Union[Unset, bool]): Indicates whether the column is empty and should be hidden. Default: False.
+        applicable_types (Union[Unset, list[StepType]]): List of types applicable for this column.
+        complex_ (Union[Unset, bool]): Whether the column requires special handling in the UI. Setting this to True will
+            hide the column in the UI until the UI adds support for it. Default: False.
+        is_optional (Union[Unset, bool]): Whether the column is optional. Default: False.
+        roll_up_method (Union[None, Unset, str]): Default roll-up aggregation method for this metric (e.g., 'sum',
             'average').
     """
 
     id: str
     category: ColumnCategory
-    data_type: DataType | None
-    label: None | str | Unset = UNSET
-    description: None | str | Unset = UNSET
-    group_label: None | str | Unset = UNSET
-    data_unit: DataUnit | None | Unset = UNSET
-    multi_valued: bool | Unset = False
-    allowed_values: list[Any] | None | Unset = UNSET
-    sortable: bool | Unset = UNSET
-    filterable: bool | Unset = UNSET
-    is_empty: bool | Unset = False
-    applicable_types: list[StepType] | Unset = UNSET
-    complex_: bool | Unset = False
-    is_optional: bool | Unset = False
-    roll_up_method: None | str | Unset = UNSET
+    data_type: Union[DataType, None]
+    label: Union[None, Unset, str] = UNSET
+    description: Union[None, Unset, str] = UNSET
+    group_label: Union[None, Unset, str] = UNSET
+    data_unit: Union[DataUnit, None, Unset] = UNSET
+    multi_valued: Union[Unset, bool] = False
+    allowed_values: Union[None, Unset, list[Any]] = UNSET
+    sortable: Union[Unset, bool] = UNSET
+    filterable: Union[Unset, bool] = UNSET
+    is_empty: Union[Unset, bool] = False
+    applicable_types: Union[Unset, list[StepType]] = UNSET
+    complex_: Union[Unset, bool] = False
+    is_optional: Union[Unset, bool] = False
+    roll_up_method: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -64,19 +62,19 @@ class ColumnInfo:
 
         category = self.category.value
 
-        data_type: None | str
+        data_type: Union[None, str]
         data_type = self.data_type.value if isinstance(self.data_type, DataType) else self.data_type
 
-        label: None | str | Unset
+        label: Union[None, Unset, str]
         label = UNSET if isinstance(self.label, Unset) else self.label
 
-        description: None | str | Unset
+        description: Union[None, Unset, str]
         description = UNSET if isinstance(self.description, Unset) else self.description
 
-        group_label: None | str | Unset
+        group_label: Union[None, Unset, str]
         group_label = UNSET if isinstance(self.group_label, Unset) else self.group_label
 
-        data_unit: None | str | Unset
+        data_unit: Union[None, Unset, str]
         if isinstance(self.data_unit, Unset):
             data_unit = UNSET
         elif isinstance(self.data_unit, DataUnit):
@@ -86,7 +84,7 @@ class ColumnInfo:
 
         multi_valued = self.multi_valued
 
-        allowed_values: list[Any] | None | Unset
+        allowed_values: Union[None, Unset, list[Any]]
         if isinstance(self.allowed_values, Unset):
             allowed_values = UNSET
         elif isinstance(self.allowed_values, list):
@@ -101,7 +99,7 @@ class ColumnInfo:
 
         is_empty = self.is_empty
 
-        applicable_types: list[str] | Unset = UNSET
+        applicable_types: Union[Unset, list[str]] = UNSET
         if not isinstance(self.applicable_types, Unset):
             applicable_types = []
             for applicable_types_item_data in self.applicable_types:
@@ -112,7 +110,7 @@ class ColumnInfo:
 
         is_optional = self.is_optional
 
-        roll_up_method: None | str | Unset
+        roll_up_method: Union[None, Unset, str]
         roll_up_method = UNSET if isinstance(self.roll_up_method, Unset) else self.roll_up_method
 
         field_dict: dict[str, Any] = {}
@@ -154,7 +152,7 @@ class ColumnInfo:
 
         category = ColumnCategory(d.pop("category"))
 
-        def _parse_data_type(data: object) -> DataType | None:
+        def _parse_data_type(data: object) -> Union[DataType, None]:
             if data is None:
                 return data
             try:
@@ -164,38 +162,38 @@ class ColumnInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(DataType | None, data)
+            return cast(Union[DataType, None], data)
 
         data_type = _parse_data_type(d.pop("data_type"))
 
-        def _parse_label(data: object) -> None | str | Unset:
+        def _parse_label(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         label = _parse_label(d.pop("label", UNSET))
 
-        def _parse_description(data: object) -> None | str | Unset:
+        def _parse_description(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         description = _parse_description(d.pop("description", UNSET))
 
-        def _parse_group_label(data: object) -> None | str | Unset:
+        def _parse_group_label(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         group_label = _parse_group_label(d.pop("group_label", UNSET))
 
-        def _parse_data_unit(data: object) -> DataUnit | None | Unset:
+        def _parse_data_unit(data: object) -> Union[DataUnit, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -207,13 +205,13 @@ class ColumnInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(DataUnit | None | Unset, data)
+            return cast(Union[DataUnit, None, Unset], data)
 
         data_unit = _parse_data_unit(d.pop("data_unit", UNSET))
 
         multi_valued = d.pop("multi_valued", UNSET)
 
-        def _parse_allowed_values(data: object) -> list[Any] | None | Unset:
+        def _parse_allowed_values(data: object) -> Union[None, Unset, list[Any]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -225,7 +223,7 @@ class ColumnInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(list[Any] | None | Unset, data)
+            return cast(Union[None, Unset, list[Any]], data)
 
         allowed_values = _parse_allowed_values(d.pop("allowed_values", UNSET))
 
@@ -235,25 +233,23 @@ class ColumnInfo:
 
         is_empty = d.pop("is_empty", UNSET)
 
+        applicable_types = []
         _applicable_types = d.pop("applicable_types", UNSET)
-        applicable_types: list[StepType] | Unset = UNSET
-        if _applicable_types is not UNSET:
-            applicable_types = []
-            for applicable_types_item_data in _applicable_types:
-                applicable_types_item = StepType(applicable_types_item_data)
+        for applicable_types_item_data in _applicable_types or []:
+            applicable_types_item = StepType(applicable_types_item_data)
 
-                applicable_types.append(applicable_types_item)
+            applicable_types.append(applicable_types_item)
 
         complex_ = d.pop("complex", UNSET)
 
         is_optional = d.pop("is_optional", UNSET)
 
-        def _parse_roll_up_method(data: object) -> None | str | Unset:
+        def _parse_roll_up_method(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
 

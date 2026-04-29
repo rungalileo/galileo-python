@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,44 +17,44 @@ class MetricsTestingAvailableColumnsRequest:
     Attributes
     ----------
         name (str): Name of the metric that we are testing.
-        log_stream_id (None | str | Unset): Log stream id associated with the traces.
-        experiment_id (None | str | Unset): Experiment id associated with the traces.
-        metrics_testing_id (None | str | Unset): Metrics testing id associated with the traces.
-        output_type (OutputTypeEnum | Unset): Enumeration of output types.
-        cot_enabled (bool | Unset): Whether the metrics testing table is using chain of thought (CoT) enabled scorers.
-            If True, the columns will be generated for CoT enabled scorers. Default: False.
-        metric_key (str | Unset): The metric key to use for column generation (e.g., 'generated_scorer_validation' or
-            'registered_scorer_validation'). Default: 'generated_scorer_validation'.
-        required_scorers (list[str] | None | Unset): List of required scorer names for composite scorers. Columns will
-            be generated for these scorers.
-        score_type (None | str | Unset): The score type for registered scorers (e.g., 'bool', 'int', 'float', 'str').
-            Used to determine the correct data_type for the column. Provided by validation result.
+        log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
+        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
+        output_type (Union[Unset, OutputTypeEnum]): Enumeration of output types.
+        cot_enabled (Union[Unset, bool]): Whether the metrics testing table is using chain of thought (CoT) enabled
+            scorers. If True, the columns will be generated for CoT enabled scorers. Default: False.
+        metric_key (Union[Unset, str]): The metric key to use for column generation (e.g., 'generated_scorer_validation'
+            or 'registered_scorer_validation'). Default: 'generated_scorer_validation'.
+        required_scorers (Union[None, Unset, list[str]]): List of required scorer names for composite scorers. Columns
+            will be generated for these scorers.
+        score_type (Union[None, Unset, str]): The score type for registered scorers (e.g., 'bool', 'int', 'float',
+            'str'). Used to determine the correct data_type for the column. Provided by validation result.
     """
 
     name: str
-    log_stream_id: None | str | Unset = UNSET
-    experiment_id: None | str | Unset = UNSET
-    metrics_testing_id: None | str | Unset = UNSET
-    output_type: OutputTypeEnum | Unset = UNSET
-    cot_enabled: bool | Unset = False
-    metric_key: str | Unset = "generated_scorer_validation"
-    required_scorers: list[str] | None | Unset = UNSET
-    score_type: None | str | Unset = UNSET
+    log_stream_id: Union[None, Unset, str] = UNSET
+    experiment_id: Union[None, Unset, str] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
+    output_type: Union[Unset, OutputTypeEnum] = UNSET
+    cot_enabled: Union[Unset, bool] = False
+    metric_key: Union[Unset, str] = "generated_scorer_validation"
+    required_scorers: Union[None, Unset, list[str]] = UNSET
+    score_type: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        log_stream_id: None | str | Unset
+        log_stream_id: Union[None, Unset, str]
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
-        experiment_id: None | str | Unset
+        experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
-        metrics_testing_id: None | str | Unset
+        metrics_testing_id: Union[None, Unset, str]
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
-        output_type: str | Unset = UNSET
+        output_type: Union[Unset, str] = UNSET
         if not isinstance(self.output_type, Unset):
             output_type = self.output_type.value
 
@@ -64,7 +62,7 @@ class MetricsTestingAvailableColumnsRequest:
 
         metric_key = self.metric_key
 
-        required_scorers: list[str] | None | Unset
+        required_scorers: Union[None, Unset, list[str]]
         if isinstance(self.required_scorers, Unset):
             required_scorers = UNSET
         elif isinstance(self.required_scorers, list):
@@ -73,7 +71,7 @@ class MetricsTestingAvailableColumnsRequest:
         else:
             required_scorers = self.required_scorers
 
-        score_type: None | str | Unset
+        score_type: Union[None, Unset, str]
         score_type = UNSET if isinstance(self.score_type, Unset) else self.score_type
 
         field_dict: dict[str, Any] = {}
@@ -103,42 +101,42 @@ class MetricsTestingAvailableColumnsRequest:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_log_stream_id(data: object) -> None | str | Unset:
+        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        def _parse_experiment_id(data: object) -> None | str | Unset:
+        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_metrics_testing_id(data: object) -> None | str | Unset:
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
         _output_type = d.pop("output_type", UNSET)
-        output_type: OutputTypeEnum | Unset
+        output_type: Union[Unset, OutputTypeEnum]
         output_type = UNSET if isinstance(_output_type, Unset) else OutputTypeEnum(_output_type)
 
         cot_enabled = d.pop("cot_enabled", UNSET)
 
         metric_key = d.pop("metric_key", UNSET)
 
-        def _parse_required_scorers(data: object) -> list[str] | None | Unset:
+        def _parse_required_scorers(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -150,16 +148,16 @@ class MetricsTestingAvailableColumnsRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(list[str] | None | Unset, data)
+            return cast(Union[None, Unset, list[str]], data)
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
-        def _parse_score_type(data: object) -> None | str | Unset:
+        def _parse_score_type(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         score_type = _parse_score_type(d.pop("score_type", UNSET))
 

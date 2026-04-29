@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -10,7 +8,6 @@ if TYPE_CHECKING:
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
     from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
-    from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
     from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_text_filter import LogRecordsTextFilter
@@ -24,19 +21,18 @@ class FilterLeafLogRecordsFilter:
     """
     Attributes
     ----------
-        filter_ (LogRecordsBooleanFilter | LogRecordsCollectionFilter | LogRecordsDateFilter |
-            LogRecordsFullyAnnotatedFilter | LogRecordsIDFilter | LogRecordsNumberFilter | LogRecordsTextFilter):
+        filter_ (Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter', 'LogRecordsDateFilter',
+            'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']):
     """
 
-    filter_: (
-        LogRecordsBooleanFilter
-        | LogRecordsCollectionFilter
-        | LogRecordsDateFilter
-        | LogRecordsFullyAnnotatedFilter
-        | LogRecordsIDFilter
-        | LogRecordsNumberFilter
-        | LogRecordsTextFilter
-    )
+    filter_: Union[
+        "LogRecordsBooleanFilter",
+        "LogRecordsCollectionFilter",
+        "LogRecordsDateFilter",
+        "LogRecordsIDFilter",
+        "LogRecordsNumberFilter",
+        "LogRecordsTextFilter",
+    ]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -45,16 +41,17 @@ class FilterLeafLogRecordsFilter:
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
-        from ..models.log_records_text_filter import LogRecordsTextFilter
 
         filter_: dict[str, Any]
         if isinstance(
             self.filter_,
-            LogRecordsIDFilter
-            | LogRecordsDateFilter
-            | LogRecordsNumberFilter
-            | LogRecordsBooleanFilter
-            | (LogRecordsCollectionFilter | LogRecordsTextFilter),
+            (
+                LogRecordsIDFilter,
+                LogRecordsDateFilter,
+                LogRecordsNumberFilter,
+                LogRecordsBooleanFilter,
+                LogRecordsCollectionFilter,
+            ),
         ):
             filter_ = self.filter_.to_dict()
         else:
@@ -71,7 +68,6 @@ class FilterLeafLogRecordsFilter:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
-        from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_text_filter import LogRecordsTextFilter
@@ -80,15 +76,14 @@ class FilterLeafLogRecordsFilter:
 
         def _parse_filter_(
             data: object,
-        ) -> (
-            LogRecordsBooleanFilter
-            | LogRecordsCollectionFilter
-            | LogRecordsDateFilter
-            | LogRecordsFullyAnnotatedFilter
-            | LogRecordsIDFilter
-            | LogRecordsNumberFilter
-            | LogRecordsTextFilter
-        ):
+        ) -> Union[
+            "LogRecordsBooleanFilter",
+            "LogRecordsCollectionFilter",
+            "LogRecordsDateFilter",
+            "LogRecordsIDFilter",
+            "LogRecordsNumberFilter",
+            "LogRecordsTextFilter",
+        ]:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
@@ -124,16 +119,9 @@ class FilterLeafLogRecordsFilter:
 
             except:  # noqa: E722
                 pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return LogRecordsTextFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return LogRecordsFullyAnnotatedFilter.from_dict(data)
+            return LogRecordsTextFilter.from_dict(data)
 
         filter_ = _parse_filter_(d.pop("filter"))
 

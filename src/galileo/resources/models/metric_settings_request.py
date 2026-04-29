@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,16 +19,16 @@ class MetricSettingsRequest:
     """
     Attributes
     ----------
-        scorers (list[ScorerConfig] | None | Unset): List of Galileo scorers to enable.
-        segment_filters (list[SegmentFilter] | None | Unset): List of segment filters to apply to the run.
+        scorers (Union[None, Unset, list['ScorerConfig']]): List of Galileo scorers to enable.
+        segment_filters (Union[None, Unset, list['SegmentFilter']]): List of segment filters to apply to the run.
     """
 
-    scorers: list[ScorerConfig] | None | Unset = UNSET
-    segment_filters: list[SegmentFilter] | None | Unset = UNSET
+    scorers: Union[None, Unset, list["ScorerConfig"]] = UNSET
+    segment_filters: Union[None, Unset, list["SegmentFilter"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        scorers: list[dict[str, Any]] | None | Unset
+        scorers: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.scorers, Unset):
             scorers = UNSET
         elif isinstance(self.scorers, list):
@@ -42,7 +40,7 @@ class MetricSettingsRequest:
         else:
             scorers = self.scorers
 
-        segment_filters: list[dict[str, Any]] | None | Unset
+        segment_filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.segment_filters, Unset):
             segment_filters = UNSET
         elif isinstance(self.segment_filters, list):
@@ -71,7 +69,7 @@ class MetricSettingsRequest:
 
         d = dict(src_dict)
 
-        def _parse_scorers(data: object) -> list[ScorerConfig] | None | Unset:
+        def _parse_scorers(data: object) -> Union[None, Unset, list["ScorerConfig"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -89,11 +87,11 @@ class MetricSettingsRequest:
                 return scorers_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[ScorerConfig] | None | Unset, data)
+            return cast(Union[None, Unset, list["ScorerConfig"]], data)
 
         scorers = _parse_scorers(d.pop("scorers", UNSET))
 
-        def _parse_segment_filters(data: object) -> list[SegmentFilter] | None | Unset:
+        def _parse_segment_filters(data: object) -> Union[None, Unset, list["SegmentFilter"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -111,7 +109,7 @@ class MetricSettingsRequest:
                 return segment_filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[SegmentFilter] | None | Unset, data)
+            return cast(Union[None, Unset, list["SegmentFilter"]], data)
 
         segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
 

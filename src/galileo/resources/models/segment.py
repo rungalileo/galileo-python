@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,14 +16,14 @@ class Segment:
     ----------
         start (int):
         end (int):
-        value (float | int | str):
-        prob (float | None | Unset):
+        value (Union[float, int, str]):
+        prob (Union[None, Unset, float]):
     """
 
     start: int
     end: int
-    value: float | int | str
-    prob: float | None | Unset = UNSET
+    value: Union[float, int, str]
+    prob: Union[None, Unset, float] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,10 +31,10 @@ class Segment:
 
         end = self.end
 
-        value: float | int | str
+        value: Union[float, int, str]
         value = self.value
 
-        prob: float | None | Unset
+        prob: Union[None, Unset, float]
         prob = UNSET if isinstance(self.prob, Unset) else self.prob
 
         field_dict: dict[str, Any] = {}
@@ -54,17 +52,17 @@ class Segment:
 
         end = d.pop("end")
 
-        def _parse_value(data: object) -> float | int | str:
-            return cast(float | int | str, data)
+        def _parse_value(data: object) -> Union[float, int, str]:
+            return cast(Union[float, int, str], data)
 
         value = _parse_value(d.pop("value"))
 
-        def _parse_prob(data: object) -> float | None | Unset:
+        def _parse_prob(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(float | None | Unset, data)
+            return cast(Union[None, Unset, float], data)
 
         prob = _parse_prob(d.pop("prob", UNSET))
 

@@ -10,8 +10,6 @@ class MetricAggregation(str, Enum):
     P90 = "P90"
     P95 = "P95"
     P99 = "P99"
-    PERCENTAGEFALSE = "PercentageFalse"
-    PERCENTAGETRUE = "PercentageTrue"
     SUM = "Sum"
 
     def __str__(self) -> str:

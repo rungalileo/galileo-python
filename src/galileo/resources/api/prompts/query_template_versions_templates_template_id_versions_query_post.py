@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -26,9 +26,9 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     template_id: str,
     *,
-    body: ListPromptTemplateVersionParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    body: ListPromptTemplateVersionParams,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -47,9 +47,7 @@ def _get_kwargs(
         "params": params,
     }
 
-    _kwargs["json"]: dict[str, Any] | Unset = UNSET
-    if not isinstance(body, Unset):
-        _kwargs["json"] = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -61,7 +59,7 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> HTTPValidationError | ListPromptTemplateVersionResponse:
+) -> Union[HTTPValidationError, ListPromptTemplateVersionResponse]:
     if response.status_code == 200:
         return ListPromptTemplateVersionResponse.from_dict(response.json())
 
@@ -88,7 +86,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | ListPromptTemplateVersionResponse]:
+) -> Response[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -101,10 +99,10 @@ def sync_detailed(
     template_id: str,
     *,
     client: ApiClient,
-    body: ListPromptTemplateVersionParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> Response[HTTPValidationError | ListPromptTemplateVersionResponse]:
+    body: ListPromptTemplateVersionParams,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Response[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]:
     """Query Template Versions.
 
      Query versions of a specific prompt template.
@@ -127,9 +125,9 @@ def sync_detailed(
 
     Args:
         template_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListPromptTemplateVersionParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListPromptTemplateVersionParams):
 
     Raises
     ------
@@ -138,7 +136,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListPromptTemplateVersionResponse]
+        Response[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]
     """
     kwargs = _get_kwargs(template_id=template_id, body=body, starting_token=starting_token, limit=limit)
 
@@ -151,10 +149,10 @@ def sync(
     template_id: str,
     *,
     client: ApiClient,
-    body: ListPromptTemplateVersionParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> HTTPValidationError | ListPromptTemplateVersionResponse | None:
+    body: ListPromptTemplateVersionParams,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Optional[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]:
     """Query Template Versions.
 
      Query versions of a specific prompt template.
@@ -177,9 +175,9 @@ def sync(
 
     Args:
         template_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListPromptTemplateVersionParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListPromptTemplateVersionParams):
 
     Raises
     ------
@@ -188,7 +186,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ListPromptTemplateVersionResponse
+        Union[HTTPValidationError, ListPromptTemplateVersionResponse]
     """
     return sync_detailed(
         template_id=template_id, client=client, body=body, starting_token=starting_token, limit=limit
@@ -199,10 +197,10 @@ async def asyncio_detailed(
     template_id: str,
     *,
     client: ApiClient,
-    body: ListPromptTemplateVersionParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> Response[HTTPValidationError | ListPromptTemplateVersionResponse]:
+    body: ListPromptTemplateVersionParams,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Response[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]:
     """Query Template Versions.
 
      Query versions of a specific prompt template.
@@ -225,9 +223,9 @@ async def asyncio_detailed(
 
     Args:
         template_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListPromptTemplateVersionParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListPromptTemplateVersionParams):
 
     Raises
     ------
@@ -236,7 +234,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListPromptTemplateVersionResponse]
+        Response[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]
     """
     kwargs = _get_kwargs(template_id=template_id, body=body, starting_token=starting_token, limit=limit)
 
@@ -249,10 +247,10 @@ async def asyncio(
     template_id: str,
     *,
     client: ApiClient,
-    body: ListPromptTemplateVersionParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> HTTPValidationError | ListPromptTemplateVersionResponse | None:
+    body: ListPromptTemplateVersionParams,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Optional[Union[HTTPValidationError, ListPromptTemplateVersionResponse]]:
     """Query Template Versions.
 
      Query versions of a specific prompt template.
@@ -275,9 +273,9 @@ async def asyncio(
 
     Args:
         template_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListPromptTemplateVersionParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListPromptTemplateVersionParams):
 
     Raises
     ------
@@ -286,7 +284,7 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ListPromptTemplateVersionResponse
+        Union[HTTPValidationError, ListPromptTemplateVersionResponse]
     """
     return (
         await asyncio_detailed(

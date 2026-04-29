@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -26,13 +26,13 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    project_id: str, run_id: str, *, multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET
+    project_id: str, run_id: str, *, multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_multimodal_capabilities: list[str] | None | Unset
+    json_multimodal_capabilities: Union[None, Unset, list[str]]
     if isinstance(multimodal_capabilities, Unset):
         json_multimodal_capabilities = UNSET
     elif isinstance(multimodal_capabilities, list):
@@ -62,10 +62,10 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> (
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
-):
+) -> Union[
+    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+    HTTPValidationError,
+]:
     if response.status_code == 200:
         return GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse.from_dict(
             response.json()
@@ -95,8 +95,10 @@ def _parse_response(
 def _build_response(
     *, client: ApiClient, response: httpx.Response
 ) -> Response[
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
+    Union[
+        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+        HTTPValidationError,
+    ]
 ]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -111,10 +113,12 @@ def sync_detailed(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET,
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
 ) -> Response[
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
+    Union[
+        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+        HTTPValidationError,
+    ]
 ]:
     """Get Integrations And Model Info For Run.
 
@@ -123,7 +127,7 @@ def sync_detailed(
     Args:
         project_id (str):
         run_id (str):
-        multimodal_capabilities (list[MultimodalCapability] | None | Unset):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -132,7 +136,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse | HTTPValidationError]
+        Response[Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, multimodal_capabilities=multimodal_capabilities)
 
@@ -146,12 +150,13 @@ def sync(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET,
-) -> (
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
-    | None
-):
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
+) -> Optional[
+    Union[
+        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+        HTTPValidationError,
+    ]
+]:
     """Get Integrations And Model Info For Run.
 
      Get the list of supported scorer models for the run owner's llm integrations.
@@ -159,7 +164,7 @@ def sync(
     Args:
         project_id (str):
         run_id (str):
-        multimodal_capabilities (list[MultimodalCapability] | None | Unset):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -168,7 +173,7 @@ def sync(
 
     Returns
     -------
-        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse | HTTPValidationError
+        Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]
     """
     return sync_detailed(
         project_id=project_id, run_id=run_id, client=client, multimodal_capabilities=multimodal_capabilities
@@ -180,10 +185,12 @@ async def asyncio_detailed(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET,
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
 ) -> Response[
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
+    Union[
+        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+        HTTPValidationError,
+    ]
 ]:
     """Get Integrations And Model Info For Run.
 
@@ -192,7 +199,7 @@ async def asyncio_detailed(
     Args:
         project_id (str):
         run_id (str):
-        multimodal_capabilities (list[MultimodalCapability] | None | Unset):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -201,7 +208,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse | HTTPValidationError]
+        Response[Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, multimodal_capabilities=multimodal_capabilities)
 
@@ -215,12 +222,13 @@ async def asyncio(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET,
-) -> (
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
-    | None
-):
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
+) -> Optional[
+    Union[
+        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+        HTTPValidationError,
+    ]
+]:
     """Get Integrations And Model Info For Run.
 
      Get the list of supported scorer models for the run owner's llm integrations.
@@ -228,7 +236,7 @@ async def asyncio(
     Args:
         project_id (str):
         run_id (str):
-        multimodal_capabilities (list[MultimodalCapability] | None | Unset):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -237,7 +245,7 @@ async def asyncio(
 
     Returns
     -------
-        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse | HTTPValidationError
+        Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]
     """
     return (
         await asyncio_detailed(

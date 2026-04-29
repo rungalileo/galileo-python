@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 
@@ -20,16 +18,16 @@ class Document:
     Attributes
     ----------
         content (str): Content of the document.
-        metadata (DocumentMetadata | Unset):
+        metadata (Union[Unset, DocumentMetadata]):
     """
 
     content: str
-    metadata: DocumentMetadata | Unset = UNSET
+    metadata: Union[Unset, "DocumentMetadata"] = UNSET
 
     def to_dict(self) -> dict[str, Any]:
         content = self.content
 
-        metadata: dict[str, Any] | Unset = UNSET
+        metadata: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metadata, Unset):
             metadata = self.metadata.to_dict()
 
@@ -49,7 +47,7 @@ class Document:
         content = d.pop("content")
 
         _metadata = d.pop("metadata", UNSET)
-        metadata: DocumentMetadata | Unset
+        metadata: Union[Unset, DocumentMetadata]
         metadata = UNSET if isinstance(_metadata, Unset) else DocumentMetadata.from_dict(_metadata)
 
         return cls(content=content, metadata=metadata)

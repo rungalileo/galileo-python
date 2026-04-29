@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,20 +15,20 @@ class GeneratedScorerConfiguration:
     """
     Attributes
     ----------
-        model_alias (str | Unset):  Default: 'gpt-4.1-mini'.
-        num_judges (int | Unset):  Default: 3.
-        output_type (OutputTypeEnum | Unset): Enumeration of output types.
-        scoreable_node_types (list[str] | Unset): Types of nodes that can be scored by this scorer.
-        cot_enabled (bool | Unset): Whether chain of thought is enabled for this scorer. Default: False.
-        ground_truth (bool | Unset): Whether ground truth is enabled for this scorer. Default: False.
+        model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.
+        num_judges (Union[Unset, int]):  Default: 3.
+        output_type (Union[Unset, OutputTypeEnum]): Enumeration of output types.
+        scoreable_node_types (Union[Unset, list[str]]): Types of nodes that can be scored by this scorer.
+        cot_enabled (Union[Unset, bool]): Whether chain of thought is enabled for this scorer. Default: False.
+        ground_truth (Union[Unset, bool]): Whether ground truth is enabled for this scorer. Default: False.
     """
 
-    model_alias: str | Unset = "gpt-4.1-mini"
-    num_judges: int | Unset = 3
-    output_type: OutputTypeEnum | Unset = UNSET
-    scoreable_node_types: list[str] | Unset = UNSET
-    cot_enabled: bool | Unset = False
-    ground_truth: bool | Unset = False
+    model_alias: Union[Unset, str] = "gpt-4.1-mini"
+    num_judges: Union[Unset, int] = 3
+    output_type: Union[Unset, OutputTypeEnum] = UNSET
+    scoreable_node_types: Union[Unset, list[str]] = UNSET
+    cot_enabled: Union[Unset, bool] = False
+    ground_truth: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,11 +36,11 @@ class GeneratedScorerConfiguration:
 
         num_judges = self.num_judges
 
-        output_type: str | Unset = UNSET
+        output_type: Union[Unset, str] = UNSET
         if not isinstance(self.output_type, Unset):
             output_type = self.output_type.value
 
-        scoreable_node_types: list[str] | Unset = UNSET
+        scoreable_node_types: Union[Unset, list[str]] = UNSET
         if not isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = self.scoreable_node_types
 
@@ -76,7 +74,7 @@ class GeneratedScorerConfiguration:
         num_judges = d.pop("num_judges", UNSET)
 
         _output_type = d.pop("output_type", UNSET)
-        output_type: OutputTypeEnum | Unset
+        output_type: Union[Unset, OutputTypeEnum]
         output_type = UNSET if isinstance(_output_type, Unset) else OutputTypeEnum(_output_type)
 
         scoreable_node_types = cast(list[str], d.pop("scoreable_node_types", UNSET))

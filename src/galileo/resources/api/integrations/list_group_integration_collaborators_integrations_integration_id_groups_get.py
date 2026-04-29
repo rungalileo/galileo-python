@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -22,7 +22,9 @@ from ...models.list_group_collaborators_response import ListGroupCollaboratorsRe
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(integration_id: str, *, starting_token: int | Unset = 0, limit: int | Unset = 100) -> dict[str, Any]:
+def _get_kwargs(
+    integration_id: str, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -48,7 +50,7 @@ def _get_kwargs(integration_id: str, *, starting_token: int | Unset = 0, limit: 
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> HTTPValidationError | ListGroupCollaboratorsResponse:
+) -> Union[HTTPValidationError, ListGroupCollaboratorsResponse]:
     if response.status_code == 200:
         return ListGroupCollaboratorsResponse.from_dict(response.json())
 
@@ -75,7 +77,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | ListGroupCollaboratorsResponse]:
+) -> Response[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -85,16 +87,16 @@ def _build_response(
 
 
 def sync_detailed(
-    integration_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Response[HTTPValidationError | ListGroupCollaboratorsResponse]:
+    integration_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Response[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]:
     """List Group Integration Collaborators.
 
      List the groups with which the integration has been shared.
 
     Args:
         integration_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -103,7 +105,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListGroupCollaboratorsResponse]
+        Response[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]
     """
     kwargs = _get_kwargs(integration_id=integration_id, starting_token=starting_token, limit=limit)
 
@@ -113,16 +115,16 @@ def sync_detailed(
 
 
 def sync(
-    integration_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> HTTPValidationError | ListGroupCollaboratorsResponse | None:
+    integration_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Optional[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]:
     """List Group Integration Collaborators.
 
      List the groups with which the integration has been shared.
 
     Args:
         integration_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -131,7 +133,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ListGroupCollaboratorsResponse
+        Union[HTTPValidationError, ListGroupCollaboratorsResponse]
     """
     return sync_detailed(
         integration_id=integration_id, client=client, starting_token=starting_token, limit=limit
@@ -139,16 +141,16 @@ def sync(
 
 
 async def asyncio_detailed(
-    integration_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Response[HTTPValidationError | ListGroupCollaboratorsResponse]:
+    integration_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Response[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]:
     """List Group Integration Collaborators.
 
      List the groups with which the integration has been shared.
 
     Args:
         integration_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -157,7 +159,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListGroupCollaboratorsResponse]
+        Response[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]
     """
     kwargs = _get_kwargs(integration_id=integration_id, starting_token=starting_token, limit=limit)
 
@@ -167,16 +169,16 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    integration_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> HTTPValidationError | ListGroupCollaboratorsResponse | None:
+    integration_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Optional[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]:
     """List Group Integration Collaborators.
 
      List the groups with which the integration has been shared.
 
     Args:
         integration_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -185,7 +187,7 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ListGroupCollaboratorsResponse
+        Union[HTTPValidationError, ListGroupCollaboratorsResponse]
     """
     return (
         await asyncio_detailed(integration_id=integration_id, client=client, starting_token=starting_token, limit=limit)

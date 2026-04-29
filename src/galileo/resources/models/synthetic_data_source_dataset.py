@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,22 +16,22 @@ class SyntheticDataSourceDataset:
     Attributes
     ----------
         dataset_id (str):
-        dataset_version_index (int | None | Unset):
-        row_ids (list[str] | None | Unset):
+        dataset_version_index (Union[None, Unset, int]):
+        row_ids (Union[None, Unset, list[str]]):
     """
 
     dataset_id: str
-    dataset_version_index: int | None | Unset = UNSET
-    row_ids: list[str] | None | Unset = UNSET
+    dataset_version_index: Union[None, Unset, int] = UNSET
+    row_ids: Union[None, Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         dataset_id = self.dataset_id
 
-        dataset_version_index: int | None | Unset
+        dataset_version_index: Union[None, Unset, int]
         dataset_version_index = UNSET if isinstance(self.dataset_version_index, Unset) else self.dataset_version_index
 
-        row_ids: list[str] | None | Unset
+        row_ids: Union[None, Unset, list[str]]
         if isinstance(self.row_ids, Unset):
             row_ids = UNSET
         elif isinstance(self.row_ids, list):
@@ -57,16 +55,16 @@ class SyntheticDataSourceDataset:
         d = dict(src_dict)
         dataset_id = d.pop("dataset_id")
 
-        def _parse_dataset_version_index(data: object) -> int | None | Unset:
+        def _parse_dataset_version_index(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(Union[None, Unset, int], data)
 
         dataset_version_index = _parse_dataset_version_index(d.pop("dataset_version_index", UNSET))
 
-        def _parse_row_ids(data: object) -> list[str] | None | Unset:
+        def _parse_row_ids(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -78,7 +76,7 @@ class SyntheticDataSourceDataset:
 
             except:  # noqa: E722
                 pass
-            return cast(list[str] | None | Unset, data)
+            return cast(Union[None, Unset, list[str]], data)
 
         row_ids = _parse_row_ids(d.pop("row_ids", UNSET))
 

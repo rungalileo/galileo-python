@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -26,14 +24,16 @@ class ExtendedRetrieverSpanRecordMetricInfoType0:
 
     additional_properties: dict[
         str,
-        MetricComputing
-        | MetricError
-        | MetricFailed
-        | MetricNotApplicable
-        | MetricNotComputed
-        | MetricPending
-        | MetricRollUp
-        | MetricSuccess,
+        Union[
+            "MetricComputing",
+            "MetricError",
+            "MetricFailed",
+            "MetricNotApplicable",
+            "MetricNotComputed",
+            "MetricPending",
+            "MetricRollUp",
+            "MetricSuccess",
+        ],
     ] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -49,12 +49,15 @@ class ExtendedRetrieverSpanRecordMetricInfoType0:
         for prop_name, prop in self.additional_properties.items():
             if isinstance(
                 prop,
-                MetricNotComputed
-                | MetricPending
-                | MetricComputing
-                | MetricNotApplicable
-                | (MetricSuccess | MetricError)
-                | MetricFailed,
+                (
+                    MetricNotComputed,
+                    MetricPending,
+                    MetricComputing,
+                    MetricNotApplicable,
+                    MetricSuccess,
+                    MetricError,
+                    MetricFailed,
+                ),
             ):
                 field_dict[prop_name] = prop.to_dict()
             else:
@@ -81,16 +84,16 @@ class ExtendedRetrieverSpanRecordMetricInfoType0:
 
             def _parse_additional_property(
                 data: object,
-            ) -> (
-                MetricComputing
-                | MetricError
-                | MetricFailed
-                | MetricNotApplicable
-                | MetricNotComputed
-                | MetricPending
-                | MetricRollUp
-                | MetricSuccess
-            ):
+            ) -> Union[
+                "MetricComputing",
+                "MetricError",
+                "MetricFailed",
+                "MetricNotApplicable",
+                "MetricNotComputed",
+                "MetricPending",
+                "MetricRollUp",
+                "MetricSuccess",
+            ]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
@@ -157,29 +160,31 @@ class ExtendedRetrieverSpanRecordMetricInfoType0:
 
     def __getitem__(
         self, key: str
-    ) -> (
-        MetricComputing
-        | MetricError
-        | MetricFailed
-        | MetricNotApplicable
-        | MetricNotComputed
-        | MetricPending
-        | MetricRollUp
-        | MetricSuccess
-    ):
+    ) -> Union[
+        "MetricComputing",
+        "MetricError",
+        "MetricFailed",
+        "MetricNotApplicable",
+        "MetricNotComputed",
+        "MetricPending",
+        "MetricRollUp",
+        "MetricSuccess",
+    ]:
         return self.additional_properties[key]
 
     def __setitem__(
         self,
         key: str,
-        value: MetricComputing
-        | MetricError
-        | MetricFailed
-        | MetricNotApplicable
-        | MetricNotComputed
-        | MetricPending
-        | MetricRollUp
-        | MetricSuccess,
+        value: Union[
+            "MetricComputing",
+            "MetricError",
+            "MetricFailed",
+            "MetricNotApplicable",
+            "MetricNotComputed",
+            "MetricPending",
+            "MetricRollUp",
+            "MetricSuccess",
+        ],
     ) -> None:
         self.additional_properties[key] = value
 

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -88,7 +88,7 @@ def sync_detailed(*, client: ApiClient) -> Response[AvailableIntegrations]:
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient) -> AvailableIntegrations | None:
+def sync(*, client: ApiClient) -> Optional[AvailableIntegrations]:
     """List Available Integrations.
 
      List all of the available integrations to be created in Galileo.
@@ -126,7 +126,7 @@ async def asyncio_detailed(*, client: ApiClient) -> Response[AvailableIntegratio
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient) -> AvailableIntegrations | None:
+async def asyncio(*, client: ApiClient) -> Optional[AvailableIntegrations]:
     """List Available Integrations.
 
      List all of the available integrations to be created in Galileo.

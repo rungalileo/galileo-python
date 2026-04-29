@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -42,7 +42,9 @@ def _get_kwargs(project_id: str, *, body: LogSpansIngestRequest) -> dict[str, An
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | LogSpansIngestResponse:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[HTTPValidationError, LogSpansIngestResponse]:
     if response.status_code == 200:
         return LogSpansIngestResponse.from_dict(response.json())
 
@@ -69,7 +71,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | LogSpansIngestResponse]:
+) -> Response[Union[HTTPValidationError, LogSpansIngestResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,7 +82,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogSpansIngestRequest
-) -> Response[HTTPValidationError | LogSpansIngestResponse]:
+) -> Response[Union[HTTPValidationError, LogSpansIngestResponse]]:
     """Log Spans.
 
     Args:
@@ -94,7 +96,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | LogSpansIngestResponse]
+        Response[Union[HTTPValidationError, LogSpansIngestResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -105,7 +107,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: LogSpansIngestRequest
-) -> HTTPValidationError | LogSpansIngestResponse | None:
+) -> Optional[Union[HTTPValidationError, LogSpansIngestResponse]]:
     """Log Spans.
 
     Args:
@@ -119,14 +121,14 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | LogSpansIngestResponse
+        Union[HTTPValidationError, LogSpansIngestResponse]
     """
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogSpansIngestRequest
-) -> Response[HTTPValidationError | LogSpansIngestResponse]:
+) -> Response[Union[HTTPValidationError, LogSpansIngestResponse]]:
     """Log Spans.
 
     Args:
@@ -140,7 +142,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | LogSpansIngestResponse]
+        Response[Union[HTTPValidationError, LogSpansIngestResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -151,7 +153,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogSpansIngestRequest
-) -> HTTPValidationError | LogSpansIngestResponse | None:
+) -> Optional[Union[HTTPValidationError, LogSpansIngestResponse]]:
     """Log Spans.
 
     Args:
@@ -165,6 +167,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | LogSpansIngestResponse
+        Union[HTTPValidationError, LogSpansIngestResponse]
     """
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

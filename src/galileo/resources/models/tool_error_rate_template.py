@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,9 +21,9 @@ class ToolErrorRateTemplate:
 
     Attributes
     ----------
-            metric_system_prompt (str | Unset):  Default: 'One or more functions have been called, and you will receive
-                their output. The output format could be a string containing the tool\'s result, it could be in JSON or XML
-                format with additional metadata and information, or it could be a list of the outputs in any such
+            metric_system_prompt (Union[Unset, str]):  Default: 'One or more functions have been called, and you will
+                receive their output. The output format could be a string containing the tool\'s result, it could be in JSON or
+                XML format with additional metadata and information, or it could be a list of the outputs in any such
                 format.\n\nYour task is to determine whether at least one function call didn\'t execute correctly and errored
                 out. If at least one call failed, then you should consider the entire call as a failure. \nYou should NOT
                 evaluate any other aspect of the tool call. In particular you should not evaluate whether the output is well
@@ -37,28 +35,28 @@ class ToolErrorRateTemplate:
                 failed, provide your step-by-step reasoning to determine why it might have failed. If all tool calls were
                 succesful, leave this blank.\n\nYou must respond with a valid JSON object; don\'t forget to escape special
                 characters.'.
-            metric_description (str | Unset):  Default: 'I have a multi-turn chatbot application where the assistant is an
-                agent that has access to tools. I want a metric to evaluate whether a tool invocation was successful or if it
-                resulted in an error.'.
-            value_field_name (str | Unset):  Default: 'function_errored_out'.
-            explanation_field_name (str | Unset): Field name to look for in the chainpoll response, for the explanation.
-                Default: 'explanation'.
-            template (str | Unset):  Default: 'Tools output:\n```\n{response}\n```'.
-            metric_few_shot_examples (list[FewShotExample] | Unset):
-            response_schema (None | ToolErrorRateTemplateResponseSchemaType0 | Unset): Response schema for the output
+            metric_description (Union[Unset, str]):  Default: 'I have a multi-turn chatbot application where the assistant
+                is an agent that has access to tools. I want a metric to evaluate whether a tool invocation was successful or if
+                it resulted in an error.'.
+            value_field_name (Union[Unset, str]):  Default: 'function_errored_out'.
+            explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
+                explanation. Default: 'explanation'.
+            template (Union[Unset, str]):  Default: 'Tools output:\n```\n{response}\n```'.
+            metric_few_shot_examples (Union[Unset, list['FewShotExample']]):
+            response_schema (Union['ToolErrorRateTemplateResponseSchemaType0', None, Unset]): Response schema for the output
     """
 
-    metric_system_prompt: str | Unset = (
+    metric_system_prompt: Union[Unset, str] = (
         'One or more functions have been called, and you will receive their output. The output format could be a string containing the tool\'s result, it could be in JSON or XML format with additional metadata and information, or it could be a list of the outputs in any such format.\n\nYour task is to determine whether at least one function call didn\'t execute correctly and errored out. If at least one call failed, then you should consider the entire call as a failure. \nYou should NOT evaluate any other aspect of the tool call. In particular you should not evaluate whether the output is well formatted, coherent or contains spelling mistakes.\n\nIf you conclude that the call failed, provide an explanation as to why. You may summarize any error message you encounter. If the call was successful, no explanation is needed.\n\nRespond in the following JSON format:\n\n```\n{\n   \\"function_errored_out\\": boolean,\n   \\"explanation\\": string\n}\n```\n\n- **\\"function_errored_out\\"**: Use `false` if all tool calls were successful, and `true` if at least one errored out.\n\n- **\\"explanation\\"**: If a tool call failed, provide your step-by-step reasoning to determine why it might have failed. If all tool calls were succesful, leave this blank.\n\nYou must respond with a valid JSON object; don\'t forget to escape special characters.'
     )
-    metric_description: str | Unset = (
+    metric_description: Union[Unset, str] = (
         "I have a multi-turn chatbot application where the assistant is an agent that has access to tools. I want a metric to evaluate whether a tool invocation was successful or if it resulted in an error."
     )
-    value_field_name: str | Unset = "function_errored_out"
-    explanation_field_name: str | Unset = "explanation"
-    template: str | Unset = "Tools output:\n```\n{response}\n```"
-    metric_few_shot_examples: list[FewShotExample] | Unset = UNSET
-    response_schema: None | ToolErrorRateTemplateResponseSchemaType0 | Unset = UNSET
+    value_field_name: Union[Unset, str] = "function_errored_out"
+    explanation_field_name: Union[Unset, str] = "explanation"
+    template: Union[Unset, str] = "Tools output:\n```\n{response}\n```"
+    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
+    response_schema: Union["ToolErrorRateTemplateResponseSchemaType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -74,14 +72,14 @@ class ToolErrorRateTemplate:
 
         template = self.template
 
-        metric_few_shot_examples: list[dict[str, Any]] | Unset = UNSET
+        metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
             metric_few_shot_examples = []
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        response_schema: dict[str, Any] | None | Unset
+        response_schema: Union[None, Unset, dict[str, Any]]
         if isinstance(self.response_schema, Unset):
             response_schema = UNSET
         elif isinstance(self.response_schema, ToolErrorRateTemplateResponseSchemaType0):
@@ -125,16 +123,14 @@ class ToolErrorRateTemplate:
 
         template = d.pop("template", UNSET)
 
+        metric_few_shot_examples = []
         _metric_few_shot_examples = d.pop("metric_few_shot_examples", UNSET)
-        metric_few_shot_examples: list[FewShotExample] | Unset = UNSET
-        if _metric_few_shot_examples is not UNSET:
-            metric_few_shot_examples = []
-            for metric_few_shot_examples_item_data in _metric_few_shot_examples:
-                metric_few_shot_examples_item = FewShotExample.from_dict(metric_few_shot_examples_item_data)
+        for metric_few_shot_examples_item_data in _metric_few_shot_examples or []:
+            metric_few_shot_examples_item = FewShotExample.from_dict(metric_few_shot_examples_item_data)
 
-                metric_few_shot_examples.append(metric_few_shot_examples_item)
+            metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        def _parse_response_schema(data: object) -> None | ToolErrorRateTemplateResponseSchemaType0 | Unset:
+        def _parse_response_schema(data: object) -> Union["ToolErrorRateTemplateResponseSchemaType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -146,7 +142,7 @@ class ToolErrorRateTemplate:
 
             except:  # noqa: E722
                 pass
-            return cast(None | ToolErrorRateTemplateResponseSchemaType0 | Unset, data)
+            return cast(Union["ToolErrorRateTemplateResponseSchemaType0", None, Unset], data)
 
         response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
 

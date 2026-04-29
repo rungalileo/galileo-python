@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -38,7 +38,7 @@ def _get_kwargs(*, body: CreateJobRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> CreateJobResponse | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[CreateJobResponse, HTTPValidationError]:
     if response.status_code == 200:
         return CreateJobResponse.from_dict(response.json())
 
@@ -65,7 +65,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> CreateJob
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[CreateJobResponse | HTTPValidationError]:
+) -> Response[Union[CreateJobResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -74,7 +74,9 @@ def _build_response(
     )
 
 
-def sync_detailed(*, client: ApiClient, body: CreateJobRequest) -> Response[CreateJobResponse | HTTPValidationError]:
+def sync_detailed(
+    *, client: ApiClient, body: CreateJobRequest
+) -> Response[Union[CreateJobResponse, HTTPValidationError]]:
     """Create Job.
 
     Args:
@@ -87,7 +89,7 @@ def sync_detailed(*, client: ApiClient, body: CreateJobRequest) -> Response[Crea
 
     Returns
     -------
-        Response[CreateJobResponse | HTTPValidationError]
+        Response[Union[CreateJobResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -96,7 +98,7 @@ def sync_detailed(*, client: ApiClient, body: CreateJobRequest) -> Response[Crea
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: CreateJobRequest) -> CreateJobResponse | HTTPValidationError | None:
+def sync(*, client: ApiClient, body: CreateJobRequest) -> Optional[Union[CreateJobResponse, HTTPValidationError]]:
     """Create Job.
 
     Args:
@@ -109,14 +111,14 @@ def sync(*, client: ApiClient, body: CreateJobRequest) -> CreateJobResponse | HT
 
     Returns
     -------
-        CreateJobResponse | HTTPValidationError
+        Union[CreateJobResponse, HTTPValidationError]
     """
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: CreateJobRequest
-) -> Response[CreateJobResponse | HTTPValidationError]:
+) -> Response[Union[CreateJobResponse, HTTPValidationError]]:
     """Create Job.
 
     Args:
@@ -129,7 +131,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[CreateJobResponse | HTTPValidationError]
+        Response[Union[CreateJobResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -138,7 +140,9 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: CreateJobRequest) -> CreateJobResponse | HTTPValidationError | None:
+async def asyncio(
+    *, client: ApiClient, body: CreateJobRequest
+) -> Optional[Union[CreateJobResponse, HTTPValidationError]]:
     """Create Job.
 
     Args:
@@ -151,6 +155,6 @@ async def asyncio(*, client: ApiClient, body: CreateJobRequest) -> CreateJobResp
 
     Returns
     -------
-        CreateJobResponse | HTTPValidationError
+        Union[CreateJobResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

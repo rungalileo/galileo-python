@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -22,7 +22,7 @@ from ...models.log_stream_response import LogStreamResponse
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(project_id: str, *, include_counts: bool | Unset = False) -> dict[str, Any]:
+def _get_kwargs(project_id: str, *, include_counts: Union[Unset, bool] = False) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -44,7 +44,9 @@ def _get_kwargs(project_id: str, *, include_counts: bool | Unset = False) -> dic
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list[LogStreamResponse]:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[HTTPValidationError, list["LogStreamResponse"]]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -78,7 +80,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | list[LogStreamResponse]]:
+) -> Response[Union[HTTPValidationError, list["LogStreamResponse"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -88,8 +90,8 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, *, client: ApiClient, include_counts: bool | Unset = False
-) -> Response[HTTPValidationError | list[LogStreamResponse]]:
+    project_id: str, *, client: ApiClient, include_counts: Union[Unset, bool] = False
+) -> Response[Union[HTTPValidationError, list["LogStreamResponse"]]]:
     """List Log Streams.
 
      Retrieve all log streams for a project.
@@ -98,7 +100,7 @@ def sync_detailed(
 
     Args:
         project_id (str):
-        include_counts (bool | Unset):  Default: False.
+        include_counts (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -107,7 +109,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | list[LogStreamResponse]]
+        Response[Union[HTTPValidationError, list['LogStreamResponse']]]
     """
     kwargs = _get_kwargs(project_id=project_id, include_counts=include_counts)
 
@@ -117,8 +119,8 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str, *, client: ApiClient, include_counts: bool | Unset = False
-) -> HTTPValidationError | list[LogStreamResponse] | None:
+    project_id: str, *, client: ApiClient, include_counts: Union[Unset, bool] = False
+) -> Optional[Union[HTTPValidationError, list["LogStreamResponse"]]]:
     """List Log Streams.
 
      Retrieve all log streams for a project.
@@ -127,7 +129,7 @@ def sync(
 
     Args:
         project_id (str):
-        include_counts (bool | Unset):  Default: False.
+        include_counts (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -136,14 +138,14 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | list[LogStreamResponse]
+        Union[HTTPValidationError, list['LogStreamResponse']]
     """
     return sync_detailed(project_id=project_id, client=client, include_counts=include_counts).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, *, client: ApiClient, include_counts: bool | Unset = False
-) -> Response[HTTPValidationError | list[LogStreamResponse]]:
+    project_id: str, *, client: ApiClient, include_counts: Union[Unset, bool] = False
+) -> Response[Union[HTTPValidationError, list["LogStreamResponse"]]]:
     """List Log Streams.
 
      Retrieve all log streams for a project.
@@ -152,7 +154,7 @@ async def asyncio_detailed(
 
     Args:
         project_id (str):
-        include_counts (bool | Unset):  Default: False.
+        include_counts (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -161,7 +163,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | list[LogStreamResponse]]
+        Response[Union[HTTPValidationError, list['LogStreamResponse']]]
     """
     kwargs = _get_kwargs(project_id=project_id, include_counts=include_counts)
 
@@ -171,8 +173,8 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, *, client: ApiClient, include_counts: bool | Unset = False
-) -> HTTPValidationError | list[LogStreamResponse] | None:
+    project_id: str, *, client: ApiClient, include_counts: Union[Unset, bool] = False
+) -> Optional[Union[HTTPValidationError, list["LogStreamResponse"]]]:
     """List Log Streams.
 
      Retrieve all log streams for a project.
@@ -181,7 +183,7 @@ async def asyncio(
 
     Args:
         project_id (str):
-        include_counts (bool | Unset):  Default: False.
+        include_counts (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -190,6 +192,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | list[LogStreamResponse]
+        Union[HTTPValidationError, list['LogStreamResponse']]
     """
     return (await asyncio_detailed(project_id=project_id, client=client, include_counts=include_counts)).parsed

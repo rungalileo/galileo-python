@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -22,7 +22,9 @@ from ...models.list_prompt_dataset_response import ListPromptDatasetResponse
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(project_id: str, *, starting_token: int | Unset = 0, limit: int | Unset = 100) -> dict[str, Any]:
+def _get_kwargs(
+    project_id: str, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -46,7 +48,9 @@ def _get_kwargs(project_id: str, *, starting_token: int | Unset = 0, limit: int 
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ListPromptDatasetResponse:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[HTTPValidationError, ListPromptDatasetResponse]:
     if response.status_code == 200:
         return ListPromptDatasetResponse.from_dict(response.json())
 
@@ -73,7 +77,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | ListPromptDatasetResponse]:
+) -> Response[Union[HTTPValidationError, ListPromptDatasetResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -83,14 +87,14 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Response[HTTPValidationError | ListPromptDatasetResponse]:
+    project_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Response[Union[HTTPValidationError, ListPromptDatasetResponse]]:
     """List Prompt Datasets.
 
     Args:
         project_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -99,7 +103,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListPromptDatasetResponse]
+        Response[Union[HTTPValidationError, ListPromptDatasetResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, starting_token=starting_token, limit=limit)
 
@@ -109,14 +113,14 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> HTTPValidationError | ListPromptDatasetResponse | None:
+    project_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Optional[Union[HTTPValidationError, ListPromptDatasetResponse]]:
     """List Prompt Datasets.
 
     Args:
         project_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -125,20 +129,20 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ListPromptDatasetResponse
+        Union[HTTPValidationError, ListPromptDatasetResponse]
     """
     return sync_detailed(project_id=project_id, client=client, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> Response[HTTPValidationError | ListPromptDatasetResponse]:
+    project_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Response[Union[HTTPValidationError, ListPromptDatasetResponse]]:
     """List Prompt Datasets.
 
     Args:
         project_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -147,7 +151,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListPromptDatasetResponse]
+        Response[Union[HTTPValidationError, ListPromptDatasetResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, starting_token=starting_token, limit=limit)
 
@@ -157,14 +161,14 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
-) -> HTTPValidationError | ListPromptDatasetResponse | None:
+    project_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+) -> Optional[Union[HTTPValidationError, ListPromptDatasetResponse]]:
     """List Prompt Datasets.
 
     Args:
         project_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -173,7 +177,7 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ListPromptDatasetResponse
+        Union[HTTPValidationError, ListPromptDatasetResponse]
     """
     return (
         await asyncio_detailed(project_id=project_id, client=client, starting_token=starting_token, limit=limit)

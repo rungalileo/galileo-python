@@ -1,8 +1,6 @@
-from __future__ import annotations
-
 import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,31 +16,31 @@ class LogRecordsAvailableColumnsRequest:
     """
     Attributes
     ----------
-        log_stream_id (None | str | Unset): Log stream id associated with the traces.
-        experiment_id (None | str | Unset): Experiment id associated with the traces.
-        metrics_testing_id (None | str | Unset): Metrics testing id associated with the traces.
-        start_time (datetime.datetime | None | Unset):
-        end_time (datetime.datetime | None | Unset):
+        log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
+        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
+        start_time (Union[None, Unset, datetime.datetime]):
+        end_time (Union[None, Unset, datetime.datetime]):
     """
 
-    log_stream_id: None | str | Unset = UNSET
-    experiment_id: None | str | Unset = UNSET
-    metrics_testing_id: None | str | Unset = UNSET
-    start_time: datetime.datetime | None | Unset = UNSET
-    end_time: datetime.datetime | None | Unset = UNSET
+    log_stream_id: Union[None, Unset, str] = UNSET
+    experiment_id: Union[None, Unset, str] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
+    start_time: Union[None, Unset, datetime.datetime] = UNSET
+    end_time: Union[None, Unset, datetime.datetime] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        log_stream_id: None | str | Unset
+        log_stream_id: Union[None, Unset, str]
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
-        experiment_id: None | str | Unset
+        experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
-        metrics_testing_id: None | str | Unset
+        metrics_testing_id: Union[None, Unset, str]
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
-        start_time: None | str | Unset
+        start_time: Union[None, Unset, str]
         if isinstance(self.start_time, Unset):
             start_time = UNSET
         elif isinstance(self.start_time, datetime.datetime):
@@ -50,7 +48,7 @@ class LogRecordsAvailableColumnsRequest:
         else:
             start_time = self.start_time
 
-        end_time: None | str | Unset
+        end_time: Union[None, Unset, str]
         if isinstance(self.end_time, Unset):
             end_time = UNSET
         elif isinstance(self.end_time, datetime.datetime):
@@ -78,34 +76,34 @@ class LogRecordsAvailableColumnsRequest:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_log_stream_id(data: object) -> None | str | Unset:
+        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        def _parse_experiment_id(data: object) -> None | str | Unset:
+        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_metrics_testing_id(data: object) -> None | str | Unset:
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
-        def _parse_start_time(data: object) -> datetime.datetime | None | Unset:
+        def _parse_start_time(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -117,11 +115,11 @@ class LogRecordsAvailableColumnsRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(Union[None, Unset, datetime.datetime], data)
 
         start_time = _parse_start_time(d.pop("start_time", UNSET))
 
-        def _parse_end_time(data: object) -> datetime.datetime | None | Unset:
+        def _parse_end_time(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -133,7 +131,7 @@ class LogRecordsAvailableColumnsRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(Union[None, Unset, datetime.datetime], data)
 
         end_time = _parse_end_time(d.pop("end_time", UNSET))
 

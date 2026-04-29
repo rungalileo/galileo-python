@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,15 +18,15 @@ class ExperimentMetricsResponse:
     """
     Attributes
     ----------
-        metrics (list[BucketedMetric] | Unset): List of metrics for the experiment, including categorical and quartile
-            metrics.
+        metrics (Union[Unset, list['BucketedMetric']]): List of metrics for the experiment, including categorical and
+            quartile metrics.
     """
 
-    metrics: list[BucketedMetric] | Unset = UNSET
+    metrics: Union[Unset, list["BucketedMetric"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        metrics: list[dict[str, Any]] | Unset = UNSET
+        metrics: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = []
             for metrics_item_data in self.metrics:
@@ -48,14 +46,12 @@ class ExperimentMetricsResponse:
         from ..models.bucketed_metric import BucketedMetric
 
         d = dict(src_dict)
+        metrics = []
         _metrics = d.pop("metrics", UNSET)
-        metrics: list[BucketedMetric] | Unset = UNSET
-        if _metrics is not UNSET:
-            metrics = []
-            for metrics_item_data in _metrics:
-                metrics_item = BucketedMetric.from_dict(metrics_item_data)
+        for metrics_item_data in _metrics or []:
+            metrics_item = BucketedMetric.from_dict(metrics_item_data)
 
-                metrics.append(metrics_item)
+            metrics.append(metrics_item)
 
         experiment_metrics_response = cls(metrics=metrics)
 

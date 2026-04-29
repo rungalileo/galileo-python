@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -44,7 +44,7 @@ def _get_kwargs(*, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRe
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> HTTPValidationError | ValidateScorerLogRecordResponse:
+) -> Union[HTTPValidationError, ValidateScorerLogRecordResponse]:
     if response.status_code == 200:
         return ValidateScorerLogRecordResponse.from_dict(response.json())
 
@@ -71,7 +71,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | ValidateScorerLogRecordResponse]:
+) -> Response[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +82,7 @@ def _build_response(
 
 def sync_detailed(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
-) -> Response[HTTPValidationError | ValidateScorerLogRecordResponse]:
+) -> Response[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]:
     """Validate Code Scorer Log Record.
 
      Validate a code scorer using actual log records.
@@ -97,7 +97,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ValidateScorerLogRecordResponse]
+        Response[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -108,7 +108,7 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
-) -> HTTPValidationError | ValidateScorerLogRecordResponse | None:
+) -> Optional[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]:
     """Validate Code Scorer Log Record.
 
      Validate a code scorer using actual log records.
@@ -123,14 +123,14 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ValidateScorerLogRecordResponse
+        Union[HTTPValidationError, ValidateScorerLogRecordResponse]
     """
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
-) -> Response[HTTPValidationError | ValidateScorerLogRecordResponse]:
+) -> Response[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]:
     """Validate Code Scorer Log Record.
 
      Validate a code scorer using actual log records.
@@ -145,7 +145,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ValidateScorerLogRecordResponse]
+        Response[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -156,7 +156,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
-) -> HTTPValidationError | ValidateScorerLogRecordResponse | None:
+) -> Optional[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]:
     """Validate Code Scorer Log Record.
 
      Validate a code scorer using actual log records.
@@ -171,6 +171,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ValidateScorerLogRecordResponse
+        Union[HTTPValidationError, ValidateScorerLogRecordResponse]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

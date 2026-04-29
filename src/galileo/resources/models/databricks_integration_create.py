@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,18 +16,18 @@ class DatabricksIntegrationCreate:
     ----------
         token (str):
         hostname (str):
-        default_catalog_name (None | str | Unset):
-        path (None | str | Unset):
-        llm (bool | Unset):  Default: False.
-        storage (bool | Unset):  Default: False.
+        default_catalog_name (Union[None, Unset, str]):
+        path (Union[None, Unset, str]):
+        llm (Union[Unset, bool]):  Default: False.
+        storage (Union[Unset, bool]):  Default: False.
     """
 
     token: str
     hostname: str
-    default_catalog_name: None | str | Unset = UNSET
-    path: None | str | Unset = UNSET
-    llm: bool | Unset = False
-    storage: bool | Unset = False
+    default_catalog_name: Union[None, Unset, str] = UNSET
+    path: Union[None, Unset, str] = UNSET
+    llm: Union[Unset, bool] = False
+    storage: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -37,10 +35,10 @@ class DatabricksIntegrationCreate:
 
         hostname = self.hostname
 
-        default_catalog_name: None | str | Unset
+        default_catalog_name: Union[None, Unset, str]
         default_catalog_name = UNSET if isinstance(self.default_catalog_name, Unset) else self.default_catalog_name
 
-        path: None | str | Unset
+        path: Union[None, Unset, str]
         path = UNSET if isinstance(self.path, Unset) else self.path
 
         llm = self.llm
@@ -68,21 +66,21 @@ class DatabricksIntegrationCreate:
 
         hostname = d.pop("hostname")
 
-        def _parse_default_catalog_name(data: object) -> None | str | Unset:
+        def _parse_default_catalog_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         default_catalog_name = _parse_default_catalog_name(d.pop("default_catalog_name", UNSET))
 
-        def _parse_path(data: object) -> None | str | Unset:
+        def _parse_path(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         path = _parse_path(d.pop("path", UNSET))
 

@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -27,21 +25,21 @@ class AwsSageMakerIntegrationCreate:
     Attributes
     ----------
         token (AwsSageMakerIntegrationCreateToken):
-        multi_modal_config (MultiModalModelIntegrationConfig | None | Unset): Configuration for multi-modal (file
+        multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
             upload) capabilities.
-        models (list[Model] | Unset):
-        credential_type (AwsCredentialType | Unset):
-        region (str | Unset):  Default: 'us-west-2'.
-        inference_profiles (AwsSageMakerIntegrationCreateInferenceProfiles | Unset): Mapping from model name (Foundation
-            model ID) to inference profile ARN or ID.
+        models (Union[Unset, list['Model']]):
+        credential_type (Union[Unset, AwsCredentialType]):
+        region (Union[Unset, str]):  Default: 'us-west-2'.
+        inference_profiles (Union[Unset, AwsSageMakerIntegrationCreateInferenceProfiles]): Mapping from model name
+            (Foundation model ID) to inference profile ARN or ID.
     """
 
-    token: AwsSageMakerIntegrationCreateToken
-    multi_modal_config: MultiModalModelIntegrationConfig | None | Unset = UNSET
-    models: list[Model] | Unset = UNSET
-    credential_type: AwsCredentialType | Unset = UNSET
-    region: str | Unset = "us-west-2"
-    inference_profiles: AwsSageMakerIntegrationCreateInferenceProfiles | Unset = UNSET
+    token: "AwsSageMakerIntegrationCreateToken"
+    multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
+    models: Union[Unset, list["Model"]] = UNSET
+    credential_type: Union[Unset, AwsCredentialType] = UNSET
+    region: Union[Unset, str] = "us-west-2"
+    inference_profiles: Union[Unset, "AwsSageMakerIntegrationCreateInferenceProfiles"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -49,7 +47,7 @@ class AwsSageMakerIntegrationCreate:
 
         token = self.token.to_dict()
 
-        multi_modal_config: dict[str, Any] | None | Unset
+        multi_modal_config: Union[None, Unset, dict[str, Any]]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -57,20 +55,20 @@ class AwsSageMakerIntegrationCreate:
         else:
             multi_modal_config = self.multi_modal_config
 
-        models: list[dict[str, Any]] | Unset = UNSET
+        models: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.models, Unset):
             models = []
             for models_item_data in self.models:
                 models_item = models_item_data.to_dict()
                 models.append(models_item)
 
-        credential_type: str | Unset = UNSET
+        credential_type: Union[Unset, str] = UNSET
         if not isinstance(self.credential_type, Unset):
             credential_type = self.credential_type.value
 
         region = self.region
 
-        inference_profiles: dict[str, Any] | Unset = UNSET
+        inference_profiles: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.inference_profiles, Unset):
             inference_profiles = self.inference_profiles.to_dict()
 
@@ -102,7 +100,7 @@ class AwsSageMakerIntegrationCreate:
         d = dict(src_dict)
         token = AwsSageMakerIntegrationCreateToken.from_dict(d.pop("token"))
 
-        def _parse_multi_modal_config(data: object) -> MultiModalModelIntegrationConfig | None | Unset:
+        def _parse_multi_modal_config(data: object) -> Union["MultiModalModelIntegrationConfig", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -114,27 +112,25 @@ class AwsSageMakerIntegrationCreate:
 
             except:  # noqa: E722
                 pass
-            return cast(MultiModalModelIntegrationConfig | None | Unset, data)
+            return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
 
         multi_modal_config = _parse_multi_modal_config(d.pop("multi_modal_config", UNSET))
 
+        models = []
         _models = d.pop("models", UNSET)
-        models: list[Model] | Unset = UNSET
-        if _models is not UNSET:
-            models = []
-            for models_item_data in _models:
-                models_item = Model.from_dict(models_item_data)
+        for models_item_data in _models or []:
+            models_item = Model.from_dict(models_item_data)
 
-                models.append(models_item)
+            models.append(models_item)
 
         _credential_type = d.pop("credential_type", UNSET)
-        credential_type: AwsCredentialType | Unset
+        credential_type: Union[Unset, AwsCredentialType]
         credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
 
         region = d.pop("region", UNSET)
 
         _inference_profiles = d.pop("inference_profiles", UNSET)
-        inference_profiles: AwsSageMakerIntegrationCreateInferenceProfiles | Unset
+        inference_profiles: Union[Unset, AwsSageMakerIntegrationCreateInferenceProfiles]
         if isinstance(_inference_profiles, Unset):
             inference_profiles = UNSET
         else:

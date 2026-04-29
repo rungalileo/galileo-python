@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -21,12 +21,12 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(scorer_id: str, *, version: int | None | Unset = UNSET) -> dict[str, Any]:
+def _get_kwargs(scorer_id: str, *, version: Union[None, Unset, int] = UNSET) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_version: int | None | Unset
+    json_version: Union[None, Unset, int]
     json_version = UNSET if isinstance(version, Unset) else version
     params["version"] = json_version
 
@@ -45,7 +45,7 @@ def _get_kwargs(scorer_id: str, *, version: int | None | Unset = UNSET) -> dict[
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
     if response.status_code == 200:
         return response.json()
 
@@ -70,7 +70,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,13 +80,13 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(
-    scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET
-) -> Response[Any | HTTPValidationError]:
+    scorer_id: str, *, client: ApiClient, version: Union[None, Unset, int] = UNSET
+) -> Response[Union[Any, HTTPValidationError]]:
     """Get Scorer Version Code.
 
     Args:
         scorer_id (str):
-        version (int | None | Unset): version number, defaults to latest version
+        version (Union[None, Unset, int]): version number, defaults to latest version
 
     Raises
     ------
@@ -95,7 +95,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(scorer_id=scorer_id, version=version)
 
@@ -104,12 +104,14 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET) -> Any | HTTPValidationError | None:
+def sync(
+    scorer_id: str, *, client: ApiClient, version: Union[None, Unset, int] = UNSET
+) -> Optional[Union[Any, HTTPValidationError]]:
     """Get Scorer Version Code.
 
     Args:
         scorer_id (str):
-        version (int | None | Unset): version number, defaults to latest version
+        version (Union[None, Unset, int]): version number, defaults to latest version
 
     Raises
     ------
@@ -118,19 +120,19 @@ def sync(scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNS
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return sync_detailed(scorer_id=scorer_id, client=client, version=version).parsed
 
 
 async def asyncio_detailed(
-    scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET
-) -> Response[Any | HTTPValidationError]:
+    scorer_id: str, *, client: ApiClient, version: Union[None, Unset, int] = UNSET
+) -> Response[Union[Any, HTTPValidationError]]:
     """Get Scorer Version Code.
 
     Args:
         scorer_id (str):
-        version (int | None | Unset): version number, defaults to latest version
+        version (Union[None, Unset, int]): version number, defaults to latest version
 
     Raises
     ------
@@ -139,7 +141,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(scorer_id=scorer_id, version=version)
 
@@ -149,13 +151,13 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    scorer_id: str, *, client: ApiClient, version: int | None | Unset = UNSET
-) -> Any | HTTPValidationError | None:
+    scorer_id: str, *, client: ApiClient, version: Union[None, Unset, int] = UNSET
+) -> Optional[Union[Any, HTTPValidationError]]:
     """Get Scorer Version Code.
 
     Args:
         scorer_id (str):
-        version (int | None | Unset): version number, defaults to latest version
+        version (Union[None, Unset, int]): version number, defaults to latest version
 
     Raises
     ------
@@ -164,6 +166,6 @@ async def asyncio(
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return (await asyncio_detailed(scorer_id=scorer_id, client=client, version=version)).parsed

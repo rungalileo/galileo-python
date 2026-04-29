@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,13 +17,13 @@ class HallucinationSegment:
         start (int):
         end (int):
         hallucination (float):
-        hallucination_severity (int | Unset):  Default: 0.
+        hallucination_severity (Union[Unset, int]):  Default: 0.
     """
 
     start: int
     end: int
     hallucination: float
-    hallucination_severity: int | Unset = 0
+    hallucination_severity: Union[Unset, int] = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

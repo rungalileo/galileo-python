@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,20 +19,21 @@ class StageDB:
         project_id (str): ID of the project to which this stage belongs.
         created_by (str):
         id (str):
-        description (None | str | Unset): Optional human-readable description of the goals of this guardrail.
-        type_ (StageType | Unset):
-        paused (bool | Unset): Whether the action is enabled. If False, the action will not be applied. Default: False.
-        version (int | None | Unset):
+        description (Union[None, Unset, str]): Optional human-readable description of the goals of this guardrail.
+        type_ (Union[Unset, StageType]):
+        paused (Union[Unset, bool]): Whether the action is enabled. If False, the action will not be applied. Default:
+            False.
+        version (Union[None, Unset, int]):
     """
 
     name: str
     project_id: str
     created_by: str
     id: str
-    description: None | str | Unset = UNSET
-    type_: StageType | Unset = UNSET
-    paused: bool | Unset = False
-    version: int | None | Unset = UNSET
+    description: Union[None, Unset, str] = UNSET
+    type_: Union[Unset, StageType] = UNSET
+    paused: Union[Unset, bool] = False
+    version: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,16 +45,16 @@ class StageDB:
 
         id = self.id
 
-        description: None | str | Unset
+        description: Union[None, Unset, str]
         description = UNSET if isinstance(self.description, Unset) else self.description
 
-        type_: str | Unset = UNSET
+        type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
 
         paused = self.paused
 
-        version: int | None | Unset
+        version: Union[None, Unset, int]
         version = UNSET if isinstance(self.version, Unset) else self.version
 
         field_dict: dict[str, Any] = {}
@@ -83,27 +82,27 @@ class StageDB:
 
         id = d.pop("id")
 
-        def _parse_description(data: object) -> None | str | Unset:
+        def _parse_description(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         description = _parse_description(d.pop("description", UNSET))
 
         _type_ = d.pop("type", UNSET)
-        type_: StageType | Unset
+        type_: Union[Unset, StageType]
         type_ = UNSET if isinstance(_type_, Unset) else StageType(_type_)
 
         paused = d.pop("paused", UNSET)
 
-        def _parse_version(data: object) -> int | None | Unset:
+        def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(Union[None, Unset, int], data)
 
         version = _parse_version(d.pop("version", UNSET))
 

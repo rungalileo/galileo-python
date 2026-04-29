@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -37,7 +37,9 @@ def _get_kwargs(template_id: str, version: int) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> BasePromptTemplateResponse | HTTPValidationError:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[BasePromptTemplateResponse, HTTPValidationError]:
     if response.status_code == 200:
         return BasePromptTemplateResponse.from_dict(response.json())
 
@@ -64,7 +66,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> BasePromp
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
+) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -75,7 +77,7 @@ def _build_response(
 
 def sync_detailed(
     template_id: str, version: int, *, client: ApiClient
-) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
+) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Set Selected Global Template Version.
 
      Set a global prompt template version as the selected version.
@@ -105,7 +107,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[BasePromptTemplateResponse | HTTPValidationError]
+        Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(template_id=template_id, version=version)
 
@@ -116,7 +118,7 @@ def sync_detailed(
 
 def sync(
     template_id: str, version: int, *, client: ApiClient
-) -> BasePromptTemplateResponse | HTTPValidationError | None:
+) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Set Selected Global Template Version.
 
      Set a global prompt template version as the selected version.
@@ -146,14 +148,14 @@ def sync(
 
     Returns
     -------
-        BasePromptTemplateResponse | HTTPValidationError
+        Union[BasePromptTemplateResponse, HTTPValidationError]
     """
     return sync_detailed(template_id=template_id, version=version, client=client).parsed
 
 
 async def asyncio_detailed(
     template_id: str, version: int, *, client: ApiClient
-) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
+) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Set Selected Global Template Version.
 
      Set a global prompt template version as the selected version.
@@ -183,7 +185,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[BasePromptTemplateResponse | HTTPValidationError]
+        Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(template_id=template_id, version=version)
 
@@ -194,7 +196,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     template_id: str, version: int, *, client: ApiClient
-) -> BasePromptTemplateResponse | HTTPValidationError | None:
+) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Set Selected Global Template Version.
 
      Set a global prompt template version as the selected version.
@@ -224,6 +226,6 @@ async def asyncio(
 
     Returns
     -------
-        BasePromptTemplateResponse | HTTPValidationError
+        Union[BasePromptTemplateResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(template_id=template_id, version=version, client=client)).parsed

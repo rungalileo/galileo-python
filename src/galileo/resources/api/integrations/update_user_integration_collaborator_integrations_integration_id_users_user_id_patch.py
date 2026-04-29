@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -42,7 +42,7 @@ def _get_kwargs(integration_id: str, user_id: str, *, body: CollaboratorUpdate) 
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | UserCollaborator:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, UserCollaborator]:
     if response.status_code == 200:
         return UserCollaborator.from_dict(response.json())
 
@@ -67,7 +67,9 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | UserCollaborator]:
+def _build_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Response[Union[HTTPValidationError, UserCollaborator]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -78,7 +80,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 def sync_detailed(
     integration_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Response[HTTPValidationError | UserCollaborator]:
+) -> Response[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Integration Collaborator.
 
      Update the sharing permissions of a user on an integration.
@@ -95,7 +97,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | UserCollaborator]
+        Response[Union[HTTPValidationError, UserCollaborator]]
     """
     kwargs = _get_kwargs(integration_id=integration_id, user_id=user_id, body=body)
 
@@ -106,7 +108,7 @@ def sync_detailed(
 
 def sync(
     integration_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> HTTPValidationError | UserCollaborator | None:
+) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Integration Collaborator.
 
      Update the sharing permissions of a user on an integration.
@@ -123,14 +125,14 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | UserCollaborator
+        Union[HTTPValidationError, UserCollaborator]
     """
     return sync_detailed(integration_id=integration_id, user_id=user_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     integration_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Response[HTTPValidationError | UserCollaborator]:
+) -> Response[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Integration Collaborator.
 
      Update the sharing permissions of a user on an integration.
@@ -147,7 +149,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | UserCollaborator]
+        Response[Union[HTTPValidationError, UserCollaborator]]
     """
     kwargs = _get_kwargs(integration_id=integration_id, user_id=user_id, body=body)
 
@@ -158,7 +160,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     integration_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> HTTPValidationError | UserCollaborator | None:
+) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Integration Collaborator.
 
      Update the sharing permissions of a user on an integration.
@@ -175,6 +177,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | UserCollaborator
+        Union[HTTPValidationError, UserCollaborator]
     """
     return (await asyncio_detailed(integration_id=integration_id, user_id=user_id, client=client, body=body)).parsed

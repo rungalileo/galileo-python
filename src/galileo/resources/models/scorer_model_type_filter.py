@@ -1,12 +1,9 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.scorer_model_type_filter_operator import ScorerModelTypeFilterOperator
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ScorerModelTypeFilter")
@@ -17,27 +14,18 @@ class ScorerModelTypeFilter:
     """
     Attributes
     ----------
-        operator (ScorerModelTypeFilterOperator):
-        value (list[str] | str):
-        name (Literal['model_type'] | Unset):  Default: 'model_type'.
+        name (Union[Literal['model_type'], Unset]):  Default: 'model_type'.
     """
 
-    operator: ScorerModelTypeFilterOperator
-    value: list[str] | str
-    name: Literal["model_type"] | Unset = "model_type"
+    name: Union[Literal["model_type"], Unset] = "model_type"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        operator = self.operator.value
-
-        value: list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
-
         name = self.name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"operator": operator, "value": value})
+        field_dict.update({})
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -46,25 +34,11 @@ class ScorerModelTypeFilter:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        operator = ScorerModelTypeFilterOperator(d.pop("operator"))
-
-        def _parse_value(data: object) -> list[str] | str:
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                return cast(list[str], data)
-
-            except:  # noqa: E722
-                pass
-            return cast(list[str] | str, data)
-
-        value = _parse_value(d.pop("value"))
-
-        name = cast(Literal["model_type"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["model_type"], Unset], d.pop("name", UNSET))
         if name != "model_type" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'model_type', got '{name}'")
 
-        scorer_model_type_filter = cls(operator=operator, value=value, name=name)
+        scorer_model_type_filter = cls(name=name)
 
         scorer_model_type_filter.additional_properties = d
         return scorer_model_type_filter

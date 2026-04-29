@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,18 +16,18 @@ class BodyLoginEmailLoginPost:
     ----------
         username (str):
         password (str):
-        grant_type (None | str | Unset):
-        scope (str | Unset):  Default: ''.
-        client_id (None | str | Unset):
-        client_secret (None | str | Unset):
+        grant_type (Union[None, Unset, str]):
+        scope (Union[Unset, str]):  Default: ''.
+        client_id (Union[None, Unset, str]):
+        client_secret (Union[None, Unset, str]):
     """
 
     username: str
     password: str
-    grant_type: None | str | Unset = UNSET
-    scope: str | Unset = ""
-    client_id: None | str | Unset = UNSET
-    client_secret: None | str | Unset = UNSET
+    grant_type: Union[None, Unset, str] = UNSET
+    scope: Union[Unset, str] = ""
+    client_id: Union[None, Unset, str] = UNSET
+    client_secret: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -37,15 +35,15 @@ class BodyLoginEmailLoginPost:
 
         password = self.password
 
-        grant_type: None | str | Unset
+        grant_type: Union[None, Unset, str]
         grant_type = UNSET if isinstance(self.grant_type, Unset) else self.grant_type
 
         scope = self.scope
 
-        client_id: None | str | Unset
+        client_id: Union[None, Unset, str]
         client_id = UNSET if isinstance(self.client_id, Unset) else self.client_id
 
-        client_secret: None | str | Unset
+        client_secret: Union[None, Unset, str]
         client_secret = UNSET if isinstance(self.client_secret, Unset) else self.client_secret
 
         field_dict: dict[str, Any] = {}
@@ -69,32 +67,32 @@ class BodyLoginEmailLoginPost:
 
         password = d.pop("password")
 
-        def _parse_grant_type(data: object) -> None | str | Unset:
+        def _parse_grant_type(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         grant_type = _parse_grant_type(d.pop("grant_type", UNSET))
 
         scope = d.pop("scope", UNSET)
 
-        def _parse_client_id(data: object) -> None | str | Unset:
+        def _parse_client_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         client_id = _parse_client_id(d.pop("client_id", UNSET))
 
-        def _parse_client_secret(data: object) -> None | str | Unset:
+        def _parse_client_secret(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         client_secret = _parse_client_secret(d.pop("client_secret", UNSET))
 

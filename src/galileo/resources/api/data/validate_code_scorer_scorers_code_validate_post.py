@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -40,7 +40,9 @@ def _get_kwargs(*, body: BodyValidateCodeScorerScorersCodeValidatePost) -> dict[
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ValidateCodeScorerResponse:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[HTTPValidationError, ValidateCodeScorerResponse]:
     if response.status_code == 200:
         return ValidateCodeScorerResponse.from_dict(response.json())
 
@@ -67,7 +69,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | ValidateCodeScorerResponse]:
+) -> Response[Union[HTTPValidationError, ValidateCodeScorerResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -78,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     *, client: ApiClient, body: BodyValidateCodeScorerScorersCodeValidatePost
-) -> Response[HTTPValidationError | ValidateCodeScorerResponse]:
+) -> Response[Union[HTTPValidationError, ValidateCodeScorerResponse]]:
     """Validate Code Scorer.
 
      Validate a code scorer with optional simple input/output test.
@@ -93,7 +95,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ValidateCodeScorerResponse]
+        Response[Union[HTTPValidationError, ValidateCodeScorerResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -104,7 +106,7 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: BodyValidateCodeScorerScorersCodeValidatePost
-) -> HTTPValidationError | ValidateCodeScorerResponse | None:
+) -> Optional[Union[HTTPValidationError, ValidateCodeScorerResponse]]:
     """Validate Code Scorer.
 
      Validate a code scorer with optional simple input/output test.
@@ -119,14 +121,14 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ValidateCodeScorerResponse
+        Union[HTTPValidationError, ValidateCodeScorerResponse]
     """
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BodyValidateCodeScorerScorersCodeValidatePost
-) -> Response[HTTPValidationError | ValidateCodeScorerResponse]:
+) -> Response[Union[HTTPValidationError, ValidateCodeScorerResponse]]:
     """Validate Code Scorer.
 
      Validate a code scorer with optional simple input/output test.
@@ -141,7 +143,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ValidateCodeScorerResponse]
+        Response[Union[HTTPValidationError, ValidateCodeScorerResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -152,7 +154,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: BodyValidateCodeScorerScorersCodeValidatePost
-) -> HTTPValidationError | ValidateCodeScorerResponse | None:
+) -> Optional[Union[HTTPValidationError, ValidateCodeScorerResponse]]:
     """Validate Code Scorer.
 
      Validate a code scorer with optional simple input/output test.
@@ -167,6 +169,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ValidateCodeScorerResponse
+        Union[HTTPValidationError, ValidateCodeScorerResponse]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

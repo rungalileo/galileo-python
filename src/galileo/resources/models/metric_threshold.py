@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,31 +18,31 @@ class MetricThreshold:
 
     Attributes
     ----------
-            inverted (bool | Unset): Whether the column should be inverted for thresholds, i.e. if True, lower is better.
-                Default: False.
-            buckets (list[float | int] | Unset): Threshold buckets for the column. If the column is a metric, these are the
-                thresholds for the column.
-            display_value_levels (list[str] | Unset): Ordered list of strings that raw values get transformed to for
+            inverted (Union[Unset, bool]): Whether the column should be inverted for thresholds, i.e. if True, lower is
+                better. Default: False.
+            buckets (Union[Unset, list[Union[float, int]]]): Threshold buckets for the column. If the column is a metric,
+                these are the thresholds for the column.
+            display_value_levels (Union[Unset, list[str]]): Ordered list of strings that raw values get transformed to for
                 displaying.
     """
 
-    inverted: bool | Unset = False
-    buckets: list[float | int] | Unset = UNSET
-    display_value_levels: list[str] | Unset = UNSET
+    inverted: Union[Unset, bool] = False
+    buckets: Union[Unset, list[Union[float, int]]] = UNSET
+    display_value_levels: Union[Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         inverted = self.inverted
 
-        buckets: list[float | int] | Unset = UNSET
+        buckets: Union[Unset, list[Union[float, int]]] = UNSET
         if not isinstance(self.buckets, Unset):
             buckets = []
             for buckets_item_data in self.buckets:
-                buckets_item: float | int
+                buckets_item: Union[float, int]
                 buckets_item = buckets_item_data
                 buckets.append(buckets_item)
 
-        display_value_levels: list[str] | Unset = UNSET
+        display_value_levels: Union[Unset, list[str]] = UNSET
         if not isinstance(self.display_value_levels, Unset):
             display_value_levels = self.display_value_levels
 
@@ -65,18 +63,16 @@ class MetricThreshold:
         d = dict(src_dict)
         inverted = d.pop("inverted", UNSET)
 
+        buckets = []
         _buckets = d.pop("buckets", UNSET)
-        buckets: list[float | int] | Unset = UNSET
-        if _buckets is not UNSET:
-            buckets = []
-            for buckets_item_data in _buckets:
+        for buckets_item_data in _buckets or []:
 
-                def _parse_buckets_item(data: object) -> float | int:
-                    return cast(float | int, data)
+            def _parse_buckets_item(data: object) -> Union[float, int]:
+                return cast(Union[float, int], data)
 
-                buckets_item = _parse_buckets_item(buckets_item_data)
+            buckets_item = _parse_buckets_item(buckets_item_data)
 
-                buckets.append(buckets_item)
+            buckets.append(buckets_item)
 
         display_value_levels = cast(list[str], d.pop("display_value_levels", UNSET))
 

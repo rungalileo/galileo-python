@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -37,7 +37,7 @@ def _get_kwargs(template_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> DeletePromptResponse | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[DeletePromptResponse, HTTPValidationError]:
     if response.status_code == 200:
         return DeletePromptResponse.from_dict(response.json())
 
@@ -64,7 +64,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> DeletePro
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[DeletePromptResponse | HTTPValidationError]:
+) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -73,7 +73,7 @@ def _build_response(
     )
 
 
-def sync_detailed(template_id: str, *, client: ApiClient) -> Response[DeletePromptResponse | HTTPValidationError]:
+def sync_detailed(template_id: str, *, client: ApiClient) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Global Template.
 
      Delete a global prompt template given a template ID.
@@ -100,7 +100,7 @@ def sync_detailed(template_id: str, *, client: ApiClient) -> Response[DeleteProm
 
     Returns
     -------
-        Response[DeletePromptResponse | HTTPValidationError]
+        Response[Union[DeletePromptResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(template_id=template_id)
 
@@ -109,7 +109,7 @@ def sync_detailed(template_id: str, *, client: ApiClient) -> Response[DeleteProm
     return _build_response(client=client, response=response)
 
 
-def sync(template_id: str, *, client: ApiClient) -> DeletePromptResponse | HTTPValidationError | None:
+def sync(template_id: str, *, client: ApiClient) -> Optional[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Global Template.
 
      Delete a global prompt template given a template ID.
@@ -136,14 +136,14 @@ def sync(template_id: str, *, client: ApiClient) -> DeletePromptResponse | HTTPV
 
     Returns
     -------
-        DeletePromptResponse | HTTPValidationError
+        Union[DeletePromptResponse, HTTPValidationError]
     """
     return sync_detailed(template_id=template_id, client=client).parsed
 
 
 async def asyncio_detailed(
     template_id: str, *, client: ApiClient
-) -> Response[DeletePromptResponse | HTTPValidationError]:
+) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Global Template.
 
      Delete a global prompt template given a template ID.
@@ -170,7 +170,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[DeletePromptResponse | HTTPValidationError]
+        Response[Union[DeletePromptResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(template_id=template_id)
 
@@ -179,7 +179,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(template_id: str, *, client: ApiClient) -> DeletePromptResponse | HTTPValidationError | None:
+async def asyncio(template_id: str, *, client: ApiClient) -> Optional[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Global Template.
 
      Delete a global prompt template given a template ID.
@@ -206,6 +206,6 @@ async def asyncio(template_id: str, *, client: ApiClient) -> DeletePromptRespons
 
     Returns
     -------
-        DeletePromptResponse | HTTPValidationError
+        Union[DeletePromptResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(template_id=template_id, client=client)).parsed

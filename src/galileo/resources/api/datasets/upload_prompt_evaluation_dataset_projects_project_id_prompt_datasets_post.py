@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -30,14 +30,14 @@ def _get_kwargs(
     project_id: str,
     *,
     body: BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
-    format_: DatasetFormat | Unset = UNSET,
-    hidden: bool | Unset = False,
+    format_: Union[Unset, DatasetFormat] = UNSET,
+    hidden: Union[Unset, bool] = False,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_format_: str | Unset = UNSET
+    json_format_: Union[Unset, str] = UNSET
     if not isinstance(format_, Unset):
         json_format_ = format_.value
 
@@ -62,7 +62,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | PromptDatasetDB:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, PromptDatasetDB]:
     if response.status_code == 200:
         return PromptDatasetDB.from_dict(response.json())
 
@@ -87,7 +87,9 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | PromptDatasetDB]:
+def _build_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Response[Union[HTTPValidationError, PromptDatasetDB]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -101,15 +103,15 @@ def sync_detailed(
     *,
     client: ApiClient,
     body: BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
-    format_: DatasetFormat | Unset = UNSET,
-    hidden: bool | Unset = False,
-) -> Response[HTTPValidationError | PromptDatasetDB]:
+    format_: Union[Unset, DatasetFormat] = UNSET,
+    hidden: Union[Unset, bool] = False,
+) -> Response[Union[HTTPValidationError, PromptDatasetDB]]:
     """Upload Prompt Evaluation Dataset.
 
     Args:
         project_id (str):
-        format_ (DatasetFormat | Unset):
-        hidden (bool | Unset):  Default: False.
+        format_ (Union[Unset, DatasetFormat]):
+        hidden (Union[Unset, bool]):  Default: False.
         body (BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost):
 
     Raises
@@ -119,7 +121,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | PromptDatasetDB]
+        Response[Union[HTTPValidationError, PromptDatasetDB]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body, format_=format_, hidden=hidden)
 
@@ -133,15 +135,15 @@ def sync(
     *,
     client: ApiClient,
     body: BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
-    format_: DatasetFormat | Unset = UNSET,
-    hidden: bool | Unset = False,
-) -> HTTPValidationError | PromptDatasetDB | None:
+    format_: Union[Unset, DatasetFormat] = UNSET,
+    hidden: Union[Unset, bool] = False,
+) -> Optional[Union[HTTPValidationError, PromptDatasetDB]]:
     """Upload Prompt Evaluation Dataset.
 
     Args:
         project_id (str):
-        format_ (DatasetFormat | Unset):
-        hidden (bool | Unset):  Default: False.
+        format_ (Union[Unset, DatasetFormat]):
+        hidden (Union[Unset, bool]):  Default: False.
         body (BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost):
 
     Raises
@@ -151,7 +153,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | PromptDatasetDB
+        Union[HTTPValidationError, PromptDatasetDB]
     """
     return sync_detailed(project_id=project_id, client=client, body=body, format_=format_, hidden=hidden).parsed
 
@@ -161,15 +163,15 @@ async def asyncio_detailed(
     *,
     client: ApiClient,
     body: BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
-    format_: DatasetFormat | Unset = UNSET,
-    hidden: bool | Unset = False,
-) -> Response[HTTPValidationError | PromptDatasetDB]:
+    format_: Union[Unset, DatasetFormat] = UNSET,
+    hidden: Union[Unset, bool] = False,
+) -> Response[Union[HTTPValidationError, PromptDatasetDB]]:
     """Upload Prompt Evaluation Dataset.
 
     Args:
         project_id (str):
-        format_ (DatasetFormat | Unset):
-        hidden (bool | Unset):  Default: False.
+        format_ (Union[Unset, DatasetFormat]):
+        hidden (Union[Unset, bool]):  Default: False.
         body (BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost):
 
     Raises
@@ -179,7 +181,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | PromptDatasetDB]
+        Response[Union[HTTPValidationError, PromptDatasetDB]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body, format_=format_, hidden=hidden)
 
@@ -193,15 +195,15 @@ async def asyncio(
     *,
     client: ApiClient,
     body: BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
-    format_: DatasetFormat | Unset = UNSET,
-    hidden: bool | Unset = False,
-) -> HTTPValidationError | PromptDatasetDB | None:
+    format_: Union[Unset, DatasetFormat] = UNSET,
+    hidden: Union[Unset, bool] = False,
+) -> Optional[Union[HTTPValidationError, PromptDatasetDB]]:
     """Upload Prompt Evaluation Dataset.
 
     Args:
         project_id (str):
-        format_ (DatasetFormat | Unset):
-        hidden (bool | Unset):  Default: False.
+        format_ (Union[Unset, DatasetFormat]):
+        hidden (Union[Unset, bool]):  Default: False.
         body (BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost):
 
     Raises
@@ -211,7 +213,7 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | PromptDatasetDB
+        Union[HTTPValidationError, PromptDatasetDB]
     """
     return (
         await asyncio_detailed(project_id=project_id, client=client, body=body, format_=format_, hidden=hidden)

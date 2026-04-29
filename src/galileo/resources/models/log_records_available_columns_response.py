@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,14 +18,14 @@ class LogRecordsAvailableColumnsResponse:
     """
     Attributes
     ----------
-        columns (list[LogRecordsColumnInfo] | Unset):
+        columns (Union[Unset, list['LogRecordsColumnInfo']]):
     """
 
-    columns: list[LogRecordsColumnInfo] | Unset = UNSET
+    columns: Union[Unset, list["LogRecordsColumnInfo"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        columns: list[dict[str, Any]] | Unset = UNSET
+        columns: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.columns, Unset):
             columns = []
             for columns_item_data in self.columns:
@@ -47,14 +45,12 @@ class LogRecordsAvailableColumnsResponse:
         from ..models.log_records_column_info import LogRecordsColumnInfo
 
         d = dict(src_dict)
+        columns = []
         _columns = d.pop("columns", UNSET)
-        columns: list[LogRecordsColumnInfo] | Unset = UNSET
-        if _columns is not UNSET:
-            columns = []
-            for columns_item_data in _columns:
-                columns_item = LogRecordsColumnInfo.from_dict(columns_item_data)
+        for columns_item_data in _columns or []:
+            columns_item = LogRecordsColumnInfo.from_dict(columns_item_data)
 
-                columns.append(columns_item)
+            columns.append(columns_item)
 
         log_records_available_columns_response = cls(columns=columns)
 

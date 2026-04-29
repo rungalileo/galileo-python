@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,17 +15,17 @@ class ExperimentUpdateRequest:
     Attributes
     ----------
         name (str):
-        task_type (Literal[16] | Literal[17] | Unset):  Default: 16.
+        task_type (Union[Literal[16], Literal[17], Unset]):  Default: 16.
     """
 
     name: str
-    task_type: Literal[16] | Literal[17] | Unset = 16
+    task_type: Union[Literal[16], Literal[17], Unset] = 16
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        task_type: Literal[16] | Literal[17] | Unset
+        task_type: Union[Literal[16], Literal[17], Unset]
         task_type = UNSET if isinstance(self.task_type, Unset) else self.task_type
 
         field_dict: dict[str, Any] = {}
@@ -43,7 +41,7 @@ class ExperimentUpdateRequest:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_task_type(data: object) -> Literal[16] | Literal[17] | Unset:
+        def _parse_task_type(data: object) -> Union[Literal[16], Literal[17], Unset]:
             if isinstance(data, Unset):
                 return data
             task_type_type_0 = cast(Literal[16], data)

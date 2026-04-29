@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,11 +19,11 @@ class OpenAIToolChoice:
     Attributes
     ----------
         function (OpenAIFunction):
-        type_ (str | Unset):  Default: 'function'.
+        type_ (Union[Unset, str]):  Default: 'function'.
     """
 
-    function: OpenAIFunction
-    type_: str | Unset = "function"
+    function: "OpenAIFunction"
+    type_: Union[Unset, str] = "function"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

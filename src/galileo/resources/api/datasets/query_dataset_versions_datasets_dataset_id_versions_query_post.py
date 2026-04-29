@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -26,9 +26,9 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     dataset_id: str,
     *,
-    body: ListDatasetVersionParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    body: ListDatasetVersionParams,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -47,9 +47,7 @@ def _get_kwargs(
         "params": params,
     }
 
-    _kwargs["json"]: dict[str, Any] | Unset = UNSET
-    if not isinstance(body, Unset):
-        _kwargs["json"] = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -59,7 +57,9 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ListDatasetVersionResponse:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[HTTPValidationError, ListDatasetVersionResponse]:
     if response.status_code == 200:
         return ListDatasetVersionResponse.from_dict(response.json())
 
@@ -86,7 +86,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | ListDatasetVersionResponse]:
+) -> Response[Union[HTTPValidationError, ListDatasetVersionResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -99,17 +99,17 @@ def sync_detailed(
     dataset_id: str,
     *,
     client: ApiClient,
-    body: ListDatasetVersionParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> Response[HTTPValidationError | ListDatasetVersionResponse]:
+    body: ListDatasetVersionParams,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Response[Union[HTTPValidationError, ListDatasetVersionResponse]]:
     """Query Dataset Versions.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListDatasetVersionParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListDatasetVersionParams):
 
     Raises
     ------
@@ -118,7 +118,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListDatasetVersionResponse]
+        Response[Union[HTTPValidationError, ListDatasetVersionResponse]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, starting_token=starting_token, limit=limit)
 
@@ -131,17 +131,17 @@ def sync(
     dataset_id: str,
     *,
     client: ApiClient,
-    body: ListDatasetVersionParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> HTTPValidationError | ListDatasetVersionResponse | None:
+    body: ListDatasetVersionParams,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
     """Query Dataset Versions.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListDatasetVersionParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListDatasetVersionParams):
 
     Raises
     ------
@@ -150,7 +150,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ListDatasetVersionResponse
+        Union[HTTPValidationError, ListDatasetVersionResponse]
     """
     return sync_detailed(
         dataset_id=dataset_id, client=client, body=body, starting_token=starting_token, limit=limit
@@ -161,17 +161,17 @@ async def asyncio_detailed(
     dataset_id: str,
     *,
     client: ApiClient,
-    body: ListDatasetVersionParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> Response[HTTPValidationError | ListDatasetVersionResponse]:
+    body: ListDatasetVersionParams,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Response[Union[HTTPValidationError, ListDatasetVersionResponse]]:
     """Query Dataset Versions.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListDatasetVersionParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListDatasetVersionParams):
 
     Raises
     ------
@@ -180,7 +180,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListDatasetVersionResponse]
+        Response[Union[HTTPValidationError, ListDatasetVersionResponse]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, starting_token=starting_token, limit=limit)
 
@@ -193,17 +193,17 @@ async def asyncio(
     dataset_id: str,
     *,
     client: ApiClient,
-    body: ListDatasetVersionParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
-) -> HTTPValidationError | ListDatasetVersionResponse | None:
+    body: ListDatasetVersionParams,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
     """Query Dataset Versions.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListDatasetVersionParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListDatasetVersionParams):
 
     Raises
     ------
@@ -212,7 +212,7 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ListDatasetVersionResponse
+        Union[HTTPValidationError, ListDatasetVersionResponse]
     """
     return (
         await asyncio_detailed(

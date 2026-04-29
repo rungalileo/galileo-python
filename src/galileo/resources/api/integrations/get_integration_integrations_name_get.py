@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -92,7 +92,7 @@ def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[HTTPV
     return _build_response(client=client, response=response)
 
 
-def sync(name: IntegrationName, *, client: ApiClient) -> HTTPValidationError | None:
+def sync(name: IntegrationName, *, client: ApiClient) -> Optional[HTTPValidationError]:
     """Get Integration.
 
      Gets the integration data formatted for the specified integration.
@@ -136,7 +136,7 @@ async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Respo
     return _build_response(client=client, response=response)
 
 
-async def asyncio(name: IntegrationName, *, client: ApiClient) -> HTTPValidationError | None:
+async def asyncio(name: IntegrationName, *, client: ApiClient) -> Optional[HTTPValidationError]:
     """Get Integration.
 
      Gets the integration data formatted for the specified integration.

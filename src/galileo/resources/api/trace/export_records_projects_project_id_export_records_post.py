@@ -1,6 +1,6 @@
 from collections.abc import Iterator
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -42,7 +42,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsExportRequest) -> dict[str, 
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
     if response.status_code == 200:
         return response.json()
 
@@ -67,7 +67,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -85,7 +85,7 @@ def stream_detailed(project_id: str, *, client: ApiClient, body: LogRecordsExpor
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsExportRequest
-) -> Response[Any | HTTPValidationError]:
+) -> Response[Union[Any, HTTPValidationError]]:
     """Export Records.
 
     Args:
@@ -100,7 +100,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -109,7 +109,9 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(project_id: str, *, client: ApiClient, body: LogRecordsExportRequest) -> Any | HTTPValidationError | None:
+def sync(
+    project_id: str, *, client: ApiClient, body: LogRecordsExportRequest
+) -> Optional[Union[Any, HTTPValidationError]]:
     """Export Records.
 
     Args:
@@ -124,14 +126,14 @@ def sync(project_id: str, *, client: ApiClient, body: LogRecordsExportRequest) -
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsExportRequest
-) -> Response[Any | HTTPValidationError]:
+) -> Response[Union[Any, HTTPValidationError]]:
     """Export Records.
 
     Args:
@@ -146,7 +148,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -157,7 +159,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsExportRequest
-) -> Any | HTTPValidationError | None:
+) -> Optional[Union[Any, HTTPValidationError]]:
     """Export Records.
 
     Args:
@@ -172,6 +174,6 @@ async def asyncio(
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,11 +15,11 @@ class RecomputeSettingsRuns:
     Attributes
     ----------
         run_ids (list[str]):
-        mode (Literal['runs'] | Unset):  Default: 'runs'.
+        mode (Union[Literal['runs'], Unset]):  Default: 'runs'.
     """
 
     run_ids: list[str]
-    mode: Literal["runs"] | Unset = "runs"
+    mode: Union[Literal["runs"], Unset] = "runs"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,7 +40,7 @@ class RecomputeSettingsRuns:
         d = dict(src_dict)
         run_ids = cast(list[str], d.pop("run_ids"))
 
-        mode = cast(Literal["runs"] | Unset, d.pop("mode", UNSET))
+        mode = cast(Union[Literal["runs"], Unset], d.pop("mode", UNSET))
         if mode != "runs" and not isinstance(mode, Unset):
             raise ValueError(f"mode must match const 'runs', got '{mode}'")
 

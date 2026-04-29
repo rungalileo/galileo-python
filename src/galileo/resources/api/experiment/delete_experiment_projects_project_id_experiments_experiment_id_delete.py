@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, cast
+from typing import Any, Optional, Union, cast
 
 import httpx
 
@@ -36,7 +36,7 @@ def _get_kwargs(project_id: str, experiment_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
     if response.status_code == 204:
         return cast(Any, None)
 
@@ -61,7 +61,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,7 +70,9 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(project_id: str, experiment_id: str, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
+def sync_detailed(
+    project_id: str, experiment_id: str, *, client: ApiClient
+) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Experiment.
 
      Delete a specific experiment.
@@ -86,7 +88,7 @@ def sync_detailed(project_id: str, experiment_id: str, *, client: ApiClient) -> 
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id)
 
@@ -95,7 +97,7 @@ def sync_detailed(project_id: str, experiment_id: str, *, client: ApiClient) -> 
     return _build_response(client=client, response=response)
 
 
-def sync(project_id: str, experiment_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
+def sync(project_id: str, experiment_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Experiment.
 
      Delete a specific experiment.
@@ -111,14 +113,14 @@ def sync(project_id: str, experiment_id: str, *, client: ApiClient) -> Any | HTT
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return sync_detailed(project_id=project_id, experiment_id=experiment_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient
-) -> Response[Any | HTTPValidationError]:
+) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Experiment.
 
      Delete a specific experiment.
@@ -134,7 +136,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id)
 
@@ -143,7 +145,9 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(project_id: str, experiment_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
+async def asyncio(
+    project_id: str, experiment_id: str, *, client: ApiClient
+) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Experiment.
 
      Delete a specific experiment.
@@ -159,6 +163,6 @@ async def asyncio(project_id: str, experiment_id: str, *, client: ApiClient) -> 
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return (await asyncio_detailed(project_id=project_id, experiment_id=experiment_id, client=client)).parsed

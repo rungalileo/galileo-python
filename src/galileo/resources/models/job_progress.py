@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,24 +14,24 @@ class JobProgress:
     """
     Attributes
     ----------
-        progress_message (None | str | Unset):
-        steps_completed (int | None | Unset):
-        steps_total (int | None | Unset):
+        progress_message (Union[None, Unset, str]):
+        steps_completed (Union[None, Unset, int]):
+        steps_total (Union[None, Unset, int]):
     """
 
-    progress_message: None | str | Unset = UNSET
-    steps_completed: int | None | Unset = UNSET
-    steps_total: int | None | Unset = UNSET
+    progress_message: Union[None, Unset, str] = UNSET
+    steps_completed: Union[None, Unset, int] = UNSET
+    steps_total: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        progress_message: None | str | Unset
+        progress_message: Union[None, Unset, str]
         progress_message = UNSET if isinstance(self.progress_message, Unset) else self.progress_message
 
-        steps_completed: int | None | Unset
+        steps_completed: Union[None, Unset, int]
         steps_completed = UNSET if isinstance(self.steps_completed, Unset) else self.steps_completed
 
-        steps_total: int | None | Unset
+        steps_total: Union[None, Unset, int]
         steps_total = UNSET if isinstance(self.steps_total, Unset) else self.steps_total
 
         field_dict: dict[str, Any] = {}
@@ -52,30 +50,30 @@ class JobProgress:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_progress_message(data: object) -> None | str | Unset:
+        def _parse_progress_message(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         progress_message = _parse_progress_message(d.pop("progress_message", UNSET))
 
-        def _parse_steps_completed(data: object) -> int | None | Unset:
+        def _parse_steps_completed(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(Union[None, Unset, int], data)
 
         steps_completed = _parse_steps_completed(d.pop("steps_completed", UNSET))
 
-        def _parse_steps_total(data: object) -> int | None | Unset:
+        def _parse_steps_total(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(Union[None, Unset, int], data)
 
         steps_total = _parse_steps_total(d.pop("steps_total", UNSET))
 

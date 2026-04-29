@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -40,7 +40,7 @@ def _get_kwargs(*, body: SyntheticDatasetExtensionRequest) -> dict[str, Any]:
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> HTTPValidationError | SyntheticDatasetExtensionResponse:
+) -> Union[HTTPValidationError, SyntheticDatasetExtensionResponse]:
     if response.status_code == 200:
         return SyntheticDatasetExtensionResponse.from_dict(response.json())
 
@@ -67,7 +67,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | SyntheticDatasetExtensionResponse]:
+) -> Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -78,7 +78,7 @@ def _build_response(
 
 def sync_detailed(
     *, client: ApiClient, body: SyntheticDatasetExtensionRequest
-) -> Response[HTTPValidationError | SyntheticDatasetExtensionResponse]:
+) -> Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
     """Extend Dataset Content.
 
      Extends the dataset content
@@ -93,7 +93,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | SyntheticDatasetExtensionResponse]
+        Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -104,7 +104,7 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: SyntheticDatasetExtensionRequest
-) -> HTTPValidationError | SyntheticDatasetExtensionResponse | None:
+) -> Optional[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
     """Extend Dataset Content.
 
      Extends the dataset content
@@ -119,14 +119,14 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | SyntheticDatasetExtensionResponse
+        Union[HTTPValidationError, SyntheticDatasetExtensionResponse]
     """
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: SyntheticDatasetExtensionRequest
-) -> Response[HTTPValidationError | SyntheticDatasetExtensionResponse]:
+) -> Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
     """Extend Dataset Content.
 
      Extends the dataset content
@@ -141,7 +141,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | SyntheticDatasetExtensionResponse]
+        Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -152,7 +152,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: SyntheticDatasetExtensionRequest
-) -> HTTPValidationError | SyntheticDatasetExtensionResponse | None:
+) -> Optional[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
     """Extend Dataset Content.
 
      Extends the dataset content
@@ -167,6 +167,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | SyntheticDatasetExtensionResponse
+        Union[HTTPValidationError, SyntheticDatasetExtensionResponse]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

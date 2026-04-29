@@ -1,8 +1,6 @@
-from __future__ import annotations
-
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,15 +11,11 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.extended_llm_span_record_annotation_aggregates import ExtendedLlmSpanRecordAnnotationAggregates
-    from ..models.extended_llm_span_record_annotation_agreement import ExtendedLlmSpanRecordAnnotationAgreement
     from ..models.extended_llm_span_record_annotations import ExtendedLlmSpanRecordAnnotations
     from ..models.extended_llm_span_record_dataset_metadata import ExtendedLlmSpanRecordDatasetMetadata
     from ..models.extended_llm_span_record_feedback_rating_info import ExtendedLlmSpanRecordFeedbackRatingInfo
     from ..models.extended_llm_span_record_files_type_0 import ExtendedLlmSpanRecordFilesType0
     from ..models.extended_llm_span_record_metric_info_type_0 import ExtendedLlmSpanRecordMetricInfoType0
-    from ..models.extended_llm_span_record_overall_annotation_agreement import (
-        ExtendedLlmSpanRecordOverallAnnotationAgreement,
-    )
     from ..models.extended_llm_span_record_tools_type_0_item import ExtendedLlmSpanRecordToolsType0Item
     from ..models.extended_llm_span_record_user_metadata import ExtendedLlmSpanRecordUserMetadata
     from ..models.image_generation_event import ImageGenerationEvent
@@ -49,53 +43,51 @@ class ExtendedLlmSpanRecord:
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
         parent_id (str): Galileo ID of the parent of this span
-        type_ (Literal['llm'] | Unset): Type of the trace, span or session. Default: 'llm'.
-        input_ (list[Message] | Unset): Input to the trace or span.
-        redacted_input (list[Message] | None | Unset): Redacted input of the trace or span.
-        output (Message | Unset):
-        redacted_output (Message | None | Unset): Redacted output of the trace or span.
-        name (str | Unset): Name of the trace, span or session. Default: ''.
-        created_at (datetime.datetime | Unset): Timestamp of the trace or span's creation.
-        user_metadata (ExtendedLlmSpanRecordUserMetadata | Unset): Metadata associated with this trace or span.
-        tags (list[str] | Unset): Tags associated with this trace or span.
-        status_code (int | None | Unset): Status code of the trace or span. Used for logging failure or error states.
-        metrics (LlmMetrics | Unset):
-        external_id (None | str | Unset): A user-provided session, trace or span ID.
-        dataset_input (None | str | Unset): Input to the dataset associated with this trace
-        dataset_output (None | str | Unset): Output from the dataset associated with this trace
-        dataset_metadata (ExtendedLlmSpanRecordDatasetMetadata | Unset): Metadata from the dataset associated with this
-            trace
-        trace_id (None | str | Unset): Galileo ID of the trace containing the span (or the same value as id for a trace)
-        updated_at (datetime.datetime | None | Unset): Timestamp of the session or trace or span's last update
-        has_children (bool | None | Unset): Whether or not this trace or span has child spans
-        metrics_batch_id (None | str | Unset): Galileo ID of the metrics batch associated with this trace or span
-        session_batch_id (None | str | Unset): Galileo ID of the metrics batch associated with this trace or span
-        feedback_rating_info (ExtendedLlmSpanRecordFeedbackRatingInfo | Unset): Feedback information related to the
-            record
-        annotations (ExtendedLlmSpanRecordAnnotations | Unset): Annotations keyed by template ID and annotator ID
-        file_ids (list[str] | Unset): IDs of files associated with this record
-        file_modalities (list[ContentModality] | Unset): Modalities of files associated with this record
-        annotation_aggregates (ExtendedLlmSpanRecordAnnotationAggregates | Unset): Annotation aggregate information
-            keyed by template ID
-        annotation_agreement (ExtendedLlmSpanRecordAnnotationAgreement | Unset): Annotation agreement scores keyed by
-            template ID
-        overall_annotation_agreement (ExtendedLlmSpanRecordOverallAnnotationAgreement | Unset): Average annotation
-            agreement per queue (keyed by queue ID)
-        annotation_queue_ids (list[str] | Unset): IDs of annotation queues this record is in
-        metric_info (ExtendedLlmSpanRecordMetricInfoType0 | None | Unset): Detailed information about the metrics
+        type_ (Union[Literal['llm'], Unset]): Type of the trace, span or session. Default: 'llm'.
+        input_ (Union[Unset, list['Message']]): Input to the trace or span.
+        redacted_input (Union[None, Unset, list['Message']]): Redacted input of the trace or span.
+        output (Union[Unset, Message]):
+        redacted_output (Union['Message', None, Unset]): Redacted output of the trace or span.
+        name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
+        created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
+        user_metadata (Union[Unset, ExtendedLlmSpanRecordUserMetadata]): Metadata associated with this trace or span.
+        tags (Union[Unset, list[str]]): Tags associated with this trace or span.
+        status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
+            states.
+        metrics (Union[Unset, LlmMetrics]):
+        external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
+        dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
+        dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
+        dataset_metadata (Union[Unset, ExtendedLlmSpanRecordDatasetMetadata]): Metadata from the dataset associated with
+            this trace
+        trace_id (Union[None, Unset, str]): Galileo ID of the trace containing the span (or the same value as id for a
+            trace)
+        updated_at (Union[None, Unset, datetime.datetime]): Timestamp of the session or trace or span's last update
+        has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
+        metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
+        session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
+        feedback_rating_info (Union[Unset, ExtendedLlmSpanRecordFeedbackRatingInfo]): Feedback information related to
+            the record
+        annotations (Union[Unset, ExtendedLlmSpanRecordAnnotations]): Annotations keyed by template ID and annotator ID
+        file_ids (Union[Unset, list[str]]): IDs of files associated with this record
+        file_modalities (Union[Unset, list[ContentModality]]): Modalities of files associated with this record
+        annotation_aggregates (Union[Unset, ExtendedLlmSpanRecordAnnotationAggregates]): Annotation aggregate
+            information keyed by template ID
+        annotation_queue_ids (Union[Unset, list[str]]): IDs of annotation queues this record is in
+        metric_info (Union['ExtendedLlmSpanRecordMetricInfoType0', None, Unset]): Detailed information about the metrics
             associated with this trace or span
-        files (ExtendedLlmSpanRecordFilesType0 | None | Unset): File metadata keyed by file ID for files associated with
-            this record
-        is_complete (bool | Unset): Whether the parent trace is complete or not Default: True.
-        step_number (int | None | Unset): Topological step number of the span.
-        tools (list[ExtendedLlmSpanRecordToolsType0Item] | None | Unset): List of available tools passed to the LLM on
-            invocation.
-        events (list[ImageGenerationEvent | InternalToolCall | MCPApprovalRequestEvent | MCPCallEvent |
-            MCPListToolsEvent | MessageEvent | ReasoningEvent | WebSearchCallEvent] | None | Unset): List of reasoning,
-            internal tool call, or MCP events that occurred during the LLM span.
-        model (None | str | Unset): Model used for this span.
-        temperature (float | None | Unset): Temperature used for generation.
-        finish_reason (None | str | Unset): Reason for finishing.
+        files (Union['ExtendedLlmSpanRecordFilesType0', None, Unset]): File metadata keyed by file ID for files
+            associated with this record
+        is_complete (Union[Unset, bool]): Whether the parent trace is complete or not Default: True.
+        step_number (Union[None, Unset, int]): Topological step number of the span.
+        tools (Union[None, Unset, list['ExtendedLlmSpanRecordToolsType0Item']]): List of available tools passed to the
+            LLM on invocation.
+        events (Union[None, Unset, list[Union['ImageGenerationEvent', 'InternalToolCall', 'MCPApprovalRequestEvent',
+            'MCPCallEvent', 'MCPListToolsEvent', 'MessageEvent', 'ReasoningEvent', 'WebSearchCallEvent']]]): List of
+            reasoning, internal tool call, or MCP events that occurred during the LLM span.
+        model (Union[None, Unset, str]): Model used for this span.
+        temperature (Union[None, Unset, float]): Temperature used for generation.
+        finish_reason (Union[None, Unset, str]): Reason for finishing.
     """
 
     id: str
@@ -103,56 +95,56 @@ class ExtendedLlmSpanRecord:
     project_id: str
     run_id: str
     parent_id: str
-    type_: Literal["llm"] | Unset = "llm"
-    input_: list[Message] | Unset = UNSET
-    redacted_input: list[Message] | None | Unset = UNSET
-    output: Message | Unset = UNSET
-    redacted_output: Message | None | Unset = UNSET
-    name: str | Unset = ""
-    created_at: datetime.datetime | Unset = UNSET
-    user_metadata: ExtendedLlmSpanRecordUserMetadata | Unset = UNSET
-    tags: list[str] | Unset = UNSET
-    status_code: int | None | Unset = UNSET
-    metrics: LlmMetrics | Unset = UNSET
-    external_id: None | str | Unset = UNSET
-    dataset_input: None | str | Unset = UNSET
-    dataset_output: None | str | Unset = UNSET
-    dataset_metadata: ExtendedLlmSpanRecordDatasetMetadata | Unset = UNSET
-    trace_id: None | str | Unset = UNSET
-    updated_at: datetime.datetime | None | Unset = UNSET
-    has_children: bool | None | Unset = UNSET
-    metrics_batch_id: None | str | Unset = UNSET
-    session_batch_id: None | str | Unset = UNSET
-    feedback_rating_info: ExtendedLlmSpanRecordFeedbackRatingInfo | Unset = UNSET
-    annotations: ExtendedLlmSpanRecordAnnotations | Unset = UNSET
-    file_ids: list[str] | Unset = UNSET
-    file_modalities: list[ContentModality] | Unset = UNSET
-    annotation_aggregates: ExtendedLlmSpanRecordAnnotationAggregates | Unset = UNSET
-    annotation_agreement: ExtendedLlmSpanRecordAnnotationAgreement | Unset = UNSET
-    overall_annotation_agreement: ExtendedLlmSpanRecordOverallAnnotationAgreement | Unset = UNSET
-    annotation_queue_ids: list[str] | Unset = UNSET
-    metric_info: ExtendedLlmSpanRecordMetricInfoType0 | None | Unset = UNSET
-    files: ExtendedLlmSpanRecordFilesType0 | None | Unset = UNSET
-    is_complete: bool | Unset = True
-    step_number: int | None | Unset = UNSET
-    tools: list[ExtendedLlmSpanRecordToolsType0Item] | None | Unset = UNSET
-    events: (
+    type_: Union[Literal["llm"], Unset] = "llm"
+    input_: Union[Unset, list["Message"]] = UNSET
+    redacted_input: Union[None, Unset, list["Message"]] = UNSET
+    output: Union[Unset, "Message"] = UNSET
+    redacted_output: Union["Message", None, Unset] = UNSET
+    name: Union[Unset, str] = ""
+    created_at: Union[Unset, datetime.datetime] = UNSET
+    user_metadata: Union[Unset, "ExtendedLlmSpanRecordUserMetadata"] = UNSET
+    tags: Union[Unset, list[str]] = UNSET
+    status_code: Union[None, Unset, int] = UNSET
+    metrics: Union[Unset, "LlmMetrics"] = UNSET
+    external_id: Union[None, Unset, str] = UNSET
+    dataset_input: Union[None, Unset, str] = UNSET
+    dataset_output: Union[None, Unset, str] = UNSET
+    dataset_metadata: Union[Unset, "ExtendedLlmSpanRecordDatasetMetadata"] = UNSET
+    trace_id: Union[None, Unset, str] = UNSET
+    updated_at: Union[None, Unset, datetime.datetime] = UNSET
+    has_children: Union[None, Unset, bool] = UNSET
+    metrics_batch_id: Union[None, Unset, str] = UNSET
+    session_batch_id: Union[None, Unset, str] = UNSET
+    feedback_rating_info: Union[Unset, "ExtendedLlmSpanRecordFeedbackRatingInfo"] = UNSET
+    annotations: Union[Unset, "ExtendedLlmSpanRecordAnnotations"] = UNSET
+    file_ids: Union[Unset, list[str]] = UNSET
+    file_modalities: Union[Unset, list[ContentModality]] = UNSET
+    annotation_aggregates: Union[Unset, "ExtendedLlmSpanRecordAnnotationAggregates"] = UNSET
+    annotation_queue_ids: Union[Unset, list[str]] = UNSET
+    metric_info: Union["ExtendedLlmSpanRecordMetricInfoType0", None, Unset] = UNSET
+    files: Union["ExtendedLlmSpanRecordFilesType0", None, Unset] = UNSET
+    is_complete: Union[Unset, bool] = True
+    step_number: Union[None, Unset, int] = UNSET
+    tools: Union[None, Unset, list["ExtendedLlmSpanRecordToolsType0Item"]] = UNSET
+    events: Union[
+        None,
+        Unset,
         list[
-            ImageGenerationEvent
-            | InternalToolCall
-            | MCPApprovalRequestEvent
-            | MCPCallEvent
-            | MCPListToolsEvent
-            | MessageEvent
-            | ReasoningEvent
-            | WebSearchCallEvent
-        ]
-        | None
-        | Unset
-    ) = UNSET
-    model: None | str | Unset = UNSET
-    temperature: float | None | Unset = UNSET
-    finish_reason: None | str | Unset = UNSET
+            Union[
+                "ImageGenerationEvent",
+                "InternalToolCall",
+                "MCPApprovalRequestEvent",
+                "MCPCallEvent",
+                "MCPListToolsEvent",
+                "MessageEvent",
+                "ReasoningEvent",
+                "WebSearchCallEvent",
+            ]
+        ],
+    ] = UNSET
+    model: Union[None, Unset, str] = UNSET
+    temperature: Union[None, Unset, float] = UNSET
+    finish_reason: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -179,14 +171,14 @@ class ExtendedLlmSpanRecord:
 
         type_ = self.type_
 
-        input_: list[dict[str, Any]] | Unset = UNSET
+        input_: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.input_, Unset):
             input_ = []
             for input_item_data in self.input_:
                 input_item = input_item_data.to_dict()
                 input_.append(input_item)
 
-        redacted_input: list[dict[str, Any]] | None | Unset
+        redacted_input: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.redacted_input, Unset):
             redacted_input = UNSET
         elif isinstance(self.redacted_input, list):
@@ -198,11 +190,11 @@ class ExtendedLlmSpanRecord:
         else:
             redacted_input = self.redacted_input
 
-        output: dict[str, Any] | Unset = UNSET
+        output: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.output, Unset):
             output = self.output.to_dict()
 
-        redacted_output: dict[str, Any] | None | Unset
+        redacted_output: Union[None, Unset, dict[str, Any]]
         if isinstance(self.redacted_output, Unset):
             redacted_output = UNSET
         elif isinstance(self.redacted_output, Message):
@@ -212,42 +204,42 @@ class ExtendedLlmSpanRecord:
 
         name = self.name
 
-        created_at: str | Unset = UNSET
+        created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
             created_at = self.created_at.isoformat()
 
-        user_metadata: dict[str, Any] | Unset = UNSET
+        user_metadata: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.user_metadata, Unset):
             user_metadata = self.user_metadata.to_dict()
 
-        tags: list[str] | Unset = UNSET
+        tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
-        status_code: int | None | Unset
+        status_code: Union[None, Unset, int]
         status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
-        metrics: dict[str, Any] | Unset = UNSET
+        metrics: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
-        external_id: None | str | Unset
+        external_id: Union[None, Unset, str]
         external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
-        dataset_input: None | str | Unset
+        dataset_input: Union[None, Unset, str]
         dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
-        dataset_output: None | str | Unset
+        dataset_output: Union[None, Unset, str]
         dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
-        dataset_metadata: dict[str, Any] | Unset = UNSET
+        dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
-        trace_id: None | str | Unset
+        trace_id: Union[None, Unset, str]
         trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
-        updated_at: None | str | Unset
+        updated_at: Union[None, Unset, str]
         if isinstance(self.updated_at, Unset):
             updated_at = UNSET
         elif isinstance(self.updated_at, datetime.datetime):
@@ -255,51 +247,43 @@ class ExtendedLlmSpanRecord:
         else:
             updated_at = self.updated_at
 
-        has_children: bool | None | Unset
+        has_children: Union[None, Unset, bool]
         has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
 
-        metrics_batch_id: None | str | Unset
+        metrics_batch_id: Union[None, Unset, str]
         metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
 
-        session_batch_id: None | str | Unset
+        session_batch_id: Union[None, Unset, str]
         session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
-        feedback_rating_info: dict[str, Any] | Unset = UNSET
+        feedback_rating_info: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.feedback_rating_info, Unset):
             feedback_rating_info = self.feedback_rating_info.to_dict()
 
-        annotations: dict[str, Any] | Unset = UNSET
+        annotations: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.annotations, Unset):
             annotations = self.annotations.to_dict()
 
-        file_ids: list[str] | Unset = UNSET
+        file_ids: Union[Unset, list[str]] = UNSET
         if not isinstance(self.file_ids, Unset):
             file_ids = self.file_ids
 
-        file_modalities: list[str] | Unset = UNSET
+        file_modalities: Union[Unset, list[str]] = UNSET
         if not isinstance(self.file_modalities, Unset):
             file_modalities = []
             for file_modalities_item_data in self.file_modalities:
                 file_modalities_item = file_modalities_item_data.value
                 file_modalities.append(file_modalities_item)
 
-        annotation_aggregates: dict[str, Any] | Unset = UNSET
+        annotation_aggregates: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.annotation_aggregates, Unset):
             annotation_aggregates = self.annotation_aggregates.to_dict()
 
-        annotation_agreement: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.annotation_agreement, Unset):
-            annotation_agreement = self.annotation_agreement.to_dict()
-
-        overall_annotation_agreement: dict[str, Any] | Unset = UNSET
-        if not isinstance(self.overall_annotation_agreement, Unset):
-            overall_annotation_agreement = self.overall_annotation_agreement.to_dict()
-
-        annotation_queue_ids: list[str] | Unset = UNSET
+        annotation_queue_ids: Union[Unset, list[str]] = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
             annotation_queue_ids = self.annotation_queue_ids
 
-        metric_info: dict[str, Any] | None | Unset
+        metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
         elif isinstance(self.metric_info, ExtendedLlmSpanRecordMetricInfoType0):
@@ -307,7 +291,7 @@ class ExtendedLlmSpanRecord:
         else:
             metric_info = self.metric_info
 
-        files: dict[str, Any] | None | Unset
+        files: Union[None, Unset, dict[str, Any]]
         if isinstance(self.files, Unset):
             files = UNSET
         elif isinstance(self.files, ExtendedLlmSpanRecordFilesType0):
@@ -317,10 +301,10 @@ class ExtendedLlmSpanRecord:
 
         is_complete = self.is_complete
 
-        step_number: int | None | Unset
+        step_number: Union[None, Unset, int]
         step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
 
-        tools: list[dict[str, Any]] | None | Unset
+        tools: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.tools, Unset):
             tools = UNSET
         elif isinstance(self.tools, list):
@@ -332,7 +316,7 @@ class ExtendedLlmSpanRecord:
         else:
             tools = self.tools
 
-        events: list[dict[str, Any]] | None | Unset
+        events: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.events, Unset):
             events = UNSET
         elif isinstance(self.events, list):
@@ -341,12 +325,15 @@ class ExtendedLlmSpanRecord:
                 events_type_0_item: dict[str, Any]
                 if isinstance(
                     events_type_0_item_data,
-                    MessageEvent
-                    | ReasoningEvent
-                    | InternalToolCall
-                    | WebSearchCallEvent
-                    | (ImageGenerationEvent | MCPCallEvent)
-                    | MCPListToolsEvent,
+                    (
+                        MessageEvent,
+                        ReasoningEvent,
+                        InternalToolCall,
+                        WebSearchCallEvent,
+                        ImageGenerationEvent,
+                        MCPCallEvent,
+                        MCPListToolsEvent,
+                    ),
                 ):
                     events_type_0_item = events_type_0_item_data.to_dict()
                 else:
@@ -357,13 +344,13 @@ class ExtendedLlmSpanRecord:
         else:
             events = self.events
 
-        model: None | str | Unset
+        model: Union[None, Unset, str]
         model = UNSET if isinstance(self.model, Unset) else self.model
 
-        temperature: float | None | Unset
+        temperature: Union[None, Unset, float]
         temperature = UNSET if isinstance(self.temperature, Unset) else self.temperature
 
-        finish_reason: None | str | Unset
+        finish_reason: Union[None, Unset, str]
         finish_reason = UNSET if isinstance(self.finish_reason, Unset) else self.finish_reason
 
         field_dict: dict[str, Any] = {}
@@ -421,10 +408,6 @@ class ExtendedLlmSpanRecord:
             field_dict["file_modalities"] = file_modalities
         if annotation_aggregates is not UNSET:
             field_dict["annotation_aggregates"] = annotation_aggregates
-        if annotation_agreement is not UNSET:
-            field_dict["annotation_agreement"] = annotation_agreement
-        if overall_annotation_agreement is not UNSET:
-            field_dict["overall_annotation_agreement"] = overall_annotation_agreement
         if annotation_queue_ids is not UNSET:
             field_dict["annotation_queue_ids"] = annotation_queue_ids
         if metric_info is not UNSET:
@@ -451,15 +434,11 @@ class ExtendedLlmSpanRecord:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.extended_llm_span_record_annotation_aggregates import ExtendedLlmSpanRecordAnnotationAggregates
-        from ..models.extended_llm_span_record_annotation_agreement import ExtendedLlmSpanRecordAnnotationAgreement
         from ..models.extended_llm_span_record_annotations import ExtendedLlmSpanRecordAnnotations
         from ..models.extended_llm_span_record_dataset_metadata import ExtendedLlmSpanRecordDatasetMetadata
         from ..models.extended_llm_span_record_feedback_rating_info import ExtendedLlmSpanRecordFeedbackRatingInfo
         from ..models.extended_llm_span_record_files_type_0 import ExtendedLlmSpanRecordFilesType0
         from ..models.extended_llm_span_record_metric_info_type_0 import ExtendedLlmSpanRecordMetricInfoType0
-        from ..models.extended_llm_span_record_overall_annotation_agreement import (
-            ExtendedLlmSpanRecordOverallAnnotationAgreement,
-        )
         from ..models.extended_llm_span_record_tools_type_0_item import ExtendedLlmSpanRecordToolsType0Item
         from ..models.extended_llm_span_record_user_metadata import ExtendedLlmSpanRecordUserMetadata
         from ..models.image_generation_event import ImageGenerationEvent
@@ -484,20 +463,18 @@ class ExtendedLlmSpanRecord:
 
         parent_id = d.pop("parent_id")
 
-        type_ = cast(Literal["llm"] | Unset, d.pop("type", UNSET))
+        type_ = cast(Union[Literal["llm"], Unset], d.pop("type", UNSET))
         if type_ != "llm" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'llm', got '{type_}'")
 
+        input_ = []
         _input_ = d.pop("input", UNSET)
-        input_: list[Message] | Unset = UNSET
-        if _input_ is not UNSET:
-            input_ = []
-            for input_item_data in _input_:
-                input_item = Message.from_dict(input_item_data)
+        for input_item_data in _input_ or []:
+            input_item = Message.from_dict(input_item_data)
 
-                input_.append(input_item)
+            input_.append(input_item)
 
-        def _parse_redacted_input(data: object) -> list[Message] | None | Unset:
+        def _parse_redacted_input(data: object) -> Union[None, Unset, list["Message"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -515,15 +492,15 @@ class ExtendedLlmSpanRecord:
                 return redacted_input_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[Message] | None | Unset, data)
+            return cast(Union[None, Unset, list["Message"]], data)
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
         _output = d.pop("output", UNSET)
-        output: Message | Unset
+        output: Union[Unset, Message]
         output = UNSET if isinstance(_output, Unset) else Message.from_dict(_output)
 
-        def _parse_redacted_output(data: object) -> Message | None | Unset:
+        def _parse_redacted_output(data: object) -> Union["Message", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -535,18 +512,18 @@ class ExtendedLlmSpanRecord:
 
             except:  # noqa: E722
                 pass
-            return cast(Message | None | Unset, data)
+            return cast(Union["Message", None, Unset], data)
 
         redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
 
         name = d.pop("name", UNSET)
 
         _created_at = d.pop("created_at", UNSET)
-        created_at: datetime.datetime | Unset
+        created_at: Union[Unset, datetime.datetime]
         created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
-        user_metadata: ExtendedLlmSpanRecordUserMetadata | Unset
+        user_metadata: Union[Unset, ExtendedLlmSpanRecordUserMetadata]
         if isinstance(_user_metadata, Unset):
             user_metadata = UNSET
         else:
@@ -554,63 +531,63 @@ class ExtendedLlmSpanRecord:
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
-        def _parse_status_code(data: object) -> int | None | Unset:
+        def _parse_status_code(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(Union[None, Unset, int], data)
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
         _metrics = d.pop("metrics", UNSET)
-        metrics: LlmMetrics | Unset
+        metrics: Union[Unset, LlmMetrics]
         metrics = UNSET if isinstance(_metrics, Unset) else LlmMetrics.from_dict(_metrics)
 
-        def _parse_external_id(data: object) -> None | str | Unset:
+        def _parse_external_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         external_id = _parse_external_id(d.pop("external_id", UNSET))
 
-        def _parse_dataset_input(data: object) -> None | str | Unset:
+        def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
 
-        def _parse_dataset_output(data: object) -> None | str | Unset:
+        def _parse_dataset_output(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
 
         _dataset_metadata = d.pop("dataset_metadata", UNSET)
-        dataset_metadata: ExtendedLlmSpanRecordDatasetMetadata | Unset
+        dataset_metadata: Union[Unset, ExtendedLlmSpanRecordDatasetMetadata]
         if isinstance(_dataset_metadata, Unset):
             dataset_metadata = UNSET
         else:
             dataset_metadata = ExtendedLlmSpanRecordDatasetMetadata.from_dict(_dataset_metadata)
 
-        def _parse_trace_id(data: object) -> None | str | Unset:
+        def _parse_trace_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
 
-        def _parse_updated_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_updated_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -622,46 +599,46 @@ class ExtendedLlmSpanRecord:
 
             except:  # noqa: E722
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(Union[None, Unset, datetime.datetime], data)
 
         updated_at = _parse_updated_at(d.pop("updated_at", UNSET))
 
-        def _parse_has_children(data: object) -> bool | None | Unset:
+        def _parse_has_children(data: object) -> Union[None, Unset, bool]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(bool | None | Unset, data)
+            return cast(Union[None, Unset, bool], data)
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
 
-        def _parse_metrics_batch_id(data: object) -> None | str | Unset:
+        def _parse_metrics_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         metrics_batch_id = _parse_metrics_batch_id(d.pop("metrics_batch_id", UNSET))
 
-        def _parse_session_batch_id(data: object) -> None | str | Unset:
+        def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
         _feedback_rating_info = d.pop("feedback_rating_info", UNSET)
-        feedback_rating_info: ExtendedLlmSpanRecordFeedbackRatingInfo | Unset
+        feedback_rating_info: Union[Unset, ExtendedLlmSpanRecordFeedbackRatingInfo]
         if isinstance(_feedback_rating_info, Unset):
             feedback_rating_info = UNSET
         else:
             feedback_rating_info = ExtendedLlmSpanRecordFeedbackRatingInfo.from_dict(_feedback_rating_info)
 
         _annotations = d.pop("annotations", UNSET)
-        annotations: ExtendedLlmSpanRecordAnnotations | Unset
+        annotations: Union[Unset, ExtendedLlmSpanRecordAnnotations]
         if isinstance(_annotations, Unset):
             annotations = UNSET
         else:
@@ -669,41 +646,23 @@ class ExtendedLlmSpanRecord:
 
         file_ids = cast(list[str], d.pop("file_ids", UNSET))
 
+        file_modalities = []
         _file_modalities = d.pop("file_modalities", UNSET)
-        file_modalities: list[ContentModality] | Unset = UNSET
-        if _file_modalities is not UNSET:
-            file_modalities = []
-            for file_modalities_item_data in _file_modalities:
-                file_modalities_item = ContentModality(file_modalities_item_data)
+        for file_modalities_item_data in _file_modalities or []:
+            file_modalities_item = ContentModality(file_modalities_item_data)
 
-                file_modalities.append(file_modalities_item)
+            file_modalities.append(file_modalities_item)
 
         _annotation_aggregates = d.pop("annotation_aggregates", UNSET)
-        annotation_aggregates: ExtendedLlmSpanRecordAnnotationAggregates | Unset
+        annotation_aggregates: Union[Unset, ExtendedLlmSpanRecordAnnotationAggregates]
         if isinstance(_annotation_aggregates, Unset):
             annotation_aggregates = UNSET
         else:
             annotation_aggregates = ExtendedLlmSpanRecordAnnotationAggregates.from_dict(_annotation_aggregates)
 
-        _annotation_agreement = d.pop("annotation_agreement", UNSET)
-        annotation_agreement: ExtendedLlmSpanRecordAnnotationAgreement | Unset
-        if isinstance(_annotation_agreement, Unset):
-            annotation_agreement = UNSET
-        else:
-            annotation_agreement = ExtendedLlmSpanRecordAnnotationAgreement.from_dict(_annotation_agreement)
-
-        _overall_annotation_agreement = d.pop("overall_annotation_agreement", UNSET)
-        overall_annotation_agreement: ExtendedLlmSpanRecordOverallAnnotationAgreement | Unset
-        if isinstance(_overall_annotation_agreement, Unset):
-            overall_annotation_agreement = UNSET
-        else:
-            overall_annotation_agreement = ExtendedLlmSpanRecordOverallAnnotationAgreement.from_dict(
-                _overall_annotation_agreement
-            )
-
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
 
-        def _parse_metric_info(data: object) -> ExtendedLlmSpanRecordMetricInfoType0 | None | Unset:
+        def _parse_metric_info(data: object) -> Union["ExtendedLlmSpanRecordMetricInfoType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -715,11 +674,11 @@ class ExtendedLlmSpanRecord:
 
             except:  # noqa: E722
                 pass
-            return cast(ExtendedLlmSpanRecordMetricInfoType0 | None | Unset, data)
+            return cast(Union["ExtendedLlmSpanRecordMetricInfoType0", None, Unset], data)
 
         metric_info = _parse_metric_info(d.pop("metric_info", UNSET))
 
-        def _parse_files(data: object) -> ExtendedLlmSpanRecordFilesType0 | None | Unset:
+        def _parse_files(data: object) -> Union["ExtendedLlmSpanRecordFilesType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -731,22 +690,22 @@ class ExtendedLlmSpanRecord:
 
             except:  # noqa: E722
                 pass
-            return cast(ExtendedLlmSpanRecordFilesType0 | None | Unset, data)
+            return cast(Union["ExtendedLlmSpanRecordFilesType0", None, Unset], data)
 
         files = _parse_files(d.pop("files", UNSET))
 
         is_complete = d.pop("is_complete", UNSET)
 
-        def _parse_step_number(data: object) -> int | None | Unset:
+        def _parse_step_number(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(Union[None, Unset, int], data)
 
         step_number = _parse_step_number(d.pop("step_number", UNSET))
 
-        def _parse_tools(data: object) -> list[ExtendedLlmSpanRecordToolsType0Item] | None | Unset:
+        def _parse_tools(data: object) -> Union[None, Unset, list["ExtendedLlmSpanRecordToolsType0Item"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -764,26 +723,28 @@ class ExtendedLlmSpanRecord:
                 return tools_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[ExtendedLlmSpanRecordToolsType0Item] | None | Unset, data)
+            return cast(Union[None, Unset, list["ExtendedLlmSpanRecordToolsType0Item"]], data)
 
         tools = _parse_tools(d.pop("tools", UNSET))
 
         def _parse_events(
             data: object,
-        ) -> (
+        ) -> Union[
+            None,
+            Unset,
             list[
-                ImageGenerationEvent
-                | InternalToolCall
-                | MCPApprovalRequestEvent
-                | MCPCallEvent
-                | MCPListToolsEvent
-                | MessageEvent
-                | ReasoningEvent
-                | WebSearchCallEvent
-            ]
-            | None
-            | Unset
-        ):
+                Union[
+                    "ImageGenerationEvent",
+                    "InternalToolCall",
+                    "MCPApprovalRequestEvent",
+                    "MCPCallEvent",
+                    "MCPListToolsEvent",
+                    "MessageEvent",
+                    "ReasoningEvent",
+                    "WebSearchCallEvent",
+                ]
+            ],
+        ]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -797,16 +758,16 @@ class ExtendedLlmSpanRecord:
 
                     def _parse_events_type_0_item(
                         data: object,
-                    ) -> (
-                        ImageGenerationEvent
-                        | InternalToolCall
-                        | MCPApprovalRequestEvent
-                        | MCPCallEvent
-                        | MCPListToolsEvent
-                        | MessageEvent
-                        | ReasoningEvent
-                        | WebSearchCallEvent
-                    ):
+                    ) -> Union[
+                        "ImageGenerationEvent",
+                        "InternalToolCall",
+                        "MCPApprovalRequestEvent",
+                        "MCPCallEvent",
+                        "MCPListToolsEvent",
+                        "MessageEvent",
+                        "ReasoningEvent",
+                        "WebSearchCallEvent",
+                    ]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -868,47 +829,51 @@ class ExtendedLlmSpanRecord:
             except:  # noqa: E722
                 pass
             return cast(
-                list[
-                    ImageGenerationEvent
-                    | InternalToolCall
-                    | MCPApprovalRequestEvent
-                    | MCPCallEvent
-                    | MCPListToolsEvent
-                    | MessageEvent
-                    | ReasoningEvent
-                    | WebSearchCallEvent
-                ]
-                | None
-                | Unset,
+                Union[
+                    None,
+                    Unset,
+                    list[
+                        Union[
+                            "ImageGenerationEvent",
+                            "InternalToolCall",
+                            "MCPApprovalRequestEvent",
+                            "MCPCallEvent",
+                            "MCPListToolsEvent",
+                            "MessageEvent",
+                            "ReasoningEvent",
+                            "WebSearchCallEvent",
+                        ]
+                    ],
+                ],
                 data,
             )
 
         events = _parse_events(d.pop("events", UNSET))
 
-        def _parse_model(data: object) -> None | str | Unset:
+        def _parse_model(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         model = _parse_model(d.pop("model", UNSET))
 
-        def _parse_temperature(data: object) -> float | None | Unset:
+        def _parse_temperature(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(float | None | Unset, data)
+            return cast(Union[None, Unset, float], data)
 
         temperature = _parse_temperature(d.pop("temperature", UNSET))
 
-        def _parse_finish_reason(data: object) -> None | str | Unset:
+        def _parse_finish_reason(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         finish_reason = _parse_finish_reason(d.pop("finish_reason", UNSET))
 
@@ -943,8 +908,6 @@ class ExtendedLlmSpanRecord:
             file_ids=file_ids,
             file_modalities=file_modalities,
             annotation_aggregates=annotation_aggregates,
-            annotation_agreement=annotation_agreement,
-            overall_annotation_agreement=overall_annotation_agreement,
             annotation_queue_ids=annotation_queue_ids,
             metric_info=metric_info,
             files=files,

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -23,7 +23,7 @@ from ...models.user_collaborator_create import UserCollaboratorCreate
 from ...types import Response
 
 
-def _get_kwargs(dataset_id: str, *, body: list[UserCollaboratorCreate]) -> dict[str, Any]:
+def _get_kwargs(dataset_id: str, *, body: list["UserCollaboratorCreate"]) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
@@ -45,7 +45,9 @@ def _get_kwargs(dataset_id: str, *, body: list[UserCollaboratorCreate]) -> dict[
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list[UserCollaborator]:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[HTTPValidationError, list["UserCollaborator"]]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -79,7 +81,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | list[UserCollaborator]]:
+) -> Response[Union[HTTPValidationError, list["UserCollaborator"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -89,13 +91,13 @@ def _build_response(
 
 
 def sync_detailed(
-    dataset_id: str, *, client: ApiClient, body: list[UserCollaboratorCreate]
-) -> Response[HTTPValidationError | list[UserCollaborator]]:
+    dataset_id: str, *, client: ApiClient, body: list["UserCollaboratorCreate"]
+) -> Response[Union[HTTPValidationError, list["UserCollaborator"]]]:
     """Create User Dataset Collaborators.
 
     Args:
         dataset_id (str):
-        body (list[UserCollaboratorCreate]):
+        body (list['UserCollaboratorCreate']):
 
     Raises
     ------
@@ -104,7 +106,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | list[UserCollaborator]]
+        Response[Union[HTTPValidationError, list['UserCollaborator']]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
 
@@ -114,13 +116,13 @@ def sync_detailed(
 
 
 def sync(
-    dataset_id: str, *, client: ApiClient, body: list[UserCollaboratorCreate]
-) -> HTTPValidationError | list[UserCollaborator] | None:
+    dataset_id: str, *, client: ApiClient, body: list["UserCollaboratorCreate"]
+) -> Optional[Union[HTTPValidationError, list["UserCollaborator"]]]:
     """Create User Dataset Collaborators.
 
     Args:
         dataset_id (str):
-        body (list[UserCollaboratorCreate]):
+        body (list['UserCollaboratorCreate']):
 
     Raises
     ------
@@ -129,19 +131,19 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | list[UserCollaborator]
+        Union[HTTPValidationError, list['UserCollaborator']]
     """
     return sync_detailed(dataset_id=dataset_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    dataset_id: str, *, client: ApiClient, body: list[UserCollaboratorCreate]
-) -> Response[HTTPValidationError | list[UserCollaborator]]:
+    dataset_id: str, *, client: ApiClient, body: list["UserCollaboratorCreate"]
+) -> Response[Union[HTTPValidationError, list["UserCollaborator"]]]:
     """Create User Dataset Collaborators.
 
     Args:
         dataset_id (str):
-        body (list[UserCollaboratorCreate]):
+        body (list['UserCollaboratorCreate']):
 
     Raises
     ------
@@ -150,7 +152,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | list[UserCollaborator]]
+        Response[Union[HTTPValidationError, list['UserCollaborator']]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
 
@@ -160,13 +162,13 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str, *, client: ApiClient, body: list[UserCollaboratorCreate]
-) -> HTTPValidationError | list[UserCollaborator] | None:
+    dataset_id: str, *, client: ApiClient, body: list["UserCollaboratorCreate"]
+) -> Optional[Union[HTTPValidationError, list["UserCollaborator"]]]:
     """Create User Dataset Collaborators.
 
     Args:
         dataset_id (str):
-        body (list[UserCollaboratorCreate]):
+        body (list['UserCollaboratorCreate']):
 
     Raises
     ------
@@ -175,6 +177,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | list[UserCollaborator]
+        Union[HTTPValidationError, list['UserCollaborator']]
     """
     return (await asyncio_detailed(dataset_id=dataset_id, client=client, body=body)).parsed

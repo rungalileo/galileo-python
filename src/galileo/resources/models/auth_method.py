@@ -7,7 +7,6 @@ class AuthMethod(str, Enum):
     EMAIL = "email"
     GITHUB = "github"
     GOOGLE = "google"
-    INVITE = "invite"
     OKTA = "okta"
     SAML = "saml"
 

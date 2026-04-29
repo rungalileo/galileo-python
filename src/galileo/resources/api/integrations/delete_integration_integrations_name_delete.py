@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -37,7 +37,7 @@ def _get_kwargs(name: IntegrationName) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
     if response.status_code == 200:
         return response.json()
 
@@ -62,7 +62,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -71,10 +71,10 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
+def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Integration.
 
-     Delete an integration. Admins can delete integrations created by other admins in the same org.
+     Delete the integration created by this user.
 
     Args:
         name (IntegrationName):
@@ -86,7 +86,7 @@ def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[Any |
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(name=name)
 
@@ -95,10 +95,10 @@ def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[Any |
     return _build_response(client=client, response=response)
 
 
-def sync(name: IntegrationName, *, client: ApiClient) -> Any | HTTPValidationError | None:
+def sync(name: IntegrationName, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Integration.
 
-     Delete an integration. Admins can delete integrations created by other admins in the same org.
+     Delete the integration created by this user.
 
     Args:
         name (IntegrationName):
@@ -110,15 +110,15 @@ def sync(name: IntegrationName, *, client: ApiClient) -> Any | HTTPValidationErr
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return sync_detailed(name=name, client=client).parsed
 
 
-async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
+async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Integration.
 
-     Delete an integration. Admins can delete integrations created by other admins in the same org.
+     Delete the integration created by this user.
 
     Args:
         name (IntegrationName):
@@ -130,7 +130,7 @@ async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Respo
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(name=name)
 
@@ -139,10 +139,10 @@ async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Respo
     return _build_response(client=client, response=response)
 
 
-async def asyncio(name: IntegrationName, *, client: ApiClient) -> Any | HTTPValidationError | None:
+async def asyncio(name: IntegrationName, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Integration.
 
-     Delete an integration. Admins can delete integrations created by other admins in the same org.
+     Delete the integration created by this user.
 
     Args:
         name (IntegrationName):
@@ -154,6 +154,6 @@ async def asyncio(name: IntegrationName, *, client: ApiClient) -> Any | HTTPVali
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return (await asyncio_detailed(name=name, client=client)).parsed

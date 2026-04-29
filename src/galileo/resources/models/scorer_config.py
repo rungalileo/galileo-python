@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -10,7 +8,6 @@ from ..models.input_type_enum import InputTypeEnum
 from ..models.model_type import ModelType
 from ..models.multimodal_capability import MultimodalCapability
 from ..models.output_type_enum import OutputTypeEnum
-from ..models.roll_up_method_display_options import RollUpMethodDisplayOptions
 from ..models.scorer_types import ScorerTypes
 from ..types import UNSET, Unset
 
@@ -32,44 +29,44 @@ class ScorerConfig:
     ----------
         id (str):
         scorer_type (ScorerTypes):
-        model_name (None | str | Unset):
-        num_judges (int | None | Unset):
-        filters (list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset): List of filters to apply to the
-            scorer.
-        scoreable_node_types (list[str] | None | Unset): List of node types that can be scored by this scorer. Defaults
-            to llm/chat.
-        cot_enabled (bool | None | Unset): Whether to enable chain of thought for this scorer. Defaults to False for llm
-            scorers.
-        output_type (None | OutputTypeEnum | Unset): What type of output to use for model-based scorers (boolean,
+        model_name (Union[None, Unset, str]):
+        num_judges (Union[None, Unset, int]):
+        filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]): List of filters
+            to apply to the scorer.
+        scoreable_node_types (Union[None, Unset, list[str]]): List of node types that can be scored by this scorer.
+            Defaults to llm/chat.
+        cot_enabled (Union[None, Unset, bool]): Whether to enable chain of thought for this scorer. Defaults to False
+            for llm scorers.
+        output_type (Union[None, OutputTypeEnum, Unset]): What type of output to use for model-based scorers (boolean,
             categorical, etc.).
-        input_type (InputTypeEnum | None | Unset): What type of input to use for model-based scorers
+        input_type (Union[InputTypeEnum, None, Unset]): What type of input to use for model-based scorers
             (sessions_normalized, trace_io_only, etc..).
-        name (None | str | Unset):
-        model_type (ModelType | None | Unset): Type of model to use for this scorer. slm maps to luna, and llm maps to
-            plus
-        scorer_version (BaseScorerVersionDB | None | Unset): ScorerVersion to use for this scorer. If not provided, the
-            latest version will be used.
-        multimodal_capabilities (list[MultimodalCapability] | None | Unset): Multimodal capabilities which this scorer
-            can utilize in its evaluation.
-        roll_up_method (None | RollUpMethodDisplayOptions | Unset):
-        score_type (None | str | Unset): Return type of code scorers (e.g., 'bool', 'int', 'float', 'str').
+        name (Union[None, Unset, str]):
+        model_type (Union[ModelType, None, Unset]): Type of model to use for this scorer. slm maps to luna, and llm maps
+            to plus
+        scorer_version (Union['BaseScorerVersionDB', None, Unset]): ScorerVersion to use for this scorer. If not
+            provided, the latest version will be used.
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]): Multimodal capabilities which this
+            scorer can utilize in its evaluation.
+        roll_up_method (Union[None, Unset, str]):
+        score_type (Union[None, Unset, str]): Return type of code scorers (e.g., 'bool', 'int', 'float', 'str').
     """
 
     id: str
     scorer_type: ScorerTypes
-    model_name: None | str | Unset = UNSET
-    num_judges: int | None | Unset = UNSET
-    filters: list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset = UNSET
-    scoreable_node_types: list[str] | None | Unset = UNSET
-    cot_enabled: bool | None | Unset = UNSET
-    output_type: None | OutputTypeEnum | Unset = UNSET
-    input_type: InputTypeEnum | None | Unset = UNSET
-    name: None | str | Unset = UNSET
-    model_type: ModelType | None | Unset = UNSET
-    scorer_version: BaseScorerVersionDB | None | Unset = UNSET
-    multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET
-    roll_up_method: None | RollUpMethodDisplayOptions | Unset = UNSET
-    score_type: None | str | Unset = UNSET
+    model_name: Union[None, Unset, str] = UNSET
+    num_judges: Union[None, Unset, int] = UNSET
+    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
+    scoreable_node_types: Union[None, Unset, list[str]] = UNSET
+    cot_enabled: Union[None, Unset, bool] = UNSET
+    output_type: Union[None, OutputTypeEnum, Unset] = UNSET
+    input_type: Union[InputTypeEnum, None, Unset] = UNSET
+    name: Union[None, Unset, str] = UNSET
+    model_type: Union[ModelType, None, Unset] = UNSET
+    scorer_version: Union["BaseScorerVersionDB", None, Unset] = UNSET
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
+    roll_up_method: Union[None, Unset, str] = UNSET
+    score_type: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -81,20 +78,20 @@ class ScorerConfig:
 
         scorer_type = self.scorer_type.value
 
-        model_name: None | str | Unset
+        model_name: Union[None, Unset, str]
         model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
-        num_judges: int | None | Unset
+        num_judges: Union[None, Unset, int]
         num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
-        filters: list[dict[str, Any]] | None | Unset
+        filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
+                if isinstance(filters_type_0_item_data, (NodeNameFilter, MetadataFilter)):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -104,7 +101,7 @@ class ScorerConfig:
         else:
             filters = self.filters
 
-        scoreable_node_types: list[str] | None | Unset
+        scoreable_node_types: Union[None, Unset, list[str]]
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
         elif isinstance(self.scoreable_node_types, list):
@@ -113,10 +110,10 @@ class ScorerConfig:
         else:
             scoreable_node_types = self.scoreable_node_types
 
-        cot_enabled: bool | None | Unset
+        cot_enabled: Union[None, Unset, bool]
         cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
-        output_type: None | str | Unset
+        output_type: Union[None, Unset, str]
         if isinstance(self.output_type, Unset):
             output_type = UNSET
         elif isinstance(self.output_type, OutputTypeEnum):
@@ -124,7 +121,7 @@ class ScorerConfig:
         else:
             output_type = self.output_type
 
-        input_type: None | str | Unset
+        input_type: Union[None, Unset, str]
         if isinstance(self.input_type, Unset):
             input_type = UNSET
         elif isinstance(self.input_type, InputTypeEnum):
@@ -132,10 +129,10 @@ class ScorerConfig:
         else:
             input_type = self.input_type
 
-        name: None | str | Unset
+        name: Union[None, Unset, str]
         name = UNSET if isinstance(self.name, Unset) else self.name
 
-        model_type: None | str | Unset
+        model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
             model_type = UNSET
         elif isinstance(self.model_type, ModelType):
@@ -143,7 +140,7 @@ class ScorerConfig:
         else:
             model_type = self.model_type
 
-        scorer_version: dict[str, Any] | None | Unset
+        scorer_version: Union[None, Unset, dict[str, Any]]
         if isinstance(self.scorer_version, Unset):
             scorer_version = UNSET
         elif isinstance(self.scorer_version, BaseScorerVersionDB):
@@ -151,7 +148,7 @@ class ScorerConfig:
         else:
             scorer_version = self.scorer_version
 
-        multimodal_capabilities: list[str] | None | Unset
+        multimodal_capabilities: Union[None, Unset, list[str]]
         if isinstance(self.multimodal_capabilities, Unset):
             multimodal_capabilities = UNSET
         elif isinstance(self.multimodal_capabilities, list):
@@ -163,15 +160,10 @@ class ScorerConfig:
         else:
             multimodal_capabilities = self.multimodal_capabilities
 
-        roll_up_method: None | str | Unset
-        if isinstance(self.roll_up_method, Unset):
-            roll_up_method = UNSET
-        elif isinstance(self.roll_up_method, RollUpMethodDisplayOptions):
-            roll_up_method = self.roll_up_method.value
-        else:
-            roll_up_method = self.roll_up_method
+        roll_up_method: Union[None, Unset, str]
+        roll_up_method = UNSET if isinstance(self.roll_up_method, Unset) else self.roll_up_method
 
-        score_type: None | str | Unset
+        score_type: Union[None, Unset, str]
         score_type = UNSET if isinstance(self.score_type, Unset) else self.score_type
 
         field_dict: dict[str, Any] = {}
@@ -218,25 +210,27 @@ class ScorerConfig:
 
         scorer_type = ScorerTypes(d.pop("scorer_type"))
 
-        def _parse_model_name(data: object) -> None | str | Unset:
+        def _parse_model_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         model_name = _parse_model_name(d.pop("model_name", UNSET))
 
-        def _parse_num_judges(data: object) -> int | None | Unset:
+        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(Union[None, Unset, int], data)
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
-        def _parse_filters(data: object) -> list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset:
+        def _parse_filters(
+            data: object,
+        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -248,7 +242,9 @@ class ScorerConfig:
                 _filters_type_0 = data
                 for filters_type_0_item_data in _filters_type_0:
 
-                    def _parse_filters_type_0_item(data: object) -> MetadataFilter | ModalityFilter | NodeNameFilter:
+                    def _parse_filters_type_0_item(
+                        data: object,
+                    ) -> Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -274,11 +270,11 @@ class ScorerConfig:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset, data)
+            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
-        def _parse_scoreable_node_types(data: object) -> list[str] | None | Unset:
+        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -290,20 +286,20 @@ class ScorerConfig:
 
             except:  # noqa: E722
                 pass
-            return cast(list[str] | None | Unset, data)
+            return cast(Union[None, Unset, list[str]], data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
-        def _parse_cot_enabled(data: object) -> bool | None | Unset:
+        def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(bool | None | Unset, data)
+            return cast(Union[None, Unset, bool], data)
 
         cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
 
-        def _parse_output_type(data: object) -> None | OutputTypeEnum | Unset:
+        def _parse_output_type(data: object) -> Union[None, OutputTypeEnum, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -315,11 +311,11 @@ class ScorerConfig:
 
             except:  # noqa: E722
                 pass
-            return cast(None | OutputTypeEnum | Unset, data)
+            return cast(Union[None, OutputTypeEnum, Unset], data)
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 
-        def _parse_input_type(data: object) -> InputTypeEnum | None | Unset:
+        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -331,20 +327,20 @@ class ScorerConfig:
 
             except:  # noqa: E722
                 pass
-            return cast(InputTypeEnum | None | Unset, data)
+            return cast(Union[InputTypeEnum, None, Unset], data)
 
         input_type = _parse_input_type(d.pop("input_type", UNSET))
 
-        def _parse_name(data: object) -> None | str | Unset:
+        def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_model_type(data: object) -> ModelType | None | Unset:
+        def _parse_model_type(data: object) -> Union[ModelType, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -356,11 +352,11 @@ class ScorerConfig:
 
             except:  # noqa: E722
                 pass
-            return cast(ModelType | None | Unset, data)
+            return cast(Union[ModelType, None, Unset], data)
 
         model_type = _parse_model_type(d.pop("model_type", UNSET))
 
-        def _parse_scorer_version(data: object) -> BaseScorerVersionDB | None | Unset:
+        def _parse_scorer_version(data: object) -> Union["BaseScorerVersionDB", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -372,11 +368,11 @@ class ScorerConfig:
 
             except:  # noqa: E722
                 pass
-            return cast(BaseScorerVersionDB | None | Unset, data)
+            return cast(Union["BaseScorerVersionDB", None, Unset], data)
 
         scorer_version = _parse_scorer_version(d.pop("scorer_version", UNSET))
 
-        def _parse_multimodal_capabilities(data: object) -> list[MultimodalCapability] | None | Unset:
+        def _parse_multimodal_capabilities(data: object) -> Union[None, Unset, list[MultimodalCapability]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -394,32 +390,25 @@ class ScorerConfig:
                 return multimodal_capabilities_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[MultimodalCapability] | None | Unset, data)
+            return cast(Union[None, Unset, list[MultimodalCapability]], data)
 
         multimodal_capabilities = _parse_multimodal_capabilities(d.pop("multimodal_capabilities", UNSET))
 
-        def _parse_roll_up_method(data: object) -> None | RollUpMethodDisplayOptions | Unset:
+        def _parse_roll_up_method(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                return RollUpMethodDisplayOptions(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(None | RollUpMethodDisplayOptions | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
 
-        def _parse_score_type(data: object) -> None | str | Unset:
+        def _parse_score_type(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         score_type = _parse_score_type(d.pop("score_type", UNSET))
 

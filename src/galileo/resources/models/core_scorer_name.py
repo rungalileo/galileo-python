@@ -12,7 +12,6 @@ class CoreScorerName(str, Enum):
     CHUNK_ATTRIBUTION_UTILIZATION = "chunk_attribution_utilization"
     CHUNK_ATTRIBUTION_UTILIZATION_LUNA = "chunk_attribution_utilization_luna"
     CHUNK_RELEVANCE = "chunk_relevance"
-    CHUNK_RELEVANCE_LUNA = "chunk_relevance_luna"
     COMPLETENESS = "completeness"
     COMPLETENESS_LUNA = "completeness_luna"
     CONTEXT_ADHERENCE = "context_adherence"
@@ -32,7 +31,6 @@ class CoreScorerName(str, Enum):
     INPUT_TOXICITY = "input_toxicity"
     INPUT_TOXICITY_LUNA = "input_toxicity_luna"
     INSTRUCTION_ADHERENCE = "instruction_adherence"
-    INTERRUPTION_DETECTION = "interruption_detection"
     OUTPUT_PII = "output_pii"
     OUTPUT_PII_GPT = "output_pii_gpt"
     OUTPUT_SEXIST = "output_sexist"
@@ -57,8 +55,6 @@ class CoreScorerName(str, Enum):
     TOOL_SELECTION_QUALITY_LUNA = "tool_selection_quality_luna"
     UNCERTAINTY = "uncertainty"
     USER_INTENT_CHANGE = "user_intent_change"
-    VISUAL_FIDELITY = "visual_fidelity"
-    VISUAL_QUALITY = "visual_quality"
 
     def __str__(self) -> str:
         return str(self.value)

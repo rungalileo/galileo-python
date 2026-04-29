@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -37,7 +37,7 @@ def _get_kwargs(project_id: str, experiment_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list[RunTagDB]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, list["RunTagDB"]]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -69,7 +69,9 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | list[RunTagDB]]:
+def _build_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Response[Union[HTTPValidationError, list["RunTagDB"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,7 +82,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 def sync_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient
-) -> Response[HTTPValidationError | list[RunTagDB]]:
+) -> Response[Union[HTTPValidationError, list["RunTagDB"]]]:
     """Get Experiment Tags.
 
      Gets tags for a given project_id/experiment_id.
@@ -96,7 +98,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | list[RunTagDB]]
+        Response[Union[HTTPValidationError, list['RunTagDB']]]
     """
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id)
 
@@ -105,7 +107,9 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(project_id: str, experiment_id: str, *, client: ApiClient) -> HTTPValidationError | list[RunTagDB] | None:
+def sync(
+    project_id: str, experiment_id: str, *, client: ApiClient
+) -> Optional[Union[HTTPValidationError, list["RunTagDB"]]]:
     """Get Experiment Tags.
 
      Gets tags for a given project_id/experiment_id.
@@ -121,14 +125,14 @@ def sync(project_id: str, experiment_id: str, *, client: ApiClient) -> HTTPValid
 
     Returns
     -------
-        HTTPValidationError | list[RunTagDB]
+        Union[HTTPValidationError, list['RunTagDB']]
     """
     return sync_detailed(project_id=project_id, experiment_id=experiment_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient
-) -> Response[HTTPValidationError | list[RunTagDB]]:
+) -> Response[Union[HTTPValidationError, list["RunTagDB"]]]:
     """Get Experiment Tags.
 
      Gets tags for a given project_id/experiment_id.
@@ -144,7 +148,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | list[RunTagDB]]
+        Response[Union[HTTPValidationError, list['RunTagDB']]]
     """
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id)
 
@@ -155,7 +159,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, experiment_id: str, *, client: ApiClient
-) -> HTTPValidationError | list[RunTagDB] | None:
+) -> Optional[Union[HTTPValidationError, list["RunTagDB"]]]:
     """Get Experiment Tags.
 
      Gets tags for a given project_id/experiment_id.
@@ -171,6 +175,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | list[RunTagDB]
+        Union[HTTPValidationError, list['RunTagDB']]
     """
     return (await asyncio_detailed(project_id=project_id, experiment_id=experiment_id, client=client)).parsed

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -42,7 +42,7 @@ def _get_kwargs(template_id: str, group_id: str, *, body: CollaboratorUpdate) ->
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> GroupCollaborator | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[GroupCollaborator, HTTPValidationError]:
     if response.status_code == 200:
         return GroupCollaborator.from_dict(response.json())
 
@@ -69,7 +69,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> GroupColl
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[GroupCollaborator | HTTPValidationError]:
+) -> Response[Union[GroupCollaborator, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     template_id: str, group_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Response[GroupCollaborator | HTTPValidationError]:
+) -> Response[Union[GroupCollaborator, HTTPValidationError]]:
     """Update Group Prompt Template Collaborator.
 
      Update the sharing permissions of a group on a prompt template.
@@ -97,7 +97,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[GroupCollaborator | HTTPValidationError]
+        Response[Union[GroupCollaborator, HTTPValidationError]]
     """
     kwargs = _get_kwargs(template_id=template_id, group_id=group_id, body=body)
 
@@ -108,7 +108,7 @@ def sync_detailed(
 
 def sync(
     template_id: str, group_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> GroupCollaborator | HTTPValidationError | None:
+) -> Optional[Union[GroupCollaborator, HTTPValidationError]]:
     """Update Group Prompt Template Collaborator.
 
      Update the sharing permissions of a group on a prompt template.
@@ -125,14 +125,14 @@ def sync(
 
     Returns
     -------
-        GroupCollaborator | HTTPValidationError
+        Union[GroupCollaborator, HTTPValidationError]
     """
     return sync_detailed(template_id=template_id, group_id=group_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     template_id: str, group_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Response[GroupCollaborator | HTTPValidationError]:
+) -> Response[Union[GroupCollaborator, HTTPValidationError]]:
     """Update Group Prompt Template Collaborator.
 
      Update the sharing permissions of a group on a prompt template.
@@ -149,7 +149,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[GroupCollaborator | HTTPValidationError]
+        Response[Union[GroupCollaborator, HTTPValidationError]]
     """
     kwargs = _get_kwargs(template_id=template_id, group_id=group_id, body=body)
 
@@ -160,7 +160,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     template_id: str, group_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> GroupCollaborator | HTTPValidationError | None:
+) -> Optional[Union[GroupCollaborator, HTTPValidationError]]:
     """Update Group Prompt Template Collaborator.
 
      Update the sharing permissions of a group on a prompt template.
@@ -177,6 +177,6 @@ async def asyncio(
 
     Returns
     -------
-        GroupCollaborator | HTTPValidationError
+        Union[GroupCollaborator, HTTPValidationError]
     """
     return (await asyncio_detailed(template_id=template_id, group_id=group_id, client=client, body=body)).parsed

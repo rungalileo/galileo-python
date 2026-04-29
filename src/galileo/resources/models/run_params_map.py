@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,104 +16,104 @@ class RunParamsMap:
 
     Attributes
     ----------
-            model (None | str | Unset):
-            temperature (None | str | Unset):
-            max_tokens (None | str | Unset):
-            stop_sequences (None | str | Unset):
-            top_p (None | str | Unset):
-            top_k (None | str | Unset):
-            frequency_penalty (None | str | Unset):
-            presence_penalty (None | str | Unset):
-            echo (None | str | Unset):
-            logprobs (None | str | Unset):
-            top_logprobs (None | str | Unset):
-            n (None | str | Unset):
-            api_version (None | str | Unset):
-            tools (None | str | Unset):
-            tool_choice (None | str | Unset):
-            response_format (None | str | Unset):
-            reasoning_effort (None | str | Unset):
-            verbosity (None | str | Unset):
-            deployment_name (None | str | Unset):
+            model (Union[None, Unset, str]):
+            temperature (Union[None, Unset, str]):
+            max_tokens (Union[None, Unset, str]):
+            stop_sequences (Union[None, Unset, str]):
+            top_p (Union[None, Unset, str]):
+            top_k (Union[None, Unset, str]):
+            frequency_penalty (Union[None, Unset, str]):
+            presence_penalty (Union[None, Unset, str]):
+            echo (Union[None, Unset, str]):
+            logprobs (Union[None, Unset, str]):
+            top_logprobs (Union[None, Unset, str]):
+            n (Union[None, Unset, str]):
+            api_version (Union[None, Unset, str]):
+            tools (Union[None, Unset, str]):
+            tool_choice (Union[None, Unset, str]):
+            response_format (Union[None, Unset, str]):
+            reasoning_effort (Union[None, Unset, str]):
+            verbosity (Union[None, Unset, str]):
+            deployment_name (Union[None, Unset, str]):
     """
 
-    model: None | str | Unset = UNSET
-    temperature: None | str | Unset = UNSET
-    max_tokens: None | str | Unset = UNSET
-    stop_sequences: None | str | Unset = UNSET
-    top_p: None | str | Unset = UNSET
-    top_k: None | str | Unset = UNSET
-    frequency_penalty: None | str | Unset = UNSET
-    presence_penalty: None | str | Unset = UNSET
-    echo: None | str | Unset = UNSET
-    logprobs: None | str | Unset = UNSET
-    top_logprobs: None | str | Unset = UNSET
-    n: None | str | Unset = UNSET
-    api_version: None | str | Unset = UNSET
-    tools: None | str | Unset = UNSET
-    tool_choice: None | str | Unset = UNSET
-    response_format: None | str | Unset = UNSET
-    reasoning_effort: None | str | Unset = UNSET
-    verbosity: None | str | Unset = UNSET
-    deployment_name: None | str | Unset = UNSET
+    model: Union[None, Unset, str] = UNSET
+    temperature: Union[None, Unset, str] = UNSET
+    max_tokens: Union[None, Unset, str] = UNSET
+    stop_sequences: Union[None, Unset, str] = UNSET
+    top_p: Union[None, Unset, str] = UNSET
+    top_k: Union[None, Unset, str] = UNSET
+    frequency_penalty: Union[None, Unset, str] = UNSET
+    presence_penalty: Union[None, Unset, str] = UNSET
+    echo: Union[None, Unset, str] = UNSET
+    logprobs: Union[None, Unset, str] = UNSET
+    top_logprobs: Union[None, Unset, str] = UNSET
+    n: Union[None, Unset, str] = UNSET
+    api_version: Union[None, Unset, str] = UNSET
+    tools: Union[None, Unset, str] = UNSET
+    tool_choice: Union[None, Unset, str] = UNSET
+    response_format: Union[None, Unset, str] = UNSET
+    reasoning_effort: Union[None, Unset, str] = UNSET
+    verbosity: Union[None, Unset, str] = UNSET
+    deployment_name: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        model: None | str | Unset
+        model: Union[None, Unset, str]
         model = UNSET if isinstance(self.model, Unset) else self.model
 
-        temperature: None | str | Unset
+        temperature: Union[None, Unset, str]
         temperature = UNSET if isinstance(self.temperature, Unset) else self.temperature
 
-        max_tokens: None | str | Unset
+        max_tokens: Union[None, Unset, str]
         max_tokens = UNSET if isinstance(self.max_tokens, Unset) else self.max_tokens
 
-        stop_sequences: None | str | Unset
+        stop_sequences: Union[None, Unset, str]
         stop_sequences = UNSET if isinstance(self.stop_sequences, Unset) else self.stop_sequences
 
-        top_p: None | str | Unset
+        top_p: Union[None, Unset, str]
         top_p = UNSET if isinstance(self.top_p, Unset) else self.top_p
 
-        top_k: None | str | Unset
+        top_k: Union[None, Unset, str]
         top_k = UNSET if isinstance(self.top_k, Unset) else self.top_k
 
-        frequency_penalty: None | str | Unset
+        frequency_penalty: Union[None, Unset, str]
         frequency_penalty = UNSET if isinstance(self.frequency_penalty, Unset) else self.frequency_penalty
 
-        presence_penalty: None | str | Unset
+        presence_penalty: Union[None, Unset, str]
         presence_penalty = UNSET if isinstance(self.presence_penalty, Unset) else self.presence_penalty
 
-        echo: None | str | Unset
+        echo: Union[None, Unset, str]
         echo = UNSET if isinstance(self.echo, Unset) else self.echo
 
-        logprobs: None | str | Unset
+        logprobs: Union[None, Unset, str]
         logprobs = UNSET if isinstance(self.logprobs, Unset) else self.logprobs
 
-        top_logprobs: None | str | Unset
+        top_logprobs: Union[None, Unset, str]
         top_logprobs = UNSET if isinstance(self.top_logprobs, Unset) else self.top_logprobs
 
-        n: None | str | Unset
+        n: Union[None, Unset, str]
         n = UNSET if isinstance(self.n, Unset) else self.n
 
-        api_version: None | str | Unset
+        api_version: Union[None, Unset, str]
         api_version = UNSET if isinstance(self.api_version, Unset) else self.api_version
 
-        tools: None | str | Unset
+        tools: Union[None, Unset, str]
         tools = UNSET if isinstance(self.tools, Unset) else self.tools
 
-        tool_choice: None | str | Unset
+        tool_choice: Union[None, Unset, str]
         tool_choice = UNSET if isinstance(self.tool_choice, Unset) else self.tool_choice
 
-        response_format: None | str | Unset
+        response_format: Union[None, Unset, str]
         response_format = UNSET if isinstance(self.response_format, Unset) else self.response_format
 
-        reasoning_effort: None | str | Unset
+        reasoning_effort: Union[None, Unset, str]
         reasoning_effort = UNSET if isinstance(self.reasoning_effort, Unset) else self.reasoning_effort
 
-        verbosity: None | str | Unset
+        verbosity: Union[None, Unset, str]
         verbosity = UNSET if isinstance(self.verbosity, Unset) else self.verbosity
 
-        deployment_name: None | str | Unset
+        deployment_name: Union[None, Unset, str]
         deployment_name = UNSET if isinstance(self.deployment_name, Unset) else self.deployment_name
 
         field_dict: dict[str, Any] = {}
@@ -166,174 +164,174 @@ class RunParamsMap:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_model(data: object) -> None | str | Unset:
+        def _parse_model(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         model = _parse_model(d.pop("model", UNSET))
 
-        def _parse_temperature(data: object) -> None | str | Unset:
+        def _parse_temperature(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         temperature = _parse_temperature(d.pop("temperature", UNSET))
 
-        def _parse_max_tokens(data: object) -> None | str | Unset:
+        def _parse_max_tokens(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         max_tokens = _parse_max_tokens(d.pop("max_tokens", UNSET))
 
-        def _parse_stop_sequences(data: object) -> None | str | Unset:
+        def _parse_stop_sequences(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         stop_sequences = _parse_stop_sequences(d.pop("stop_sequences", UNSET))
 
-        def _parse_top_p(data: object) -> None | str | Unset:
+        def _parse_top_p(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         top_p = _parse_top_p(d.pop("top_p", UNSET))
 
-        def _parse_top_k(data: object) -> None | str | Unset:
+        def _parse_top_k(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         top_k = _parse_top_k(d.pop("top_k", UNSET))
 
-        def _parse_frequency_penalty(data: object) -> None | str | Unset:
+        def _parse_frequency_penalty(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         frequency_penalty = _parse_frequency_penalty(d.pop("frequency_penalty", UNSET))
 
-        def _parse_presence_penalty(data: object) -> None | str | Unset:
+        def _parse_presence_penalty(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         presence_penalty = _parse_presence_penalty(d.pop("presence_penalty", UNSET))
 
-        def _parse_echo(data: object) -> None | str | Unset:
+        def _parse_echo(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         echo = _parse_echo(d.pop("echo", UNSET))
 
-        def _parse_logprobs(data: object) -> None | str | Unset:
+        def _parse_logprobs(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         logprobs = _parse_logprobs(d.pop("logprobs", UNSET))
 
-        def _parse_top_logprobs(data: object) -> None | str | Unset:
+        def _parse_top_logprobs(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         top_logprobs = _parse_top_logprobs(d.pop("top_logprobs", UNSET))
 
-        def _parse_n(data: object) -> None | str | Unset:
+        def _parse_n(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         n = _parse_n(d.pop("n", UNSET))
 
-        def _parse_api_version(data: object) -> None | str | Unset:
+        def _parse_api_version(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         api_version = _parse_api_version(d.pop("api_version", UNSET))
 
-        def _parse_tools(data: object) -> None | str | Unset:
+        def _parse_tools(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         tools = _parse_tools(d.pop("tools", UNSET))
 
-        def _parse_tool_choice(data: object) -> None | str | Unset:
+        def _parse_tool_choice(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         tool_choice = _parse_tool_choice(d.pop("tool_choice", UNSET))
 
-        def _parse_response_format(data: object) -> None | str | Unset:
+        def _parse_response_format(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         response_format = _parse_response_format(d.pop("response_format", UNSET))
 
-        def _parse_reasoning_effort(data: object) -> None | str | Unset:
+        def _parse_reasoning_effort(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         reasoning_effort = _parse_reasoning_effort(d.pop("reasoning_effort", UNSET))
 
-        def _parse_verbosity(data: object) -> None | str | Unset:
+        def _parse_verbosity(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         verbosity = _parse_verbosity(d.pop("verbosity", UNSET))
 
-        def _parse_deployment_name(data: object) -> None | str | Unset:
+        def _parse_deployment_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         deployment_name = _parse_deployment_name(d.pop("deployment_name", UNSET))
 

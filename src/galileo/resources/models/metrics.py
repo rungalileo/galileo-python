@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,15 +14,15 @@ class Metrics:
     """
     Attributes
     ----------
-        duration_ns (int | None | Unset): Duration of the trace or span in nanoseconds.  Displayed as 'Latency' in
+        duration_ns (Union[None, Unset, int]): Duration of the trace or span in nanoseconds.  Displayed as 'Latency' in
             Galileo.
     """
 
-    duration_ns: int | None | Unset = UNSET
+    duration_ns: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        duration_ns: int | None | Unset
+        duration_ns: Union[None, Unset, int]
         duration_ns = UNSET if isinstance(self.duration_ns, Unset) else self.duration_ns
 
         field_dict: dict[str, Any] = {}
@@ -39,12 +37,12 @@ class Metrics:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_duration_ns(data: object) -> int | None | Unset:
+        def _parse_duration_ns(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(Union[None, Unset, int], data)
 
         duration_ns = _parse_duration_ns(d.pop("duration_ns", UNSET))
 

@@ -1,8 +1,6 @@
-from __future__ import annotations
-
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -28,33 +26,33 @@ class LogRecordsCustomMetricsQueryRequest:
     ----------
         start_time (datetime.datetime): Include traces from this time onward.
         end_time (datetime.datetime): Include traces up to this time.
-        metric_details (list[MetricAggregationDetail]): List of metrics to aggregate with their widget IDs and
+        metric_details (list['MetricAggregationDetail']): List of metrics to aggregate with their widget IDs and
             aggregation types (max 100)
-        log_stream_id (None | str | Unset): Log stream id associated with the traces.
-        experiment_id (None | str | Unset): Experiment id associated with the traces.
-        metrics_testing_id (None | str | Unset): Metrics testing id associated with the traces.
-        filter_tree (AndNodeLogRecordsFilter | FilterLeafLogRecordsFilter | None | NotNodeLogRecordsFilter |
-            OrNodeLogRecordsFilter | Unset): Filter expression tree for complex filtering
-        interval_minutes (int | Unset): Time interval in minutes for bucketing Default: 5.
-        group_by (None | str | Unset): Column to group by.
+        log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
+        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
+        filter_tree (Union['AndNodeLogRecordsFilter', 'FilterLeafLogRecordsFilter', 'NotNodeLogRecordsFilter',
+            'OrNodeLogRecordsFilter', None, Unset]): Filter expression tree for complex filtering
+        interval_minutes (Union[Unset, int]): Time interval in minutes for bucketing Default: 5.
+        group_by (Union[None, Unset, str]): Column to group by.
     """
 
     start_time: datetime.datetime
     end_time: datetime.datetime
-    metric_details: list[MetricAggregationDetail]
-    log_stream_id: None | str | Unset = UNSET
-    experiment_id: None | str | Unset = UNSET
-    metrics_testing_id: None | str | Unset = UNSET
-    filter_tree: (
-        AndNodeLogRecordsFilter
-        | FilterLeafLogRecordsFilter
-        | None
-        | NotNodeLogRecordsFilter
-        | OrNodeLogRecordsFilter
-        | Unset
-    ) = UNSET
-    interval_minutes: int | Unset = 5
-    group_by: None | str | Unset = UNSET
+    metric_details: list["MetricAggregationDetail"]
+    log_stream_id: Union[None, Unset, str] = UNSET
+    experiment_id: Union[None, Unset, str] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
+    filter_tree: Union[
+        "AndNodeLogRecordsFilter",
+        "FilterLeafLogRecordsFilter",
+        "NotNodeLogRecordsFilter",
+        "OrNodeLogRecordsFilter",
+        None,
+        Unset,
+    ] = UNSET
+    interval_minutes: Union[Unset, int] = 5
+    group_by: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -72,21 +70,21 @@ class LogRecordsCustomMetricsQueryRequest:
             metric_details_item = metric_details_item_data.to_dict()
             metric_details.append(metric_details_item)
 
-        log_stream_id: None | str | Unset
+        log_stream_id: Union[None, Unset, str]
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
-        experiment_id: None | str | Unset
+        experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
-        metrics_testing_id: None | str | Unset
+        metrics_testing_id: Union[None, Unset, str]
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
-        filter_tree: dict[str, Any] | None | Unset
+        filter_tree: Union[None, Unset, dict[str, Any]]
         if isinstance(self.filter_tree, Unset):
             filter_tree = UNSET
         elif isinstance(
             self.filter_tree,
-            FilterLeafLogRecordsFilter | AndNodeLogRecordsFilter | OrNodeLogRecordsFilter | NotNodeLogRecordsFilter,
+            (FilterLeafLogRecordsFilter, AndNodeLogRecordsFilter, OrNodeLogRecordsFilter, NotNodeLogRecordsFilter),
         ):
             filter_tree = self.filter_tree.to_dict()
         else:
@@ -94,7 +92,7 @@ class LogRecordsCustomMetricsQueryRequest:
 
         interval_minutes = self.interval_minutes
 
-        group_by: None | str | Unset
+        group_by: Union[None, Unset, str]
         group_by = UNSET if isinstance(self.group_by, Unset) else self.group_by
 
         field_dict: dict[str, Any] = {}
@@ -135,43 +133,43 @@ class LogRecordsCustomMetricsQueryRequest:
 
             metric_details.append(metric_details_item)
 
-        def _parse_log_stream_id(data: object) -> None | str | Unset:
+        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        def _parse_experiment_id(data: object) -> None | str | Unset:
+        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_metrics_testing_id(data: object) -> None | str | Unset:
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
         def _parse_filter_tree(
             data: object,
-        ) -> (
-            AndNodeLogRecordsFilter
-            | FilterLeafLogRecordsFilter
-            | None
-            | NotNodeLogRecordsFilter
-            | OrNodeLogRecordsFilter
-            | Unset
-        ):
+        ) -> Union[
+            "AndNodeLogRecordsFilter",
+            "FilterLeafLogRecordsFilter",
+            "NotNodeLogRecordsFilter",
+            "OrNodeLogRecordsFilter",
+            None,
+            Unset,
+        ]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -205,12 +203,14 @@ class LogRecordsCustomMetricsQueryRequest:
             except:  # noqa: E722
                 pass
             return cast(
-                AndNodeLogRecordsFilter
-                | FilterLeafLogRecordsFilter
-                | None
-                | NotNodeLogRecordsFilter
-                | OrNodeLogRecordsFilter
-                | Unset,
+                Union[
+                    "AndNodeLogRecordsFilter",
+                    "FilterLeafLogRecordsFilter",
+                    "NotNodeLogRecordsFilter",
+                    "OrNodeLogRecordsFilter",
+                    None,
+                    Unset,
+                ],
                 data,
             )
 
@@ -218,12 +218,12 @@ class LogRecordsCustomMetricsQueryRequest:
 
         interval_minutes = d.pop("interval_minutes", UNSET)
 
-        def _parse_group_by(data: object) -> None | str | Unset:
+        def _parse_group_by(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         group_by = _parse_group_by(d.pop("group_by", UNSET))
 

@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,25 +19,25 @@ class UserCollaboratorCreate:
 
     Attributes
     ----------
-            role (CollaboratorRole | Unset):
-            user_id (None | str | Unset):
-            user_email (None | str | Unset):
+            role (Union[Unset, CollaboratorRole]):
+            user_id (Union[None, Unset, str]):
+            user_email (Union[None, Unset, str]):
     """
 
-    role: CollaboratorRole | Unset = UNSET
-    user_id: None | str | Unset = UNSET
-    user_email: None | str | Unset = UNSET
+    role: Union[Unset, CollaboratorRole] = UNSET
+    user_id: Union[None, Unset, str] = UNSET
+    user_email: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        role: str | Unset = UNSET
+        role: Union[Unset, str] = UNSET
         if not isinstance(self.role, Unset):
             role = self.role.value
 
-        user_id: None | str | Unset
+        user_id: Union[None, Unset, str]
         user_id = UNSET if isinstance(self.user_id, Unset) else self.user_id
 
-        user_email: None | str | Unset
+        user_email: Union[None, Unset, str]
         user_email = UNSET if isinstance(self.user_email, Unset) else self.user_email
 
         field_dict: dict[str, Any] = {}
@@ -58,24 +56,24 @@ class UserCollaboratorCreate:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         _role = d.pop("role", UNSET)
-        role: CollaboratorRole | Unset
+        role: Union[Unset, CollaboratorRole]
         role = UNSET if isinstance(_role, Unset) else CollaboratorRole(_role)
 
-        def _parse_user_id(data: object) -> None | str | Unset:
+        def _parse_user_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         user_id = _parse_user_id(d.pop("user_id", UNSET))
 
-        def _parse_user_email(data: object) -> None | str | Unset:
+        def _parse_user_email(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         user_email = _parse_user_email(d.pop("user_email", UNSET))
 

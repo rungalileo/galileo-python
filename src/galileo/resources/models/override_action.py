@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,14 +20,14 @@ class OverrideAction:
     ----------
         choices (list[str]): List of choices to override the response with. If there are multiple choices, one will be
             chosen at random when applying this action.
-        type_ (Literal['OVERRIDE'] | Unset):  Default: 'OVERRIDE'.
-        subscriptions (list[SubscriptionConfig] | Unset): List of subscriptions to send a notification to when this
-            action is applied and the ruleset status matches any of the configured statuses.
+        type_ (Union[Literal['OVERRIDE'], Unset]):  Default: 'OVERRIDE'.
+        subscriptions (Union[Unset, list['SubscriptionConfig']]): List of subscriptions to send a notification to when
+            this action is applied and the ruleset status matches any of the configured statuses.
     """
 
     choices: list[str]
-    type_: Literal["OVERRIDE"] | Unset = "OVERRIDE"
-    subscriptions: list[SubscriptionConfig] | Unset = UNSET
+    type_: Union[Literal["OVERRIDE"], Unset] = "OVERRIDE"
+    subscriptions: Union[Unset, list["SubscriptionConfig"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -37,7 +35,7 @@ class OverrideAction:
 
         type_ = self.type_
 
-        subscriptions: list[dict[str, Any]] | Unset = UNSET
+        subscriptions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.subscriptions, Unset):
             subscriptions = []
             for subscriptions_item_data in self.subscriptions:
@@ -61,18 +59,16 @@ class OverrideAction:
         d = dict(src_dict)
         choices = cast(list[str], d.pop("choices"))
 
-        type_ = cast(Literal["OVERRIDE"] | Unset, d.pop("type", UNSET))
+        type_ = cast(Union[Literal["OVERRIDE"], Unset], d.pop("type", UNSET))
         if type_ != "OVERRIDE" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'OVERRIDE', got '{type_}'")
 
+        subscriptions = []
         _subscriptions = d.pop("subscriptions", UNSET)
-        subscriptions: list[SubscriptionConfig] | Unset = UNSET
-        if _subscriptions is not UNSET:
-            subscriptions = []
-            for subscriptions_item_data in _subscriptions:
-                subscriptions_item = SubscriptionConfig.from_dict(subscriptions_item_data)
+        for subscriptions_item_data in _subscriptions or []:
+            subscriptions_item = SubscriptionConfig.from_dict(subscriptions_item_data)
 
-                subscriptions.append(subscriptions_item)
+            subscriptions.append(subscriptions_item)
 
         override_action = cls(choices=choices, type_=type_, subscriptions=subscriptions)
 

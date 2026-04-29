@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -42,7 +42,7 @@ def _get_kwargs(*, body: CreateLLMScorerAutogenRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> GenerationResponse | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[GenerationResponse, HTTPValidationError]:
     if response.status_code == 200:
         return GenerationResponse.from_dict(response.json())
 
@@ -69,7 +69,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Generatio
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[GenerationResponse | HTTPValidationError]:
+) -> Response[Union[GenerationResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     *, client: ApiClient, body: CreateLLMScorerAutogenRequest
-) -> Response[GenerationResponse | HTTPValidationError]:
+) -> Response[Union[GenerationResponse, HTTPValidationError]]:
     """Autogen Llm Scorer.
 
      Autogenerate an LLM scorer configuration.
@@ -97,7 +97,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[GenerationResponse | HTTPValidationError]
+        Response[Union[GenerationResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -106,7 +106,9 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: CreateLLMScorerAutogenRequest) -> GenerationResponse | HTTPValidationError | None:
+def sync(
+    *, client: ApiClient, body: CreateLLMScorerAutogenRequest
+) -> Optional[Union[GenerationResponse, HTTPValidationError]]:
     """Autogen Llm Scorer.
 
      Autogenerate an LLM scorer configuration.
@@ -123,14 +125,14 @@ def sync(*, client: ApiClient, body: CreateLLMScorerAutogenRequest) -> Generatio
 
     Returns
     -------
-        GenerationResponse | HTTPValidationError
+        Union[GenerationResponse, HTTPValidationError]
     """
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: CreateLLMScorerAutogenRequest
-) -> Response[GenerationResponse | HTTPValidationError]:
+) -> Response[Union[GenerationResponse, HTTPValidationError]]:
     """Autogen Llm Scorer.
 
      Autogenerate an LLM scorer configuration.
@@ -147,7 +149,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[GenerationResponse | HTTPValidationError]
+        Response[Union[GenerationResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -158,7 +160,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: CreateLLMScorerAutogenRequest
-) -> GenerationResponse | HTTPValidationError | None:
+) -> Optional[Union[GenerationResponse, HTTPValidationError]]:
     """Autogen Llm Scorer.
 
      Autogenerate an LLM scorer configuration.
@@ -175,6 +177,6 @@ async def asyncio(
 
     Returns
     -------
-        GenerationResponse | HTTPValidationError
+        Union[GenerationResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

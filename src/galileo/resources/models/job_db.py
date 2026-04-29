@@ -1,8 +1,6 @@
-from __future__ import annotations
-
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -31,16 +29,16 @@ class JobDB:
         status (str):
         retries (int):
         request_data (JobDBRequestData):
-        failed_at (datetime.datetime | None | Unset):
-        completed_at (datetime.datetime | None | Unset):
-        processing_started (datetime.datetime | None | Unset):
-        migration_name (None | str | Unset):
-        monitor_batch_id (None | str | Unset):
-        error_message (None | str | Unset):
-        progress_message (None | str | Unset):
-        steps_completed (int | Unset):  Default: 0.
-        steps_total (int | Unset):  Default: 0.
-        progress_percent (float | Unset):  Default: 0.0.
+        failed_at (Union[None, Unset, datetime.datetime]):
+        completed_at (Union[None, Unset, datetime.datetime]):
+        processing_started (Union[None, Unset, datetime.datetime]):
+        migration_name (Union[None, Unset, str]):
+        monitor_batch_id (Union[None, Unset, str]):
+        error_message (Union[None, Unset, str]):
+        progress_message (Union[None, Unset, str]):
+        steps_completed (Union[Unset, int]):  Default: 0.
+        steps_total (Union[Unset, int]):  Default: 0.
+        progress_percent (Union[Unset, float]):  Default: 0.0.
     """
 
     id: str
@@ -51,17 +49,17 @@ class JobDB:
     run_id: str
     status: str
     retries: int
-    request_data: JobDBRequestData
-    failed_at: datetime.datetime | None | Unset = UNSET
-    completed_at: datetime.datetime | None | Unset = UNSET
-    processing_started: datetime.datetime | None | Unset = UNSET
-    migration_name: None | str | Unset = UNSET
-    monitor_batch_id: None | str | Unset = UNSET
-    error_message: None | str | Unset = UNSET
-    progress_message: None | str | Unset = UNSET
-    steps_completed: int | Unset = 0
-    steps_total: int | Unset = 0
-    progress_percent: float | Unset = 0.0
+    request_data: "JobDBRequestData"
+    failed_at: Union[None, Unset, datetime.datetime] = UNSET
+    completed_at: Union[None, Unset, datetime.datetime] = UNSET
+    processing_started: Union[None, Unset, datetime.datetime] = UNSET
+    migration_name: Union[None, Unset, str] = UNSET
+    monitor_batch_id: Union[None, Unset, str] = UNSET
+    error_message: Union[None, Unset, str] = UNSET
+    progress_message: Union[None, Unset, str] = UNSET
+    steps_completed: Union[Unset, int] = 0
+    steps_total: Union[Unset, int] = 0
+    progress_percent: Union[Unset, float] = 0.0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -83,7 +81,7 @@ class JobDB:
 
         request_data = self.request_data.to_dict()
 
-        failed_at: None | str | Unset
+        failed_at: Union[None, Unset, str]
         if isinstance(self.failed_at, Unset):
             failed_at = UNSET
         elif isinstance(self.failed_at, datetime.datetime):
@@ -91,7 +89,7 @@ class JobDB:
         else:
             failed_at = self.failed_at
 
-        completed_at: None | str | Unset
+        completed_at: Union[None, Unset, str]
         if isinstance(self.completed_at, Unset):
             completed_at = UNSET
         elif isinstance(self.completed_at, datetime.datetime):
@@ -99,7 +97,7 @@ class JobDB:
         else:
             completed_at = self.completed_at
 
-        processing_started: None | str | Unset
+        processing_started: Union[None, Unset, str]
         if isinstance(self.processing_started, Unset):
             processing_started = UNSET
         elif isinstance(self.processing_started, datetime.datetime):
@@ -107,16 +105,16 @@ class JobDB:
         else:
             processing_started = self.processing_started
 
-        migration_name: None | str | Unset
+        migration_name: Union[None, Unset, str]
         migration_name = UNSET if isinstance(self.migration_name, Unset) else self.migration_name
 
-        monitor_batch_id: None | str | Unset
+        monitor_batch_id: Union[None, Unset, str]
         monitor_batch_id = UNSET if isinstance(self.monitor_batch_id, Unset) else self.monitor_batch_id
 
-        error_message: None | str | Unset
+        error_message: Union[None, Unset, str]
         error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
-        progress_message: None | str | Unset
+        progress_message: Union[None, Unset, str]
         progress_message = UNSET if isinstance(self.progress_message, Unset) else self.progress_message
 
         steps_completed = self.steps_completed
@@ -186,7 +184,7 @@ class JobDB:
 
         request_data = JobDBRequestData.from_dict(d.pop("request_data"))
 
-        def _parse_failed_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_failed_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -198,11 +196,11 @@ class JobDB:
 
             except:  # noqa: E722
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(Union[None, Unset, datetime.datetime], data)
 
         failed_at = _parse_failed_at(d.pop("failed_at", UNSET))
 
-        def _parse_completed_at(data: object) -> datetime.datetime | None | Unset:
+        def _parse_completed_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -214,11 +212,11 @@ class JobDB:
 
             except:  # noqa: E722
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(Union[None, Unset, datetime.datetime], data)
 
         completed_at = _parse_completed_at(d.pop("completed_at", UNSET))
 
-        def _parse_processing_started(data: object) -> datetime.datetime | None | Unset:
+        def _parse_processing_started(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -230,43 +228,43 @@ class JobDB:
 
             except:  # noqa: E722
                 pass
-            return cast(datetime.datetime | None | Unset, data)
+            return cast(Union[None, Unset, datetime.datetime], data)
 
         processing_started = _parse_processing_started(d.pop("processing_started", UNSET))
 
-        def _parse_migration_name(data: object) -> None | str | Unset:
+        def _parse_migration_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         migration_name = _parse_migration_name(d.pop("migration_name", UNSET))
 
-        def _parse_monitor_batch_id(data: object) -> None | str | Unset:
+        def _parse_monitor_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         monitor_batch_id = _parse_monitor_batch_id(d.pop("monitor_batch_id", UNSET))
 
-        def _parse_error_message(data: object) -> None | str | Unset:
+        def _parse_error_message(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         error_message = _parse_error_message(d.pop("error_message", UNSET))
 
-        def _parse_progress_message(data: object) -> None | str | Unset:
+        def _parse_progress_message(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         progress_message = _parse_progress_message(d.pop("progress_message", UNSET))
 

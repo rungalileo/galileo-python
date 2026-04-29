@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -37,7 +37,7 @@ def _get_kwargs(project_id: str, template_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> DeletePromptResponse | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[DeletePromptResponse, HTTPValidationError]:
     if response.status_code == 200:
         return DeletePromptResponse.from_dict(response.json())
 
@@ -64,7 +64,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> DeletePro
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[DeletePromptResponse | HTTPValidationError]:
+) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -75,7 +75,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, template_id: str, *, client: ApiClient
-) -> Response[DeletePromptResponse | HTTPValidationError]:
+) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Template.
 
     Args:
@@ -89,7 +89,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[DeletePromptResponse | HTTPValidationError]
+        Response[Union[DeletePromptResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id)
 
@@ -98,7 +98,9 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(project_id: str, template_id: str, *, client: ApiClient) -> DeletePromptResponse | HTTPValidationError | None:
+def sync(
+    project_id: str, template_id: str, *, client: ApiClient
+) -> Optional[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Template.
 
     Args:
@@ -112,14 +114,14 @@ def sync(project_id: str, template_id: str, *, client: ApiClient) -> DeletePromp
 
     Returns
     -------
-        DeletePromptResponse | HTTPValidationError
+        Union[DeletePromptResponse, HTTPValidationError]
     """
     return sync_detailed(project_id=project_id, template_id=template_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, template_id: str, *, client: ApiClient
-) -> Response[DeletePromptResponse | HTTPValidationError]:
+) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Template.
 
     Args:
@@ -133,7 +135,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[DeletePromptResponse | HTTPValidationError]
+        Response[Union[DeletePromptResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id)
 
@@ -144,7 +146,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, template_id: str, *, client: ApiClient
-) -> DeletePromptResponse | HTTPValidationError | None:
+) -> Optional[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Template.
 
     Args:
@@ -158,6 +160,6 @@ async def asyncio(
 
     Returns
     -------
-        DeletePromptResponse | HTTPValidationError
+        Union[DeletePromptResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(project_id=project_id, template_id=template_id, client=client)).parsed

@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,7 +10,6 @@ if TYPE_CHECKING:
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
     from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
-    from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
     from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_text_filter import LogRecordsTextFilter
@@ -27,24 +24,25 @@ class AggregatedTraceViewRequest:
     Attributes
     ----------
         log_stream_id (str): Log stream id associated with the traces.
-        filters (list[LogRecordsBooleanFilter | LogRecordsCollectionFilter | LogRecordsDateFilter |
-            LogRecordsFullyAnnotatedFilter | LogRecordsIDFilter | LogRecordsNumberFilter | LogRecordsTextFilter] | Unset):
-            Filters to apply on the traces. Note: Only trace-level filters are supported.
+        filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
+            'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]): Filters to
+            apply on the traces. Note: Only trace-level filters are supported.
     """
 
     log_stream_id: str
-    filters: (
+    filters: Union[
+        Unset,
         list[
-            LogRecordsBooleanFilter
-            | LogRecordsCollectionFilter
-            | LogRecordsDateFilter
-            | LogRecordsFullyAnnotatedFilter
-            | LogRecordsIDFilter
-            | LogRecordsNumberFilter
-            | LogRecordsTextFilter
-        ]
-        | Unset
-    ) = UNSET
+            Union[
+                "LogRecordsBooleanFilter",
+                "LogRecordsCollectionFilter",
+                "LogRecordsDateFilter",
+                "LogRecordsIDFilter",
+                "LogRecordsNumberFilter",
+                "LogRecordsTextFilter",
+            ]
+        ],
+    ] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -53,22 +51,23 @@ class AggregatedTraceViewRequest:
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
-        from ..models.log_records_text_filter import LogRecordsTextFilter
 
         log_stream_id = self.log_stream_id
 
-        filters: list[dict[str, Any]] | Unset = UNSET
+        filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    LogRecordsIDFilter
-                    | LogRecordsDateFilter
-                    | LogRecordsNumberFilter
-                    | LogRecordsBooleanFilter
-                    | (LogRecordsCollectionFilter | LogRecordsTextFilter),
+                    (
+                        LogRecordsIDFilter,
+                        LogRecordsDateFilter,
+                        LogRecordsNumberFilter,
+                        LogRecordsBooleanFilter,
+                        LogRecordsCollectionFilter,
+                    ),
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -89,7 +88,6 @@ class AggregatedTraceViewRequest:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
-        from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_text_filter import LogRecordsTextFilter
@@ -97,83 +95,62 @@ class AggregatedTraceViewRequest:
         d = dict(src_dict)
         log_stream_id = d.pop("log_stream_id")
 
+        filters = []
         _filters = d.pop("filters", UNSET)
-        filters: (
-            list[
-                LogRecordsBooleanFilter
-                | LogRecordsCollectionFilter
-                | LogRecordsDateFilter
-                | LogRecordsFullyAnnotatedFilter
-                | LogRecordsIDFilter
-                | LogRecordsNumberFilter
-                | LogRecordsTextFilter
-            ]
-            | Unset
-        ) = UNSET
-        if _filters is not UNSET:
-            filters = []
-            for filters_item_data in _filters:
+        for filters_item_data in _filters or []:
 
-                def _parse_filters_item(
-                    data: object,
-                ) -> (
-                    LogRecordsBooleanFilter
-                    | LogRecordsCollectionFilter
-                    | LogRecordsDateFilter
-                    | LogRecordsFullyAnnotatedFilter
-                    | LogRecordsIDFilter
-                    | LogRecordsNumberFilter
-                    | LogRecordsTextFilter
-                ):
-                    try:
-                        if not isinstance(data, dict):
-                            raise TypeError()
-                        return LogRecordsIDFilter.from_dict(data)
-
-                    except:  # noqa: E722
-                        pass
-                    try:
-                        if not isinstance(data, dict):
-                            raise TypeError()
-                        return LogRecordsDateFilter.from_dict(data)
-
-                    except:  # noqa: E722
-                        pass
-                    try:
-                        if not isinstance(data, dict):
-                            raise TypeError()
-                        return LogRecordsNumberFilter.from_dict(data)
-
-                    except:  # noqa: E722
-                        pass
-                    try:
-                        if not isinstance(data, dict):
-                            raise TypeError()
-                        return LogRecordsBooleanFilter.from_dict(data)
-
-                    except:  # noqa: E722
-                        pass
-                    try:
-                        if not isinstance(data, dict):
-                            raise TypeError()
-                        return LogRecordsCollectionFilter.from_dict(data)
-
-                    except:  # noqa: E722
-                        pass
-                    try:
-                        if not isinstance(data, dict):
-                            raise TypeError()
-                        return LogRecordsTextFilter.from_dict(data)
-
-                    except:  # noqa: E722
-                        pass
+            def _parse_filters_item(
+                data: object,
+            ) -> Union[
+                "LogRecordsBooleanFilter",
+                "LogRecordsCollectionFilter",
+                "LogRecordsDateFilter",
+                "LogRecordsIDFilter",
+                "LogRecordsNumberFilter",
+                "LogRecordsTextFilter",
+            ]:
+                try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsFullyAnnotatedFilter.from_dict(data)
+                    return LogRecordsIDFilter.from_dict(data)
 
-                filters_item = _parse_filters_item(filters_item_data)
+                except:  # noqa: E722
+                    pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return LogRecordsDateFilter.from_dict(data)
 
-                filters.append(filters_item)
+                except:  # noqa: E722
+                    pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return LogRecordsNumberFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return LogRecordsBooleanFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return LogRecordsCollectionFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return LogRecordsTextFilter.from_dict(data)
+
+            filters_item = _parse_filters_item(filters_item_data)
+
+            filters.append(filters_item)
 
         aggregated_trace_view_request = cls(log_stream_id=log_stream_id, filters=filters)
 

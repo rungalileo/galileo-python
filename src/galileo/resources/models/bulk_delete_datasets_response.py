@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,12 +21,12 @@ class BulkDeleteDatasetsResponse:
     ----------
         deleted_count (int):
         message (str):
-        failed_deletions (list[BulkDeleteFailure] | Unset):
+        failed_deletions (Union[Unset, list['BulkDeleteFailure']]):
     """
 
     deleted_count: int
     message: str
-    failed_deletions: list[BulkDeleteFailure] | Unset = UNSET
+    failed_deletions: Union[Unset, list["BulkDeleteFailure"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,7 +34,7 @@ class BulkDeleteDatasetsResponse:
 
         message = self.message
 
-        failed_deletions: list[dict[str, Any]] | Unset = UNSET
+        failed_deletions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.failed_deletions, Unset):
             failed_deletions = []
             for failed_deletions_item_data in self.failed_deletions:
@@ -60,14 +58,12 @@ class BulkDeleteDatasetsResponse:
 
         message = d.pop("message")
 
+        failed_deletions = []
         _failed_deletions = d.pop("failed_deletions", UNSET)
-        failed_deletions: list[BulkDeleteFailure] | Unset = UNSET
-        if _failed_deletions is not UNSET:
-            failed_deletions = []
-            for failed_deletions_item_data in _failed_deletions:
-                failed_deletions_item = BulkDeleteFailure.from_dict(failed_deletions_item_data)
+        for failed_deletions_item_data in _failed_deletions or []:
+            failed_deletions_item = BulkDeleteFailure.from_dict(failed_deletions_item_data)
 
-                failed_deletions.append(failed_deletions_item)
+            failed_deletions.append(failed_deletions_item)
 
         bulk_delete_datasets_response = cls(
             deleted_count=deleted_count, message=message, failed_deletions=failed_deletions

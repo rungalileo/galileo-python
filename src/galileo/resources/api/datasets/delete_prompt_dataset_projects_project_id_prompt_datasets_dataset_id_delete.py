@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -36,7 +36,7 @@ def _get_kwargs(project_id: str, dataset_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
     if response.status_code == 200:
         return response.json()
 
@@ -61,7 +61,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,7 +70,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(project_id: str, dataset_id: str, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
+def sync_detailed(project_id: str, dataset_id: str, *, client: ApiClient) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Prompt Dataset.
 
     Args:
@@ -84,7 +84,7 @@ def sync_detailed(project_id: str, dataset_id: str, *, client: ApiClient) -> Res
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, dataset_id=dataset_id)
 
@@ -93,7 +93,7 @@ def sync_detailed(project_id: str, dataset_id: str, *, client: ApiClient) -> Res
     return _build_response(client=client, response=response)
 
 
-def sync(project_id: str, dataset_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
+def sync(project_id: str, dataset_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Prompt Dataset.
 
     Args:
@@ -107,14 +107,14 @@ def sync(project_id: str, dataset_id: str, *, client: ApiClient) -> Any | HTTPVa
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return sync_detailed(project_id=project_id, dataset_id=dataset_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, dataset_id: str, *, client: ApiClient
-) -> Response[Any | HTTPValidationError]:
+) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Prompt Dataset.
 
     Args:
@@ -128,7 +128,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, dataset_id=dataset_id)
 
@@ -137,7 +137,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(project_id: str, dataset_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
+async def asyncio(project_id: str, dataset_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Prompt Dataset.
 
     Args:
@@ -151,6 +151,6 @@ async def asyncio(project_id: str, dataset_id: str, *, client: ApiClient) -> Any
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return (await asyncio_detailed(project_id=project_id, dataset_id=dataset_id, client=client)).parsed

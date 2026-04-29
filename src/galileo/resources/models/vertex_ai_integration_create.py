@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,14 +20,14 @@ class VertexAIIntegrationCreate:
     Attributes
     ----------
         token (str):
-        multi_modal_config (MultiModalModelIntegrationConfig | None | Unset): Configuration for multi-modal (file
+        multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
             upload) capabilities.
-        gcs_config (None | Unset | VertexAIGCSConfig):
+        gcs_config (Union['VertexAIGCSConfig', None, Unset]):
     """
 
     token: str
-    multi_modal_config: MultiModalModelIntegrationConfig | None | Unset = UNSET
-    gcs_config: None | Unset | VertexAIGCSConfig = UNSET
+    multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
+    gcs_config: Union["VertexAIGCSConfig", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,7 +36,7 @@ class VertexAIIntegrationCreate:
 
         token = self.token
 
-        multi_modal_config: dict[str, Any] | None | Unset
+        multi_modal_config: Union[None, Unset, dict[str, Any]]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -46,7 +44,7 @@ class VertexAIIntegrationCreate:
         else:
             multi_modal_config = self.multi_modal_config
 
-        gcs_config: dict[str, Any] | None | Unset
+        gcs_config: Union[None, Unset, dict[str, Any]]
         if isinstance(self.gcs_config, Unset):
             gcs_config = UNSET
         elif isinstance(self.gcs_config, VertexAIGCSConfig):
@@ -72,7 +70,7 @@ class VertexAIIntegrationCreate:
         d = dict(src_dict)
         token = d.pop("token")
 
-        def _parse_multi_modal_config(data: object) -> MultiModalModelIntegrationConfig | None | Unset:
+        def _parse_multi_modal_config(data: object) -> Union["MultiModalModelIntegrationConfig", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -84,11 +82,11 @@ class VertexAIIntegrationCreate:
 
             except:  # noqa: E722
                 pass
-            return cast(MultiModalModelIntegrationConfig | None | Unset, data)
+            return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
 
         multi_modal_config = _parse_multi_modal_config(d.pop("multi_modal_config", UNSET))
 
-        def _parse_gcs_config(data: object) -> None | Unset | VertexAIGCSConfig:
+        def _parse_gcs_config(data: object) -> Union["VertexAIGCSConfig", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -100,7 +98,7 @@ class VertexAIIntegrationCreate:
 
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | VertexAIGCSConfig, data)
+            return cast(Union["VertexAIGCSConfig", None, Unset], data)
 
         gcs_config = _parse_gcs_config(d.pop("gcs_config", UNSET))
 

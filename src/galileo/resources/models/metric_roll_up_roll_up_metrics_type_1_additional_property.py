@@ -1,19 +1,17 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="ExtendedRetrieverSpanRecordWithChildrenOverallAnnotationAgreement")
+T = TypeVar("T", bound="MetricRollUpRollUpMetricsType1AdditionalProperty")
 
 
 @_attrs_define
-class ExtendedRetrieverSpanRecordWithChildrenOverallAnnotationAgreement:
-    """Average annotation agreement per queue (keyed by queue ID)."""
+class MetricRollUpRollUpMetricsType1AdditionalProperty:
+    """ """
 
-    additional_properties: dict[str, float] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, int] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         field_dict: dict[str, Any] = {}
@@ -24,19 +22,19 @@ class ExtendedRetrieverSpanRecordWithChildrenOverallAnnotationAgreement:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        extended_retriever_span_record_with_children_overall_annotation_agreement = cls()
+        metric_roll_up_roll_up_metrics_type_1_additional_property = cls()
 
-        extended_retriever_span_record_with_children_overall_annotation_agreement.additional_properties = d
-        return extended_retriever_span_record_with_children_overall_annotation_agreement
+        metric_roll_up_roll_up_metrics_type_1_additional_property.additional_properties = d
+        return metric_roll_up_roll_up_metrics_type_1_additional_property
 
     @property
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> float:
+    def __getitem__(self, key: str) -> int:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: float) -> None:
+    def __setitem__(self, key: str, value: int) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

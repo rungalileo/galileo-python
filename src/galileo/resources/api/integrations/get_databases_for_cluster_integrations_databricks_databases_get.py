@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, cast
+from typing import Any, Optional, Union, cast
 
 import httpx
 
@@ -21,12 +21,12 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(*, catalog: None | str | Unset = UNSET) -> dict[str, Any]:
+def _get_kwargs(*, catalog: Union[None, Unset, str] = UNSET) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_catalog: None | str | Unset
+    json_catalog: Union[None, Unset, str]
     json_catalog = UNSET if isinstance(catalog, Unset) else catalog
     params["catalog"] = json_catalog
 
@@ -45,7 +45,7 @@ def _get_kwargs(*, catalog: None | str | Unset = UNSET) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list[str]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, list[str]]:
     if response.status_code == 200:
         return cast(list[str], response.json())
 
@@ -70,7 +70,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | list[str]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, list[str]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,12 +80,12 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(
-    *, client: ApiClient, catalog: None | str | Unset = UNSET
-) -> Response[HTTPValidationError | list[str]]:
+    *, client: ApiClient, catalog: Union[None, Unset, str] = UNSET
+) -> Response[Union[HTTPValidationError, list[str]]]:
     """Get Databases For Cluster.
 
     Args:
-        catalog (None | str | Unset):
+        catalog (Union[None, Unset, str]):
 
     Raises
     ------
@@ -94,7 +94,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | list[str]]
+        Response[Union[HTTPValidationError, list[str]]]
     """
     kwargs = _get_kwargs(catalog=catalog)
 
@@ -103,11 +103,13 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, catalog: None | str | Unset = UNSET) -> HTTPValidationError | list[str] | None:
+def sync(
+    *, client: ApiClient, catalog: Union[None, Unset, str] = UNSET
+) -> Optional[Union[HTTPValidationError, list[str]]]:
     """Get Databases For Cluster.
 
     Args:
-        catalog (None | str | Unset):
+        catalog (Union[None, Unset, str]):
 
     Raises
     ------
@@ -116,18 +118,18 @@ def sync(*, client: ApiClient, catalog: None | str | Unset = UNSET) -> HTTPValid
 
     Returns
     -------
-        HTTPValidationError | list[str]
+        Union[HTTPValidationError, list[str]]
     """
     return sync_detailed(client=client, catalog=catalog).parsed
 
 
 async def asyncio_detailed(
-    *, client: ApiClient, catalog: None | str | Unset = UNSET
-) -> Response[HTTPValidationError | list[str]]:
+    *, client: ApiClient, catalog: Union[None, Unset, str] = UNSET
+) -> Response[Union[HTTPValidationError, list[str]]]:
     """Get Databases For Cluster.
 
     Args:
-        catalog (None | str | Unset):
+        catalog (Union[None, Unset, str]):
 
     Raises
     ------
@@ -136,7 +138,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | list[str]]
+        Response[Union[HTTPValidationError, list[str]]]
     """
     kwargs = _get_kwargs(catalog=catalog)
 
@@ -145,11 +147,13 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, catalog: None | str | Unset = UNSET) -> HTTPValidationError | list[str] | None:
+async def asyncio(
+    *, client: ApiClient, catalog: Union[None, Unset, str] = UNSET
+) -> Optional[Union[HTTPValidationError, list[str]]]:
     """Get Databases For Cluster.
 
     Args:
-        catalog (None | str | Unset):
+        catalog (Union[None, Unset, str]):
 
     Raises
     ------
@@ -158,6 +162,6 @@ async def asyncio(*, client: ApiClient, catalog: None | str | Unset = UNSET) -> 
 
     Returns
     -------
-        HTTPValidationError | list[str]
+        Union[HTTPValidationError, list[str]]
     """
     return (await asyncio_detailed(client=client, catalog=catalog)).parsed

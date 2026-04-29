@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,11 +15,11 @@ class DatasetNotInProjectFilter:
     Attributes
     ----------
         value (str):
-        name (Literal['not_in_project'] | Unset):  Default: 'not_in_project'.
+        name (Union[Literal['not_in_project'], Unset]):  Default: 'not_in_project'.
     """
 
     value: str
-    name: Literal["not_in_project"] | Unset = "not_in_project"
+    name: Union[Literal["not_in_project"], Unset] = "not_in_project"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,7 +40,7 @@ class DatasetNotInProjectFilter:
         d = dict(src_dict)
         value = d.pop("value")
 
-        name = cast(Literal["not_in_project"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["not_in_project"], Unset], d.pop("name", UNSET))
         if name != "not_in_project" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'not_in_project', got '{name}'")
 

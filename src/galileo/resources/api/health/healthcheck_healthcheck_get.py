@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -82,7 +82,7 @@ def sync_detailed(*, client: ApiClient) -> Response[HealthcheckResponse]:
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient) -> HealthcheckResponse | None:
+def sync(*, client: ApiClient) -> Optional[HealthcheckResponse]:
     """Healthcheck.
 
     Raises
@@ -116,7 +116,7 @@ async def asyncio_detailed(*, client: ApiClient) -> Response[HealthcheckResponse
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient) -> HealthcheckResponse | None:
+async def asyncio(*, client: ApiClient) -> Optional[HealthcheckResponse]:
     """Healthcheck.
 
     Raises

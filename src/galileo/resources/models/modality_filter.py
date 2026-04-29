@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,19 +18,19 @@ class ModalityFilter:
     Attributes
     ----------
             operator (ModalityFilterOperator):
-            value (list[str] | str):
-            name (Literal['modality'] | Unset):  Default: 'modality'.
+            value (Union[list[str], str]):
+            name (Union[Literal['modality'], Unset]):  Default: 'modality'.
     """
 
     operator: ModalityFilterOperator
-    value: list[str] | str
-    name: Literal["modality"] | Unset = "modality"
+    value: Union[list[str], str]
+    name: Union[Literal["modality"], Unset] = "modality"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         operator = self.operator.value
 
-        value: list[str] | str
+        value: Union[list[str], str]
         value = self.value if isinstance(self.value, list) else self.value
 
         name = self.name
@@ -50,7 +48,7 @@ class ModalityFilter:
         d = dict(src_dict)
         operator = ModalityFilterOperator(d.pop("operator"))
 
-        def _parse_value(data: object) -> list[str] | str:
+        def _parse_value(data: object) -> Union[list[str], str]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
@@ -58,11 +56,11 @@ class ModalityFilter:
 
             except:  # noqa: E722
                 pass
-            return cast(list[str] | str, data)
+            return cast(Union[list[str], str], data)
 
         value = _parse_value(d.pop("value"))
 
-        name = cast(Literal["modality"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["modality"], Unset], d.pop("name", UNSET))
         if name != "modality" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'modality', got '{name}'")
 

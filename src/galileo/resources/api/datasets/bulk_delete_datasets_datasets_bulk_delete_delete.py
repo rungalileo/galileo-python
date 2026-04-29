@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -42,7 +42,9 @@ def _get_kwargs(*, body: BulkDeleteDatasetsRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> BulkDeleteDatasetsResponse | HTTPValidationError:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[BulkDeleteDatasetsResponse, HTTPValidationError]:
     if response.status_code == 200:
         return BulkDeleteDatasetsResponse.from_dict(response.json())
 
@@ -69,7 +71,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> BulkDelet
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[BulkDeleteDatasetsResponse | HTTPValidationError]:
+) -> Response[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,7 +82,7 @@ def _build_response(
 
 def sync_detailed(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
-) -> Response[BulkDeleteDatasetsResponse | HTTPValidationError]:
+) -> Response[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]:
     """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
@@ -114,7 +116,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[BulkDeleteDatasetsResponse | HTTPValidationError]
+        Response[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -125,7 +127,7 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
-) -> BulkDeleteDatasetsResponse | HTTPValidationError | None:
+) -> Optional[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]:
     """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
@@ -159,14 +161,14 @@ def sync(
 
     Returns
     -------
-        BulkDeleteDatasetsResponse | HTTPValidationError
+        Union[BulkDeleteDatasetsResponse, HTTPValidationError]
     """
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
-) -> Response[BulkDeleteDatasetsResponse | HTTPValidationError]:
+) -> Response[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]:
     """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
@@ -200,7 +202,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[BulkDeleteDatasetsResponse | HTTPValidationError]
+        Response[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -211,7 +213,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
-) -> BulkDeleteDatasetsResponse | HTTPValidationError | None:
+) -> Optional[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]:
     """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
@@ -245,6 +247,6 @@ async def asyncio(
 
     Returns
     -------
-        BulkDeleteDatasetsResponse | HTTPValidationError
+        Union[BulkDeleteDatasetsResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

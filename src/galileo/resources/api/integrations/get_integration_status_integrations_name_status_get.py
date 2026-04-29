@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -42,10 +42,10 @@ def _get_kwargs(name: IntegrationName) -> dict[str, Any]:
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> (
-    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
-    | HTTPValidationError
-):
+) -> Union[
+    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
+    HTTPValidationError,
+]:
     if response.status_code == 200:
         return GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet.from_dict(
             response.json()
@@ -75,8 +75,10 @@ def _parse_response(
 def _build_response(
     *, client: ApiClient, response: httpx.Response
 ) -> Response[
-    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
-    | HTTPValidationError
+    Union[
+        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
+        HTTPValidationError,
+    ]
 ]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -89,8 +91,10 @@ def _build_response(
 def sync_detailed(
     name: IntegrationName, *, client: ApiClient
 ) -> Response[
-    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
-    | HTTPValidationError
+    Union[
+        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
+        HTTPValidationError,
+    ]
 ]:
     """Get Integration Status.
 
@@ -106,7 +110,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError]
+        Response[Union[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet, HTTPValidationError]]
     """
     kwargs = _get_kwargs(name=name)
 
@@ -117,35 +121,11 @@ def sync_detailed(
 
 def sync(
     name: IntegrationName, *, client: ApiClient
-) -> (
-    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
-    | HTTPValidationError
-    | None
-):
-    """Get Integration Status.
-
-     Checks if the integration status is active or not.
-
-    Args:
-        name (IntegrationName):
-
-    Raises
-    ------
-        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
-
-    Returns
-    -------
-        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError
-    """
-    return sync_detailed(name=name, client=client).parsed
-
-
-async def asyncio_detailed(
-    name: IntegrationName, *, client: ApiClient
-) -> Response[
-    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
-    | HTTPValidationError
+) -> Optional[
+    Union[
+        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
+        HTTPValidationError,
+    ]
 ]:
     """Get Integration Status.
 
@@ -161,22 +141,19 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError]
+        Union[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet, HTTPValidationError]
     """
-    kwargs = _get_kwargs(name=name)
-
-    response = await client.arequest(**kwargs)
-
-    return _build_response(client=client, response=response)
+    return sync_detailed(name=name, client=client).parsed
 
 
-async def asyncio(
+async def asyncio_detailed(
     name: IntegrationName, *, client: ApiClient
-) -> (
-    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
-    | HTTPValidationError
-    | None
-):
+) -> Response[
+    Union[
+        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
+        HTTPValidationError,
+    ]
+]:
     """Get Integration Status.
 
      Checks if the integration status is active or not.
@@ -191,6 +168,37 @@ async def asyncio(
 
     Returns
     -------
-        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError
+        Response[Union[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet, HTTPValidationError]]
+    """
+    kwargs = _get_kwargs(name=name)
+
+    response = await client.arequest(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    name: IntegrationName, *, client: ApiClient
+) -> Optional[
+    Union[
+        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
+        HTTPValidationError,
+    ]
+]:
+    """Get Integration Status.
+
+     Checks if the integration status is active or not.
+
+    Args:
+        name (IntegrationName):
+
+    Raises
+    ------
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns
+    -------
+        Union[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet, HTTPValidationError]
     """
     return (await asyncio_detailed(name=name, client=client)).parsed

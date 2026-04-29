@@ -1,8 +1,6 @@
-from __future__ import annotations
-
 import datetime
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,12 +19,12 @@ class ProjectCreatedAtFilter:
     ----------
         operator (ProjectCreatedAtFilterOperator):
         value (datetime.datetime):
-        name (Literal['created_at'] | Unset):  Default: 'created_at'.
+        name (Union[Literal['created_at'], Unset]):  Default: 'created_at'.
     """
 
     operator: ProjectCreatedAtFilterOperator
     value: datetime.datetime
-    name: Literal["created_at"] | Unset = "created_at"
+    name: Union[Literal["created_at"], Unset] = "created_at"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -51,7 +49,7 @@ class ProjectCreatedAtFilter:
 
         value = isoparse(d.pop("value"))
 
-        name = cast(Literal["created_at"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["created_at"], Unset], d.pop("name", UNSET))
         if name != "created_at" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'created_at', got '{name}'")
 

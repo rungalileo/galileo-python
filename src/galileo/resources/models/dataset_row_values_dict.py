@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,7 +15,7 @@ T = TypeVar("T", bound="DatasetRowValuesDict")
 class DatasetRowValuesDict:
     """ """
 
-    additional_properties: dict[str, DatasetRowValuesDictAdditionalPropertyType3 | float | int | None | str] = (
+    additional_properties: dict[str, Union["DatasetRowValuesDictAdditionalPropertyType3", None, float, int, str]] = (
         _attrs_field(init=False, factory=dict)
     )
 
@@ -49,7 +47,7 @@ class DatasetRowValuesDict:
 
             def _parse_additional_property(
                 data: object,
-            ) -> DatasetRowValuesDictAdditionalPropertyType3 | float | int | None | str:
+            ) -> Union["DatasetRowValuesDictAdditionalPropertyType3", None, float, int, str]:
                 if data is None:
                     return data
                 try:
@@ -59,7 +57,7 @@ class DatasetRowValuesDict:
 
                 except:  # noqa: E722
                     pass
-                return cast(DatasetRowValuesDictAdditionalPropertyType3 | float | int | None | str, data)
+                return cast(Union["DatasetRowValuesDictAdditionalPropertyType3", None, float, int, str], data)
 
             additional_property = _parse_additional_property(prop_dict)
 
@@ -72,11 +70,11 @@ class DatasetRowValuesDict:
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> DatasetRowValuesDictAdditionalPropertyType3 | float | int | None | str:
+    def __getitem__(self, key: str) -> Union["DatasetRowValuesDictAdditionalPropertyType3", None, float, int, str]:
         return self.additional_properties[key]
 
     def __setitem__(
-        self, key: str, value: DatasetRowValuesDictAdditionalPropertyType3 | float | int | None | str
+        self, key: str, value: Union["DatasetRowValuesDictAdditionalPropertyType3", None, float, int, str]
     ) -> None:
         self.additional_properties[key] = value
 

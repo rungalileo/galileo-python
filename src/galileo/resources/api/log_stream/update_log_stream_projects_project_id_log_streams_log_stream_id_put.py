@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -42,7 +42,7 @@ def _get_kwargs(project_id: str, log_stream_id: str, *, body: LogStreamUpdateReq
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | LogStreamResponse:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, LogStreamResponse]:
     if response.status_code == 200:
         return LogStreamResponse.from_dict(response.json())
 
@@ -69,7 +69,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | LogStreamResponse]:
+) -> Response[Union[HTTPValidationError, LogStreamResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: LogStreamUpdateRequest
-) -> Response[HTTPValidationError | LogStreamResponse]:
+) -> Response[Union[HTTPValidationError, LogStreamResponse]]:
     """Update Log Stream.
 
      Update a specific log stream.
@@ -97,7 +97,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | LogStreamResponse]
+        Response[Union[HTTPValidationError, LogStreamResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id, body=body)
 
@@ -108,7 +108,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: LogStreamUpdateRequest
-) -> HTTPValidationError | LogStreamResponse | None:
+) -> Optional[Union[HTTPValidationError, LogStreamResponse]]:
     """Update Log Stream.
 
      Update a specific log stream.
@@ -125,14 +125,14 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | LogStreamResponse
+        Union[HTTPValidationError, LogStreamResponse]
     """
     return sync_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: LogStreamUpdateRequest
-) -> Response[HTTPValidationError | LogStreamResponse]:
+) -> Response[Union[HTTPValidationError, LogStreamResponse]]:
     """Update Log Stream.
 
      Update a specific log stream.
@@ -149,7 +149,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | LogStreamResponse]
+        Response[Union[HTTPValidationError, LogStreamResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id, body=body)
 
@@ -160,7 +160,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: LogStreamUpdateRequest
-) -> HTTPValidationError | LogStreamResponse | None:
+) -> Optional[Union[HTTPValidationError, LogStreamResponse]]:
     """Update Log Stream.
 
      Update a specific log stream.
@@ -177,6 +177,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | LogStreamResponse
+        Union[HTTPValidationError, LogStreamResponse]
     """
     return (await asyncio_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client, body=body)).parsed

@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,18 +22,18 @@ class ValidResult:
     ----------
         score_type (str):
         scoreable_node_types (list[NodeType]):
-        test_scores (list[TestScore]):
-        result_type (Literal['valid'] | Unset):  Default: 'valid'.
-        include_llm_credentials (bool | Unset):  Default: False.
-        chain_aggregation (ChainAggregationStrategy | None | Unset):
+        test_scores (list['TestScore']):
+        result_type (Union[Literal['valid'], Unset]):  Default: 'valid'.
+        include_llm_credentials (Union[Unset, bool]):  Default: False.
+        chain_aggregation (Union[ChainAggregationStrategy, None, Unset]):
     """
 
     score_type: str
     scoreable_node_types: list[NodeType]
-    test_scores: list[TestScore]
-    result_type: Literal["valid"] | Unset = "valid"
-    include_llm_credentials: bool | Unset = False
-    chain_aggregation: ChainAggregationStrategy | None | Unset = UNSET
+    test_scores: list["TestScore"]
+    result_type: Union[Literal["valid"], Unset] = "valid"
+    include_llm_credentials: Union[Unset, bool] = False
+    chain_aggregation: Union[ChainAggregationStrategy, None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -55,7 +53,7 @@ class ValidResult:
 
         include_llm_credentials = self.include_llm_credentials
 
-        chain_aggregation: None | str | Unset
+        chain_aggregation: Union[None, Unset, str]
         if isinstance(self.chain_aggregation, Unset):
             chain_aggregation = UNSET
         elif isinstance(self.chain_aggregation, ChainAggregationStrategy):
@@ -98,13 +96,13 @@ class ValidResult:
 
             test_scores.append(test_scores_item)
 
-        result_type = cast(Literal["valid"] | Unset, d.pop("result_type", UNSET))
+        result_type = cast(Union[Literal["valid"], Unset], d.pop("result_type", UNSET))
         if result_type != "valid" and not isinstance(result_type, Unset):
             raise ValueError(f"result_type must match const 'valid', got '{result_type}'")
 
         include_llm_credentials = d.pop("include_llm_credentials", UNSET)
 
-        def _parse_chain_aggregation(data: object) -> ChainAggregationStrategy | None | Unset:
+        def _parse_chain_aggregation(data: object) -> Union[ChainAggregationStrategy, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -116,7 +114,7 @@ class ValidResult:
 
             except:  # noqa: E722
                 pass
-            return cast(ChainAggregationStrategy | None | Unset, data)
+            return cast(Union[ChainAggregationStrategy, None, Unset], data)
 
         chain_aggregation = _parse_chain_aggregation(d.pop("chain_aggregation", UNSET))
 

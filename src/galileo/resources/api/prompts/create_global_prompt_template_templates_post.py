@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -24,13 +24,13 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | str | Unset = UNSET
+    *, body: CreatePromptTemplateWithVersionRequestBody, project_id: Union[None, Unset, str] = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_project_id: None | str | Unset
+    json_project_id: Union[None, Unset, str]
     json_project_id = UNSET if isinstance(project_id, Unset) else project_id
     params["project_id"] = json_project_id
 
@@ -53,7 +53,9 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> BasePromptTemplateResponse | HTTPValidationError:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[BasePromptTemplateResponse, HTTPValidationError]:
     if response.status_code == 200:
         return BasePromptTemplateResponse.from_dict(response.json())
 
@@ -80,7 +82,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> BasePromp
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
+) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -90,8 +92,8 @@ def _build_response(
 
 
 def sync_detailed(
-    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | str | Unset = UNSET
-) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: Union[None, Unset, str] = UNSET
+) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Create Global Prompt Template.
 
      Create a global prompt template.
@@ -111,7 +113,7 @@ def sync_detailed(
         Details about the created prompt template.
 
     Args:
-        project_id (None | str | Unset):
+        project_id (Union[None, Unset, str]):
         body (CreatePromptTemplateWithVersionRequestBody): Body to create a new prompt template
             with version.
 
@@ -124,7 +126,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[BasePromptTemplateResponse | HTTPValidationError]
+        Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body, project_id=project_id)
 
@@ -134,8 +136,8 @@ def sync_detailed(
 
 
 def sync(
-    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | str | Unset = UNSET
-) -> BasePromptTemplateResponse | HTTPValidationError | None:
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: Union[None, Unset, str] = UNSET
+) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Create Global Prompt Template.
 
      Create a global prompt template.
@@ -155,7 +157,7 @@ def sync(
         Details about the created prompt template.
 
     Args:
-        project_id (None | str | Unset):
+        project_id (Union[None, Unset, str]):
         body (CreatePromptTemplateWithVersionRequestBody): Body to create a new prompt template
             with version.
 
@@ -168,14 +170,14 @@ def sync(
 
     Returns
     -------
-        BasePromptTemplateResponse | HTTPValidationError
+        Union[BasePromptTemplateResponse, HTTPValidationError]
     """
     return sync_detailed(client=client, body=body, project_id=project_id).parsed
 
 
 async def asyncio_detailed(
-    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | str | Unset = UNSET
-) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: Union[None, Unset, str] = UNSET
+) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Create Global Prompt Template.
 
      Create a global prompt template.
@@ -195,7 +197,7 @@ async def asyncio_detailed(
         Details about the created prompt template.
 
     Args:
-        project_id (None | str | Unset):
+        project_id (Union[None, Unset, str]):
         body (CreatePromptTemplateWithVersionRequestBody): Body to create a new prompt template
             with version.
 
@@ -208,7 +210,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[BasePromptTemplateResponse | HTTPValidationError]
+        Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body, project_id=project_id)
 
@@ -218,8 +220,8 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | str | Unset = UNSET
-) -> BasePromptTemplateResponse | HTTPValidationError | None:
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: Union[None, Unset, str] = UNSET
+) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Create Global Prompt Template.
 
      Create a global prompt template.
@@ -239,7 +241,7 @@ async def asyncio(
         Details about the created prompt template.
 
     Args:
-        project_id (None | str | Unset):
+        project_id (Union[None, Unset, str]):
         body (CreatePromptTemplateWithVersionRequestBody): Body to create a new prompt template
             with version.
 
@@ -252,6 +254,6 @@ async def asyncio(
 
     Returns
     -------
-        BasePromptTemplateResponse | HTTPValidationError
+        Union[BasePromptTemplateResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(client=client, body=body, project_id=project_id)).parsed

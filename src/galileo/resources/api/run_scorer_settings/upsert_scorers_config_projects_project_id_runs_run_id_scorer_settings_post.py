@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -42,7 +42,9 @@ def _get_kwargs(project_id: str, run_id: str, *, body: RunScorerSettingsPatchReq
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | RunScorerSettingsResponse:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[HTTPValidationError, RunScorerSettingsResponse]:
     if response.status_code == 200:
         return RunScorerSettingsResponse.from_dict(response.json())
 
@@ -69,7 +71,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | RunScorerSettingsResponse]:
+) -> Response[Union[HTTPValidationError, RunScorerSettingsResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,7 +82,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
-) -> Response[HTTPValidationError | RunScorerSettingsResponse]:
+) -> Response[Union[HTTPValidationError, RunScorerSettingsResponse]]:
     """Upsert Scorers Config.
 
     Args:
@@ -95,7 +97,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | RunScorerSettingsResponse]
+        Response[Union[HTTPValidationError, RunScorerSettingsResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
 
@@ -106,7 +108,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
-) -> HTTPValidationError | RunScorerSettingsResponse | None:
+) -> Optional[Union[HTTPValidationError, RunScorerSettingsResponse]]:
     """Upsert Scorers Config.
 
     Args:
@@ -121,14 +123,14 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | RunScorerSettingsResponse
+        Union[HTTPValidationError, RunScorerSettingsResponse]
     """
     return sync_detailed(project_id=project_id, run_id=run_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
-) -> Response[HTTPValidationError | RunScorerSettingsResponse]:
+) -> Response[Union[HTTPValidationError, RunScorerSettingsResponse]]:
     """Upsert Scorers Config.
 
     Args:
@@ -143,7 +145,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | RunScorerSettingsResponse]
+        Response[Union[HTTPValidationError, RunScorerSettingsResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
 
@@ -154,7 +156,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
-) -> HTTPValidationError | RunScorerSettingsResponse | None:
+) -> Optional[Union[HTTPValidationError, RunScorerSettingsResponse]]:
     """Upsert Scorers Config.
 
     Args:
@@ -169,6 +171,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | RunScorerSettingsResponse
+        Union[HTTPValidationError, RunScorerSettingsResponse]
     """
     return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client, body=body)).parsed
