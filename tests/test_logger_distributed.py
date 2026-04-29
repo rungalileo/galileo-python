@@ -101,7 +101,7 @@ def test_start_trace(mock_traces_client: Mock, mock_projects_client: Mock, mock_
 @patch("galileo.logger.logger.Traces")
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-def test_distributed_logger_uses_standard_client_when_ingest_service_is_available(
+def test_distributed_logger_uses_ingest_client_when_ingest_service_is_available(
     mock_projects_client: Mock, mock_logstreams_client: Mock, mock_traces_client: Mock, mock_ingest_traces_client: Mock
 ) -> None:
     # Given: the ingest service reports healthy and project/log stream lookups succeed
@@ -112,10 +112,10 @@ def test_distributed_logger_uses_standard_client_when_ingest_service_is_availabl
         # When: creating a distributed logger
         logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
-    # Then: distributed mode stays on the standard Traces client for span create/update support
-    assert logger._traces_client is mock_traces_client.return_value
-    mock_traces_client.assert_called_once_with(project_id=logger.project_id, log_stream_id=logger.log_stream_id)
-    mock_ingest_traces_client.assert_not_called()
+    # Then: distributed mode uses IngestTraces when available, same as batch mode
+    assert logger._traces_client is mock_ingest_traces_client.return_value
+    mock_ingest_traces_client.assert_called_once()
+    mock_traces_client.assert_not_called()
 
 
 @patch("galileo.logger.logger.LogStreams")

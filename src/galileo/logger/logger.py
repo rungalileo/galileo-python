@@ -431,12 +431,7 @@ class GalileoLogger(TracesLogger):
         if not (self.log_stream_id or self.experiment_id):
             self._init_log_stream()
 
-        # Distributed mode relies on span create/update APIs during the lifetime of
-        # a trace. The ingest service currently handles full-trace ingestion but
-        # does not provide the span streaming route we need here, so distributed
-        # loggers should stay on the standard API client even when ingest healthz
-        # is available.
-        if self.mode != "distributed" and self._is_ingest_service_available():
+        if self._is_ingest_service_available():
             config = GalileoPythonConfig.get()
             api_key_secret = config.api_key
             api_key = api_key_secret.get_secret_value() if api_key_secret else os.environ.get("GALILEO_API_KEY", "")
