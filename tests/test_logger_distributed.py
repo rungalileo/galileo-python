@@ -121,27 +121,28 @@ def test_distributed_logger_uses_standard_client_when_ingest_service_is_availabl
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
-def test_nested_distributed_spans_wait_for_parent_ingest(
+def test_nested_distributed_spans_submit_independently(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    # Given: a distributed logger with an active trace and workflow parent
+    # Given: a distributed logger with nested workflow and control spans
     setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
     capture = setup_thread_pool_request_capture(logger)
 
-    trace = logger.start_trace(input="input", name="test-trace")
+    logger.start_trace(input="input", name="test-trace")
     workflow = logger.add_workflow_span(input="workflow input", name="workflow")
 
     # When: a control span is emitted under the active workflow
     logger.add_control_span(input="selected input", name="control")
 
-    # Then: each streamed span waits for its direct parent ingest task
+    # Then: distributed spans are submitted immediately without task dependencies
     span_tasks = [task for task in capture.get_all_tasks() if task.function_name == "ingest_spans_with_backoff"]
     assert len(span_tasks) == 2
-    assert span_tasks[0].kwargs["parent_task_id"] == f"trace-ingest-{trace.id}"
-    assert span_tasks[1].kwargs["parent_task_id"] == f"span-ingest-{workflow.id}"
+    assert all(task.kwargs == {"dependent_on_prev": False} for task in span_tasks)
+    assert span_tasks[0].request.parent_id == logger.traces[0].id
+    assert span_tasks[1].request.parent_id == workflow.id
 
 
 @patch("galileo.logger.logger.LogStreams")

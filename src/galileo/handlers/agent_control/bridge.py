@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import importlib
 import logging
-import re
 import threading
 import uuid
 from dataclasses import dataclass
@@ -16,7 +15,6 @@ from galileo.utils.serialization import serialize_to_str
 
 logger = logging.getLogger(__name__)
 
-_UUID_PATTERN = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 _REGISTRATION_LOCK = threading.RLock()
 _REGISTERED_BRIDGES: list[GalileoAgentControlBridge] = []
 _PREVIOUS_TRACE_CONTEXT_PROVIDER: Any = None
@@ -102,7 +100,7 @@ def _extract_control_input(metadata: dict[str, Any] | None) -> str:
 
 
 def _normalize_context_id(value: Any) -> str | None:
-    """Normalize Galileo context IDs while tolerating prefixed upstream wrappers."""
+    """Return a canonical UUID string, or None if value is absent or not a valid UUID."""
     if value is None:
         return None
 
@@ -113,16 +111,7 @@ def _normalize_context_id(value: Any) -> str | None:
     try:
         return str(uuid.UUID(text))
     except (TypeError, ValueError, AttributeError):
-        pass
-
-    uuid_matches = _UUID_PATTERN.findall(text)
-    if len(uuid_matches) != 1:
-        return text
-
-    try:
-        return str(uuid.UUID(uuid_matches[0]))
-    except ValueError:
-        return text
+        return None
 
 
 def _dispatch_trace_context() -> dict[str, str] | None:

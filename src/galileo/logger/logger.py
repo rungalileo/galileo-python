@@ -726,12 +726,6 @@ class GalileoLogger(TracesLogger):
         # Use IDs from the current trace and parent step
         trace_id = self.traces[0].id
         parent_id = parent_step.id
-        parent_task_id = (
-            f"trace-ingest-{trace_id}"
-            if getattr(parent_step, "type", None) == StepType.trace
-            else f"span-ingest-{parent_id}"
-        )
-
         spans_ingest_request = SpansIngestRequest(
             spans=[copy.deepcopy(span)], trace_id=trace_id, parent_id=parent_id, reliable=True
         )
@@ -757,8 +751,8 @@ class GalileoLogger(TracesLogger):
         async def ingest_spans_with_backoff(request: Any) -> None:
             return await self._traces_client.ingest_spans(request)
 
-        self._task_handler.submit_task_with_parent(
-            task_id, lambda: ingest_spans_with_backoff(spans_ingest_request), parent_task_id=parent_task_id
+        self._task_handler.submit_task(
+            task_id, lambda: ingest_spans_with_backoff(spans_ingest_request), dependent_on_prev=False
         )
         self._logger.info("ingested span %s.", span.id)
 

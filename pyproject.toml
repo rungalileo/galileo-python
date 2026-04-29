@@ -254,6 +254,7 @@ ignore = [
 "src/galileo/handlers/crewai/handler.py" = ["PLC0415"]  # Version-specific conditional imports
 "src/galileo/project.py" = ["PLC0415"]  # Bottom-of-file circular import avoidance
 "src/galileo/logger/logger.py" = ["PLC0415"]  # Local imports to avoid circular dependencies
+"src/galileo/logger/__init__.py" = ["PLC0415"]  # Lazy import for GalileoLogger
 
 [tool.ruff.lint.isort]
 known-first-party = ["galileo_core"]
