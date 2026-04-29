@@ -31,13 +31,13 @@ class MCPListToolsEvent:
         tools (Union[None, Unset, list['MCPListToolsEventToolsType0Item']]): List of available MCP tools
     """
 
-    type_: Union[Literal["mcp_list_tools"], Unset] = "mcp_list_tools"
-    id: Union[None, Unset, str] = UNSET
-    status: Union[EventStatus, None, Unset] = UNSET
+    type_: Literal["mcp_list_tools"] | Unset = "mcp_list_tools"
+    id: None | Unset | str = UNSET
+    status: EventStatus | None | Unset = UNSET
     metadata: Union["MCPListToolsEventMetadataType0", None, Unset] = UNSET
-    error_message: Union[None, Unset, str] = UNSET
-    server_name: Union[None, Unset, str] = UNSET
-    tools: Union[None, Unset, list["MCPListToolsEventToolsType0Item"]] = UNSET
+    error_message: None | Unset | str = UNSET
+    server_name: None | Unset | str = UNSET
+    tools: None | Unset | list["MCPListToolsEventToolsType0Item"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -45,10 +45,10 @@ class MCPListToolsEvent:
 
         type_ = self.type_
 
-        id: Union[None, Unset, str]
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
-        status: Union[None, Unset, str]
+        status: None | Unset | str
         if isinstance(self.status, Unset):
             status = UNSET
         elif isinstance(self.status, EventStatus):
@@ -56,7 +56,7 @@ class MCPListToolsEvent:
         else:
             status = self.status
 
-        metadata: Union[None, Unset, dict[str, Any]]
+        metadata: None | Unset | dict[str, Any]
         if isinstance(self.metadata, Unset):
             metadata = UNSET
         elif isinstance(self.metadata, MCPListToolsEventMetadataType0):
@@ -64,13 +64,13 @@ class MCPListToolsEvent:
         else:
             metadata = self.metadata
 
-        error_message: Union[None, Unset, str]
+        error_message: None | Unset | str
         error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
-        server_name: Union[None, Unset, str]
+        server_name: None | Unset | str
         server_name = UNSET if isinstance(self.server_name, Unset) else self.server_name
 
-        tools: Union[None, Unset, list[dict[str, Any]]]
+        tools: None | Unset | list[dict[str, Any]]
         if isinstance(self.tools, Unset):
             tools = UNSET
         elif isinstance(self.tools, list):
@@ -108,20 +108,20 @@ class MCPListToolsEvent:
         from ..models.mcp_list_tools_event_tools_type_0_item import MCPListToolsEventToolsType0Item
 
         d = dict(src_dict)
-        type_ = cast(Union[Literal["mcp_list_tools"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["mcp_list_tools"] | Unset, d.pop("type", UNSET))
         if type_ != "mcp_list_tools" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'mcp_list_tools', got '{type_}'")
 
-        def _parse_id(data: object) -> Union[None, Unset, str]:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_status(data: object) -> Union[EventStatus, None, Unset]:
+        def _parse_status(data: object) -> EventStatus | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -133,7 +133,7 @@ class MCPListToolsEvent:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[EventStatus, None, Unset], data)
+            return cast(EventStatus | None | Unset, data)
 
         status = _parse_status(d.pop("status", UNSET))
 
@@ -153,25 +153,25 @@ class MCPListToolsEvent:
 
         metadata = _parse_metadata(d.pop("metadata", UNSET))
 
-        def _parse_error_message(data: object) -> Union[None, Unset, str]:
+        def _parse_error_message(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         error_message = _parse_error_message(d.pop("error_message", UNSET))
 
-        def _parse_server_name(data: object) -> Union[None, Unset, str]:
+        def _parse_server_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         server_name = _parse_server_name(d.pop("server_name", UNSET))
 
-        def _parse_tools(data: object) -> Union[None, Unset, list["MCPListToolsEventToolsType0Item"]]:
+        def _parse_tools(data: object) -> None | Unset | list["MCPListToolsEventToolsType0Item"]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -189,7 +189,7 @@ class MCPListToolsEvent:
                 return tools_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["MCPListToolsEventToolsType0Item"]], data)
+            return cast(None | Unset | list["MCPListToolsEventToolsType0Item"], data)
 
         tools = _parse_tools(d.pop("tools", UNSET))
 

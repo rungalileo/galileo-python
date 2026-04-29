@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -91,7 +91,7 @@ def sync_detailed(*, client: ApiClient) -> Response[list["IntegrationDB"]]:
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient) -> Optional[list["IntegrationDB"]]:
+def sync(*, client: ApiClient) -> list["IntegrationDB"] | None:
     """List Integrations.
 
      List the created integrations for the requesting user.
@@ -129,7 +129,7 @@ async def asyncio_detailed(*, client: ApiClient) -> Response[list["IntegrationDB
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient) -> Optional[list["IntegrationDB"]]:
+async def asyncio(*, client: ApiClient) -> list["IntegrationDB"] | None:
     """List Integrations.
 
      List the created integrations for the requesting user.

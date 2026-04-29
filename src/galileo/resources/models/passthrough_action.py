@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,14 +23,14 @@ class PassthroughAction:
             this action is applied and the ruleset status matches any of the configured statuses.
     """
 
-    type_: Union[Literal["PASSTHROUGH"], Unset] = "PASSTHROUGH"
-    subscriptions: Union[Unset, list["SubscriptionConfig"]] = UNSET
+    type_: Literal["PASSTHROUGH"] | Unset = "PASSTHROUGH"
+    subscriptions: Unset | list["SubscriptionConfig"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         type_ = self.type_
 
-        subscriptions: Union[Unset, list[dict[str, Any]]] = UNSET
+        subscriptions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.subscriptions, Unset):
             subscriptions = []
             for subscriptions_item_data in self.subscriptions:
@@ -52,7 +52,7 @@ class PassthroughAction:
         from ..models.subscription_config import SubscriptionConfig
 
         d = dict(src_dict)
-        type_ = cast(Union[Literal["PASSTHROUGH"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["PASSTHROUGH"] | Unset, d.pop("type", UNSET))
         if type_ != "PASSTHROUGH" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'PASSTHROUGH', got '{type_}'")
 

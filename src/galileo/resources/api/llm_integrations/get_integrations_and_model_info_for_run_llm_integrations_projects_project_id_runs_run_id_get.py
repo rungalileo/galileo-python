@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -26,13 +26,13 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    project_id: str, run_id: str, *, multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
+    project_id: str, run_id: str, *, multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_multimodal_capabilities: Union[None, Unset, list[str]]
+    json_multimodal_capabilities: None | Unset | list[str]
     if isinstance(multimodal_capabilities, Unset):
         json_multimodal_capabilities = UNSET
     elif isinstance(multimodal_capabilities, list):
@@ -62,10 +62,10 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
-    HTTPValidationError,
-]:
+) -> (
+    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
+    | HTTPValidationError
+):
     if response.status_code == 200:
         return GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse.from_dict(
             response.json()
@@ -95,10 +95,8 @@ def _parse_response(
 def _build_response(
     *, client: ApiClient, response: httpx.Response
 ) -> Response[
-    Union[
-        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
-        HTTPValidationError,
-    ]
+    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
+    | HTTPValidationError
 ]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -113,12 +111,10 @@ def sync_detailed(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
+    multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET,
 ) -> Response[
-    Union[
-        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
-        HTTPValidationError,
-    ]
+    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
+    | HTTPValidationError
 ]:
     """Get Integrations And Model Info For Run.
 
@@ -150,13 +146,12 @@ def sync(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
-) -> Optional[
-    Union[
-        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
-        HTTPValidationError,
-    ]
-]:
+    multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET,
+) -> (
+    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
+    | HTTPValidationError
+    | None
+):
     """Get Integrations And Model Info For Run.
 
      Get the list of supported scorer models for the run owner's llm integrations.
@@ -185,12 +180,10 @@ async def asyncio_detailed(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
+    multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET,
 ) -> Response[
-    Union[
-        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
-        HTTPValidationError,
-    ]
+    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
+    | HTTPValidationError
 ]:
     """Get Integrations And Model Info For Run.
 
@@ -222,13 +215,12 @@ async def asyncio(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
-) -> Optional[
-    Union[
-        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
-        HTTPValidationError,
-    ]
-]:
+    multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET,
+) -> (
+    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
+    | HTTPValidationError
+    | None
+):
     """Get Integrations And Model Info For Run.
 
      Get the list of supported scorer models for the run owner's llm integrations.

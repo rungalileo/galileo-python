@@ -52,14 +52,14 @@ class BaseScorerVersionResponse:
     generated_scorer: Union["GeneratedScorerResponse", None, Unset] = UNSET
     registered_scorer: Union["CreateUpdateRegisteredScorerResponse", None, Unset] = UNSET
     finetuned_scorer: Union["FineTunedScorerResponse", None, Unset] = UNSET
-    model_name: Union[None, Unset, str] = UNSET
-    num_judges: Union[None, Unset, int] = UNSET
-    scoreable_node_types: Union[None, Unset, list[str]] = UNSET
-    cot_enabled: Union[None, Unset, bool] = UNSET
-    output_type: Union[None, OutputTypeEnum, Unset] = UNSET
-    input_type: Union[InputTypeEnum, None, Unset] = UNSET
+    model_name: None | Unset | str = UNSET
+    num_judges: None | Unset | int = UNSET
+    scoreable_node_types: None | Unset | list[str] = UNSET
+    cot_enabled: None | Unset | bool = UNSET
+    output_type: None | OutputTypeEnum | Unset = UNSET
+    input_type: InputTypeEnum | None | Unset = UNSET
     chain_poll_template: Union["ChainPollTemplate", None, Unset] = UNSET
-    allowed_model: Union[None, Unset, bool] = UNSET
+    allowed_model: None | Unset | bool = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -78,7 +78,7 @@ class BaseScorerVersionResponse:
 
         updated_at = self.updated_at.isoformat()
 
-        generated_scorer: Union[None, Unset, dict[str, Any]]
+        generated_scorer: None | Unset | dict[str, Any]
         if isinstance(self.generated_scorer, Unset):
             generated_scorer = UNSET
         elif isinstance(self.generated_scorer, GeneratedScorerResponse):
@@ -86,7 +86,7 @@ class BaseScorerVersionResponse:
         else:
             generated_scorer = self.generated_scorer
 
-        registered_scorer: Union[None, Unset, dict[str, Any]]
+        registered_scorer: None | Unset | dict[str, Any]
         if isinstance(self.registered_scorer, Unset):
             registered_scorer = UNSET
         elif isinstance(self.registered_scorer, CreateUpdateRegisteredScorerResponse):
@@ -94,7 +94,7 @@ class BaseScorerVersionResponse:
         else:
             registered_scorer = self.registered_scorer
 
-        finetuned_scorer: Union[None, Unset, dict[str, Any]]
+        finetuned_scorer: None | Unset | dict[str, Any]
         if isinstance(self.finetuned_scorer, Unset):
             finetuned_scorer = UNSET
         elif isinstance(self.finetuned_scorer, FineTunedScorerResponse):
@@ -102,13 +102,13 @@ class BaseScorerVersionResponse:
         else:
             finetuned_scorer = self.finetuned_scorer
 
-        model_name: Union[None, Unset, str]
+        model_name: None | Unset | str
         model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
-        num_judges: Union[None, Unset, int]
+        num_judges: None | Unset | int
         num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
-        scoreable_node_types: Union[None, Unset, list[str]]
+        scoreable_node_types: None | Unset | list[str]
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
         elif isinstance(self.scoreable_node_types, list):
@@ -117,10 +117,10 @@ class BaseScorerVersionResponse:
         else:
             scoreable_node_types = self.scoreable_node_types
 
-        cot_enabled: Union[None, Unset, bool]
+        cot_enabled: None | Unset | bool
         cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
-        output_type: Union[None, Unset, str]
+        output_type: None | Unset | str
         if isinstance(self.output_type, Unset):
             output_type = UNSET
         elif isinstance(self.output_type, OutputTypeEnum):
@@ -128,7 +128,7 @@ class BaseScorerVersionResponse:
         else:
             output_type = self.output_type
 
-        input_type: Union[None, Unset, str]
+        input_type: None | Unset | str
         if isinstance(self.input_type, Unset):
             input_type = UNSET
         elif isinstance(self.input_type, InputTypeEnum):
@@ -136,7 +136,7 @@ class BaseScorerVersionResponse:
         else:
             input_type = self.input_type
 
-        chain_poll_template: Union[None, Unset, dict[str, Any]]
+        chain_poll_template: None | Unset | dict[str, Any]
         if isinstance(self.chain_poll_template, Unset):
             chain_poll_template = UNSET
         elif isinstance(self.chain_poll_template, ChainPollTemplate):
@@ -144,7 +144,7 @@ class BaseScorerVersionResponse:
         else:
             chain_poll_template = self.chain_poll_template
 
-        allowed_model: Union[None, Unset, bool]
+        allowed_model: None | Unset | bool
         allowed_model = UNSET if isinstance(self.allowed_model, Unset) else self.allowed_model
 
         field_dict: dict[str, Any] = {}
@@ -243,25 +243,25 @@ class BaseScorerVersionResponse:
 
         finetuned_scorer = _parse_finetuned_scorer(d.pop("finetuned_scorer", UNSET))
 
-        def _parse_model_name(data: object) -> Union[None, Unset, str]:
+        def _parse_model_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         model_name = _parse_model_name(d.pop("model_name", UNSET))
 
-        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
+        def _parse_num_judges(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
-        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_scoreable_node_types(data: object) -> None | Unset | list[str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -273,20 +273,20 @@ class BaseScorerVersionResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(None | Unset | list[str], data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
-        def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
+        def _parse_cot_enabled(data: object) -> None | Unset | bool:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(None | Unset | bool, data)
 
         cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
 
-        def _parse_output_type(data: object) -> Union[None, OutputTypeEnum, Unset]:
+        def _parse_output_type(data: object) -> None | OutputTypeEnum | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -298,11 +298,11 @@ class BaseScorerVersionResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, OutputTypeEnum, Unset], data)
+            return cast(None | OutputTypeEnum | Unset, data)
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 
-        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
+        def _parse_input_type(data: object) -> InputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -314,7 +314,7 @@ class BaseScorerVersionResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[InputTypeEnum, None, Unset], data)
+            return cast(InputTypeEnum | None | Unset, data)
 
         input_type = _parse_input_type(d.pop("input_type", UNSET))
 
@@ -334,12 +334,12 @@ class BaseScorerVersionResponse:
 
         chain_poll_template = _parse_chain_poll_template(d.pop("chain_poll_template", UNSET))
 
-        def _parse_allowed_model(data: object) -> Union[None, Unset, bool]:
+        def _parse_allowed_model(data: object) -> None | Unset | bool:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(None | Unset | bool, data)
 
         allowed_model = _parse_allowed_model(d.pop("allowed_model", UNSET))
 

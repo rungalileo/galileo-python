@@ -37,11 +37,11 @@ class LogStreamResponse:
     updated_at: datetime.datetime
     name: str
     project_id: str
-    created_by: Union[None, Unset, str] = UNSET
+    created_by: None | Unset | str = UNSET
     created_by_user: Union["UserInfo", None, Unset] = UNSET
-    num_spans: Union[None, Unset, int] = UNSET
-    num_traces: Union[None, Unset, int] = UNSET
-    has_user_created_sessions: Union[Unset, bool] = False
+    num_spans: None | Unset | int = UNSET
+    num_traces: None | Unset | int = UNSET
+    has_user_created_sessions: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -57,10 +57,10 @@ class LogStreamResponse:
 
         project_id = self.project_id
 
-        created_by: Union[None, Unset, str]
+        created_by: None | Unset | str
         created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
-        created_by_user: Union[None, Unset, dict[str, Any]]
+        created_by_user: None | Unset | dict[str, Any]
         if isinstance(self.created_by_user, Unset):
             created_by_user = UNSET
         elif isinstance(self.created_by_user, UserInfo):
@@ -68,10 +68,10 @@ class LogStreamResponse:
         else:
             created_by_user = self.created_by_user
 
-        num_spans: Union[None, Unset, int]
+        num_spans: None | Unset | int
         num_spans = UNSET if isinstance(self.num_spans, Unset) else self.num_spans
 
-        num_traces: Union[None, Unset, int]
+        num_traces: None | Unset | int
         num_traces = UNSET if isinstance(self.num_traces, Unset) else self.num_traces
 
         has_user_created_sessions = self.has_user_created_sessions
@@ -109,12 +109,12 @@ class LogStreamResponse:
 
         project_id = d.pop("project_id")
 
-        def _parse_created_by(data: object) -> Union[None, Unset, str]:
+        def _parse_created_by(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         created_by = _parse_created_by(d.pop("created_by", UNSET))
 
@@ -134,21 +134,21 @@ class LogStreamResponse:
 
         created_by_user = _parse_created_by_user(d.pop("created_by_user", UNSET))
 
-        def _parse_num_spans(data: object) -> Union[None, Unset, int]:
+        def _parse_num_spans(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         num_spans = _parse_num_spans(d.pop("num_spans", UNSET))
 
-        def _parse_num_traces(data: object) -> Union[None, Unset, int]:
+        def _parse_num_traces(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         num_traces = _parse_num_traces(d.pop("num_traces", UNSET))
 

@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,13 +19,13 @@ class SelectColumns:
         include_all_feedback (Union[Unset, bool]):  Default: False.
     """
 
-    column_ids: Union[Unset, list[str]] = UNSET
-    include_all_metrics: Union[Unset, bool] = False
-    include_all_feedback: Union[Unset, bool] = False
+    column_ids: Unset | list[str] = UNSET
+    include_all_metrics: Unset | bool = False
+    include_all_feedback: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        column_ids: Union[Unset, list[str]] = UNSET
+        column_ids: Unset | list[str] = UNSET
         if not isinstance(self.column_ids, Unset):
             column_ids = self.column_ids
 

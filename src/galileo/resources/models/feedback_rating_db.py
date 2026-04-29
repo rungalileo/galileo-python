@@ -32,8 +32,8 @@ class FeedbackRatingDB:
 
     rating: Union["LikeDislikeRating", "ScoreRating", "StarRating", "TagsRating", "TextRating"]
     created_at: datetime.datetime
-    created_by: Union[None, str]
-    explanation: Union[None, Unset, str] = UNSET
+    created_by: None | str
+    explanation: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -43,17 +43,17 @@ class FeedbackRatingDB:
         from ..models.tags_rating import TagsRating
 
         rating: dict[str, Any]
-        if isinstance(self.rating, (LikeDislikeRating, StarRating, ScoreRating, TagsRating)):
+        if isinstance(self.rating, LikeDislikeRating | StarRating | ScoreRating | TagsRating):
             rating = self.rating.to_dict()
         else:
             rating = self.rating.to_dict()
 
         created_at = self.created_at.isoformat()
 
-        created_by: Union[None, str]
+        created_by: None | str
         created_by = self.created_by
 
-        explanation: Union[None, Unset, str]
+        explanation: None | Unset | str
         explanation = UNSET if isinstance(self.explanation, Unset) else self.explanation
 
         field_dict: dict[str, Any] = {}
@@ -113,19 +113,19 @@ class FeedbackRatingDB:
 
         created_at = isoparse(d.pop("created_at"))
 
-        def _parse_created_by(data: object) -> Union[None, str]:
+        def _parse_created_by(data: object) -> None | str:
             if data is None:
                 return data
-            return cast(Union[None, str], data)
+            return cast(None | str, data)
 
         created_by = _parse_created_by(d.pop("created_by"))
 
-        def _parse_explanation(data: object) -> Union[None, Unset, str]:
+        def _parse_explanation(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         explanation = _parse_explanation(d.pop("explanation", UNSET))
 

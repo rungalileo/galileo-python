@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -41,20 +41,20 @@ class ColumnInfo:
 
     id: str
     category: ColumnCategory
-    data_type: Union[DataType, None]
-    label: Union[None, Unset, str] = UNSET
-    description: Union[None, Unset, str] = UNSET
-    group_label: Union[None, Unset, str] = UNSET
-    data_unit: Union[DataUnit, None, Unset] = UNSET
-    multi_valued: Union[Unset, bool] = False
-    allowed_values: Union[None, Unset, list[Any]] = UNSET
-    sortable: Union[Unset, bool] = UNSET
-    filterable: Union[Unset, bool] = UNSET
-    is_empty: Union[Unset, bool] = False
-    applicable_types: Union[Unset, list[StepType]] = UNSET
-    complex_: Union[Unset, bool] = False
-    is_optional: Union[Unset, bool] = False
-    roll_up_method: Union[None, Unset, str] = UNSET
+    data_type: DataType | None
+    label: None | Unset | str = UNSET
+    description: None | Unset | str = UNSET
+    group_label: None | Unset | str = UNSET
+    data_unit: DataUnit | None | Unset = UNSET
+    multi_valued: Unset | bool = False
+    allowed_values: None | Unset | list[Any] = UNSET
+    sortable: Unset | bool = UNSET
+    filterable: Unset | bool = UNSET
+    is_empty: Unset | bool = False
+    applicable_types: Unset | list[StepType] = UNSET
+    complex_: Unset | bool = False
+    is_optional: Unset | bool = False
+    roll_up_method: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -62,19 +62,19 @@ class ColumnInfo:
 
         category = self.category.value
 
-        data_type: Union[None, str]
+        data_type: None | str
         data_type = self.data_type.value if isinstance(self.data_type, DataType) else self.data_type
 
-        label: Union[None, Unset, str]
+        label: None | Unset | str
         label = UNSET if isinstance(self.label, Unset) else self.label
 
-        description: Union[None, Unset, str]
+        description: None | Unset | str
         description = UNSET if isinstance(self.description, Unset) else self.description
 
-        group_label: Union[None, Unset, str]
+        group_label: None | Unset | str
         group_label = UNSET if isinstance(self.group_label, Unset) else self.group_label
 
-        data_unit: Union[None, Unset, str]
+        data_unit: None | Unset | str
         if isinstance(self.data_unit, Unset):
             data_unit = UNSET
         elif isinstance(self.data_unit, DataUnit):
@@ -84,7 +84,7 @@ class ColumnInfo:
 
         multi_valued = self.multi_valued
 
-        allowed_values: Union[None, Unset, list[Any]]
+        allowed_values: None | Unset | list[Any]
         if isinstance(self.allowed_values, Unset):
             allowed_values = UNSET
         elif isinstance(self.allowed_values, list):
@@ -99,7 +99,7 @@ class ColumnInfo:
 
         is_empty = self.is_empty
 
-        applicable_types: Union[Unset, list[str]] = UNSET
+        applicable_types: Unset | list[str] = UNSET
         if not isinstance(self.applicable_types, Unset):
             applicable_types = []
             for applicable_types_item_data in self.applicable_types:
@@ -110,7 +110,7 @@ class ColumnInfo:
 
         is_optional = self.is_optional
 
-        roll_up_method: Union[None, Unset, str]
+        roll_up_method: None | Unset | str
         roll_up_method = UNSET if isinstance(self.roll_up_method, Unset) else self.roll_up_method
 
         field_dict: dict[str, Any] = {}
@@ -152,7 +152,7 @@ class ColumnInfo:
 
         category = ColumnCategory(d.pop("category"))
 
-        def _parse_data_type(data: object) -> Union[DataType, None]:
+        def _parse_data_type(data: object) -> DataType | None:
             if data is None:
                 return data
             try:
@@ -162,38 +162,38 @@ class ColumnInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[DataType, None], data)
+            return cast(DataType | None, data)
 
         data_type = _parse_data_type(d.pop("data_type"))
 
-        def _parse_label(data: object) -> Union[None, Unset, str]:
+        def _parse_label(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         label = _parse_label(d.pop("label", UNSET))
 
-        def _parse_description(data: object) -> Union[None, Unset, str]:
+        def _parse_description(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         description = _parse_description(d.pop("description", UNSET))
 
-        def _parse_group_label(data: object) -> Union[None, Unset, str]:
+        def _parse_group_label(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         group_label = _parse_group_label(d.pop("group_label", UNSET))
 
-        def _parse_data_unit(data: object) -> Union[DataUnit, None, Unset]:
+        def _parse_data_unit(data: object) -> DataUnit | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -205,13 +205,13 @@ class ColumnInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[DataUnit, None, Unset], data)
+            return cast(DataUnit | None | Unset, data)
 
         data_unit = _parse_data_unit(d.pop("data_unit", UNSET))
 
         multi_valued = d.pop("multi_valued", UNSET)
 
-        def _parse_allowed_values(data: object) -> Union[None, Unset, list[Any]]:
+        def _parse_allowed_values(data: object) -> None | Unset | list[Any]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -223,7 +223,7 @@ class ColumnInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[Any]], data)
+            return cast(None | Unset | list[Any], data)
 
         allowed_values = _parse_allowed_values(d.pop("allowed_values", UNSET))
 
@@ -244,12 +244,12 @@ class ColumnInfo:
 
         is_optional = d.pop("is_optional", UNSET)
 
-        def _parse_roll_up_method(data: object) -> Union[None, Unset, str]:
+        def _parse_roll_up_method(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
 

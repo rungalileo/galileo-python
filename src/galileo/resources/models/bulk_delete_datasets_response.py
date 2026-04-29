@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -26,7 +26,7 @@ class BulkDeleteDatasetsResponse:
 
     deleted_count: int
     message: str
-    failed_deletions: Union[Unset, list["BulkDeleteFailure"]] = UNSET
+    failed_deletions: Unset | list["BulkDeleteFailure"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,7 +34,7 @@ class BulkDeleteDatasetsResponse:
 
         message = self.message
 
-        failed_deletions: Union[Unset, list[dict[str, Any]]] = UNSET
+        failed_deletions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.failed_deletions, Unset):
             failed_deletions = []
             for failed_deletions_item_data in self.failed_deletions:

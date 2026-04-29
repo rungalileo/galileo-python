@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -40,7 +40,7 @@ def _get_kwargs(*, body: SyntheticDatasetExtensionRequest) -> dict[str, Any]:
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, SyntheticDatasetExtensionResponse]:
+) -> HTTPValidationError | SyntheticDatasetExtensionResponse:
     if response.status_code == 200:
         return SyntheticDatasetExtensionResponse.from_dict(response.json())
 
@@ -67,7 +67,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
+) -> Response[HTTPValidationError | SyntheticDatasetExtensionResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -78,7 +78,7 @@ def _build_response(
 
 def sync_detailed(
     *, client: ApiClient, body: SyntheticDatasetExtensionRequest
-) -> Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
+) -> Response[HTTPValidationError | SyntheticDatasetExtensionResponse]:
     """Extend Dataset Content.
 
      Extends the dataset content
@@ -104,7 +104,7 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: SyntheticDatasetExtensionRequest
-) -> Optional[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
+) -> HTTPValidationError | SyntheticDatasetExtensionResponse | None:
     """Extend Dataset Content.
 
      Extends the dataset content
@@ -126,7 +126,7 @@ def sync(
 
 async def asyncio_detailed(
     *, client: ApiClient, body: SyntheticDatasetExtensionRequest
-) -> Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
+) -> Response[HTTPValidationError | SyntheticDatasetExtensionResponse]:
     """Extend Dataset Content.
 
      Extends the dataset content
@@ -152,7 +152,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: SyntheticDatasetExtensionRequest
-) -> Optional[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
+) -> HTTPValidationError | SyntheticDatasetExtensionResponse | None:
     """Extend Dataset Content.
 
      Extends the dataset content

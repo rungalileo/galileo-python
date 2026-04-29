@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -115,7 +115,7 @@ def sync_detailed(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) 
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> Optional[HTTPValidationError]:
+def sync(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> HTTPValidationError | None:
     """Bulk Delete Global Templates.
 
      Delete multiple global prompt templates in bulk.
@@ -199,7 +199,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> Optional[HTTPValidationError]:
+async def asyncio(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> HTTPValidationError | None:
     """Bulk Delete Global Templates.
 
      Delete multiple global prompt templates in bulk.

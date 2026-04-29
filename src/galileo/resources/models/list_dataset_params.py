@@ -36,9 +36,9 @@ class ListDatasetParams:
             Default: None.
     """
 
-    filters: Union[
-        Unset,
-        list[
+    filters: (
+        Unset
+        | list[
             Union[
                 "DatasetDraftFilter",
                 "DatasetIDFilter",
@@ -46,8 +46,8 @@ class ListDatasetParams:
                 "DatasetNotInProjectFilter",
                 "DatasetUsedInProjectFilter",
             ]
-        ],
-    ] = UNSET
+        ]
+    ) = UNSET
     sort: Union[
         "DatasetCreatedAtSort",
         "DatasetLastEditedByUserAtSort",
@@ -74,14 +74,14 @@ class ListDatasetParams:
         from ..models.dataset_updated_at_sort import DatasetUpdatedAtSort
         from ..models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
 
-        filters: Union[Unset, list[dict[str, Any]]] = UNSET
+        filters: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    (DatasetNameFilter, DatasetDraftFilter, DatasetUsedInProjectFilter, DatasetIDFilter),
+                    DatasetNameFilter | DatasetDraftFilter | DatasetUsedInProjectFilter | DatasetIDFilter,
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -89,20 +89,17 @@ class ListDatasetParams:
 
                 filters.append(filters_item)
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: None | Unset | dict[str, Any]
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(
             self.sort,
-            (
-                DatasetNameSort,
-                DatasetCreatedAtSort,
-                DatasetUpdatedAtSort,
-                DatasetProjectLastUsedAtSort,
-                DatasetProjectsSort,
-                DatasetRowsSort,
-                DatasetLastEditedByUserAtSort,
-            ),
+            DatasetNameSort
+            | DatasetCreatedAtSort
+            | DatasetUpdatedAtSort
+            | DatasetProjectLastUsedAtSort
+            | (DatasetProjectsSort | DatasetRowsSort)
+            | DatasetLastEditedByUserAtSort,
         ):
             sort = self.sort.to_dict()
         else:

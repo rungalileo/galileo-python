@@ -33,7 +33,7 @@ class DatasetVersionDB:
     """
 
     version_index: int
-    name: Union[None, str]
+    name: None | str
     created_at: datetime.datetime
     created_by_user: Union["UserInfo", None]
     num_rows: int
@@ -51,12 +51,12 @@ class DatasetVersionDB:
 
         version_index = self.version_index
 
-        name: Union[None, str]
+        name: None | str
         name = self.name
 
         created_at = self.created_at.isoformat()
 
-        created_by_user: Union[None, dict[str, Any]]
+        created_by_user: None | dict[str, Any]
         if isinstance(self.created_by_user, UserInfo):
             created_by_user = self.created_by_user.to_dict()
         else:
@@ -106,10 +106,10 @@ class DatasetVersionDB:
         d = dict(src_dict)
         version_index = d.pop("version_index")
 
-        def _parse_name(data: object) -> Union[None, str]:
+        def _parse_name(data: object) -> None | str:
             if data is None:
                 return data
-            return cast(Union[None, str], data)
+            return cast(None | str, data)
 
         name = _parse_name(d.pop("name"))
 

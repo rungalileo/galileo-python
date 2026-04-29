@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,9 +42,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsQueryRequest) -> dict[str, A
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, LogRecordsQueryResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | LogRecordsQueryResponse:
     if response.status_code == 200:
         return LogRecordsQueryResponse.from_dict(response.json())
 
@@ -71,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, LogRecordsQueryResponse]]:
+) -> Response[HTTPValidationError | LogRecordsQueryResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsQueryRequest
-) -> Response[Union[HTTPValidationError, LogRecordsQueryResponse]]:
+) -> Response[HTTPValidationError | LogRecordsQueryResponse]:
     """Query Sessions.
 
     Args:
@@ -107,7 +105,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: LogRecordsQueryRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsQueryResponse]]:
+) -> HTTPValidationError | LogRecordsQueryResponse | None:
     """Query Sessions.
 
     Args:
@@ -128,7 +126,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsQueryRequest
-) -> Response[Union[HTTPValidationError, LogRecordsQueryResponse]]:
+) -> Response[HTTPValidationError | LogRecordsQueryResponse]:
     """Query Sessions.
 
     Args:
@@ -153,7 +151,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsQueryRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsQueryResponse]]:
+) -> HTTPValidationError | LogRecordsQueryResponse | None:
     """Query Sessions.
 
     Args:

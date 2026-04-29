@@ -35,10 +35,10 @@ class AnthropicIntegrationCreate:
 
     token: str
     multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
-    authentication_type: Union[Unset, AnthropicAuthenticationType] = UNSET
-    endpoint: Union[None, Unset, str] = UNSET
-    authentication_scope: Union[None, Unset, str] = UNSET
-    oauth2_token_url: Union[None, Unset, str] = UNSET
+    authentication_type: Unset | AnthropicAuthenticationType = UNSET
+    endpoint: None | Unset | str = UNSET
+    authentication_scope: None | Unset | str = UNSET
+    oauth2_token_url: None | Unset | str = UNSET
     custom_header_mapping: Union["AnthropicIntegrationCreateCustomHeaderMappingType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -50,7 +50,7 @@ class AnthropicIntegrationCreate:
 
         token = self.token
 
-        multi_modal_config: Union[None, Unset, dict[str, Any]]
+        multi_modal_config: None | Unset | dict[str, Any]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -58,20 +58,20 @@ class AnthropicIntegrationCreate:
         else:
             multi_modal_config = self.multi_modal_config
 
-        authentication_type: Union[Unset, str] = UNSET
+        authentication_type: Unset | str = UNSET
         if not isinstance(self.authentication_type, Unset):
             authentication_type = self.authentication_type.value
 
-        endpoint: Union[None, Unset, str]
+        endpoint: None | Unset | str
         endpoint = UNSET if isinstance(self.endpoint, Unset) else self.endpoint
 
-        authentication_scope: Union[None, Unset, str]
+        authentication_scope: None | Unset | str
         authentication_scope = UNSET if isinstance(self.authentication_scope, Unset) else self.authentication_scope
 
-        oauth2_token_url: Union[None, Unset, str]
+        oauth2_token_url: None | Unset | str
         oauth2_token_url = UNSET if isinstance(self.oauth2_token_url, Unset) else self.oauth2_token_url
 
-        custom_header_mapping: Union[None, Unset, dict[str, Any]]
+        custom_header_mapping: None | Unset | dict[str, Any]
         if isinstance(self.custom_header_mapping, Unset):
             custom_header_mapping = UNSET
         elif isinstance(self.custom_header_mapping, AnthropicIntegrationCreateCustomHeaderMappingType0):
@@ -124,36 +124,36 @@ class AnthropicIntegrationCreate:
         multi_modal_config = _parse_multi_modal_config(d.pop("multi_modal_config", UNSET))
 
         _authentication_type = d.pop("authentication_type", UNSET)
-        authentication_type: Union[Unset, AnthropicAuthenticationType]
+        authentication_type: Unset | AnthropicAuthenticationType
         if isinstance(_authentication_type, Unset):
             authentication_type = UNSET
         else:
             authentication_type = AnthropicAuthenticationType(_authentication_type)
 
-        def _parse_endpoint(data: object) -> Union[None, Unset, str]:
+        def _parse_endpoint(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         endpoint = _parse_endpoint(d.pop("endpoint", UNSET))
 
-        def _parse_authentication_scope(data: object) -> Union[None, Unset, str]:
+        def _parse_authentication_scope(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         authentication_scope = _parse_authentication_scope(d.pop("authentication_scope", UNSET))
 
-        def _parse_oauth2_token_url(data: object) -> Union[None, Unset, str]:
+        def _parse_oauth2_token_url(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         oauth2_token_url = _parse_oauth2_token_url(d.pop("oauth2_token_url", UNSET))
 

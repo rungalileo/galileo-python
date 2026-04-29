@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -28,6 +28,7 @@ class IntegrationDB:
         created_by (str):
         permissions (Union[Unset, list['Permission']]):
         is_selected (Union[Unset, bool]):  Default: False.
+        is_disabled (Union[Unset, bool]):  Default: False.
     """
 
     id: str
@@ -35,8 +36,9 @@ class IntegrationDB:
     created_at: datetime.datetime
     updated_at: datetime.datetime
     created_by: str
-    permissions: Union[Unset, list["Permission"]] = UNSET
-    is_selected: Union[Unset, bool] = False
+    permissions: Unset | list["Permission"] = UNSET
+    is_selected: Unset | bool = False
+    is_disabled: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -50,7 +52,7 @@ class IntegrationDB:
 
         created_by = self.created_by
 
-        permissions: Union[Unset, list[dict[str, Any]]] = UNSET
+        permissions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
@@ -58,6 +60,8 @@ class IntegrationDB:
                 permissions.append(permissions_item)
 
         is_selected = self.is_selected
+
+        is_disabled = self.is_disabled
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -68,6 +72,8 @@ class IntegrationDB:
             field_dict["permissions"] = permissions
         if is_selected is not UNSET:
             field_dict["is_selected"] = is_selected
+        if is_disabled is not UNSET:
+            field_dict["is_disabled"] = is_disabled
 
         return field_dict
 
@@ -95,6 +101,8 @@ class IntegrationDB:
 
         is_selected = d.pop("is_selected", UNSET)
 
+        is_disabled = d.pop("is_disabled", UNSET)
+
         integration_db = cls(
             id=id,
             name=name,
@@ -103,6 +111,7 @@ class IntegrationDB:
             created_by=created_by,
             permissions=permissions,
             is_selected=is_selected,
+            is_disabled=is_disabled,
         )
 
         integration_db.additional_properties = d

@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,7 +17,7 @@ class ExperimentPhaseStatus:
         progress_percent (Union[Unset, float]): Progress percentage from 0.0 to 1.0 Default: 0.0.
     """
 
-    progress_percent: Union[Unset, float] = 0.0
+    progress_percent: Unset | float = 0.0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

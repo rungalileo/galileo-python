@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,9 +42,7 @@ def _get_kwargs(project_id: str, experiment_id: str, *, body: MetricSettingsRequ
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, MetricSettingsResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | MetricSettingsResponse:
     if response.status_code == 200:
         return MetricSettingsResponse.from_dict(response.json())
 
@@ -71,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, MetricSettingsResponse]]:
+) -> Response[HTTPValidationError | MetricSettingsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient, body: MetricSettingsRequest
-) -> Response[Union[HTTPValidationError, MetricSettingsResponse]]:
+) -> Response[HTTPValidationError | MetricSettingsResponse]:
     """Update Metric Settings.
 
     Args:
@@ -108,7 +106,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, experiment_id: str, *, client: ApiClient, body: MetricSettingsRequest
-) -> Optional[Union[HTTPValidationError, MetricSettingsResponse]]:
+) -> HTTPValidationError | MetricSettingsResponse | None:
     """Update Metric Settings.
 
     Args:
@@ -130,7 +128,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient, body: MetricSettingsRequest
-) -> Response[Union[HTTPValidationError, MetricSettingsResponse]]:
+) -> Response[HTTPValidationError | MetricSettingsResponse]:
     """Update Metric Settings.
 
     Args:
@@ -156,7 +154,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, experiment_id: str, *, client: ApiClient, body: MetricSettingsRequest
-) -> Optional[Union[HTTPValidationError, MetricSettingsResponse]]:
+) -> HTTPValidationError | MetricSettingsResponse | None:
     """Update Metric Settings.
 
     Args:

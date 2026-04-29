@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -44,7 +44,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsAvailableColumnsRequest) -> 
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]:
+) -> HTTPValidationError | LogRecordsAvailableColumnsResponse:
     if response.status_code == 200:
         return LogRecordsAvailableColumnsResponse.from_dict(response.json())
 
@@ -71,7 +71,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
+) -> Response[HTTPValidationError | LogRecordsAvailableColumnsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +82,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsAvailableColumnsRequest
-) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
+) -> Response[HTTPValidationError | LogRecordsAvailableColumnsResponse]:
     """Spans Available Columns.
 
     Args:
@@ -107,7 +107,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: LogRecordsAvailableColumnsRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
+) -> HTTPValidationError | LogRecordsAvailableColumnsResponse | None:
     """Spans Available Columns.
 
     Args:
@@ -128,7 +128,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsAvailableColumnsRequest
-) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
+) -> Response[HTTPValidationError | LogRecordsAvailableColumnsResponse]:
     """Spans Available Columns.
 
     Args:
@@ -153,7 +153,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsAvailableColumnsRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
+) -> HTTPValidationError | LogRecordsAvailableColumnsResponse | None:
     """Spans Available Columns.
 
     Args:

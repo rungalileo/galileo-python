@@ -30,13 +30,13 @@ class ReasoningEvent:
         summary (Union[None, Unset, list['ReasoningEventSummaryType1Item'], str]): Summary of the reasoning
     """
 
-    type_: Union[Literal["reasoning"], Unset] = "reasoning"
-    id: Union[None, Unset, str] = UNSET
-    status: Union[EventStatus, None, Unset] = UNSET
+    type_: Literal["reasoning"] | Unset = "reasoning"
+    id: None | Unset | str = UNSET
+    status: EventStatus | None | Unset = UNSET
     metadata: Union["ReasoningEventMetadataType0", None, Unset] = UNSET
-    error_message: Union[None, Unset, str] = UNSET
-    content: Union[None, Unset, str] = UNSET
-    summary: Union[None, Unset, list["ReasoningEventSummaryType1Item"], str] = UNSET
+    error_message: None | Unset | str = UNSET
+    content: None | Unset | str = UNSET
+    summary: None | Unset | list["ReasoningEventSummaryType1Item"] | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,10 +44,10 @@ class ReasoningEvent:
 
         type_ = self.type_
 
-        id: Union[None, Unset, str]
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
-        status: Union[None, Unset, str]
+        status: None | Unset | str
         if isinstance(self.status, Unset):
             status = UNSET
         elif isinstance(self.status, EventStatus):
@@ -55,7 +55,7 @@ class ReasoningEvent:
         else:
             status = self.status
 
-        metadata: Union[None, Unset, dict[str, Any]]
+        metadata: None | Unset | dict[str, Any]
         if isinstance(self.metadata, Unset):
             metadata = UNSET
         elif isinstance(self.metadata, ReasoningEventMetadataType0):
@@ -63,13 +63,13 @@ class ReasoningEvent:
         else:
             metadata = self.metadata
 
-        error_message: Union[None, Unset, str]
+        error_message: None | Unset | str
         error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
-        content: Union[None, Unset, str]
+        content: None | Unset | str
         content = UNSET if isinstance(self.content, Unset) else self.content
 
-        summary: Union[None, Unset, list[dict[str, Any]], str]
+        summary: None | Unset | list[dict[str, Any]] | str
         if isinstance(self.summary, Unset):
             summary = UNSET
         elif isinstance(self.summary, list):
@@ -107,20 +107,20 @@ class ReasoningEvent:
         from ..models.reasoning_event_summary_type_1_item import ReasoningEventSummaryType1Item
 
         d = dict(src_dict)
-        type_ = cast(Union[Literal["reasoning"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["reasoning"] | Unset, d.pop("type", UNSET))
         if type_ != "reasoning" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'reasoning', got '{type_}'")
 
-        def _parse_id(data: object) -> Union[None, Unset, str]:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_status(data: object) -> Union[EventStatus, None, Unset]:
+        def _parse_status(data: object) -> EventStatus | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -132,7 +132,7 @@ class ReasoningEvent:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[EventStatus, None, Unset], data)
+            return cast(EventStatus | None | Unset, data)
 
         status = _parse_status(d.pop("status", UNSET))
 
@@ -152,25 +152,25 @@ class ReasoningEvent:
 
         metadata = _parse_metadata(d.pop("metadata", UNSET))
 
-        def _parse_error_message(data: object) -> Union[None, Unset, str]:
+        def _parse_error_message(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         error_message = _parse_error_message(d.pop("error_message", UNSET))
 
-        def _parse_content(data: object) -> Union[None, Unset, str]:
+        def _parse_content(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         content = _parse_content(d.pop("content", UNSET))
 
-        def _parse_summary(data: object) -> Union[None, Unset, list["ReasoningEventSummaryType1Item"], str]:
+        def _parse_summary(data: object) -> None | Unset | list["ReasoningEventSummaryType1Item"] | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -188,7 +188,7 @@ class ReasoningEvent:
                 return summary_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["ReasoningEventSummaryType1Item"], str], data)
+            return cast(None | Unset | list["ReasoningEventSummaryType1Item"] | str, data)
 
         summary = _parse_summary(d.pop("summary", UNSET))
 

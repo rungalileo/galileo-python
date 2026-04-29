@@ -25,8 +25,8 @@ class OutputPIIScorer:
             to apply to the scorer.
     """
 
-    name: Union[Literal["output_pii"], Unset] = "output_pii"
-    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
+    name: Literal["output_pii"] | Unset = "output_pii"
+    filters: None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,14 +35,14 @@ class OutputPIIScorer:
 
         name = self.name
 
-        filters: Union[None, Unset, list[dict[str, Any]]]
+        filters: None | Unset | list[dict[str, Any]]
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, (NodeNameFilter, MetadataFilter)):
+                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -69,13 +69,13 @@ class OutputPIIScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
-        name = cast(Union[Literal["output_pii"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["output_pii"] | Unset, d.pop("name", UNSET))
         if name != "output_pii" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'output_pii', got '{name}'")
 
         def _parse_filters(
             data: object,
-        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
+        ) -> None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -115,7 +115,7 @@ class OutputPIIScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
+            return cast(None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 

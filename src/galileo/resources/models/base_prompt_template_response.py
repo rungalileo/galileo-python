@@ -50,8 +50,8 @@ class BasePromptTemplateResponse:
     created_at: datetime.datetime
     updated_at: datetime.datetime
     created_by_user: Union["UserInfo", None]
-    permissions: Union[Unset, list["Permission"]] = UNSET
-    all_versions: Union[Unset, list["BasePromptTemplateVersionResponse"]] = UNSET
+    permissions: Unset | list["Permission"] = UNSET
+    all_versions: Unset | list["BasePromptTemplateVersionResponse"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,7 +60,7 @@ class BasePromptTemplateResponse:
 
         id = self.id
 
-        name: Union[dict[str, Any], str]
+        name: dict[str, Any] | str
         name = self.name.to_dict() if isinstance(self.name, Name) else self.name
 
         template = self.template
@@ -79,20 +79,20 @@ class BasePromptTemplateResponse:
 
         updated_at = self.updated_at.isoformat()
 
-        created_by_user: Union[None, dict[str, Any]]
+        created_by_user: None | dict[str, Any]
         if isinstance(self.created_by_user, UserInfo):
             created_by_user = self.created_by_user.to_dict()
         else:
             created_by_user = self.created_by_user
 
-        permissions: Union[Unset, list[dict[str, Any]]] = UNSET
+        permissions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
                 permissions_item = permissions_item_data.to_dict()
                 permissions.append(permissions_item)
 
-        all_versions: Union[Unset, list[dict[str, Any]]] = UNSET
+        all_versions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.all_versions, Unset):
             all_versions = []
             for all_versions_item_data in self.all_versions:

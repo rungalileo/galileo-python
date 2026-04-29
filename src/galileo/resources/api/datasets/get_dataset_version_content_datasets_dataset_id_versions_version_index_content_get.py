@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -23,7 +23,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    dataset_id: str, version_index: int, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    dataset_id: str, version_index: int, *, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -48,7 +48,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[DatasetContent, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> DatasetContent | HTTPValidationError:
     if response.status_code == 200:
         return DatasetContent.from_dict(response.json())
 
@@ -73,9 +73,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Dat
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[DatasetContent, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[DatasetContent | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -85,13 +83,8 @@ def _build_response(
 
 
 def sync_detailed(
-    dataset_id: str,
-    version_index: int,
-    *,
-    client: ApiClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[DatasetContent, HTTPValidationError]]:
+    dataset_id: str, version_index: int, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> Response[DatasetContent | HTTPValidationError]:
     """Get Dataset Version Content.
 
     Args:
@@ -117,13 +110,8 @@ def sync_detailed(
 
 
 def sync(
-    dataset_id: str,
-    version_index: int,
-    *,
-    client: ApiClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[DatasetContent, HTTPValidationError]]:
+    dataset_id: str, version_index: int, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> DatasetContent | HTTPValidationError | None:
     """Get Dataset Version Content.
 
     Args:
@@ -147,13 +135,8 @@ def sync(
 
 
 async def asyncio_detailed(
-    dataset_id: str,
-    version_index: int,
-    *,
-    client: ApiClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[DatasetContent, HTTPValidationError]]:
+    dataset_id: str, version_index: int, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> Response[DatasetContent | HTTPValidationError]:
     """Get Dataset Version Content.
 
     Args:
@@ -179,13 +162,8 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str,
-    version_index: int,
-    *,
-    client: ApiClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[DatasetContent, HTTPValidationError]]:
+    dataset_id: str, version_index: int, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> DatasetContent | HTTPValidationError | None:
     """Get Dataset Version Content.
 
     Args:

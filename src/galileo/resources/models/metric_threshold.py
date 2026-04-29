@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -26,23 +26,23 @@ class MetricThreshold:
                 displaying.
     """
 
-    inverted: Union[Unset, bool] = False
-    buckets: Union[Unset, list[Union[float, int]]] = UNSET
-    display_value_levels: Union[Unset, list[str]] = UNSET
+    inverted: Unset | bool = False
+    buckets: Unset | list[float | int] = UNSET
+    display_value_levels: Unset | list[str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         inverted = self.inverted
 
-        buckets: Union[Unset, list[Union[float, int]]] = UNSET
+        buckets: Unset | list[float | int] = UNSET
         if not isinstance(self.buckets, Unset):
             buckets = []
             for buckets_item_data in self.buckets:
-                buckets_item: Union[float, int]
+                buckets_item: float | int
                 buckets_item = buckets_item_data
                 buckets.append(buckets_item)
 
-        display_value_levels: Union[Unset, list[str]] = UNSET
+        display_value_levels: Unset | list[str] = UNSET
         if not isinstance(self.display_value_levels, Unset):
             display_value_levels = self.display_value_levels
 
@@ -67,8 +67,8 @@ class MetricThreshold:
         _buckets = d.pop("buckets", UNSET)
         for buckets_item_data in _buckets or []:
 
-            def _parse_buckets_item(data: object) -> Union[float, int]:
-                return cast(Union[float, int], data)
+            def _parse_buckets_item(data: object) -> float | int:
+                return cast(float | int, data)
 
             buckets_item = _parse_buckets_item(buckets_item_data)
 

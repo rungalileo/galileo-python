@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,10 +24,10 @@ class PromptDatasetDB:
 
     id: str
     dataset_id: str
-    file_name: Union[None, Unset, str] = UNSET
-    message: Union[None, Unset, str] = UNSET
-    num_rows: Union[None, Unset, int] = UNSET
-    rows: Union[None, Unset, int] = UNSET
+    file_name: None | Unset | str = UNSET
+    message: None | Unset | str = UNSET
+    num_rows: None | Unset | int = UNSET
+    rows: None | Unset | int = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,16 +35,16 @@ class PromptDatasetDB:
 
         dataset_id = self.dataset_id
 
-        file_name: Union[None, Unset, str]
+        file_name: None | Unset | str
         file_name = UNSET if isinstance(self.file_name, Unset) else self.file_name
 
-        message: Union[None, Unset, str]
+        message: None | Unset | str
         message = UNSET if isinstance(self.message, Unset) else self.message
 
-        num_rows: Union[None, Unset, int]
+        num_rows: None | Unset | int
         num_rows = UNSET if isinstance(self.num_rows, Unset) else self.num_rows
 
-        rows: Union[None, Unset, int]
+        rows: None | Unset | int
         rows = UNSET if isinstance(self.rows, Unset) else self.rows
 
         field_dict: dict[str, Any] = {}
@@ -68,39 +68,39 @@ class PromptDatasetDB:
 
         dataset_id = d.pop("dataset_id")
 
-        def _parse_file_name(data: object) -> Union[None, Unset, str]:
+        def _parse_file_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         file_name = _parse_file_name(d.pop("file_name", UNSET))
 
-        def _parse_message(data: object) -> Union[None, Unset, str]:
+        def _parse_message(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         message = _parse_message(d.pop("message", UNSET))
 
-        def _parse_num_rows(data: object) -> Union[None, Unset, int]:
+        def _parse_num_rows(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         num_rows = _parse_num_rows(d.pop("num_rows", UNSET))
 
-        def _parse_rows(data: object) -> Union[None, Unset, int]:
+        def _parse_rows(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         rows = _parse_rows(d.pop("rows", UNSET))
 

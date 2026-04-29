@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,10 +20,10 @@ class TraceMetadata:
         execution_time (Union[Unset, float]): Execution time for the request (in seconds). Default: -1.0.
     """
 
-    id: Union[Unset, str] = UNSET
-    received_at: Union[Unset, int] = UNSET
-    response_at: Union[Unset, int] = UNSET
-    execution_time: Union[Unset, float] = -1.0
+    id: Unset | str = UNSET
+    received_at: Unset | int = UNSET
+    response_at: Unset | int = UNSET
+    execution_time: Unset | float = -1.0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

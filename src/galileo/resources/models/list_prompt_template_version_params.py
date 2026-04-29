@@ -38,12 +38,12 @@ class ListPromptTemplateVersionParams:
         from ..models.prompt_template_version_number_sort import PromptTemplateVersionNumberSort
         from ..models.prompt_template_version_updated_at_sort import PromptTemplateVersionUpdatedAtSort
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: None | Unset | dict[str, Any]
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(
             self.sort,
-            (PromptTemplateVersionNumberSort, PromptTemplateVersionCreatedAtSort, PromptTemplateVersionUpdatedAtSort),
+            PromptTemplateVersionNumberSort | PromptTemplateVersionCreatedAtSort | PromptTemplateVersionUpdatedAtSort,
         ):
             sort = self.sort.to_dict()
         else:

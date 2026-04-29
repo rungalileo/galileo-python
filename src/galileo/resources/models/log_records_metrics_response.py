@@ -34,7 +34,7 @@ class LogRecordsMetricsResponse:
     group_by_columns: list[str]
     aggregate_metrics: "LogRecordsMetricsResponseAggregateMetrics"
     bucketed_metrics: "LogRecordsMetricsResponseBucketedMetrics"
-    ems_captured_error: Union[Unset, bool] = False
+    ems_captured_error: Unset | bool = False
     standard_errors: Union["LogRecordsMetricsResponseStandardErrorsType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -51,7 +51,7 @@ class LogRecordsMetricsResponse:
 
         ems_captured_error = self.ems_captured_error
 
-        standard_errors: Union[None, Unset, dict[str, Any]]
+        standard_errors: None | Unset | dict[str, Any]
         if isinstance(self.standard_errors, Unset):
             standard_errors = UNSET
         elif isinstance(self.standard_errors, LogRecordsMetricsResponseStandardErrorsType0):

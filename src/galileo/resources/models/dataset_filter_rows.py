@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,7 +20,7 @@ class DatasetFilterRows:
     """
 
     row_ids: list[str]
-    edit_type: Union[Literal["filter_rows"], Unset] = "filter_rows"
+    edit_type: Literal["filter_rows"] | Unset = "filter_rows"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,7 +41,7 @@ class DatasetFilterRows:
         d = dict(src_dict)
         row_ids = cast(list[str], d.pop("row_ids"))
 
-        edit_type = cast(Union[Literal["filter_rows"], Unset], d.pop("edit_type", UNSET))
+        edit_type = cast(Literal["filter_rows"] | Unset, d.pop("edit_type", UNSET))
         if edit_type != "filter_rows" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'filter_rows', got '{edit_type}'")
 

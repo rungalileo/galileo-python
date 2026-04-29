@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.partial_extended_agent_span_record import PartialExtendedAgentSpanRecord
+    from ..models.partial_extended_control_span_record import PartialExtendedControlSpanRecord
     from ..models.partial_extended_llm_span_record import PartialExtendedLlmSpanRecord
     from ..models.partial_extended_retriever_span_record import PartialExtendedRetrieverSpanRecord
     from ..models.partial_extended_session_record import PartialExtendedSessionRecord
@@ -29,21 +30,23 @@ class LogRecordsPartialQueryResponse:
         paginated (Union[Unset, bool]):  Default: False.
         next_starting_token (Union[None, Unset, int]):
         last_row_id (Union[None, Unset, str]):
-        records (Union[Unset, list[Union['PartialExtendedAgentSpanRecord', 'PartialExtendedLlmSpanRecord',
-            'PartialExtendedRetrieverSpanRecord', 'PartialExtendedSessionRecord', 'PartialExtendedToolSpanRecord',
-            'PartialExtendedTraceRecord', 'PartialExtendedWorkflowSpanRecord']]]): records matching the query.
+        records (Union[Unset, list[Union['PartialExtendedAgentSpanRecord', 'PartialExtendedControlSpanRecord',
+            'PartialExtendedLlmSpanRecord', 'PartialExtendedRetrieverSpanRecord', 'PartialExtendedSessionRecord',
+            'PartialExtendedToolSpanRecord', 'PartialExtendedTraceRecord', 'PartialExtendedWorkflowSpanRecord']]]): records
+            matching the query.
     """
 
-    starting_token: Union[Unset, int] = 0
-    limit: Union[Unset, int] = 100
-    paginated: Union[Unset, bool] = False
-    next_starting_token: Union[None, Unset, int] = UNSET
-    last_row_id: Union[None, Unset, str] = UNSET
-    records: Union[
-        Unset,
-        list[
+    starting_token: Unset | int = 0
+    limit: Unset | int = 100
+    paginated: Unset | bool = False
+    next_starting_token: None | Unset | int = UNSET
+    last_row_id: None | Unset | str = UNSET
+    records: (
+        Unset
+        | list[
             Union[
                 "PartialExtendedAgentSpanRecord",
+                "PartialExtendedControlSpanRecord",
                 "PartialExtendedLlmSpanRecord",
                 "PartialExtendedRetrieverSpanRecord",
                 "PartialExtendedSessionRecord",
@@ -51,12 +54,13 @@ class LogRecordsPartialQueryResponse:
                 "PartialExtendedTraceRecord",
                 "PartialExtendedWorkflowSpanRecord",
             ]
-        ],
-    ] = UNSET
+        ]
+    ) = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.partial_extended_agent_span_record import PartialExtendedAgentSpanRecord
+        from ..models.partial_extended_control_span_record import PartialExtendedControlSpanRecord
         from ..models.partial_extended_llm_span_record import PartialExtendedLlmSpanRecord
         from ..models.partial_extended_retriever_span_record import PartialExtendedRetrieverSpanRecord
         from ..models.partial_extended_tool_span_record import PartialExtendedToolSpanRecord
@@ -69,27 +73,25 @@ class LogRecordsPartialQueryResponse:
 
         paginated = self.paginated
 
-        next_starting_token: Union[None, Unset, int]
+        next_starting_token: None | Unset | int
         next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
-        last_row_id: Union[None, Unset, str]
+        last_row_id: None | Unset | str
         last_row_id = UNSET if isinstance(self.last_row_id, Unset) else self.last_row_id
 
-        records: Union[Unset, list[dict[str, Any]]] = UNSET
+        records: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.records, Unset):
             records = []
             for records_item_data in self.records:
                 records_item: dict[str, Any]
                 if isinstance(
                     records_item_data,
-                    (
-                        PartialExtendedTraceRecord,
-                        PartialExtendedAgentSpanRecord,
-                        PartialExtendedWorkflowSpanRecord,
-                        PartialExtendedLlmSpanRecord,
-                        PartialExtendedToolSpanRecord,
-                        PartialExtendedRetrieverSpanRecord,
-                    ),
+                    PartialExtendedTraceRecord
+                    | PartialExtendedAgentSpanRecord
+                    | PartialExtendedWorkflowSpanRecord
+                    | PartialExtendedLlmSpanRecord
+                    | (PartialExtendedToolSpanRecord | PartialExtendedRetrieverSpanRecord)
+                    | PartialExtendedControlSpanRecord,
                 ):
                     records_item = records_item_data.to_dict()
                 else:
@@ -118,6 +120,7 @@ class LogRecordsPartialQueryResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.partial_extended_agent_span_record import PartialExtendedAgentSpanRecord
+        from ..models.partial_extended_control_span_record import PartialExtendedControlSpanRecord
         from ..models.partial_extended_llm_span_record import PartialExtendedLlmSpanRecord
         from ..models.partial_extended_retriever_span_record import PartialExtendedRetrieverSpanRecord
         from ..models.partial_extended_session_record import PartialExtendedSessionRecord
@@ -132,21 +135,21 @@ class LogRecordsPartialQueryResponse:
 
         paginated = d.pop("paginated", UNSET)
 
-        def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
+        def _parse_next_starting_token(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
-        def _parse_last_row_id(data: object) -> Union[None, Unset, str]:
+        def _parse_last_row_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         last_row_id = _parse_last_row_id(d.pop("last_row_id", UNSET))
 
@@ -158,6 +161,7 @@ class LogRecordsPartialQueryResponse:
                 data: object,
             ) -> Union[
                 "PartialExtendedAgentSpanRecord",
+                "PartialExtendedControlSpanRecord",
                 "PartialExtendedLlmSpanRecord",
                 "PartialExtendedRetrieverSpanRecord",
                 "PartialExtendedSessionRecord",
@@ -260,6 +264,13 @@ class LogRecordsPartialQueryResponse:
                     if not isinstance(data, dict):
                         raise TypeError()
                     return PartialExtendedRetrieverSpanRecord.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return PartialExtendedControlSpanRecord.from_dict(data)
 
                 except:  # noqa: E722
                     pass

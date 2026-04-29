@@ -30,10 +30,10 @@ class MetricCritiqueJobConfiguration:
             'RecomputeSettingsRuns', None, Unset]):
     """
 
-    project_type: Union[Literal["gen_ai"], Literal["llm_monitor"], Literal["prompt_evaluation"]]
+    project_type: Literal["gen_ai"] | Literal["llm_monitor"] | Literal["prompt_evaluation"]
     metric_name: str
     critique_ids: list[str]
-    scorer_id: Union[None, Unset, str] = UNSET
+    scorer_id: None | Unset | str = UNSET
     recompute_settings: Union[
         "RecomputeSettingsLogStream",
         "RecomputeSettingsObserve",
@@ -50,22 +50,22 @@ class MetricCritiqueJobConfiguration:
         from ..models.recompute_settings_project import RecomputeSettingsProject
         from ..models.recompute_settings_runs import RecomputeSettingsRuns
 
-        project_type: Union[Literal["gen_ai"], Literal["llm_monitor"], Literal["prompt_evaluation"]]
+        project_type: Literal["gen_ai"] | Literal["llm_monitor"] | Literal["prompt_evaluation"]
         project_type = self.project_type
 
         metric_name = self.metric_name
 
         critique_ids = self.critique_ids
 
-        scorer_id: Union[None, Unset, str]
+        scorer_id: None | Unset | str
         scorer_id = UNSET if isinstance(self.scorer_id, Unset) else self.scorer_id
 
-        recompute_settings: Union[None, Unset, dict[str, Any]]
+        recompute_settings: None | Unset | dict[str, Any]
         if isinstance(self.recompute_settings, Unset):
             recompute_settings = UNSET
         elif isinstance(
             self.recompute_settings,
-            (RecomputeSettingsRuns, RecomputeSettingsProject, RecomputeSettingsObserve, RecomputeSettingsLogStream),
+            RecomputeSettingsRuns | RecomputeSettingsProject | RecomputeSettingsObserve | RecomputeSettingsLogStream,
         ):
             recompute_settings = self.recompute_settings.to_dict()
         else:
@@ -92,7 +92,7 @@ class MetricCritiqueJobConfiguration:
 
         def _parse_project_type(
             data: object,
-        ) -> Union[Literal["gen_ai"], Literal["llm_monitor"], Literal["prompt_evaluation"]]:
+        ) -> Literal["gen_ai"] | Literal["llm_monitor"] | Literal["prompt_evaluation"]:
             project_type_type_0 = cast(Literal["prompt_evaluation"], data)
             if project_type_type_0 != "prompt_evaluation":
                 raise ValueError(
@@ -114,12 +114,12 @@ class MetricCritiqueJobConfiguration:
 
         critique_ids = cast(list[str], d.pop("critique_ids"))
 
-        def _parse_scorer_id(data: object) -> Union[None, Unset, str]:
+        def _parse_scorer_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         scorer_id = _parse_scorer_id(d.pop("scorer_id", UNSET))
 

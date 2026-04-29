@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -34,7 +34,7 @@ class GroupCollaborator:
     created_at: datetime.datetime
     group_id: str
     group_name: str
-    permissions: Union[Unset, list["Permission"]] = UNSET
+    permissions: Unset | list["Permission"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -48,7 +48,7 @@ class GroupCollaborator:
 
         group_name = self.group_name
 
-        permissions: Union[Unset, list[dict[str, Any]]] = UNSET
+        permissions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:

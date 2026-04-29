@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -27,7 +27,7 @@ class AnnotationScoreAggregate:
     buckets: list["ScoreBucket"]
     average: float
     unrated_count: int
-    annotation_type: Union[Literal["score"], Unset] = "score"
+    annotation_type: Literal["score"] | Unset = "score"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -66,7 +66,7 @@ class AnnotationScoreAggregate:
 
         unrated_count = d.pop("unrated_count")
 
-        annotation_type = cast(Union[Literal["score"], Unset], d.pop("annotation_type", UNSET))
+        annotation_type = cast(Literal["score"] | Unset, d.pop("annotation_type", UNSET))
         if annotation_type != "score" and not isinstance(annotation_type, Unset):
             raise ValueError(f"annotation_type must match const 'score', got '{annotation_type}'")
 

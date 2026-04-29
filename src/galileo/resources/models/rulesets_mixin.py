@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,11 +21,11 @@ class RulesetsMixin:
         prioritized_rulesets (Union[Unset, list['Ruleset']]): Rulesets to be applied to the payload.
     """
 
-    prioritized_rulesets: Union[Unset, list["Ruleset"]] = UNSET
+    prioritized_rulesets: Unset | list["Ruleset"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        prioritized_rulesets: Union[Unset, list[dict[str, Any]]] = UNSET
+        prioritized_rulesets: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.prioritized_rulesets, Unset):
             prioritized_rulesets = []
             for prioritized_rulesets_item_data in self.prioritized_rulesets:

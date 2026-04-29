@@ -27,7 +27,7 @@ class UpdatePromptTemplateRequest:
     def to_dict(self) -> dict[str, Any]:
         from ..models.name import Name
 
-        name: Union[None, Unset, dict[str, Any], str]
+        name: None | Unset | dict[str, Any] | str
         if isinstance(self.name, Unset):
             name = UNSET
         elif isinstance(self.name, Name):

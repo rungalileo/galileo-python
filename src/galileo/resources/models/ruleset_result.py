@@ -29,28 +29,28 @@ class RulesetResult:
         rule_results (Union[Unset, list['RuleResult']]): Results of the rule execution.
     """
 
-    status: Union[Unset, ExecutionStatus] = UNSET
-    rules: Union[Unset, list["Rule"]] = UNSET
+    status: Unset | ExecutionStatus = UNSET
+    rules: Unset | list["Rule"] = UNSET
     action: Union["OverrideAction", "PassthroughAction", Unset] = UNSET
-    description: Union[None, Unset, str] = UNSET
-    rule_results: Union[Unset, list["RuleResult"]] = UNSET
+    description: None | Unset | str = UNSET
+    rule_results: Unset | list["RuleResult"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.override_action import OverrideAction
 
-        status: Union[Unset, str] = UNSET
+        status: Unset | str = UNSET
         if not isinstance(self.status, Unset):
             status = self.status.value
 
-        rules: Union[Unset, list[dict[str, Any]]] = UNSET
+        rules: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.rules, Unset):
             rules = []
             for rules_item_data in self.rules:
                 rules_item = rules_item_data.to_dict()
                 rules.append(rules_item)
 
-        action: Union[Unset, dict[str, Any]]
+        action: Unset | dict[str, Any]
         if isinstance(self.action, Unset):
             action = UNSET
         elif isinstance(self.action, OverrideAction):
@@ -58,10 +58,10 @@ class RulesetResult:
         else:
             action = self.action.to_dict()
 
-        description: Union[None, Unset, str]
+        description: None | Unset | str
         description = UNSET if isinstance(self.description, Unset) else self.description
 
-        rule_results: Union[Unset, list[dict[str, Any]]] = UNSET
+        rule_results: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.rule_results, Unset):
             rule_results = []
             for rule_results_item_data in self.rule_results:
@@ -93,7 +93,7 @@ class RulesetResult:
 
         d = dict(src_dict)
         _status = d.pop("status", UNSET)
-        status: Union[Unset, ExecutionStatus]
+        status: Unset | ExecutionStatus
         status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
 
         rules = []
@@ -119,12 +119,12 @@ class RulesetResult:
 
         action = _parse_action(d.pop("action", UNSET))
 
-        def _parse_description(data: object) -> Union[None, Unset, str]:
+        def _parse_description(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         description = _parse_description(d.pop("description", UNSET))
 

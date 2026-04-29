@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 import httpx
 
@@ -18,6 +18,7 @@ from galileo_core.helpers.api_client import ApiClient
 
 from ... import errors
 from ...models.extended_agent_span_record_with_children import ExtendedAgentSpanRecordWithChildren
+from ...models.extended_control_span_record import ExtendedControlSpanRecord
 from ...models.extended_llm_span_record import ExtendedLlmSpanRecord
 from ...models.extended_retriever_span_record_with_children import ExtendedRetrieverSpanRecordWithChildren
 from ...models.extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
@@ -26,7 +27,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(project_id: str, span_id: str, *, include_presigned_urls: Union[Unset, bool] = False) -> dict[str, Any]:
+def _get_kwargs(project_id: str, span_id: str, *, include_presigned_urls: Unset | bool = False) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -50,22 +51,24 @@ def _get_kwargs(project_id: str, span_id: str, *, include_presigned_urls: Union[
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[
-    HTTPValidationError,
-    Union[
+) -> (
+    HTTPValidationError
+    | Union[
         "ExtendedAgentSpanRecordWithChildren",
+        "ExtendedControlSpanRecord",
         "ExtendedLlmSpanRecord",
         "ExtendedRetrieverSpanRecordWithChildren",
         "ExtendedToolSpanRecordWithChildren",
         "ExtendedWorkflowSpanRecordWithChildren",
-    ],
-]:
+    ]
+):
     if response.status_code == 200:
 
         def _parse_response_200(
             data: object,
         ) -> Union[
             "ExtendedAgentSpanRecordWithChildren",
+            "ExtendedControlSpanRecord",
             "ExtendedLlmSpanRecord",
             "ExtendedRetrieverSpanRecordWithChildren",
             "ExtendedToolSpanRecordWithChildren",
@@ -162,6 +165,13 @@ def _parse_response(
 
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ExtendedControlSpanRecord.from_dict(data)
+
+            except:  # noqa: E722
+                pass
             # If we reach here, none of the parsers succeeded
             discriminator_info = f" (type={data.get('type')})" if isinstance(data, dict) and "type" in data else ""
             raise ValueError(f"Could not parse union type for response_200{discriminator_info}")
@@ -192,15 +202,14 @@ def _parse_response(
 def _build_response(
     *, client: ApiClient, response: httpx.Response
 ) -> Response[
-    Union[
-        HTTPValidationError,
-        Union[
-            "ExtendedAgentSpanRecordWithChildren",
-            "ExtendedLlmSpanRecord",
-            "ExtendedRetrieverSpanRecordWithChildren",
-            "ExtendedToolSpanRecordWithChildren",
-            "ExtendedWorkflowSpanRecordWithChildren",
-        ],
+    HTTPValidationError
+    | Union[
+        "ExtendedAgentSpanRecordWithChildren",
+        "ExtendedControlSpanRecord",
+        "ExtendedLlmSpanRecord",
+        "ExtendedRetrieverSpanRecordWithChildren",
+        "ExtendedToolSpanRecordWithChildren",
+        "ExtendedWorkflowSpanRecordWithChildren",
     ]
 ]:
     return Response(
@@ -212,17 +221,16 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
 ) -> Response[
-    Union[
-        HTTPValidationError,
-        Union[
-            "ExtendedAgentSpanRecordWithChildren",
-            "ExtendedLlmSpanRecord",
-            "ExtendedRetrieverSpanRecordWithChildren",
-            "ExtendedToolSpanRecordWithChildren",
-            "ExtendedWorkflowSpanRecordWithChildren",
-        ],
+    HTTPValidationError
+    | Union[
+        "ExtendedAgentSpanRecordWithChildren",
+        "ExtendedControlSpanRecord",
+        "ExtendedLlmSpanRecord",
+        "ExtendedRetrieverSpanRecordWithChildren",
+        "ExtendedToolSpanRecordWithChildren",
+        "ExtendedWorkflowSpanRecordWithChildren",
     ]
 ]:
     """Get Span.
@@ -239,7 +247,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
+        Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedControlSpanRecord', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
     """
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id, include_presigned_urls=include_presigned_urls)
 
@@ -249,19 +257,19 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        Union[
-            "ExtendedAgentSpanRecordWithChildren",
-            "ExtendedLlmSpanRecord",
-            "ExtendedRetrieverSpanRecordWithChildren",
-            "ExtendedToolSpanRecordWithChildren",
-            "ExtendedWorkflowSpanRecordWithChildren",
-        ],
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
+) -> (
+    HTTPValidationError
+    | Union[
+        "ExtendedAgentSpanRecordWithChildren",
+        "ExtendedControlSpanRecord",
+        "ExtendedLlmSpanRecord",
+        "ExtendedRetrieverSpanRecordWithChildren",
+        "ExtendedToolSpanRecordWithChildren",
+        "ExtendedWorkflowSpanRecordWithChildren",
     ]
-]:
+    | None
+):
     """Get Span.
 
     Args:
@@ -276,7 +284,7 @@ def sync(
 
     Returns
     -------
-        Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
+        Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedControlSpanRecord', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
     """
     return sync_detailed(
         project_id=project_id, span_id=span_id, client=client, include_presigned_urls=include_presigned_urls
@@ -284,17 +292,16 @@ def sync(
 
 
 async def asyncio_detailed(
-    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
 ) -> Response[
-    Union[
-        HTTPValidationError,
-        Union[
-            "ExtendedAgentSpanRecordWithChildren",
-            "ExtendedLlmSpanRecord",
-            "ExtendedRetrieverSpanRecordWithChildren",
-            "ExtendedToolSpanRecordWithChildren",
-            "ExtendedWorkflowSpanRecordWithChildren",
-        ],
+    HTTPValidationError
+    | Union[
+        "ExtendedAgentSpanRecordWithChildren",
+        "ExtendedControlSpanRecord",
+        "ExtendedLlmSpanRecord",
+        "ExtendedRetrieverSpanRecordWithChildren",
+        "ExtendedToolSpanRecordWithChildren",
+        "ExtendedWorkflowSpanRecordWithChildren",
     ]
 ]:
     """Get Span.
@@ -311,7 +318,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
+        Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedControlSpanRecord', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
     """
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id, include_presigned_urls=include_presigned_urls)
 
@@ -321,19 +328,19 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Union[Unset, bool] = False
-) -> Optional[
-    Union[
-        HTTPValidationError,
-        Union[
-            "ExtendedAgentSpanRecordWithChildren",
-            "ExtendedLlmSpanRecord",
-            "ExtendedRetrieverSpanRecordWithChildren",
-            "ExtendedToolSpanRecordWithChildren",
-            "ExtendedWorkflowSpanRecordWithChildren",
-        ],
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
+) -> (
+    HTTPValidationError
+    | Union[
+        "ExtendedAgentSpanRecordWithChildren",
+        "ExtendedControlSpanRecord",
+        "ExtendedLlmSpanRecord",
+        "ExtendedRetrieverSpanRecordWithChildren",
+        "ExtendedToolSpanRecordWithChildren",
+        "ExtendedWorkflowSpanRecordWithChildren",
     ]
-]:
+    | None
+):
     """Get Span.
 
     Args:
@@ -348,7 +355,7 @@ async def asyncio(
 
     Returns
     -------
-        Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
+        Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedControlSpanRecord', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
     """
     return (
         await asyncio_detailed(

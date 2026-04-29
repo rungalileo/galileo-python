@@ -36,7 +36,7 @@ class VertexAIIntegrationCreate:
 
         token = self.token
 
-        multi_modal_config: Union[None, Unset, dict[str, Any]]
+        multi_modal_config: None | Unset | dict[str, Any]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -44,7 +44,7 @@ class VertexAIIntegrationCreate:
         else:
             multi_modal_config = self.multi_modal_config
 
-        gcs_config: Union[None, Unset, dict[str, Any]]
+        gcs_config: None | Unset | dict[str, Any]
         if isinstance(self.gcs_config, Unset):
             gcs_config = UNSET
         elif isinstance(self.gcs_config, VertexAIGCSConfig):

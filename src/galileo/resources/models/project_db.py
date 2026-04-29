@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -44,12 +44,12 @@ class ProjectDB:
     runs: list["RunDB"]
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    permissions: Union[Unset, list["Permission"]] = UNSET
-    name: Union[None, Unset, str] = UNSET
-    type_: Union[None, ProjectType, Unset] = UNSET
-    bookmark: Union[Unset, bool] = False
-    description: Union[None, Unset, str] = UNSET
-    labels: Union[Unset, list[ProjectLabels]] = UNSET
+    permissions: Unset | list["Permission"] = UNSET
+    name: None | Unset | str = UNSET
+    type_: None | ProjectType | Unset = UNSET
+    bookmark: Unset | bool = False
+    description: None | Unset | str = UNSET
+    labels: Unset | list[ProjectLabels] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -68,17 +68,17 @@ class ProjectDB:
 
         updated_at = self.updated_at.isoformat()
 
-        permissions: Union[Unset, list[dict[str, Any]]] = UNSET
+        permissions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
                 permissions_item = permissions_item_data.to_dict()
                 permissions.append(permissions_item)
 
-        name: Union[None, Unset, str]
+        name: None | Unset | str
         name = UNSET if isinstance(self.name, Unset) else self.name
 
-        type_: Union[None, Unset, str]
+        type_: None | Unset | str
         if isinstance(self.type_, Unset):
             type_ = UNSET
         elif isinstance(self.type_, ProjectType):
@@ -88,10 +88,10 @@ class ProjectDB:
 
         bookmark = self.bookmark
 
-        description: Union[None, Unset, str]
+        description: None | Unset | str
         description = UNSET if isinstance(self.description, Unset) else self.description
 
-        labels: Union[Unset, list[str]] = UNSET
+        labels: Unset | list[str] = UNSET
         if not isinstance(self.labels, Unset):
             labels = []
             for labels_item_data in self.labels:
@@ -156,16 +156,16 @@ class ProjectDB:
 
             permissions.append(permissions_item)
 
-        def _parse_name(data: object) -> Union[None, Unset, str]:
+        def _parse_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_type_(data: object) -> Union[None, ProjectType, Unset]:
+        def _parse_type_(data: object) -> None | ProjectType | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -177,18 +177,18 @@ class ProjectDB:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, ProjectType, Unset], data)
+            return cast(None | ProjectType | Unset, data)
 
         type_ = _parse_type_(d.pop("type", UNSET))
 
         bookmark = d.pop("bookmark", UNSET)
 
-        def _parse_description(data: object) -> Union[None, Unset, str]:
+        def _parse_description(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         description = _parse_description(d.pop("description", UNSET))
 

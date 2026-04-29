@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Union, cast
 
 import httpx
 
@@ -46,7 +46,7 @@ def _get_kwargs(dataset_id: str, *, body: Union["RollbackRequest", "UpsertDatase
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 204:
         return cast(Any, None)
 
@@ -71,7 +71,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +82,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 def sync_detailed(
     dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
-) -> Response[Union[Any, HTTPValidationError]]:
+) -> Response[Any | HTTPValidationError]:
     """Upsert Dataset Content.
 
      Rollback the content of a dataset to a previous version.
@@ -109,7 +109,7 @@ def sync_detailed(
 
 def sync(
     dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
-) -> Optional[Union[Any, HTTPValidationError]]:
+) -> Any | HTTPValidationError | None:
     """Upsert Dataset Content.
 
      Rollback the content of a dataset to a previous version.
@@ -132,7 +132,7 @@ def sync(
 
 async def asyncio_detailed(
     dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
-) -> Response[Union[Any, HTTPValidationError]]:
+) -> Response[Any | HTTPValidationError]:
     """Upsert Dataset Content.
 
      Rollback the content of a dataset to a previous version.
@@ -159,7 +159,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
-) -> Optional[Union[Any, HTTPValidationError]]:
+) -> Any | HTTPValidationError | None:
     """Upsert Dataset Content.
 
      Rollback the content of a dataset to a previous version.

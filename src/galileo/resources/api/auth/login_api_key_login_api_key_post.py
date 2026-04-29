@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -38,7 +38,7 @@ def _get_kwargs(*, body: ApiKeyLoginRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, Token]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | Token:
     if response.status_code == 200:
         return Token.from_dict(response.json())
 
@@ -63,7 +63,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, Token]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | Token]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -72,7 +72,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(*, client: ApiClient, body: ApiKeyLoginRequest) -> Response[Union[HTTPValidationError, Token]]:
+def sync_detailed(*, client: ApiClient, body: ApiKeyLoginRequest) -> Response[HTTPValidationError | Token]:
     """Login Api Key.
 
     Args:
@@ -94,7 +94,7 @@ def sync_detailed(*, client: ApiClient, body: ApiKeyLoginRequest) -> Response[Un
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: ApiKeyLoginRequest) -> Optional[Union[HTTPValidationError, Token]]:
+def sync(*, client: ApiClient, body: ApiKeyLoginRequest) -> HTTPValidationError | Token | None:
     """Login Api Key.
 
     Args:
@@ -112,9 +112,7 @@ def sync(*, client: ApiClient, body: ApiKeyLoginRequest) -> Optional[Union[HTTPV
     return sync_detailed(client=client, body=body).parsed
 
 
-async def asyncio_detailed(
-    *, client: ApiClient, body: ApiKeyLoginRequest
-) -> Response[Union[HTTPValidationError, Token]]:
+async def asyncio_detailed(*, client: ApiClient, body: ApiKeyLoginRequest) -> Response[HTTPValidationError | Token]:
     """Login Api Key.
 
     Args:
@@ -136,7 +134,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: ApiKeyLoginRequest) -> Optional[Union[HTTPValidationError, Token]]:
+async def asyncio(*, client: ApiClient, body: ApiKeyLoginRequest) -> HTTPValidationError | Token | None:
     """Login Api Key.
 
     Args:

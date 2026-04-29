@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class DataType(str, Enum):
+    ANNOTATION_AGREEMENT = "annotation_agreement"
     BOOLEAN = "boolean"
     CATEGORY_COUNT = "category_count"
     DATASET = "dataset"

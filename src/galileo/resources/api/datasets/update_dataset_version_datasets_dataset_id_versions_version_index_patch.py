@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,7 +42,7 @@ def _get_kwargs(dataset_id: str, version_index: int, *, body: UpdateDatasetVersi
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[DatasetVersionDB, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> DatasetVersionDB | HTTPValidationError:
     if response.status_code == 200:
         return DatasetVersionDB.from_dict(response.json())
 
@@ -67,9 +67,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Dat
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[DatasetVersionDB, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[DatasetVersionDB | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,7 +78,7 @@ def _build_response(
 
 def sync_detailed(
     dataset_id: str, version_index: int, *, client: ApiClient, body: UpdateDatasetVersionRequest
-) -> Response[Union[DatasetVersionDB, HTTPValidationError]]:
+) -> Response[DatasetVersionDB | HTTPValidationError]:
     """Update Dataset Version.
 
     Args:
@@ -106,7 +104,7 @@ def sync_detailed(
 
 def sync(
     dataset_id: str, version_index: int, *, client: ApiClient, body: UpdateDatasetVersionRequest
-) -> Optional[Union[DatasetVersionDB, HTTPValidationError]]:
+) -> DatasetVersionDB | HTTPValidationError | None:
     """Update Dataset Version.
 
     Args:
@@ -128,7 +126,7 @@ def sync(
 
 async def asyncio_detailed(
     dataset_id: str, version_index: int, *, client: ApiClient, body: UpdateDatasetVersionRequest
-) -> Response[Union[DatasetVersionDB, HTTPValidationError]]:
+) -> Response[DatasetVersionDB | HTTPValidationError]:
     """Update Dataset Version.
 
     Args:
@@ -154,7 +152,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     dataset_id: str, version_index: int, *, client: ApiClient, body: UpdateDatasetVersionRequest
-) -> Optional[Union[DatasetVersionDB, HTTPValidationError]]:
+) -> DatasetVersionDB | HTTPValidationError | None:
     """Update Dataset Version.
 
     Args:

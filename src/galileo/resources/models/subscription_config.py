@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,13 +22,13 @@ class SubscriptionConfig:
     """
 
     url: str
-    statuses: Union[Unset, list[ExecutionStatus]] = UNSET
+    statuses: Unset | list[ExecutionStatus] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         url = self.url
 
-        statuses: Union[Unset, list[str]] = UNSET
+        statuses: Unset | list[str] = UNSET
         if not isinstance(self.statuses, Unset):
             statuses = []
             for statuses_item_data in self.statuses:

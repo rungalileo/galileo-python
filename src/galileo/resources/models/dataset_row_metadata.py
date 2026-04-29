@@ -41,7 +41,7 @@ class DatasetRowMetadata:
 
         created_at = self.created_at.isoformat()
 
-        created_by_user: Union[None, dict[str, Any]]
+        created_by_user: None | dict[str, Any]
         if isinstance(self.created_by_user, UserInfo):
             created_by_user = self.created_by_user.to_dict()
         else:
@@ -51,7 +51,7 @@ class DatasetRowMetadata:
 
         updated_at = self.updated_at.isoformat()
 
-        updated_by_user: Union[None, dict[str, Any]]
+        updated_by_user: None | dict[str, Any]
         if isinstance(self.updated_by_user, UserInfo):
             updated_by_user = self.updated_by_user.to_dict()
         else:

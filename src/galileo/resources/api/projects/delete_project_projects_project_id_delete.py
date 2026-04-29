@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -37,9 +37,7 @@ def _get_kwargs(project_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, ProjectDeleteResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ProjectDeleteResponse:
     if response.status_code == 200:
         return ProjectDeleteResponse.from_dict(response.json())
 
@@ -66,7 +64,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, ProjectDeleteResponse]]:
+) -> Response[HTTPValidationError | ProjectDeleteResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -75,7 +73,7 @@ def _build_response(
     )
 
 
-def sync_detailed(project_id: str, *, client: ApiClient) -> Response[Union[HTTPValidationError, ProjectDeleteResponse]]:
+def sync_detailed(project_id: str, *, client: ApiClient) -> Response[HTTPValidationError | ProjectDeleteResponse]:
     """Delete Project.
 
      Deletes a project and all associated runs and objects.
@@ -102,7 +100,7 @@ def sync_detailed(project_id: str, *, client: ApiClient) -> Response[Union[HTTPV
     return _build_response(client=client, response=response)
 
 
-def sync(project_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, ProjectDeleteResponse]]:
+def sync(project_id: str, *, client: ApiClient) -> HTTPValidationError | ProjectDeleteResponse | None:
     """Delete Project.
 
      Deletes a project and all associated runs and objects.
@@ -127,7 +125,7 @@ def sync(project_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidation
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient
-) -> Response[Union[HTTPValidationError, ProjectDeleteResponse]]:
+) -> Response[HTTPValidationError | ProjectDeleteResponse]:
     """Delete Project.
 
      Deletes a project and all associated runs and objects.
@@ -154,7 +152,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(project_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, ProjectDeleteResponse]]:
+async def asyncio(project_id: str, *, client: ApiClient) -> HTTPValidationError | ProjectDeleteResponse | None:
     """Delete Project.
 
      Deletes a project and all associated runs and objects.

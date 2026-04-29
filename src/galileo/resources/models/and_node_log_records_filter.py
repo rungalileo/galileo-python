@@ -36,7 +36,7 @@ class AndNodeLogRecordsFilter:
         and_ = []
         for and_item_data in self.and_:
             and_item: dict[str, Any]
-            if isinstance(and_item_data, (FilterLeafLogRecordsFilter, AndNodeLogRecordsFilter, OrNodeLogRecordsFilter)):
+            if isinstance(and_item_data, FilterLeafLogRecordsFilter | AndNodeLogRecordsFilter | OrNodeLogRecordsFilter):
                 and_item = and_item_data.to_dict()
             else:
                 and_item = and_item_data.to_dict()

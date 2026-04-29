@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -33,41 +33,36 @@ class Permission:
         message (Union[None, Unset, str]):
     """
 
-    action: Union[
-        AnnotationQueueAction,
-        ApiKeyAction,
-        DatasetAction,
-        FineTunedScorerAction,
-        GeneratedScorerAction,
-        GroupAction,
-        GroupMemberAction,
-        IntegrationAction,
-        OrganizationAction,
-        ProjectAction,
-        RegisteredScorerAction,
-        UserAction,
-    ]
+    action: (
+        AnnotationQueueAction
+        | ApiKeyAction
+        | DatasetAction
+        | FineTunedScorerAction
+        | GeneratedScorerAction
+        | GroupAction
+        | GroupMemberAction
+        | IntegrationAction
+        | OrganizationAction
+        | ProjectAction
+        | RegisteredScorerAction
+        | UserAction
+    )
     allowed: bool
-    message: Union[None, Unset, str] = UNSET
+    message: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         action: str
         if isinstance(
             self.action,
-            (
-                UserAction,
-                GroupAction,
-                GroupMemberAction,
-                ProjectAction,
-                RegisteredScorerAction,
-                ApiKeyAction,
-                GeneratedScorerAction,
-                FineTunedScorerAction,
-                DatasetAction,
-                IntegrationAction,
-                OrganizationAction,
-            ),
+            UserAction
+            | GroupAction
+            | GroupMemberAction
+            | ProjectAction
+            | (RegisteredScorerAction | ApiKeyAction)
+            | GeneratedScorerAction
+            | FineTunedScorerAction
+            | (DatasetAction | IntegrationAction | OrganizationAction),
         ):
             action = self.action.value
         else:
@@ -75,7 +70,7 @@ class Permission:
 
         allowed = self.allowed
 
-        message: Union[None, Unset, str]
+        message: None | Unset | str
         message = UNSET if isinstance(self.message, Unset) else self.message
 
         field_dict: dict[str, Any] = {}
@@ -92,20 +87,20 @@ class Permission:
 
         def _parse_action(
             data: object,
-        ) -> Union[
-            AnnotationQueueAction,
-            ApiKeyAction,
-            DatasetAction,
-            FineTunedScorerAction,
-            GeneratedScorerAction,
-            GroupAction,
-            GroupMemberAction,
-            IntegrationAction,
-            OrganizationAction,
-            ProjectAction,
-            RegisteredScorerAction,
-            UserAction,
-        ]:
+        ) -> (
+            AnnotationQueueAction
+            | ApiKeyAction
+            | DatasetAction
+            | FineTunedScorerAction
+            | GeneratedScorerAction
+            | GroupAction
+            | GroupMemberAction
+            | IntegrationAction
+            | OrganizationAction
+            | ProjectAction
+            | RegisteredScorerAction
+            | UserAction
+        ):
             try:
                 if not isinstance(data, str):
                     raise TypeError()
@@ -191,12 +186,12 @@ class Permission:
 
         allowed = d.pop("allowed")
 
-        def _parse_message(data: object) -> Union[None, Unset, str]:
+        def _parse_message(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         message = _parse_message(d.pop("message", UNSET))
 

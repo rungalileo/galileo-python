@@ -10,6 +10,8 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.agent_span import AgentSpan
+    from ..models.control_result import ControlResult
+    from ..models.control_span import ControlSpan
     from ..models.document import Document
     from ..models.file_content_part import FileContentPart
     from ..models.llm_span import LlmSpan
@@ -35,9 +37,9 @@ class WorkflowSpan:
             trace or span. Default: ''.
         redacted_input (Union[None, Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]):
             Redacted input of the trace or span.
-        output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart', 'TextContentPart']],
-            str]): Output of the trace or span.
-        redacted_output (Union['Message', None, Unset, list['Document'], list[Union['FileContentPart',
+        output (Union['ControlResult', 'Message', None, Unset, list['Document'], list[Union['FileContentPart',
+            'TextContentPart']], str]): Output of the trace or span.
+        redacted_output (Union['ControlResult', 'Message', None, Unset, list['Document'], list[Union['FileContentPart',
             'TextContentPart']], str]): Redacted output of the trace or span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
@@ -57,47 +59,63 @@ class WorkflowSpan:
             trace)
         step_number (Union[None, Unset, int]): Topological step number of the span.
         parent_id (Union[None, Unset, str]): Galileo ID of the parent of this span
-        spans (Union[Unset, list[Union['AgentSpan', 'LlmSpan', 'RetrieverSpan', 'ToolSpan', 'WorkflowSpan']]]): Child
-            spans.
+        spans (Union[Unset, list[Union['AgentSpan', 'ControlSpan', 'LlmSpan', 'RetrieverSpan', 'ToolSpan',
+            'WorkflowSpan']]]): Child spans.
     """
 
-    type_: Union[Literal["workflow"], Unset] = "workflow"
-    input_: Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = ""
-    redacted_input: Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
-    output: Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str] = (
+    type_: Literal["workflow"] | Unset = "workflow"
+    input_: Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str = ""
+    redacted_input: None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str = UNSET
+    output: Union[
+        "ControlResult",
+        "Message",
+        None,
+        Unset,
+        list["Document"],
+        list[Union["FileContentPart", "TextContentPart"]],
+        str,
+    ] = UNSET
+    redacted_output: Union[
+        "ControlResult",
+        "Message",
+        None,
+        Unset,
+        list["Document"],
+        list[Union["FileContentPart", "TextContentPart"]],
+        str,
+    ] = UNSET
+    name: Unset | str = ""
+    created_at: Unset | datetime.datetime = UNSET
+    user_metadata: Union[Unset, "WorkflowSpanUserMetadata"] = UNSET
+    tags: Unset | list[str] = UNSET
+    status_code: None | Unset | int = UNSET
+    metrics: Union[Unset, "Metrics"] = UNSET
+    external_id: None | Unset | str = UNSET
+    dataset_input: None | Unset | str = UNSET
+    dataset_output: None | Unset | str = UNSET
+    dataset_metadata: Union[Unset, "WorkflowSpanDatasetMetadata"] = UNSET
+    id: None | Unset | str = UNSET
+    session_id: None | Unset | str = UNSET
+    trace_id: None | Unset | str = UNSET
+    step_number: None | Unset | int = UNSET
+    parent_id: None | Unset | str = UNSET
+    spans: Unset | list[Union["AgentSpan", "ControlSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]] = (
         UNSET
     )
-    redacted_output: Union[
-        "Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str
-    ] = UNSET
-    name: Union[Unset, str] = ""
-    created_at: Union[Unset, datetime.datetime] = UNSET
-    user_metadata: Union[Unset, "WorkflowSpanUserMetadata"] = UNSET
-    tags: Union[Unset, list[str]] = UNSET
-    status_code: Union[None, Unset, int] = UNSET
-    metrics: Union[Unset, "Metrics"] = UNSET
-    external_id: Union[None, Unset, str] = UNSET
-    dataset_input: Union[None, Unset, str] = UNSET
-    dataset_output: Union[None, Unset, str] = UNSET
-    dataset_metadata: Union[Unset, "WorkflowSpanDatasetMetadata"] = UNSET
-    id: Union[None, Unset, str] = UNSET
-    session_id: Union[None, Unset, str] = UNSET
-    trace_id: Union[None, Unset, str] = UNSET
-    step_number: Union[None, Unset, int] = UNSET
-    parent_id: Union[None, Unset, str] = UNSET
-    spans: Union[Unset, list[Union["AgentSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.agent_span import AgentSpan
+        from ..models.control_result import ControlResult
         from ..models.llm_span import LlmSpan
         from ..models.message import Message
         from ..models.retriever_span import RetrieverSpan
         from ..models.text_content_part import TextContentPart
+        from ..models.tool_span import ToolSpan
 
         type_ = self.type_
 
-        input_: Union[Unset, list[dict[str, Any]], str]
+        input_: Unset | list[dict[str, Any]] | str
         if isinstance(self.input_, Unset):
             input_ = UNSET
         elif isinstance(self.input_, list):
@@ -120,7 +138,7 @@ class WorkflowSpan:
         else:
             input_ = self.input_
 
-        redacted_input: Union[None, Unset, list[dict[str, Any]], str]
+        redacted_input: None | Unset | list[dict[str, Any]] | str
         if isinstance(self.redacted_input, Unset):
             redacted_input = UNSET
         elif isinstance(self.redacted_input, list):
@@ -143,7 +161,7 @@ class WorkflowSpan:
         else:
             redacted_input = self.redacted_input
 
-        output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
+        output: None | Unset | dict[str, Any] | list[dict[str, Any]] | str
         if isinstance(self.output, Unset):
             output = UNSET
         elif isinstance(self.output, Message):
@@ -165,10 +183,12 @@ class WorkflowSpan:
 
                 output.append(output_type_3_item)
 
+        elif isinstance(self.output, ControlResult):
+            output = self.output.to_dict()
         else:
             output = self.output
 
-        redacted_output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
+        redacted_output: None | Unset | dict[str, Any] | list[dict[str, Any]] | str
         if isinstance(self.redacted_output, Unset):
             redacted_output = UNSET
         elif isinstance(self.redacted_output, Message):
@@ -190,64 +210,66 @@ class WorkflowSpan:
 
                 redacted_output.append(redacted_output_type_3_item)
 
+        elif isinstance(self.redacted_output, ControlResult):
+            redacted_output = self.redacted_output.to_dict()
         else:
             redacted_output = self.redacted_output
 
         name = self.name
 
-        created_at: Union[Unset, str] = UNSET
+        created_at: Unset | str = UNSET
         if not isinstance(self.created_at, Unset):
             created_at = self.created_at.isoformat()
 
-        user_metadata: Union[Unset, dict[str, Any]] = UNSET
+        user_metadata: Unset | dict[str, Any] = UNSET
         if not isinstance(self.user_metadata, Unset):
             user_metadata = self.user_metadata.to_dict()
 
-        tags: Union[Unset, list[str]] = UNSET
+        tags: Unset | list[str] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
-        status_code: Union[None, Unset, int]
+        status_code: None | Unset | int
         status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
-        metrics: Union[Unset, dict[str, Any]] = UNSET
+        metrics: Unset | dict[str, Any] = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
-        external_id: Union[None, Unset, str]
+        external_id: None | Unset | str
         external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
-        dataset_input: Union[None, Unset, str]
+        dataset_input: None | Unset | str
         dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
-        dataset_output: Union[None, Unset, str]
+        dataset_output: None | Unset | str
         dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
-        dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
+        dataset_metadata: Unset | dict[str, Any] = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
-        id: Union[None, Unset, str]
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
-        session_id: Union[None, Unset, str]
+        session_id: None | Unset | str
         session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
 
-        trace_id: Union[None, Unset, str]
+        trace_id: None | Unset | str
         trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
-        step_number: Union[None, Unset, int]
+        step_number: None | Unset | int
         step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
 
-        parent_id: Union[None, Unset, str]
+        parent_id: None | Unset | str
         parent_id = UNSET if isinstance(self.parent_id, Unset) else self.parent_id
 
-        spans: Union[Unset, list[dict[str, Any]]] = UNSET
+        spans: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.spans, Unset):
             spans = []
             for spans_item_data in self.spans:
                 spans_item: dict[str, Any]
-                if isinstance(spans_item_data, (AgentSpan, WorkflowSpan, LlmSpan, RetrieverSpan)):
+                if isinstance(spans_item_data, AgentSpan | WorkflowSpan | LlmSpan | RetrieverSpan | ToolSpan):
                     spans_item = spans_item_data.to_dict()
                 else:
                     spans_item = spans_item_data.to_dict()
@@ -305,6 +327,8 @@ class WorkflowSpan:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.agent_span import AgentSpan
+        from ..models.control_result import ControlResult
+        from ..models.control_span import ControlSpan
         from ..models.document import Document
         from ..models.file_content_part import FileContentPart
         from ..models.llm_span import LlmSpan
@@ -317,13 +341,13 @@ class WorkflowSpan:
         from ..models.workflow_span_user_metadata import WorkflowSpanUserMetadata
 
         d = dict(src_dict)
-        type_ = cast(Union[Literal["workflow"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["workflow"] | Unset, d.pop("type", UNSET))
         if type_ != "workflow" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'workflow', got '{type_}'")
 
         def _parse_input_(
             data: object,
-        ) -> Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        ) -> Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str:
             if isinstance(data, Unset):
                 return data
             try:
@@ -365,13 +389,13 @@ class WorkflowSpan:
                 return input_type_2
             except:  # noqa: E722
                 pass
-            return cast(Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data)
+            return cast(Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str, data)
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
         def _parse_redacted_input(
             data: object,
-        ) -> Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        ) -> None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -415,15 +439,21 @@ class WorkflowSpan:
                 return redacted_input_type_2
             except:  # noqa: E722
                 pass
-            return cast(
-                Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data
-            )
+            return cast(None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str, data)
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
         def _parse_output(
             data: object,
-        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        ) -> Union[
+            "ControlResult",
+            "Message",
+            None,
+            Unset,
+            list["Document"],
+            list[Union["FileContentPart", "TextContentPart"]],
+            str,
+        ]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -474,8 +504,23 @@ class WorkflowSpan:
                 return output_type_3
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ControlResult.from_dict(data)
+
+            except:  # noqa: E722
+                pass
             return cast(
-                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                Union[
+                    "ControlResult",
+                    "Message",
+                    None,
+                    Unset,
+                    list["Document"],
+                    list[Union["FileContentPart", "TextContentPart"]],
+                    str,
+                ],
                 data,
             )
 
@@ -483,7 +528,15 @@ class WorkflowSpan:
 
         def _parse_redacted_output(
             data: object,
-        ) -> Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str]:
+        ) -> Union[
+            "ControlResult",
+            "Message",
+            None,
+            Unset,
+            list["Document"],
+            list[Union["FileContentPart", "TextContentPart"]],
+            str,
+        ]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -534,8 +587,23 @@ class WorkflowSpan:
                 return redacted_output_type_3
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ControlResult.from_dict(data)
+
+            except:  # noqa: E722
+                pass
             return cast(
-                Union["Message", None, Unset, list["Document"], list[Union["FileContentPart", "TextContentPart"]], str],
+                Union[
+                    "ControlResult",
+                    "Message",
+                    None,
+                    Unset,
+                    list["Document"],
+                    list[Union["FileContentPart", "TextContentPart"]],
+                    str,
+                ],
                 data,
             )
 
@@ -544,11 +612,11 @@ class WorkflowSpan:
         name = d.pop("name", UNSET)
 
         _created_at = d.pop("created_at", UNSET)
-        created_at: Union[Unset, datetime.datetime]
+        created_at: Unset | datetime.datetime
         created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
-        user_metadata: Union[Unset, WorkflowSpanUserMetadata]
+        user_metadata: Unset | WorkflowSpanUserMetadata
         if isinstance(_user_metadata, Unset):
             user_metadata = UNSET
         else:
@@ -556,95 +624,95 @@ class WorkflowSpan:
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
-        def _parse_status_code(data: object) -> Union[None, Unset, int]:
+        def _parse_status_code(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
         _metrics = d.pop("metrics", UNSET)
-        metrics: Union[Unset, Metrics]
+        metrics: Unset | Metrics
         metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
-        def _parse_external_id(data: object) -> Union[None, Unset, str]:
+        def _parse_external_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         external_id = _parse_external_id(d.pop("external_id", UNSET))
 
-        def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
+        def _parse_dataset_input(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
 
-        def _parse_dataset_output(data: object) -> Union[None, Unset, str]:
+        def _parse_dataset_output(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
 
         _dataset_metadata = d.pop("dataset_metadata", UNSET)
-        dataset_metadata: Union[Unset, WorkflowSpanDatasetMetadata]
+        dataset_metadata: Unset | WorkflowSpanDatasetMetadata
         if isinstance(_dataset_metadata, Unset):
             dataset_metadata = UNSET
         else:
             dataset_metadata = WorkflowSpanDatasetMetadata.from_dict(_dataset_metadata)
 
-        def _parse_id(data: object) -> Union[None, Unset, str]:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+        def _parse_session_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         session_id = _parse_session_id(d.pop("session_id", UNSET))
 
-        def _parse_trace_id(data: object) -> Union[None, Unset, str]:
+        def _parse_trace_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
 
-        def _parse_step_number(data: object) -> Union[None, Unset, int]:
+        def _parse_step_number(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         step_number = _parse_step_number(d.pop("step_number", UNSET))
 
-        def _parse_parent_id(data: object) -> Union[None, Unset, str]:
+        def _parse_parent_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         parent_id = _parse_parent_id(d.pop("parent_id", UNSET))
 
@@ -654,7 +722,7 @@ class WorkflowSpan:
 
             def _parse_spans_item(
                 data: object,
-            ) -> Union["AgentSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]:
+            ) -> Union["AgentSpan", "ControlSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
@@ -683,9 +751,16 @@ class WorkflowSpan:
 
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return ToolSpan.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ToolSpan.from_dict(data)
+                return ControlSpan.from_dict(data)
 
             spans_item = _parse_spans_item(spans_item_data)
 

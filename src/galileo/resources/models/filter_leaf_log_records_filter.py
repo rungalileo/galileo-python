@@ -8,6 +8,7 @@ if TYPE_CHECKING:
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
     from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
+    from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
     from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_text_filter import LogRecordsTextFilter
@@ -22,13 +23,14 @@ class FilterLeafLogRecordsFilter:
     Attributes
     ----------
         filter_ (Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter', 'LogRecordsDateFilter',
-            'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']):
+            'LogRecordsFullyAnnotatedFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']):
     """
 
     filter_: Union[
         "LogRecordsBooleanFilter",
         "LogRecordsCollectionFilter",
         "LogRecordsDateFilter",
+        "LogRecordsFullyAnnotatedFilter",
         "LogRecordsIDFilter",
         "LogRecordsNumberFilter",
         "LogRecordsTextFilter",
@@ -41,17 +43,16 @@ class FilterLeafLogRecordsFilter:
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
+        from ..models.log_records_text_filter import LogRecordsTextFilter
 
         filter_: dict[str, Any]
         if isinstance(
             self.filter_,
-            (
-                LogRecordsIDFilter,
-                LogRecordsDateFilter,
-                LogRecordsNumberFilter,
-                LogRecordsBooleanFilter,
-                LogRecordsCollectionFilter,
-            ),
+            LogRecordsIDFilter
+            | LogRecordsDateFilter
+            | LogRecordsNumberFilter
+            | LogRecordsBooleanFilter
+            | (LogRecordsCollectionFilter | LogRecordsTextFilter),
         ):
             filter_ = self.filter_.to_dict()
         else:
@@ -68,6 +69,7 @@ class FilterLeafLogRecordsFilter:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
+        from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_text_filter import LogRecordsTextFilter
@@ -80,6 +82,7 @@ class FilterLeafLogRecordsFilter:
             "LogRecordsBooleanFilter",
             "LogRecordsCollectionFilter",
             "LogRecordsDateFilter",
+            "LogRecordsFullyAnnotatedFilter",
             "LogRecordsIDFilter",
             "LogRecordsNumberFilter",
             "LogRecordsTextFilter",
@@ -119,9 +122,16 @@ class FilterLeafLogRecordsFilter:
 
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return LogRecordsTextFilter.from_dict(data)
+
+            except:  # noqa: E722
+                pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return LogRecordsTextFilter.from_dict(data)
+            return LogRecordsFullyAnnotatedFilter.from_dict(data)
 
         filter_ = _parse_filter_(d.pop("filter"))
 

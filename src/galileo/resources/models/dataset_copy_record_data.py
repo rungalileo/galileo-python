@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,27 +15,33 @@ class DatasetCopyRecordData:
 
     Attributes
     ----------
-        project_id (str):
         ids (list[str]): List of trace or span IDs to copy data from
         edit_type (Union[Literal['copy_record_data'], Unset]):  Default: 'copy_record_data'.
+        project_id (Union[None, Unset, str]):
+        queue_id (Union[None, Unset, str]):
         prepend (Union[Unset, bool]): A flag to control appending vs prepending Default: True.
         use_generated_output_column (Union[Unset, bool]): If True, write trace output to generated_output column; if
             False, write to output column (backward compatible) Default: False.
     """
 
-    project_id: str
     ids: list[str]
-    edit_type: Union[Literal["copy_record_data"], Unset] = "copy_record_data"
-    prepend: Union[Unset, bool] = True
-    use_generated_output_column: Union[Unset, bool] = False
+    edit_type: Literal["copy_record_data"] | Unset = "copy_record_data"
+    project_id: None | Unset | str = UNSET
+    queue_id: None | Unset | str = UNSET
+    prepend: Unset | bool = True
+    use_generated_output_column: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        project_id = self.project_id
-
         ids = self.ids
 
         edit_type = self.edit_type
+
+        project_id: None | Unset | str
+        project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
+
+        queue_id: None | Unset | str
+        queue_id = UNSET if isinstance(self.queue_id, Unset) else self.queue_id
 
         prepend = self.prepend
 
@@ -43,9 +49,13 @@ class DatasetCopyRecordData:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"project_id": project_id, "ids": ids})
+        field_dict.update({"ids": ids})
         if edit_type is not UNSET:
             field_dict["edit_type"] = edit_type
+        if project_id is not UNSET:
+            field_dict["project_id"] = project_id
+        if queue_id is not UNSET:
+            field_dict["queue_id"] = queue_id
         if prepend is not UNSET:
             field_dict["prepend"] = prepend
         if use_generated_output_column is not UNSET:
@@ -56,22 +66,39 @@ class DatasetCopyRecordData:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        project_id = d.pop("project_id")
-
         ids = cast(list[str], d.pop("ids"))
 
-        edit_type = cast(Union[Literal["copy_record_data"], Unset], d.pop("edit_type", UNSET))
+        edit_type = cast(Literal["copy_record_data"] | Unset, d.pop("edit_type", UNSET))
         if edit_type != "copy_record_data" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'copy_record_data', got '{edit_type}'")
+
+        def _parse_project_id(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        project_id = _parse_project_id(d.pop("project_id", UNSET))
+
+        def _parse_queue_id(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        queue_id = _parse_queue_id(d.pop("queue_id", UNSET))
 
         prepend = d.pop("prepend", UNSET)
 
         use_generated_output_column = d.pop("use_generated_output_column", UNSET)
 
         dataset_copy_record_data = cls(
-            project_id=project_id,
             ids=ids,
             edit_type=edit_type,
+            project_id=project_id,
+            queue_id=queue_id,
             prepend=prepend,
             use_generated_output_column=use_generated_output_column,
         )

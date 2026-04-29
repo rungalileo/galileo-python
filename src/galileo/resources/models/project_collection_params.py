@@ -37,9 +37,9 @@ class ProjectCollectionParams:
             'ProjectTypeSort', 'ProjectUpdatedAtSortV1', None, Unset]):  Default: None.
     """
 
-    filters: Union[
-        Unset,
-        list[
+    filters: (
+        Unset
+        | list[
             Union[
                 "ProjectBookmarkFilter",
                 "ProjectCreatedAtFilter",
@@ -50,8 +50,8 @@ class ProjectCollectionParams:
                 "ProjectTypeFilter",
                 "ProjectUpdatedAtFilter",
             ]
-        ],
-    ] = UNSET
+        ]
+    ) = UNSET
     sort: Union[
         "ProjectBookmarkSort",
         "ProjectCreatedAtSortV1",
@@ -79,22 +79,19 @@ class ProjectCollectionParams:
         from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
         from ..models.project_updated_at_sort_v1 import ProjectUpdatedAtSortV1
 
-        filters: Union[Unset, list[dict[str, Any]]] = UNSET
+        filters: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    (
-                        ProjectIDFilter,
-                        ProjectNameFilter,
-                        ProjectTypeFilter,
-                        ProjectCreatorFilter,
-                        ProjectCreatedAtFilter,
-                        ProjectUpdatedAtFilter,
-                        ProjectRunsFilter,
-                    ),
+                    ProjectIDFilter
+                    | ProjectNameFilter
+                    | ProjectTypeFilter
+                    | ProjectCreatorFilter
+                    | (ProjectCreatedAtFilter | ProjectUpdatedAtFilter)
+                    | ProjectRunsFilter,
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -102,19 +99,16 @@ class ProjectCollectionParams:
 
                 filters.append(filters_item)
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: None | Unset | dict[str, Any]
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(
             self.sort,
-            (
-                ProjectNameSortV1,
-                ProjectTypeSort,
-                ProjectCreatedAtSortV1,
-                ProjectUpdatedAtSortV1,
-                ProjectRunsSort,
-                ProjectBookmarkSort,
-            ),
+            ProjectNameSortV1
+            | ProjectTypeSort
+            | ProjectCreatedAtSortV1
+            | ProjectUpdatedAtSortV1
+            | (ProjectRunsSort | ProjectBookmarkSort),
         ):
             sort = self.sort.to_dict()
         else:

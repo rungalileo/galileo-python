@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -44,7 +44,7 @@ def _get_kwargs(*, body: ManualLlmValidateScorersLlmValidatePostBody) -> dict[st
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[GeneratedScorerValidationResponse, HTTPValidationError]:
+) -> GeneratedScorerValidationResponse | HTTPValidationError:
     if response.status_code == 200:
         return GeneratedScorerValidationResponse.from_dict(response.json())
 
@@ -71,7 +71,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[GeneratedScorerValidationResponse, HTTPValidationError]]:
+) -> Response[GeneratedScorerValidationResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +82,7 @@ def _build_response(
 
 def sync_detailed(
     *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
-) -> Response[Union[GeneratedScorerValidationResponse, HTTPValidationError]]:
+) -> Response[GeneratedScorerValidationResponse | HTTPValidationError]:
     """Manual Llm Validate.
 
     Args:
@@ -106,7 +106,7 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
-) -> Optional[Union[GeneratedScorerValidationResponse, HTTPValidationError]]:
+) -> GeneratedScorerValidationResponse | HTTPValidationError | None:
     """Manual Llm Validate.
 
     Args:
@@ -126,7 +126,7 @@ def sync(
 
 async def asyncio_detailed(
     *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
-) -> Response[Union[GeneratedScorerValidationResponse, HTTPValidationError]]:
+) -> Response[GeneratedScorerValidationResponse | HTTPValidationError]:
     """Manual Llm Validate.
 
     Args:
@@ -150,7 +150,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
-) -> Optional[Union[GeneratedScorerValidationResponse, HTTPValidationError]]:
+) -> GeneratedScorerValidationResponse | HTTPValidationError | None:
     """Manual Llm Validate.
 
     Args:

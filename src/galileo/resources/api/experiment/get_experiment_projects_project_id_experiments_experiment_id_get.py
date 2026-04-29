@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -37,7 +37,7 @@ def _get_kwargs(project_id: str, experiment_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[ExperimentResponse, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> ExperimentResponse | HTTPValidationError:
     if response.status_code == 200:
         return ExperimentResponse.from_dict(response.json())
 
@@ -64,7 +64,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Exp
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[ExperimentResponse, HTTPValidationError]]:
+) -> Response[ExperimentResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -75,7 +75,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient
-) -> Response[Union[ExperimentResponse, HTTPValidationError]]:
+) -> Response[ExperimentResponse | HTTPValidationError]:
     """Get Experiment.
 
      Retrieve a specific experiment.
@@ -100,9 +100,7 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(
-    project_id: str, experiment_id: str, *, client: ApiClient
-) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
+def sync(project_id: str, experiment_id: str, *, client: ApiClient) -> ExperimentResponse | HTTPValidationError | None:
     """Get Experiment.
 
      Retrieve a specific experiment.
@@ -125,7 +123,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, experiment_id: str, *, client: ApiClient
-) -> Response[Union[ExperimentResponse, HTTPValidationError]]:
+) -> Response[ExperimentResponse | HTTPValidationError]:
     """Get Experiment.
 
      Retrieve a specific experiment.
@@ -152,7 +150,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, experiment_id: str, *, client: ApiClient
-) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
+) -> ExperimentResponse | HTTPValidationError | None:
     """Get Experiment.
 
      Retrieve a specific experiment.

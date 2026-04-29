@@ -21,16 +21,18 @@ class MetricNotApplicable:
     ----------
         status_type (Union[Literal['not_applicable'], Unset]):  Default: 'not_applicable'.
         scorer_type (Union[None, ScorerType, Unset]):
+        metric_key_alias (Union[None, Unset, str]):
         message (Union[Unset, str]):  Default: 'Metric not applicable.'.
         ems_error_code (Union[None, Unset, int]): EMS error code from errors.yaml catalog for this not-applicable reason
         standard_error (Union['StandardError', None, Unset]): Structured EMS error resolved on-the-fly from errors.yaml
             catalog.
     """
 
-    status_type: Union[Literal["not_applicable"], Unset] = "not_applicable"
-    scorer_type: Union[None, ScorerType, Unset] = UNSET
-    message: Union[Unset, str] = "Metric not applicable."
-    ems_error_code: Union[None, Unset, int] = UNSET
+    status_type: Literal["not_applicable"] | Unset = "not_applicable"
+    scorer_type: None | ScorerType | Unset = UNSET
+    metric_key_alias: None | Unset | str = UNSET
+    message: Unset | str = "Metric not applicable."
+    ems_error_code: None | Unset | int = UNSET
     standard_error: Union["StandardError", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -39,7 +41,7 @@ class MetricNotApplicable:
 
         status_type = self.status_type
 
-        scorer_type: Union[None, Unset, str]
+        scorer_type: None | Unset | str
         if isinstance(self.scorer_type, Unset):
             scorer_type = UNSET
         elif isinstance(self.scorer_type, ScorerType):
@@ -47,12 +49,15 @@ class MetricNotApplicable:
         else:
             scorer_type = self.scorer_type
 
+        metric_key_alias: None | Unset | str
+        metric_key_alias = UNSET if isinstance(self.metric_key_alias, Unset) else self.metric_key_alias
+
         message = self.message
 
-        ems_error_code: Union[None, Unset, int]
+        ems_error_code: None | Unset | int
         ems_error_code = UNSET if isinstance(self.ems_error_code, Unset) else self.ems_error_code
 
-        standard_error: Union[None, Unset, dict[str, Any]]
+        standard_error: None | Unset | dict[str, Any]
         if isinstance(self.standard_error, Unset):
             standard_error = UNSET
         elif isinstance(self.standard_error, StandardError):
@@ -67,6 +72,8 @@ class MetricNotApplicable:
             field_dict["status_type"] = status_type
         if scorer_type is not UNSET:
             field_dict["scorer_type"] = scorer_type
+        if metric_key_alias is not UNSET:
+            field_dict["metric_key_alias"] = metric_key_alias
         if message is not UNSET:
             field_dict["message"] = message
         if ems_error_code is not UNSET:
@@ -81,11 +88,11 @@ class MetricNotApplicable:
         from ..models.standard_error import StandardError
 
         d = dict(src_dict)
-        status_type = cast(Union[Literal["not_applicable"], Unset], d.pop("status_type", UNSET))
+        status_type = cast(Literal["not_applicable"] | Unset, d.pop("status_type", UNSET))
         if status_type != "not_applicable" and not isinstance(status_type, Unset):
             raise ValueError(f"status_type must match const 'not_applicable', got '{status_type}'")
 
-        def _parse_scorer_type(data: object) -> Union[None, ScorerType, Unset]:
+        def _parse_scorer_type(data: object) -> None | ScorerType | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -97,18 +104,27 @@ class MetricNotApplicable:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, ScorerType, Unset], data)
+            return cast(None | ScorerType | Unset, data)
 
         scorer_type = _parse_scorer_type(d.pop("scorer_type", UNSET))
 
-        message = d.pop("message", UNSET)
-
-        def _parse_ems_error_code(data: object) -> Union[None, Unset, int]:
+        def _parse_metric_key_alias(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | str, data)
+
+        metric_key_alias = _parse_metric_key_alias(d.pop("metric_key_alias", UNSET))
+
+        message = d.pop("message", UNSET)
+
+        def _parse_ems_error_code(data: object) -> None | Unset | int:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | int, data)
 
         ems_error_code = _parse_ems_error_code(d.pop("ems_error_code", UNSET))
 
@@ -131,6 +147,7 @@ class MetricNotApplicable:
         metric_not_applicable = cls(
             status_type=status_type,
             scorer_type=scorer_type,
+            metric_key_alias=metric_key_alias,
             message=message,
             ems_error_code=ems_error_code,
             standard_error=standard_error,

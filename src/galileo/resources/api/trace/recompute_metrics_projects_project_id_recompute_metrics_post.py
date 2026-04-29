@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -41,7 +41,7 @@ def _get_kwargs(project_id: str, *, body: RecomputeLogRecordsMetricsRequest) -> 
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 200:
         return response.json()
 
@@ -66,7 +66,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -77,7 +77,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: RecomputeLogRecordsMetricsRequest
-) -> Response[Union[Any, HTTPValidationError]]:
+) -> Response[Any | HTTPValidationError]:
     """Recompute Metrics.
 
     Args:
@@ -105,7 +105,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: RecomputeLogRecordsMetricsRequest
-) -> Optional[Union[Any, HTTPValidationError]]:
+) -> Any | HTTPValidationError | None:
     """Recompute Metrics.
 
     Args:
@@ -129,7 +129,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: RecomputeLogRecordsMetricsRequest
-) -> Response[Union[Any, HTTPValidationError]]:
+) -> Response[Any | HTTPValidationError]:
     """Recompute Metrics.
 
     Args:
@@ -157,7 +157,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: RecomputeLogRecordsMetricsRequest
-) -> Optional[Union[Any, HTTPValidationError]]:
+) -> Any | HTTPValidationError | None:
     """Recompute Metrics.
 
     Args:

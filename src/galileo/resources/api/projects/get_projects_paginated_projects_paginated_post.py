@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -27,15 +27,15 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *,
     body: ProjectCollectionParams,
-    actions: Union[Unset, list[ProjectAction]] = UNSET,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    actions: Unset | list[ProjectAction] = UNSET,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_actions: Union[Unset, list[str]] = UNSET
+    json_actions: Unset | list[str] = UNSET
     if not isinstance(actions, Unset):
         json_actions = []
         for actions_item_data in actions:
@@ -69,7 +69,7 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[GetProjectsPaginatedResponse, HTTPValidationError]:
+) -> GetProjectsPaginatedResponse | HTTPValidationError:
     if response.status_code == 200:
         return GetProjectsPaginatedResponse.from_dict(response.json())
 
@@ -96,7 +96,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[GetProjectsPaginatedResponse, HTTPValidationError]]:
+) -> Response[GetProjectsPaginatedResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -109,10 +109,10 @@ def sync_detailed(
     *,
     client: ApiClient,
     body: ProjectCollectionParams,
-    actions: Union[Unset, list[ProjectAction]] = UNSET,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[GetProjectsPaginatedResponse, HTTPValidationError]]:
+    actions: Unset | list[ProjectAction] = UNSET,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
+) -> Response[GetProjectsPaginatedResponse | HTTPValidationError]:
     """Get Projects Paginated.
 
      Gets projects for a user with pagination.
@@ -146,10 +146,10 @@ def sync(
     *,
     client: ApiClient,
     body: ProjectCollectionParams,
-    actions: Union[Unset, list[ProjectAction]] = UNSET,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[GetProjectsPaginatedResponse, HTTPValidationError]]:
+    actions: Unset | list[ProjectAction] = UNSET,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
+) -> GetProjectsPaginatedResponse | HTTPValidationError | None:
     """Get Projects Paginated.
 
      Gets projects for a user with pagination.
@@ -179,10 +179,10 @@ async def asyncio_detailed(
     *,
     client: ApiClient,
     body: ProjectCollectionParams,
-    actions: Union[Unset, list[ProjectAction]] = UNSET,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[GetProjectsPaginatedResponse, HTTPValidationError]]:
+    actions: Unset | list[ProjectAction] = UNSET,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
+) -> Response[GetProjectsPaginatedResponse | HTTPValidationError]:
     """Get Projects Paginated.
 
      Gets projects for a user with pagination.
@@ -216,10 +216,10 @@ async def asyncio(
     *,
     client: ApiClient,
     body: ProjectCollectionParams,
-    actions: Union[Unset, list[ProjectAction]] = UNSET,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[GetProjectsPaginatedResponse, HTTPValidationError]]:
+    actions: Unset | list[ProjectAction] = UNSET,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
+) -> GetProjectsPaginatedResponse | HTTPValidationError | None:
     """Get Projects Paginated.
 
      Gets projects for a user with pagination.

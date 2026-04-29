@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,9 +19,9 @@ class ProjectRunsSort:
         sort_type (Union[Literal['custom'], Unset]):  Default: 'custom'.
     """
 
-    name: Union[Literal["runs"], Unset] = "runs"
-    ascending: Union[Unset, bool] = True
-    sort_type: Union[Literal["custom"], Unset] = "custom"
+    name: Literal["runs"] | Unset = "runs"
+    ascending: Unset | bool = True
+    sort_type: Literal["custom"] | Unset = "custom"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,13 +46,13 @@ class ProjectRunsSort:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        name = cast(Union[Literal["runs"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["runs"] | Unset, d.pop("name", UNSET))
         if name != "runs" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'runs', got '{name}'")
 
         ascending = d.pop("ascending", UNSET)
 
-        sort_type = cast(Union[Literal["custom"], Unset], d.pop("sort_type", UNSET))
+        sort_type = cast(Literal["custom"] | Unset, d.pop("sort_type", UNSET))
         if sort_type != "custom" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'custom', got '{sort_type}'")
 

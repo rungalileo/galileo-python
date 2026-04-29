@@ -36,9 +36,9 @@ class AwsSageMakerIntegrationCreate:
 
     token: "AwsSageMakerIntegrationCreateToken"
     multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
-    models: Union[Unset, list["Model"]] = UNSET
-    credential_type: Union[Unset, AwsCredentialType] = UNSET
-    region: Union[Unset, str] = "us-west-2"
+    models: Unset | list["Model"] = UNSET
+    credential_type: Unset | AwsCredentialType = UNSET
+    region: Unset | str = "us-west-2"
     inference_profiles: Union[Unset, "AwsSageMakerIntegrationCreateInferenceProfiles"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -47,7 +47,7 @@ class AwsSageMakerIntegrationCreate:
 
         token = self.token.to_dict()
 
-        multi_modal_config: Union[None, Unset, dict[str, Any]]
+        multi_modal_config: None | Unset | dict[str, Any]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -55,20 +55,20 @@ class AwsSageMakerIntegrationCreate:
         else:
             multi_modal_config = self.multi_modal_config
 
-        models: Union[Unset, list[dict[str, Any]]] = UNSET
+        models: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.models, Unset):
             models = []
             for models_item_data in self.models:
                 models_item = models_item_data.to_dict()
                 models.append(models_item)
 
-        credential_type: Union[Unset, str] = UNSET
+        credential_type: Unset | str = UNSET
         if not isinstance(self.credential_type, Unset):
             credential_type = self.credential_type.value
 
         region = self.region
 
-        inference_profiles: Union[Unset, dict[str, Any]] = UNSET
+        inference_profiles: Unset | dict[str, Any] = UNSET
         if not isinstance(self.inference_profiles, Unset):
             inference_profiles = self.inference_profiles.to_dict()
 
@@ -124,13 +124,13 @@ class AwsSageMakerIntegrationCreate:
             models.append(models_item)
 
         _credential_type = d.pop("credential_type", UNSET)
-        credential_type: Union[Unset, AwsCredentialType]
+        credential_type: Unset | AwsCredentialType
         credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
 
         region = d.pop("region", UNSET)
 
         _inference_profiles = d.pop("inference_profiles", UNSET)
-        inference_profiles: Union[Unset, AwsSageMakerIntegrationCreateInferenceProfiles]
+        inference_profiles: Unset | AwsSageMakerIntegrationCreateInferenceProfiles
         if isinstance(_inference_profiles, Unset):
             inference_profiles = UNSET
         else:

@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -27,13 +27,13 @@ class DatasetContent:
         rows (Union[Unset, list['DatasetRow']]):
     """
 
-    starting_token: Union[Unset, int] = 0
-    limit: Union[Unset, int] = 100
-    paginated: Union[Unset, bool] = False
-    next_starting_token: Union[None, Unset, int] = UNSET
-    column_names: Union[Unset, list[str]] = UNSET
-    warning_message: Union[None, Unset, str] = UNSET
-    rows: Union[Unset, list["DatasetRow"]] = UNSET
+    starting_token: Unset | int = 0
+    limit: Unset | int = 100
+    paginated: Unset | bool = False
+    next_starting_token: None | Unset | int = UNSET
+    column_names: Unset | list[str] = UNSET
+    warning_message: None | Unset | str = UNSET
+    rows: Unset | list["DatasetRow"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -43,17 +43,17 @@ class DatasetContent:
 
         paginated = self.paginated
 
-        next_starting_token: Union[None, Unset, int]
+        next_starting_token: None | Unset | int
         next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
-        column_names: Union[Unset, list[str]] = UNSET
+        column_names: Unset | list[str] = UNSET
         if not isinstance(self.column_names, Unset):
             column_names = self.column_names
 
-        warning_message: Union[None, Unset, str]
+        warning_message: None | Unset | str
         warning_message = UNSET if isinstance(self.warning_message, Unset) else self.warning_message
 
-        rows: Union[Unset, list[dict[str, Any]]] = UNSET
+        rows: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.rows, Unset):
             rows = []
             for rows_item_data in self.rows:
@@ -91,23 +91,23 @@ class DatasetContent:
 
         paginated = d.pop("paginated", UNSET)
 
-        def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
+        def _parse_next_starting_token(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
         column_names = cast(list[str], d.pop("column_names", UNSET))
 
-        def _parse_warning_message(data: object) -> Union[None, Unset, str]:
+        def _parse_warning_message(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         warning_message = _parse_warning_message(d.pop("warning_message", UNSET))
 

@@ -81,41 +81,41 @@ class CustomizedGroundednessGPTScorer:
             'CustomizedGroundednessGPTScorerClassNameToVocabIxType1', None, Unset]):
     """
 
-    scorer_name: Union[Literal["_customized_groundedness"], Unset] = "_customized_groundedness"
-    model_alias: Union[Unset, str] = "gpt-4.1-mini"
-    num_judges: Union[Unset, int] = 3
-    name: Union[Literal["context_adherence"], Unset] = "context_adherence"
-    scores: Union[None, Unset, list[Any]] = UNSET
-    indices: Union[None, Unset, list[int]] = UNSET
+    scorer_name: Literal["_customized_groundedness"] | Unset = "_customized_groundedness"
+    model_alias: Unset | str = "gpt-4.1-mini"
+    num_judges: Unset | int = 3
+    name: Literal["context_adherence"] | Unset = "context_adherence"
+    scores: None | Unset | list[Any] = UNSET
+    indices: None | Unset | list[int] = UNSET
     aggregates: Union["CustomizedGroundednessGPTScorerAggregatesType0", None, Unset] = UNSET
-    aggregate_keys: Union[Unset, list[str]] = UNSET
+    aggregate_keys: Unset | list[str] = UNSET
     extra: Union["CustomizedGroundednessGPTScorerExtraType0", None, Unset] = UNSET
-    sub_scorers: Union[Unset, list[ScorerName]] = UNSET
-    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
-    metric_name: Union[None, Unset, str] = UNSET
-    description: Union[None, Unset, str] = UNSET
+    sub_scorers: Unset | list[ScorerName] = UNSET
+    filters: None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]] = UNSET
+    metric_name: None | Unset | str = UNSET
+    description: None | Unset | str = UNSET
     chainpoll_template: Union[Unset, "GroundednessTemplate"] = UNSET
-    default_model_alias: Union[None, Unset, str] = UNSET
-    ground_truth: Union[None, Unset, bool] = UNSET
-    regex_field: Union[Unset, str] = ""
-    registered_scorer_id: Union[None, Unset, str] = UNSET
-    generated_scorer_id: Union[None, Unset, str] = UNSET
-    scorer_version_id: Union[None, Unset, str] = UNSET
-    user_code: Union[None, Unset, str] = UNSET
-    can_copy_to_llm: Union[None, Unset, bool] = UNSET
-    scoreable_node_types: Union[None, Unset, list[NodeType]] = UNSET
-    cot_enabled: Union[None, Unset, bool] = UNSET
-    output_type: Union[None, OutputTypeEnum, Unset] = UNSET
-    input_type: Union[InputTypeEnum, None, Unset] = UNSET
-    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
-    required_scorers: Union[None, Unset, list[str]] = UNSET
-    roll_up_strategy: Union[None, RollUpStrategy, Unset] = UNSET
-    roll_up_methods: Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]] = UNSET
-    prompt: Union[None, Unset, str] = UNSET
-    lora_task_id: Union[None, Unset, int] = UNSET
-    lora_weights_path: Union[None, Unset, str] = UNSET
-    luna_input_type: Union[LunaInputTypeEnum, None, Unset] = UNSET
-    luna_output_type: Union[LunaOutputTypeEnum, None, Unset] = UNSET
+    default_model_alias: None | Unset | str = UNSET
+    ground_truth: None | Unset | bool = UNSET
+    regex_field: Unset | str = ""
+    registered_scorer_id: None | Unset | str = UNSET
+    generated_scorer_id: None | Unset | str = UNSET
+    scorer_version_id: None | Unset | str = UNSET
+    user_code: None | Unset | str = UNSET
+    can_copy_to_llm: None | Unset | bool = UNSET
+    scoreable_node_types: None | Unset | list[NodeType] = UNSET
+    cot_enabled: None | Unset | bool = UNSET
+    output_type: None | OutputTypeEnum | Unset = UNSET
+    input_type: InputTypeEnum | None | Unset = UNSET
+    multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET
+    required_scorers: None | Unset | list[str] = UNSET
+    roll_up_strategy: None | RollUpStrategy | Unset = UNSET
+    roll_up_methods: None | Unset | list[CategoricalRollUpMethod] | list[NumericRollUpMethod] = UNSET
+    prompt: None | Unset | str = UNSET
+    lora_task_id: None | Unset | int = UNSET
+    lora_weights_path: None | Unset | str = UNSET
+    luna_input_type: LunaInputTypeEnum | None | Unset = UNSET
+    luna_output_type: LunaOutputTypeEnum | None | Unset = UNSET
     class_name_to_vocab_ix: Union[
         "CustomizedGroundednessGPTScorerClassNameToVocabIxType0",
         "CustomizedGroundednessGPTScorerClassNameToVocabIxType1",
@@ -146,7 +146,7 @@ class CustomizedGroundednessGPTScorer:
 
         name = self.name
 
-        scores: Union[None, Unset, list[Any]]
+        scores: None | Unset | list[Any]
         if isinstance(self.scores, Unset):
             scores = UNSET
         elif isinstance(self.scores, list):
@@ -155,7 +155,7 @@ class CustomizedGroundednessGPTScorer:
         else:
             scores = self.scores
 
-        indices: Union[None, Unset, list[int]]
+        indices: None | Unset | list[int]
         if isinstance(self.indices, Unset):
             indices = UNSET
         elif isinstance(self.indices, list):
@@ -164,7 +164,7 @@ class CustomizedGroundednessGPTScorer:
         else:
             indices = self.indices
 
-        aggregates: Union[None, Unset, dict[str, Any]]
+        aggregates: None | Unset | dict[str, Any]
         if isinstance(self.aggregates, Unset):
             aggregates = UNSET
         elif isinstance(self.aggregates, CustomizedGroundednessGPTScorerAggregatesType0):
@@ -172,11 +172,11 @@ class CustomizedGroundednessGPTScorer:
         else:
             aggregates = self.aggregates
 
-        aggregate_keys: Union[Unset, list[str]] = UNSET
+        aggregate_keys: Unset | list[str] = UNSET
         if not isinstance(self.aggregate_keys, Unset):
             aggregate_keys = self.aggregate_keys
 
-        extra: Union[None, Unset, dict[str, Any]]
+        extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, CustomizedGroundednessGPTScorerExtraType0):
@@ -184,21 +184,21 @@ class CustomizedGroundednessGPTScorer:
         else:
             extra = self.extra
 
-        sub_scorers: Union[Unset, list[str]] = UNSET
+        sub_scorers: Unset | list[str] = UNSET
         if not isinstance(self.sub_scorers, Unset):
             sub_scorers = []
             for sub_scorers_item_data in self.sub_scorers:
                 sub_scorers_item = sub_scorers_item_data.value
                 sub_scorers.append(sub_scorers_item)
 
-        filters: Union[None, Unset, list[dict[str, Any]]]
+        filters: None | Unset | list[dict[str, Any]]
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, (NodeNameFilter, MetadataFilter)):
+                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -208,40 +208,40 @@ class CustomizedGroundednessGPTScorer:
         else:
             filters = self.filters
 
-        metric_name: Union[None, Unset, str]
+        metric_name: None | Unset | str
         metric_name = UNSET if isinstance(self.metric_name, Unset) else self.metric_name
 
-        description: Union[None, Unset, str]
+        description: None | Unset | str
         description = UNSET if isinstance(self.description, Unset) else self.description
 
-        chainpoll_template: Union[Unset, dict[str, Any]] = UNSET
+        chainpoll_template: Unset | dict[str, Any] = UNSET
         if not isinstance(self.chainpoll_template, Unset):
             chainpoll_template = self.chainpoll_template.to_dict()
 
-        default_model_alias: Union[None, Unset, str]
+        default_model_alias: None | Unset | str
         default_model_alias = UNSET if isinstance(self.default_model_alias, Unset) else self.default_model_alias
 
-        ground_truth: Union[None, Unset, bool]
+        ground_truth: None | Unset | bool
         ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
 
         regex_field = self.regex_field
 
-        registered_scorer_id: Union[None, Unset, str]
+        registered_scorer_id: None | Unset | str
         registered_scorer_id = UNSET if isinstance(self.registered_scorer_id, Unset) else self.registered_scorer_id
 
-        generated_scorer_id: Union[None, Unset, str]
+        generated_scorer_id: None | Unset | str
         generated_scorer_id = UNSET if isinstance(self.generated_scorer_id, Unset) else self.generated_scorer_id
 
-        scorer_version_id: Union[None, Unset, str]
+        scorer_version_id: None | Unset | str
         scorer_version_id = UNSET if isinstance(self.scorer_version_id, Unset) else self.scorer_version_id
 
-        user_code: Union[None, Unset, str]
+        user_code: None | Unset | str
         user_code = UNSET if isinstance(self.user_code, Unset) else self.user_code
 
-        can_copy_to_llm: Union[None, Unset, bool]
+        can_copy_to_llm: None | Unset | bool
         can_copy_to_llm = UNSET if isinstance(self.can_copy_to_llm, Unset) else self.can_copy_to_llm
 
-        scoreable_node_types: Union[None, Unset, list[str]]
+        scoreable_node_types: None | Unset | list[str]
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
         elif isinstance(self.scoreable_node_types, list):
@@ -253,10 +253,10 @@ class CustomizedGroundednessGPTScorer:
         else:
             scoreable_node_types = self.scoreable_node_types
 
-        cot_enabled: Union[None, Unset, bool]
+        cot_enabled: None | Unset | bool
         cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
-        output_type: Union[None, Unset, str]
+        output_type: None | Unset | str
         if isinstance(self.output_type, Unset):
             output_type = UNSET
         elif isinstance(self.output_type, OutputTypeEnum):
@@ -264,7 +264,7 @@ class CustomizedGroundednessGPTScorer:
         else:
             output_type = self.output_type
 
-        input_type: Union[None, Unset, str]
+        input_type: None | Unset | str
         if isinstance(self.input_type, Unset):
             input_type = UNSET
         elif isinstance(self.input_type, InputTypeEnum):
@@ -272,7 +272,7 @@ class CustomizedGroundednessGPTScorer:
         else:
             input_type = self.input_type
 
-        multimodal_capabilities: Union[None, Unset, list[str]]
+        multimodal_capabilities: None | Unset | list[str]
         if isinstance(self.multimodal_capabilities, Unset):
             multimodal_capabilities = UNSET
         elif isinstance(self.multimodal_capabilities, list):
@@ -284,7 +284,7 @@ class CustomizedGroundednessGPTScorer:
         else:
             multimodal_capabilities = self.multimodal_capabilities
 
-        required_scorers: Union[None, Unset, list[str]]
+        required_scorers: None | Unset | list[str]
         if isinstance(self.required_scorers, Unset):
             required_scorers = UNSET
         elif isinstance(self.required_scorers, list):
@@ -293,7 +293,7 @@ class CustomizedGroundednessGPTScorer:
         else:
             required_scorers = self.required_scorers
 
-        roll_up_strategy: Union[None, Unset, str]
+        roll_up_strategy: None | Unset | str
         if isinstance(self.roll_up_strategy, Unset):
             roll_up_strategy = UNSET
         elif isinstance(self.roll_up_strategy, RollUpStrategy):
@@ -301,7 +301,7 @@ class CustomizedGroundednessGPTScorer:
         else:
             roll_up_strategy = self.roll_up_strategy
 
-        roll_up_methods: Union[None, Unset, list[str]]
+        roll_up_methods: None | Unset | list[str]
         if isinstance(self.roll_up_methods, Unset):
             roll_up_methods = UNSET
         elif isinstance(self.roll_up_methods, list):
@@ -319,16 +319,16 @@ class CustomizedGroundednessGPTScorer:
         else:
             roll_up_methods = self.roll_up_methods
 
-        prompt: Union[None, Unset, str]
+        prompt: None | Unset | str
         prompt = UNSET if isinstance(self.prompt, Unset) else self.prompt
 
-        lora_task_id: Union[None, Unset, int]
+        lora_task_id: None | Unset | int
         lora_task_id = UNSET if isinstance(self.lora_task_id, Unset) else self.lora_task_id
 
-        lora_weights_path: Union[None, Unset, str]
+        lora_weights_path: None | Unset | str
         lora_weights_path = UNSET if isinstance(self.lora_weights_path, Unset) else self.lora_weights_path
 
-        luna_input_type: Union[None, Unset, str]
+        luna_input_type: None | Unset | str
         if isinstance(self.luna_input_type, Unset):
             luna_input_type = UNSET
         elif isinstance(self.luna_input_type, LunaInputTypeEnum):
@@ -336,7 +336,7 @@ class CustomizedGroundednessGPTScorer:
         else:
             luna_input_type = self.luna_input_type
 
-        luna_output_type: Union[None, Unset, str]
+        luna_output_type: None | Unset | str
         if isinstance(self.luna_output_type, Unset):
             luna_output_type = UNSET
         elif isinstance(self.luna_output_type, LunaOutputTypeEnum):
@@ -344,15 +344,13 @@ class CustomizedGroundednessGPTScorer:
         else:
             luna_output_type = self.luna_output_type
 
-        class_name_to_vocab_ix: Union[None, Unset, dict[str, Any]]
+        class_name_to_vocab_ix: None | Unset | dict[str, Any]
         if isinstance(self.class_name_to_vocab_ix, Unset):
             class_name_to_vocab_ix = UNSET
         elif isinstance(
             self.class_name_to_vocab_ix,
-            (
-                CustomizedGroundednessGPTScorerClassNameToVocabIxType0,
-                CustomizedGroundednessGPTScorerClassNameToVocabIxType1,
-            ),
+            CustomizedGroundednessGPTScorerClassNameToVocabIxType0
+            | CustomizedGroundednessGPTScorerClassNameToVocabIxType1,
         ):
             class_name_to_vocab_ix = self.class_name_to_vocab_ix.to_dict()
         else:
@@ -454,7 +452,7 @@ class CustomizedGroundednessGPTScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
-        scorer_name = cast(Union[Literal["_customized_groundedness"], Unset], d.pop("scorer_name", UNSET))
+        scorer_name = cast(Literal["_customized_groundedness"] | Unset, d.pop("scorer_name", UNSET))
         if scorer_name != "_customized_groundedness" and not isinstance(scorer_name, Unset):
             raise ValueError(f"scorer_name must match const '_customized_groundedness', got '{scorer_name}'")
 
@@ -462,11 +460,11 @@ class CustomizedGroundednessGPTScorer:
 
         num_judges = d.pop("num_judges", UNSET)
 
-        name = cast(Union[Literal["context_adherence"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["context_adherence"] | Unset, d.pop("name", UNSET))
         if name != "context_adherence" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'context_adherence', got '{name}'")
 
-        def _parse_scores(data: object) -> Union[None, Unset, list[Any]]:
+        def _parse_scores(data: object) -> None | Unset | list[Any]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -478,11 +476,11 @@ class CustomizedGroundednessGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[Any]], data)
+            return cast(None | Unset | list[Any], data)
 
         scores = _parse_scores(d.pop("scores", UNSET))
 
-        def _parse_indices(data: object) -> Union[None, Unset, list[int]]:
+        def _parse_indices(data: object) -> None | Unset | list[int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -494,7 +492,7 @@ class CustomizedGroundednessGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[int]], data)
+            return cast(None | Unset | list[int], data)
 
         indices = _parse_indices(d.pop("indices", UNSET))
 
@@ -541,7 +539,7 @@ class CustomizedGroundednessGPTScorer:
 
         def _parse_filters(
             data: object,
-        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
+        ) -> None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -581,101 +579,101 @@ class CustomizedGroundednessGPTScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
+            return cast(None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
-        def _parse_metric_name(data: object) -> Union[None, Unset, str]:
+        def _parse_metric_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         metric_name = _parse_metric_name(d.pop("metric_name", UNSET))
 
-        def _parse_description(data: object) -> Union[None, Unset, str]:
+        def _parse_description(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         description = _parse_description(d.pop("description", UNSET))
 
         _chainpoll_template = d.pop("chainpoll_template", UNSET)
-        chainpoll_template: Union[Unset, GroundednessTemplate]
+        chainpoll_template: Unset | GroundednessTemplate
         if isinstance(_chainpoll_template, Unset):
             chainpoll_template = UNSET
         else:
             chainpoll_template = GroundednessTemplate.from_dict(_chainpoll_template)
 
-        def _parse_default_model_alias(data: object) -> Union[None, Unset, str]:
+        def _parse_default_model_alias(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         default_model_alias = _parse_default_model_alias(d.pop("default_model_alias", UNSET))
 
-        def _parse_ground_truth(data: object) -> Union[None, Unset, bool]:
+        def _parse_ground_truth(data: object) -> None | Unset | bool:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(None | Unset | bool, data)
 
         ground_truth = _parse_ground_truth(d.pop("ground_truth", UNSET))
 
         regex_field = d.pop("regex_field", UNSET)
 
-        def _parse_registered_scorer_id(data: object) -> Union[None, Unset, str]:
+        def _parse_registered_scorer_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         registered_scorer_id = _parse_registered_scorer_id(d.pop("registered_scorer_id", UNSET))
 
-        def _parse_generated_scorer_id(data: object) -> Union[None, Unset, str]:
+        def _parse_generated_scorer_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         generated_scorer_id = _parse_generated_scorer_id(d.pop("generated_scorer_id", UNSET))
 
-        def _parse_scorer_version_id(data: object) -> Union[None, Unset, str]:
+        def _parse_scorer_version_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         scorer_version_id = _parse_scorer_version_id(d.pop("scorer_version_id", UNSET))
 
-        def _parse_user_code(data: object) -> Union[None, Unset, str]:
+        def _parse_user_code(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         user_code = _parse_user_code(d.pop("user_code", UNSET))
 
-        def _parse_can_copy_to_llm(data: object) -> Union[None, Unset, bool]:
+        def _parse_can_copy_to_llm(data: object) -> None | Unset | bool:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(None | Unset | bool, data)
 
         can_copy_to_llm = _parse_can_copy_to_llm(d.pop("can_copy_to_llm", UNSET))
 
-        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[NodeType]]:
+        def _parse_scoreable_node_types(data: object) -> None | Unset | list[NodeType]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -693,20 +691,20 @@ class CustomizedGroundednessGPTScorer:
                 return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[NodeType]], data)
+            return cast(None | Unset | list[NodeType], data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
-        def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
+        def _parse_cot_enabled(data: object) -> None | Unset | bool:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(None | Unset | bool, data)
 
         cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
 
-        def _parse_output_type(data: object) -> Union[None, OutputTypeEnum, Unset]:
+        def _parse_output_type(data: object) -> None | OutputTypeEnum | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -718,11 +716,11 @@ class CustomizedGroundednessGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, OutputTypeEnum, Unset], data)
+            return cast(None | OutputTypeEnum | Unset, data)
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 
-        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
+        def _parse_input_type(data: object) -> InputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -734,11 +732,11 @@ class CustomizedGroundednessGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[InputTypeEnum, None, Unset], data)
+            return cast(InputTypeEnum | None | Unset, data)
 
         input_type = _parse_input_type(d.pop("input_type", UNSET))
 
-        def _parse_multimodal_capabilities(data: object) -> Union[None, Unset, list[MultimodalCapability]]:
+        def _parse_multimodal_capabilities(data: object) -> None | Unset | list[MultimodalCapability]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -756,11 +754,11 @@ class CustomizedGroundednessGPTScorer:
                 return multimodal_capabilities_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[MultimodalCapability]], data)
+            return cast(None | Unset | list[MultimodalCapability], data)
 
         multimodal_capabilities = _parse_multimodal_capabilities(d.pop("multimodal_capabilities", UNSET))
 
-        def _parse_required_scorers(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_required_scorers(data: object) -> None | Unset | list[str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -772,11 +770,11 @@ class CustomizedGroundednessGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(None | Unset | list[str], data)
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
-        def _parse_roll_up_strategy(data: object) -> Union[None, RollUpStrategy, Unset]:
+        def _parse_roll_up_strategy(data: object) -> None | RollUpStrategy | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -788,13 +786,13 @@ class CustomizedGroundednessGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, RollUpStrategy, Unset], data)
+            return cast(None | RollUpStrategy | Unset, data)
 
         roll_up_strategy = _parse_roll_up_strategy(d.pop("roll_up_strategy", UNSET))
 
         def _parse_roll_up_methods(
             data: object,
-        ) -> Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]]:
+        ) -> None | Unset | list[CategoricalRollUpMethod] | list[NumericRollUpMethod]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -825,38 +823,38 @@ class CustomizedGroundednessGPTScorer:
                 return roll_up_methods_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]], data)
+            return cast(None | Unset | list[CategoricalRollUpMethod] | list[NumericRollUpMethod], data)
 
         roll_up_methods = _parse_roll_up_methods(d.pop("roll_up_methods", UNSET))
 
-        def _parse_prompt(data: object) -> Union[None, Unset, str]:
+        def _parse_prompt(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         prompt = _parse_prompt(d.pop("prompt", UNSET))
 
-        def _parse_lora_task_id(data: object) -> Union[None, Unset, int]:
+        def _parse_lora_task_id(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         lora_task_id = _parse_lora_task_id(d.pop("lora_task_id", UNSET))
 
-        def _parse_lora_weights_path(data: object) -> Union[None, Unset, str]:
+        def _parse_lora_weights_path(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         lora_weights_path = _parse_lora_weights_path(d.pop("lora_weights_path", UNSET))
 
-        def _parse_luna_input_type(data: object) -> Union[LunaInputTypeEnum, None, Unset]:
+        def _parse_luna_input_type(data: object) -> LunaInputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -868,11 +866,11 @@ class CustomizedGroundednessGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[LunaInputTypeEnum, None, Unset], data)
+            return cast(LunaInputTypeEnum | None | Unset, data)
 
         luna_input_type = _parse_luna_input_type(d.pop("luna_input_type", UNSET))
 
-        def _parse_luna_output_type(data: object) -> Union[LunaOutputTypeEnum, None, Unset]:
+        def _parse_luna_output_type(data: object) -> LunaOutputTypeEnum | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -884,7 +882,7 @@ class CustomizedGroundednessGPTScorer:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[LunaOutputTypeEnum, None, Unset], data)
+            return cast(LunaOutputTypeEnum | None | Unset, data)
 
         luna_output_type = _parse_luna_output_type(d.pop("luna_output_type", UNSET))
 

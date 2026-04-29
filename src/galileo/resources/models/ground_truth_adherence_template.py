@@ -48,16 +48,16 @@ class GroundTruthAdherenceTemplate:
             output.
     """
 
-    metric_system_prompt: Union[Unset, str] = (
+    metric_system_prompt: Unset | str = (
         'I will give you two different texts, called the \\"ground truth\\" and the \\"response.\\"\n\nRead both texts, then tell me whether they are \\"equivalent,\\" in the sense that they basically mean the same thing.\n\nKeep the following guidelines in mind.\n\n- Two texts can be equivalent if they use different phrasing, as long as the phrasing doesn\'t affect meaning.\n- Two texts can be equivalent if there are _slight_ differences in meaning that wouldn\'t affect the conclusions that a reasonable reader would draw upon reading them.\n- Imagine that you are grading a free-response exam.  The ground truth given in the answer key for an exam question, and the response is a student\'s answer to the same question. If you would give the student full marks for this question, that means the two texts are equivalent. If you wouldn\'t, that means the two texts are not equivalent.\n\nRespond in the following JSON format:\n\n```\n{{\n    \\"explanation\\": string,\n    \\"equivalent\\": boolean\n}}\n```\n\n\\"explanation\\": A step-by-step breakdown of the similarities and differences between the text. For each difference you note (if any), consider why the difference might or might not make the texts non-equivalent, note down your reasoning clearly and explicitly, and ultimately draw a conclusion about whether that difference makes the text non-equivalent.\n\n\\"equivalent\\": `true` if the texts are equivalent in the sense given above, `false` if they are non-equivalent.\n\nYou must respond with valid JSON.'
     )
-    metric_description: Union[Unset, str] = (
+    metric_description: Unset | str = (
         "This metric computes whether a response from a large language model matches a provided ground truth text."
     )
-    value_field_name: Union[Unset, str] = "equivalent"
-    explanation_field_name: Union[Unset, str] = "explanation"
-    template: Union[Unset, str] = "Ground truth:\n\n```\n{ground_truth}\n```\n\nResponse:\n\n```\n{response}\n```"
-    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
+    value_field_name: Unset | str = "equivalent"
+    explanation_field_name: Unset | str = "explanation"
+    template: Unset | str = "Ground truth:\n\n```\n{ground_truth}\n```\n\nResponse:\n\n```\n{response}\n```"
+    metric_few_shot_examples: Unset | list["FewShotExample"] = UNSET
     response_schema: Union["GroundTruthAdherenceTemplateResponseSchemaType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -76,14 +76,14 @@ class GroundTruthAdherenceTemplate:
 
         template = self.template
 
-        metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
+        metric_few_shot_examples: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
             metric_few_shot_examples = []
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        response_schema: Union[None, Unset, dict[str, Any]]
+        response_schema: None | Unset | dict[str, Any]
         if isinstance(self.response_schema, Unset):
             response_schema = UNSET
         elif isinstance(self.response_schema, GroundTruthAdherenceTemplateResponseSchemaType0):

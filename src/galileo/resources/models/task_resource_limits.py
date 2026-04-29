@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,8 +18,8 @@ class TaskResourceLimits:
         memory_mb (Union[Unset, int]):  Default: 160.
     """
 
-    cpu_time: Union[Unset, int] = 216
-    memory_mb: Union[Unset, int] = 160
+    cpu_time: Unset | int = 216
+    memory_mb: Unset | int = 160
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

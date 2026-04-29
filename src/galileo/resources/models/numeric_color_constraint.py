@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -34,7 +34,7 @@ class NumericColorConstraint:
 
     color: MetricColor
     operator: NumericColorConstraintOperator
-    value: Union[float, list[float]]
+    value: float | list[float]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,7 +42,7 @@ class NumericColorConstraint:
 
         operator = self.operator.value
 
-        value: Union[float, list[float]]
+        value: float | list[float]
         value = self.value if isinstance(self.value, list) else self.value
 
         field_dict: dict[str, Any] = {}
@@ -58,7 +58,7 @@ class NumericColorConstraint:
 
         operator = NumericColorConstraintOperator(d.pop("operator"))
 
-        def _parse_value(data: object) -> Union[float, list[float]]:
+        def _parse_value(data: object) -> float | list[float]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
@@ -66,7 +66,7 @@ class NumericColorConstraint:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[float, list[float]], data)
+            return cast(float | list[float], data)
 
         value = _parse_value(d.pop("value"))
 

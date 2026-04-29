@@ -40,7 +40,7 @@ class CustomLLMConfig:
 
         class_name = self.class_name
 
-        init_kwargs: Union[None, Unset, dict[str, Any]]
+        init_kwargs: None | Unset | dict[str, Any]
         if isinstance(self.init_kwargs, Unset):
             init_kwargs = UNSET
         elif isinstance(self.init_kwargs, CustomLLMConfigInitKwargsType0):

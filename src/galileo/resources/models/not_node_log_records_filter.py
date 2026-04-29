@@ -33,7 +33,7 @@ class NotNodeLogRecordsFilter:
         from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
         not_: dict[str, Any]
-        if isinstance(self.not_, (FilterLeafLogRecordsFilter, AndNodeLogRecordsFilter, OrNodeLogRecordsFilter)):
+        if isinstance(self.not_, FilterLeafLogRecordsFilter | AndNodeLogRecordsFilter | OrNodeLogRecordsFilter):
             not_ = self.not_.to_dict()
         else:
             not_ = self.not_.to_dict()

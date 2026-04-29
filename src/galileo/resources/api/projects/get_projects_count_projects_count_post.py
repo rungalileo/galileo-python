@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, cast
 
 import httpx
 
@@ -37,7 +37,7 @@ def _get_kwargs(*, body: ProjectCollectionParams) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, int]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | int:
     if response.status_code == 200:
         return cast(int, response.json())
 
@@ -62,7 +62,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, int]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | int]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -71,7 +71,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(*, client: ApiClient, body: ProjectCollectionParams) -> Response[Union[HTTPValidationError, int]]:
+def sync_detailed(*, client: ApiClient, body: ProjectCollectionParams) -> Response[HTTPValidationError | int]:
     """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.
@@ -95,7 +95,7 @@ def sync_detailed(*, client: ApiClient, body: ProjectCollectionParams) -> Respon
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: ProjectCollectionParams) -> Optional[Union[HTTPValidationError, int]]:
+def sync(*, client: ApiClient, body: ProjectCollectionParams) -> HTTPValidationError | int | None:
     """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.
@@ -115,9 +115,7 @@ def sync(*, client: ApiClient, body: ProjectCollectionParams) -> Optional[Union[
     return sync_detailed(client=client, body=body).parsed
 
 
-async def asyncio_detailed(
-    *, client: ApiClient, body: ProjectCollectionParams
-) -> Response[Union[HTTPValidationError, int]]:
+async def asyncio_detailed(*, client: ApiClient, body: ProjectCollectionParams) -> Response[HTTPValidationError | int]:
     """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.
@@ -141,7 +139,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: ProjectCollectionParams) -> Optional[Union[HTTPValidationError, int]]:
+async def asyncio(*, client: ApiClient, body: ProjectCollectionParams) -> HTTPValidationError | int | None:
     """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.

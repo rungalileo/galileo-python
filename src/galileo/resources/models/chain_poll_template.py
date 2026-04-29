@@ -33,11 +33,11 @@ class ChainPollTemplate:
     """
 
     template: str
-    metric_system_prompt: Union[None, Unset, str] = UNSET
-    metric_description: Union[None, Unset, str] = UNSET
-    value_field_name: Union[Unset, str] = "rating"
-    explanation_field_name: Union[Unset, str] = "explanation"
-    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
+    metric_system_prompt: None | Unset | str = UNSET
+    metric_description: None | Unset | str = UNSET
+    value_field_name: Unset | str = "rating"
+    explanation_field_name: Unset | str = "explanation"
+    metric_few_shot_examples: Unset | list["FewShotExample"] = UNSET
     response_schema: Union["ChainPollTemplateResponseSchemaType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -46,24 +46,24 @@ class ChainPollTemplate:
 
         template = self.template
 
-        metric_system_prompt: Union[None, Unset, str]
+        metric_system_prompt: None | Unset | str
         metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
 
-        metric_description: Union[None, Unset, str]
+        metric_description: None | Unset | str
         metric_description = UNSET if isinstance(self.metric_description, Unset) else self.metric_description
 
         value_field_name = self.value_field_name
 
         explanation_field_name = self.explanation_field_name
 
-        metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
+        metric_few_shot_examples: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
             metric_few_shot_examples = []
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        response_schema: Union[None, Unset, dict[str, Any]]
+        response_schema: None | Unset | dict[str, Any]
         if isinstance(self.response_schema, Unset):
             response_schema = UNSET
         elif isinstance(self.response_schema, ChainPollTemplateResponseSchemaType0):
@@ -97,21 +97,21 @@ class ChainPollTemplate:
         d = dict(src_dict)
         template = d.pop("template")
 
-        def _parse_metric_system_prompt(data: object) -> Union[None, Unset, str]:
+        def _parse_metric_system_prompt(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         metric_system_prompt = _parse_metric_system_prompt(d.pop("metric_system_prompt", UNSET))
 
-        def _parse_metric_description(data: object) -> Union[None, Unset, str]:
+        def _parse_metric_description(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         metric_description = _parse_metric_description(d.pop("metric_description", UNSET))
 

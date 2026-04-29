@@ -44,7 +44,7 @@ class AggregatedTraceViewGraph:
             edges_item = edges_item_data.to_dict()
             edges.append(edges_item)
 
-        edge_occurrences_histogram: Union[None, Unset, dict[str, Any]]
+        edge_occurrences_histogram: None | Unset | dict[str, Any]
         if isinstance(self.edge_occurrences_histogram, Unset):
             edge_occurrences_histogram = UNSET
         elif isinstance(self.edge_occurrences_histogram, Histogram):

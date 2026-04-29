@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -37,7 +37,7 @@ def _get_kwargs(integration_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, IntegrationDB]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | IntegrationDB:
     if response.status_code == 200:
         return IntegrationDB.from_dict(response.json())
 
@@ -62,9 +62,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, IntegrationDB]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | IntegrationDB]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -73,7 +71,7 @@ def _build_response(
     )
 
 
-def sync_detailed(integration_id: str, *, client: ApiClient) -> Response[Union[HTTPValidationError, IntegrationDB]]:
+def sync_detailed(integration_id: str, *, client: ApiClient) -> Response[HTTPValidationError | IntegrationDB]:
     """Create Or Update Integration Selection.
 
      Create or update an integration selection for this user from Galileo.
@@ -97,7 +95,7 @@ def sync_detailed(integration_id: str, *, client: ApiClient) -> Response[Union[H
     return _build_response(client=client, response=response)
 
 
-def sync(integration_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
+def sync(integration_id: str, *, client: ApiClient) -> HTTPValidationError | IntegrationDB | None:
     """Create Or Update Integration Selection.
 
      Create or update an integration selection for this user from Galileo.
@@ -117,9 +115,7 @@ def sync(integration_id: str, *, client: ApiClient) -> Optional[Union[HTTPValida
     return sync_detailed(integration_id=integration_id, client=client).parsed
 
 
-async def asyncio_detailed(
-    integration_id: str, *, client: ApiClient
-) -> Response[Union[HTTPValidationError, IntegrationDB]]:
+async def asyncio_detailed(integration_id: str, *, client: ApiClient) -> Response[HTTPValidationError | IntegrationDB]:
     """Create Or Update Integration Selection.
 
      Create or update an integration selection for this user from Galileo.
@@ -143,7 +139,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(integration_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, IntegrationDB]]:
+async def asyncio(integration_id: str, *, client: ApiClient) -> HTTPValidationError | IntegrationDB | None:
     """Create Or Update Integration Selection.
 
      Create or update an integration selection for this user from Galileo.

@@ -11,6 +11,8 @@ if TYPE_CHECKING:
     from ..models.scorer_creator_filter import ScorerCreatorFilter
     from ..models.scorer_enabled_in_playground_sort import ScorerEnabledInPlaygroundSort
     from ..models.scorer_enabled_in_run_sort import ScorerEnabledInRunSort
+    from ..models.scorer_exclude_multimodal_scorers_filter import ScorerExcludeMultimodalScorersFilter
+    from ..models.scorer_exclude_slm_scorers_filter import ScorerExcludeSlmScorersFilter
     from ..models.scorer_id_filter import ScorerIDFilter
     from ..models.scorer_label_filter import ScorerLabelFilter
     from ..models.scorer_model_type_filter import ScorerModelTypeFilter
@@ -30,18 +32,21 @@ class ListScorersRequest:
     """
     Attributes
     ----------
-        filters (Union[Unset, list[Union['ScorerCreatedAtFilter', 'ScorerCreatorFilter', 'ScorerIDFilter',
-            'ScorerLabelFilter', 'ScorerModelTypeFilter', 'ScorerNameFilter', 'ScorerScoreableNodeTypesFilter',
-            'ScorerTagsFilter', 'ScorerTypeFilter', 'ScorerUpdatedAtFilter']]]):
+        filters (Union[Unset, list[Union['ScorerCreatedAtFilter', 'ScorerCreatorFilter',
+            'ScorerExcludeMultimodalScorersFilter', 'ScorerExcludeSlmScorersFilter', 'ScorerIDFilter', 'ScorerLabelFilter',
+            'ScorerModelTypeFilter', 'ScorerNameFilter', 'ScorerScoreableNodeTypesFilter', 'ScorerTagsFilter',
+            'ScorerTypeFilter', 'ScorerUpdatedAtFilter']]]):
         sort (Union['ScorerEnabledInPlaygroundSort', 'ScorerEnabledInRunSort', 'ScorerNameSort', None, Unset]):
     """
 
-    filters: Union[
-        Unset,
-        list[
+    filters: (
+        Unset
+        | list[
             Union[
                 "ScorerCreatedAtFilter",
                 "ScorerCreatorFilter",
+                "ScorerExcludeMultimodalScorersFilter",
+                "ScorerExcludeSlmScorersFilter",
                 "ScorerIDFilter",
                 "ScorerLabelFilter",
                 "ScorerModelTypeFilter",
@@ -51,8 +56,8 @@ class ListScorersRequest:
                 "ScorerTypeFilter",
                 "ScorerUpdatedAtFilter",
             ]
-        ],
-    ] = UNSET
+        ]
+    ) = UNSET
     sort: Union["ScorerEnabledInPlaygroundSort", "ScorerEnabledInRunSort", "ScorerNameSort", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -61,6 +66,8 @@ class ListScorersRequest:
         from ..models.scorer_creator_filter import ScorerCreatorFilter
         from ..models.scorer_enabled_in_playground_sort import ScorerEnabledInPlaygroundSort
         from ..models.scorer_enabled_in_run_sort import ScorerEnabledInRunSort
+        from ..models.scorer_exclude_multimodal_scorers_filter import ScorerExcludeMultimodalScorersFilter
+        from ..models.scorer_exclude_slm_scorers_filter import ScorerExcludeSlmScorersFilter
         from ..models.scorer_label_filter import ScorerLabelFilter
         from ..models.scorer_model_type_filter import ScorerModelTypeFilter
         from ..models.scorer_name_filter import ScorerNameFilter
@@ -70,24 +77,21 @@ class ListScorersRequest:
         from ..models.scorer_type_filter import ScorerTypeFilter
         from ..models.scorer_updated_at_filter import ScorerUpdatedAtFilter
 
-        filters: Union[Unset, list[dict[str, Any]]] = UNSET
+        filters: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    (
-                        ScorerNameFilter,
-                        ScorerTypeFilter,
-                        ScorerModelTypeFilter,
-                        ScorerTagsFilter,
-                        ScorerCreatorFilter,
-                        ScorerCreatedAtFilter,
-                        ScorerUpdatedAtFilter,
-                        ScorerLabelFilter,
-                        ScorerScoreableNodeTypesFilter,
-                    ),
+                    ScorerNameFilter
+                    | ScorerTypeFilter
+                    | ScorerModelTypeFilter
+                    | ScorerExcludeSlmScorersFilter
+                    | (ScorerExcludeMultimodalScorersFilter | ScorerTagsFilter)
+                    | ScorerCreatorFilter
+                    | ScorerCreatedAtFilter
+                    | (ScorerUpdatedAtFilter | ScorerLabelFilter | ScorerScoreableNodeTypesFilter),
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -95,10 +99,10 @@ class ListScorersRequest:
 
                 filters.append(filters_item)
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: None | Unset | dict[str, Any]
         if isinstance(self.sort, Unset):
             sort = UNSET
-        elif isinstance(self.sort, (ScorerNameSort, ScorerEnabledInRunSort, ScorerEnabledInPlaygroundSort)):
+        elif isinstance(self.sort, ScorerNameSort | ScorerEnabledInRunSort | ScorerEnabledInPlaygroundSort):
             sort = self.sort.to_dict()
         else:
             sort = self.sort
@@ -119,6 +123,8 @@ class ListScorersRequest:
         from ..models.scorer_creator_filter import ScorerCreatorFilter
         from ..models.scorer_enabled_in_playground_sort import ScorerEnabledInPlaygroundSort
         from ..models.scorer_enabled_in_run_sort import ScorerEnabledInRunSort
+        from ..models.scorer_exclude_multimodal_scorers_filter import ScorerExcludeMultimodalScorersFilter
+        from ..models.scorer_exclude_slm_scorers_filter import ScorerExcludeSlmScorersFilter
         from ..models.scorer_id_filter import ScorerIDFilter
         from ..models.scorer_label_filter import ScorerLabelFilter
         from ..models.scorer_model_type_filter import ScorerModelTypeFilter
@@ -139,6 +145,8 @@ class ListScorersRequest:
             ) -> Union[
                 "ScorerCreatedAtFilter",
                 "ScorerCreatorFilter",
+                "ScorerExcludeMultimodalScorersFilter",
+                "ScorerExcludeSlmScorersFilter",
                 "ScorerIDFilter",
                 "ScorerLabelFilter",
                 "ScorerModelTypeFilter",
@@ -166,6 +174,20 @@ class ListScorersRequest:
                     if not isinstance(data, dict):
                         raise TypeError()
                     return ScorerModelTypeFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return ScorerExcludeSlmScorersFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return ScorerExcludeMultimodalScorersFilter.from_dict(data)
 
                 except:  # noqa: E722
                     pass

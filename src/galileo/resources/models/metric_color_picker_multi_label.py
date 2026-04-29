@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -36,7 +36,7 @@ class MetricColorPickerMultiLabel:
     """
 
     constraints: list["CategoricalColorConstraint"]
-    type_: Union[Literal["multi_label"], Unset] = "multi_label"
+    type_: Literal["multi_label"] | Unset = "multi_label"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -67,7 +67,7 @@ class MetricColorPickerMultiLabel:
 
             constraints.append(constraints_item)
 
-        type_ = cast(Union[Literal["multi_label"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["multi_label"] | Unset, d.pop("type", UNSET))
         if type_ != "multi_label" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'multi_label', got '{type_}'")
 

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,9 +42,7 @@ def _get_kwargs(scorer_id: str, *, body: CreateLLMScorerVersionRequest) -> dict[
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[BaseScorerVersionResponse, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> BaseScorerVersionResponse | HTTPValidationError:
     if response.status_code == 200:
         return BaseScorerVersionResponse.from_dict(response.json())
 
@@ -71,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
+) -> Response[BaseScorerVersionResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     scorer_id: str, *, client: ApiClient, body: CreateLLMScorerVersionRequest
-) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
+) -> Response[BaseScorerVersionResponse | HTTPValidationError]:
     """Create Llm Scorer Version.
 
     Args:
@@ -107,7 +105,7 @@ def sync_detailed(
 
 def sync(
     scorer_id: str, *, client: ApiClient, body: CreateLLMScorerVersionRequest
-) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
+) -> BaseScorerVersionResponse | HTTPValidationError | None:
     """Create Llm Scorer Version.
 
     Args:
@@ -128,7 +126,7 @@ def sync(
 
 async def asyncio_detailed(
     scorer_id: str, *, client: ApiClient, body: CreateLLMScorerVersionRequest
-) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
+) -> Response[BaseScorerVersionResponse | HTTPValidationError]:
     """Create Llm Scorer Version.
 
     Args:
@@ -153,7 +151,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     scorer_id: str, *, client: ApiClient, body: CreateLLMScorerVersionRequest
-) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
+) -> BaseScorerVersionResponse | HTTPValidationError | None:
     """Create Llm Scorer Version.
 
     Args:
