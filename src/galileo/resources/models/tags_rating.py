@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,7 +15,7 @@ class TagsRating:
     Attributes
     ----------
         value (list[str]):
-        feedback_type (Literal['tags'] | Unset):  Default: 'tags'.
+        feedback_type (Union[Literal['tags'], Unset]):  Default: 'tags'.
     """
 
     value: list[str]

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -19,13 +17,13 @@ class LogRecordsBooleanFilter:
     ----------
         column_id (str): ID of the column to filter.
         value (bool):
-        operator (LogRecordsBooleanFilterOperator | Unset):  Default: LogRecordsBooleanFilterOperator.EQ.
-        type_ (Literal['boolean'] | Unset):  Default: 'boolean'.
+        operator (Union[Unset, LogRecordsBooleanFilterOperator]):  Default: LogRecordsBooleanFilterOperator.EQ.
+        type_ (Union[Literal['boolean'], Unset]):  Default: 'boolean'.
     """
 
     column_id: str
     value: bool
-    operator: LogRecordsBooleanFilterOperator | Unset = LogRecordsBooleanFilterOperator.EQ
+    operator: Unset | LogRecordsBooleanFilterOperator = LogRecordsBooleanFilterOperator.EQ
     type_: Literal["boolean"] | Unset = "boolean"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -34,7 +32,7 @@ class LogRecordsBooleanFilter:
 
         value = self.value
 
-        operator: str | Unset = UNSET
+        operator: Unset | str = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -58,7 +56,7 @@ class LogRecordsBooleanFilter:
         value = d.pop("value")
 
         _operator = d.pop("operator", UNSET)
-        operator: LogRecordsBooleanFilterOperator | Unset
+        operator: Unset | LogRecordsBooleanFilterOperator
         operator = UNSET if isinstance(_operator, Unset) else LogRecordsBooleanFilterOperator(_operator)
 
         type_ = cast(Literal["boolean"] | Unset, d.pop("type", UNSET))

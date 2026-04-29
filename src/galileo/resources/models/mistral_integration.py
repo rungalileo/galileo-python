@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,25 +18,25 @@ class MistralIntegration:
     """
     Attributes
     ----------
-        id (None | str | Unset):
-        name (Literal['mistral'] | Unset):  Default: 'mistral'.
-        extra (MistralIntegrationExtraType0 | None | Unset):
+        id (Union[None, Unset, str]):
+        name (Union[Literal['mistral'], Unset]):  Default: 'mistral'.
+        extra (Union['MistralIntegrationExtraType0', None, Unset]):
     """
 
-    id: None | str | Unset = UNSET
+    id: None | Unset | str = UNSET
     name: Literal["mistral"] | Unset = "mistral"
-    extra: MistralIntegrationExtraType0 | None | Unset = UNSET
+    extra: Union["MistralIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.mistral_integration_extra_type_0 import MistralIntegrationExtraType0
 
-        id: None | str | Unset
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
-        extra: dict[str, Any] | None | Unset
+        extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, MistralIntegrationExtraType0):
@@ -64,12 +62,12 @@ class MistralIntegration:
 
         d = dict(src_dict)
 
-        def _parse_id(data: object) -> None | str | Unset:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
@@ -77,7 +75,7 @@ class MistralIntegration:
         if name != "mistral" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'mistral', got '{name}'")
 
-        def _parse_extra(data: object) -> MistralIntegrationExtraType0 | None | Unset:
+        def _parse_extra(data: object) -> Union["MistralIntegrationExtraType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -89,7 +87,7 @@ class MistralIntegration:
 
             except:  # noqa: E722
                 pass
-            return cast(MistralIntegrationExtraType0 | None | Unset, data)
+            return cast(Union["MistralIntegrationExtraType0", None, Unset], data)
 
         extra = _parse_extra(d.pop("extra", UNSET))
 

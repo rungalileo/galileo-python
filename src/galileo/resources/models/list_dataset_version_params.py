@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,16 +18,16 @@ class ListDatasetVersionParams:
     """
     Attributes
     ----------
-        sort (DatasetVersionIndexSort | None | Unset):
+        sort (Union['DatasetVersionIndexSort', None, Unset]):
     """
 
-    sort: DatasetVersionIndexSort | None | Unset = UNSET
+    sort: Union["DatasetVersionIndexSort", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_version_index_sort import DatasetVersionIndexSort
 
-        sort: dict[str, Any] | None | Unset
+        sort: None | Unset | dict[str, Any]
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(self.sort, DatasetVersionIndexSort):
@@ -51,7 +49,7 @@ class ListDatasetVersionParams:
 
         d = dict(src_dict)
 
-        def _parse_sort(data: object) -> DatasetVersionIndexSort | None | Unset:
+        def _parse_sort(data: object) -> Union["DatasetVersionIndexSort", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -63,7 +61,7 @@ class ListDatasetVersionParams:
 
             except:  # noqa: E722
                 pass
-            return cast(DatasetVersionIndexSort | None | Unset, data)
+            return cast(Union["DatasetVersionIndexSort", None, Unset], data)
 
         sort = _parse_sort(d.pop("sort", UNSET))
 

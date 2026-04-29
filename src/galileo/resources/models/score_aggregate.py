@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,7 +16,7 @@ class ScoreAggregate:
     ----------
         average (float):
         unrated_count (int):
-        feedback_type (Literal['score'] | Unset):  Default: 'score'.
+        feedback_type (Union[Literal['score'], Unset]):  Default: 'score'.
     """
 
     average: float

@@ -86,7 +86,7 @@ def sync_detailed(project_id: str, log_stream_id: str, *, client: ApiClient) -> 
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id)
 
@@ -111,7 +111,7 @@ def sync(project_id: str, log_stream_id: str, *, client: ApiClient) -> Any | HTT
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return sync_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client).parsed
 
@@ -134,7 +134,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id)
 
@@ -159,6 +159,6 @@ async def asyncio(project_id: str, log_stream_id: str, *, client: ApiClient) -> 
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return (await asyncio_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client)).parsed

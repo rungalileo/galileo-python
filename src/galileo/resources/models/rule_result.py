@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -20,18 +18,18 @@ class RuleResult:
     ----------
         metric (str): Name of the metric.
         operator (RuleOperator):
-        target_value (float | int | list[Any] | None | str): Value to compare with for this metric (right hand side).
-        status (ExecutionStatus | Unset): Status of the execution.
-        value (Any | None | Unset): Result of the metric computation.
-        execution_time (float | None | Unset): Execution time for the rule in seconds.
+        target_value (Union[None, float, int, list[Any], str]): Value to compare with for this metric (right hand side).
+        status (Union[Unset, ExecutionStatus]): Status of the execution.
+        value (Union[Any, None, Unset]): Result of the metric computation.
+        execution_time (Union[None, Unset, float]): Execution time for the rule in seconds.
     """
 
     metric: str
     operator: RuleOperator
-    target_value: float | int | list[Any] | None | str
-    status: ExecutionStatus | Unset = UNSET
+    target_value: None | float | int | list[Any] | str
+    status: Unset | ExecutionStatus = UNSET
     value: Any | None | Unset = UNSET
-    execution_time: float | None | Unset = UNSET
+    execution_time: None | Unset | float = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,17 +37,17 @@ class RuleResult:
 
         operator = self.operator.value
 
-        target_value: float | int | list[Any] | None | str
+        target_value: None | float | int | list[Any] | str
         target_value = self.target_value if isinstance(self.target_value, list) else self.target_value
 
-        status: str | Unset = UNSET
+        status: Unset | str = UNSET
         if not isinstance(self.status, Unset):
             status = self.status.value
 
         value: Any | None | Unset
         value = UNSET if isinstance(self.value, Unset) else self.value
 
-        execution_time: float | None | Unset
+        execution_time: None | Unset | float
         execution_time = UNSET if isinstance(self.execution_time, Unset) else self.execution_time
 
         field_dict: dict[str, Any] = {}
@@ -71,7 +69,7 @@ class RuleResult:
 
         operator = RuleOperator(d.pop("operator"))
 
-        def _parse_target_value(data: object) -> float | int | list[Any] | None | str:
+        def _parse_target_value(data: object) -> None | float | int | list[Any] | str:
             if data is None:
                 return data
             try:
@@ -81,12 +79,12 @@ class RuleResult:
 
             except:  # noqa: E722
                 pass
-            return cast(float | int | list[Any] | None | str, data)
+            return cast(None | float | int | list[Any] | str, data)
 
         target_value = _parse_target_value(d.pop("target_value"))
 
         _status = d.pop("status", UNSET)
-        status: ExecutionStatus | Unset
+        status: Unset | ExecutionStatus
         status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
 
         def _parse_value(data: object) -> Any | None | Unset:
@@ -98,12 +96,12 @@ class RuleResult:
 
         value = _parse_value(d.pop("value", UNSET))
 
-        def _parse_execution_time(data: object) -> float | None | Unset:
+        def _parse_execution_time(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(float | None | Unset, data)
+            return cast(None | Unset | float, data)
 
         execution_time = _parse_execution_time(d.pop("execution_time", UNSET))
 

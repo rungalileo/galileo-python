@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,7 +15,7 @@ class InvalidResult:
     Attributes
     ----------
         error_message (str):
-        result_type (Literal['invalid'] | Unset):  Default: 'invalid'.
+        result_type (Union[Literal['invalid'], Unset]):  Default: 'invalid'.
     """
 
     error_message: str

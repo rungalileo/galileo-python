@@ -94,7 +94,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[CodeMetricGenerationStatusResponse | HTTPValidationError]
+        Response[Union[CodeMetricGenerationStatusResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(generation_id=generation_id)
 
@@ -120,7 +120,7 @@ def sync(generation_id: str, *, client: ApiClient) -> CodeMetricGenerationStatus
 
     Returns
     -------
-        CodeMetricGenerationStatusResponse | HTTPValidationError
+        Union[CodeMetricGenerationStatusResponse, HTTPValidationError]
     """
     return sync_detailed(generation_id=generation_id, client=client).parsed
 
@@ -144,7 +144,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[CodeMetricGenerationStatusResponse | HTTPValidationError]
+        Response[Union[CodeMetricGenerationStatusResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(generation_id=generation_id)
 
@@ -172,6 +172,6 @@ async def asyncio(
 
     Returns
     -------
-        CodeMetricGenerationStatusResponse | HTTPValidationError
+        Union[CodeMetricGenerationStatusResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(generation_id=generation_id, client=client)).parsed

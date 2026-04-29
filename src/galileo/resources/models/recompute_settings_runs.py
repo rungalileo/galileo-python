@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,7 +15,7 @@ class RecomputeSettingsRuns:
     Attributes
     ----------
         run_ids (list[str]):
-        mode (Literal['runs'] | Unset):  Default: 'runs'.
+        mode (Union[Literal['runs'], Unset]):  Default: 'runs'.
     """
 
     run_ids: list[str]

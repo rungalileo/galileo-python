@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -17,11 +15,11 @@ class ColumnMappingConfig:
     Attributes
     ----------
         columns (list[str]):
-        flatten (bool | Unset):  Default: False.
+        flatten (Union[Unset, bool]):  Default: False.
     """
 
     columns: list[str]
-    flatten: bool | Unset = False
+    flatten: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

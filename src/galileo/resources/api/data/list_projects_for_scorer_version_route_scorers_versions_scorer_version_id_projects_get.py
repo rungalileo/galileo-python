@@ -23,7 +23,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    scorer_version_id: str, *, scorer_id: str, starting_token: int | Unset = 0, limit: int | Unset = 100
+    scorer_version_id: str, *, scorer_id: str, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -93,8 +93,8 @@ def sync_detailed(
     *,
     client: ApiClient,
     scorer_id: str,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> Response[GetProjectsPaginatedResponseV2 | HTTPValidationError]:
     """List Projects For Scorer Version Route.
 
@@ -103,8 +103,8 @@ def sync_detailed(
     Args:
         scorer_version_id (str):
         scorer_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -113,7 +113,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[GetProjectsPaginatedResponseV2 | HTTPValidationError]
+        Response[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]
     """
     kwargs = _get_kwargs(
         scorer_version_id=scorer_version_id, scorer_id=scorer_id, starting_token=starting_token, limit=limit
@@ -129,8 +129,8 @@ def sync(
     *,
     client: ApiClient,
     scorer_id: str,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> GetProjectsPaginatedResponseV2 | HTTPValidationError | None:
     """List Projects For Scorer Version Route.
 
@@ -139,8 +139,8 @@ def sync(
     Args:
         scorer_version_id (str):
         scorer_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -149,7 +149,7 @@ def sync(
 
     Returns
     -------
-        GetProjectsPaginatedResponseV2 | HTTPValidationError
+        Union[GetProjectsPaginatedResponseV2, HTTPValidationError]
     """
     return sync_detailed(
         scorer_version_id=scorer_version_id,
@@ -165,8 +165,8 @@ async def asyncio_detailed(
     *,
     client: ApiClient,
     scorer_id: str,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> Response[GetProjectsPaginatedResponseV2 | HTTPValidationError]:
     """List Projects For Scorer Version Route.
 
@@ -175,8 +175,8 @@ async def asyncio_detailed(
     Args:
         scorer_version_id (str):
         scorer_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -185,7 +185,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[GetProjectsPaginatedResponseV2 | HTTPValidationError]
+        Response[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]
     """
     kwargs = _get_kwargs(
         scorer_version_id=scorer_version_id, scorer_id=scorer_id, starting_token=starting_token, limit=limit
@@ -201,8 +201,8 @@ async def asyncio(
     *,
     client: ApiClient,
     scorer_id: str,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> GetProjectsPaginatedResponseV2 | HTTPValidationError | None:
     """List Projects For Scorer Version Route.
 
@@ -211,8 +211,8 @@ async def asyncio(
     Args:
         scorer_version_id (str):
         scorer_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -221,7 +221,7 @@ async def asyncio(
 
     Returns
     -------
-        GetProjectsPaginatedResponseV2 | HTTPValidationError
+        Union[GetProjectsPaginatedResponseV2, HTTPValidationError]
     """
     return (
         await asyncio_detailed(

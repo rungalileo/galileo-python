@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -19,7 +17,7 @@ class LikeDislikeAggregate:
         like_count (int):
         dislike_count (int):
         unrated_count (int):
-        feedback_type (Literal['like_dislike'] | Unset):  Default: 'like_dislike'.
+        feedback_type (Union[Literal['like_dislike'], Unset]):  Default: 'like_dislike'.
     """
 
     like_count: int

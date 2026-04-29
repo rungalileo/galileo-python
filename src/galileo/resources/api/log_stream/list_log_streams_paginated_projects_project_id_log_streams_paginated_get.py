@@ -23,7 +23,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    project_id: str, *, include_counts: bool | Unset = False, starting_token: int | Unset = 0, limit: int | Unset = 100
+    project_id: str, *, include_counts: Unset | bool = False, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -90,9 +90,9 @@ def sync_detailed(
     project_id: str,
     *,
     client: ApiClient,
-    include_counts: bool | Unset = False,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    include_counts: Unset | bool = False,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> Response[HTTPValidationError | ListLogStreamResponse]:
     """List Log Streams Paginated.
 
@@ -100,9 +100,9 @@ def sync_detailed(
 
     Args:
         project_id (str):
-        include_counts (bool | Unset):  Default: False.
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        include_counts (Union[Unset, bool]):  Default: False.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -111,7 +111,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListLogStreamResponse]
+        Response[Union[HTTPValidationError, ListLogStreamResponse]]
     """
     kwargs = _get_kwargs(
         project_id=project_id, include_counts=include_counts, starting_token=starting_token, limit=limit
@@ -126,9 +126,9 @@ def sync(
     project_id: str,
     *,
     client: ApiClient,
-    include_counts: bool | Unset = False,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    include_counts: Unset | bool = False,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> HTTPValidationError | ListLogStreamResponse | None:
     """List Log Streams Paginated.
 
@@ -136,9 +136,9 @@ def sync(
 
     Args:
         project_id (str):
-        include_counts (bool | Unset):  Default: False.
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        include_counts (Union[Unset, bool]):  Default: False.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -147,7 +147,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ListLogStreamResponse
+        Union[HTTPValidationError, ListLogStreamResponse]
     """
     return sync_detailed(
         project_id=project_id, client=client, include_counts=include_counts, starting_token=starting_token, limit=limit
@@ -158,9 +158,9 @@ async def asyncio_detailed(
     project_id: str,
     *,
     client: ApiClient,
-    include_counts: bool | Unset = False,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    include_counts: Unset | bool = False,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> Response[HTTPValidationError | ListLogStreamResponse]:
     """List Log Streams Paginated.
 
@@ -168,9 +168,9 @@ async def asyncio_detailed(
 
     Args:
         project_id (str):
-        include_counts (bool | Unset):  Default: False.
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        include_counts (Union[Unset, bool]):  Default: False.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -179,7 +179,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListLogStreamResponse]
+        Response[Union[HTTPValidationError, ListLogStreamResponse]]
     """
     kwargs = _get_kwargs(
         project_id=project_id, include_counts=include_counts, starting_token=starting_token, limit=limit
@@ -194,9 +194,9 @@ async def asyncio(
     project_id: str,
     *,
     client: ApiClient,
-    include_counts: bool | Unset = False,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    include_counts: Unset | bool = False,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> HTTPValidationError | ListLogStreamResponse | None:
     """List Log Streams Paginated.
 
@@ -204,9 +204,9 @@ async def asyncio(
 
     Args:
         project_id (str):
-        include_counts (bool | Unset):  Default: False.
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        include_counts (Union[Unset, bool]):  Default: False.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -215,7 +215,7 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ListLogStreamResponse
+        Union[HTTPValidationError, ListLogStreamResponse]
     """
     return (
         await asyncio_detailed(

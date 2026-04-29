@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -20,14 +18,14 @@ class ExperimentsAvailableColumnsResponse:
     """
     Attributes
     ----------
-        columns (list[ColumnInfo] | Unset):
+        columns (Union[Unset, list['ColumnInfo']]):
     """
 
-    columns: list[ColumnInfo] | Unset = UNSET
+    columns: Unset | list["ColumnInfo"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        columns: list[dict[str, Any]] | Unset = UNSET
+        columns: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.columns, Unset):
             columns = []
             for columns_item_data in self.columns:
@@ -47,14 +45,12 @@ class ExperimentsAvailableColumnsResponse:
         from ..models.column_info import ColumnInfo
 
         d = dict(src_dict)
+        columns = []
         _columns = d.pop("columns", UNSET)
-        columns: list[ColumnInfo] | Unset = UNSET
-        if _columns is not UNSET:
-            columns = []
-            for columns_item_data in _columns:
-                columns_item = ColumnInfo.from_dict(columns_item_data)
+        for columns_item_data in _columns or []:
+            columns_item = ColumnInfo.from_dict(columns_item_data)
 
-                columns.append(columns_item)
+            columns.append(columns_item)
 
         experiments_available_columns_response = cls(columns=columns)
 

@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,39 +21,40 @@ class InputToxicityTemplate:
 
     Attributes
     ----------
-            metric_system_prompt (str | Unset):  Default: 'The user will provide you with a text.\nYou need to determine if
-                the text is toxic or not. Toxicity refers to language that is harmful or inappropriate, typically evaluated
-                based on the following aspects:\nHate Speech: Statements that demean, dehumanize, or attack individuals or
-                groups based on identity factors like race, gender, or religion.\nOffensive Content: Vulgar, abusive, or overly
-                profane language used to provoke or insult.\nSexual Content: Explicit or inappropriate sexual statements that
-                may be offensive or unsuitable in context.\nViolence or Harm: Advocacy or description of physical harm, abuse,
-                or violent actions.\nIllegal or Unethical Guidance: Instructions or encouragement for illegal or unethical
-                actions.\nManipulation or Exploitation: Language intended to deceive, exploit, or manipulate individuals for
-                harmful purposes.\nStatements fitting these criteria can be flagged as toxic, harmful, or inappropriate based on
-                context and intent.\n\nThink step by step, and explain your reasoning carefully.\nState your observations first,
-                before drawing any conclusions.\n\nRespond in the following JSON format:\n\n```\n{\n    \\"explanation\\":
-                string,\n    \\"toxic\\": boolean\n}\n```\n\n\\"explanation\\": A step-by-step reasoning process detailing your
-                observations and how they relate to the toxicity criteria.\n\n\\"toxic\\": A boolean value, 1 if the text is
-                toxic, 0 otherwise.\n\nYou must respond with valid JSON.'.
-            metric_description (str | Unset):  Default: 'I want a metric that checks whether the given text is toxic or not.
-                '.
-            value_field_name (str | Unset):  Default: 'toxic'.
-            explanation_field_name (str | Unset): Field name to look for in the chainpoll response, for the explanation.
-                Default: 'explanation'.
-            template (str | Unset):  Default: 'Input:\n\n```\n{query}\n```'.
-            metric_few_shot_examples (list[FewShotExample] | Unset):
-            response_schema (InputToxicityTemplateResponseSchemaType0 | None | Unset): Response schema for the output
+            metric_system_prompt (Union[Unset, str]):  Default: 'The user will provide you with a text.\nYou need to
+                determine if the text is toxic or not. Toxicity refers to language that is harmful or inappropriate, typically
+                evaluated based on the following aspects:\nHate Speech: Statements that demean, dehumanize, or attack
+                individuals or groups based on identity factors like race, gender, or religion.\nOffensive Content: Vulgar,
+                abusive, or overly profane language used to provoke or insult.\nSexual Content: Explicit or inappropriate sexual
+                statements that may be offensive or unsuitable in context.\nViolence or Harm: Advocacy or description of
+                physical harm, abuse, or violent actions.\nIllegal or Unethical Guidance: Instructions or encouragement for
+                illegal or unethical actions.\nManipulation or Exploitation: Language intended to deceive, exploit, or
+                manipulate individuals for harmful purposes.\nStatements fitting these criteria can be flagged as toxic,
+                harmful, or inappropriate based on context and intent.\n\nThink step by step, and explain your reasoning
+                carefully.\nState your observations first, before drawing any conclusions.\n\nRespond in the following JSON
+                format:\n\n```\n{\n    \\"explanation\\": string,\n    \\"toxic\\": boolean\n}\n```\n\n\\"explanation\\": A
+                step-by-step reasoning process detailing your observations and how they relate to the toxicity
+                criteria.\n\n\\"toxic\\": A boolean value, 1 if the text is toxic, 0 otherwise.\n\nYou must respond with valid
+                JSON.'.
+            metric_description (Union[Unset, str]):  Default: 'I want a metric that checks whether the given text is toxic
+                or not. '.
+            value_field_name (Union[Unset, str]):  Default: 'toxic'.
+            explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
+                explanation. Default: 'explanation'.
+            template (Union[Unset, str]):  Default: 'Input:\n\n```\n{query}\n```'.
+            metric_few_shot_examples (Union[Unset, list['FewShotExample']]):
+            response_schema (Union['InputToxicityTemplateResponseSchemaType0', None, Unset]): Response schema for the output
     """
 
-    metric_system_prompt: str | Unset = (
+    metric_system_prompt: Unset | str = (
         'The user will provide you with a text.\nYou need to determine if the text is toxic or not. Toxicity refers to language that is harmful or inappropriate, typically evaluated based on the following aspects:\nHate Speech: Statements that demean, dehumanize, or attack individuals or groups based on identity factors like race, gender, or religion.\nOffensive Content: Vulgar, abusive, or overly profane language used to provoke or insult.\nSexual Content: Explicit or inappropriate sexual statements that may be offensive or unsuitable in context.\nViolence or Harm: Advocacy or description of physical harm, abuse, or violent actions.\nIllegal or Unethical Guidance: Instructions or encouragement for illegal or unethical actions.\nManipulation or Exploitation: Language intended to deceive, exploit, or manipulate individuals for harmful purposes.\nStatements fitting these criteria can be flagged as toxic, harmful, or inappropriate based on context and intent.\n\nThink step by step, and explain your reasoning carefully.\nState your observations first, before drawing any conclusions.\n\nRespond in the following JSON format:\n\n```\n{\n    \\"explanation\\": string,\n    \\"toxic\\": boolean\n}\n```\n\n\\"explanation\\": A step-by-step reasoning process detailing your observations and how they relate to the toxicity criteria.\n\n\\"toxic\\": A boolean value, 1 if the text is toxic, 0 otherwise.\n\nYou must respond with valid JSON.'
     )
-    metric_description: str | Unset = "I want a metric that checks whether the given text is toxic or not. "
-    value_field_name: str | Unset = "toxic"
-    explanation_field_name: str | Unset = "explanation"
-    template: str | Unset = "Input:\n\n```\n{query}\n```"
-    metric_few_shot_examples: list[FewShotExample] | Unset = UNSET
-    response_schema: InputToxicityTemplateResponseSchemaType0 | None | Unset = UNSET
+    metric_description: Unset | str = "I want a metric that checks whether the given text is toxic or not. "
+    value_field_name: Unset | str = "toxic"
+    explanation_field_name: Unset | str = "explanation"
+    template: Unset | str = "Input:\n\n```\n{query}\n```"
+    metric_few_shot_examples: Unset | list["FewShotExample"] = UNSET
+    response_schema: Union["InputToxicityTemplateResponseSchemaType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -71,14 +70,14 @@ class InputToxicityTemplate:
 
         template = self.template
 
-        metric_few_shot_examples: list[dict[str, Any]] | Unset = UNSET
+        metric_few_shot_examples: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
             metric_few_shot_examples = []
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        response_schema: dict[str, Any] | None | Unset
+        response_schema: None | Unset | dict[str, Any]
         if isinstance(self.response_schema, Unset):
             response_schema = UNSET
         elif isinstance(self.response_schema, InputToxicityTemplateResponseSchemaType0):
@@ -122,16 +121,14 @@ class InputToxicityTemplate:
 
         template = d.pop("template", UNSET)
 
+        metric_few_shot_examples = []
         _metric_few_shot_examples = d.pop("metric_few_shot_examples", UNSET)
-        metric_few_shot_examples: list[FewShotExample] | Unset = UNSET
-        if _metric_few_shot_examples is not UNSET:
-            metric_few_shot_examples = []
-            for metric_few_shot_examples_item_data in _metric_few_shot_examples:
-                metric_few_shot_examples_item = FewShotExample.from_dict(metric_few_shot_examples_item_data)
+        for metric_few_shot_examples_item_data in _metric_few_shot_examples or []:
+            metric_few_shot_examples_item = FewShotExample.from_dict(metric_few_shot_examples_item_data)
 
-                metric_few_shot_examples.append(metric_few_shot_examples_item)
+            metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        def _parse_response_schema(data: object) -> InputToxicityTemplateResponseSchemaType0 | None | Unset:
+        def _parse_response_schema(data: object) -> Union["InputToxicityTemplateResponseSchemaType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -143,7 +140,7 @@ class InputToxicityTemplate:
 
             except:  # noqa: E722
                 pass
-            return cast(InputToxicityTemplateResponseSchemaType0 | None | Unset, data)
+            return cast(Union["InputToxicityTemplateResponseSchemaType0", None, Unset], data)
 
         response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from io import BytesIO
 from typing import Any, TypeVar, cast
@@ -21,22 +19,22 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
     ----------
         file (File):
         dataset_id (UUID):
-        dataset_version_index (int | None | Unset):
-        limit (int | Unset):  Default: 100.
-        starting_token (int | None | Unset):
-        required_scorers (list[str] | None | str | Unset):
-        scoreable_node_types (list[str] | None | str | Unset):
-        score_type (None | str | Unset):
+        dataset_version_index (Union[None, Unset, int]):
+        limit (Union[Unset, int]):  Default: 100.
+        starting_token (Union[None, Unset, int]):
+        required_scorers (Union[None, Unset, list[str], str]):
+        scoreable_node_types (Union[None, Unset, list[str], str]):
+        score_type (Union[None, Unset, str]):
     """
 
     file: File
     dataset_id: UUID
-    dataset_version_index: int | None | Unset = UNSET
-    limit: int | Unset = 100
-    starting_token: int | None | Unset = UNSET
-    required_scorers: list[str] | None | str | Unset = UNSET
-    scoreable_node_types: list[str] | None | str | Unset = UNSET
-    score_type: None | str | Unset = UNSET
+    dataset_version_index: None | Unset | int = UNSET
+    limit: Unset | int = 100
+    starting_token: None | Unset | int = UNSET
+    required_scorers: None | Unset | list[str] | str = UNSET
+    scoreable_node_types: None | Unset | list[str] | str = UNSET
+    score_type: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,15 +42,15 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
 
         dataset_id = str(self.dataset_id)
 
-        dataset_version_index: int | None | Unset
+        dataset_version_index: None | Unset | int
         dataset_version_index = UNSET if isinstance(self.dataset_version_index, Unset) else self.dataset_version_index
 
         limit = self.limit
 
-        starting_token: int | None | Unset
+        starting_token: None | Unset | int
         starting_token = UNSET if isinstance(self.starting_token, Unset) else self.starting_token
 
-        required_scorers: list[str] | None | str | Unset
+        required_scorers: None | Unset | list[str] | str
         if isinstance(self.required_scorers, Unset):
             required_scorers = UNSET
         elif isinstance(self.required_scorers, list):
@@ -61,7 +59,7 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
         else:
             required_scorers = self.required_scorers
 
-        scoreable_node_types: list[str] | None | str | Unset
+        scoreable_node_types: None | Unset | list[str] | str
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
         elif isinstance(self.scoreable_node_types, list):
@@ -70,7 +68,7 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
         else:
             scoreable_node_types = self.scoreable_node_types
 
-        score_type: None | str | Unset
+        score_type: None | Unset | str
         score_type = UNSET if isinstance(self.score_type, Unset) else self.score_type
 
         field_dict: dict[str, Any] = {}
@@ -156,27 +154,27 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
 
         dataset_id = UUID(d.pop("dataset_id"))
 
-        def _parse_dataset_version_index(data: object) -> int | None | Unset:
+        def _parse_dataset_version_index(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         dataset_version_index = _parse_dataset_version_index(d.pop("dataset_version_index", UNSET))
 
         limit = d.pop("limit", UNSET)
 
-        def _parse_starting_token(data: object) -> int | None | Unset:
+        def _parse_starting_token(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         starting_token = _parse_starting_token(d.pop("starting_token", UNSET))
 
-        def _parse_required_scorers(data: object) -> list[str] | None | str | Unset:
+        def _parse_required_scorers(data: object) -> None | Unset | list[str] | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -188,11 +186,11 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
 
             except:  # noqa: E722
                 pass
-            return cast(list[str] | None | str | Unset, data)
+            return cast(None | Unset | list[str] | str, data)
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
-        def _parse_scoreable_node_types(data: object) -> list[str] | None | str | Unset:
+        def _parse_scoreable_node_types(data: object) -> None | Unset | list[str] | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -204,16 +202,16 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
 
             except:  # noqa: E722
                 pass
-            return cast(list[str] | None | str | Unset, data)
+            return cast(None | Unset | list[str] | str, data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
-        def _parse_score_type(data: object) -> None | str | Unset:
+        def _parse_score_type(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         score_type = _parse_score_type(d.pop("score_type", UNSET))
 

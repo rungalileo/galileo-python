@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -16,13 +14,13 @@ class DatasetRowsSort:
     """
     Attributes
     ----------
-        name (Literal['num_rows'] | Unset):  Default: 'num_rows'.
-        ascending (bool | Unset):  Default: True.
-        sort_type (Literal['column'] | Unset):  Default: 'column'.
+        name (Union[Literal['num_rows'], Unset]):  Default: 'num_rows'.
+        ascending (Union[Unset, bool]):  Default: True.
+        sort_type (Union[Literal['column'], Unset]):  Default: 'column'.
     """
 
     name: Literal["num_rows"] | Unset = "num_rows"
-    ascending: bool | Unset = True
+    ascending: Unset | bool = True
     sort_type: Literal["column"] | Unset = "column"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

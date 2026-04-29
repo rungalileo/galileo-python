@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -14,7 +12,7 @@ class ValidationError:
     """
     Attributes
     ----------
-        loc (list[int | str]):
+        loc (list[Union[int, str]]):
         msg (str):
         type_ (str):
     """

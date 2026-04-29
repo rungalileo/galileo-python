@@ -32,7 +32,7 @@ def _get_kwargs() -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> list[CollaboratorRoleInfo]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> list["CollaboratorRoleInfo"]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -61,7 +61,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> list[Coll
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[list[CollaboratorRoleInfo]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[list["CollaboratorRoleInfo"]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,7 +70,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(*, client: ApiClient) -> Response[list[CollaboratorRoleInfo]]:
+def sync_detailed(*, client: ApiClient) -> Response[list["CollaboratorRoleInfo"]]:
     """Get Collaborator Roles.
 
     Raises
@@ -80,7 +80,7 @@ def sync_detailed(*, client: ApiClient) -> Response[list[CollaboratorRoleInfo]]:
 
     Returns
     -------
-        Response[list[CollaboratorRoleInfo]]
+        Response[list['CollaboratorRoleInfo']]
     """
     kwargs = _get_kwargs()
 
@@ -89,7 +89,7 @@ def sync_detailed(*, client: ApiClient) -> Response[list[CollaboratorRoleInfo]]:
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient) -> list[CollaboratorRoleInfo] | None:
+def sync(*, client: ApiClient) -> list["CollaboratorRoleInfo"] | None:
     """Get Collaborator Roles.
 
     Raises
@@ -99,12 +99,12 @@ def sync(*, client: ApiClient) -> list[CollaboratorRoleInfo] | None:
 
     Returns
     -------
-        list[CollaboratorRoleInfo]
+        list['CollaboratorRoleInfo']
     """
     return sync_detailed(client=client).parsed
 
 
-async def asyncio_detailed(*, client: ApiClient) -> Response[list[CollaboratorRoleInfo]]:
+async def asyncio_detailed(*, client: ApiClient) -> Response[list["CollaboratorRoleInfo"]]:
     """Get Collaborator Roles.
 
     Raises
@@ -114,7 +114,7 @@ async def asyncio_detailed(*, client: ApiClient) -> Response[list[CollaboratorRo
 
     Returns
     -------
-        Response[list[CollaboratorRoleInfo]]
+        Response[list['CollaboratorRoleInfo']]
     """
     kwargs = _get_kwargs()
 
@@ -123,7 +123,7 @@ async def asyncio_detailed(*, client: ApiClient) -> Response[list[CollaboratorRo
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient) -> list[CollaboratorRoleInfo] | None:
+async def asyncio(*, client: ApiClient) -> list["CollaboratorRoleInfo"] | None:
     """Get Collaborator Roles.
 
     Raises
@@ -133,6 +133,6 @@ async def asyncio(*, client: ApiClient) -> list[CollaboratorRoleInfo] | None:
 
     Returns
     -------
-        list[CollaboratorRoleInfo]
+        list['CollaboratorRoleInfo']
     """
     return (await asyncio_detailed(client=client)).parsed

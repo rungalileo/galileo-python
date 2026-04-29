@@ -1,8 +1,6 @@
-from __future__ import annotations
-
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -26,16 +24,16 @@ class FeedbackRatingDB:
     """
     Attributes
     ----------
-        rating (LikeDislikeRating | ScoreRating | StarRating | TagsRating | TextRating):
+        rating (Union['LikeDislikeRating', 'ScoreRating', 'StarRating', 'TagsRating', 'TextRating']):
         created_at (datetime.datetime):
-        created_by (None | str):
-        explanation (None | str | Unset):
+        created_by (Union[None, str]):
+        explanation (Union[None, Unset, str]):
     """
 
-    rating: LikeDislikeRating | ScoreRating | StarRating | TagsRating | TextRating
+    rating: Union["LikeDislikeRating", "ScoreRating", "StarRating", "TagsRating", "TextRating"]
     created_at: datetime.datetime
     created_by: None | str
-    explanation: None | str | Unset = UNSET
+    explanation: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -55,7 +53,7 @@ class FeedbackRatingDB:
         created_by: None | str
         created_by = self.created_by
 
-        explanation: None | str | Unset
+        explanation: None | Unset | str
         explanation = UNSET if isinstance(self.explanation, Unset) else self.explanation
 
         field_dict: dict[str, Any] = {}
@@ -76,7 +74,9 @@ class FeedbackRatingDB:
 
         d = dict(src_dict)
 
-        def _parse_rating(data: object) -> LikeDislikeRating | ScoreRating | StarRating | TagsRating | TextRating:
+        def _parse_rating(
+            data: object,
+        ) -> Union["LikeDislikeRating", "ScoreRating", "StarRating", "TagsRating", "TextRating"]:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
@@ -120,12 +120,12 @@ class FeedbackRatingDB:
 
         created_by = _parse_created_by(d.pop("created_by"))
 
-        def _parse_explanation(data: object) -> None | str | Unset:
+        def _parse_explanation(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         explanation = _parse_explanation(d.pop("explanation", UNSET))
 

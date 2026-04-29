@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,8 +16,8 @@ class ScorerModelTypeFilter:
     Attributes
     ----------
         operator (ScorerModelTypeFilterOperator):
-        value (list[str] | str):
-        name (Literal['model_type'] | Unset):  Default: 'model_type'.
+        value (Union[list[str], str]):
+        name (Union[Literal['model_type'], Unset]):  Default: 'model_type'.
     """
 
     operator: ScorerModelTypeFilterOperator

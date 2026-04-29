@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
@@ -33,11 +31,11 @@ class MetricColorPickerCategorical:
 
     Attributes
     ----------
-            constraints (list[CategoricalColorConstraint]):
-            type_ (Literal['categorical'] | Unset):  Default: 'categorical'.
+            constraints (list['CategoricalColorConstraint']):
+            type_ (Union[Literal['categorical'], Unset]):  Default: 'categorical'.
     """
 
-    constraints: list[CategoricalColorConstraint]
+    constraints: list["CategoricalColorConstraint"]
     type_: Literal["categorical"] | Unset = "categorical"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

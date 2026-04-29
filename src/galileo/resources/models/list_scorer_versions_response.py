@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -20,18 +18,18 @@ class ListScorerVersionsResponse:
     """
     Attributes
     ----------
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        paginated (bool | Unset):  Default: False.
-        next_starting_token (int | None | Unset):
-        versions (list[BaseScorerVersionResponse] | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        paginated (Union[Unset, bool]):  Default: False.
+        next_starting_token (Union[None, Unset, int]):
+        versions (Union[Unset, list['BaseScorerVersionResponse']]):
     """
 
-    starting_token: int | Unset = 0
-    limit: int | Unset = 100
-    paginated: bool | Unset = False
-    next_starting_token: int | None | Unset = UNSET
-    versions: list[BaseScorerVersionResponse] | Unset = UNSET
+    starting_token: Unset | int = 0
+    limit: Unset | int = 100
+    paginated: Unset | bool = False
+    next_starting_token: None | Unset | int = UNSET
+    versions: Unset | list["BaseScorerVersionResponse"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,10 +39,10 @@ class ListScorerVersionsResponse:
 
         paginated = self.paginated
 
-        next_starting_token: int | None | Unset
+        next_starting_token: None | Unset | int
         next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
-        versions: list[dict[str, Any]] | Unset = UNSET
+        versions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.versions, Unset):
             versions = []
             for versions_item_data in self.versions:
@@ -78,23 +76,21 @@ class ListScorerVersionsResponse:
 
         paginated = d.pop("paginated", UNSET)
 
-        def _parse_next_starting_token(data: object) -> int | None | Unset:
+        def _parse_next_starting_token(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
+        versions = []
         _versions = d.pop("versions", UNSET)
-        versions: list[BaseScorerVersionResponse] | Unset = UNSET
-        if _versions is not UNSET:
-            versions = []
-            for versions_item_data in _versions:
-                versions_item = BaseScorerVersionResponse.from_dict(versions_item_data)
+        for versions_item_data in _versions or []:
+            versions_item = BaseScorerVersionResponse.from_dict(versions_item_data)
 
-                versions.append(versions_item)
+            versions.append(versions_item)
 
         list_scorer_versions_response = cls(
             starting_token=starting_token,

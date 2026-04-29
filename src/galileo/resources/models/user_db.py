@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import datetime
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
@@ -30,12 +28,12 @@ class UserDB:
         organization_name (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        permissions (list[Permission] | Unset):
-        first_name (None | str | Unset):  Default: ''.
-        last_name (None | str | Unset):  Default: ''.
-        auth_method (AuthMethod | Unset):
-        role (UserRole | Unset):
-        email_is_verified (bool | None | Unset):
+        permissions (Union[Unset, list['Permission']]):
+        first_name (Union[None, Unset, str]):  Default: ''.
+        last_name (Union[None, Unset, str]):  Default: ''.
+        auth_method (Union[Unset, AuthMethod]):
+        role (Union[Unset, UserRole]):
+        email_is_verified (Union[None, Unset, bool]):
     """
 
     id: str
@@ -44,12 +42,12 @@ class UserDB:
     organization_name: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    permissions: list[Permission] | Unset = UNSET
-    first_name: None | str | Unset = ""
-    last_name: None | str | Unset = ""
-    auth_method: AuthMethod | Unset = UNSET
-    role: UserRole | Unset = UNSET
-    email_is_verified: bool | None | Unset = UNSET
+    permissions: Unset | list["Permission"] = UNSET
+    first_name: None | Unset | str = ""
+    last_name: None | Unset | str = ""
+    auth_method: Unset | AuthMethod = UNSET
+    role: Unset | UserRole = UNSET
+    email_is_verified: None | Unset | bool = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -65,28 +63,28 @@ class UserDB:
 
         updated_at = self.updated_at.isoformat()
 
-        permissions: list[dict[str, Any]] | Unset = UNSET
+        permissions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
                 permissions_item = permissions_item_data.to_dict()
                 permissions.append(permissions_item)
 
-        first_name: None | str | Unset
+        first_name: None | Unset | str
         first_name = UNSET if isinstance(self.first_name, Unset) else self.first_name
 
-        last_name: None | str | Unset
+        last_name: None | Unset | str
         last_name = UNSET if isinstance(self.last_name, Unset) else self.last_name
 
-        auth_method: str | Unset = UNSET
+        auth_method: Unset | str = UNSET
         if not isinstance(self.auth_method, Unset):
             auth_method = self.auth_method.value
 
-        role: str | Unset = UNSET
+        role: Unset | str = UNSET
         if not isinstance(self.role, Unset):
             role = self.role.value
 
-        email_is_verified: bool | None | Unset
+        email_is_verified: None | Unset | bool
         email_is_verified = UNSET if isinstance(self.email_is_verified, Unset) else self.email_is_verified
 
         field_dict: dict[str, Any] = {}
@@ -133,47 +131,45 @@ class UserDB:
 
         updated_at = isoparse(d.pop("updated_at"))
 
+        permissions = []
         _permissions = d.pop("permissions", UNSET)
-        permissions: list[Permission] | Unset = UNSET
-        if _permissions is not UNSET:
-            permissions = []
-            for permissions_item_data in _permissions:
-                permissions_item = Permission.from_dict(permissions_item_data)
+        for permissions_item_data in _permissions or []:
+            permissions_item = Permission.from_dict(permissions_item_data)
 
-                permissions.append(permissions_item)
+            permissions.append(permissions_item)
 
-        def _parse_first_name(data: object) -> None | str | Unset:
+        def _parse_first_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         first_name = _parse_first_name(d.pop("first_name", UNSET))
 
-        def _parse_last_name(data: object) -> None | str | Unset:
+        def _parse_last_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         last_name = _parse_last_name(d.pop("last_name", UNSET))
 
         _auth_method = d.pop("auth_method", UNSET)
-        auth_method: AuthMethod | Unset
+        auth_method: Unset | AuthMethod
         auth_method = UNSET if isinstance(_auth_method, Unset) else AuthMethod(_auth_method)
 
         _role = d.pop("role", UNSET)
-        role: UserRole | Unset
+        role: Unset | UserRole
         role = UNSET if isinstance(_role, Unset) else UserRole(_role)
 
-        def _parse_email_is_verified(data: object) -> bool | None | Unset:
+        def _parse_email_is_verified(data: object) -> None | Unset | bool:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(bool | None | Unset, data)
+            return cast(None | Unset | bool, data)
 
         email_is_verified = _parse_email_is_verified(d.pop("email_is_verified", UNSET))
 

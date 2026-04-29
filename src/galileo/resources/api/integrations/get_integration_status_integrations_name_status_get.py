@@ -106,7 +106,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError]
+        Response[Union[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet, HTTPValidationError]]
     """
     kwargs = _get_kwargs(name=name)
 
@@ -136,7 +136,7 @@ def sync(
 
     Returns
     -------
-        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError
+        Union[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet, HTTPValidationError]
     """
     return sync_detailed(name=name, client=client).parsed
 
@@ -161,7 +161,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError]
+        Response[Union[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet, HTTPValidationError]]
     """
     kwargs = _get_kwargs(name=name)
 
@@ -191,6 +191,6 @@ async def asyncio(
 
     Returns
     -------
-        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet | HTTPValidationError
+        Union[GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet, HTTPValidationError]
     """
     return (await asyncio_detailed(name=name, client=client)).parsed

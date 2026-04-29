@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -24,14 +22,14 @@ class BucketedMetric:
     ----------
         name (str):
         buckets (BucketedMetricBuckets):
-        average (float | None | Unset):
-        roll_up_method (None | RollUpMethodDisplayOptions | Unset):
-        data_type (None | OutputTypeEnum | Unset):
+        average (Union[None, Unset, float]):
+        roll_up_method (Union[None, RollUpMethodDisplayOptions, Unset]):
+        data_type (Union[None, OutputTypeEnum, Unset]):
     """
 
     name: str
-    buckets: BucketedMetricBuckets
-    average: float | None | Unset = UNSET
+    buckets: "BucketedMetricBuckets"
+    average: None | Unset | float = UNSET
     roll_up_method: None | RollUpMethodDisplayOptions | Unset = UNSET
     data_type: None | OutputTypeEnum | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -41,10 +39,10 @@ class BucketedMetric:
 
         buckets = self.buckets.to_dict()
 
-        average: float | None | Unset
+        average: None | Unset | float
         average = UNSET if isinstance(self.average, Unset) else self.average
 
-        roll_up_method: None | str | Unset
+        roll_up_method: None | Unset | str
         if isinstance(self.roll_up_method, Unset):
             roll_up_method = UNSET
         elif isinstance(self.roll_up_method, RollUpMethodDisplayOptions):
@@ -52,7 +50,7 @@ class BucketedMetric:
         else:
             roll_up_method = self.roll_up_method
 
-        data_type: None | str | Unset
+        data_type: None | Unset | str
         if isinstance(self.data_type, Unset):
             data_type = UNSET
         elif isinstance(self.data_type, OutputTypeEnum):
@@ -81,12 +79,12 @@ class BucketedMetric:
 
         buckets = BucketedMetricBuckets.from_dict(d.pop("buckets"))
 
-        def _parse_average(data: object) -> float | None | Unset:
+        def _parse_average(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(float | None | Unset, data)
+            return cast(None | Unset | float, data)
 
         average = _parse_average(d.pop("average", UNSET))
 

@@ -97,7 +97,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[GroupCollaborator | HTTPValidationError]
+        Response[Union[GroupCollaborator, HTTPValidationError]]
     """
     kwargs = _get_kwargs(integration_id=integration_id, group_id=group_id, body=body)
 
@@ -125,7 +125,7 @@ def sync(
 
     Returns
     -------
-        GroupCollaborator | HTTPValidationError
+        Union[GroupCollaborator, HTTPValidationError]
     """
     return sync_detailed(integration_id=integration_id, group_id=group_id, client=client, body=body).parsed
 
@@ -149,7 +149,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[GroupCollaborator | HTTPValidationError]
+        Response[Union[GroupCollaborator, HTTPValidationError]]
     """
     kwargs = _get_kwargs(integration_id=integration_id, group_id=group_id, body=body)
 
@@ -177,6 +177,6 @@ async def asyncio(
 
     Returns
     -------
-        GroupCollaborator | HTTPValidationError
+        Union[GroupCollaborator, HTTPValidationError]
     """
     return (await asyncio_detailed(integration_id=integration_id, group_id=group_id, client=client, body=body)).parsed

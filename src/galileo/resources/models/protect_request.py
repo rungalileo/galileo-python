@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -25,31 +23,31 @@ class ProtectRequest:
     Attributes
     ----------
         payload (Payload):
-        prioritized_rulesets (list[Ruleset] | Unset): Rulesets to be applied to the payload.
-        project_name (None | str | Unset): Project name.
-        project_id (None | str | Unset): Project ID.
-        stage_name (None | str | Unset): Stage name.
-        stage_id (None | str | Unset): Stage ID.
-        stage_version (int | None | Unset): Stage version to use for the request, if it's a central stage with a
+        prioritized_rulesets (Union[Unset, list['Ruleset']]): Rulesets to be applied to the payload.
+        project_name (Union[None, Unset, str]): Project name.
+        project_id (Union[None, Unset, str]): Project ID.
+        stage_name (Union[None, Unset, str]): Stage name.
+        stage_id (Union[None, Unset, str]): Stage ID.
+        stage_version (Union[None, Unset, int]): Stage version to use for the request, if it's a central stage with a
             previously registered version.
-        timeout (float | Unset): Optional timeout for the guardrail execution in seconds. This is not the timeout for
-            the request. If not set, a default timeout of 5 minutes will be used. Default: 300.0.
-        metadata (None | ProtectRequestMetadataType0 | Unset): Optional additional metadata. This will be echoed back in
-            the response.
-        headers (None | ProtectRequestHeadersType0 | Unset): Optional additional HTTP headers that should be included in
-            the response.
+        timeout (Union[Unset, float]): Optional timeout for the guardrail execution in seconds. This is not the timeout
+            for the request. If not set, a default timeout of 5 minutes will be used. Default: 300.0.
+        metadata (Union['ProtectRequestMetadataType0', None, Unset]): Optional additional metadata. This will be echoed
+            back in the response.
+        headers (Union['ProtectRequestHeadersType0', None, Unset]): Optional additional HTTP headers that should be
+            included in the response.
     """
 
-    payload: Payload
-    prioritized_rulesets: list[Ruleset] | Unset = UNSET
-    project_name: None | str | Unset = UNSET
-    project_id: None | str | Unset = UNSET
-    stage_name: None | str | Unset = UNSET
-    stage_id: None | str | Unset = UNSET
-    stage_version: int | None | Unset = UNSET
-    timeout: float | Unset = 300.0
-    metadata: None | ProtectRequestMetadataType0 | Unset = UNSET
-    headers: None | ProtectRequestHeadersType0 | Unset = UNSET
+    payload: "Payload"
+    prioritized_rulesets: Unset | list["Ruleset"] = UNSET
+    project_name: None | Unset | str = UNSET
+    project_id: None | Unset | str = UNSET
+    stage_name: None | Unset | str = UNSET
+    stage_id: None | Unset | str = UNSET
+    stage_version: None | Unset | int = UNSET
+    timeout: Unset | float = 300.0
+    metadata: Union["ProtectRequestMetadataType0", None, Unset] = UNSET
+    headers: Union["ProtectRequestHeadersType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,31 +56,31 @@ class ProtectRequest:
 
         payload = self.payload.to_dict()
 
-        prioritized_rulesets: list[dict[str, Any]] | Unset = UNSET
+        prioritized_rulesets: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.prioritized_rulesets, Unset):
             prioritized_rulesets = []
             for prioritized_rulesets_item_data in self.prioritized_rulesets:
                 prioritized_rulesets_item = prioritized_rulesets_item_data.to_dict()
                 prioritized_rulesets.append(prioritized_rulesets_item)
 
-        project_name: None | str | Unset
+        project_name: None | Unset | str
         project_name = UNSET if isinstance(self.project_name, Unset) else self.project_name
 
-        project_id: None | str | Unset
+        project_id: None | Unset | str
         project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
-        stage_name: None | str | Unset
+        stage_name: None | Unset | str
         stage_name = UNSET if isinstance(self.stage_name, Unset) else self.stage_name
 
-        stage_id: None | str | Unset
+        stage_id: None | Unset | str
         stage_id = UNSET if isinstance(self.stage_id, Unset) else self.stage_id
 
-        stage_version: int | None | Unset
+        stage_version: None | Unset | int
         stage_version = UNSET if isinstance(self.stage_version, Unset) else self.stage_version
 
         timeout = self.timeout
 
-        metadata: dict[str, Any] | None | Unset
+        metadata: None | Unset | dict[str, Any]
         if isinstance(self.metadata, Unset):
             metadata = UNSET
         elif isinstance(self.metadata, ProtectRequestMetadataType0):
@@ -90,7 +88,7 @@ class ProtectRequest:
         else:
             metadata = self.metadata
 
-        headers: dict[str, Any] | None | Unset
+        headers: None | Unset | dict[str, Any]
         if isinstance(self.headers, Unset):
             headers = UNSET
         elif isinstance(self.headers, ProtectRequestHeadersType0):
@@ -132,63 +130,61 @@ class ProtectRequest:
         d = dict(src_dict)
         payload = Payload.from_dict(d.pop("payload"))
 
+        prioritized_rulesets = []
         _prioritized_rulesets = d.pop("prioritized_rulesets", UNSET)
-        prioritized_rulesets: list[Ruleset] | Unset = UNSET
-        if _prioritized_rulesets is not UNSET:
-            prioritized_rulesets = []
-            for prioritized_rulesets_item_data in _prioritized_rulesets:
-                prioritized_rulesets_item = Ruleset.from_dict(prioritized_rulesets_item_data)
+        for prioritized_rulesets_item_data in _prioritized_rulesets or []:
+            prioritized_rulesets_item = Ruleset.from_dict(prioritized_rulesets_item_data)
 
-                prioritized_rulesets.append(prioritized_rulesets_item)
+            prioritized_rulesets.append(prioritized_rulesets_item)
 
-        def _parse_project_name(data: object) -> None | str | Unset:
+        def _parse_project_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         project_name = _parse_project_name(d.pop("project_name", UNSET))
 
-        def _parse_project_id(data: object) -> None | str | Unset:
+        def _parse_project_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         project_id = _parse_project_id(d.pop("project_id", UNSET))
 
-        def _parse_stage_name(data: object) -> None | str | Unset:
+        def _parse_stage_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         stage_name = _parse_stage_name(d.pop("stage_name", UNSET))
 
-        def _parse_stage_id(data: object) -> None | str | Unset:
+        def _parse_stage_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         stage_id = _parse_stage_id(d.pop("stage_id", UNSET))
 
-        def _parse_stage_version(data: object) -> int | None | Unset:
+        def _parse_stage_version(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         stage_version = _parse_stage_version(d.pop("stage_version", UNSET))
 
         timeout = d.pop("timeout", UNSET)
 
-        def _parse_metadata(data: object) -> None | ProtectRequestMetadataType0 | Unset:
+        def _parse_metadata(data: object) -> Union["ProtectRequestMetadataType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -200,11 +196,11 @@ class ProtectRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(None | ProtectRequestMetadataType0 | Unset, data)
+            return cast(Union["ProtectRequestMetadataType0", None, Unset], data)
 
         metadata = _parse_metadata(d.pop("metadata", UNSET))
 
-        def _parse_headers(data: object) -> None | ProtectRequestHeadersType0 | Unset:
+        def _parse_headers(data: object) -> Union["ProtectRequestHeadersType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -216,7 +212,7 @@ class ProtectRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(None | ProtectRequestHeadersType0 | Unset, data)
+            return cast(Union["ProtectRequestHeadersType0", None, Unset], data)
 
         headers = _parse_headers(d.pop("headers", UNSET))
 

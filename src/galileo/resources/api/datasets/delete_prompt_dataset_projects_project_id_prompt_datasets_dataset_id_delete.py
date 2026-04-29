@@ -84,7 +84,7 @@ def sync_detailed(project_id: str, dataset_id: str, *, client: ApiClient) -> Res
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, dataset_id=dataset_id)
 
@@ -107,7 +107,7 @@ def sync(project_id: str, dataset_id: str, *, client: ApiClient) -> Any | HTTPVa
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return sync_detailed(project_id=project_id, dataset_id=dataset_id, client=client).parsed
 
@@ -128,7 +128,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, dataset_id=dataset_id)
 
@@ -151,6 +151,6 @@ async def asyncio(project_id: str, dataset_id: str, *, client: ApiClient) -> Any
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return (await asyncio_detailed(project_id=project_id, dataset_id=dataset_id, client=client)).parsed

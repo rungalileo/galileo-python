@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,20 +19,21 @@ class MetricError:
     """
     Attributes
     ----------
-        status_type (Literal['error'] | Unset):  Default: 'error'.
-        scorer_type (None | ScorerType | Unset):
-        metric_key_alias (None | str | Unset):
-        message (None | str | Unset):  Default: 'An error occured.'.
-        ems_error_code (int | None | Unset): EMS error code from errors.yaml catalog for this metric error
-        standard_error (None | StandardError | Unset): Structured EMS error resolved on-the-fly from errors.yaml catalog.
+        status_type (Union[Literal['error'], Unset]):  Default: 'error'.
+        scorer_type (Union[None, ScorerType, Unset]):
+        metric_key_alias (Union[None, Unset, str]):
+        message (Union[None, Unset, str]):  Default: 'An error occured.'.
+        ems_error_code (Union[None, Unset, int]): EMS error code from errors.yaml catalog for this metric error
+        standard_error (Union['StandardError', None, Unset]): Structured EMS error resolved on-the-fly from errors.yaml
+            catalog.
     """
 
     status_type: Literal["error"] | Unset = "error"
     scorer_type: None | ScorerType | Unset = UNSET
-    metric_key_alias: None | str | Unset = UNSET
-    message: None | str | Unset = "An error occured."
-    ems_error_code: int | None | Unset = UNSET
-    standard_error: None | StandardError | Unset = UNSET
+    metric_key_alias: None | Unset | str = UNSET
+    message: None | Unset | str = "An error occured."
+    ems_error_code: None | Unset | int = UNSET
+    standard_error: Union["StandardError", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,7 +41,7 @@ class MetricError:
 
         status_type = self.status_type
 
-        scorer_type: None | str | Unset
+        scorer_type: None | Unset | str
         if isinstance(self.scorer_type, Unset):
             scorer_type = UNSET
         elif isinstance(self.scorer_type, ScorerType):
@@ -50,16 +49,16 @@ class MetricError:
         else:
             scorer_type = self.scorer_type
 
-        metric_key_alias: None | str | Unset
+        metric_key_alias: None | Unset | str
         metric_key_alias = UNSET if isinstance(self.metric_key_alias, Unset) else self.metric_key_alias
 
-        message: None | str | Unset
+        message: None | Unset | str
         message = UNSET if isinstance(self.message, Unset) else self.message
 
-        ems_error_code: int | None | Unset
+        ems_error_code: None | Unset | int
         ems_error_code = UNSET if isinstance(self.ems_error_code, Unset) else self.ems_error_code
 
-        standard_error: dict[str, Any] | None | Unset
+        standard_error: None | Unset | dict[str, Any]
         if isinstance(self.standard_error, Unset):
             standard_error = UNSET
         elif isinstance(self.standard_error, StandardError):
@@ -110,34 +109,34 @@ class MetricError:
 
         scorer_type = _parse_scorer_type(d.pop("scorer_type", UNSET))
 
-        def _parse_metric_key_alias(data: object) -> None | str | Unset:
+        def _parse_metric_key_alias(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         metric_key_alias = _parse_metric_key_alias(d.pop("metric_key_alias", UNSET))
 
-        def _parse_message(data: object) -> None | str | Unset:
+        def _parse_message(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         message = _parse_message(d.pop("message", UNSET))
 
-        def _parse_ems_error_code(data: object) -> int | None | Unset:
+        def _parse_ems_error_code(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         ems_error_code = _parse_ems_error_code(d.pop("ems_error_code", UNSET))
 
-        def _parse_standard_error(data: object) -> None | StandardError | Unset:
+        def _parse_standard_error(data: object) -> Union["StandardError", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -149,7 +148,7 @@ class MetricError:
 
             except:  # noqa: E722
                 pass
-            return cast(None | StandardError | Unset, data)
+            return cast(Union["StandardError", None, Unset], data)
 
         standard_error = _parse_standard_error(d.pop("standard_error", UNSET))
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from io import BytesIO
 from typing import Any, TypeVar, cast
@@ -18,12 +16,12 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
     """
     Attributes
     ----------
-        file (File | None | Unset):
-        column_names (list[str] | None | Unset):
+        file (Union[File, None, Unset]):
+        column_names (Union[None, Unset, list[str]]):
     """
 
     file: File | None | Unset = UNSET
-    column_names: list[str] | None | Unset = UNSET
+    column_names: None | Unset | list[str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,7 +34,7 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
         else:
             file = self.file
 
-        column_names: list[str] | None | Unset
+        column_names: None | Unset | list[str]
         if isinstance(self.column_names, Unset):
             column_names = UNSET
         elif isinstance(self.column_names, list):
@@ -96,7 +94,7 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
 
         file = _parse_file(d.pop("file", UNSET))
 
-        def _parse_column_names(data: object) -> list[str] | None | Unset:
+        def _parse_column_names(data: object) -> None | Unset | list[str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -108,7 +106,7 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
 
             except:  # noqa: E722
                 pass
-            return cast(list[str] | None | Unset, data)
+            return cast(None | Unset | list[str], data)
 
         column_names = _parse_column_names(d.pop("column_names", UNSET))
 

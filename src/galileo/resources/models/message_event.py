@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -25,24 +23,24 @@ class MessageEvent:
     Attributes
     ----------
         role (MessageRole):
-        type_ (Literal['message'] | Unset):  Default: 'message'.
-        id (None | str | Unset): Unique identifier for the event
-        status (EventStatus | None | Unset): Status of the event
-        metadata (MessageEventMetadataType0 | None | Unset): Provider-specific metadata and additional fields
-        error_message (None | str | Unset): Error message if the event failed
-        content (None | str | Unset): Text content of the message
-        content_parts (list[MessageEventContentPartsType0Item] | None | Unset): Structured content items (text, audio,
-            images, etc.)
+        type_ (Union[Literal['message'], Unset]):  Default: 'message'.
+        id (Union[None, Unset, str]): Unique identifier for the event
+        status (Union[EventStatus, None, Unset]): Status of the event
+        metadata (Union['MessageEventMetadataType0', None, Unset]): Provider-specific metadata and additional fields
+        error_message (Union[None, Unset, str]): Error message if the event failed
+        content (Union[None, Unset, str]): Text content of the message
+        content_parts (Union[None, Unset, list['MessageEventContentPartsType0Item']]): Structured content items (text,
+            audio, images, etc.)
     """
 
     role: MessageRole
     type_: Literal["message"] | Unset = "message"
-    id: None | str | Unset = UNSET
+    id: None | Unset | str = UNSET
     status: EventStatus | None | Unset = UNSET
-    metadata: MessageEventMetadataType0 | None | Unset = UNSET
-    error_message: None | str | Unset = UNSET
-    content: None | str | Unset = UNSET
-    content_parts: list[MessageEventContentPartsType0Item] | None | Unset = UNSET
+    metadata: Union["MessageEventMetadataType0", None, Unset] = UNSET
+    error_message: None | Unset | str = UNSET
+    content: None | Unset | str = UNSET
+    content_parts: None | Unset | list["MessageEventContentPartsType0Item"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -52,10 +50,10 @@ class MessageEvent:
 
         type_ = self.type_
 
-        id: None | str | Unset
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
-        status: None | str | Unset
+        status: None | Unset | str
         if isinstance(self.status, Unset):
             status = UNSET
         elif isinstance(self.status, EventStatus):
@@ -63,7 +61,7 @@ class MessageEvent:
         else:
             status = self.status
 
-        metadata: dict[str, Any] | None | Unset
+        metadata: None | Unset | dict[str, Any]
         if isinstance(self.metadata, Unset):
             metadata = UNSET
         elif isinstance(self.metadata, MessageEventMetadataType0):
@@ -71,13 +69,13 @@ class MessageEvent:
         else:
             metadata = self.metadata
 
-        error_message: None | str | Unset
+        error_message: None | Unset | str
         error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
-        content: None | str | Unset
+        content: None | Unset | str
         content = UNSET if isinstance(self.content, Unset) else self.content
 
-        content_parts: list[dict[str, Any]] | None | Unset
+        content_parts: None | Unset | list[dict[str, Any]]
         if isinstance(self.content_parts, Unset):
             content_parts = UNSET
         elif isinstance(self.content_parts, list):
@@ -121,12 +119,12 @@ class MessageEvent:
         if type_ != "message" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'message', got '{type_}'")
 
-        def _parse_id(data: object) -> None | str | Unset:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
@@ -146,7 +144,7 @@ class MessageEvent:
 
         status = _parse_status(d.pop("status", UNSET))
 
-        def _parse_metadata(data: object) -> MessageEventMetadataType0 | None | Unset:
+        def _parse_metadata(data: object) -> Union["MessageEventMetadataType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -158,29 +156,29 @@ class MessageEvent:
 
             except:  # noqa: E722
                 pass
-            return cast(MessageEventMetadataType0 | None | Unset, data)
+            return cast(Union["MessageEventMetadataType0", None, Unset], data)
 
         metadata = _parse_metadata(d.pop("metadata", UNSET))
 
-        def _parse_error_message(data: object) -> None | str | Unset:
+        def _parse_error_message(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         error_message = _parse_error_message(d.pop("error_message", UNSET))
 
-        def _parse_content(data: object) -> None | str | Unset:
+        def _parse_content(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         content = _parse_content(d.pop("content", UNSET))
 
-        def _parse_content_parts(data: object) -> list[MessageEventContentPartsType0Item] | None | Unset:
+        def _parse_content_parts(data: object) -> None | Unset | list["MessageEventContentPartsType0Item"]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -200,7 +198,7 @@ class MessageEvent:
                 return content_parts_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[MessageEventContentPartsType0Item] | None | Unset, data)
+            return cast(None | Unset | list["MessageEventContentPartsType0Item"], data)
 
         content_parts = _parse_content_parts(d.pop("content_parts", UNSET))
 

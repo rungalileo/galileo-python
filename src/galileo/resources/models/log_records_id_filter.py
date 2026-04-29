@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,14 +16,14 @@ class LogRecordsIDFilter:
     Attributes
     ----------
         column_id (str): ID of the column to filter.
-        value (list[str] | str):
-        operator (LogRecordsIDFilterOperator | Unset):  Default: LogRecordsIDFilterOperator.EQ.
-        type_ (Literal['id'] | Unset):  Default: 'id'.
+        value (Union[list[str], str]):
+        operator (Union[Unset, LogRecordsIDFilterOperator]):  Default: LogRecordsIDFilterOperator.EQ.
+        type_ (Union[Literal['id'], Unset]):  Default: 'id'.
     """
 
     column_id: str
     value: list[str] | str
-    operator: LogRecordsIDFilterOperator | Unset = LogRecordsIDFilterOperator.EQ
+    operator: Unset | LogRecordsIDFilterOperator = LogRecordsIDFilterOperator.EQ
     type_: Literal["id"] | Unset = "id"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -43,7 +41,7 @@ class LogRecordsIDFilter:
         else:
             value = self.value
 
-        operator: str | Unset = UNSET
+        operator: Unset | str = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -87,7 +85,7 @@ class LogRecordsIDFilter:
         value = _parse_value(d.pop("value"))
 
         _operator = d.pop("operator", UNSET)
-        operator: LogRecordsIDFilterOperator | Unset
+        operator: Unset | LogRecordsIDFilterOperator
         operator = UNSET if isinstance(_operator, Unset) else LogRecordsIDFilterOperator(_operator)
 
         type_ = cast(Literal["id"] | Unset, d.pop("type", UNSET))

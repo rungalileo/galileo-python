@@ -94,7 +94,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ProjectUpdateResponse]
+        Response[Union[HTTPValidationError, ProjectUpdateResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -119,7 +119,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ProjectUpdateResponse
+        Union[HTTPValidationError, ProjectUpdateResponse]
     """
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
@@ -140,7 +140,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ProjectUpdateResponse]
+        Response[Union[HTTPValidationError, ProjectUpdateResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -165,6 +165,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ProjectUpdateResponse
+        Union[HTTPValidationError, ProjectUpdateResponse]
     """
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

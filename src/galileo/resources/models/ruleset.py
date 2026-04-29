@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,27 +20,27 @@ class Ruleset:
     """
     Attributes
     ----------
-        rules (list[Rule] | Unset): List of rules to evaluate. Atleast 1 rule is required.
-        action (OverrideAction | PassthroughAction | Unset): Action to take if all the rules are met.
-        description (None | str | Unset): Description of the ruleset.
+        rules (Union[Unset, list['Rule']]): List of rules to evaluate. Atleast 1 rule is required.
+        action (Union['OverrideAction', 'PassthroughAction', Unset]): Action to take if all the rules are met.
+        description (Union[None, Unset, str]): Description of the ruleset.
     """
 
-    rules: list[Rule] | Unset = UNSET
-    action: OverrideAction | PassthroughAction | Unset = UNSET
-    description: None | str | Unset = UNSET
+    rules: Unset | list["Rule"] = UNSET
+    action: Union["OverrideAction", "PassthroughAction", Unset] = UNSET
+    description: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.override_action import OverrideAction
 
-        rules: list[dict[str, Any]] | Unset = UNSET
+        rules: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.rules, Unset):
             rules = []
             for rules_item_data in self.rules:
                 rules_item = rules_item_data.to_dict()
                 rules.append(rules_item)
 
-        action: dict[str, Any] | Unset
+        action: Unset | dict[str, Any]
         if isinstance(self.action, Unset):
             action = UNSET
         elif isinstance(self.action, OverrideAction):
@@ -50,7 +48,7 @@ class Ruleset:
         else:
             action = self.action.to_dict()
 
-        description: None | str | Unset
+        description: None | Unset | str
         description = UNSET if isinstance(self.description, Unset) else self.description
 
         field_dict: dict[str, Any] = {}
@@ -72,16 +70,14 @@ class Ruleset:
         from ..models.rule import Rule
 
         d = dict(src_dict)
+        rules = []
         _rules = d.pop("rules", UNSET)
-        rules: list[Rule] | Unset = UNSET
-        if _rules is not UNSET:
-            rules = []
-            for rules_item_data in _rules:
-                rules_item = Rule.from_dict(rules_item_data)
+        for rules_item_data in _rules or []:
+            rules_item = Rule.from_dict(rules_item_data)
 
-                rules.append(rules_item)
+            rules.append(rules_item)
 
-        def _parse_action(data: object) -> OverrideAction | PassthroughAction | Unset:
+        def _parse_action(data: object) -> Union["OverrideAction", "PassthroughAction", Unset]:
             if isinstance(data, Unset):
                 return data
             try:
@@ -97,12 +93,12 @@ class Ruleset:
 
         action = _parse_action(d.pop("action", UNSET))
 
-        def _parse_description(data: object) -> None | str | Unset:
+        def _parse_description(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         description = _parse_description(d.pop("description", UNSET))
 

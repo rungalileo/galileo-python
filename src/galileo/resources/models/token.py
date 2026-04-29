@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -17,11 +15,11 @@ class Token:
     Attributes
     ----------
         access_token (str):
-        token_type (str | Unset):  Default: 'bearer'.
+        token_type (Union[Unset, str]):  Default: 'bearer'.
     """
 
     access_token: str
-    token_type: str | Unset = "bearer"
+    token_type: Unset | str = "bearer"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

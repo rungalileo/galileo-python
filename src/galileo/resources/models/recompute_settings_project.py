@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -16,7 +14,7 @@ class RecomputeSettingsProject:
     """
     Attributes
     ----------
-        mode (Literal['project'] | Unset):  Default: 'project'.
+        mode (Union[Literal['project'], Unset]):  Default: 'project'.
     """
 
     mode: Literal["project"] | Unset = "project"

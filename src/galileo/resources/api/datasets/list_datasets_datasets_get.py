@@ -24,13 +24,13 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *, actions: list[DatasetAction] | Unset = UNSET, starting_token: int | Unset = 0, limit: int | Unset = 100
+    *, actions: Unset | list[DatasetAction] = UNSET, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_actions: list[str] | Unset = UNSET
+    json_actions: Unset | list[str] = UNSET
     if not isinstance(actions, Unset):
         json_actions = []
         for actions_item_data in actions:
@@ -97,16 +97,17 @@ def _build_response(
 def sync_detailed(
     *,
     client: ApiClient,
-    actions: list[DatasetAction] | Unset = UNSET,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    actions: Unset | list[DatasetAction] = UNSET,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> Response[HTTPValidationError | ListDatasetResponse]:
     """List Datasets.
 
     Args:
-        actions (list[DatasetAction] | Unset): Actions to include in the 'permissions' field.
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        actions (Union[Unset, list[DatasetAction]]): Actions to include in the 'permissions'
+            field.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -115,7 +116,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListDatasetResponse]
+        Response[Union[HTTPValidationError, ListDatasetResponse]]
     """
     kwargs = _get_kwargs(actions=actions, starting_token=starting_token, limit=limit)
 
@@ -127,16 +128,17 @@ def sync_detailed(
 def sync(
     *,
     client: ApiClient,
-    actions: list[DatasetAction] | Unset = UNSET,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    actions: Unset | list[DatasetAction] = UNSET,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> HTTPValidationError | ListDatasetResponse | None:
     """List Datasets.
 
     Args:
-        actions (list[DatasetAction] | Unset): Actions to include in the 'permissions' field.
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        actions (Union[Unset, list[DatasetAction]]): Actions to include in the 'permissions'
+            field.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -145,7 +147,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ListDatasetResponse
+        Union[HTTPValidationError, ListDatasetResponse]
     """
     return sync_detailed(client=client, actions=actions, starting_token=starting_token, limit=limit).parsed
 
@@ -153,16 +155,17 @@ def sync(
 async def asyncio_detailed(
     *,
     client: ApiClient,
-    actions: list[DatasetAction] | Unset = UNSET,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    actions: Unset | list[DatasetAction] = UNSET,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> Response[HTTPValidationError | ListDatasetResponse]:
     """List Datasets.
 
     Args:
-        actions (list[DatasetAction] | Unset): Actions to include in the 'permissions' field.
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        actions (Union[Unset, list[DatasetAction]]): Actions to include in the 'permissions'
+            field.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -171,7 +174,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListDatasetResponse]
+        Response[Union[HTTPValidationError, ListDatasetResponse]]
     """
     kwargs = _get_kwargs(actions=actions, starting_token=starting_token, limit=limit)
 
@@ -183,16 +186,17 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: ApiClient,
-    actions: list[DatasetAction] | Unset = UNSET,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    actions: Unset | list[DatasetAction] = UNSET,
+    starting_token: Unset | int = 0,
+    limit: Unset | int = 100,
 ) -> HTTPValidationError | ListDatasetResponse | None:
     """List Datasets.
 
     Args:
-        actions (list[DatasetAction] | Unset): Actions to include in the 'permissions' field.
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        actions (Union[Unset, list[DatasetAction]]): Actions to include in the 'permissions'
+            field.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -201,6 +205,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ListDatasetResponse
+        Union[HTTPValidationError, ListDatasetResponse]
     """
     return (await asyncio_detailed(client=client, actions=actions, starting_token=starting_token, limit=limit)).parsed

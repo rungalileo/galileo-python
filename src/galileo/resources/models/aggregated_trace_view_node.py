@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -23,15 +21,15 @@ class AggregatedTraceViewNode:
     Attributes
     ----------
         id (str):
-        name (None | str):
+        name (Union[None, str]):
         type_ (StepType):
         occurrences (int):
         has_children (bool):
         metrics (AggregatedTraceViewNodeMetrics):
         trace_count (int):
         weight (float):
-        parent_id (None | str | Unset):
-        insights (list[InsightSummary] | Unset):
+        parent_id (Union[None, Unset, str]):
+        insights (Union[Unset, list['InsightSummary']]):
     """
 
     id: str
@@ -39,11 +37,11 @@ class AggregatedTraceViewNode:
     type_: StepType
     occurrences: int
     has_children: bool
-    metrics: AggregatedTraceViewNodeMetrics
+    metrics: "AggregatedTraceViewNodeMetrics"
     trace_count: int
     weight: float
-    parent_id: None | str | Unset = UNSET
-    insights: list[InsightSummary] | Unset = UNSET
+    parent_id: None | Unset | str = UNSET
+    insights: Unset | list["InsightSummary"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -64,10 +62,10 @@ class AggregatedTraceViewNode:
 
         weight = self.weight
 
-        parent_id: None | str | Unset
+        parent_id: None | Unset | str
         parent_id = UNSET if isinstance(self.parent_id, Unset) else self.parent_id
 
-        insights: list[dict[str, Any]] | Unset = UNSET
+        insights: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.insights, Unset):
             insights = []
             for insights_item_data in self.insights:
@@ -122,23 +120,21 @@ class AggregatedTraceViewNode:
 
         weight = d.pop("weight")
 
-        def _parse_parent_id(data: object) -> None | str | Unset:
+        def _parse_parent_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         parent_id = _parse_parent_id(d.pop("parent_id", UNSET))
 
+        insights = []
         _insights = d.pop("insights", UNSET)
-        insights: list[InsightSummary] | Unset = UNSET
-        if _insights is not UNSET:
-            insights = []
-            for insights_item_data in _insights:
-                insights_item = InsightSummary.from_dict(insights_item_data)
+        for insights_item_data in _insights or []:
+            insights_item = InsightSummary.from_dict(insights_item_data)
 
-                insights.append(insights_item)
+            insights.append(insights_item)
 
         aggregated_trace_view_node = cls(
             id=id,

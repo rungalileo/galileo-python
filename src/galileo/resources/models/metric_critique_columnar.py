@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -20,14 +18,14 @@ class MetricCritiqueColumnar:
     ----------
         id (str):
         is_computed (bool):
-        revised_explanation (None | str):
+        revised_explanation (Union[None, str]):
         critique_info (MetricCritiqueContent):
     """
 
     id: str
     is_computed: bool
     revised_explanation: None | str
-    critique_info: MetricCritiqueContent
+    critique_info: "MetricCritiqueContent"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

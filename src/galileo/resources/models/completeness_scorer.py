@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,19 +21,19 @@ class CompletenessScorer:
     """
     Attributes
     ----------
-        name (Literal['completeness'] | Unset):  Default: 'completeness'.
-        filters (list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset): List of filters to apply to the
-            scorer.
-        type_ (CompletenessScorerType | Unset):  Default: CompletenessScorerType.LUNA.
-        model_name (None | str | Unset): Alias of the model to use for the scorer.
-        num_judges (int | None | Unset): Number of judges for the scorer.
+        name (Union[Literal['completeness'], Unset]):  Default: 'completeness'.
+        filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]): List of filters
+            to apply to the scorer.
+        type_ (Union[Unset, CompletenessScorerType]):  Default: CompletenessScorerType.LUNA.
+        model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
+        num_judges (Union[None, Unset, int]): Number of judges for the scorer.
     """
 
     name: Literal["completeness"] | Unset = "completeness"
-    filters: list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset = UNSET
-    type_: CompletenessScorerType | Unset = CompletenessScorerType.LUNA
-    model_name: None | str | Unset = UNSET
-    num_judges: int | None | Unset = UNSET
+    filters: None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]] = UNSET
+    type_: Unset | CompletenessScorerType = CompletenessScorerType.LUNA
+    model_name: None | Unset | str = UNSET
+    num_judges: None | Unset | int = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,7 +42,7 @@ class CompletenessScorer:
 
         name = self.name
 
-        filters: list[dict[str, Any]] | None | Unset
+        filters: None | Unset | list[dict[str, Any]]
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
@@ -61,14 +59,14 @@ class CompletenessScorer:
         else:
             filters = self.filters
 
-        type_: str | Unset = UNSET
+        type_: Unset | str = UNSET
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
 
-        model_name: None | str | Unset
+        model_name: None | Unset | str
         model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
-        num_judges: int | None | Unset
+        num_judges: None | Unset | int
         num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
         field_dict: dict[str, Any] = {}
@@ -98,7 +96,9 @@ class CompletenessScorer:
         if name != "completeness" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'completeness', got '{name}'")
 
-        def _parse_filters(data: object) -> list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset:
+        def _parse_filters(
+            data: object,
+        ) -> None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -110,7 +110,9 @@ class CompletenessScorer:
                 _filters_type_0 = data
                 for filters_type_0_item_data in _filters_type_0:
 
-                    def _parse_filters_type_0_item(data: object) -> MetadataFilter | ModalityFilter | NodeNameFilter:
+                    def _parse_filters_type_0_item(
+                        data: object,
+                    ) -> Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -136,29 +138,29 @@ class CompletenessScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset, data)
+            return cast(None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
         _type_ = d.pop("type", UNSET)
-        type_: CompletenessScorerType | Unset
+        type_: Unset | CompletenessScorerType
         type_ = UNSET if isinstance(_type_, Unset) else CompletenessScorerType(_type_)
 
-        def _parse_model_name(data: object) -> None | str | Unset:
+        def _parse_model_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         model_name = _parse_model_name(d.pop("model_name", UNSET))
 
-        def _parse_num_judges(data: object) -> int | None | Unset:
+        def _parse_num_judges(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 

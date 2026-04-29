@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -27,17 +25,17 @@ class LogRecordsMetricsResponse:
         group_by_columns (list[str]):
         aggregate_metrics (LogRecordsMetricsResponseAggregateMetrics):
         bucketed_metrics (LogRecordsMetricsResponseBucketedMetrics):
-        ems_captured_error (bool | Unset): Whether any EMS error codes were encountered in the queried metrics Default:
-            False.
-        standard_errors (LogRecordsMetricsResponseStandardErrorsType0 | None | Unset): Structured EMS errors for each
-            error code encountered, keyed by code.
+        ems_captured_error (Union[Unset, bool]): Whether any EMS error codes were encountered in the queried metrics
+            Default: False.
+        standard_errors (Union['LogRecordsMetricsResponseStandardErrorsType0', None, Unset]): Structured EMS errors for
+            each error code encountered, keyed by code.
     """
 
     group_by_columns: list[str]
-    aggregate_metrics: LogRecordsMetricsResponseAggregateMetrics
-    bucketed_metrics: LogRecordsMetricsResponseBucketedMetrics
-    ems_captured_error: bool | Unset = False
-    standard_errors: LogRecordsMetricsResponseStandardErrorsType0 | None | Unset = UNSET
+    aggregate_metrics: "LogRecordsMetricsResponseAggregateMetrics"
+    bucketed_metrics: "LogRecordsMetricsResponseBucketedMetrics"
+    ems_captured_error: Unset | bool = False
+    standard_errors: Union["LogRecordsMetricsResponseStandardErrorsType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -53,7 +51,7 @@ class LogRecordsMetricsResponse:
 
         ems_captured_error = self.ems_captured_error
 
-        standard_errors: dict[str, Any] | None | Unset
+        standard_errors: None | Unset | dict[str, Any]
         if isinstance(self.standard_errors, Unset):
             standard_errors = UNSET
         elif isinstance(self.standard_errors, LogRecordsMetricsResponseStandardErrorsType0):
@@ -94,7 +92,7 @@ class LogRecordsMetricsResponse:
 
         ems_captured_error = d.pop("ems_captured_error", UNSET)
 
-        def _parse_standard_errors(data: object) -> LogRecordsMetricsResponseStandardErrorsType0 | None | Unset:
+        def _parse_standard_errors(data: object) -> Union["LogRecordsMetricsResponseStandardErrorsType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -106,7 +104,7 @@ class LogRecordsMetricsResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(LogRecordsMetricsResponseStandardErrorsType0 | None | Unset, data)
+            return cast(Union["LogRecordsMetricsResponseStandardErrorsType0", None, Unset], data)
 
         standard_errors = _parse_standard_errors(d.pop("standard_errors", UNSET))
 

@@ -100,7 +100,7 @@ def sync_detailed(template_id: str, *, client: ApiClient) -> Response[DeleteProm
 
     Returns
     -------
-        Response[DeletePromptResponse | HTTPValidationError]
+        Response[Union[DeletePromptResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(template_id=template_id)
 
@@ -136,7 +136,7 @@ def sync(template_id: str, *, client: ApiClient) -> DeletePromptResponse | HTTPV
 
     Returns
     -------
-        DeletePromptResponse | HTTPValidationError
+        Union[DeletePromptResponse, HTTPValidationError]
     """
     return sync_detailed(template_id=template_id, client=client).parsed
 
@@ -170,7 +170,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[DeletePromptResponse | HTTPValidationError]
+        Response[Union[DeletePromptResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(template_id=template_id)
 
@@ -206,6 +206,6 @@ async def asyncio(template_id: str, *, client: ApiClient) -> DeletePromptRespons
 
     Returns
     -------
-        DeletePromptResponse | HTTPValidationError
+        Union[DeletePromptResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(template_id=template_id, client=client)).parsed

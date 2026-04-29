@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,11 +19,11 @@ class MessagesListItem:
     """
     Attributes
     ----------
-        content (list[FileContentPart | TextContentPart] | str):
-        role (MessagesListItemRole | str):
+        content (Union[list[Union['FileContentPart', 'TextContentPart']], str]):
+        role (Union[MessagesListItemRole, str]):
     """
 
-    content: list[FileContentPart | TextContentPart] | str
+    content: list[Union["FileContentPart", "TextContentPart"]] | str
     role: MessagesListItemRole | str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -63,7 +61,7 @@ class MessagesListItem:
 
         d = dict(src_dict)
 
-        def _parse_content(data: object) -> list[FileContentPart | TextContentPart] | str:
+        def _parse_content(data: object) -> list[Union["FileContentPart", "TextContentPart"]] | str:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
@@ -71,7 +69,7 @@ class MessagesListItem:
                 _content_type_1 = data
                 for content_type_1_item_data in _content_type_1:
 
-                    def _parse_content_type_1_item(data: object) -> FileContentPart | TextContentPart:
+                    def _parse_content_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -90,7 +88,7 @@ class MessagesListItem:
                 return content_type_1
             except:  # noqa: E722
                 pass
-            return cast(list[FileContentPart | TextContentPart] | str, data)
+            return cast(list[Union["FileContentPart", "TextContentPart"]] | str, data)
 
         content = _parse_content(d.pop("content"))
 

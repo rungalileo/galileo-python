@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,7 +15,7 @@ class ExperimentUpdateRequest:
     Attributes
     ----------
         name (str):
-        task_type (Literal[16] | Literal[17] | Unset):  Default: 16.
+        task_type (Union[Literal[16], Literal[17], Unset]):  Default: 16.
     """
 
     name: str

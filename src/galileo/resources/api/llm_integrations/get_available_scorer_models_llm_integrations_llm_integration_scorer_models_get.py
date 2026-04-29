@@ -86,7 +86,7 @@ def sync_detailed(llm_integration: LLMIntegration, *, client: ApiClient) -> Resp
 
     Returns
     -------
-        Response[HTTPValidationError | list[str]]
+        Response[Union[HTTPValidationError, list[str]]]
     """
     kwargs = _get_kwargs(llm_integration=llm_integration)
 
@@ -110,7 +110,7 @@ def sync(llm_integration: LLMIntegration, *, client: ApiClient) -> HTTPValidatio
 
     Returns
     -------
-        HTTPValidationError | list[str]
+        Union[HTTPValidationError, list[str]]
     """
     return sync_detailed(llm_integration=llm_integration, client=client).parsed
 
@@ -132,7 +132,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | list[str]]
+        Response[Union[HTTPValidationError, list[str]]]
     """
     kwargs = _get_kwargs(llm_integration=llm_integration)
 
@@ -156,6 +156,6 @@ async def asyncio(llm_integration: LLMIntegration, *, client: ApiClient) -> HTTP
 
     Returns
     -------
-        HTTPValidationError | list[str]
+        Union[HTTPValidationError, list[str]]
     """
     return (await asyncio_detailed(llm_integration=llm_integration, client=client)).parsed

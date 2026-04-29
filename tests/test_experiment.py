@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 from uuid import uuid4
@@ -146,6 +147,53 @@ class TestExperimentInitialization:
         assert experiment.project_id == "test-id"
         assert experiment.project_name == "Test Project"
 
+    def test_init_without_prompt_succeeds(self, reset_configuration: None) -> None:
+        """Test that prompt is optional — omitting it creates a valid LOCAL_ONLY experiment."""
+        # Given: no prompt or prompt_name provided (function-based / generated-output flow)
+        # When: creating an experiment
+        experiment = Experiment(name="otel-trace-eval", dataset_name="trace-dataset", project_name="My AI Project")
+
+        # Then: experiment is created with no prompt fields set
+        assert experiment.prompt_name is None
+        assert experiment.prompt_id is None
+        assert experiment._prompt_template is None
+        assert experiment.sync_state == SyncState.LOCAL_ONLY
+
+    def test_init_without_prompt_or_dataset_succeeds(self, reset_configuration: None) -> None:
+        """Test that a bare experiment with only a name and project is valid locally."""
+        # Given: only name and project provided
+        # When: creating an experiment
+        experiment = Experiment(name="metadata-only", project_name="My Project")
+
+        # Then: experiment is created with no prompt or dataset
+        assert experiment.prompt_name is None
+        assert experiment.dataset_name is None
+        assert experiment.sync_state == SyncState.LOCAL_ONLY
+
+    def test_init_with_both_prompt_and_prompt_name_warns_and_prompt_wins(
+        self, reset_configuration: None, caplog: pytest.LogCaptureFixture, enable_galileo_logging: None
+    ) -> None:
+        """Test that providing both 'prompt' and 'prompt_name' logs a warning and 'prompt' takes precedence."""
+        # Given: both prompt and prompt_name provided
+        # When: creating an experiment while capturing warnings on the experiment logger
+        with caplog.at_level(logging.WARNING, logger="galileo.experiment"):
+            experiment = Experiment(
+                name="Test Experiment",
+                dataset_name="test-dataset",
+                prompt="winning-prompt",
+                prompt_name="losing-prompt",
+                project_name="Test Project",
+            )
+
+        # Then: a warning is logged and 'prompt' takes precedence over 'prompt_name'
+        assert any(
+            record.levelno == logging.WARNING
+            and "both 'prompt' and 'prompt_name' were provided" in record.message
+            and "'prompt' takes precedence" in record.message
+            for record in caplog.records
+        )
+        assert experiment.prompt_name == "winning-prompt"
+
 
 class TestExperimentEnvFallback:
     """Test suite for Experiment environment variable fallback behavior."""
@@ -192,19 +240,80 @@ class TestExperimentEnvFallback:
         assert experiment.is_synced()
 
     @patch("galileo.experiment.Projects")
-    def test_create_raises_error_when_no_project_and_no_env_fallback(
+    def test_create_raises_named_error_when_project_name_not_found(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test create() raises ValueError when no project and no env fallback."""
-        # Given: env fallback returns None (no project found)
+        """Test create() names the missing project when project_name is provided but not found."""
+        # Given: project_name is provided but the server returns no matching project
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: creating experiment raises ResourceNotFoundError with helpful message
-        experiment = Experiment(name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt")
-        with pytest.raises(ResourceNotFoundError, match="Project not found"):
+        # When/Then: error names the project the user specified, not generic guidance
+        experiment = Experiment(
+            name="Test Experiment",
+            dataset_name="test-dataset",
+            prompt_name="test-prompt",
+            project_name="my-nonexistent-project",
+        )
+        with pytest.raises(ResourceNotFoundError, match=r'Project "my-nonexistent-project" not found'):
             experiment.create()
+
+    @patch("galileo.experiment.Projects")
+    def test_create_raises_error_when_no_project_and_no_env_fallback(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        """Test create() raises ResourceNotFoundError naming the project that wasn't found."""
+        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = None
+
+        # When/Then: creating experiment raises ResourceNotFoundError with guidance to provide a project identifier
+        experiment = Experiment(name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt")
+        with pytest.raises(ResourceNotFoundError, match="No project specified"):
+            experiment.create()
+
+    @patch("galileo.experiment.create_metric_configs")
+    @patch("galileo.experiment.load_dataset_and_records")
+    @patch("galileo.experiment.Projects")
+    @patch("galileo.experiment.ExperimentsService")
+    def test_create_without_prompt_succeeds(
+        self,
+        mock_experiments_class: MagicMock,
+        mock_projects_class: MagicMock,
+        mock_load_dataset: MagicMock,
+        mock_create_metrics: MagicMock,
+        reset_configuration: None,
+        mock_experiment_response: MagicMock,
+        mock_project: MagicMock,
+    ) -> None:
+        """Test create() succeeds when no prompt is provided (function-based / generated-output flow)."""
+        # Given: a project and dataset but no prompt
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
+
+        mock_dataset = MagicMock()
+        mock_load_dataset.return_value = (mock_dataset, [])
+        mock_create_metrics.return_value = (None, [])
+
+        mock_experiments_service = MagicMock()
+        mock_experiments_class.return_value = mock_experiments_service
+        mock_experiments_service.get.side_effect = NotFoundError(404, b"Not Found")
+        mock_experiments_service.create.return_value = mock_experiment_response
+
+        # When: creating experiment without any prompt parameter
+        experiment = Experiment(
+            name="otel-trace-eval", dataset_name="trace-dataset", project_name="My AI Project"
+        ).create()
+
+        # Then: experiment is created and synced, no prompt_template or prompt_settings passed to service
+        assert experiment.is_synced()
+        assert experiment.project_id == mock_project.id
+        _, kwargs = mock_experiments_service.create.call_args
+        assert kwargs.get("prompt_template") is None
+        assert kwargs.get("prompt_settings") is None
 
     @patch("galileo.experiment.Projects")
     @patch("galileo.experiment.ExperimentsService")
@@ -237,14 +346,14 @@ class TestExperimentEnvFallback:
     def test_get_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test get() raises ValueError when no project and no env fallback."""
-        # Given: env fallback returns None (no project found)
+        """Test get() raises ResourceNotFoundError naming the project that wasn't found."""
+        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: calling get() raises ResourceNotFoundError with helpful message
-        with pytest.raises(ResourceNotFoundError, match="Project not found"):
+        # When/Then: calling get() raises ResourceNotFoundError with guidance to provide a project identifier
+        with pytest.raises(ResourceNotFoundError, match="No project specified"):
             Experiment.get(name="Test Experiment")
 
     @patch("galileo.experiment.Projects")
@@ -277,14 +386,14 @@ class TestExperimentEnvFallback:
     def test_list_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test list() raises ValueError when no project and no env fallback."""
-        # Given: env fallback returns None (no project found)
+        """Test list() raises ResourceNotFoundError naming the project that wasn't found."""
+        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: calling list() raises ResourceNotFoundError with helpful message
-        with pytest.raises(ResourceNotFoundError, match="Project not found"):
+        # When/Then: calling list() raises ResourceNotFoundError with guidance to provide a project identifier
+        with pytest.raises(ResourceNotFoundError, match="No project specified"):
             Experiment.list()
 
 

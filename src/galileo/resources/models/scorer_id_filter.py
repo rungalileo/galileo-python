@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,14 +15,14 @@ class ScorerIDFilter:
     """
     Attributes
     ----------
-        value (list[str] | str):
-        name (Literal['id'] | Unset):  Default: 'id'.
-        operator (ScorerIDFilterOperator | Unset):  Default: ScorerIDFilterOperator.EQ.
+        value (Union[list[str], str]):
+        name (Union[Literal['id'], Unset]):  Default: 'id'.
+        operator (Union[Unset, ScorerIDFilterOperator]):  Default: ScorerIDFilterOperator.EQ.
     """
 
     value: list[str] | str
     name: Literal["id"] | Unset = "id"
-    operator: ScorerIDFilterOperator | Unset = ScorerIDFilterOperator.EQ
+    operator: Unset | ScorerIDFilterOperator = ScorerIDFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,7 +39,7 @@ class ScorerIDFilter:
 
         name = self.name
 
-        operator: str | Unset = UNSET
+        operator: Unset | str = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -86,7 +84,7 @@ class ScorerIDFilter:
             raise ValueError(f"name must match const 'id', got '{name}'")
 
         _operator = d.pop("operator", UNSET)
-        operator: ScorerIDFilterOperator | Unset
+        operator: Unset | ScorerIDFilterOperator
         operator = UNSET if isinstance(_operator, Unset) else ScorerIDFilterOperator(_operator)
 
         scorer_id_filter = cls(value=value, name=name, operator=operator)

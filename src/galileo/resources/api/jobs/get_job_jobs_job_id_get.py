@@ -82,7 +82,7 @@ def sync_detailed(job_id: str, *, client: ApiClient) -> Response[HTTPValidationE
 
     Returns
     -------
-        Response[HTTPValidationError | JobDB]
+        Response[Union[HTTPValidationError, JobDB]]
     """
     kwargs = _get_kwargs(job_id=job_id)
 
@@ -106,7 +106,7 @@ def sync(job_id: str, *, client: ApiClient) -> HTTPValidationError | JobDB | Non
 
     Returns
     -------
-        HTTPValidationError | JobDB
+        Union[HTTPValidationError, JobDB]
     """
     return sync_detailed(job_id=job_id, client=client).parsed
 
@@ -126,7 +126,7 @@ async def asyncio_detailed(job_id: str, *, client: ApiClient) -> Response[HTTPVa
 
     Returns
     -------
-        Response[HTTPValidationError | JobDB]
+        Response[Union[HTTPValidationError, JobDB]]
     """
     kwargs = _get_kwargs(job_id=job_id)
 
@@ -150,6 +150,6 @@ async def asyncio(job_id: str, *, client: ApiClient) -> HTTPValidationError | Jo
 
     Returns
     -------
-        HTTPValidationError | JobDB
+        Union[HTTPValidationError, JobDB]
     """
     return (await asyncio_detailed(job_id=job_id, client=client)).parsed

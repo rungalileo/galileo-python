@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,20 +15,20 @@ class MetricPending:
     """
     Attributes
     ----------
-        status_type (Literal['pending'] | Unset):  Default: 'pending'.
-        scorer_type (None | ScorerType | Unset):
-        metric_key_alias (None | str | Unset):
+        status_type (Union[Literal['pending'], Unset]):  Default: 'pending'.
+        scorer_type (Union[None, ScorerType, Unset]):
+        metric_key_alias (Union[None, Unset, str]):
     """
 
     status_type: Literal["pending"] | Unset = "pending"
     scorer_type: None | ScorerType | Unset = UNSET
-    metric_key_alias: None | str | Unset = UNSET
+    metric_key_alias: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         status_type = self.status_type
 
-        scorer_type: None | str | Unset
+        scorer_type: None | Unset | str
         if isinstance(self.scorer_type, Unset):
             scorer_type = UNSET
         elif isinstance(self.scorer_type, ScorerType):
@@ -38,7 +36,7 @@ class MetricPending:
         else:
             scorer_type = self.scorer_type
 
-        metric_key_alias: None | str | Unset
+        metric_key_alias: None | Unset | str
         metric_key_alias = UNSET if isinstance(self.metric_key_alias, Unset) else self.metric_key_alias
 
         field_dict: dict[str, Any] = {}
@@ -76,12 +74,12 @@ class MetricPending:
 
         scorer_type = _parse_scorer_type(d.pop("scorer_type", UNSET))
 
-        def _parse_metric_key_alias(data: object) -> None | str | Unset:
+        def _parse_metric_key_alias(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         metric_key_alias = _parse_metric_key_alias(d.pop("metric_key_alias", UNSET))
 

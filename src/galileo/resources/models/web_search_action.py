@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,19 +16,19 @@ class WebSearchAction:
     Attributes
     ----------
         type_ (Literal['search']): Type of web search action
-        query (None | str | Unset): Search query string
-        sources (Any | None | Unset): Optional provider-specific sources
+        query (Union[None, Unset, str]): Search query string
+        sources (Union[Any, None, Unset]): Optional provider-specific sources
     """
 
     type_: Literal["search"]
-    query: None | str | Unset = UNSET
+    query: None | Unset | str = UNSET
     sources: Any | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         type_ = self.type_
 
-        query: None | str | Unset
+        query: None | Unset | str
         query = UNSET if isinstance(self.query, Unset) else self.query
 
         sources: Any | None | Unset
@@ -53,12 +51,12 @@ class WebSearchAction:
         if type_ != "search":
             raise ValueError(f"type must match const 'search', got '{type_}'")
 
-        def _parse_query(data: object) -> None | str | Unset:
+        def _parse_query(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         query = _parse_query(d.pop("query", UNSET))
 

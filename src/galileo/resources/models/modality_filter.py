@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -20,8 +18,8 @@ class ModalityFilter:
     Attributes
     ----------
             operator (ModalityFilterOperator):
-            value (list[str] | str):
-            name (Literal['modality'] | Unset):  Default: 'modality'.
+            value (Union[list[str], str]):
+            name (Union[Literal['modality'], Unset]):  Default: 'modality'.
     """
 
     operator: ModalityFilterOperator

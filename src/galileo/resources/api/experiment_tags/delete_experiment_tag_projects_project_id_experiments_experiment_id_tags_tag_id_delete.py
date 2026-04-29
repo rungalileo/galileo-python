@@ -90,7 +90,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[DeleteRunResponse | HTTPValidationError]
+        Response[Union[DeleteRunResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id)
 
@@ -116,7 +116,7 @@ def sync(
 
     Returns
     -------
-        DeleteRunResponse | HTTPValidationError
+        Union[DeleteRunResponse, HTTPValidationError]
     """
     return sync_detailed(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, client=client).parsed
 
@@ -138,7 +138,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[DeleteRunResponse | HTTPValidationError]
+        Response[Union[DeleteRunResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id)
 
@@ -164,7 +164,7 @@ async def asyncio(
 
     Returns
     -------
-        DeleteRunResponse | HTTPValidationError
+        Union[DeleteRunResponse, HTTPValidationError]
     """
     return (
         await asyncio_detailed(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, client=client)

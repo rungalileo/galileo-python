@@ -87,7 +87,7 @@ def sync_detailed(*, client: ApiClient, body: OpenAIIntegrationCreate) -> Respon
 
     Returns
     -------
-        Response[HTTPValidationError | IntegrationDB]
+        Response[Union[HTTPValidationError, IntegrationDB]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -111,7 +111,7 @@ def sync(*, client: ApiClient, body: OpenAIIntegrationCreate) -> HTTPValidationE
 
     Returns
     -------
-        HTTPValidationError | IntegrationDB
+        Union[HTTPValidationError, IntegrationDB]
     """
     return sync_detailed(client=client, body=body).parsed
 
@@ -133,7 +133,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | IntegrationDB]
+        Response[Union[HTTPValidationError, IntegrationDB]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -157,6 +157,6 @@ async def asyncio(*, client: ApiClient, body: OpenAIIntegrationCreate) -> HTTPVa
 
     Returns
     -------
-        HTTPValidationError | IntegrationDB
+        Union[HTTPValidationError, IntegrationDB]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

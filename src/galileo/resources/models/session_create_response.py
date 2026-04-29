@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -17,19 +15,19 @@ class SessionCreateResponse:
     Attributes
     ----------
         id (str): Session id associated with the session.
-        name (None | str): Name of the session.
+        name (Union[None, str]): Name of the session.
         project_id (str): Project id associated with the session.
         project_name (str): Project name associated with the session.
-        previous_session_id (None | str | Unset): Id of the previous session.
-        external_id (None | str | Unset): External id of the session.
+        previous_session_id (Union[None, Unset, str]): Id of the previous session.
+        external_id (Union[None, Unset, str]): External id of the session.
     """
 
     id: str
     name: None | str
     project_id: str
     project_name: str
-    previous_session_id: None | str | Unset = UNSET
-    external_id: None | str | Unset = UNSET
+    previous_session_id: None | Unset | str = UNSET
+    external_id: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,10 +40,10 @@ class SessionCreateResponse:
 
         project_name = self.project_name
 
-        previous_session_id: None | str | Unset
+        previous_session_id: None | Unset | str
         previous_session_id = UNSET if isinstance(self.previous_session_id, Unset) else self.previous_session_id
 
-        external_id: None | str | Unset
+        external_id: None | Unset | str
         external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         field_dict: dict[str, Any] = {}
@@ -74,21 +72,21 @@ class SessionCreateResponse:
 
         project_name = d.pop("project_name")
 
-        def _parse_previous_session_id(data: object) -> None | str | Unset:
+        def _parse_previous_session_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         previous_session_id = _parse_previous_session_id(d.pop("previous_session_id", UNSET))
 
-        def _parse_external_id(data: object) -> None | str | Unset:
+        def _parse_external_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         external_id = _parse_external_id(d.pop("external_id", UNSET))
 

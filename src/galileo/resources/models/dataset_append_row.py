@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
@@ -21,13 +19,13 @@ class DatasetAppendRow:
     Attributes
     ----------
         values (DatasetAppendRowValues):
-        edit_type (Literal['append_row'] | Unset):  Default: 'append_row'.
-        row_id (None | str | Unset):
+        edit_type (Union[Literal['append_row'], Unset]):  Default: 'append_row'.
+        row_id (Union[None, Unset, str]):
     """
 
-    values: DatasetAppendRowValues
+    values: "DatasetAppendRowValues"
     edit_type: Literal["append_row"] | Unset = "append_row"
-    row_id: None | str | Unset = UNSET
+    row_id: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,7 +33,7 @@ class DatasetAppendRow:
 
         edit_type = self.edit_type
 
-        row_id: None | str | Unset
+        row_id: None | Unset | str
         row_id = UNSET if isinstance(self.row_id, Unset) else self.row_id
 
         field_dict: dict[str, Any] = {}
@@ -59,12 +57,12 @@ class DatasetAppendRow:
         if edit_type != "append_row" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'append_row', got '{edit_type}'")
 
-        def _parse_row_id(data: object) -> None | str | Unset:
+        def _parse_row_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         row_id = _parse_row_id(d.pop("row_id", UNSET))
 

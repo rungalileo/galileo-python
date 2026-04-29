@@ -93,7 +93,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | IntegrationDB]
+        Response[Union[HTTPValidationError, IntegrationDB]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -117,7 +117,7 @@ def sync(*, client: ApiClient, body: DatabricksIntegrationCreate) -> HTTPValidat
 
     Returns
     -------
-        HTTPValidationError | IntegrationDB
+        Union[HTTPValidationError, IntegrationDB]
     """
     return sync_detailed(client=client, body=body).parsed
 
@@ -139,7 +139,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | IntegrationDB]
+        Response[Union[HTTPValidationError, IntegrationDB]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -165,6 +165,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | IntegrationDB
+        Union[HTTPValidationError, IntegrationDB]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

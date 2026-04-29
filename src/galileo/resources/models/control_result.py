@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -20,15 +18,15 @@ class ControlResult:
         action (ControlAction):
         matched (bool): Whether the control matched. False covers both non-match and error cases; use error_message to
             distinguish errors.
-        confidence (float | None | Unset): Confidence score reported by the control evaluation result.
-        error_message (None | str | Unset): Error text when control evaluation failed. This should be null for normal
-            matches and non-matches.
+        confidence (Union[None, Unset, float]): Confidence score reported by the control evaluation result.
+        error_message (Union[None, Unset, str]): Error text when control evaluation failed. This should be null for
+            normal matches and non-matches.
     """
 
     action: ControlAction
     matched: bool
-    confidence: float | None | Unset = UNSET
-    error_message: None | str | Unset = UNSET
+    confidence: None | Unset | float = UNSET
+    error_message: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,10 +34,10 @@ class ControlResult:
 
         matched = self.matched
 
-        confidence: float | None | Unset
+        confidence: None | Unset | float
         confidence = UNSET if isinstance(self.confidence, Unset) else self.confidence
 
-        error_message: None | str | Unset
+        error_message: None | Unset | str
         error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         field_dict: dict[str, Any] = {}
@@ -59,21 +57,21 @@ class ControlResult:
 
         matched = d.pop("matched")
 
-        def _parse_confidence(data: object) -> float | None | Unset:
+        def _parse_confidence(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(float | None | Unset, data)
+            return cast(None | Unset | float, data)
 
         confidence = _parse_confidence(d.pop("confidence", UNSET))
 
-        def _parse_error_message(data: object) -> None | str | Unset:
+        def _parse_error_message(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         error_message = _parse_error_message(d.pop("error_message", UNSET))
 

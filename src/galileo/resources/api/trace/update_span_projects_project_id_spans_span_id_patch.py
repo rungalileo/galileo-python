@@ -97,7 +97,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | LogSpanUpdateResponse]
+        Response[Union[HTTPValidationError, LogSpanUpdateResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id, body=body)
 
@@ -125,7 +125,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | LogSpanUpdateResponse
+        Union[HTTPValidationError, LogSpanUpdateResponse]
     """
     return sync_detailed(project_id=project_id, span_id=span_id, client=client, body=body).parsed
 
@@ -149,7 +149,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | LogSpanUpdateResponse]
+        Response[Union[HTTPValidationError, LogSpanUpdateResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id, body=body)
 
@@ -177,6 +177,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | LogSpanUpdateResponse
+        Union[HTTPValidationError, LogSpanUpdateResponse]
     """
     return (await asyncio_detailed(project_id=project_id, span_id=span_id, client=client, body=body)).parsed

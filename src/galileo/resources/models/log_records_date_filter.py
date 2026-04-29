@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import datetime
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
@@ -22,7 +20,7 @@ class LogRecordsDateFilter:
         column_id (str): ID of the column to filter.
         operator (LogRecordsDateFilterOperator):
         value (datetime.datetime):
-        type_ (Literal['date'] | Unset):  Default: 'date'.
+        type_ (Union[Literal['date'], Unset]):  Default: 'date'.
     """
 
     column_id: str

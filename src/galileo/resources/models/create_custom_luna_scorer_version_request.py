@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -21,16 +19,16 @@ class CreateCustomLunaScorerVersionRequest:
     ----------
         lora_task_id (int):
         prompt (str):
-        lora_weights_path (None | str | Unset):
-        executor (CoreScorerName | None | Unset): Executor pipeline. Defaults to finetuned scorer pipeline but can run
-            custom galileo score pipelines.
-        luna_input_type (LunaInputTypeEnum | None | Unset):
-        luna_output_type (LunaOutputTypeEnum | None | Unset):
+        lora_weights_path (Union[None, Unset, str]):
+        executor (Union[CoreScorerName, None, Unset]): Executor pipeline. Defaults to finetuned scorer pipeline but can
+            run custom galileo score pipelines.
+        luna_input_type (Union[LunaInputTypeEnum, None, Unset]):
+        luna_output_type (Union[LunaOutputTypeEnum, None, Unset]):
     """
 
     lora_task_id: int
     prompt: str
-    lora_weights_path: None | str | Unset = UNSET
+    lora_weights_path: None | Unset | str = UNSET
     executor: CoreScorerName | None | Unset = UNSET
     luna_input_type: LunaInputTypeEnum | None | Unset = UNSET
     luna_output_type: LunaOutputTypeEnum | None | Unset = UNSET
@@ -41,10 +39,10 @@ class CreateCustomLunaScorerVersionRequest:
 
         prompt = self.prompt
 
-        lora_weights_path: None | str | Unset
+        lora_weights_path: None | Unset | str
         lora_weights_path = UNSET if isinstance(self.lora_weights_path, Unset) else self.lora_weights_path
 
-        executor: None | str | Unset
+        executor: None | Unset | str
         if isinstance(self.executor, Unset):
             executor = UNSET
         elif isinstance(self.executor, CoreScorerName):
@@ -52,7 +50,7 @@ class CreateCustomLunaScorerVersionRequest:
         else:
             executor = self.executor
 
-        luna_input_type: None | str | Unset
+        luna_input_type: None | Unset | str
         if isinstance(self.luna_input_type, Unset):
             luna_input_type = UNSET
         elif isinstance(self.luna_input_type, LunaInputTypeEnum):
@@ -60,7 +58,7 @@ class CreateCustomLunaScorerVersionRequest:
         else:
             luna_input_type = self.luna_input_type
 
-        luna_output_type: None | str | Unset
+        luna_output_type: None | Unset | str
         if isinstance(self.luna_output_type, Unset):
             luna_output_type = UNSET
         elif isinstance(self.luna_output_type, LunaOutputTypeEnum):
@@ -89,12 +87,12 @@ class CreateCustomLunaScorerVersionRequest:
 
         prompt = d.pop("prompt")
 
-        def _parse_lora_weights_path(data: object) -> None | str | Unset:
+        def _parse_lora_weights_path(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         lora_weights_path = _parse_lora_weights_path(d.pop("lora_weights_path", UNSET))
 

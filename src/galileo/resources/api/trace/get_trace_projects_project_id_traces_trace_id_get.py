@@ -22,7 +22,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(project_id: str, trace_id: str, *, include_presigned_urls: bool | Unset = False) -> dict[str, Any]:
+def _get_kwargs(project_id: str, trace_id: str, *, include_presigned_urls: Unset | bool = False) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -83,14 +83,14 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, trace_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
+    project_id: str, trace_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
 ) -> Response[ExtendedTraceRecordWithChildren | HTTPValidationError]:
     """Get Trace.
 
     Args:
         project_id (str):
         trace_id (str):
-        include_presigned_urls (bool | Unset):  Default: False.
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -99,7 +99,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[ExtendedTraceRecordWithChildren | HTTPValidationError]
+        Response[Union[ExtendedTraceRecordWithChildren, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, trace_id=trace_id, include_presigned_urls=include_presigned_urls)
 
@@ -109,14 +109,14 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str, trace_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
+    project_id: str, trace_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
 ) -> ExtendedTraceRecordWithChildren | HTTPValidationError | None:
     """Get Trace.
 
     Args:
         project_id (str):
         trace_id (str):
-        include_presigned_urls (bool | Unset):  Default: False.
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -125,7 +125,7 @@ def sync(
 
     Returns
     -------
-        ExtendedTraceRecordWithChildren | HTTPValidationError
+        Union[ExtendedTraceRecordWithChildren, HTTPValidationError]
     """
     return sync_detailed(
         project_id=project_id, trace_id=trace_id, client=client, include_presigned_urls=include_presigned_urls
@@ -133,14 +133,14 @@ def sync(
 
 
 async def asyncio_detailed(
-    project_id: str, trace_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
+    project_id: str, trace_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
 ) -> Response[ExtendedTraceRecordWithChildren | HTTPValidationError]:
     """Get Trace.
 
     Args:
         project_id (str):
         trace_id (str):
-        include_presigned_urls (bool | Unset):  Default: False.
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -149,7 +149,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[ExtendedTraceRecordWithChildren | HTTPValidationError]
+        Response[Union[ExtendedTraceRecordWithChildren, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, trace_id=trace_id, include_presigned_urls=include_presigned_urls)
 
@@ -159,14 +159,14 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, trace_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
+    project_id: str, trace_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
 ) -> ExtendedTraceRecordWithChildren | HTTPValidationError | None:
     """Get Trace.
 
     Args:
         project_id (str):
         trace_id (str):
-        include_presigned_urls (bool | Unset):  Default: False.
+        include_presigned_urls (Union[Unset, bool]):  Default: False.
 
     Raises
     ------
@@ -175,7 +175,7 @@ async def asyncio(
 
     Returns
     -------
-        ExtendedTraceRecordWithChildren | HTTPValidationError
+        Union[ExtendedTraceRecordWithChildren, HTTPValidationError]
     """
     return (
         await asyncio_detailed(

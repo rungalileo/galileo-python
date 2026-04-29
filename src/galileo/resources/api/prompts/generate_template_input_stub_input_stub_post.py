@@ -84,7 +84,7 @@ def sync_detailed(*, client: ApiClient, body: TemplateStubRequest) -> Response[A
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -106,7 +106,7 @@ def sync(*, client: ApiClient, body: TemplateStubRequest) -> Any | HTTPValidatio
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return sync_detailed(client=client, body=body).parsed
 
@@ -124,7 +124,7 @@ async def asyncio_detailed(*, client: ApiClient, body: TemplateStubRequest) -> R
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -146,6 +146,6 @@ async def asyncio(*, client: ApiClient, body: TemplateStubRequest) -> Any | HTTP
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

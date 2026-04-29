@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,16 +18,16 @@ class PreviewDatasetRequest:
     """
     Attributes
     ----------
-        column_mapping (ColumnMapping | None | Unset):
+        column_mapping (Union['ColumnMapping', None, Unset]):
     """
 
-    column_mapping: ColumnMapping | None | Unset = UNSET
+    column_mapping: Union["ColumnMapping", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.column_mapping import ColumnMapping
 
-        column_mapping: dict[str, Any] | None | Unset
+        column_mapping: None | Unset | dict[str, Any]
         if isinstance(self.column_mapping, Unset):
             column_mapping = UNSET
         elif isinstance(self.column_mapping, ColumnMapping):
@@ -51,7 +49,7 @@ class PreviewDatasetRequest:
 
         d = dict(src_dict)
 
-        def _parse_column_mapping(data: object) -> ColumnMapping | None | Unset:
+        def _parse_column_mapping(data: object) -> Union["ColumnMapping", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -63,7 +61,7 @@ class PreviewDatasetRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(ColumnMapping | None | Unset, data)
+            return cast(Union["ColumnMapping", None, Unset], data)
 
         column_mapping = _parse_column_mapping(d.pop("column_mapping", UNSET))
 

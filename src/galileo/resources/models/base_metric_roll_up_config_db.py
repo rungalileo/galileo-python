@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -18,8 +16,8 @@ class BaseMetricRollUpConfigDB:
 
     Attributes
     ----------
-        roll_up_methods (list[CategoricalRollUpMethod] | list[NumericRollUpMethod]): List of roll up methods to apply to
-            the metric. For numeric scorers we support doing multiple roll up types per metric.
+        roll_up_methods (Union[list[CategoricalRollUpMethod], list[NumericRollUpMethod]]): List of roll up methods to
+            apply to the metric. For numeric scorers we support doing multiple roll up types per metric.
     """
 
     roll_up_methods: list[CategoricalRollUpMethod] | list[NumericRollUpMethod]

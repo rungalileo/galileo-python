@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -16,18 +14,18 @@ class SelectColumns:
     """
     Attributes
     ----------
-        column_ids (list[str] | Unset):
-        include_all_metrics (bool | Unset):  Default: False.
-        include_all_feedback (bool | Unset):  Default: False.
+        column_ids (Union[Unset, list[str]]):
+        include_all_metrics (Union[Unset, bool]):  Default: False.
+        include_all_feedback (Union[Unset, bool]):  Default: False.
     """
 
-    column_ids: list[str] | Unset = UNSET
-    include_all_metrics: bool | Unset = False
-    include_all_feedback: bool | Unset = False
+    column_ids: Unset | list[str] = UNSET
+    include_all_metrics: Unset | bool = False
+    include_all_feedback: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        column_ids: list[str] | Unset = UNSET
+        column_ids: Unset | list[str] = UNSET
         if not isinstance(self.column_ids, Unset):
             column_ids = self.column_ids
 

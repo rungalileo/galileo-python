@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,7 +17,7 @@ T = TypeVar("T", bound="MetricRollUpRollUpMetrics")
 class MetricRollUpRollUpMetrics:
     """Roll up metrics e.g. sum, average, min, max for numeric, and category_count for categorical metrics."""
 
-    additional_properties: dict[str, float | MetricRollUpRollUpMetricsAdditionalPropertyType1] = _attrs_field(
+    additional_properties: dict[str, Union["MetricRollUpRollUpMetricsAdditionalPropertyType1", float]] = _attrs_field(
         init=False, factory=dict
     )
 
@@ -49,7 +47,9 @@ class MetricRollUpRollUpMetrics:
         additional_properties = {}
         for prop_name, prop_dict in d.items():
 
-            def _parse_additional_property(data: object) -> float | MetricRollUpRollUpMetricsAdditionalPropertyType1:
+            def _parse_additional_property(
+                data: object,
+            ) -> Union["MetricRollUpRollUpMetricsAdditionalPropertyType1", float]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
@@ -57,7 +57,7 @@ class MetricRollUpRollUpMetrics:
 
                 except:  # noqa: E722
                     pass
-                return cast(float | MetricRollUpRollUpMetricsAdditionalPropertyType1, data)
+                return cast(Union["MetricRollUpRollUpMetricsAdditionalPropertyType1", float], data)
 
             additional_property = _parse_additional_property(prop_dict)
 
@@ -70,10 +70,10 @@ class MetricRollUpRollUpMetrics:
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> float | MetricRollUpRollUpMetricsAdditionalPropertyType1:
+    def __getitem__(self, key: str) -> Union["MetricRollUpRollUpMetricsAdditionalPropertyType1", float]:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: float | MetricRollUpRollUpMetricsAdditionalPropertyType1) -> None:
+    def __setitem__(self, key: str, value: Union["MetricRollUpRollUpMetricsAdditionalPropertyType1", float]) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

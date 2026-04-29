@@ -24,7 +24,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+    *, body: RenderTemplateRequest, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -90,13 +90,13 @@ def _build_response(
 
 
 def sync_detailed(
-    *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+    *, client: ApiClient, body: RenderTemplateRequest, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> Response[HTTPValidationError | RenderTemplateResponse]:
     """Render Template.
 
     Args:
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
         body (RenderTemplateRequest):
 
     Raises
@@ -106,7 +106,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | RenderTemplateResponse]
+        Response[Union[HTTPValidationError, RenderTemplateResponse]]
     """
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
@@ -116,13 +116,13 @@ def sync_detailed(
 
 
 def sync(
-    *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+    *, client: ApiClient, body: RenderTemplateRequest, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> HTTPValidationError | RenderTemplateResponse | None:
     """Render Template.
 
     Args:
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
         body (RenderTemplateRequest):
 
     Raises
@@ -132,19 +132,19 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | RenderTemplateResponse
+        Union[HTTPValidationError, RenderTemplateResponse]
     """
     return sync_detailed(client=client, body=body, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+    *, client: ApiClient, body: RenderTemplateRequest, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> Response[HTTPValidationError | RenderTemplateResponse]:
     """Render Template.
 
     Args:
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
         body (RenderTemplateRequest):
 
     Raises
@@ -154,7 +154,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | RenderTemplateResponse]
+        Response[Union[HTTPValidationError, RenderTemplateResponse]]
     """
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
@@ -164,13 +164,13 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *, client: ApiClient, body: RenderTemplateRequest, starting_token: int | Unset = 0, limit: int | Unset = 100
+    *, client: ApiClient, body: RenderTemplateRequest, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> HTTPValidationError | RenderTemplateResponse | None:
     """Render Template.
 
     Args:
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
         body (RenderTemplateRequest):
 
     Raises
@@ -180,6 +180,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | RenderTemplateResponse
+        Union[HTTPValidationError, RenderTemplateResponse]
     """
     return (await asyncio_detailed(client=client, body=body, starting_token=starting_token, limit=limit)).parsed

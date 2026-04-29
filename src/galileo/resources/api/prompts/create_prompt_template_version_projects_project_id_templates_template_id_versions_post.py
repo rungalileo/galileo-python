@@ -117,7 +117,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[BasePromptTemplateVersionResponse | HTTPValidationError]
+        Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, body=body)
 
@@ -163,7 +163,7 @@ def sync(
 
     Returns
     -------
-        BasePromptTemplateVersionResponse | HTTPValidationError
+        Union[BasePromptTemplateVersionResponse, HTTPValidationError]
     """
     return sync_detailed(project_id=project_id, template_id=template_id, client=client, body=body).parsed
 
@@ -205,7 +205,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[BasePromptTemplateVersionResponse | HTTPValidationError]
+        Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, body=body)
 
@@ -251,6 +251,6 @@ async def asyncio(
 
     Returns
     -------
-        BasePromptTemplateVersionResponse | HTTPValidationError
+        Union[BasePromptTemplateVersionResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(project_id=project_id, template_id=template_id, client=client, body=body)).parsed

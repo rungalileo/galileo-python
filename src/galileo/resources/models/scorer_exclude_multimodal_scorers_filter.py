@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -19,7 +17,7 @@ class ScorerExcludeMultimodalScorersFilter:
 
     Attributes
     ----------
-            name (Literal['exclude_multimodal_scorers'] | Unset):  Default: 'exclude_multimodal_scorers'.
+            name (Union[Literal['exclude_multimodal_scorers'], Unset]):  Default: 'exclude_multimodal_scorers'.
     """
 
     name: Literal["exclude_multimodal_scorers"] | Unset = "exclude_multimodal_scorers"
