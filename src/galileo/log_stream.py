@@ -25,7 +25,7 @@ from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
+from galileo.shared.exceptions import ValidationError, _project_not_found_error
 from galileo.shared.query_result import QueryResult
 
 if TYPE_CHECKING:
@@ -48,9 +48,7 @@ def _resolve_project(project_id: str | None, project_name: str | None) -> Projec
     except ProjectNotFoundError:
         project_obj = None
     if not project_obj:
-        raise ResourceNotFoundError(
-            "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
-        )
+        raise _project_not_found_error(project_id, project_name)
     return project_obj
 
 
@@ -192,11 +190,12 @@ class LogStream(StateManagementMixin):
             logger.info(f"LogStream.create: name='{self.name}' project_id='{self.project_id}' - started")
 
             # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-            project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
+            try:
+                project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
+            except ProjectNotFoundError:
+                project_obj = None
             if not project_obj:
-                raise ResourceNotFoundError(
-                    "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
-                )
+                raise _project_not_found_error(self.project_id, self.project_name)
 
             # Update project info from resolved project
             self.project_id = project_obj.id

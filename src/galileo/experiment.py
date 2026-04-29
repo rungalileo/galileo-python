@@ -13,7 +13,7 @@ from galileo.experiments import Experiments as ExperimentsService
 from galileo.experiments import _default_prompt_settings
 from galileo.export import ExportClient
 from galileo.job_progress import get_run_scorer_jobs, job_progress
-from galileo.projects import Projects
+from galileo.projects import ProjectNotFoundError, Projects
 from galileo.prompts import PromptTemplate, get_prompt
 from galileo.resources.api.experiment import (
     delete_experiment_projects_project_id_experiments_experiment_id_delete,
@@ -43,7 +43,7 @@ from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
+from galileo.shared.exceptions import ValidationError, _project_not_found_error
 from galileo.shared.experiment_result import ExperimentRunResult, ExperimentStatusInfo
 from galileo.shared.query_result import QueryResult
 
@@ -400,11 +400,12 @@ class Experiment(StateManagementMixin):
             _logger.info(f"Experiment.create: name='{self.name}' project_id='{self.project_id}' - started")
 
             # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-            project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
+            try:
+                project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
+            except ProjectNotFoundError:
+                project_obj = None
             if not project_obj:
-                raise ResourceNotFoundError(
-                    "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
-                )
+                raise _project_not_found_error(self.project_id, self.project_name)
 
             self.project_id = project_obj.id
             if self.project_name is None:
@@ -668,11 +669,12 @@ class Experiment(StateManagementMixin):
             experiment = Experiment.get(name="ml-evaluation")
         """
         # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+        try:
+            project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+        except ProjectNotFoundError:
+            project_obj = None
         if not project_obj:
-            raise ResourceNotFoundError(
-                "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
-            )
+            raise _project_not_found_error(project_id, project_name)
 
         experiments_service = ExperimentsService()
         retrieved_experiment = experiments_service.get(project_id=project_obj.id, experiment_name=name)
@@ -716,11 +718,12 @@ class Experiment(StateManagementMixin):
             experiments = Experiment.list()
         """
         # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+        try:
+            project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+        except ProjectNotFoundError:
+            project_obj = None
         if not project_obj:
-            raise ResourceNotFoundError(
-                "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
-            )
+            raise _project_not_found_error(project_id, project_name)
 
         experiments_service = ExperimentsService()
         retrieved_experiments = experiments_service.list(project_id=project_obj.id)

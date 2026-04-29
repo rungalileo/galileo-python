@@ -240,18 +240,38 @@ class TestExperimentEnvFallback:
         assert experiment.is_synced()
 
     @patch("galileo.experiment.Projects")
-    def test_create_raises_error_when_no_project_and_no_env_fallback(
+    def test_create_raises_named_error_when_project_name_not_found(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test create() raises ValueError when no project and no env fallback."""
-        # Given: env fallback returns None (no project found)
+        """Test create() names the missing project when project_name is provided but not found."""
+        # Given: project_name is provided but the server returns no matching project
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: creating experiment raises ResourceNotFoundError with helpful message
+        # When/Then: error names the project the user specified, not generic guidance
+        experiment = Experiment(
+            name="Test Experiment",
+            dataset_name="test-dataset",
+            prompt_name="test-prompt",
+            project_name="my-nonexistent-project",
+        )
+        with pytest.raises(ResourceNotFoundError, match=r'Project "my-nonexistent-project" not found'):
+            experiment.create()
+
+    @patch("galileo.experiment.Projects")
+    def test_create_raises_error_when_no_project_and_no_env_fallback(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        """Test create() raises ResourceNotFoundError naming the project that wasn't found."""
+        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = None
+
+        # When/Then: creating experiment raises ResourceNotFoundError with guidance to provide a project identifier
         experiment = Experiment(name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt")
-        with pytest.raises(ResourceNotFoundError, match="Project not found"):
+        with pytest.raises(ResourceNotFoundError, match="No project specified"):
             experiment.create()
 
     @patch("galileo.experiment.create_metric_configs")
@@ -326,14 +346,14 @@ class TestExperimentEnvFallback:
     def test_get_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test get() raises ValueError when no project and no env fallback."""
-        # Given: env fallback returns None (no project found)
+        """Test get() raises ResourceNotFoundError naming the project that wasn't found."""
+        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: calling get() raises ResourceNotFoundError with helpful message
-        with pytest.raises(ResourceNotFoundError, match="Project not found"):
+        # When/Then: calling get() raises ResourceNotFoundError with guidance to provide a project identifier
+        with pytest.raises(ResourceNotFoundError, match="No project specified"):
             Experiment.get(name="Test Experiment")
 
     @patch("galileo.experiment.Projects")
@@ -366,14 +386,14 @@ class TestExperimentEnvFallback:
     def test_list_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test list() raises ValueError when no project and no env fallback."""
-        # Given: env fallback returns None (no project found)
+        """Test list() raises ResourceNotFoundError naming the project that wasn't found."""
+        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: calling list() raises ResourceNotFoundError with helpful message
-        with pytest.raises(ResourceNotFoundError, match="Project not found"):
+        # When/Then: calling list() raises ResourceNotFoundError with guidance to provide a project identifier
+        with pytest.raises(ResourceNotFoundError, match="No project specified"):
             Experiment.list()
 
 
