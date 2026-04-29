@@ -250,10 +250,10 @@ class TestPopulateLocalMetric:
         scores: list = []
 
         # When: _populate_local_metric runs with the offending metadata
-        caplog.set_level("WARNING")
+        caplog.set_level("ERROR")
         _populate_local_metric(llm_span, config, scores)
 
-        # Then: the score still flows through; metadata is dropped with a warning
+        # Then: the score still flows through; metadata is dropped with an error log
         assert llm_span.metrics.kw_coverage == 0.5
         assert not hasattr(llm_span.metrics, "kw_coverage_metadata")
         assert scores == [0.5]
@@ -268,10 +268,10 @@ class TestPopulateLocalMetric:
         scores: list = []
 
         # When: _populate_local_metric runs with the oversized metadata
-        caplog.set_level("WARNING")
+        caplog.set_level("ERROR")
         _populate_local_metric(llm_span, config, scores)
 
-        # Then: the score still flows through; metadata is dropped with a size warning
+        # Then: the score still flows through; metadata is dropped with a size error log
         assert llm_span.metrics.kw_coverage == 0.5
         assert not hasattr(llm_span.metrics, "kw_coverage_metadata")
         assert scores == [0.5]

@@ -40,15 +40,15 @@ def _safe_scorer_metadata(metadata: dict, metric_name: str) -> dict | None:
     Metadata flows into HTTPX ``json=`` during trace upload, so a non-serializable
     value (e.g. a ``set``, a ``datetime``) would blow up far from the scorer with
     no useful context. Oversized payloads also bloat ingest. Both are dropped
-    with a warning; the score still flows through so the user keeps the metric.
+    with an error log; the score still flows through so the user keeps the metric.
     """
     try:
         serialized = json.dumps(metadata)
     except (TypeError, ValueError) as exc:
-        logger.warning("Dropping non-JSON-serializable metadata from local metric '%s': %s", metric_name, exc)
+        logger.error("Dropping non-JSON-serializable metadata from local metric '%s': %s", metric_name, exc)
         return None
     if len(serialized.encode("utf-8")) > _MAX_METADATA_SERIALIZED_BYTES:
-        logger.warning(
+        logger.error(
             "Dropping metadata from local metric '%s': serialized size exceeds %d bytes",
             metric_name,
             _MAX_METADATA_SERIALIZED_BYTES,
