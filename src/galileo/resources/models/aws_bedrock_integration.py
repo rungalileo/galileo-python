@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,31 +21,31 @@ class AwsBedrockIntegration:
     """
     Attributes
     ----------
-        multi_modal_config (MultiModalModelIntegrationConfig | None | Unset): Configuration for multi-modal (file
+        multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
             upload) capabilities.
-        credential_type (AwsCredentialType | Unset):
-        region (str | Unset):  Default: 'us-west-2'.
-        inference_profiles (AwsBedrockIntegrationInferenceProfiles | Unset): Mapping from model name (Foundation model
-            ID) to inference profile ARN or ID
-        id (None | str | Unset):
-        name (Literal['aws_bedrock'] | Unset):  Default: 'aws_bedrock'.
-        extra (AwsBedrockIntegrationExtraType0 | None | Unset):
+        credential_type (Union[Unset, AwsCredentialType]):
+        region (Union[Unset, str]):  Default: 'us-west-2'.
+        inference_profiles (Union[Unset, AwsBedrockIntegrationInferenceProfiles]): Mapping from model name (Foundation
+            model ID) to inference profile ARN or ID
+        id (Union[None, Unset, str]):
+        name (Union[Literal['aws_bedrock'], Unset]):  Default: 'aws_bedrock'.
+        extra (Union['AwsBedrockIntegrationExtraType0', None, Unset]):
     """
 
-    multi_modal_config: MultiModalModelIntegrationConfig | None | Unset = UNSET
-    credential_type: AwsCredentialType | Unset = UNSET
-    region: str | Unset = "us-west-2"
-    inference_profiles: AwsBedrockIntegrationInferenceProfiles | Unset = UNSET
-    id: None | str | Unset = UNSET
+    multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
+    credential_type: Unset | AwsCredentialType = UNSET
+    region: Unset | str = "us-west-2"
+    inference_profiles: Union[Unset, "AwsBedrockIntegrationInferenceProfiles"] = UNSET
+    id: None | Unset | str = UNSET
     name: Literal["aws_bedrock"] | Unset = "aws_bedrock"
-    extra: AwsBedrockIntegrationExtraType0 | None | Unset = UNSET
+    extra: Union["AwsBedrockIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.aws_bedrock_integration_extra_type_0 import AwsBedrockIntegrationExtraType0
         from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
-        multi_modal_config: dict[str, Any] | None | Unset
+        multi_modal_config: None | Unset | dict[str, Any]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -55,22 +53,22 @@ class AwsBedrockIntegration:
         else:
             multi_modal_config = self.multi_modal_config
 
-        credential_type: str | Unset = UNSET
+        credential_type: Unset | str = UNSET
         if not isinstance(self.credential_type, Unset):
             credential_type = self.credential_type.value
 
         region = self.region
 
-        inference_profiles: dict[str, Any] | Unset = UNSET
+        inference_profiles: Unset | dict[str, Any] = UNSET
         if not isinstance(self.inference_profiles, Unset):
             inference_profiles = self.inference_profiles.to_dict()
 
-        id: None | str | Unset
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
-        extra: dict[str, Any] | None | Unset
+        extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, AwsBedrockIntegrationExtraType0):
@@ -106,7 +104,7 @@ class AwsBedrockIntegration:
 
         d = dict(src_dict)
 
-        def _parse_multi_modal_config(data: object) -> MultiModalModelIntegrationConfig | None | Unset:
+        def _parse_multi_modal_config(data: object) -> Union["MultiModalModelIntegrationConfig", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -118,29 +116,29 @@ class AwsBedrockIntegration:
 
             except:  # noqa: E722
                 pass
-            return cast(MultiModalModelIntegrationConfig | None | Unset, data)
+            return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
 
         multi_modal_config = _parse_multi_modal_config(d.pop("multi_modal_config", UNSET))
 
         _credential_type = d.pop("credential_type", UNSET)
-        credential_type: AwsCredentialType | Unset
+        credential_type: Unset | AwsCredentialType
         credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
 
         region = d.pop("region", UNSET)
 
         _inference_profiles = d.pop("inference_profiles", UNSET)
-        inference_profiles: AwsBedrockIntegrationInferenceProfiles | Unset
+        inference_profiles: Unset | AwsBedrockIntegrationInferenceProfiles
         if isinstance(_inference_profiles, Unset):
             inference_profiles = UNSET
         else:
             inference_profiles = AwsBedrockIntegrationInferenceProfiles.from_dict(_inference_profiles)
 
-        def _parse_id(data: object) -> None | str | Unset:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
@@ -148,7 +146,7 @@ class AwsBedrockIntegration:
         if name != "aws_bedrock" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'aws_bedrock', got '{name}'")
 
-        def _parse_extra(data: object) -> AwsBedrockIntegrationExtraType0 | None | Unset:
+        def _parse_extra(data: object) -> Union["AwsBedrockIntegrationExtraType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -160,7 +158,7 @@ class AwsBedrockIntegration:
 
             except:  # noqa: E722
                 pass
-            return cast(AwsBedrockIntegrationExtraType0 | None | Unset, data)
+            return cast(Union["AwsBedrockIntegrationExtraType0", None, Unset], data)
 
         extra = _parse_extra(d.pop("extra", UNSET))
 

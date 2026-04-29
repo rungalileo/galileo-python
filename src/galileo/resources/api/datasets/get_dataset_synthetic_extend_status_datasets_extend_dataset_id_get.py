@@ -84,7 +84,7 @@ def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[HTTPValidat
 
     Returns
     -------
-        Response[HTTPValidationError | JobProgress]
+        Response[Union[HTTPValidationError, JobProgress]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id)
 
@@ -106,7 +106,7 @@ def sync(dataset_id: str, *, client: ApiClient) -> HTTPValidationError | JobProg
 
     Returns
     -------
-        HTTPValidationError | JobProgress
+        Union[HTTPValidationError, JobProgress]
     """
     return sync_detailed(dataset_id=dataset_id, client=client).parsed
 
@@ -124,7 +124,7 @@ async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[HT
 
     Returns
     -------
-        Response[HTTPValidationError | JobProgress]
+        Response[Union[HTTPValidationError, JobProgress]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id)
 
@@ -146,6 +146,6 @@ async def asyncio(dataset_id: str, *, client: ApiClient) -> HTTPValidationError 
 
     Returns
     -------
-        HTTPValidationError | JobProgress
+        Union[HTTPValidationError, JobProgress]
     """
     return (await asyncio_detailed(dataset_id=dataset_id, client=client)).parsed

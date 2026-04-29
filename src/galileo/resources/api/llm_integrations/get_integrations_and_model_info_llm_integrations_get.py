@@ -25,12 +25,12 @@ from ...models.multimodal_capability import MultimodalCapability
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(*, multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET) -> dict[str, Any]:
+def _get_kwargs(*, multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_multimodal_capabilities: list[str] | None | Unset
+    json_multimodal_capabilities: None | Unset | list[str]
     if isinstance(multimodal_capabilities, Unset):
         json_multimodal_capabilities = UNSET
     elif isinstance(multimodal_capabilities, list):
@@ -105,7 +105,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *, client: ApiClient, multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET
+    *, client: ApiClient, multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET
 ) -> Response[
     GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet
     | HTTPValidationError
@@ -115,7 +115,7 @@ def sync_detailed(
      Get the list of supported scorer models for the user's llm integrations.
 
     Args:
-        multimodal_capabilities (list[MultimodalCapability] | None | Unset):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -124,7 +124,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet | HTTPValidationError]
+        Response[Union[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet, HTTPValidationError]]
     """
     kwargs = _get_kwargs(multimodal_capabilities=multimodal_capabilities)
 
@@ -134,7 +134,7 @@ def sync_detailed(
 
 
 def sync(
-    *, client: ApiClient, multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET
+    *, client: ApiClient, multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET
 ) -> (
     GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet
     | HTTPValidationError
@@ -145,7 +145,7 @@ def sync(
      Get the list of supported scorer models for the user's llm integrations.
 
     Args:
-        multimodal_capabilities (list[MultimodalCapability] | None | Unset):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -154,13 +154,13 @@ def sync(
 
     Returns
     -------
-        GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet | HTTPValidationError
+        Union[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet, HTTPValidationError]
     """
     return sync_detailed(client=client, multimodal_capabilities=multimodal_capabilities).parsed
 
 
 async def asyncio_detailed(
-    *, client: ApiClient, multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET
+    *, client: ApiClient, multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET
 ) -> Response[
     GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet
     | HTTPValidationError
@@ -170,7 +170,7 @@ async def asyncio_detailed(
      Get the list of supported scorer models for the user's llm integrations.
 
     Args:
-        multimodal_capabilities (list[MultimodalCapability] | None | Unset):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -179,7 +179,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet | HTTPValidationError]
+        Response[Union[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet, HTTPValidationError]]
     """
     kwargs = _get_kwargs(multimodal_capabilities=multimodal_capabilities)
 
@@ -189,7 +189,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *, client: ApiClient, multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET
+    *, client: ApiClient, multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET
 ) -> (
     GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet
     | HTTPValidationError
@@ -200,7 +200,7 @@ async def asyncio(
      Get the list of supported scorer models for the user's llm integrations.
 
     Args:
-        multimodal_capabilities (list[MultimodalCapability] | None | Unset):
+        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
     Raises
     ------
@@ -209,6 +209,6 @@ async def asyncio(
 
     Returns
     -------
-        GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet | HTTPValidationError
+        Union[GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet, HTTPValidationError]
     """
     return (await asyncio_detailed(client=client, multimodal_capabilities=multimodal_capabilities)).parsed

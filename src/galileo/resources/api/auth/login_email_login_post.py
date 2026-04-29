@@ -85,7 +85,7 @@ def sync_detailed(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Respon
 
     Returns
     -------
-        Response[HTTPValidationError | Token]
+        Response[Union[HTTPValidationError, Token]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -107,7 +107,7 @@ def sync(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> HTTPValidationE
 
     Returns
     -------
-        HTTPValidationError | Token
+        Union[HTTPValidationError, Token]
     """
     return sync_detailed(client=client, body=body).parsed
 
@@ -127,7 +127,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | Token]
+        Response[Union[HTTPValidationError, Token]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -149,6 +149,6 @@ async def asyncio(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> HTTPVa
 
     Returns
     -------
-        HTTPValidationError | Token
+        Union[HTTPValidationError, Token]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

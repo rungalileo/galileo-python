@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,21 +19,21 @@ class UpdateDatasetRequest:
     """
     Attributes
     ----------
-        name (Name | None | str | Unset):
-        column_mapping (ColumnMapping | None | Unset):
-        draft (bool | None | Unset):
+        name (Union['Name', None, Unset, str]):
+        column_mapping (Union['ColumnMapping', None, Unset]):
+        draft (Union[None, Unset, bool]):
     """
 
-    name: Name | None | str | Unset = UNSET
-    column_mapping: ColumnMapping | None | Unset = UNSET
-    draft: bool | None | Unset = UNSET
+    name: Union["Name", None, Unset, str] = UNSET
+    column_mapping: Union["ColumnMapping", None, Unset] = UNSET
+    draft: None | Unset | bool = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.column_mapping import ColumnMapping
         from ..models.name import Name
 
-        name: dict[str, Any] | None | str | Unset
+        name: None | Unset | dict[str, Any] | str
         if isinstance(self.name, Unset):
             name = UNSET
         elif isinstance(self.name, Name):
@@ -43,7 +41,7 @@ class UpdateDatasetRequest:
         else:
             name = self.name
 
-        column_mapping: dict[str, Any] | None | Unset
+        column_mapping: None | Unset | dict[str, Any]
         if isinstance(self.column_mapping, Unset):
             column_mapping = UNSET
         elif isinstance(self.column_mapping, ColumnMapping):
@@ -51,7 +49,7 @@ class UpdateDatasetRequest:
         else:
             column_mapping = self.column_mapping
 
-        draft: bool | None | Unset
+        draft: None | Unset | bool
         draft = UNSET if isinstance(self.draft, Unset) else self.draft
 
         field_dict: dict[str, Any] = {}
@@ -73,7 +71,7 @@ class UpdateDatasetRequest:
 
         d = dict(src_dict)
 
-        def _parse_name(data: object) -> Name | None | str | Unset:
+        def _parse_name(data: object) -> Union["Name", None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -85,11 +83,11 @@ class UpdateDatasetRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(Name | None | str | Unset, data)
+            return cast(Union["Name", None, Unset, str], data)
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_column_mapping(data: object) -> ColumnMapping | None | Unset:
+        def _parse_column_mapping(data: object) -> Union["ColumnMapping", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -101,16 +99,16 @@ class UpdateDatasetRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(ColumnMapping | None | Unset, data)
+            return cast(Union["ColumnMapping", None, Unset], data)
 
         column_mapping = _parse_column_mapping(d.pop("column_mapping", UNSET))
 
-        def _parse_draft(data: object) -> bool | None | Unset:
+        def _parse_draft(data: object) -> None | Unset | bool:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(bool | None | Unset, data)
+            return cast(None | Unset | bool, data)
 
         draft = _parse_draft(d.pop("draft", UNSET))
 

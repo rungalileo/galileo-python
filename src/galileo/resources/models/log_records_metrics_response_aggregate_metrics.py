@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,9 +17,9 @@ T = TypeVar("T", bound="LogRecordsMetricsResponseAggregateMetrics")
 class LogRecordsMetricsResponseAggregateMetrics:
     """ """
 
-    additional_properties: dict[str, float | int | LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2] = (
-        _attrs_field(init=False, factory=dict)
-    )
+    additional_properties: dict[
+        str, Union["LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2", float, int]
+    ] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.log_records_metrics_response_aggregate_metrics_additional_property_type_2 import (
@@ -51,7 +49,7 @@ class LogRecordsMetricsResponseAggregateMetrics:
 
             def _parse_additional_property(
                 data: object,
-            ) -> float | int | LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2:
+            ) -> Union["LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2", float, int]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
@@ -59,7 +57,7 @@ class LogRecordsMetricsResponseAggregateMetrics:
 
                 except:  # noqa: E722
                     pass
-                return cast(float | int | LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2, data)
+                return cast(Union["LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2", float, int], data)
 
             additional_property = _parse_additional_property(prop_dict)
 
@@ -72,11 +70,13 @@ class LogRecordsMetricsResponseAggregateMetrics:
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> float | int | LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2:
+    def __getitem__(
+        self, key: str
+    ) -> Union["LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2", float, int]:
         return self.additional_properties[key]
 
     def __setitem__(
-        self, key: str, value: float | int | LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2
+        self, key: str, value: Union["LogRecordsMetricsResponseAggregateMetricsAdditionalPropertyType2", float, int]
     ) -> None:
         self.additional_properties[key] = value
 

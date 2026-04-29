@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,7 +15,7 @@ class PromptTemplateNotInProjectFilter:
     Attributes
     ----------
         value (str):
-        name (Literal['not_in_project'] | Unset):  Default: 'not_in_project'.
+        name (Union[Literal['not_in_project'], Unset]):  Default: 'not_in_project'.
     """
 
     value: str

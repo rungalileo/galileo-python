@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -30,7 +28,7 @@ class CategoricalColorConstraint:
     ----------
             color (MetricColor): Allowed colors for metric threshold visualization in the UI.
             operator (CategoricalColorConstraintOperator):
-            value (list[str] | str):
+            value (Union[list[str], str]):
     """
 
     color: MetricColor

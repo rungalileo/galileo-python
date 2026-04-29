@@ -63,7 +63,7 @@ class Client:
         return evolve(self, cookies={**self._cookies, **cookies})
 
     def with_timeout(self, timeout: httpx.Timeout) -> "Client":
-        """Get a new client matching this one with a new timeout configuration."""
+        """Get a new client matching this one with a new timeout (in seconds)."""
         if self._client is not None:
             self._client.timeout = timeout
         if self._async_client is not None:
@@ -198,7 +198,7 @@ class AuthenticatedClient:
         return evolve(self, cookies={**self._cookies, **cookies})
 
     def with_timeout(self, timeout: httpx.Timeout) -> "AuthenticatedClient":
-        """Get a new client matching this one with a new timeout configuration."""
+        """Get a new client matching this one with a new timeout (in seconds)."""
         if self._client is not None:
             self._client.timeout = timeout
         if self._async_client is not None:

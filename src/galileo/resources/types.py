@@ -2,7 +2,7 @@
 
 from collections.abc import Mapping, MutableMapping
 from http import HTTPStatus
-from typing import IO, BinaryIO, Generic, Literal, TypeVar
+from typing import IO, BinaryIO, Generic, Literal, TypeVar, Union
 
 from attrs import define
 
@@ -15,13 +15,13 @@ class Unset:
 UNSET: Unset = Unset()
 
 # The types that `httpx.Client(files=)` can accept, copied from that library.
-FileContent = IO[bytes] | bytes | str
-FileTypes = (
+FileContent = Union[IO[bytes], bytes, str]
+FileTypes = Union[
     # (filename, file (or bytes), content_type)
-    tuple[str | None, FileContent, str | None]
+    tuple[str | None, FileContent, str | None],
     # (filename, file (or bytes), content_type, headers)
-    | tuple[str | None, FileContent, str | None, Mapping[str, str]]
-)
+    tuple[str | None, FileContent, str | None, Mapping[str, str]],
+]
 RequestFiles = list[tuple[str, FileTypes]]
 
 

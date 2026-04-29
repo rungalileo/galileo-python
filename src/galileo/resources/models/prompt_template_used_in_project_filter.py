@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,7 +15,7 @@ class PromptTemplateUsedInProjectFilter:
     Attributes
     ----------
         value (str):
-        name (Literal['used_in_project'] | Unset):  Default: 'used_in_project'.
+        name (Union[Literal['used_in_project'], Unset]):  Default: 'used_in_project'.
     """
 
     value: str

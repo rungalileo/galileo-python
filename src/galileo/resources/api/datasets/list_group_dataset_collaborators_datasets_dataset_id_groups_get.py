@@ -22,7 +22,7 @@ from ...models.list_group_collaborators_response import ListGroupCollaboratorsRe
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(dataset_id: str, *, starting_token: int | Unset = 0, limit: int | Unset = 100) -> dict[str, Any]:
+def _get_kwargs(dataset_id: str, *, starting_token: Unset | int = 0, limit: Unset | int = 100) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -85,7 +85,7 @@ def _build_response(
 
 
 def sync_detailed(
-    dataset_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> Response[HTTPValidationError | ListGroupCollaboratorsResponse]:
     """List Group Dataset Collaborators.
 
@@ -93,8 +93,8 @@ def sync_detailed(
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -103,7 +103,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListGroupCollaboratorsResponse]
+        Response[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, starting_token=starting_token, limit=limit)
 
@@ -113,7 +113,7 @@ def sync_detailed(
 
 
 def sync(
-    dataset_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> HTTPValidationError | ListGroupCollaboratorsResponse | None:
     """List Group Dataset Collaborators.
 
@@ -121,8 +121,8 @@ def sync(
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -131,13 +131,13 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ListGroupCollaboratorsResponse
+        Union[HTTPValidationError, ListGroupCollaboratorsResponse]
     """
     return sync_detailed(dataset_id=dataset_id, client=client, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    dataset_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> Response[HTTPValidationError | ListGroupCollaboratorsResponse]:
     """List Group Dataset Collaborators.
 
@@ -145,8 +145,8 @@ async def asyncio_detailed(
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -155,7 +155,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListGroupCollaboratorsResponse]
+        Response[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, starting_token=starting_token, limit=limit)
 
@@ -165,7 +165,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> HTTPValidationError | ListGroupCollaboratorsResponse | None:
     """List Group Dataset Collaborators.
 
@@ -173,8 +173,8 @@ async def asyncio(
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -183,7 +183,7 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ListGroupCollaboratorsResponse
+        Union[HTTPValidationError, ListGroupCollaboratorsResponse]
     """
     return (
         await asyncio_detailed(dataset_id=dataset_id, client=client, starting_token=starting_token, limit=limit)

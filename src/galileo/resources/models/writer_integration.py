@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,15 +19,15 @@ class WriterIntegration:
     Attributes
     ----------
         organization_id (str):
-        id (None | str | Unset):
-        name (Literal['writer'] | Unset):  Default: 'writer'.
-        extra (None | Unset | WriterIntegrationExtraType0):
+        id (Union[None, Unset, str]):
+        name (Union[Literal['writer'], Unset]):  Default: 'writer'.
+        extra (Union['WriterIntegrationExtraType0', None, Unset]):
     """
 
     organization_id: str
-    id: None | str | Unset = UNSET
+    id: None | Unset | str = UNSET
     name: Literal["writer"] | Unset = "writer"
-    extra: None | Unset | WriterIntegrationExtraType0 = UNSET
+    extra: Union["WriterIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -37,12 +35,12 @@ class WriterIntegration:
 
         organization_id = self.organization_id
 
-        id: None | str | Unset
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
-        extra: dict[str, Any] | None | Unset
+        extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, WriterIntegrationExtraType0):
@@ -69,12 +67,12 @@ class WriterIntegration:
         d = dict(src_dict)
         organization_id = d.pop("organization_id")
 
-        def _parse_id(data: object) -> None | str | Unset:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
@@ -82,7 +80,7 @@ class WriterIntegration:
         if name != "writer" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'writer', got '{name}'")
 
-        def _parse_extra(data: object) -> None | Unset | WriterIntegrationExtraType0:
+        def _parse_extra(data: object) -> Union["WriterIntegrationExtraType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -94,7 +92,7 @@ class WriterIntegration:
 
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | WriterIntegrationExtraType0, data)
+            return cast(Union["WriterIntegrationExtraType0", None, Unset], data)
 
         extra = _parse_extra(d.pop("extra", UNSET))
 

@@ -89,7 +89,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | MetricSettingsResponse]
+        Response[Union[HTTPValidationError, MetricSettingsResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id)
 
@@ -114,7 +114,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | MetricSettingsResponse
+        Union[HTTPValidationError, MetricSettingsResponse]
     """
     return sync_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client).parsed
 
@@ -135,7 +135,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | MetricSettingsResponse]
+        Response[Union[HTTPValidationError, MetricSettingsResponse]]
     """
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id)
 
@@ -160,6 +160,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | MetricSettingsResponse
+        Union[HTTPValidationError, MetricSettingsResponse]
     """
     return (await asyncio_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client)).parsed

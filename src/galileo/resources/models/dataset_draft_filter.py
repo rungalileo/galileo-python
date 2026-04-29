@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,13 +16,13 @@ class DatasetDraftFilter:
     Attributes
     ----------
         value (bool):
-        name (Literal['draft'] | Unset):  Default: 'draft'.
-        operator (DatasetDraftFilterOperator | Unset):  Default: DatasetDraftFilterOperator.EQ.
+        name (Union[Literal['draft'], Unset]):  Default: 'draft'.
+        operator (Union[Unset, DatasetDraftFilterOperator]):  Default: DatasetDraftFilterOperator.EQ.
     """
 
     value: bool
     name: Literal["draft"] | Unset = "draft"
-    operator: DatasetDraftFilterOperator | Unset = DatasetDraftFilterOperator.EQ
+    operator: Unset | DatasetDraftFilterOperator = DatasetDraftFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,7 +30,7 @@ class DatasetDraftFilter:
 
         name = self.name
 
-        operator: str | Unset = UNSET
+        operator: Unset | str = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -56,7 +54,7 @@ class DatasetDraftFilter:
             raise ValueError(f"name must match const 'draft', got '{name}'")
 
         _operator = d.pop("operator", UNSET)
-        operator: DatasetDraftFilterOperator | Unset
+        operator: Unset | DatasetDraftFilterOperator
         operator = UNSET if isinstance(_operator, Unset) else DatasetDraftFilterOperator(_operator)
 
         dataset_draft_filter = cls(value=value, name=name, operator=operator)

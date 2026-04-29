@@ -103,7 +103,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[CreateCodeMetricGenerationResponse | HTTPValidationError]
+        Response[Union[CreateCodeMetricGenerationResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -135,7 +135,7 @@ def sync(
 
     Returns
     -------
-        CreateCodeMetricGenerationResponse | HTTPValidationError
+        Union[CreateCodeMetricGenerationResponse, HTTPValidationError]
     """
     return sync_detailed(client=client, body=body).parsed
 
@@ -163,7 +163,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[CreateCodeMetricGenerationResponse | HTTPValidationError]
+        Response[Union[CreateCodeMetricGenerationResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -195,6 +195,6 @@ async def asyncio(
 
     Returns
     -------
-        CreateCodeMetricGenerationResponse | HTTPValidationError
+        Union[CreateCodeMetricGenerationResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

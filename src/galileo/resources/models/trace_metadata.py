@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -16,16 +14,16 @@ class TraceMetadata:
     """
     Attributes
     ----------
-        id (str | Unset): Unique identifier for the request.
-        received_at (int | Unset): Time the request was received by the server in nanoseconds.
-        response_at (int | Unset): Time the response was sent by the server in nanoseconds.
-        execution_time (float | Unset): Execution time for the request (in seconds). Default: -1.0.
+        id (Union[Unset, str]): Unique identifier for the request.
+        received_at (Union[Unset, int]): Time the request was received by the server in nanoseconds.
+        response_at (Union[Unset, int]): Time the response was sent by the server in nanoseconds.
+        execution_time (Union[Unset, float]): Execution time for the request (in seconds). Default: -1.0.
     """
 
-    id: str | Unset = UNSET
-    received_at: int | Unset = UNSET
-    response_at: int | Unset = UNSET
-    execution_time: float | Unset = -1.0
+    id: Unset | str = UNSET
+    received_at: Unset | int = UNSET
+    response_at: Unset | int = UNSET
+    execution_time: Unset | float = -1.0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

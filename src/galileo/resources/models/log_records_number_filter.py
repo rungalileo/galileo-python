@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -19,8 +17,8 @@ class LogRecordsNumberFilter:
     ----------
         column_id (str): ID of the column to filter.
         operator (LogRecordsNumberFilterOperator):
-        value (float | int | list[float] | list[int]):
-        type_ (Literal['number'] | Unset):  Default: 'number'.
+        value (Union[float, int, list[float], list[int]]):
+        type_ (Union[Literal['number'], Unset]):  Default: 'number'.
     """
 
     column_id: str

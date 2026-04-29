@@ -93,7 +93,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | SyntheticDatasetExtensionResponse]
+        Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -119,7 +119,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | SyntheticDatasetExtensionResponse
+        Union[HTTPValidationError, SyntheticDatasetExtensionResponse]
     """
     return sync_detailed(client=client, body=body).parsed
 
@@ -141,7 +141,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | SyntheticDatasetExtensionResponse]
+        Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -167,6 +167,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | SyntheticDatasetExtensionResponse
+        Union[HTTPValidationError, SyntheticDatasetExtensionResponse]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

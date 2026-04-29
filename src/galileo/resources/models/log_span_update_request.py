@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -27,38 +25,44 @@ class LogSpanUpdateRequest:
     Attributes
     ----------
         span_id (str): Span id to update.
-        log_stream_id (None | str | Unset): Log stream id associated with the traces.
-        experiment_id (None | str | Unset): Experiment id associated with the traces.
-        metrics_testing_id (None | str | Unset): Metrics testing id associated with the traces.
-        logging_method (LoggingMethod | Unset):
-        client_version (None | str | Unset):
-        reliable (bool | Unset): Whether or not to use reliable logging.  If set to False, the method will respond
+        log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
+        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
+        logging_method (Union[Unset, LoggingMethod]):
+        client_version (Union[None, Unset, str]):
+        reliable (Union[Unset, bool]): Whether or not to use reliable logging.  If set to False, the method will respond
             immediately before verifying that the traces have been successfully ingested, and no error message will be
             returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or
             return an error message if there is an ingestion failure. Default: True.
-        input_ (list[FileContentPart | TextContentPart] | list[Message] | None | str | Unset): Input of the span.
-            Overwrites previous value if present.
-        output (ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str |
-            Unset): Output of the span. Overwrites previous value if present.
-        tags (list[str] | None | Unset): Tags to add to the span.
-        status_code (int | None | Unset): Status code of the span. Overwrites previous value if present.
-        duration_ns (int | None | Unset): Duration in nanoseconds. Overwrites previous value if present.
+        input_ (Union[None, Unset, list['Message'], list[Union['FileContentPart', 'TextContentPart']], str]): Input of
+            the span. Overwrites previous value if present.
+        output (Union['ControlResult', 'Message', None, Unset, list['Document'], list[Union['FileContentPart',
+            'TextContentPart']], str]): Output of the span. Overwrites previous value if present.
+        tags (Union[None, Unset, list[str]]): Tags to add to the span.
+        status_code (Union[None, Unset, int]): Status code of the span. Overwrites previous value if present.
+        duration_ns (Union[None, Unset, int]): Duration in nanoseconds. Overwrites previous value if present.
     """
 
     span_id: str
-    log_stream_id: None | str | Unset = UNSET
-    experiment_id: None | str | Unset = UNSET
-    metrics_testing_id: None | str | Unset = UNSET
-    logging_method: LoggingMethod | Unset = UNSET
-    client_version: None | str | Unset = UNSET
-    reliable: bool | Unset = True
-    input_: list[FileContentPart | TextContentPart] | list[Message] | None | str | Unset = UNSET
-    output: ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str | Unset = (
-        UNSET
-    )
-    tags: list[str] | None | Unset = UNSET
-    status_code: int | None | Unset = UNSET
-    duration_ns: int | None | Unset = UNSET
+    log_stream_id: None | Unset | str = UNSET
+    experiment_id: None | Unset | str = UNSET
+    metrics_testing_id: None | Unset | str = UNSET
+    logging_method: Unset | LoggingMethod = UNSET
+    client_version: None | Unset | str = UNSET
+    reliable: Unset | bool = True
+    input_: None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str = UNSET
+    output: Union[
+        "ControlResult",
+        "Message",
+        None,
+        Unset,
+        list["Document"],
+        list[Union["FileContentPart", "TextContentPart"]],
+        str,
+    ] = UNSET
+    tags: None | Unset | list[str] = UNSET
+    status_code: None | Unset | int = UNSET
+    duration_ns: None | Unset | int = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -68,25 +72,25 @@ class LogSpanUpdateRequest:
 
         span_id = self.span_id
 
-        log_stream_id: None | str | Unset
+        log_stream_id: None | Unset | str
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
-        experiment_id: None | str | Unset
+        experiment_id: None | Unset | str
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
-        metrics_testing_id: None | str | Unset
+        metrics_testing_id: None | Unset | str
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
-        logging_method: str | Unset = UNSET
+        logging_method: Unset | str = UNSET
         if not isinstance(self.logging_method, Unset):
             logging_method = self.logging_method.value
 
-        client_version: None | str | Unset
+        client_version: None | Unset | str
         client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
 
         reliable = self.reliable
 
-        input_: list[dict[str, Any]] | None | str | Unset
+        input_: None | Unset | list[dict[str, Any]] | str
         if isinstance(self.input_, Unset):
             input_ = UNSET
         elif isinstance(self.input_, list):
@@ -109,7 +113,7 @@ class LogSpanUpdateRequest:
         else:
             input_ = self.input_
 
-        output: dict[str, Any] | list[dict[str, Any]] | None | str | Unset
+        output: None | Unset | dict[str, Any] | list[dict[str, Any]] | str
         if isinstance(self.output, Unset):
             output = UNSET
         elif isinstance(self.output, Message):
@@ -136,7 +140,7 @@ class LogSpanUpdateRequest:
         else:
             output = self.output
 
-        tags: list[str] | None | Unset
+        tags: None | Unset | list[str]
         if isinstance(self.tags, Unset):
             tags = UNSET
         elif isinstance(self.tags, list):
@@ -145,10 +149,10 @@ class LogSpanUpdateRequest:
         else:
             tags = self.tags
 
-        status_code: int | None | Unset
+        status_code: None | Unset | int
         status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
-        duration_ns: int | None | Unset
+        duration_ns: None | Unset | int
         duration_ns = UNSET if isinstance(self.duration_ns, Unset) else self.duration_ns
 
         field_dict: dict[str, Any] = {}
@@ -190,49 +194,51 @@ class LogSpanUpdateRequest:
         d = dict(src_dict)
         span_id = d.pop("span_id")
 
-        def _parse_log_stream_id(data: object) -> None | str | Unset:
+        def _parse_log_stream_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        def _parse_experiment_id(data: object) -> None | str | Unset:
+        def _parse_experiment_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_metrics_testing_id(data: object) -> None | str | Unset:
+        def _parse_metrics_testing_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
         _logging_method = d.pop("logging_method", UNSET)
-        logging_method: LoggingMethod | Unset
+        logging_method: Unset | LoggingMethod
         logging_method = UNSET if isinstance(_logging_method, Unset) else LoggingMethod(_logging_method)
 
-        def _parse_client_version(data: object) -> None | str | Unset:
+        def _parse_client_version(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         client_version = _parse_client_version(d.pop("client_version", UNSET))
 
         reliable = d.pop("reliable", UNSET)
 
-        def _parse_input_(data: object) -> list[FileContentPart | TextContentPart] | list[Message] | None | str | Unset:
+        def _parse_input_(
+            data: object,
+        ) -> None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -257,7 +263,7 @@ class LogSpanUpdateRequest:
                 _input_type_2 = data
                 for input_type_2_item_data in _input_type_2:
 
-                    def _parse_input_type_2_item(data: object) -> FileContentPart | TextContentPart:
+                    def _parse_input_type_2_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -276,13 +282,21 @@ class LogSpanUpdateRequest:
                 return input_type_2
             except:  # noqa: E722
                 pass
-            return cast(list[FileContentPart | TextContentPart] | list[Message] | None | str | Unset, data)
+            return cast(None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str, data)
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
         def _parse_output(
             data: object,
-        ) -> ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str | Unset:
+        ) -> Union[
+            "ControlResult",
+            "Message",
+            None,
+            Unset,
+            list["Document"],
+            list[Union["FileContentPart", "TextContentPart"]],
+            str,
+        ]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -314,7 +328,7 @@ class LogSpanUpdateRequest:
                 _output_type_3 = data
                 for output_type_3_item_data in _output_type_3:
 
-                    def _parse_output_type_3_item(data: object) -> FileContentPart | TextContentPart:
+                    def _parse_output_type_3_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -341,13 +355,21 @@ class LogSpanUpdateRequest:
             except:  # noqa: E722
                 pass
             return cast(
-                ControlResult | list[Document] | list[FileContentPart | TextContentPart] | Message | None | str | Unset,
+                Union[
+                    "ControlResult",
+                    "Message",
+                    None,
+                    Unset,
+                    list["Document"],
+                    list[Union["FileContentPart", "TextContentPart"]],
+                    str,
+                ],
                 data,
             )
 
         output = _parse_output(d.pop("output", UNSET))
 
-        def _parse_tags(data: object) -> list[str] | None | Unset:
+        def _parse_tags(data: object) -> None | Unset | list[str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -359,25 +381,25 @@ class LogSpanUpdateRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(list[str] | None | Unset, data)
+            return cast(None | Unset | list[str], data)
 
         tags = _parse_tags(d.pop("tags", UNSET))
 
-        def _parse_status_code(data: object) -> int | None | Unset:
+        def _parse_status_code(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
-        def _parse_duration_ns(data: object) -> int | None | Unset:
+        def _parse_duration_ns(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         duration_ns = _parse_duration_ns(d.pop("duration_ns", UNSET))
 

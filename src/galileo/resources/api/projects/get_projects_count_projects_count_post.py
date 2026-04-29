@@ -19,17 +19,15 @@ from galileo_core.helpers.api_client import ApiClient
 from ... import errors
 from ...models.http_validation_error import HTTPValidationError
 from ...models.project_collection_params import ProjectCollectionParams
-from ...types import UNSET, Response, Unset
+from ...types import Response
 
 
-def _get_kwargs(*, body: ProjectCollectionParams | Unset) -> dict[str, Any]:
+def _get_kwargs(*, body: ProjectCollectionParams) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {"method": RequestMethod.POST, "return_raw_response": True, "path": "/projects/count"}
 
-    _kwargs["json"]: dict[str, Any] | Unset = UNSET
-    if not isinstance(body, Unset):
-        _kwargs["json"] = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -73,13 +71,13 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(*, client: ApiClient, body: ProjectCollectionParams | Unset) -> Response[HTTPValidationError | int]:
+def sync_detailed(*, client: ApiClient, body: ProjectCollectionParams) -> Response[HTTPValidationError | int]:
     """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.
 
     Args:
-        body (ProjectCollectionParams | Unset):
+        body (ProjectCollectionParams):
 
     Raises
     ------
@@ -88,7 +86,7 @@ def sync_detailed(*, client: ApiClient, body: ProjectCollectionParams | Unset) -
 
     Returns
     -------
-        Response[HTTPValidationError | int]
+        Response[Union[HTTPValidationError, int]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -97,13 +95,13 @@ def sync_detailed(*, client: ApiClient, body: ProjectCollectionParams | Unset) -
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: ProjectCollectionParams | Unset) -> HTTPValidationError | int | None:
+def sync(*, client: ApiClient, body: ProjectCollectionParams) -> HTTPValidationError | int | None:
     """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.
 
     Args:
-        body (ProjectCollectionParams | Unset):
+        body (ProjectCollectionParams):
 
     Raises
     ------
@@ -112,20 +110,18 @@ def sync(*, client: ApiClient, body: ProjectCollectionParams | Unset) -> HTTPVal
 
     Returns
     -------
-        HTTPValidationError | int
+        Union[HTTPValidationError, int]
     """
     return sync_detailed(client=client, body=body).parsed
 
 
-async def asyncio_detailed(
-    *, client: ApiClient, body: ProjectCollectionParams | Unset
-) -> Response[HTTPValidationError | int]:
+async def asyncio_detailed(*, client: ApiClient, body: ProjectCollectionParams) -> Response[HTTPValidationError | int]:
     """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.
 
     Args:
-        body (ProjectCollectionParams | Unset):
+        body (ProjectCollectionParams):
 
     Raises
     ------
@@ -134,7 +130,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | int]
+        Response[Union[HTTPValidationError, int]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -143,13 +139,13 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: ProjectCollectionParams | Unset) -> HTTPValidationError | int | None:
+async def asyncio(*, client: ApiClient, body: ProjectCollectionParams) -> HTTPValidationError | int | None:
     """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.
 
     Args:
-        body (ProjectCollectionParams | Unset):
+        body (ProjectCollectionParams):
 
     Raises
     ------
@@ -158,6 +154,6 @@ async def asyncio(*, client: ApiClient, body: ProjectCollectionParams | Unset) -
 
     Returns
     -------
-        HTTPValidationError | int
+        Union[HTTPValidationError, int]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

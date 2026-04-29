@@ -24,7 +24,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *, body: ListPromptTemplateParams | Unset, starting_token: int | Unset = 0, limit: int | Unset = 100
+    *, body: ListPromptTemplateParams, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -43,9 +43,7 @@ def _get_kwargs(
         "params": params,
     }
 
-    _kwargs["json"]: dict[str, Any] | Unset = UNSET
-    if not isinstance(body, Unset):
-        _kwargs["json"] = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -92,11 +90,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: ApiClient,
-    body: ListPromptTemplateParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    *, client: ApiClient, body: ListPromptTemplateParams, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> Response[HTTPValidationError | ListPromptTemplateResponse]:
     """Query Templates.
 
@@ -117,9 +111,9 @@ def sync_detailed(
         Paginated list of prompt template responses that the user has access to.
 
     Args:
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListPromptTemplateParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListPromptTemplateParams):
 
     Raises
     ------
@@ -128,7 +122,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListPromptTemplateResponse]
+        Response[Union[HTTPValidationError, ListPromptTemplateResponse]]
     """
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
@@ -138,11 +132,7 @@ def sync_detailed(
 
 
 def sync(
-    *,
-    client: ApiClient,
-    body: ListPromptTemplateParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    *, client: ApiClient, body: ListPromptTemplateParams, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> HTTPValidationError | ListPromptTemplateResponse | None:
     """Query Templates.
 
@@ -163,9 +153,9 @@ def sync(
         Paginated list of prompt template responses that the user has access to.
 
     Args:
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListPromptTemplateParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListPromptTemplateParams):
 
     Raises
     ------
@@ -174,17 +164,13 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | ListPromptTemplateResponse
+        Union[HTTPValidationError, ListPromptTemplateResponse]
     """
     return sync_detailed(client=client, body=body, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: ApiClient,
-    body: ListPromptTemplateParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    *, client: ApiClient, body: ListPromptTemplateParams, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> Response[HTTPValidationError | ListPromptTemplateResponse]:
     """Query Templates.
 
@@ -205,9 +191,9 @@ async def asyncio_detailed(
         Paginated list of prompt template responses that the user has access to.
 
     Args:
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListPromptTemplateParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListPromptTemplateParams):
 
     Raises
     ------
@@ -216,7 +202,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ListPromptTemplateResponse]
+        Response[Union[HTTPValidationError, ListPromptTemplateResponse]]
     """
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
@@ -226,11 +212,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: ApiClient,
-    body: ListPromptTemplateParams | Unset,
-    starting_token: int | Unset = 0,
-    limit: int | Unset = 100,
+    *, client: ApiClient, body: ListPromptTemplateParams, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> HTTPValidationError | ListPromptTemplateResponse | None:
     """Query Templates.
 
@@ -251,9 +233,9 @@ async def asyncio(
         Paginated list of prompt template responses that the user has access to.
 
     Args:
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
-        body (ListPromptTemplateParams | Unset):
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        body (ListPromptTemplateParams):
 
     Raises
     ------
@@ -262,6 +244,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | ListPromptTemplateResponse
+        Union[HTTPValidationError, ListPromptTemplateResponse]
     """
     return (await asyncio_detailed(client=client, body=body, starting_token=starting_token, limit=limit)).parsed

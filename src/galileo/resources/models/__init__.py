@@ -153,7 +153,9 @@ from .create_code_metric_generation_request import CreateCodeMetricGenerationReq
 from .create_code_metric_generation_response import CreateCodeMetricGenerationResponse
 from .create_custom_luna_scorer_version_request import CreateCustomLunaScorerVersionRequest
 from .create_job_request import CreateJobRequest
+from .create_job_request_validation_config_type_0 import CreateJobRequestValidationConfigType0
 from .create_job_response import CreateJobResponse
+from .create_job_response_validation_config_type_0 import CreateJobResponseValidationConfigType0
 from .create_llm_scorer_autogen_request import CreateLLMScorerAutogenRequest
 from .create_llm_scorer_version_request import CreateLLMScorerVersionRequest
 from .create_prompt_template_with_version_request_body import CreatePromptTemplateWithVersionRequestBody
@@ -1414,7 +1416,9 @@ __all__ = (
     "CreateCodeMetricGenerationResponse",
     "CreateCustomLunaScorerVersionRequest",
     "CreateJobRequest",
+    "CreateJobRequestValidationConfigType0",
     "CreateJobResponse",
+    "CreateJobResponseValidationConfigType0",
     "CreateLLMScorerAutogenRequest",
     "CreateLLMScorerVersionRequest",
     "CreatePromptTemplateWithVersionRequestBody",

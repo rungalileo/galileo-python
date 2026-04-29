@@ -90,7 +90,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | RunTagDB]
+        Response[Union[HTTPValidationError, RunTagDB]]
     """
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id)
 
@@ -118,7 +118,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | RunTagDB
+        Union[HTTPValidationError, RunTagDB]
     """
     return sync_detailed(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, client=client).parsed
 
@@ -142,7 +142,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | RunTagDB]
+        Response[Union[HTTPValidationError, RunTagDB]]
     """
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id)
 
@@ -170,7 +170,7 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | RunTagDB
+        Union[HTTPValidationError, RunTagDB]
     """
     return (
         await asyncio_detailed(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, client=client)

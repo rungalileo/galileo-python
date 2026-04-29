@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, cast
+from typing import Any, Union, cast
 
 import httpx
 
@@ -23,7 +23,7 @@ from ...models.upsert_dataset_content_request import UpsertDatasetContentRequest
 from ...types import Response
 
 
-def _get_kwargs(dataset_id: str, *, body: RollbackRequest | UpsertDatasetContentRequest) -> dict[str, Any]:
+def _get_kwargs(dataset_id: str, *, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
@@ -81,7 +81,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(
-    dataset_id: str, *, client: ApiClient, body: RollbackRequest | UpsertDatasetContentRequest
+    dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
 ) -> Response[Any | HTTPValidationError]:
     """Upsert Dataset Content.
 
@@ -89,7 +89,7 @@ def sync_detailed(
 
     Args:
         dataset_id (str):
-        body (RollbackRequest | UpsertDatasetContentRequest):
+        body (Union['RollbackRequest', 'UpsertDatasetContentRequest']):
 
     Raises
     ------
@@ -98,7 +98,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
 
@@ -108,7 +108,7 @@ def sync_detailed(
 
 
 def sync(
-    dataset_id: str, *, client: ApiClient, body: RollbackRequest | UpsertDatasetContentRequest
+    dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
 ) -> Any | HTTPValidationError | None:
     """Upsert Dataset Content.
 
@@ -116,7 +116,7 @@ def sync(
 
     Args:
         dataset_id (str):
-        body (RollbackRequest | UpsertDatasetContentRequest):
+        body (Union['RollbackRequest', 'UpsertDatasetContentRequest']):
 
     Raises
     ------
@@ -125,13 +125,13 @@ def sync(
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return sync_detailed(dataset_id=dataset_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    dataset_id: str, *, client: ApiClient, body: RollbackRequest | UpsertDatasetContentRequest
+    dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
 ) -> Response[Any | HTTPValidationError]:
     """Upsert Dataset Content.
 
@@ -139,7 +139,7 @@ async def asyncio_detailed(
 
     Args:
         dataset_id (str):
-        body (RollbackRequest | UpsertDatasetContentRequest):
+        body (Union['RollbackRequest', 'UpsertDatasetContentRequest']):
 
     Raises
     ------
@@ -148,7 +148,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
 
@@ -158,7 +158,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str, *, client: ApiClient, body: RollbackRequest | UpsertDatasetContentRequest
+    dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
 ) -> Any | HTTPValidationError | None:
     """Upsert Dataset Content.
 
@@ -166,7 +166,7 @@ async def asyncio(
 
     Args:
         dataset_id (str):
-        body (RollbackRequest | UpsertDatasetContentRequest):
+        body (Union['RollbackRequest', 'UpsertDatasetContentRequest']):
 
     Raises
     ------
@@ -175,6 +175,6 @@ async def asyncio(
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return (await asyncio_detailed(dataset_id=dataset_id, client=client, body=body)).parsed

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import datetime
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
@@ -21,7 +19,7 @@ class RunCreatedAtFilter:
     ----------
         operator (RunCreatedAtFilterOperator):
         value (datetime.datetime):
-        name (Literal['created_at'] | Unset):  Default: 'created_at'.
+        name (Union[Literal['created_at'], Unset]):  Default: 'created_at'.
     """
 
     operator: RunCreatedAtFilterOperator

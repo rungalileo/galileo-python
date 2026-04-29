@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -19,12 +17,12 @@ class DatasetContentFilter:
     ----------
         column_name (str):
         value (str):
-        operator (DatasetContentFilterOperator | Unset):
+        operator (Union[Unset, DatasetContentFilterOperator]):
     """
 
     column_name: str
     value: str
-    operator: DatasetContentFilterOperator | Unset = UNSET
+    operator: Unset | DatasetContentFilterOperator = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,7 +30,7 @@ class DatasetContentFilter:
 
         value = self.value
 
-        operator: str | Unset = UNSET
+        operator: Unset | str = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -52,7 +50,7 @@ class DatasetContentFilter:
         value = d.pop("value")
 
         _operator = d.pop("operator", UNSET)
-        operator: DatasetContentFilterOperator | Unset
+        operator: Unset | DatasetContentFilterOperator
         operator = UNSET if isinstance(_operator, Unset) else DatasetContentFilterOperator(_operator)
 
         dataset_content_filter = cls(column_name=column_name, value=value, operator=operator)

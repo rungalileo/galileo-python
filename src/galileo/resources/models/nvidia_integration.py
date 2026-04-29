@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,25 +18,25 @@ class NvidiaIntegration:
     """
     Attributes
     ----------
-        id (None | str | Unset):
-        name (Literal['nvidia'] | Unset):  Default: 'nvidia'.
-        extra (None | NvidiaIntegrationExtraType0 | Unset):
+        id (Union[None, Unset, str]):
+        name (Union[Literal['nvidia'], Unset]):  Default: 'nvidia'.
+        extra (Union['NvidiaIntegrationExtraType0', None, Unset]):
     """
 
-    id: None | str | Unset = UNSET
+    id: None | Unset | str = UNSET
     name: Literal["nvidia"] | Unset = "nvidia"
-    extra: None | NvidiaIntegrationExtraType0 | Unset = UNSET
+    extra: Union["NvidiaIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.nvidia_integration_extra_type_0 import NvidiaIntegrationExtraType0
 
-        id: None | str | Unset
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
-        extra: dict[str, Any] | None | Unset
+        extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, NvidiaIntegrationExtraType0):
@@ -64,12 +62,12 @@ class NvidiaIntegration:
 
         d = dict(src_dict)
 
-        def _parse_id(data: object) -> None | str | Unset:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
@@ -77,7 +75,7 @@ class NvidiaIntegration:
         if name != "nvidia" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'nvidia', got '{name}'")
 
-        def _parse_extra(data: object) -> None | NvidiaIntegrationExtraType0 | Unset:
+        def _parse_extra(data: object) -> Union["NvidiaIntegrationExtraType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -89,7 +87,7 @@ class NvidiaIntegration:
 
             except:  # noqa: E722
                 pass
-            return cast(None | NvidiaIntegrationExtraType0 | Unset, data)
+            return cast(Union["NvidiaIntegrationExtraType0", None, Unset], data)
 
         extra = _parse_extra(d.pop("extra", UNSET))
 

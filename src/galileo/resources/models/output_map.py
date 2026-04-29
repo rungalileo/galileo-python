@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -17,32 +15,32 @@ class OutputMap:
     Attributes
     ----------
         response (str):
-        token_count (None | str | Unset):
-        input_token_count (None | str | Unset):
-        output_token_count (None | str | Unset):
-        completion_reason (None | str | Unset):
+        token_count (Union[None, Unset, str]):
+        input_token_count (Union[None, Unset, str]):
+        output_token_count (Union[None, Unset, str]):
+        completion_reason (Union[None, Unset, str]):
     """
 
     response: str
-    token_count: None | str | Unset = UNSET
-    input_token_count: None | str | Unset = UNSET
-    output_token_count: None | str | Unset = UNSET
-    completion_reason: None | str | Unset = UNSET
+    token_count: None | Unset | str = UNSET
+    input_token_count: None | Unset | str = UNSET
+    output_token_count: None | Unset | str = UNSET
+    completion_reason: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         response = self.response
 
-        token_count: None | str | Unset
+        token_count: None | Unset | str
         token_count = UNSET if isinstance(self.token_count, Unset) else self.token_count
 
-        input_token_count: None | str | Unset
+        input_token_count: None | Unset | str
         input_token_count = UNSET if isinstance(self.input_token_count, Unset) else self.input_token_count
 
-        output_token_count: None | str | Unset
+        output_token_count: None | Unset | str
         output_token_count = UNSET if isinstance(self.output_token_count, Unset) else self.output_token_count
 
-        completion_reason: None | str | Unset
+        completion_reason: None | Unset | str
         completion_reason = UNSET if isinstance(self.completion_reason, Unset) else self.completion_reason
 
         field_dict: dict[str, Any] = {}
@@ -64,39 +62,39 @@ class OutputMap:
         d = dict(src_dict)
         response = d.pop("response")
 
-        def _parse_token_count(data: object) -> None | str | Unset:
+        def _parse_token_count(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         token_count = _parse_token_count(d.pop("token_count", UNSET))
 
-        def _parse_input_token_count(data: object) -> None | str | Unset:
+        def _parse_input_token_count(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         input_token_count = _parse_input_token_count(d.pop("input_token_count", UNSET))
 
-        def _parse_output_token_count(data: object) -> None | str | Unset:
+        def _parse_output_token_count(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         output_token_count = _parse_output_token_count(d.pop("output_token_count", UNSET))
 
-        def _parse_completion_reason(data: object) -> None | str | Unset:
+        def _parse_completion_reason(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         completion_reason = _parse_completion_reason(d.pop("completion_reason", UNSET))
 

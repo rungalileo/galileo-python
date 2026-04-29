@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -22,7 +20,7 @@ class FileContentPart:
     Attributes
     ----------
             file_id (str):
-            type_ (Literal['file'] | Unset):  Default: 'file'.
+            type_ (Union[Literal['file'], Unset]):  Default: 'file'.
     """
 
     file_id: str

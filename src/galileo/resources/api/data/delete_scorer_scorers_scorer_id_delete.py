@@ -86,7 +86,7 @@ def sync_detailed(scorer_id: str, *, client: ApiClient) -> Response[DeleteScorer
 
     Returns
     -------
-        Response[DeleteScorerResponse | HTTPValidationError]
+        Response[Union[DeleteScorerResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(scorer_id=scorer_id)
 
@@ -108,7 +108,7 @@ def sync(scorer_id: str, *, client: ApiClient) -> DeleteScorerResponse | HTTPVal
 
     Returns
     -------
-        DeleteScorerResponse | HTTPValidationError
+        Union[DeleteScorerResponse, HTTPValidationError]
     """
     return sync_detailed(scorer_id=scorer_id, client=client).parsed
 
@@ -128,7 +128,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[DeleteScorerResponse | HTTPValidationError]
+        Response[Union[DeleteScorerResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(scorer_id=scorer_id)
 
@@ -150,6 +150,6 @@ async def asyncio(scorer_id: str, *, client: ApiClient) -> DeleteScorerResponse 
 
     Returns
     -------
-        DeleteScorerResponse | HTTPValidationError
+        Union[DeleteScorerResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(scorer_id=scorer_id, client=client)).parsed

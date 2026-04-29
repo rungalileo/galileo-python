@@ -97,7 +97,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[GenerationResponse | HTTPValidationError]
+        Response[Union[GenerationResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -123,7 +123,7 @@ def sync(*, client: ApiClient, body: CreateLLMScorerAutogenRequest) -> Generatio
 
     Returns
     -------
-        GenerationResponse | HTTPValidationError
+        Union[GenerationResponse, HTTPValidationError]
     """
     return sync_detailed(client=client, body=body).parsed
 
@@ -147,7 +147,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[GenerationResponse | HTTPValidationError]
+        Response[Union[GenerationResponse, HTTPValidationError]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -175,6 +175,6 @@ async def asyncio(
 
     Returns
     -------
-        GenerationResponse | HTTPValidationError
+        Union[GenerationResponse, HTTPValidationError]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

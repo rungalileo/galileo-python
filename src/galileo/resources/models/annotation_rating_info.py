@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -17,8 +15,8 @@ class AnnotationRatingInfo:
     Attributes
     ----------
         annotation_type (AnnotationType):
-        value (bool | int | list[str] | str):
-        explanation (None | str):
+        value (Union[bool, int, list[str], str]):
+        explanation (Union[None, str]):
     """
 
     annotation_type: AnnotationType

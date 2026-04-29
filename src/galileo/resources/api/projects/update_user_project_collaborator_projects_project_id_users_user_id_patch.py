@@ -95,7 +95,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | UserCollaborator]
+        Response[Union[HTTPValidationError, UserCollaborator]]
     """
     kwargs = _get_kwargs(project_id=project_id, user_id=user_id, body=body)
 
@@ -123,7 +123,7 @@ def sync(
 
     Returns
     -------
-        HTTPValidationError | UserCollaborator
+        Union[HTTPValidationError, UserCollaborator]
     """
     return sync_detailed(project_id=project_id, user_id=user_id, client=client, body=body).parsed
 
@@ -147,7 +147,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | UserCollaborator]
+        Response[Union[HTTPValidationError, UserCollaborator]]
     """
     kwargs = _get_kwargs(project_id=project_id, user_id=user_id, body=body)
 
@@ -175,6 +175,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | UserCollaborator
+        Union[HTTPValidationError, UserCollaborator]
     """
     return (await asyncio_detailed(project_id=project_id, user_id=user_id, client=client, body=body)).parsed

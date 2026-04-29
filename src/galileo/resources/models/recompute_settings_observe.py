@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,7 +15,7 @@ class RecomputeSettingsObserve:
     Attributes
     ----------
         filters (list[Any]):
-        mode (Literal['observe_filters'] | Unset):  Default: 'observe_filters'.
+        mode (Union[Literal['observe_filters'], Unset]):  Default: 'observe_filters'.
     """
 
     filters: list[Any]

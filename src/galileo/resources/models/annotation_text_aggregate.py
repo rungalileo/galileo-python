@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,7 +16,7 @@ class AnnotationTextAggregate:
     ----------
         count (int):
         unrated_count (int):
-        annotation_type (Literal['text'] | Unset):  Default: 'text'.
+        annotation_type (Union[Literal['text'], Unset]):  Default: 'text'.
     """
 
     count: int

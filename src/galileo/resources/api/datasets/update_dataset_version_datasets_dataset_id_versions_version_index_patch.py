@@ -93,7 +93,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[DatasetVersionDB | HTTPValidationError]
+        Response[Union[DatasetVersionDB, HTTPValidationError]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, body=body)
 
@@ -119,7 +119,7 @@ def sync(
 
     Returns
     -------
-        DatasetVersionDB | HTTPValidationError
+        Union[DatasetVersionDB, HTTPValidationError]
     """
     return sync_detailed(dataset_id=dataset_id, version_index=version_index, client=client, body=body).parsed
 
@@ -141,7 +141,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[DatasetVersionDB | HTTPValidationError]
+        Response[Union[DatasetVersionDB, HTTPValidationError]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, body=body)
 
@@ -167,6 +167,6 @@ async def asyncio(
 
     Returns
     -------
-        DatasetVersionDB | HTTPValidationError
+        Union[DatasetVersionDB, HTTPValidationError]
     """
     return (await asyncio_detailed(dataset_id=dataset_id, version_index=version_index, client=client, body=body)).parsed

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -19,18 +17,18 @@ class SubscriptionConfig:
     ----------
         url (str): URL to send the event to. This can be a webhook URL, a message queue URL, an event bus or a custom
             endpoint that can receive an HTTP POST request.
-        statuses (list[ExecutionStatus] | Unset): List of statuses that will cause a notification to be sent to the
-            configured URL.
+        statuses (Union[Unset, list[ExecutionStatus]]): List of statuses that will cause a notification to be sent to
+            the configured URL.
     """
 
     url: str
-    statuses: list[ExecutionStatus] | Unset = UNSET
+    statuses: Unset | list[ExecutionStatus] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         url = self.url
 
-        statuses: list[str] | Unset = UNSET
+        statuses: Unset | list[str] = UNSET
         if not isinstance(self.statuses, Unset):
             statuses = []
             for statuses_item_data in self.statuses:
@@ -50,14 +48,12 @@ class SubscriptionConfig:
         d = dict(src_dict)
         url = d.pop("url")
 
+        statuses = []
         _statuses = d.pop("statuses", UNSET)
-        statuses: list[ExecutionStatus] | Unset = UNSET
-        if _statuses is not UNSET:
-            statuses = []
-            for statuses_item_data in _statuses:
-                statuses_item = ExecutionStatus(statuses_item_data)
+        for statuses_item_data in _statuses or []:
+            statuses_item = ExecutionStatus(statuses_item_data)
 
-                statuses.append(statuses_item)
+            statuses.append(statuses_item)
 
         subscription_config = cls(url=url, statuses=statuses)
 

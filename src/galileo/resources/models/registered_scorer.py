@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,27 +20,27 @@ class RegisteredScorer:
     """
     Attributes
     ----------
-        id (None | str | Unset):
-        name (None | str | Unset):
-        filters (list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset):
+        id (Union[None, Unset, str]):
+        name (Union[None, Unset, str]):
+        filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]):
     """
 
-    id: None | str | Unset = UNSET
-    name: None | str | Unset = UNSET
-    filters: list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset = UNSET
+    id: None | Unset | str = UNSET
+    name: None | Unset | str = UNSET
+    filters: None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
-        id: None | str | Unset
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
-        name: None | str | Unset
+        name: None | Unset | str
         name = UNSET if isinstance(self.name, Unset) else self.name
 
-        filters: list[dict[str, Any]] | None | Unset
+        filters: None | Unset | list[dict[str, Any]]
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
@@ -79,25 +77,27 @@ class RegisteredScorer:
 
         d = dict(src_dict)
 
-        def _parse_id(data: object) -> None | str | Unset:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_name(data: object) -> None | str | Unset:
+        def _parse_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_filters(data: object) -> list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset:
+        def _parse_filters(
+            data: object,
+        ) -> None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -109,7 +109,9 @@ class RegisteredScorer:
                 _filters_type_0 = data
                 for filters_type_0_item_data in _filters_type_0:
 
-                    def _parse_filters_type_0_item(data: object) -> MetadataFilter | ModalityFilter | NodeNameFilter:
+                    def _parse_filters_type_0_item(
+                        data: object,
+                    ) -> Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -135,7 +137,7 @@ class RegisteredScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset, data)
+            return cast(None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 

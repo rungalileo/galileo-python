@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,8 +16,8 @@ class ProjectRunsFilter:
     Attributes
     ----------
         operator (ProjectRunsFilterOperator):
-        value (float | int | list[float] | list[int]):
-        name (Literal['runs'] | Unset):  Default: 'runs'.
+        value (Union[float, int, list[float], list[int]]):
+        name (Union[Literal['runs'], Unset]):  Default: 'runs'.
     """
 
     operator: ProjectRunsFilterOperator

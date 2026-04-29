@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import datetime
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
@@ -20,12 +18,12 @@ class CreateUpdateRegisteredScorerResponse:
     ----------
         id (str):
         name (str):
-        score_type (None | str):
+        score_type (Union[None, str]):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         created_by (str):
-        data_type (DataTypeOptions | None):
-        scoreable_node_types (list[str] | None):
+        data_type (Union[DataTypeOptions, None]):
+        scoreable_node_types (Union[None, list[str]]):
     """
 
     id: str
@@ -35,7 +33,7 @@ class CreateUpdateRegisteredScorerResponse:
     updated_at: datetime.datetime
     created_by: str
     data_type: DataTypeOptions | None
-    scoreable_node_types: list[str] | None
+    scoreable_node_types: None | list[str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -55,7 +53,7 @@ class CreateUpdateRegisteredScorerResponse:
         data_type: None | str
         data_type = self.data_type.value if isinstance(self.data_type, DataTypeOptions) else self.data_type
 
-        scoreable_node_types: list[str] | None
+        scoreable_node_types: None | list[str]
         if isinstance(self.scoreable_node_types, list):
             scoreable_node_types = self.scoreable_node_types
 
@@ -113,7 +111,7 @@ class CreateUpdateRegisteredScorerResponse:
 
         data_type = _parse_data_type(d.pop("data_type"))
 
-        def _parse_scoreable_node_types(data: object) -> list[str] | None:
+        def _parse_scoreable_node_types(data: object) -> None | list[str]:
             if data is None:
                 return data
             try:
@@ -123,7 +121,7 @@ class CreateUpdateRegisteredScorerResponse:
 
             except:  # noqa: E722
                 pass
-            return cast(list[str] | None, data)
+            return cast(None | list[str], data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types"))
 

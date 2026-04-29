@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,7 +16,7 @@ class TextContentPart:
     Attributes
     ----------
         text (str):
-        type_ (Literal['text'] | Unset):  Default: 'text'.
+        type_ (Union[Literal['text'], Unset]):  Default: 'text'.
     """
 
     text: str

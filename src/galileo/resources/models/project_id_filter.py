@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,14 +15,14 @@ class ProjectIDFilter:
     """
     Attributes
     ----------
-        value (list[str] | str):
-        name (Literal['id'] | Unset):  Default: 'id'.
-        operator (ProjectIDFilterOperator | Unset):  Default: ProjectIDFilterOperator.EQ.
+        value (Union[list[str], str]):
+        name (Union[Literal['id'], Unset]):  Default: 'id'.
+        operator (Union[Unset, ProjectIDFilterOperator]):  Default: ProjectIDFilterOperator.EQ.
     """
 
     value: list[str] | str
     name: Literal["id"] | Unset = "id"
-    operator: ProjectIDFilterOperator | Unset = ProjectIDFilterOperator.EQ
+    operator: Unset | ProjectIDFilterOperator = ProjectIDFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,7 +39,7 @@ class ProjectIDFilter:
 
         name = self.name
 
-        operator: str | Unset = UNSET
+        operator: Unset | str = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -86,7 +84,7 @@ class ProjectIDFilter:
             raise ValueError(f"name must match const 'id', got '{name}'")
 
         _operator = d.pop("operator", UNSET)
-        operator: ProjectIDFilterOperator | Unset
+        operator: Unset | ProjectIDFilterOperator
         operator = UNSET if isinstance(_operator, Unset) else ProjectIDFilterOperator(_operator)
 
         project_id_filter = cls(value=value, name=name, operator=operator)

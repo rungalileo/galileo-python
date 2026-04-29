@@ -86,7 +86,7 @@ def sync_detailed(template_id: str, user_id: str, *, client: ApiClient) -> Respo
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(template_id=template_id, user_id=user_id)
 
@@ -111,7 +111,7 @@ def sync(template_id: str, user_id: str, *, client: ApiClient) -> Any | HTTPVali
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return sync_detailed(template_id=template_id, user_id=user_id, client=client).parsed
 
@@ -132,7 +132,7 @@ async def asyncio_detailed(template_id: str, user_id: str, *, client: ApiClient)
 
     Returns
     -------
-        Response[Any | HTTPValidationError]
+        Response[Union[Any, HTTPValidationError]]
     """
     kwargs = _get_kwargs(template_id=template_id, user_id=user_id)
 
@@ -157,6 +157,6 @@ async def asyncio(template_id: str, user_id: str, *, client: ApiClient) -> Any |
 
     Returns
     -------
-        Any | HTTPValidationError
+        Union[Any, HTTPValidationError]
     """
     return (await asyncio_detailed(template_id=template_id, user_id=user_id, client=client)).parsed

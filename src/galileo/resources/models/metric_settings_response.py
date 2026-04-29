@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -21,12 +19,12 @@ class MetricSettingsResponse:
     """
     Attributes
     ----------
-        scorers (list[ScorerConfig]):
-        segment_filters (list[SegmentFilter] | None | Unset): List of segment filters to apply to the run.
+        scorers (list['ScorerConfig']):
+        segment_filters (Union[None, Unset, list['SegmentFilter']]): List of segment filters to apply to the run.
     """
 
-    scorers: list[ScorerConfig]
-    segment_filters: list[SegmentFilter] | None | Unset = UNSET
+    scorers: list["ScorerConfig"]
+    segment_filters: None | Unset | list["SegmentFilter"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,7 +33,7 @@ class MetricSettingsResponse:
             scorers_item = scorers_item_data.to_dict()
             scorers.append(scorers_item)
 
-        segment_filters: list[dict[str, Any]] | None | Unset
+        segment_filters: None | Unset | list[dict[str, Any]]
         if isinstance(self.segment_filters, Unset):
             segment_filters = UNSET
         elif isinstance(self.segment_filters, list):
@@ -68,7 +66,7 @@ class MetricSettingsResponse:
 
             scorers.append(scorers_item)
 
-        def _parse_segment_filters(data: object) -> list[SegmentFilter] | None | Unset:
+        def _parse_segment_filters(data: object) -> None | Unset | list["SegmentFilter"]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -86,7 +84,7 @@ class MetricSettingsResponse:
                 return segment_filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[SegmentFilter] | None | Unset, data)
+            return cast(None | Unset | list["SegmentFilter"], data)
 
         segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
 

@@ -84,7 +84,7 @@ def sync_detailed(project_id: str, *, client: ApiClient) -> Response[HTTPValidat
 
     Returns
     -------
-        Response[HTTPValidationError | ProjectDB]
+        Response[Union[HTTPValidationError, ProjectDB]]
     """
     kwargs = _get_kwargs(project_id=project_id)
 
@@ -106,7 +106,7 @@ def sync(project_id: str, *, client: ApiClient) -> HTTPValidationError | Project
 
     Returns
     -------
-        HTTPValidationError | ProjectDB
+        Union[HTTPValidationError, ProjectDB]
     """
     return sync_detailed(project_id=project_id, client=client).parsed
 
@@ -124,7 +124,7 @@ async def asyncio_detailed(project_id: str, *, client: ApiClient) -> Response[HT
 
     Returns
     -------
-        Response[HTTPValidationError | ProjectDB]
+        Response[Union[HTTPValidationError, ProjectDB]]
     """
     kwargs = _get_kwargs(project_id=project_id)
 
@@ -146,6 +146,6 @@ async def asyncio(project_id: str, *, client: ApiClient) -> HTTPValidationError 
 
     Returns
     -------
-        HTTPValidationError | ProjectDB
+        Union[HTTPValidationError, ProjectDB]
     """
     return (await asyncio_detailed(project_id=project_id, client=client)).parsed

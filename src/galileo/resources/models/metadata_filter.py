@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -20,8 +18,8 @@ class MetadataFilter:
     ----------
         operator (MetadataFilterOperator):
         key (str):
-        value (list[str] | str):
-        name (Literal['metadata'] | Unset):  Default: 'metadata'.
+        value (Union[list[str], str]):
+        name (Union[Literal['metadata'], Unset]):  Default: 'metadata'.
     """
 
     operator: MetadataFilterOperator

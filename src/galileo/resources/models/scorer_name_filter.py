@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,15 +16,15 @@ class ScorerNameFilter:
     Attributes
     ----------
         operator (ScorerNameFilterOperator):
-        value (list[str] | str):
-        name (Literal['name'] | Unset):  Default: 'name'.
-        case_sensitive (bool | Unset):  Default: False.
+        value (Union[list[str], str]):
+        name (Union[Literal['name'], Unset]):  Default: 'name'.
+        case_sensitive (Union[Unset, bool]):  Default: False.
     """
 
     operator: ScorerNameFilterOperator
     value: list[str] | str
     name: Literal["name"] | Unset = "name"
-    case_sensitive: bool | Unset = False
+    case_sensitive: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

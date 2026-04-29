@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -19,14 +17,14 @@ class UserInfo:
     ----------
         id (str):
         email (str):
-        first_name (None | str | Unset):
-        last_name (None | str | Unset):
+        first_name (Union[None, Unset, str]):
+        last_name (Union[None, Unset, str]):
     """
 
     id: str
     email: str
-    first_name: None | str | Unset = UNSET
-    last_name: None | str | Unset = UNSET
+    first_name: None | Unset | str = UNSET
+    last_name: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -34,10 +32,10 @@ class UserInfo:
 
         email = self.email
 
-        first_name: None | str | Unset
+        first_name: None | Unset | str
         first_name = UNSET if isinstance(self.first_name, Unset) else self.first_name
 
-        last_name: None | str | Unset
+        last_name: None | Unset | str
         last_name = UNSET if isinstance(self.last_name, Unset) else self.last_name
 
         field_dict: dict[str, Any] = {}
@@ -57,21 +55,21 @@ class UserInfo:
 
         email = d.pop("email")
 
-        def _parse_first_name(data: object) -> None | str | Unset:
+        def _parse_first_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         first_name = _parse_first_name(d.pop("first_name", UNSET))
 
-        def _parse_last_name(data: object) -> None | str | Unset:
+        def _parse_last_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         last_name = _parse_last_name(d.pop("last_name", UNSET))
 

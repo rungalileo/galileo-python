@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -28,31 +26,31 @@ class BaseScorerVersionDB:
         id (str):
         version (int):
         scorer_id (str):
-        generated_scorer (BaseGeneratedScorerDB | None | Unset):
-        registered_scorer (BaseRegisteredScorerDB | None | Unset):
-        finetuned_scorer (BaseFinetunedScorerDB | None | Unset):
-        model_name (None | str | Unset):
-        num_judges (int | None | Unset):
-        scoreable_node_types (list[str] | None | Unset): List of node types that can be scored by this scorer. Defaults
-            to llm/chat.
-        cot_enabled (bool | None | Unset): Whether to enable chain of thought for this scorer. Defaults to False for llm
-            scorers.
-        output_type (None | OutputTypeEnum | Unset): What type of output to use for model-based scorers
+        generated_scorer (Union['BaseGeneratedScorerDB', None, Unset]):
+        registered_scorer (Union['BaseRegisteredScorerDB', None, Unset]):
+        finetuned_scorer (Union['BaseFinetunedScorerDB', None, Unset]):
+        model_name (Union[None, Unset, str]):
+        num_judges (Union[None, Unset, int]):
+        scoreable_node_types (Union[None, Unset, list[str]]): List of node types that can be scored by this scorer.
+            Defaults to llm/chat.
+        cot_enabled (Union[None, Unset, bool]): Whether to enable chain of thought for this scorer. Defaults to False
+            for llm scorers.
+        output_type (Union[None, OutputTypeEnum, Unset]): What type of output to use for model-based scorers
             (sessions_normalized, trace_io_only, etc.).
-        input_type (InputTypeEnum | None | Unset): What type of input to use for model-based scorers
+        input_type (Union[InputTypeEnum, None, Unset]): What type of input to use for model-based scorers
             (sessions_normalized, trace_io_only, etc.).
     """
 
     id: str
     version: int
     scorer_id: str
-    generated_scorer: BaseGeneratedScorerDB | None | Unset = UNSET
-    registered_scorer: BaseRegisteredScorerDB | None | Unset = UNSET
-    finetuned_scorer: BaseFinetunedScorerDB | None | Unset = UNSET
-    model_name: None | str | Unset = UNSET
-    num_judges: int | None | Unset = UNSET
-    scoreable_node_types: list[str] | None | Unset = UNSET
-    cot_enabled: bool | None | Unset = UNSET
+    generated_scorer: Union["BaseGeneratedScorerDB", None, Unset] = UNSET
+    registered_scorer: Union["BaseRegisteredScorerDB", None, Unset] = UNSET
+    finetuned_scorer: Union["BaseFinetunedScorerDB", None, Unset] = UNSET
+    model_name: None | Unset | str = UNSET
+    num_judges: None | Unset | int = UNSET
+    scoreable_node_types: None | Unset | list[str] = UNSET
+    cot_enabled: None | Unset | bool = UNSET
     output_type: None | OutputTypeEnum | Unset = UNSET
     input_type: InputTypeEnum | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -68,7 +66,7 @@ class BaseScorerVersionDB:
 
         scorer_id = self.scorer_id
 
-        generated_scorer: dict[str, Any] | None | Unset
+        generated_scorer: None | Unset | dict[str, Any]
         if isinstance(self.generated_scorer, Unset):
             generated_scorer = UNSET
         elif isinstance(self.generated_scorer, BaseGeneratedScorerDB):
@@ -76,7 +74,7 @@ class BaseScorerVersionDB:
         else:
             generated_scorer = self.generated_scorer
 
-        registered_scorer: dict[str, Any] | None | Unset
+        registered_scorer: None | Unset | dict[str, Any]
         if isinstance(self.registered_scorer, Unset):
             registered_scorer = UNSET
         elif isinstance(self.registered_scorer, BaseRegisteredScorerDB):
@@ -84,7 +82,7 @@ class BaseScorerVersionDB:
         else:
             registered_scorer = self.registered_scorer
 
-        finetuned_scorer: dict[str, Any] | None | Unset
+        finetuned_scorer: None | Unset | dict[str, Any]
         if isinstance(self.finetuned_scorer, Unset):
             finetuned_scorer = UNSET
         elif isinstance(self.finetuned_scorer, BaseFinetunedScorerDB):
@@ -92,13 +90,13 @@ class BaseScorerVersionDB:
         else:
             finetuned_scorer = self.finetuned_scorer
 
-        model_name: None | str | Unset
+        model_name: None | Unset | str
         model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
-        num_judges: int | None | Unset
+        num_judges: None | Unset | int
         num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
-        scoreable_node_types: list[str] | None | Unset
+        scoreable_node_types: None | Unset | list[str]
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
         elif isinstance(self.scoreable_node_types, list):
@@ -107,10 +105,10 @@ class BaseScorerVersionDB:
         else:
             scoreable_node_types = self.scoreable_node_types
 
-        cot_enabled: bool | None | Unset
+        cot_enabled: None | Unset | bool
         cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
-        output_type: None | str | Unset
+        output_type: None | Unset | str
         if isinstance(self.output_type, Unset):
             output_type = UNSET
         elif isinstance(self.output_type, OutputTypeEnum):
@@ -118,7 +116,7 @@ class BaseScorerVersionDB:
         else:
             output_type = self.output_type
 
-        input_type: None | str | Unset
+        input_type: None | Unset | str
         if isinstance(self.input_type, Unset):
             input_type = UNSET
         elif isinstance(self.input_type, InputTypeEnum):
@@ -163,7 +161,7 @@ class BaseScorerVersionDB:
 
         scorer_id = d.pop("scorer_id")
 
-        def _parse_generated_scorer(data: object) -> BaseGeneratedScorerDB | None | Unset:
+        def _parse_generated_scorer(data: object) -> Union["BaseGeneratedScorerDB", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -175,11 +173,11 @@ class BaseScorerVersionDB:
 
             except:  # noqa: E722
                 pass
-            return cast(BaseGeneratedScorerDB | None | Unset, data)
+            return cast(Union["BaseGeneratedScorerDB", None, Unset], data)
 
         generated_scorer = _parse_generated_scorer(d.pop("generated_scorer", UNSET))
 
-        def _parse_registered_scorer(data: object) -> BaseRegisteredScorerDB | None | Unset:
+        def _parse_registered_scorer(data: object) -> Union["BaseRegisteredScorerDB", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -191,11 +189,11 @@ class BaseScorerVersionDB:
 
             except:  # noqa: E722
                 pass
-            return cast(BaseRegisteredScorerDB | None | Unset, data)
+            return cast(Union["BaseRegisteredScorerDB", None, Unset], data)
 
         registered_scorer = _parse_registered_scorer(d.pop("registered_scorer", UNSET))
 
-        def _parse_finetuned_scorer(data: object) -> BaseFinetunedScorerDB | None | Unset:
+        def _parse_finetuned_scorer(data: object) -> Union["BaseFinetunedScorerDB", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -207,29 +205,29 @@ class BaseScorerVersionDB:
 
             except:  # noqa: E722
                 pass
-            return cast(BaseFinetunedScorerDB | None | Unset, data)
+            return cast(Union["BaseFinetunedScorerDB", None, Unset], data)
 
         finetuned_scorer = _parse_finetuned_scorer(d.pop("finetuned_scorer", UNSET))
 
-        def _parse_model_name(data: object) -> None | str | Unset:
+        def _parse_model_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         model_name = _parse_model_name(d.pop("model_name", UNSET))
 
-        def _parse_num_judges(data: object) -> int | None | Unset:
+        def _parse_num_judges(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
-        def _parse_scoreable_node_types(data: object) -> list[str] | None | Unset:
+        def _parse_scoreable_node_types(data: object) -> None | Unset | list[str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -241,16 +239,16 @@ class BaseScorerVersionDB:
 
             except:  # noqa: E722
                 pass
-            return cast(list[str] | None | Unset, data)
+            return cast(None | Unset | list[str], data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
-        def _parse_cot_enabled(data: object) -> bool | None | Unset:
+        def _parse_cot_enabled(data: object) -> None | Unset | bool:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(bool | None | Unset, data)
+            return cast(None | Unset | bool, data)
 
         cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
 

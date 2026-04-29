@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -18,17 +16,17 @@ class TestScore:
     Attributes
     ----------
         node_type (NodeType):
-        score (bool | float | int | None | str | Unset):
+        score (Union[None, Unset, bool, float, int, str]):
     """
 
     node_type: NodeType
-    score: bool | float | int | None | str | Unset = UNSET
+    score: None | Unset | bool | float | int | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         node_type = self.node_type.value
 
-        score: bool | float | int | None | str | Unset
+        score: None | Unset | bool | float | int | str
         score = UNSET if isinstance(self.score, Unset) else self.score
 
         field_dict: dict[str, Any] = {}
@@ -44,12 +42,12 @@ class TestScore:
         d = dict(src_dict)
         node_type = NodeType(d.pop("node_type"))
 
-        def _parse_score(data: object) -> bool | float | int | None | str | Unset:
+        def _parse_score(data: object) -> None | Unset | bool | float | int | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(bool | float | int | None | str | Unset, data)
+            return cast(None | Unset | bool | float | int | str, data)
 
         score = _parse_score(d.pop("score", UNSET))
 

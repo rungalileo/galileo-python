@@ -92,7 +92,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | StageDB]
+        Response[Union[HTTPValidationError, StageDB]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -115,7 +115,7 @@ def sync(project_id: str, *, client: ApiClient, body: StageWithRulesets) -> HTTP
 
     Returns
     -------
-        HTTPValidationError | StageDB
+        Union[HTTPValidationError, StageDB]
     """
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
@@ -136,7 +136,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | StageDB]
+        Response[Union[HTTPValidationError, StageDB]]
     """
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
@@ -161,6 +161,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | StageDB
+        Union[HTTPValidationError, StageDB]
     """
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

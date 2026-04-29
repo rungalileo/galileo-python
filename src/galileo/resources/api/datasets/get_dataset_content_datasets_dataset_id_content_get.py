@@ -22,7 +22,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(dataset_id: str, *, starting_token: int | Unset = 0, limit: int | Unset = 100) -> dict[str, Any]:
+def _get_kwargs(dataset_id: str, *, starting_token: Unset | int = 0, limit: Unset | int = 100) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -81,14 +81,14 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(
-    dataset_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> Response[DatasetContent | HTTPValidationError]:
     """Get Dataset Content.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -97,7 +97,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[DatasetContent | HTTPValidationError]
+        Response[Union[DatasetContent, HTTPValidationError]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, starting_token=starting_token, limit=limit)
 
@@ -107,14 +107,14 @@ def sync_detailed(
 
 
 def sync(
-    dataset_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> DatasetContent | HTTPValidationError | None:
     """Get Dataset Content.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -123,20 +123,20 @@ def sync(
 
     Returns
     -------
-        DatasetContent | HTTPValidationError
+        Union[DatasetContent, HTTPValidationError]
     """
     return sync_detailed(dataset_id=dataset_id, client=client, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    dataset_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> Response[DatasetContent | HTTPValidationError]:
     """Get Dataset Content.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -145,7 +145,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[DatasetContent | HTTPValidationError]
+        Response[Union[DatasetContent, HTTPValidationError]]
     """
     kwargs = _get_kwargs(dataset_id=dataset_id, starting_token=starting_token, limit=limit)
 
@@ -155,14 +155,14 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str, *, client: ApiClient, starting_token: int | Unset = 0, limit: int | Unset = 100
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> DatasetContent | HTTPValidationError | None:
     """Get Dataset Content.
 
     Args:
         dataset_id (str):
-        starting_token (int | Unset):  Default: 0.
-        limit (int | Unset):  Default: 100.
+        starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
 
     Raises
     ------
@@ -171,7 +171,7 @@ async def asyncio(
 
     Returns
     -------
-        DatasetContent | HTTPValidationError
+        Union[DatasetContent, HTTPValidationError]
     """
     return (
         await asyncio_detailed(dataset_id=dataset_id, client=client, starting_token=starting_token, limit=limit)

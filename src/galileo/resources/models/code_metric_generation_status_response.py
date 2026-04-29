@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -20,14 +18,14 @@ class CodeMetricGenerationStatusResponse:
     ----------
         id (str):
         status (CodeMetricGenerationStatus):
-        generated_code (None | str | Unset):
-        error_message (None | str | Unset):
+        generated_code (Union[None, Unset, str]):
+        error_message (Union[None, Unset, str]):
     """
 
     id: str
     status: CodeMetricGenerationStatus
-    generated_code: None | str | Unset = UNSET
-    error_message: None | str | Unset = UNSET
+    generated_code: None | Unset | str = UNSET
+    error_message: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,10 +33,10 @@ class CodeMetricGenerationStatusResponse:
 
         status = self.status.value
 
-        generated_code: None | str | Unset
+        generated_code: None | Unset | str
         generated_code = UNSET if isinstance(self.generated_code, Unset) else self.generated_code
 
-        error_message: None | str | Unset
+        error_message: None | Unset | str
         error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         field_dict: dict[str, Any] = {}
@@ -58,21 +56,21 @@ class CodeMetricGenerationStatusResponse:
 
         status = CodeMetricGenerationStatus(d.pop("status"))
 
-        def _parse_generated_code(data: object) -> None | str | Unset:
+        def _parse_generated_code(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         generated_code = _parse_generated_code(d.pop("generated_code", UNSET))
 
-        def _parse_error_message(data: object) -> None | str | Unset:
+        def _parse_error_message(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         error_message = _parse_error_message(d.pop("error_message", UNSET))
 

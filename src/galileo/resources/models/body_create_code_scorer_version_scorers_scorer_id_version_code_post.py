@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from io import BytesIO
 from typing import Any, TypeVar, cast
@@ -19,17 +17,17 @@ class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
     Attributes
     ----------
         file (File):
-        validation_result (None | str | Unset): Pre-validated result as JSON string to skip validation.
+        validation_result (Union[None, Unset, str]): Pre-validated result as JSON string to skip validation.
     """
 
     file: File
-    validation_result: None | str | Unset = UNSET
+    validation_result: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         file = self.file.to_tuple()
 
-        validation_result: None | str | Unset
+        validation_result: None | Unset | str
         validation_result = UNSET if isinstance(self.validation_result, Unset) else self.validation_result
 
         field_dict: dict[str, Any] = {}
@@ -61,12 +59,12 @@ class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
         d = dict(src_dict)
         file = File(payload=BytesIO(d.pop("file")))
 
-        def _parse_validation_result(data: object) -> None | str | Unset:
+        def _parse_validation_result(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         validation_result = _parse_validation_result(d.pop("validation_result", UNSET))
 

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -17,7 +15,7 @@ T = TypeVar("T", bound="AggregatedTraceViewNodeMetrics")
 class AggregatedTraceViewNodeMetrics:
     """ """
 
-    additional_properties: dict[str, SystemMetricInfo] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, "SystemMetricInfo"] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         field_dict: dict[str, Any] = {}
@@ -46,10 +44,10 @@ class AggregatedTraceViewNodeMetrics:
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> SystemMetricInfo:
+    def __getitem__(self, key: str) -> "SystemMetricInfo":
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: SystemMetricInfo) -> None:
+    def __setitem__(self, key: str, value: "SystemMetricInfo") -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

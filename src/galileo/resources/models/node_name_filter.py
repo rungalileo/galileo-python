@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -19,15 +17,15 @@ class NodeNameFilter:
     Attributes
     ----------
         operator (NodeNameFilterOperator):
-        value (list[str] | str):
-        name (Literal['node_name'] | Unset):  Default: 'node_name'.
-        case_sensitive (bool | Unset):  Default: True.
+        value (Union[list[str], str]):
+        name (Union[Literal['node_name'], Unset]):  Default: 'node_name'.
+        case_sensitive (Union[Unset, bool]):  Default: True.
     """
 
     operator: NodeNameFilterOperator
     value: list[str] | str
     name: Literal["node_name"] | Unset = "node_name"
-    case_sensitive: bool | Unset = True
+    case_sensitive: Unset | bool = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

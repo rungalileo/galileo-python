@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,7 +15,7 @@ class ProjectBookmarkFilter:
     Attributes
     ----------
         value (bool):
-        name (Literal['bookmark'] | Unset):  Default: 'bookmark'.
+        name (Union[Literal['bookmark'], Unset]):  Default: 'bookmark'.
     """
 
     value: bool

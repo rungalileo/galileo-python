@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -17,17 +15,17 @@ class DatasetData:
     Attributes
     ----------
         dataset_id (str):
-        dataset_version_index (int | None | Unset):
+        dataset_version_index (Union[None, Unset, int]):
     """
 
     dataset_id: str
-    dataset_version_index: int | None | Unset = UNSET
+    dataset_version_index: None | Unset | int = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         dataset_id = self.dataset_id
 
-        dataset_version_index: int | None | Unset
+        dataset_version_index: None | Unset | int
         dataset_version_index = UNSET if isinstance(self.dataset_version_index, Unset) else self.dataset_version_index
 
         field_dict: dict[str, Any] = {}
@@ -43,12 +41,12 @@ class DatasetData:
         d = dict(src_dict)
         dataset_id = d.pop("dataset_id")
 
-        def _parse_dataset_version_index(data: object) -> int | None | Unset:
+        def _parse_dataset_version_index(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         dataset_version_index = _parse_dataset_version_index(d.pop("dataset_version_index", UNSET))
 

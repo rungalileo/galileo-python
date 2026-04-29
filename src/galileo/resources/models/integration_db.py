@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import datetime
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
@@ -28,9 +26,9 @@ class IntegrationDB:
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         created_by (str):
-        permissions (list[Permission] | Unset):
-        is_selected (bool | Unset):  Default: False.
-        is_disabled (bool | Unset):  Default: False.
+        permissions (Union[Unset, list['Permission']]):
+        is_selected (Union[Unset, bool]):  Default: False.
+        is_disabled (Union[Unset, bool]):  Default: False.
     """
 
     id: str
@@ -38,9 +36,9 @@ class IntegrationDB:
     created_at: datetime.datetime
     updated_at: datetime.datetime
     created_by: str
-    permissions: list[Permission] | Unset = UNSET
-    is_selected: bool | Unset = False
-    is_disabled: bool | Unset = False
+    permissions: Unset | list["Permission"] = UNSET
+    is_selected: Unset | bool = False
+    is_disabled: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -54,7 +52,7 @@ class IntegrationDB:
 
         created_by = self.created_by
 
-        permissions: list[dict[str, Any]] | Unset = UNSET
+        permissions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
@@ -94,14 +92,12 @@ class IntegrationDB:
 
         created_by = d.pop("created_by")
 
+        permissions = []
         _permissions = d.pop("permissions", UNSET)
-        permissions: list[Permission] | Unset = UNSET
-        if _permissions is not UNSET:
-            permissions = []
-            for permissions_item_data in _permissions:
-                permissions_item = Permission.from_dict(permissions_item_data)
+        for permissions_item_data in _permissions or []:
+            permissions_item = Permission.from_dict(permissions_item_data)
 
-                permissions.append(permissions_item)
+            permissions.append(permissions_item)
 
         is_selected = d.pop("is_selected", UNSET)
 

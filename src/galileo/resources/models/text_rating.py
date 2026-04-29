@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,7 +15,7 @@ class TextRating:
     Attributes
     ----------
         value (str):
-        feedback_type (Literal['text'] | Unset):  Default: 'text'.
+        feedback_type (Union[Literal['text'], Unset]):  Default: 'text'.
     """
 
     value: str

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
@@ -35,11 +33,11 @@ class MetricColorPickerNumeric:
 
     Attributes
     ----------
-            constraints (list[NumericColorConstraint]):
-            type_ (Literal['numeric'] | Unset):  Default: 'numeric'.
+            constraints (list['NumericColorConstraint']):
+            type_ (Union[Literal['numeric'], Unset]):  Default: 'numeric'.
     """
 
-    constraints: list[NumericColorConstraint]
+    constraints: list["NumericColorConstraint"]
     type_: Literal["numeric"] | Unset = "numeric"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

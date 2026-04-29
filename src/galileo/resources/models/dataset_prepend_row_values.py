@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,7 +17,7 @@ T = TypeVar("T", bound="DatasetPrependRowValues")
 class DatasetPrependRowValues:
     """ """
 
-    additional_properties: dict[str, DatasetPrependRowValuesAdditionalPropertyType3 | float | int | None | str] = (
+    additional_properties: dict[str, Union["DatasetPrependRowValuesAdditionalPropertyType3", None, float, int, str]] = (
         _attrs_field(init=False, factory=dict)
     )
 
@@ -51,7 +49,7 @@ class DatasetPrependRowValues:
 
             def _parse_additional_property(
                 data: object,
-            ) -> DatasetPrependRowValuesAdditionalPropertyType3 | float | int | None | str:
+            ) -> Union["DatasetPrependRowValuesAdditionalPropertyType3", None, float, int, str]:
                 if data is None:
                     return data
                 try:
@@ -61,7 +59,7 @@ class DatasetPrependRowValues:
 
                 except:  # noqa: E722
                     pass
-                return cast(DatasetPrependRowValuesAdditionalPropertyType3 | float | int | None | str, data)
+                return cast(Union["DatasetPrependRowValuesAdditionalPropertyType3", None, float, int, str], data)
 
             additional_property = _parse_additional_property(prop_dict)
 
@@ -74,11 +72,11 @@ class DatasetPrependRowValues:
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> DatasetPrependRowValuesAdditionalPropertyType3 | float | int | None | str:
+    def __getitem__(self, key: str) -> Union["DatasetPrependRowValuesAdditionalPropertyType3", None, float, int, str]:
         return self.additional_properties[key]
 
     def __setitem__(
-        self, key: str, value: DatasetPrependRowValuesAdditionalPropertyType3 | float | int | None | str
+        self, key: str, value: Union["DatasetPrependRowValuesAdditionalPropertyType3", None, float, int, str]
     ) -> None:
         self.additional_properties[key] = value
 

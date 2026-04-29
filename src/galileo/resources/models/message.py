@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -23,16 +21,16 @@ class Message:
     """
     Attributes
     ----------
-        content (list[FileContentPart | TextContentPart] | str):
+        content (Union[list[Union['FileContentPart', 'TextContentPart']], str]):
         role (MessageRole):
-        tool_call_id (None | str | Unset):
-        tool_calls (list[ToolCall] | None | Unset):
+        tool_call_id (Union[None, Unset, str]):
+        tool_calls (Union[None, Unset, list['ToolCall']]):
     """
 
-    content: list[FileContentPart | TextContentPart] | str
+    content: list[Union["FileContentPart", "TextContentPart"]] | str
     role: MessageRole
-    tool_call_id: None | str | Unset = UNSET
-    tool_calls: list[ToolCall] | None | Unset = UNSET
+    tool_call_id: None | Unset | str = UNSET
+    tool_calls: None | Unset | list["ToolCall"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -55,10 +53,10 @@ class Message:
 
         role = self.role.value
 
-        tool_call_id: None | str | Unset
+        tool_call_id: None | Unset | str
         tool_call_id = UNSET if isinstance(self.tool_call_id, Unset) else self.tool_call_id
 
-        tool_calls: list[dict[str, Any]] | None | Unset
+        tool_calls: None | Unset | list[dict[str, Any]]
         if isinstance(self.tool_calls, Unset):
             tool_calls = UNSET
         elif isinstance(self.tool_calls, list):
@@ -88,7 +86,7 @@ class Message:
 
         d = dict(src_dict)
 
-        def _parse_content(data: object) -> list[FileContentPart | TextContentPart] | str:
+        def _parse_content(data: object) -> list[Union["FileContentPart", "TextContentPart"]] | str:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
@@ -96,7 +94,7 @@ class Message:
                 _content_type_1 = data
                 for content_type_1_item_data in _content_type_1:
 
-                    def _parse_content_type_1_item(data: object) -> FileContentPart | TextContentPart:
+                    def _parse_content_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -115,22 +113,22 @@ class Message:
                 return content_type_1
             except:  # noqa: E722
                 pass
-            return cast(list[FileContentPart | TextContentPart] | str, data)
+            return cast(list[Union["FileContentPart", "TextContentPart"]] | str, data)
 
         content = _parse_content(d.pop("content"))
 
         role = MessageRole(d.pop("role"))
 
-        def _parse_tool_call_id(data: object) -> None | str | Unset:
+        def _parse_tool_call_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         tool_call_id = _parse_tool_call_id(d.pop("tool_call_id", UNSET))
 
-        def _parse_tool_calls(data: object) -> list[ToolCall] | None | Unset:
+        def _parse_tool_calls(data: object) -> None | Unset | list["ToolCall"]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -148,7 +146,7 @@ class Message:
                 return tool_calls_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[ToolCall] | None | Unset, data)
+            return cast(None | Unset | list["ToolCall"], data)
 
         tool_calls = _parse_tool_calls(d.pop("tool_calls", UNSET))
 

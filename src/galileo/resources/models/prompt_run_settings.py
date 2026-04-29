@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,46 +22,46 @@ class PromptRunSettings:
 
     Attributes
     ----------
-        logprobs (bool | Unset):  Default: True.
-        top_logprobs (int | Unset):  Default: 5.
-        echo (bool | Unset):  Default: False.
-        n (int | Unset):  Default: 1.
-        reasoning_effort (str | Unset):  Default: 'medium'.
-        verbosity (str | Unset):  Default: 'medium'.
-        deployment_name (None | str | Unset):
-        model_alias (str | Unset):  Default: 'gpt-5.1'.
-        temperature (float | None | Unset):
-        max_tokens (int | Unset):  Default: 4096.
-        stop_sequences (list[str] | None | Unset):
-        top_p (float | Unset):  Default: 1.0.
-        top_k (int | Unset):  Default: 40.
-        frequency_penalty (float | Unset):  Default: 0.0.
-        presence_penalty (float | Unset):  Default: 0.0.
-        tools (list[PromptRunSettingsToolsType0Item] | None | Unset):
-        tool_choice (None | OpenAIToolChoice | str | Unset):
-        response_format (None | PromptRunSettingsResponseFormatType0 | Unset):
-        known_models (list[Model] | Unset):
+        logprobs (Union[Unset, bool]):  Default: True.
+        top_logprobs (Union[Unset, int]):  Default: 5.
+        echo (Union[Unset, bool]):  Default: False.
+        n (Union[Unset, int]):  Default: 1.
+        reasoning_effort (Union[Unset, str]):  Default: 'medium'.
+        verbosity (Union[Unset, str]):  Default: 'medium'.
+        deployment_name (Union[None, Unset, str]):
+        model_alias (Union[Unset, str]):  Default: 'gpt-5.1'.
+        temperature (Union[None, Unset, float]):
+        max_tokens (Union[Unset, int]):  Default: 4096.
+        stop_sequences (Union[None, Unset, list[str]]):
+        top_p (Union[Unset, float]):  Default: 1.0.
+        top_k (Union[Unset, int]):  Default: 40.
+        frequency_penalty (Union[Unset, float]):  Default: 0.0.
+        presence_penalty (Union[Unset, float]):  Default: 0.0.
+        tools (Union[None, Unset, list['PromptRunSettingsToolsType0Item']]):
+        tool_choice (Union['OpenAIToolChoice', None, Unset, str]):
+        response_format (Union['PromptRunSettingsResponseFormatType0', None, Unset]):
+        known_models (Union[Unset, list['Model']]):
     """
 
-    logprobs: bool | Unset = True
-    top_logprobs: int | Unset = 5
-    echo: bool | Unset = False
-    n: int | Unset = 1
-    reasoning_effort: str | Unset = "medium"
-    verbosity: str | Unset = "medium"
-    deployment_name: None | str | Unset = UNSET
-    model_alias: str | Unset = "gpt-5.1"
-    temperature: float | None | Unset = UNSET
-    max_tokens: int | Unset = 4096
-    stop_sequences: list[str] | None | Unset = UNSET
-    top_p: float | Unset = 1.0
-    top_k: int | Unset = 40
-    frequency_penalty: float | Unset = 0.0
-    presence_penalty: float | Unset = 0.0
-    tools: list[PromptRunSettingsToolsType0Item] | None | Unset = UNSET
-    tool_choice: None | OpenAIToolChoice | str | Unset = UNSET
-    response_format: None | PromptRunSettingsResponseFormatType0 | Unset = UNSET
-    known_models: list[Model] | Unset = UNSET
+    logprobs: Unset | bool = True
+    top_logprobs: Unset | int = 5
+    echo: Unset | bool = False
+    n: Unset | int = 1
+    reasoning_effort: Unset | str = "medium"
+    verbosity: Unset | str = "medium"
+    deployment_name: None | Unset | str = UNSET
+    model_alias: Unset | str = "gpt-5.1"
+    temperature: None | Unset | float = UNSET
+    max_tokens: Unset | int = 4096
+    stop_sequences: None | Unset | list[str] = UNSET
+    top_p: Unset | float = 1.0
+    top_k: Unset | int = 40
+    frequency_penalty: Unset | float = 0.0
+    presence_penalty: Unset | float = 0.0
+    tools: None | Unset | list["PromptRunSettingsToolsType0Item"] = UNSET
+    tool_choice: Union["OpenAIToolChoice", None, Unset, str] = UNSET
+    response_format: Union["PromptRunSettingsResponseFormatType0", None, Unset] = UNSET
+    known_models: Unset | list["Model"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -82,17 +80,17 @@ class PromptRunSettings:
 
         verbosity = self.verbosity
 
-        deployment_name: None | str | Unset
+        deployment_name: None | Unset | str
         deployment_name = UNSET if isinstance(self.deployment_name, Unset) else self.deployment_name
 
         model_alias = self.model_alias
 
-        temperature: float | None | Unset
+        temperature: None | Unset | float
         temperature = UNSET if isinstance(self.temperature, Unset) else self.temperature
 
         max_tokens = self.max_tokens
 
-        stop_sequences: list[str] | None | Unset
+        stop_sequences: None | Unset | list[str]
         if isinstance(self.stop_sequences, Unset):
             stop_sequences = UNSET
         elif isinstance(self.stop_sequences, list):
@@ -109,7 +107,7 @@ class PromptRunSettings:
 
         presence_penalty = self.presence_penalty
 
-        tools: list[dict[str, Any]] | None | Unset
+        tools: None | Unset | list[dict[str, Any]]
         if isinstance(self.tools, Unset):
             tools = UNSET
         elif isinstance(self.tools, list):
@@ -121,7 +119,7 @@ class PromptRunSettings:
         else:
             tools = self.tools
 
-        tool_choice: dict[str, Any] | None | str | Unset
+        tool_choice: None | Unset | dict[str, Any] | str
         if isinstance(self.tool_choice, Unset):
             tool_choice = UNSET
         elif isinstance(self.tool_choice, OpenAIToolChoice):
@@ -129,7 +127,7 @@ class PromptRunSettings:
         else:
             tool_choice = self.tool_choice
 
-        response_format: dict[str, Any] | None | Unset
+        response_format: None | Unset | dict[str, Any]
         if isinstance(self.response_format, Unset):
             response_format = UNSET
         elif isinstance(self.response_format, PromptRunSettingsResponseFormatType0):
@@ -137,7 +135,7 @@ class PromptRunSettings:
         else:
             response_format = self.response_format
 
-        known_models: list[dict[str, Any]] | Unset = UNSET
+        known_models: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.known_models, Unset):
             known_models = []
             for known_models_item_data in self.known_models:
@@ -208,29 +206,29 @@ class PromptRunSettings:
 
         verbosity = d.pop("verbosity", UNSET)
 
-        def _parse_deployment_name(data: object) -> None | str | Unset:
+        def _parse_deployment_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         deployment_name = _parse_deployment_name(d.pop("deployment_name", UNSET))
 
         model_alias = d.pop("model_alias", UNSET)
 
-        def _parse_temperature(data: object) -> float | None | Unset:
+        def _parse_temperature(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(float | None | Unset, data)
+            return cast(None | Unset | float, data)
 
         temperature = _parse_temperature(d.pop("temperature", UNSET))
 
         max_tokens = d.pop("max_tokens", UNSET)
 
-        def _parse_stop_sequences(data: object) -> list[str] | None | Unset:
+        def _parse_stop_sequences(data: object) -> None | Unset | list[str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -242,7 +240,7 @@ class PromptRunSettings:
 
             except:  # noqa: E722
                 pass
-            return cast(list[str] | None | Unset, data)
+            return cast(None | Unset | list[str], data)
 
         stop_sequences = _parse_stop_sequences(d.pop("stop_sequences", UNSET))
 
@@ -254,7 +252,7 @@ class PromptRunSettings:
 
         presence_penalty = d.pop("presence_penalty", UNSET)
 
-        def _parse_tools(data: object) -> list[PromptRunSettingsToolsType0Item] | None | Unset:
+        def _parse_tools(data: object) -> None | Unset | list["PromptRunSettingsToolsType0Item"]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -272,11 +270,11 @@ class PromptRunSettings:
                 return tools_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[PromptRunSettingsToolsType0Item] | None | Unset, data)
+            return cast(None | Unset | list["PromptRunSettingsToolsType0Item"], data)
 
         tools = _parse_tools(d.pop("tools", UNSET))
 
-        def _parse_tool_choice(data: object) -> None | OpenAIToolChoice | str | Unset:
+        def _parse_tool_choice(data: object) -> Union["OpenAIToolChoice", None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -288,11 +286,11 @@ class PromptRunSettings:
 
             except:  # noqa: E722
                 pass
-            return cast(None | OpenAIToolChoice | str | Unset, data)
+            return cast(Union["OpenAIToolChoice", None, Unset, str], data)
 
         tool_choice = _parse_tool_choice(d.pop("tool_choice", UNSET))
 
-        def _parse_response_format(data: object) -> None | PromptRunSettingsResponseFormatType0 | Unset:
+        def _parse_response_format(data: object) -> Union["PromptRunSettingsResponseFormatType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -304,18 +302,16 @@ class PromptRunSettings:
 
             except:  # noqa: E722
                 pass
-            return cast(None | PromptRunSettingsResponseFormatType0 | Unset, data)
+            return cast(Union["PromptRunSettingsResponseFormatType0", None, Unset], data)
 
         response_format = _parse_response_format(d.pop("response_format", UNSET))
 
+        known_models = []
         _known_models = d.pop("known_models", UNSET)
-        known_models: list[Model] | Unset = UNSET
-        if _known_models is not UNSET:
-            known_models = []
-            for known_models_item_data in _known_models:
-                known_models_item = Model.from_dict(known_models_item_data)
+        for known_models_item_data in _known_models or []:
+            known_models_item = Model.from_dict(known_models_item_data)
 
-                known_models.append(known_models_item)
+            known_models.append(known_models_item)
 
         prompt_run_settings = cls(
             logprobs=logprobs,

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -17,18 +15,18 @@ class UpsertDatasetContentRequest:
     Attributes
     ----------
         dataset_id (str): The ID of the dataset to copy content from.
-        version_index (int | None | Unset): The version index of the dataset to copy content from. If not provided, the
-            content will be copied from the latest version of the dataset.
+        version_index (Union[None, Unset, int]): The version index of the dataset to copy content from. If not provided,
+            the content will be copied from the latest version of the dataset.
     """
 
     dataset_id: str
-    version_index: int | None | Unset = UNSET
+    version_index: None | Unset | int = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         dataset_id = self.dataset_id
 
-        version_index: int | None | Unset
+        version_index: None | Unset | int
         version_index = UNSET if isinstance(self.version_index, Unset) else self.version_index
 
         field_dict: dict[str, Any] = {}
@@ -44,12 +42,12 @@ class UpsertDatasetContentRequest:
         d = dict(src_dict)
         dataset_id = d.pop("dataset_id")
 
-        def _parse_version_index(data: object) -> int | None | Unset:
+        def _parse_version_index(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         version_index = _parse_version_index(d.pop("version_index", UNSET))
 

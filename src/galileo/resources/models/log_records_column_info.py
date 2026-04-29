@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -30,58 +28,59 @@ class LogRecordsColumnInfo:
     ----------
         id (str): Column id.  Must be universally unique.
         category (ColumnCategory):
-        data_type (DataType | None): Data type of the column. This is used to determine how to format the data on the
-            UI.
-        label (None | str | Unset): Display label of the column in the UI.
-        description (None | str | Unset): Description of the column.
-        group_label (None | str | Unset): Display label of the column group.
-        data_unit (DataUnit | None | Unset): Data unit of the column (optional).
-        multi_valued (bool | Unset): Whether the column is multi-valued. Default: False.
-        allowed_values (list[Any] | None | Unset): Allowed values for this column.
-        sortable (bool | Unset): Whether the column is sortable.
-        filterable (bool | Unset): Whether the column is filterable.
-        is_empty (bool | Unset): Indicates whether the column is empty and should be hidden. Default: False.
-        applicable_types (list[StepType] | Unset): List of types applicable for this column.
-        complex_ (bool | Unset): Whether the column requires special handling in the UI. Setting this to True will hide
-            the column in the UI until the UI adds support for it. Default: False.
-        is_optional (bool | Unset): Whether the column is optional. Default: False.
-        roll_up_method (None | str | Unset): Default roll-up aggregation method for this metric (e.g., 'sum',
+        data_type (Union[DataType, None]): Data type of the column. This is used to determine how to format the data on
+            the UI.
+        label (Union[None, Unset, str]): Display label of the column in the UI.
+        description (Union[None, Unset, str]): Description of the column.
+        group_label (Union[None, Unset, str]): Display label of the column group.
+        data_unit (Union[DataUnit, None, Unset]): Data unit of the column (optional).
+        multi_valued (Union[Unset, bool]): Whether the column is multi-valued. Default: False.
+        allowed_values (Union[None, Unset, list[Any]]): Allowed values for this column.
+        sortable (Union[Unset, bool]): Whether the column is sortable.
+        filterable (Union[Unset, bool]): Whether the column is filterable.
+        is_empty (Union[Unset, bool]): Indicates whether the column is empty and should be hidden. Default: False.
+        applicable_types (Union[Unset, list[StepType]]): List of types applicable for this column.
+        complex_ (Union[Unset, bool]): Whether the column requires special handling in the UI. Setting this to True will
+            hide the column in the UI until the UI adds support for it. Default: False.
+        is_optional (Union[Unset, bool]): Whether the column is optional. Default: False.
+        roll_up_method (Union[None, Unset, str]): Default roll-up aggregation method for this metric (e.g., 'sum',
             'average').
-        scorer_config (None | ScorerConfig | Unset): For metric columns only: Scorer config that produced the metric.
-        scorer_id (None | str | Unset): For metric columns only: Scorer id that produced the metric. This is deprecated
-            and will be removed in future versions.
-        insight_type (InsightType | None | Unset): Insight type.
-        filter_type (LogRecordsFilterType | None | Unset): Filter type.
-        threshold (MetricThreshold | None | Unset): Thresholds for the column, if this is a metrics column.
-        label_color (LogRecordsColumnInfoLabelColorType0 | None | Unset): Type of label color for the column, if this is
-            a multilabel metric column.
-        metric_key_alias (None | str | Unset): Alternate metric key for this column. When store_metric_ids is ON, this
-            holds the legacy metric_name string. Used for dual-key ClickHouse queries.
+        scorer_config (Union['ScorerConfig', None, Unset]): For metric columns only: Scorer config that produced the
+            metric.
+        scorer_id (Union[None, Unset, str]): For metric columns only: Scorer id that produced the metric. This is
+            deprecated and will be removed in future versions.
+        insight_type (Union[InsightType, None, Unset]): Insight type.
+        filter_type (Union[LogRecordsFilterType, None, Unset]): Filter type.
+        threshold (Union['MetricThreshold', None, Unset]): Thresholds for the column, if this is a metrics column.
+        label_color (Union[LogRecordsColumnInfoLabelColorType0, None, Unset]): Type of label color for the column, if
+            this is a multilabel metric column.
+        metric_key_alias (Union[None, Unset, str]): Alternate metric key for this column. When store_metric_ids is ON,
+            this holds the legacy metric_name string. Used for dual-key ClickHouse queries.
     """
 
     id: str
     category: ColumnCategory
     data_type: DataType | None
-    label: None | str | Unset = UNSET
-    description: None | str | Unset = UNSET
-    group_label: None | str | Unset = UNSET
+    label: None | Unset | str = UNSET
+    description: None | Unset | str = UNSET
+    group_label: None | Unset | str = UNSET
     data_unit: DataUnit | None | Unset = UNSET
-    multi_valued: bool | Unset = False
-    allowed_values: list[Any] | None | Unset = UNSET
-    sortable: bool | Unset = UNSET
-    filterable: bool | Unset = UNSET
-    is_empty: bool | Unset = False
-    applicable_types: list[StepType] | Unset = UNSET
-    complex_: bool | Unset = False
-    is_optional: bool | Unset = False
-    roll_up_method: None | str | Unset = UNSET
-    scorer_config: None | ScorerConfig | Unset = UNSET
-    scorer_id: None | str | Unset = UNSET
+    multi_valued: Unset | bool = False
+    allowed_values: None | Unset | list[Any] = UNSET
+    sortable: Unset | bool = UNSET
+    filterable: Unset | bool = UNSET
+    is_empty: Unset | bool = False
+    applicable_types: Unset | list[StepType] = UNSET
+    complex_: Unset | bool = False
+    is_optional: Unset | bool = False
+    roll_up_method: None | Unset | str = UNSET
+    scorer_config: Union["ScorerConfig", None, Unset] = UNSET
+    scorer_id: None | Unset | str = UNSET
     insight_type: InsightType | None | Unset = UNSET
     filter_type: LogRecordsFilterType | None | Unset = UNSET
-    threshold: MetricThreshold | None | Unset = UNSET
+    threshold: Union["MetricThreshold", None, Unset] = UNSET
     label_color: LogRecordsColumnInfoLabelColorType0 | None | Unset = UNSET
-    metric_key_alias: None | str | Unset = UNSET
+    metric_key_alias: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -95,16 +94,16 @@ class LogRecordsColumnInfo:
         data_type: None | str
         data_type = self.data_type.value if isinstance(self.data_type, DataType) else self.data_type
 
-        label: None | str | Unset
+        label: None | Unset | str
         label = UNSET if isinstance(self.label, Unset) else self.label
 
-        description: None | str | Unset
+        description: None | Unset | str
         description = UNSET if isinstance(self.description, Unset) else self.description
 
-        group_label: None | str | Unset
+        group_label: None | Unset | str
         group_label = UNSET if isinstance(self.group_label, Unset) else self.group_label
 
-        data_unit: None | str | Unset
+        data_unit: None | Unset | str
         if isinstance(self.data_unit, Unset):
             data_unit = UNSET
         elif isinstance(self.data_unit, DataUnit):
@@ -114,7 +113,7 @@ class LogRecordsColumnInfo:
 
         multi_valued = self.multi_valued
 
-        allowed_values: list[Any] | None | Unset
+        allowed_values: None | Unset | list[Any]
         if isinstance(self.allowed_values, Unset):
             allowed_values = UNSET
         elif isinstance(self.allowed_values, list):
@@ -129,7 +128,7 @@ class LogRecordsColumnInfo:
 
         is_empty = self.is_empty
 
-        applicable_types: list[str] | Unset = UNSET
+        applicable_types: Unset | list[str] = UNSET
         if not isinstance(self.applicable_types, Unset):
             applicable_types = []
             for applicable_types_item_data in self.applicable_types:
@@ -140,10 +139,10 @@ class LogRecordsColumnInfo:
 
         is_optional = self.is_optional
 
-        roll_up_method: None | str | Unset
+        roll_up_method: None | Unset | str
         roll_up_method = UNSET if isinstance(self.roll_up_method, Unset) else self.roll_up_method
 
-        scorer_config: dict[str, Any] | None | Unset
+        scorer_config: None | Unset | dict[str, Any]
         if isinstance(self.scorer_config, Unset):
             scorer_config = UNSET
         elif isinstance(self.scorer_config, ScorerConfig):
@@ -151,10 +150,10 @@ class LogRecordsColumnInfo:
         else:
             scorer_config = self.scorer_config
 
-        scorer_id: None | str | Unset
+        scorer_id: None | Unset | str
         scorer_id = UNSET if isinstance(self.scorer_id, Unset) else self.scorer_id
 
-        insight_type: None | str | Unset
+        insight_type: None | Unset | str
         if isinstance(self.insight_type, Unset):
             insight_type = UNSET
         elif isinstance(self.insight_type, InsightType):
@@ -162,7 +161,7 @@ class LogRecordsColumnInfo:
         else:
             insight_type = self.insight_type
 
-        filter_type: None | str | Unset
+        filter_type: None | Unset | str
         if isinstance(self.filter_type, Unset):
             filter_type = UNSET
         elif isinstance(self.filter_type, LogRecordsFilterType):
@@ -170,7 +169,7 @@ class LogRecordsColumnInfo:
         else:
             filter_type = self.filter_type
 
-        threshold: dict[str, Any] | None | Unset
+        threshold: None | Unset | dict[str, Any]
         if isinstance(self.threshold, Unset):
             threshold = UNSET
         elif isinstance(self.threshold, MetricThreshold):
@@ -178,7 +177,7 @@ class LogRecordsColumnInfo:
         else:
             threshold = self.threshold
 
-        label_color: None | str | Unset
+        label_color: None | Unset | str
         if isinstance(self.label_color, Unset):
             label_color = UNSET
         elif isinstance(self.label_color, LogRecordsColumnInfoLabelColorType0):
@@ -186,7 +185,7 @@ class LogRecordsColumnInfo:
         else:
             label_color = self.label_color
 
-        metric_key_alias: None | str | Unset
+        metric_key_alias: None | Unset | str
         metric_key_alias = UNSET if isinstance(self.metric_key_alias, Unset) else self.metric_key_alias
 
         field_dict: dict[str, Any] = {}
@@ -259,30 +258,30 @@ class LogRecordsColumnInfo:
 
         data_type = _parse_data_type(d.pop("data_type"))
 
-        def _parse_label(data: object) -> None | str | Unset:
+        def _parse_label(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         label = _parse_label(d.pop("label", UNSET))
 
-        def _parse_description(data: object) -> None | str | Unset:
+        def _parse_description(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         description = _parse_description(d.pop("description", UNSET))
 
-        def _parse_group_label(data: object) -> None | str | Unset:
+        def _parse_group_label(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         group_label = _parse_group_label(d.pop("group_label", UNSET))
 
@@ -304,7 +303,7 @@ class LogRecordsColumnInfo:
 
         multi_valued = d.pop("multi_valued", UNSET)
 
-        def _parse_allowed_values(data: object) -> list[Any] | None | Unset:
+        def _parse_allowed_values(data: object) -> None | Unset | list[Any]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -316,7 +315,7 @@ class LogRecordsColumnInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(list[Any] | None | Unset, data)
+            return cast(None | Unset | list[Any], data)
 
         allowed_values = _parse_allowed_values(d.pop("allowed_values", UNSET))
 
@@ -326,29 +325,27 @@ class LogRecordsColumnInfo:
 
         is_empty = d.pop("is_empty", UNSET)
 
+        applicable_types = []
         _applicable_types = d.pop("applicable_types", UNSET)
-        applicable_types: list[StepType] | Unset = UNSET
-        if _applicable_types is not UNSET:
-            applicable_types = []
-            for applicable_types_item_data in _applicable_types:
-                applicable_types_item = StepType(applicable_types_item_data)
+        for applicable_types_item_data in _applicable_types or []:
+            applicable_types_item = StepType(applicable_types_item_data)
 
-                applicable_types.append(applicable_types_item)
+            applicable_types.append(applicable_types_item)
 
         complex_ = d.pop("complex", UNSET)
 
         is_optional = d.pop("is_optional", UNSET)
 
-        def _parse_roll_up_method(data: object) -> None | str | Unset:
+        def _parse_roll_up_method(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
 
-        def _parse_scorer_config(data: object) -> None | ScorerConfig | Unset:
+        def _parse_scorer_config(data: object) -> Union["ScorerConfig", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -360,16 +357,16 @@ class LogRecordsColumnInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(None | ScorerConfig | Unset, data)
+            return cast(Union["ScorerConfig", None, Unset], data)
 
         scorer_config = _parse_scorer_config(d.pop("scorer_config", UNSET))
 
-        def _parse_scorer_id(data: object) -> None | str | Unset:
+        def _parse_scorer_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         scorer_id = _parse_scorer_id(d.pop("scorer_id", UNSET))
 
@@ -405,7 +402,7 @@ class LogRecordsColumnInfo:
 
         filter_type = _parse_filter_type(d.pop("filter_type", UNSET))
 
-        def _parse_threshold(data: object) -> MetricThreshold | None | Unset:
+        def _parse_threshold(data: object) -> Union["MetricThreshold", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -417,7 +414,7 @@ class LogRecordsColumnInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(MetricThreshold | None | Unset, data)
+            return cast(Union["MetricThreshold", None, Unset], data)
 
         threshold = _parse_threshold(d.pop("threshold", UNSET))
 
@@ -437,12 +434,12 @@ class LogRecordsColumnInfo:
 
         label_color = _parse_label_color(d.pop("label_color", UNSET))
 
-        def _parse_metric_key_alias(data: object) -> None | str | Unset:
+        def _parse_metric_key_alias(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         metric_key_alias = _parse_metric_key_alias(d.pop("metric_key_alias", UNSET))
 

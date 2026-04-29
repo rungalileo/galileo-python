@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,8 +16,8 @@ class ScorerTypeFilter:
     Attributes
     ----------
         operator (ScorerTypeFilterOperator):
-        value (list[str] | str):
-        name (Literal['scorer_type'] | Unset):  Default: 'scorer_type'.
+        value (Union[list[str], str]):
+        name (Union[Literal['scorer_type'], Unset]):  Default: 'scorer_type'.
     """
 
     operator: ScorerTypeFilterOperator

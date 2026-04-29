@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,14 +15,15 @@ class PromptTemplateCreatedByFilter:
     """
     Attributes
     ----------
-        value (list[str] | str):
-        name (Literal['creator'] | Unset):  Default: 'creator'.
-        operator (PromptTemplateCreatedByFilterOperator | Unset):  Default: PromptTemplateCreatedByFilterOperator.EQ.
+        value (Union[list[str], str]):
+        name (Union[Literal['creator'], Unset]):  Default: 'creator'.
+        operator (Union[Unset, PromptTemplateCreatedByFilterOperator]):  Default:
+            PromptTemplateCreatedByFilterOperator.EQ.
     """
 
     value: list[str] | str
     name: Literal["creator"] | Unset = "creator"
-    operator: PromptTemplateCreatedByFilterOperator | Unset = PromptTemplateCreatedByFilterOperator.EQ
+    operator: Unset | PromptTemplateCreatedByFilterOperator = PromptTemplateCreatedByFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,7 +40,7 @@ class PromptTemplateCreatedByFilter:
 
         name = self.name
 
-        operator: str | Unset = UNSET
+        operator: Unset | str = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -86,7 +85,7 @@ class PromptTemplateCreatedByFilter:
             raise ValueError(f"name must match const 'creator', got '{name}'")
 
         _operator = d.pop("operator", UNSET)
-        operator: PromptTemplateCreatedByFilterOperator | Unset
+        operator: Unset | PromptTemplateCreatedByFilterOperator
         operator = UNSET if isinstance(_operator, Unset) else PromptTemplateCreatedByFilterOperator(_operator)
 
         prompt_template_created_by_filter = cls(value=value, name=name, operator=operator)

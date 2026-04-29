@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,13 +20,13 @@ class BleuScorer:
     """
     Attributes
     ----------
-        name (Literal['bleu'] | Unset):  Default: 'bleu'.
-        filters (list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset): List of filters to apply to the
-            scorer.
+        name (Union[Literal['bleu'], Unset]):  Default: 'bleu'.
+        filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]): List of filters
+            to apply to the scorer.
     """
 
     name: Literal["bleu"] | Unset = "bleu"
-    filters: list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset = UNSET
+    filters: None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -37,7 +35,7 @@ class BleuScorer:
 
         name = self.name
 
-        filters: list[dict[str, Any]] | None | Unset
+        filters: None | Unset | list[dict[str, Any]]
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
@@ -75,7 +73,9 @@ class BleuScorer:
         if name != "bleu" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'bleu', got '{name}'")
 
-        def _parse_filters(data: object) -> list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset:
+        def _parse_filters(
+            data: object,
+        ) -> None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -87,7 +87,9 @@ class BleuScorer:
                 _filters_type_0 = data
                 for filters_type_0_item_data in _filters_type_0:
 
-                    def _parse_filters_type_0_item(data: object) -> MetadataFilter | ModalityFilter | NodeNameFilter:
+                    def _parse_filters_type_0_item(
+                        data: object,
+                    ) -> Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
@@ -113,7 +115,7 @@ class BleuScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(list[MetadataFilter | ModalityFilter | NodeNameFilter] | None | Unset, data)
+            return cast(None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 

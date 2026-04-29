@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,7 +16,7 @@ class RecomputeSettingsLogStream:
     ----------
         run_id (str):
         filters (list[Any]):
-        mode (Literal['log_stream_filters'] | Unset):  Default: 'log_stream_filters'.
+        mode (Union[Literal['log_stream_filters'], Unset]):  Default: 'log_stream_filters'.
     """
 
     run_id: str

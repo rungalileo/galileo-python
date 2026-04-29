@@ -85,7 +85,7 @@ def sync_detailed(*, client: ApiClient, body: CreateScorerRequest) -> Response[H
 
     Returns
     -------
-        Response[HTTPValidationError | ScorerResponse]
+        Response[Union[HTTPValidationError, ScorerResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -107,7 +107,7 @@ def sync(*, client: ApiClient, body: CreateScorerRequest) -> HTTPValidationError
 
     Returns
     -------
-        HTTPValidationError | ScorerResponse
+        Union[HTTPValidationError, ScorerResponse]
     """
     return sync_detailed(client=client, body=body).parsed
 
@@ -127,7 +127,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | ScorerResponse]
+        Response[Union[HTTPValidationError, ScorerResponse]]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -149,6 +149,6 @@ async def asyncio(*, client: ApiClient, body: CreateScorerRequest) -> HTTPValida
 
     Returns
     -------
-        HTTPValidationError | ScorerResponse
+        Union[HTTPValidationError, ScorerResponse]
     """
     return (await asyncio_detailed(client=client, body=body)).parsed

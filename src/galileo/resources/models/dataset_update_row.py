@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
@@ -22,11 +20,11 @@ class DatasetUpdateRow:
     ----------
         row_id (str):
         values (DatasetUpdateRowValues):
-        edit_type (Literal['update_row'] | Unset):  Default: 'update_row'.
+        edit_type (Union[Literal['update_row'], Unset]):  Default: 'update_row'.
     """
 
     row_id: str
-    values: DatasetUpdateRowValues
+    values: "DatasetUpdateRowValues"
     edit_type: Literal["update_row"] | Unset = "update_row"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

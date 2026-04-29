@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,8 +16,8 @@ class ProjectTypeFilter:
     Attributes
     ----------
         operator (ProjectTypeFilterOperator):
-        value (list[str] | str):
-        name (Literal['type'] | Unset):  Default: 'type'.
+        value (Union[list[str], str]):
+        name (Union[Literal['type'], Unset]):  Default: 'type'.
     """
 
     operator: ProjectTypeFilterOperator

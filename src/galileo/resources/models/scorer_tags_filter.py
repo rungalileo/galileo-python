@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,15 +16,15 @@ class ScorerTagsFilter:
     Attributes
     ----------
         operator (ScorerTagsFilterOperator):
-        value (list[str] | str):
-        name (Literal['tags'] | Unset):  Default: 'tags'.
-        case_sensitive (bool | Unset):  Default: True.
+        value (Union[list[str], str]):
+        name (Union[Literal['tags'], Unset]):  Default: 'tags'.
+        case_sensitive (Union[Unset, bool]):  Default: True.
     """
 
     operator: ScorerTagsFilterOperator
     value: list[str] | str
     name: Literal["tags"] | Unset = "tags"
-    case_sensitive: bool | Unset = True
+    case_sensitive: Unset | bool = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

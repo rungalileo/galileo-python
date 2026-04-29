@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -23,7 +21,7 @@ class InsightSummary:
         details (str):
         suggested_action (str):
         priority (int):
-        priority_category (InsightSummaryPriorityCategoryType0 | None | Unset):
+        priority_category (Union[InsightSummaryPriorityCategoryType0, None, Unset]):
     """
 
     id: str
@@ -48,7 +46,7 @@ class InsightSummary:
 
         priority = self.priority
 
-        priority_category: None | str | Unset
+        priority_category: None | Unset | str
         if isinstance(self.priority_category, Unset):
             priority_category = UNSET
         elif isinstance(self.priority_category, InsightSummaryPriorityCategoryType0):

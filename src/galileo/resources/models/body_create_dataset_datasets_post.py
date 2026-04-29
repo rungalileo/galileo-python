@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from io import BytesIO
 from typing import Any, TypeVar, cast
@@ -18,24 +16,24 @@ class BodyCreateDatasetDatasetsPost:
     """
     Attributes
     ----------
-        draft (bool | Unset):  Default: False.
-        hidden (bool | Unset):  Default: False.
-        name (None | str | Unset):
-        append_suffix_if_duplicate (bool | Unset):  Default: False.
-        file (File | None | Unset):
-        copy_from_dataset_id (None | str | Unset):
-        copy_from_dataset_version_index (int | None | Unset):
-        project_id (None | str | Unset):
+        draft (Union[Unset, bool]):  Default: False.
+        hidden (Union[Unset, bool]):  Default: False.
+        name (Union[None, Unset, str]):
+        append_suffix_if_duplicate (Union[Unset, bool]):  Default: False.
+        file (Union[File, None, Unset]):
+        copy_from_dataset_id (Union[None, Unset, str]):
+        copy_from_dataset_version_index (Union[None, Unset, int]):
+        project_id (Union[None, Unset, str]):
     """
 
-    draft: bool | Unset = False
-    hidden: bool | Unset = False
-    name: None | str | Unset = UNSET
-    append_suffix_if_duplicate: bool | Unset = False
+    draft: Unset | bool = False
+    hidden: Unset | bool = False
+    name: None | Unset | str = UNSET
+    append_suffix_if_duplicate: Unset | bool = False
     file: File | None | Unset = UNSET
-    copy_from_dataset_id: None | str | Unset = UNSET
-    copy_from_dataset_version_index: int | None | Unset = UNSET
-    project_id: None | str | Unset = UNSET
+    copy_from_dataset_id: None | Unset | str = UNSET
+    copy_from_dataset_version_index: None | Unset | int = UNSET
+    project_id: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -43,7 +41,7 @@ class BodyCreateDatasetDatasetsPost:
 
         hidden = self.hidden
 
-        name: None | str | Unset
+        name: None | Unset | str
         name = UNSET if isinstance(self.name, Unset) else self.name
 
         append_suffix_if_duplicate = self.append_suffix_if_duplicate
@@ -57,16 +55,16 @@ class BodyCreateDatasetDatasetsPost:
         else:
             file = self.file
 
-        copy_from_dataset_id: None | str | Unset
+        copy_from_dataset_id: None | Unset | str
         copy_from_dataset_id = UNSET if isinstance(self.copy_from_dataset_id, Unset) else self.copy_from_dataset_id
 
-        copy_from_dataset_version_index: int | None | Unset
+        copy_from_dataset_version_index: None | Unset | int
         if isinstance(self.copy_from_dataset_version_index, Unset):
             copy_from_dataset_version_index = UNSET
         else:
             copy_from_dataset_version_index = self.copy_from_dataset_version_index
 
-        project_id: None | str | Unset
+        project_id: None | Unset | str
         project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
         field_dict: dict[str, Any] = {}
@@ -157,12 +155,12 @@ class BodyCreateDatasetDatasetsPost:
 
         hidden = d.pop("hidden", UNSET)
 
-        def _parse_name(data: object) -> None | str | Unset:
+        def _parse_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         name = _parse_name(d.pop("name", UNSET))
 
@@ -184,32 +182,32 @@ class BodyCreateDatasetDatasetsPost:
 
         file = _parse_file(d.pop("file", UNSET))
 
-        def _parse_copy_from_dataset_id(data: object) -> None | str | Unset:
+        def _parse_copy_from_dataset_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         copy_from_dataset_id = _parse_copy_from_dataset_id(d.pop("copy_from_dataset_id", UNSET))
 
-        def _parse_copy_from_dataset_version_index(data: object) -> int | None | Unset:
+        def _parse_copy_from_dataset_version_index(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(int | None | Unset, data)
+            return cast(None | Unset | int, data)
 
         copy_from_dataset_version_index = _parse_copy_from_dataset_version_index(
             d.pop("copy_from_dataset_version_index", UNSET)
         )
 
-        def _parse_project_id(data: object) -> None | str | Unset:
+        def _parse_project_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | str | Unset, data)
+            return cast(None | Unset | str, data)
 
         project_id = _parse_project_id(d.pop("project_id", UNSET))
 

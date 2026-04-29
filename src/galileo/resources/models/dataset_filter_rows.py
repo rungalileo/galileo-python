@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -18,7 +16,7 @@ class DatasetFilterRows:
     Attributes
     ----------
         row_ids (list[str]):
-        edit_type (Literal['filter_rows'] | Unset):  Default: 'filter_rows'.
+        edit_type (Union[Literal['filter_rows'], Unset]):  Default: 'filter_rows'.
     """
 
     row_ids: list[str]

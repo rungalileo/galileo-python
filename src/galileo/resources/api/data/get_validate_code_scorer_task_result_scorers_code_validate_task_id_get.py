@@ -96,7 +96,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | RegisteredScorerTaskResultResponse]
+        Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]
     """
     kwargs = _get_kwargs(task_id=task_id)
 
@@ -124,7 +124,7 @@ def sync(task_id: str, *, client: ApiClient) -> HTTPValidationError | Registered
 
     Returns
     -------
-        HTTPValidationError | RegisteredScorerTaskResultResponse
+        Union[HTTPValidationError, RegisteredScorerTaskResultResponse]
     """
     return sync_detailed(task_id=task_id, client=client).parsed
 
@@ -150,7 +150,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[HTTPValidationError | RegisteredScorerTaskResultResponse]
+        Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]
     """
     kwargs = _get_kwargs(task_id=task_id)
 
@@ -180,6 +180,6 @@ async def asyncio(
 
     Returns
     -------
-        HTTPValidationError | RegisteredScorerTaskResultResponse
+        Union[HTTPValidationError, RegisteredScorerTaskResultResponse]
     """
     return (await asyncio_detailed(task_id=task_id, client=client)).parsed
