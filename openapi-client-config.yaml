@@ -1,5 +1,7 @@
 post_hooks:
   - "ruff check . --fix"
   - "ruff format ."
-  # Commenting this out for now as it's not working
-  # - 'python ../../../scripts/patch_http_validation_error.py "../../../src/galileo/resources/models/http_validation_error.py"'
+  # The HTTPValidationError post-generation patch runs from
+  # scripts/auto-generate-api-client.sh (after `openapi-python-client generate`)
+  # rather than as an openapi-python-client post_hook — relative paths inside
+  # the hook resolve from the generator's working directory and were unreliable.

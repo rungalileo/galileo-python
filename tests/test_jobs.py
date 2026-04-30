@@ -87,3 +87,20 @@ class TestJobsCreate:
         # When/Then: ValueError is raised with the status code in the message
         with pytest.raises(ValueError, match="503"):
             Jobs().create(**_make_job_kwargs())
+
+    @patch("galileo.jobs.create_job_jobs_post")
+    def test_raises_value_error_when_api_returns_string_detail(self, mock_post: MagicMock) -> None:
+        """Jobs.create() surfaces the API message when the 422 detail is a plain string."""
+        # Given: the API returns a 422 whose 'detail' is a plain string (not the standard list shape)
+        mock_post.sync_detailed = MagicMock(
+            return_value=Response(
+                status_code=HTTPStatus(422),
+                content=b'{"detail": "Model alias not found"}',
+                headers={},
+                parsed=HTTPValidationError.from_dict({"detail": "Model alias not found"}),
+            )
+        )
+
+        # When/Then: ValueError contains the original API message
+        with pytest.raises(ValueError, match="Model alias not found"):
+            Jobs().create(**_make_job_kwargs())
