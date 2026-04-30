@@ -87,16 +87,16 @@ def _stringify_metadata(metadata: dict[str, Any] | None) -> dict[str, str]:
     return {str(key): _stringify_metadata_value(value) for key, value in metadata.items()}
 
 
-def _extract_control_input(metadata: dict[str, Any] | None) -> str:
+def _extract_control_input(metadata: dict[str, Any] | None) -> str | None:
     if not metadata:
-        return ""
+        return None
 
     for key in ("selected_data", "selected_value", "value", "input"):
         if key in metadata and metadata[key] is not None:
             value = metadata[key]
             return value if isinstance(value, str) else serialize_to_str(value)
 
-    return ""
+    return None
 
 
 def _normalize_context_id(value: Any) -> str | None:
@@ -253,9 +253,7 @@ class GalileoAgentControlBridge:
     def _matches_active_context(event: Any, active_context: _ActiveContext) -> bool:
         event_trace_id = _normalize_context_id(getattr(event, "trace_id", None))
         event_span_id = _normalize_context_id(getattr(event, "span_id", None))
-        active_trace_id = _normalize_context_id(active_context.trace_id)
-        active_span_id = _normalize_context_id(active_context.span_id)
-        return event_trace_id == active_trace_id and event_span_id == active_span_id
+        return event_trace_id == active_context.trace_id and event_span_id == active_context.span_id
 
     @staticmethod
     def _control_span_kwargs(event: Any) -> dict[str, Any]:

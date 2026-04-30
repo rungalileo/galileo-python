@@ -2587,6 +2587,35 @@ def test_distributed_flush_waits_for_tasks(
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
+def test_terminate_stops_task_handler_when_agent_control_unregister_fails(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    # Given: a distributed logger whose Agent Control cleanup fails during shutdown
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+    task_handler = Mock()
+    logger._task_handler = task_handler
+
+    # When: terminating the logger
+    with (
+        patch.object(
+            GalileoLogger, "disable_agent_control", autospec=True, side_effect=RuntimeError("unregister failed")
+        ) as disable_agent_control,
+        patch.object(logger, "_auto_conclude_trace"),
+        patch.object(logger, "_wait_for_all_tasks_sync"),
+    ):
+        logger.terminate()
+
+    # Then: task-handler cleanup still runs after the Agent Control warning
+    disable_agent_control.assert_called_once_with(logger)
+    task_handler.terminate.assert_called_once()
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
 def test_batch_mode_flush_still_uses_get_last_output(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, enable_galileo_logging
 ) -> None:

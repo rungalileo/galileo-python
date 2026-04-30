@@ -261,8 +261,8 @@ class GalileoLogger(TracesLogger):
             self.log_stream_name = log_stream
             if local_metrics:
                 self.local_metrics = local_metrics
-            self._auto_enable_agent_control_if_available()
             atexit.register(self.terminate)
+            self._auto_enable_agent_control_if_available()
             return
 
         # Standard mode: validate credentials and connect to Galileo backend
@@ -350,10 +350,9 @@ class GalileoLogger(TracesLogger):
         if self.trace_id:
             self._init_distributed_trace_stubs()
 
-        self._auto_enable_agent_control_if_available()
-
         # cleans up when the python interpreter closes
         atexit.register(self.terminate)
+        self._auto_enable_agent_control_if_available()
 
     def _auto_enable_agent_control_if_available(self) -> None:
         """Best-effort Agent Control bridge registration for optional installs."""
@@ -2282,7 +2281,10 @@ class GalileoLogger(TracesLogger):
                     # Event loop might be closed during shutdown, log warning but don't crash
                     self._logger.warning(f"Could not flush during terminate due to event loop shutdown: {e}")
         finally:
-            self.disable_agent_control()
+            try:
+                self.disable_agent_control()
+            except Exception as exc:
+                self._logger.warning("GalileoLogger.terminate: agent control unregister failed: %s", exc)
 
             # Always release the worker threads so the process can exit promptly,
             # even if the wait above timed out or raised. Without this, the daemon

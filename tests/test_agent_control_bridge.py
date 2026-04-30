@@ -345,6 +345,31 @@ def test_agent_control_event_converts_to_control_span_in_batch_mode(
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
+def test_agent_control_event_uses_none_when_no_representative_input(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
+) -> None:
+    # Given: an Agent Control event with metadata but no selected input value
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="trace input")
+    workflow = logger.add_workflow_span(input="workflow input", name="workflow")
+    bridge = setup_agent_control_bridge(logger)
+    event = _make_event(logger, metadata={"primary_selector_path": "input"})
+
+    # When: the bridge converts the event
+    result = bridge.write_events([event])
+
+    # Then: the control span distinguishes missing input from an empty input string
+    assert result.accepted == 1
+    assert result.dropped == 0
+    assert workflow.spans[0].input is None
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
 def test_agent_control_event_is_dropped_when_ids_are_not_valid_uuids(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
 ) -> None:
