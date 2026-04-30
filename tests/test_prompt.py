@@ -202,15 +202,36 @@ class TestPromptGet:
         assert prompt.is_synced()
 
     @patch("galileo.prompt.GlobalPromptTemplates")
-    def test_get_returns_none_when_not_found(self, mock_templates_class: MagicMock, reset_configuration: None) -> None:
-        """Test get() returns None when prompt is not found."""
+    def test_get_raises_resource_not_found_by_name(
+        self, mock_templates_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: service returns None for the name lookup
         mock_service = MagicMock()
         mock_templates_class.return_value = mock_service
         mock_service.get.return_value = None
 
-        prompt = Prompt.get(name="Nonexistent Prompt")
+        # When/Then: get() raises ResourceNotFoundError with name in message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            Prompt.get(name="Nonexistent Prompt")
 
-        assert prompt is None
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "name=" in str(exc_info.value)
+
+    @patch("galileo.prompt.GlobalPromptTemplates")
+    def test_get_raises_resource_not_found_by_id(
+        self, mock_templates_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: service returns None for the id lookup
+        mock_service = MagicMock()
+        mock_templates_class.return_value = mock_service
+        mock_service.get.return_value = None
+
+        # When/Then: get() raises ResourceNotFoundError with id in message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            Prompt.get(id="nonexistent-id-123")
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
 
     @pytest.mark.parametrize(
         "kwargs,expected_error",
@@ -380,6 +401,26 @@ class TestPromptRefresh:
 
         with pytest.raises(ValueError, match="Prompt ID is not set"):
             prompt.refresh()
+
+    @patch("galileo.prompt.GlobalPromptTemplates")
+    def test_refresh_raises_resource_not_found_when_prompt_deleted(
+        self, mock_templates_class: MagicMock, reset_configuration: None, mock_prompt: MagicMock
+    ) -> None:
+        # Given: a synced prompt whose remote record has been deleted
+        mock_service = MagicMock()
+        mock_templates_class.return_value = mock_service
+        mock_service.get.side_effect = [mock_prompt, None]
+
+        prompt = Prompt.get(id=mock_prompt.id)
+        assert prompt.is_synced()
+
+        # When/Then: refresh() raises ResourceNotFoundError and sets FAILED_SYNC
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            prompt.refresh()
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
+        assert prompt.sync_state == SyncState.FAILED_SYNC
 
 
 class TestPromptMethods:

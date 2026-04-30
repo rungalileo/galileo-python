@@ -632,7 +632,7 @@ class Experiment(StateManagementMixin):
         return instance
 
     @classmethod
-    def get(cls, *, name: str, project_id: str | None = None, project_name: str | None = None) -> Experiment | None:
+    def get(cls, *, name: str, project_id: str | None = None, project_name: str | None = None) -> Experiment:
         """
         Get an existing experiment by name.
 
@@ -645,11 +645,12 @@ class Experiment(StateManagementMixin):
 
         Returns
         -------
-            Optional[Experiment]: The experiment if found, None otherwise.
+            Experiment: The experiment if found.
 
         Raises
         ------
-            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
+            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback),
+                or if no experiment with the given name exists in the project.
 
         Examples
         --------
@@ -680,7 +681,7 @@ class Experiment(StateManagementMixin):
         retrieved_experiment = experiments_service.get(project_id=project_obj.id, experiment_name=name)
 
         if retrieved_experiment is None:
-            return None
+            raise ResourceNotFoundError(f"Experiment with name={name!r} not found")
 
         instance = cls._from_api_response(retrieved_experiment)
         instance.project_id = project_obj.id
@@ -747,9 +748,10 @@ class Experiment(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the experiment ID or project_id is not set, or if the experiment no longer exists.
-            NotFoundError: If the experiment does not exist on the server (404 from the API).
-            Exception: If the API call fails.
+            ValueError: If the experiment ID or project_id is not set, or if the API
+                returns a 422 validation error (e.g. malformed UUID).
+            ResourceNotFoundError: If the experiment no longer exists on the server.
+            Exception: If the API call fails for any other reason.
 
         Examples
         --------
@@ -769,8 +771,12 @@ class Experiment(StateManagementMixin):
                 project_id=self.project_id, experiment_id=self.id, client=config.api_client
             )
 
-            if retrieved_experiment is None or isinstance(retrieved_experiment, HTTPValidationError):
-                raise ValueError(f"Experiment with id '{self.id}' no longer exists")
+            if retrieved_experiment is None:
+                raise ResourceNotFoundError(f"Experiment with id={self.id!r} not found")
+            if isinstance(retrieved_experiment, HTTPValidationError):
+                raise ValueError(
+                    f"Validation error fetching experiment with id={self.id!r}: {retrieved_experiment.detail}"
+                )
 
             # Update all top-level attributes from response
             self.id = retrieved_experiment.id

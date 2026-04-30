@@ -6,6 +6,7 @@ from pydantic import UUID4
 
 from galileo.resources.models import HTTPValidationError
 from galileo.resources.models.stage_db import StageDB as APIStageDB
+from galileo.shared.exceptions import ResourceNotFoundError
 from galileo.stages import (
     create_protect_stage,
     get_protect_stage,
@@ -340,3 +341,69 @@ def test_stage_creation_with_project_name_and_project_id_env_var(mock_api: Mock,
         assert api_rule.operator.lower() == rule.operator.value.lower()
         assert api_rule.target_value == rule.target_value
     assert "rulesets" not in body.additional_properties
+
+
+@patch("galileo.stages.Projects")
+def test_get_validated_project_id_raises_resource_not_found_by_name(mock_projects_cls: Mock) -> None:
+    # Given: project lookup by name returns None
+    mock_projects_cls.return_value.get_with_env_fallbacks.return_value = None
+
+    # When/Then: ResourceNotFoundError references the name, not id=None
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        get_protect_stage(project_name="nonexistent-project", stage_id=FIXED_STAGE_ID)
+
+    assert isinstance(exc_info.value, ResourceNotFoundError)
+    assert "name=" in str(exc_info.value)
+    assert "None" not in str(exc_info.value)
+
+
+@patch("galileo.stages.Projects")
+def test_get_validated_project_id_raises_resource_not_found_by_id(mock_projects_cls: Mock) -> None:
+    # Given: project lookup by id returns None
+    mock_projects_cls.return_value.get_with_env_fallbacks.return_value = None
+
+    # When/Then: ResourceNotFoundError references the id, not name=None
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        get_protect_stage(project_id=FIXED_PROJECT_ID, stage_id=FIXED_STAGE_ID)
+
+    assert isinstance(exc_info.value, ResourceNotFoundError)
+    assert "id=" in str(exc_info.value)
+    assert "name=" not in str(exc_info.value)
+
+
+@patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
+def test_get_stage_by_name_raises_resource_not_found_when_stage_missing(mock_api: Mock) -> None:
+    # Given: the project is found (autouse fixture) but the API returns None for the stage
+    mock_api.return_value = None
+
+    # When/Then: ResourceNotFoundError is raised with name in the message
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        get_protect_stage(project_id=FIXED_PROJECT_ID, stage_name="missing-stage")
+
+    assert isinstance(exc_info.value, ResourceNotFoundError)
+    assert "name=" in str(exc_info.value)
+
+
+@patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
+def test_get_stage_by_id_raises_resource_not_found_when_stage_missing(mock_api: Mock) -> None:
+    # Given: the project is found (autouse fixture) but the API returns None for the stage
+    mock_api.return_value = None
+
+    # When/Then: ResourceNotFoundError is raised with id in the message
+    with pytest.raises(ResourceNotFoundError) as exc_info:
+        get_protect_stage(project_id=FIXED_PROJECT_ID, stage_id=FIXED_STAGE_ID)
+
+    assert isinstance(exc_info.value, ResourceNotFoundError)
+    assert "id=" in str(exc_info.value)
+
+
+@patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
+def test_get_stage_raises_value_error_on_http_validation_error(mock_api: Mock) -> None:
+    # Given: the API returns an HTTPValidationError instead of a stage
+    validation_error = HTTPValidationError()
+    validation_error.detail = [{"msg": "invalid stage"}]
+    mock_api.return_value = validation_error
+
+    # When/Then: ValueError is raised rather than silently returning the error object
+    with pytest.raises(ValueError, match="Validation error looking up stage"):
+        get_protect_stage(project_id=FIXED_PROJECT_ID, stage_id=FIXED_STAGE_ID)

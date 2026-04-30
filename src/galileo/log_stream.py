@@ -261,7 +261,7 @@ class LogStream(StateManagementMixin):
         return instance
 
     @classmethod
-    def get(cls, *, name: str, project_id: str | None = None, project_name: str | None = None) -> LogStream | None:
+    def get(cls, *, name: str, project_id: str | None = None, project_name: str | None = None) -> LogStream:
         """
         Get an existing log stream by name.
 
@@ -274,11 +274,12 @@ class LogStream(StateManagementMixin):
 
         Returns
         -------
-            Optional[LogStream]: The log stream if found, None otherwise.
+            LogStream: The log stream if found.
 
         Raises
         ------
-            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
+            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback),
+                or if no log stream with the given name exists in the project.
 
         Examples
         --------
@@ -302,7 +303,7 @@ class LogStream(StateManagementMixin):
         log_streams_service = LogStreams()
         retrieved_log_stream = log_streams_service.get(name=name, project_id=project_obj.id)
         if retrieved_log_stream is None:
-            return None
+            raise ResourceNotFoundError(f"LogStream with name={name!r} not found")
 
         instance = cls._from_api_response(retrieved_log_stream)
         # Set project_name from resolved project
@@ -360,7 +361,8 @@ class LogStream(StateManagementMixin):
         Raises
         ------
             ValueError: If the log stream ID or project_id is not set.
-            Exception: If the API call fails or the log stream no longer exists.
+            ResourceNotFoundError: If the log stream no longer exists on the server.
+            Exception: If the API call fails for any other reason.
 
         Examples
         --------
@@ -379,7 +381,7 @@ class LogStream(StateManagementMixin):
             retrieved_log_stream = log_streams_service.get(id=self.id, project_id=self.project_id)
 
             if retrieved_log_stream is None:
-                raise ValueError(f"Log stream with id '{self.id}' no longer exists")
+                raise ResourceNotFoundError(f"LogStream with id={self.id!r} not found")
 
             # Update all attributes from response
             self.created_at = retrieved_log_stream.created_at
@@ -476,7 +478,7 @@ class LogStream(StateManagementMixin):
             log_streams_service = LogStreams()
             log_stream = log_streams_service.get(name=self.name, project_id=self.project_id)
             if log_stream is None:
-                raise ValueError(f"Log stream '{self.name}' not found")
+                raise ResourceNotFoundError(f"LogStream with name={self.name!r} not found")
             result = log_stream.enable_metrics(metrics)
             # Set state to synced after successful operation
             self._set_state(SyncState.SYNCED)

@@ -91,15 +91,36 @@ class TestDatasetGet:
         assert dataset.is_synced()
 
     @patch("galileo.dataset.Datasets")
-    def test_get_returns_none_when_not_found(self, mock_datasets_class: MagicMock, reset_configuration: None) -> None:
-        """Test get() returns None when dataset is not found."""
+    def test_get_raises_resource_not_found_by_name(
+        self, mock_datasets_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: service returns None for the lookup
         mock_service = MagicMock()
         mock_datasets_class.return_value = mock_service
         mock_service.get.return_value = None
 
-        dataset = Dataset.get(name="Nonexistent Dataset")
+        # When/Then: get() raises ResourceNotFoundError with name in message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            Dataset.get(name="Nonexistent Dataset")
 
-        assert dataset is None
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "name=" in str(exc_info.value)
+
+    @patch("galileo.dataset.Datasets")
+    def test_get_raises_resource_not_found_by_id(
+        self, mock_datasets_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: service returns None for the lookup
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.return_value = None
+
+        # When/Then: get() raises ResourceNotFoundError with id in message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            Dataset.get(id="nonexistent-dataset-id")
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
 
     @patch("galileo.dataset.Datasets")
     def test_get_raises_error_without_id_or_name(
@@ -159,6 +180,25 @@ class TestDatasetContent:
 
         assert content == mock_content
         mock_dataset.get_content.assert_called_once()
+
+    @patch("galileo.dataset.Datasets")
+    def test_get_content_raises_resource_not_found_when_dataset_deleted(
+        self, mock_datasets_class: MagicMock, reset_configuration: None, mock_dataset: MagicMock
+    ) -> None:
+        # Given: a synced dataset whose remote record has since been deleted
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+        mock_service.get.side_effect = [mock_dataset, None]
+
+        dataset = Dataset.get(id=mock_dataset.id)
+        assert dataset.is_synced()
+
+        # When/Then: get_content() raises ResourceNotFoundError
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            dataset.get_content()
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
 
     @pytest.mark.parametrize(
         "method_name", ["get_content", "add_rows", "get_versions", "get_version_content", "extend"]
@@ -329,6 +369,37 @@ class TestDatasetRefresh:
 
         with pytest.raises(ValueError, match="Dataset ID is not set"):
             dataset.refresh()
+
+    @patch("galileo.dataset.Datasets")
+    def test_refresh_raises_resource_not_found_when_dataset_deleted(
+        self, mock_datasets_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: a synced dataset whose remote record has been deleted
+        mock_service = MagicMock()
+        mock_datasets_class.return_value = mock_service
+
+        dataset_id = str(uuid4())
+        initial = MagicMock()
+        initial.id = dataset_id
+        initial.name = "Test Dataset"
+        initial.created_at = MagicMock()
+        initial.updated_at = MagicMock()
+        initial.num_rows = 10
+        initial.column_names = ["input", "output"]
+        initial.draft = False
+
+        mock_service.get.side_effect = [initial, None]
+
+        dataset = Dataset.get(id=dataset_id)
+        assert dataset.is_synced()
+
+        # When/Then: refresh() raises ResourceNotFoundError and sets FAILED_SYNC
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            dataset.refresh()
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
+        assert dataset.sync_state == SyncState.FAILED_SYNC
 
 
 class TestDatasetSave:

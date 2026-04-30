@@ -200,7 +200,7 @@ class Dataset(StateManagementMixin):
             raise
 
     @classmethod
-    def get(cls, *, id: str | None = None, name: str | None = None) -> Dataset | None:
+    def get(cls, *, id: str | None = None, name: str | None = None) -> Dataset:
         """
         Get an existing dataset by ID or name.
 
@@ -210,11 +210,12 @@ class Dataset(StateManagementMixin):
 
         Returns
         -------
-            Optional[Dataset]: The dataset if found, None otherwise.
+            Dataset: The dataset if found.
 
         Raises
         ------
-            ValueError: If neither or both id and name are provided.
+            ValueError: If neither id nor name is provided.
+            ResourceNotFoundError: If no dataset matches the given id or name.
 
         Examples
         --------
@@ -235,7 +236,10 @@ class Dataset(StateManagementMixin):
             raise ValueError("Either 'id' or 'name' must be provided")
 
         if retrieved_dataset is None:
-            return None
+            not_found_msg = (
+                f"Dataset with id={id!r} not found" if id is not None else f"Dataset with name={name!r} not found"
+            )
+            raise ResourceNotFoundError(not_found_msg)
 
         return cls._from_api_response(retrieved_dataset)
 
@@ -315,13 +319,17 @@ class Dataset(StateManagementMixin):
             prompt_settings=prompt_settings,
         )
 
-    def get_content(self) -> DatasetContent | None:
+    def get_content(self) -> DatasetContent:
         """
         Get the content of this dataset.
 
         Returns
         -------
-            Optional[DatasetContent]: The dataset content if available.
+            DatasetContent: The dataset content.
+
+        Raises
+        ------
+            ResourceNotFoundError: If the dataset no longer exists on the server.
 
         Examples
         --------
@@ -333,7 +341,7 @@ class Dataset(StateManagementMixin):
         datasets_service = Datasets()
         dataset = datasets_service.get(id=self.id)
         if dataset is None:
-            return None
+            raise ResourceNotFoundError(f"Dataset with id={self.id!r} not found")
         return dataset.get_content()
 
     def add_rows(self, rows: list[dict[str, Any]]) -> Dataset:  # type: ignore[valid-type]
@@ -528,7 +536,8 @@ class Dataset(StateManagementMixin):
 
         Raises
         ------
-            Exception: If the API call fails or the dataset no longer exists.
+            ResourceNotFoundError: If the dataset no longer exists on the server.
+            Exception: If the API call fails for any other reason.
 
         Examples
         --------
@@ -543,7 +552,7 @@ class Dataset(StateManagementMixin):
             retrieved_dataset = datasets_service.get(id=self.id)
 
             if retrieved_dataset is None:
-                raise ValueError(f"Dataset with id '{self.id}' no longer exists")
+                raise ResourceNotFoundError(f"Dataset with id={self.id!r} not found")
 
             # Update all attributes from response
             self.id = retrieved_dataset.id

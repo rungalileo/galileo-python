@@ -8,6 +8,7 @@ from pytest import CaptureFixture, LogCaptureFixture
 
 from galileo.job_progress import job_progress, scorer_jobs_status
 from galileo.resources.models import HTTPValidationError, JobDB, ValidationError
+from galileo.shared.exceptions import ResourceNotFoundError
 from galileo_core.constants.job import JobStatus
 
 FIXED_PROJECT_ID = str(uuid4())
@@ -65,11 +66,16 @@ class TestJobProgress:
         mock_get_job.assert_called_with(client=ANY, job_id=FIXED_JOB_ID)
 
     @patch("galileo.job_progress.get_job_jobs_job_id_get.sync")
-    def test_get_job_fails(self, mock_get_job: Mock):
+    def test_get_job_raises_resource_not_found_when_response_is_none(self, mock_get_job: Mock):
+        # Given: the API returns None for the job
         mock_get_job.return_value = None
 
-        with pytest.raises(ValueError, match=f"Failed to get job status for job {FIXED_JOB_ID}"):
+        # When/Then: ResourceNotFoundError is raised with id in the message
+        with pytest.raises(ResourceNotFoundError) as exc_info:
             job_progress(job_id=FIXED_JOB_ID, project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
         mock_get_job.assert_called_with(client=ANY, job_id=FIXED_JOB_ID)
 
     @patch("galileo.job_progress.get_job_jobs_job_id_get.sync")

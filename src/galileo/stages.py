@@ -10,10 +10,12 @@ from galileo.resources.api.protect import (
     pause_stage_projects_project_id_stages_stage_id_put,
     update_stage_projects_project_id_stages_stage_id_post,
 )
+from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.rulesets_mixin import RulesetsMixin as APIRulesetsMixin
 from galileo.resources.models.stage_db import StageDB as APIStageDB
 from galileo.resources.models.stage_with_rulesets import StageWithRulesets as APIStageWithRulesets
 from galileo.resources.types import UNSET
+from galileo.shared.exceptions import ResourceNotFoundError
 from galileo_core.schemas.protect.ruleset import Ruleset, RulesetsMixin
 from galileo_core.schemas.protect.stage import StageDB, StageType, StageWithRulesets
 from galileo_core.utils.name import ts_name
@@ -27,7 +29,12 @@ def _get_validated_project_id(project_id: str | UUID4 | None = None, project_nam
 
     project = Projects().get_with_env_fallbacks(name=project_name, id=project_id)
     if not project:
-        raise ValueError(f"Project with name '{project_name}' not found.")
+        not_found_msg = (
+            f"Project with id={project_id!r} not found"
+            if project_id is not None
+            else f"Project with name={project_name!r} not found"
+        )
+        raise ResourceNotFoundError(not_found_msg)
     return str(project.id)
 
 
@@ -41,9 +48,8 @@ def _get_stage_id(
     if stage_id:
         return str(stage_id)
     if stage_name:
+        # Stages().get raises ResourceNotFoundError if the stage is missing.
         stage = Stages().get(project_id=project_id, stage_name=stage_name)
-        if not stage:
-            raise ValueError(f"Stage with name '{stage_name}' not found.")
         return str(stage.id)
     raise ValueError("Either stage_id or stage_name must be provided.")
 
@@ -109,6 +115,15 @@ class Stages:
         )
         if isinstance(response, APIStageDB):
             return StageDB.model_validate(response.to_dict())
+        if response is None:
+            not_found_msg = (
+                f"Stage with id={stage_id!r} not found"
+                if stage_id is not None
+                else f"Stage with name={stage_name!r} not found"
+            )
+            raise ResourceNotFoundError(not_found_msg)
+        if isinstance(response, HTTPValidationError):
+            raise ValueError(f"Validation error looking up stage: {response.detail}")
         return response
 
     def update(

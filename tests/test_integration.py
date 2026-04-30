@@ -16,7 +16,8 @@ from galileo.provider import (
 from galileo.resources.models.available_integrations import AvailableIntegrations
 from galileo.resources.models.integration_db import IntegrationDB
 from galileo.resources.models.integration_name import IntegrationName
-from galileo.shared.exceptions import IntegrationNotConfiguredError, ValidationError
+from galileo.shared.base import SyncState
+from galileo.shared.exceptions import IntegrationNotConfiguredError, ResourceNotFoundError, ValidationError
 
 # Test data
 INTEGRATION_TYPES = [
@@ -139,6 +140,41 @@ class TestIntegrationRefresh:
 
         with pytest.raises(ValidationError, match="Cannot refresh integration without an ID"):
             integration.refresh()
+
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
+    def test_refresh_raises_resource_not_found_when_integration_deleted_empty_list(self, mock_list, mock_config):
+        # Given: a known integration whose remote record has been deleted (empty list returned)
+        mock_integration = create_mock_integration(IntegrationName.OPENAI)
+        integration = Integration._from_api_response(mock_integration)
+        mock_list.sync.return_value = []
+
+        # When/Then: refresh() raises ResourceNotFoundError and sets FAILED_SYNC
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            integration.refresh()
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
+        assert integration.sync_state == SyncState.FAILED_SYNC
+
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
+    def test_refresh_raises_resource_not_found_when_integration_not_in_list(self, mock_list, mock_config):
+        # Given: a known integration whose id is not found in the returned list
+        mock_integration = create_mock_integration(IntegrationName.OPENAI)
+        integration = Integration._from_api_response(mock_integration)
+
+        # Different integration in the list — not a match
+        other_integration = create_mock_integration(IntegrationName.ANTHROPIC)
+        mock_list.sync.return_value = [other_integration]
+
+        # When/Then: refresh() raises ResourceNotFoundError and sets FAILED_SYNC
+        with pytest.raises(ResourceNotFoundError) as exc_info:
+            integration.refresh()
+
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+        assert "id=" in str(exc_info.value)
+        assert integration.sync_state == SyncState.FAILED_SYNC
 
 
 class TestIntegrationConvenienceProperties:

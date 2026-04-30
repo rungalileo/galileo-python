@@ -39,7 +39,7 @@ from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 from galileo.schema.metrics import Metric as LegacyMetric
 from galileo.scorers import Scorers
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import APIError, ValidationError
+from galileo.shared.exceptions import APIError, ResourceNotFoundError, ValidationError
 from galileo_core.schemas.logging.span import Span
 from galileo_core.schemas.logging.step import StepType
 from galileo_core.schemas.logging.trace import Trace
@@ -221,7 +221,7 @@ class Metric(StateManagementMixin, ABC):
         return GalileoMetric.__new__(GalileoMetric)
 
     @classmethod
-    def get(cls, *, id: str | None = None, name: str | None = None) -> Metric | None:
+    def get(cls, *, id: str | None = None, name: str | None = None) -> Metric:
         """
         Get an existing metric by ID or name.
 
@@ -233,11 +233,12 @@ class Metric(StateManagementMixin, ABC):
 
         Returns
         -------
-            Optional[Metric]: The metric if found (GalileoMetric, LlmMetric, or CodeMetric), None otherwise.
+            Metric: The metric if found (GalileoMetric, LlmMetric, or CodeMetric).
 
         Raises
         ------
             ValidationError: If neither or both id and name are provided.
+            ResourceNotFoundError: If no metric matches the given id or name.
 
         Examples
         --------
@@ -257,16 +258,16 @@ class Metric(StateManagementMixin, ABC):
         if name is not None:
             scorers = scorers_service.list(name=name)
             if not scorers:
-                return None
+                raise ResourceNotFoundError(f"Metric with name={name!r} not found")
             retrieved_scorer = next((s for s in scorers if s.name == name), None)
             if retrieved_scorer is None:
-                return None
+                raise ResourceNotFoundError(f"Metric with name={name!r} not found")
         else:
             assert id is not None
             scorers = scorers_service.list()
             retrieved_scorer = next((s for s in scorers if s.id == id), None)
             if retrieved_scorer is None:
-                return None
+                raise ResourceNotFoundError(f"Metric with id={id!r} not found")
 
         # Create appropriate subclass instance based on scorer_type
         instance = cls._create_metric_from_type(retrieved_scorer.scorer_type)
@@ -532,8 +533,9 @@ class Metric(StateManagementMixin, ABC):
         Raises
         ------
             ValidationError: If this is a local metric.
-            ValueError: If the metric is not synced.
-            Exception: If the API call fails or the metric no longer exists.
+            ValueError: If the metric ID is not set.
+            ResourceNotFoundError: If the metric no longer exists on the server.
+            Exception: If the API call fails for any other reason.
 
         Examples
         --------
@@ -553,7 +555,7 @@ class Metric(StateManagementMixin, ABC):
             retrieved_scorer = next((s for s in scorers if s.id == self.id), None)
 
             if retrieved_scorer is None:
-                raise ValueError(f"Metric with id '{self.id}' no longer exists")
+                raise ResourceNotFoundError(f"Metric with id={self.id!r} not found")
 
             self._populate_from_scorer_response(retrieved_scorer)
             self._set_state(SyncState.SYNCED)

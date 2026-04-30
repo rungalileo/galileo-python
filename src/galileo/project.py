@@ -13,7 +13,7 @@ from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.project_update import ProjectUpdate
 from galileo.resources.types import Unset
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import APIError, ValidationError
+from galileo.shared.exceptions import APIError, ResourceNotFoundError, ValidationError
 
 if TYPE_CHECKING:
     from galileo.dataset import Dataset
@@ -230,7 +230,7 @@ class Project(StateManagementMixin):
             raise
 
     @classmethod
-    def get(cls, *, id: str | None = None, name: str | None = None) -> Project | None:
+    def get(cls, *, id: str | None = None, name: str | None = None) -> Project:
         """
         Get an existing project by ID or name.
 
@@ -240,11 +240,12 @@ class Project(StateManagementMixin):
 
         Returns
         -------
-            Optional[Project]: The project if found, None otherwise.
+            Project: The project if found.
 
         Raises
         ------
             ValidationError: If neither or both id and name are provided.
+            ResourceNotFoundError: If no project matches the given id or name.
 
         Examples
         --------
@@ -258,9 +259,14 @@ class Project(StateManagementMixin):
             projects_service = Projects()
             retrieved_project = projects_service.get(id=id, name=name)
             if retrieved_project is None:
-                return None
+                not_found_msg = (
+                    f"Project with id={id!r} not found" if id is not None else f"Project with name={name!r} not found"
+                )
+                raise ResourceNotFoundError(not_found_msg)
 
             return cls._from_api_response(retrieved_project)
+        except (ResourceNotFoundError, ValidationError):
+            raise
         except ValueError as e:
             raise ValidationError(str(e)) from e
         except Exception as e:
@@ -692,7 +698,8 @@ class Project(StateManagementMixin):
 
         Raises
         ------
-            Exception: If the API call fails or the project no longer exists.
+            ResourceNotFoundError: If the project no longer exists on the server.
+            Exception: If the API call fails for any other reason.
 
         Examples
         --------
@@ -707,7 +714,7 @@ class Project(StateManagementMixin):
             retrieved_project = projects_service.get(id=self.id)
 
             if retrieved_project is None:
-                raise ValueError(f"Project with id '{self.id}' no longer exists")
+                raise ResourceNotFoundError(f"Project with id={self.id!r} not found")
 
             # Update all attributes from response without triggering dirty-tracking
             self._sync_attrs(

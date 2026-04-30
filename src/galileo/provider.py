@@ -25,7 +25,7 @@ from galileo.resources.models import (
 )
 from galileo.resources.types import Unset
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import APIError, IntegrationNotConfiguredError, ValidationError
+from galileo.shared.exceptions import APIError, IntegrationNotConfiguredError, ResourceNotFoundError, ValidationError
 from galileo.utils.exceptions import APIException
 
 logger = logging.getLogger(__name__)
@@ -93,8 +93,9 @@ class Provider(StateManagementMixin, ABC):
 
         Raises
         ------
-            APIError: If the API call fails or the integration is not found.
             ValidationError: If the provider has no ID.
+            ResourceNotFoundError: If the provider no longer exists on the server.
+            APIError: If the API call fails for any other reason.
         """
         if self.id is None:
             error = ValidationError("Cannot refresh provider without an ID")
@@ -111,9 +112,9 @@ class Provider(StateManagementMixin, ABC):
             response = get_integration_integrations_name_get.sync(name=integration_name, client=config.api_client)
 
             if response is None or isinstance(response, HTTPValidationError):
-                api_error = APIError(f"Provider with ID {self.id} not found")
-                self._set_state(SyncState.FAILED_SYNC, api_error)
-                raise api_error
+                err = ResourceNotFoundError(f"Provider with id={self.id!r} not found")
+                self._set_state(SyncState.FAILED_SYNC, err)
+                raise err
 
             # Update attributes from response
             self._update_from_api_response(response)

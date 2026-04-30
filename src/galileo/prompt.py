@@ -373,7 +373,7 @@ class Prompt(StateManagementMixin):
             raise
 
     @classmethod
-    def get(cls, *, id: str | None = None, name: str | None = None) -> Prompt | None:
+    def get(cls, *, id: str | None = None, name: str | None = None) -> Prompt:
         """
         Get an existing prompt by ID or name.
 
@@ -383,11 +383,12 @@ class Prompt(StateManagementMixin):
 
         Returns
         -------
-            Optional[Prompt]: The prompt if found, None otherwise.
+            Prompt: The prompt if found.
 
         Raises
         ------
             ValidationError: If neither or both id and name are provided.
+            ResourceNotFoundError: If no prompt matches the given id or name.
 
         Examples
         --------
@@ -411,7 +412,10 @@ class Prompt(StateManagementMixin):
             retrieved_prompt = prompt_service.get(name=name)
 
         if retrieved_prompt is None:
-            return None
+            not_found_msg = (
+                f"Prompt with id={id!r} not found" if id is not None else f"Prompt with name={name!r} not found"
+            )
+            raise ResourceNotFoundError(not_found_msg)
 
         return cls._from_api_response(retrieved_prompt)
 
@@ -611,7 +615,8 @@ class Prompt(StateManagementMixin):
 
         Raises
         ------
-            Exception: If the API call fails or the prompt no longer exists.
+            ResourceNotFoundError: If the prompt no longer exists on the server.
+            Exception: If the API call fails for any other reason.
 
         Examples
         --------
@@ -626,7 +631,7 @@ class Prompt(StateManagementMixin):
             retrieved_prompt = prompt_service.get(template_id=self.id)
 
             if retrieved_prompt is None:
-                raise ValueError(f"Prompt with id '{self.id}' no longer exists")
+                raise ResourceNotFoundError(f"Prompt with id={self.id!r} not found")
 
             # Update all attributes from response
             self._update_from_api_response(retrieved_prompt)

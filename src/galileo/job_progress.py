@@ -11,6 +11,7 @@ from galileo.resources.api.jobs import (
     get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get,
 )
 from galileo.resources.models import HTTPValidationError, JobDB
+from galileo.shared.exceptions import ResourceNotFoundError
 from galileo.utils.log_config import get_logger
 from galileo_core.constants.job import JobName, JobStatus
 from galileo_core.constants.scorers import Scorers
@@ -26,7 +27,7 @@ def get_job(job_id: str) -> JobDB:
     if isinstance(response, HTTPValidationError):
         raise ValueError(response.detail)
     if not response:
-        raise ValueError(f"Failed to get job status for job {job_id}")
+        raise ResourceNotFoundError(f"Job with id={job_id!r} not found")
     return response
 
 
