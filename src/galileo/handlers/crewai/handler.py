@@ -26,8 +26,8 @@ _crewai_imports_resolved = False
 
 def _resolve_crewai_imports() -> None:
     """Import crewai and litellm on first use, populating module-level globals."""
-    global CREWAI_AVAILABLE, CREWAI_EVENTS_MODULE_AVAILABLE  # noqa: PLW0603
-    global LITE_LLM_AVAILABLE, litellm, _crewai_imports_resolved  # noqa: PLW0603
+    global CREWAI_AVAILABLE, CREWAI_EVENTS_MODULE_AVAILABLE
+    global LITE_LLM_AVAILABLE, litellm, _crewai_imports_resolved
 
     if _crewai_imports_resolved:
         return

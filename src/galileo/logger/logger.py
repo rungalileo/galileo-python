@@ -10,7 +10,10 @@ import time
 import uuid
 from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Union
+from typing import TYPE_CHECKING, Any, Union
+
+if TYPE_CHECKING:
+    from galileo.handlers.agent_control import GalileoAgentControlBridge
 
 import backoff
 import httpx
@@ -20,6 +23,7 @@ from galileo.constants import LoggerModeType
 from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
 from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
+from galileo.logger.control import ControlAppliesTo, ControlCheckStage, ControlResult, ControlSpan
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.projects import Projects
 from galileo.schema.content_blocks import (
@@ -29,6 +33,7 @@ from galileo.schema.content_blocks import (
     normalize_content_block_list,
 )
 from galileo.schema.logged import (
+    IngestInputType,
     IngestOutputType,
     LoggedAgentSpan,
     LoggedLlmSpan,
@@ -257,6 +262,7 @@ class GalileoLogger(TracesLogger):
             if local_metrics:
                 self.local_metrics = local_metrics
             atexit.register(self.terminate)
+            self._auto_enable_agent_control_if_available()
             return
 
         # Standard mode: validate credentials and connect to Galileo backend
@@ -346,6 +352,16 @@ class GalileoLogger(TracesLogger):
 
         # cleans up when the python interpreter closes
         atexit.register(self.terminate)
+        self._auto_enable_agent_control_if_available()
+
+    def _auto_enable_agent_control_if_available(self) -> None:
+        """Best-effort Agent Control bridge registration for optional installs."""
+        try:
+            self.enable_agent_control()
+        except ImportError:
+            self._logger.debug("Agent Control not installed; skipping automatic bridge registration.")
+        except Exception:
+            self._logger.warning("Failed to automatically enable Agent Control bridge.", exc_info=True)
 
     @nop_sync
     def _init_project(self) -> None:
@@ -704,7 +720,6 @@ class GalileoLogger(TracesLogger):
         # Use IDs from the current trace and parent step
         trace_id = self.traces[0].id
         parent_id = parent_step.id
-
         spans_ingest_request = SpansIngestRequest(
             spans=[copy.deepcopy(span)], trace_id=trace_id, parent_id=parent_id, reliable=True
         )
@@ -889,6 +904,23 @@ class GalileoLogger(TracesLogger):
         # Each logger has its own per-instance ContextVar for parent tracking.
         # The traces check is a sanity check to ensure consistency.
         return current_parent is not None and len(self.traces) > 0
+
+    def enable_agent_control(self) -> "GalileoAgentControlBridge":
+        """Register this logger as the active Agent Control bridge target."""
+        from galileo.handlers.agent_control import GalileoAgentControlBridge
+
+        bridge = getattr(self, "_agent_control_bridge", None)
+        if bridge is None:
+            bridge = GalileoAgentControlBridge(galileo_logger=self)
+            self._agent_control_bridge = bridge
+        bridge.register()
+        return bridge
+
+    def disable_agent_control(self) -> None:
+        """Unregister this logger from Agent Control if a bridge is active."""
+        bridge = getattr(self, "_agent_control_bridge", None)
+        if bridge is not None:
+            bridge.unregister()
 
     def get_tracing_headers(self) -> dict[str, str]:
         """
@@ -1791,6 +1823,86 @@ class GalileoLogger(TracesLogger):
         )
         return self._attach_parentable_span(span, status_code)
 
+    @nop_sync
+    @warn_catch_exception(exceptions=(Exception,))
+    def add_control_span(
+        self,
+        input: IngestInputType,
+        output: ControlResult | None = None,
+        name: str | None = None,
+        created_at: datetime | None = None,
+        duration_ns: int | None = None,
+        metadata: dict[str, MetadataValue] | None = None,
+        tags: list[str] | None = None,
+        status_code: int | None = None,
+        id: uuid.UUID | str | None = None,
+        step_number: int | None = None,
+        control_id: int | None = None,
+        agent_name: str | None = None,
+        check_stage: ControlCheckStage | None = None,
+        applies_to: ControlAppliesTo | None = None,
+        evaluator_name: str | None = None,
+        selector_path: str | None = None,
+    ) -> ControlSpan:
+        """
+        Add a control span to the current parent.
+
+        Control spans are leaf spans representing a single Agent Control
+        evaluation result attached to the active Galileo parent.
+
+        When provided, ``id`` is used as the canonical Galileo span ID for the
+        control execution. This is the right place to map an upstream
+        control-execution identifier such as Agent Control's
+        ``control_execution_id``.
+        """
+        if metadata:
+            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+
+        current_parent = self.current_parent()
+        parent_id = getattr(current_parent, "id", None)
+
+        trace_id = None
+        root_parent = current_parent
+        while getattr(root_parent, "_parent", None) is not None:
+            root_parent = root_parent._parent
+        if root_parent is not None:
+            trace_id = getattr(root_parent, "id", None)
+
+        span_id = id
+        if isinstance(span_id, str):
+            span_id = uuid.UUID(span_id)
+
+        span_kwargs = {
+            "input": input,
+            "output": output,
+            "created_at": self._get_child_span_timestamp() if created_at is None else created_at,
+            "user_metadata": metadata or {},
+            "tags": tags or [],
+            "status_code": status_code,
+            "metrics": Metrics(duration_ns=duration_ns),
+            "id": span_id or uuid.uuid4(),
+            "trace_id": trace_id,
+            "parent_id": parent_id,
+            "step_number": step_number,
+            "control_id": control_id,
+            "agent_name": agent_name,
+            "check_stage": check_stage,
+            "applies_to": applies_to,
+            "evaluator_name": evaluator_name,
+            "selector_path": selector_path,
+        }
+        if name is not None:
+            span_kwargs["name"] = name
+
+        span = ControlSpan(**span_kwargs)
+        span._parent = current_parent
+        self.add_child_span_to_parent(span)
+
+        if self.mode == "distributed":
+            self._ingest_step_streaming(span)
+
+        return span
+
     @warn_catch_exception(exceptions=(Exception,))
     def _conclude(
         self,
@@ -2169,6 +2281,11 @@ class GalileoLogger(TracesLogger):
                     # Event loop might be closed during shutdown, log warning but don't crash
                     self._logger.warning(f"Could not flush during terminate due to event loop shutdown: {e}")
         finally:
+            try:
+                self.disable_agent_control()
+            except Exception as exc:
+                self._logger.warning("GalileoLogger.terminate: agent control unregister failed: %s", exc)
+
             # Always release the worker threads so the process can exit promptly,
             # even if the wait above timed out or raised. Without this, the daemon
             # EventLoopThreads keep running until interpreter teardown — and any

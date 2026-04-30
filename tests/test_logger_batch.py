@@ -2287,6 +2287,68 @@ def test_ingestion_hook_without_project_or_log_stream(monkeypatch) -> None:
     assert logger._traces_client is None
 
 
+def test_ingestion_hook_registers_atexit_before_agent_control_auto_enable() -> None:
+    # Given: constructor hooks that record cleanup and Agent Control setup ordering
+    calls = []
+
+    def record_atexit_register(callback):
+        calls.append(("atexit", callback.__name__))
+
+    def record_agent_control_auto_enable(_logger):
+        calls.append(("agent_control", None))
+
+    # When: creating an ingestion-hook logger
+    with (
+        patch("galileo.logger.logger.atexit.register", side_effect=record_atexit_register),
+        patch.object(
+            GalileoLogger,
+            "_auto_enable_agent_control_if_available",
+            autospec=True,
+            side_effect=record_agent_control_auto_enable,
+        ) as auto_enable_agent_control,
+    ):
+        logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=lambda _: None)
+
+    # Then: terminate is registered before optional Agent Control setup runs
+    auto_enable_agent_control.assert_called_once_with(logger)
+    assert calls == [("atexit", "terminate"), ("agent_control", None)]
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_standard_init_registers_atexit_before_agent_control_auto_enable(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    # Given: a standard logger with mocked API clients and constructor hooks that record ordering
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    calls = []
+
+    def record_atexit_register(callback):
+        calls.append(("atexit", callback.__name__))
+
+    def record_agent_control_auto_enable(_logger):
+        calls.append(("agent_control", None))
+
+    # When: creating the logger
+    with (
+        patch("galileo.logger.logger.atexit.register", side_effect=record_atexit_register),
+        patch.object(
+            GalileoLogger,
+            "_auto_enable_agent_control_if_available",
+            autospec=True,
+            side_effect=record_agent_control_auto_enable,
+        ) as auto_enable_agent_control,
+    ):
+        logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    # Then: terminate is registered before optional Agent Control setup runs
+    auto_enable_agent_control.assert_called_once_with(logger)
+    assert calls == [("atexit", "terminate"), ("agent_control", None)]
+
+
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
