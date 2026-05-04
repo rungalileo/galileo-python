@@ -87,16 +87,16 @@ def _stringify_metadata(metadata: dict[str, Any] | None) -> dict[str, str]:
     return {str(key): _stringify_metadata_value(value) for key, value in metadata.items()}
 
 
-def _extract_control_input(metadata: dict[str, Any] | None) -> str | None:
+def _extract_control_input(metadata: dict[str, Any] | None) -> str:
     if not metadata:
-        return None
+        return ""
 
     for key in ("selected_data", "selected_value", "value", "input"):
         if key in metadata and metadata[key] is not None:
             value = metadata[key]
             return value if isinstance(value, str) else serialize_to_str(value)
 
-    return None
+    return ""
 
 
 def _normalize_context_id(value: Any) -> str | None:
@@ -187,7 +187,7 @@ class GalileoAgentControlBridge:
         return self
 
     def unregister(self) -> None:
-        """Unregister this bridge and restore the previous provider when the last bridge exits."""
+        """Unregister this bridge and restore the previous provider only if Galileo still owns the slot."""
         with _REGISTRATION_LOCK:
             global _PREVIOUS_TRACE_CONTEXT_PROVIDER
 
@@ -197,10 +197,15 @@ class GalileoAgentControlBridge:
             self._modules.agent_control.unregister_control_event_sink(self._sink)
             _REGISTERED_BRIDGES[:] = [bridge for bridge in _REGISTERED_BRIDGES if bridge is not self]
 
-            if _REGISTERED_BRIDGES:
-                self._modules.trace_context.set_trace_context_provider(_dispatch_trace_context)
-            else:
-                self._modules.trace_context.set_trace_context_provider(_PREVIOUS_TRACE_CONTEXT_PROVIDER)
+            if not _REGISTERED_BRIDGES:
+                current_provider = getattr(self._modules.trace_context, "_trace_context_provider", None)
+                if current_provider is _dispatch_trace_context:
+                    self._modules.trace_context.set_trace_context_provider(_PREVIOUS_TRACE_CONTEXT_PROVIDER)
+                else:
+                    logger.debug(
+                        "Agent Control trace-context provider changed while Galileo bridge was active; "
+                        "leaving current provider unchanged."
+                    )
                 _PREVIOUS_TRACE_CONTEXT_PROVIDER = None
 
             self._registered = False

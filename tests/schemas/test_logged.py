@@ -362,7 +362,7 @@ class TestJsonRoundtripNoCoercion:
             # Then: the discriminated union resolves the fallback ControlSpan cleanly
             assert control_module.HAS_NATIVE_CONTROL_SPAN is False
             assert restored.spans[0].type == "control"
-            assert restored.spans[0].__class__.__name__ == "ControlSpan"
+            assert restored.spans[0].__class__.__name__ == "LoggedControlSpan"
             assert restored.spans[0].model_dump(mode="json")["input"] == "selected text"
 
         importlib.reload(control_module)

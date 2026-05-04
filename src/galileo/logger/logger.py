@@ -23,7 +23,7 @@ from galileo.constants import LoggerModeType
 from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
 from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
-from galileo.logger.control import ControlAppliesTo, ControlCheckStage, ControlResult, ControlSpan
+from galileo.logger.control import ControlAppliesTo, ControlCheckStage, ControlResult
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.projects import Projects
 from galileo.schema.content_blocks import (
@@ -33,9 +33,9 @@ from galileo.schema.content_blocks import (
     normalize_content_block_list,
 )
 from galileo.schema.logged import (
-    IngestInputType,
     IngestOutputType,
     LoggedAgentSpan,
+    LoggedControlSpan,
     LoggedLlmSpan,
     LoggedTrace,
     LoggedWorkflowSpan,
@@ -1827,7 +1827,7 @@ class GalileoLogger(TracesLogger):
     @warn_catch_exception(exceptions=(Exception,))
     def add_control_span(
         self,
-        input: IngestInputType,
+        input: str = "",
         output: ControlResult | None = None,
         name: str | None = None,
         created_at: datetime | None = None,
@@ -1843,7 +1843,7 @@ class GalileoLogger(TracesLogger):
         applies_to: ControlAppliesTo | None = None,
         evaluator_name: str | None = None,
         selector_path: str | None = None,
-    ) -> ControlSpan:
+    ) -> LoggedControlSpan:
         """
         Add a control span to the current parent.
 
@@ -1894,7 +1894,7 @@ class GalileoLogger(TracesLogger):
         if name is not None:
             span_kwargs["name"] = name
 
-        span = ControlSpan(**span_kwargs)
+        span = LoggedControlSpan(**span_kwargs)
         span._parent = current_parent
         self.add_child_span_to_parent(span)
 

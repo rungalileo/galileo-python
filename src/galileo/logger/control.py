@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Literal
+from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
 
@@ -66,10 +67,10 @@ except ImportError:
         dataset_metadata: dict[str, str] = Field(
             default_factory=dict, description="Dataset metadata inherited from the parent."
         )
-        id: Any | None = Field(default=None, description="Galileo ID of the control span.")
-        session_id: Any | None = Field(default=None, description="Session ID associated with the span.")
-        trace_id: Any | None = Field(default=None, description="Trace ID associated with the span.")
-        parent_id: Any | None = Field(default=None, description="Parent span ID associated with the span.")
+        id: UUID | str | None = Field(default=None, description="Galileo ID of the control span.")
+        session_id: UUID | str | None = Field(default=None, description="Session ID associated with the span.")
+        trace_id: UUID | str | None = Field(default=None, description="Trace ID associated with the span.")
+        parent_id: UUID | str | None = Field(default=None, description="Parent span ID associated with the span.")
         step_number: int | None = Field(default=None, description="Topological step number of the span.")
         control_id: int | None = Field(default=None, description="Identifier of the control definition.")
         agent_name: str | None = Field(default=None, description="Agent name associated with the control execution.")

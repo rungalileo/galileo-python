@@ -15,6 +15,7 @@ import pytest
 
 import galileo.logger.control as control_module
 import galileo.logger.logger as logger_module
+import galileo.schema.logged as logged_module
 from galileo.handlers.agent_control import setup_agent_control_bridge
 from galileo.logger.control import ControlResult, ControlSpan
 from galileo.logger.logger import GalileoLogger
@@ -264,6 +265,39 @@ def test_agent_control_cleanup_restores_previous_provider_across_loggers(
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
+def test_agent_control_cleanup_does_not_clobber_provider_installed_while_active(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
+) -> None:
+    # Given: Galileo registered after one external provider, then another provider takes over while active
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    def previous_provider():
+        return {"trace_id": "previous-trace", "span_id": "previous-span"}
+
+    def replacement_provider():
+        return {"trace_id": "replacement-trace", "span_id": "replacement-span"}
+
+    fake_agent_control_modules["trace_context"].set_trace_context_provider(previous_provider)
+    logger_a = GalileoLogger(project="project_a", log_stream="stream_a")
+    bridge_a = setup_agent_control_bridge(logger_a)
+
+    # When: external code replaces the provider while the bridge is active, then the bridge unregisters
+    fake_agent_control_modules["trace_context"].set_trace_context_provider(replacement_provider)
+    bridge_a.unregister()
+
+    # Then: Galileo leaves the replacement provider untouched instead of restoring its stale snapshot
+    assert fake_agent_control_modules["trace_context"].get_trace_context_from_provider() == {
+        "trace_id": "replacement-trace",
+        "span_id": "replacement-span",
+    }
+    assert fake_agent_control_modules["agent_control"]._registered_sinks == []
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
 def test_idle_new_logger_does_not_mask_active_logger_context(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
 ) -> None:
@@ -345,7 +379,7 @@ def test_agent_control_event_converts_to_control_span_in_batch_mode(
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
-def test_agent_control_event_uses_none_when_no_representative_input(
+def test_agent_control_event_uses_empty_string_when_no_representative_input(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
 ) -> None:
     # Given: an Agent Control event with metadata but no selected input value
@@ -361,10 +395,10 @@ def test_agent_control_event_uses_none_when_no_representative_input(
     # When: the bridge converts the event
     result = bridge.write_events([event])
 
-    # Then: the control span distinguishes missing input from an empty input string
+    # Then: the control span uses the string input shape expected by ingestion
     assert result.accepted == 1
     assert result.dropped == 0
-    assert workflow.spans[0].input is None
+    assert workflow.spans[0].input == ""
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -459,7 +493,8 @@ def test_add_control_span_uses_model_default_name_in_fallback_mode(
     with monkeypatch.context() as context:
         context.setattr(builtins, "__import__", force_fallback_import)
         importlib.reload(control_module)
-        context.setattr(logger_module, "ControlSpan", control_module.ControlSpan)
+        importlib.reload(logged_module)
+        context.setattr(logger_module, "LoggedControlSpan", logged_module.LoggedControlSpan)
 
         logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
         logger.start_trace(input="trace input")
@@ -471,6 +506,7 @@ def test_add_control_span_uses_model_default_name_in_fallback_mode(
         # Then: the fallback model default is applied and the span is preserved
         assert control_span is not None
         assert control_module.HAS_NATIVE_CONTROL_SPAN is False
+        assert isinstance(control_span, logged_module.LoggedControlSpan)
         assert isinstance(control_span, control_module.ControlSpan)
         assert control_span.name == "control"
         assert workflow.spans == [control_span]
