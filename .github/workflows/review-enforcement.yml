@@ -13,6 +13,9 @@ jobs:
   enforce-review:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || github.event_name == 'pull_request_review'
+    concurrency:
+      group: enforce-review-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     permissions:
       pull-requests: write
     steps:
@@ -54,7 +57,10 @@ jobs:
               }
             }
 
-            // Fetch reviews with retry for eventual consistency
+            // Fetch reviews with retry for eventual consistency.
+            // On pull_request_review events, retry until we see a valid approval — not just
+            // any review — because a stale dismissed review would otherwise cause an immediate
+            // break before the newly submitted APPROVED review propagates through the API.
             let reviews;
             let attempts = 0;
             while (attempts < 3) {
@@ -65,15 +71,22 @@ jobs:
               });
               reviews = result.data;
 
-              // If we have reviews or this is not a review event, stop retrying
-              if (reviews.length > 0 || event !== 'pull_request_review') {
+              const hasApproval = reviews.some(
+                r => r.state === 'APPROVED' &&
+                     r.user?.login !== 'baz-reviewer' &&
+                     r.user?.type === 'User'
+              );
+
+              // For non-review events, stop immediately. For review events, keep retrying
+              // until we see a valid approval (covers eventual consistency after dismiss+re-approve).
+              if (event !== 'pull_request_review' || hasApproval) {
                 break;
               }
 
               // Wait before retry
               attempts++;
               if (attempts < 3) {
-                core.info(`No reviews found yet (attempt ${attempts}/3) - retrying...`);
+                core.info(`No valid approval found yet (attempt ${attempts}/3) - retrying...`);
                 await new Promise(resolve => setTimeout(resolve, 1000));
               }
             }
@@ -192,8 +205,10 @@ jobs:
               } catch (error) {
                 if (error.message?.includes('already enabled')) {
                   core.info(`Auto-merge already enabled for PR #${prNumber} - skipping.`);
-                } else if (error.message?.includes('in clean status')) {
-                  core.info(`PR #${prNumber} became clean during processing - merging directly.`);
+                } else if (error.message?.includes('in clean status') || error.message?.includes('unstable status')) {
+                  // 'in clean status': PR became clean while we were processing
+                  // 'unstable status': cancelled/superseded check runs make auto-merge reject, but mergeable===true so we can merge directly
+                  core.info(`PR #${prNumber} is mergeable despite ${mergeablePr.mergeable_state} state - merging directly.`);
                   await github.rest.pulls.merge({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
