@@ -42,7 +42,7 @@ RECORD_TYPE_TO_ROOT_TYPE = {
 
 
 def _resolve_project(project_id: str | None, project_name: str | None) -> ProjectRecord:
-    """Resolve a project from explicit params or env fallbacks, raising ResourceNotFoundError on 404."""
+    """Resolve a project from explicit params or env fallbacks, raising NotFoundError on 404."""
     try:
         project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
     except ProjectNotFoundError:
@@ -172,7 +172,7 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
+            NotFoundError: If the project cannot be found (no explicit param and no env fallback).
             Exception: If the API call fails.
 
         Examples
@@ -278,7 +278,7 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
+            NotFoundError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------
@@ -326,7 +326,7 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
+            NotFoundError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------

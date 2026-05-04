@@ -60,15 +60,25 @@ class ForbiddenError(GalileoAPIError):
 
 
 class NotFoundError(GalileoAPIError):
-    """HTTP 404 - Resource not found."""
+    """HTTP 404 - Resource not found.
 
-    def __init__(self, status_code: int, content: bytes):
-        super().__init__(
-            status_code,
-            content,
-            "Resource not found. The requested project, dataset, or resource doesn't exist. "
-            "Verify the ID or name is correct.",
-        )
+    Accepts either an HTTP response (status_code, content) or a plain string message for
+    SDK-level lookups where no HTTP response is available.
+    """
+
+    def __init__(self, status_code_or_message: int | str, content: bytes = b""):
+        if isinstance(status_code_or_message, str):
+            self.status_code = 404
+            self.content = b""
+            self.message = status_code_or_message
+            Exception.__init__(self, status_code_or_message)
+        else:
+            super().__init__(
+                status_code_or_message,
+                content,
+                "Resource not found. The requested project, dataset, or resource doesn't exist. "
+                "Verify the ID or name is correct.",
+            )
 
 
 class ConflictError(GalileoAPIError):

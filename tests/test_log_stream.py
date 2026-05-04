@@ -3,6 +3,7 @@ from uuid import uuid4
 
 import pytest
 
+from galileo.exceptions import NotFoundError
 from galileo.log_stream import LogStream
 from galileo.projects import ProjectNotFoundError, ProjectsAPIException
 from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, RootType
@@ -11,7 +12,7 @@ from galileo.resources.models.step_type import StepType
 from galileo.search import RecordType
 from galileo.shared.base import SyncState
 from galileo.shared.column import ColumnCollection
-from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
+from galileo.shared.exceptions import ValidationError
 from galileo.shared.query_result import QueryResult
 
 
@@ -167,14 +168,14 @@ class TestLogStreamCreate:
         log_stream = LogStream(name="Test Stream", project_name="my-nonexistent-project")
 
         # Then: error names the project the user specified, not generic guidance
-        with pytest.raises(ResourceNotFoundError, match=r'Project "my-nonexistent-project" not found'):
+        with pytest.raises(NotFoundError, match=r'Project "my-nonexistent-project" not found'):
             log_stream.create()
 
     @patch("galileo.log_stream.Projects")
     def test_create_without_project_info_raises_error(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test create() raises ResourceNotFoundError naming the project that wasn't found."""
+        """Test create() raises NotFoundError naming the project that wasn't found."""
         # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
@@ -187,8 +188,8 @@ class TestLogStreamCreate:
         log_stream.project_name = None
         log_stream._set_state(SyncState.LOCAL_ONLY)
 
-        # When/Then: Create() raises ResourceNotFoundError with guidance to provide a project identifier
-        with pytest.raises(ResourceNotFoundError, match="No project specified"):
+        # When/Then: Create() raises NotFoundError with guidance to provide a project identifier
+        with pytest.raises(NotFoundError, match="No project specified"):
             log_stream.create()
 
 
@@ -285,28 +286,28 @@ class TestLogStreamGet:
     def test_get_raises_error_without_project_info_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test get() raises ResourceNotFoundError naming the project that wasn't found."""
+        """Test get() raises NotFoundError naming the project that wasn't found."""
         # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: Calling get raises ResourceNotFoundError with guidance to provide a project identifier
-        with pytest.raises(ResourceNotFoundError, match="No project specified"):
+        # When/Then: Calling get raises NotFoundError with guidance to provide a project identifier
+        with pytest.raises(NotFoundError, match="No project specified"):
             LogStream.get(name="Test Stream")
 
     @patch("galileo.log_stream.Projects")
-    def test_get_raises_resource_not_found_when_project_id_unknown(
+    def test_get_raises_not_found_when_project_id_unknown(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test get() raises ResourceNotFoundError including the project_id when HTTP 404 is returned."""
+        """Test get() raises NotFoundError including the project_id when HTTP 404 is returned."""
         # Given: the projects service raises ProjectNotFoundError (HTTP 404) for an unknown project_id
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.side_effect = ProjectNotFoundError("not found")
 
-        # When/Then: calling get with an unknown project_id raises ResourceNotFoundError with the id in the message
-        with pytest.raises(ResourceNotFoundError, match=r'Project with id "unknown-id" not found'):
+        # When/Then: calling get with an unknown project_id raises NotFoundError with the id in the message
+        with pytest.raises(NotFoundError, match=r'Project with id "unknown-id" not found'):
             LogStream.get(name="Test Stream", project_id="unknown-id")
 
     @patch("galileo.log_stream.Projects")
@@ -435,28 +436,28 @@ class TestLogStreamList:
     def test_list_raises_error_without_project_info_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test list() raises ResourceNotFoundError naming the project that wasn't found."""
+        """Test list() raises NotFoundError naming the project that wasn't found."""
         # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
 
-        # When/Then: Calling list raises ResourceNotFoundError with guidance to provide a project identifier
-        with pytest.raises(ResourceNotFoundError, match="No project specified"):
+        # When/Then: Calling list raises NotFoundError with guidance to provide a project identifier
+        with pytest.raises(NotFoundError, match="No project specified"):
             LogStream.list()
 
     @patch("galileo.log_stream.Projects")
-    def test_list_raises_resource_not_found_when_project_id_unknown(
+    def test_list_raises_not_found_when_project_id_unknown(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
-        """Test list() raises ResourceNotFoundError including the project_id when HTTP 404 is returned."""
+        """Test list() raises NotFoundError including the project_id when HTTP 404 is returned."""
         # Given: the projects service raises ProjectNotFoundError (HTTP 404) for an unknown project_id
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.side_effect = ProjectNotFoundError("not found")
 
-        # When/Then: calling list with an unknown project_id raises ResourceNotFoundError with the id in the message
-        with pytest.raises(ResourceNotFoundError, match=r'Project with id "unknown-id" not found'):
+        # When/Then: calling list with an unknown project_id raises NotFoundError with the id in the message
+        with pytest.raises(NotFoundError, match=r'Project with id "unknown-id" not found'):
             LogStream.list(project_id="unknown-id")
 
     @patch("galileo.log_stream.Projects")
