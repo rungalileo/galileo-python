@@ -26,6 +26,7 @@ from galileo.resources.models import (
     DatasetRow,
     DatasetRowValuesDict,
     ExperimentResponse,
+    HTTPValidationError,
     ProjectCreateResponse,
     ProjectType,
     PromptRunSettings,
@@ -33,10 +34,13 @@ from galileo.resources.models import (
     ScorerResponse,
     ScorerTypes,
     TaskType,
+    ValidationError,
 )
+from galileo.resources.types import UNSET
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 from galileo.utils.datasets import load_dataset_and_records
+from galileo.utils.exceptions import _format_http_validation_error
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.shared.metric import MetricValueType
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
@@ -227,6 +231,22 @@ class TestExperiments:
         msg = str(exc_info.value)
         assert "model_alias" in msg
         assert "gpt-4o-mini" in msg
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    def test_create_raises_value_error_when_api_returns_string_detail(
+        self, galileo_resources_api_create_experiment: Mock
+    ) -> None:
+        """Experiments.create() surfaces the API message when the 422 detail is a plain string."""
+        # Given: the API returns a 422 whose 'detail' field is a plain string (not the standard list shape)
+        galileo_resources_api_create_experiment.sync = Mock(
+            return_value=HTTPValidationError.from_dict({"detail": "Model alias 'gpt-4o-mini' not found"})
+        )
+
+        # When/Then: a ValueError is raised that contains the original API message
+        with pytest.raises(ValueError, match="Model alias 'gpt-4o-mini' not found"):
+            Experiments().create(
+                project_id="test", name="test_experiment", prompt_settings=PromptRunSettings(model_alias="gpt-4o-mini")
+            )
 
     @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
     def test_create_with_dict_prompt_settings(self, galileo_resources_api_create_experiment: Mock) -> None:
@@ -1718,3 +1738,105 @@ class TestExperiments:
             payload = call[0][0]
             total_traces += len(payload.traces)
         assert total_traces == 1500
+
+
+class TestHTTPValidationErrorParsing:
+    """Tests for HTTPValidationError.from_dict handling of different API response shapes."""
+
+    def test_from_dict_with_standard_list_detail(self) -> None:
+        """from_dict correctly parses the standard list-of-ValidationError shape."""
+        # Given: a 422 response body with a list of validation errors
+        raw = {
+            "detail": [
+                {"loc": ["body", "prompt_settings", "model_alias"], "msg": "Invalid model alias", "type": "value_error"}
+            ]
+        }
+
+        # When: parsed
+        error = HTTPValidationError.from_dict(raw)
+
+        # Then: detail is a list with the correct ValidationError fields
+        assert len(error.detail) == 1
+        ve = error.detail[0]
+        assert ve.loc == ["body", "prompt_settings", "model_alias"]
+        assert ve.msg == "Invalid model alias"
+        assert ve.type_ == "value_error"
+
+    def test_from_dict_with_string_detail(self) -> None:
+        """from_dict wraps a plain-string detail into a single ValidationError."""
+        # Given: a 422 response body where detail is a plain string (non-standard)
+        raw = {"detail": "Model alias 'gpt-4o-mini' not found"}
+
+        # When: parsed
+        error = HTTPValidationError.from_dict(raw)
+
+        # Then: detail is a list with one entry whose msg is the original string
+        assert len(error.detail) == 1
+        ve = error.detail[0]
+        assert ve.msg == "Model alias 'gpt-4o-mini' not found"
+        assert ve.loc == []
+        assert ve.type_ == "server_error"
+
+    def test_from_dict_with_missing_detail(self) -> None:
+        """from_dict leaves detail as UNSET when the key is absent."""
+        # Given: a response body with no 'detail' key
+        raw: dict = {}
+
+        # When: parsed
+        error = HTTPValidationError.from_dict(raw)
+
+        # Then: detail is UNSET (no empty list masking the absence)
+        assert error.detail is UNSET
+
+    def test_from_dict_with_empty_string_detail(self) -> None:
+        """from_dict leaves detail as UNSET for an empty string (falsy guard)."""
+        # Given: a response body where detail is an empty string
+        raw = {"detail": ""}
+
+        # When: parsed
+        error = HTTPValidationError.from_dict(raw)
+
+        # Then: detail is UNSET because an empty string carries no information
+        assert error.detail is UNSET
+
+
+class TestFormatHttpValidationError:
+    """Tests for the _format_http_validation_error helper."""
+
+    def test_format_with_loc_and_msg(self) -> None:
+        """Errors with a field path produce '[path] message' format."""
+        # Given: an HTTPValidationError with a non-empty loc
+        error = HTTPValidationError(
+            detail=[
+                ValidationError(loc=["body", "prompt_settings", "model_alias"], msg="bad alias", type_="value_error")
+            ]
+        )
+
+        # When: formatted
+        result = _format_http_validation_error(error)
+
+        # Then: output includes field path and message
+        assert result == "Request validation failed — [body.prompt_settings.model_alias] bad alias"
+
+    def test_format_with_empty_loc(self) -> None:
+        """Errors with an empty loc produce just the message without brackets."""
+        # Given: an HTTPValidationError with empty loc (plain string wrapped by from_dict)
+        error = HTTPValidationError(detail=[ValidationError(loc=[], msg="Model alias not found", type_="server_error")])
+
+        # When: formatted
+        result = _format_http_validation_error(error)
+
+        # Then: output contains the message without spurious '[]' prefix
+        assert result == "Request validation failed — Model alias not found"
+        assert "[]" not in result
+
+    def test_format_with_no_detail(self) -> None:
+        """An HTTPValidationError with no detail produces the fallback message."""
+        # Given: an HTTPValidationError with UNSET detail
+        error = HTTPValidationError(detail=UNSET)
+
+        # When: formatted
+        result = _format_http_validation_error(error)
+
+        # Then: fallback message is returned
+        assert result == "Request validation failed (no details provided)"
