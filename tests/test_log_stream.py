@@ -6,6 +6,8 @@ import pytest
 from galileo.log_stream import LogStream
 from galileo.projects import ProjectNotFoundError, ProjectsAPIException
 from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, RootType
+from galileo.resources.models.log_records_column_info import LogRecordsColumnInfo
+from galileo.resources.models.step_type import StepType
 from galileo.search import RecordType
 from galileo.shared.base import SyncState
 from galileo.shared.column import ColumnCollection
@@ -982,9 +984,6 @@ class TestLogStreamColumns:
 
     def test_column_info_with_control_step_type_does_not_raise(self, reset_configuration: None) -> None:
         """Regression test: 'control' is a valid StepType returned by the API (sc-62628)."""
-        from galileo.resources.models.log_records_column_info import LogRecordsColumnInfo
-        from galileo.resources.models.step_type import StepType
-
         # Given: an API response payload containing 'control' in applicable_types
         payload = {
             "id": "some_column",
