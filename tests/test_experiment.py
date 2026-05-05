@@ -8,6 +8,9 @@ import pytest
 from galileo.exceptions import NotFoundError
 from galileo.experiment import Experiment
 from galileo.resources.models import ExperimentResponse, PromptRunSettings
+from galileo.resources.models.column_category import ColumnCategory
+from galileo.resources.models.column_info import ColumnInfo
+from galileo.resources.models.data_type import DataType
 from galileo.schema.metrics import GalileoMetrics
 from galileo.search import RecordType
 from galileo.shared.base import SyncState
@@ -1272,8 +1275,9 @@ class TestExperimentProperties:
 
         synced_experiment._experiment_response = mock_response
 
-        # Assert all properties
-        assert synced_experiment.aggregate_metrics == {"average_cost": 0.05, "total_responses": 100}
+        # Assert all properties (aggregate_metrics emits a DeprecationWarning — expected)
+        with pytest.warns(DeprecationWarning, match="metric_aggregates"):
+            assert synced_experiment.aggregate_metrics == {"average_cost": 0.05, "total_responses": 100}
         assert synced_experiment.rank == 1
         assert synced_experiment.ranking_score == 0.95
         assert synced_experiment.is_winner is True
@@ -1287,13 +1291,137 @@ class TestExperimentProperties:
         """Test all experiment properties return None when no response data."""
         synced_experiment._experiment_response = None
 
-        assert synced_experiment.aggregate_metrics is None
+        with pytest.warns(DeprecationWarning, match="metric_aggregates"):
+            assert synced_experiment.aggregate_metrics is None
         assert synced_experiment.rank is None
         assert synced_experiment.ranking_score is None
         assert synced_experiment.is_winner is False
         assert synced_experiment.prompt_model is None
         assert synced_experiment.playground_name is None
         assert synced_experiment.tags is None
+
+
+class TestMetricAggregates:
+    """Tests for Experiment.metric_aggregates and aggregate_metrics deprecation."""
+
+    def test_metric_aggregates_returns_none_without_response(
+        self, synced_experiment: Experiment, reset_configuration: None
+    ) -> None:
+        # Given: no experiment response
+        synced_experiment._experiment_response = None
+
+        # When: accessing metric_aggregates
+        result = synced_experiment.metric_aggregates
+
+        # Then: None is returned without error
+        assert result is None
+
+    def test_metric_aggregates_returns_none_when_field_missing(
+        self, synced_experiment: Experiment, reset_configuration: None
+    ) -> None:
+        # Given: a response where structured_aggregate_metrics is None
+        mock_response = MagicMock()
+        mock_response.structured_aggregate_metrics = None
+        synced_experiment._experiment_response = mock_response
+
+        # When: accessing metric_aggregates
+        result = synced_experiment.metric_aggregates
+
+        # Then: None is returned
+        assert result is None
+
+    def test_metric_aggregates_returns_populated_dict(
+        self, synced_experiment: Experiment, reset_configuration: None
+    ) -> None:
+        # Given: a response with UUID-keyed structured_aggregate_metrics
+        scorer_uuid = "550e8400-e29b-41d4-a716-446655440000"
+        mock_agg = MagicMock()
+        mock_agg.avg = 0.85
+        mock_agg.p90 = 0.92
+
+        mock_structured = MagicMock()
+        mock_structured.additional_properties = {scorer_uuid: mock_agg, "cost": MagicMock(avg=0.02)}
+        mock_response = MagicMock()
+        mock_response.structured_aggregate_metrics = mock_structured
+        synced_experiment._experiment_response = mock_response
+
+        # When: accessing metric_aggregates
+        result = synced_experiment.metric_aggregates
+
+        # Then: dict is returned with UUID and system-metric keys
+        assert result is not None
+        assert scorer_uuid in result
+        assert result[scorer_uuid].avg == 0.85
+        assert "cost" in result
+
+    def test_aggregate_metrics_emits_deprecation_warning(
+        self, synced_experiment: Experiment, reset_configuration: None
+    ) -> None:
+        # Given: a response with aggregate_metrics data
+        mock_response = MagicMock()
+        mock_response.aggregate_metrics.to_dict.return_value = {"average_cost": 0.05}
+        synced_experiment._experiment_response = mock_response
+
+        # When/Then: accessing aggregate_metrics fires DeprecationWarning mentioning metric_aggregates
+        with pytest.warns(DeprecationWarning, match="metric_aggregates"):
+            result = synced_experiment.aggregate_metrics
+
+        # And: the property still returns data (backward-compatible)
+        assert result == {"average_cost": 0.05}
+
+
+class TestMetricColumns:
+    """Tests for Experiment.experiment_columns."""
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_experiment_columns_returns_column_collection(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: a mocked available_columns response with one UUID metric column
+        scorer_uuid = "550e8400-e29b-41d4-a716-446655440000"
+        col_info = ColumnInfo(
+            id=f"metrics/{scorer_uuid}",
+            category=ColumnCategory.METRIC,
+            data_type=DataType.FLOATING_POINT,
+            label="Correctness",
+            metric_key_alias="correctness",
+        )
+        mock_response = MagicMock()
+        mock_response.columns = [col_info]
+        mock_api.sync.return_value = mock_response
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: accessing experiment_columns
+        result = synced_experiment.experiment_columns
+
+        # Then: a ColumnCollection is returned with the metric column accessible by full ID
+        assert isinstance(result, ColumnCollection)
+        col = result[f"metrics/{scorer_uuid}"]
+        assert col.label == "Correctness"
+        assert col.metric_key_alias == "correctness"
+
+    def test_experiment_columns_raises_without_experiment_id(self, reset_configuration: None) -> None:
+        # Given: an experiment with no ID
+        experiment = Experiment._create_empty()
+        experiment.project_id = str(uuid4())
+
+        # When/Then: accessing experiment_columns raises ValueError
+        with pytest.raises(ValueError, match="Experiment ID is not set"):
+            _ = experiment.experiment_columns
+
+    def test_experiment_columns_raises_without_project_id(self, reset_configuration: None) -> None:
+        # Given: an experiment with no project_id
+        experiment = Experiment._create_empty()
+        experiment.id = str(uuid4())
+
+        # When/Then: accessing experiment_columns raises ValueError
+        with pytest.raises(ValueError, match="Project ID is not set"):
+            _ = experiment.experiment_columns
 
 
 class TestExperimentTagging:
