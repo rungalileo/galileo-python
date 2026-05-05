@@ -1275,9 +1275,8 @@ class TestExperimentProperties:
 
         synced_experiment._experiment_response = mock_response
 
-        # Assert all properties (aggregate_metrics emits a DeprecationWarning — expected)
-        with pytest.warns(DeprecationWarning, match="metric_aggregates"):
-            assert synced_experiment.aggregate_metrics == {"average_cost": 0.05, "total_responses": 100}
+        # Assert all properties (aggregate_metrics logs a DEPRECATED warning)
+        assert synced_experiment.aggregate_metrics == {"average_cost": 0.05, "total_responses": 100}
         assert synced_experiment.rank == 1
         assert synced_experiment.ranking_score == 0.95
         assert synced_experiment.is_winner is True
@@ -1291,8 +1290,7 @@ class TestExperimentProperties:
         """Test all experiment properties return None when no response data."""
         synced_experiment._experiment_response = None
 
-        with pytest.warns(DeprecationWarning, match="metric_aggregates"):
-            assert synced_experiment.aggregate_metrics is None
+        assert synced_experiment.aggregate_metrics is None
         assert synced_experiment.rank is None
         assert synced_experiment.ranking_score is None
         assert synced_experiment.is_winner is False
@@ -1354,18 +1352,22 @@ class TestMetricAggregates:
         assert result[scorer_uuid].avg == 0.85
         assert "cost" in result
 
-    def test_aggregate_metrics_emits_deprecation_warning(
-        self, synced_experiment: Experiment, reset_configuration: None
+    @patch("galileo.experiment._logger")
+    def test_aggregate_metrics_logs_deprecation_warning(
+        self, mock_logger: MagicMock, synced_experiment: Experiment, reset_configuration: None
     ) -> None:
         # Given: a response with aggregate_metrics data
         mock_response = MagicMock()
         mock_response.aggregate_metrics.to_dict.return_value = {"average_cost": 0.05}
         synced_experiment._experiment_response = mock_response
 
-        # When/Then: accessing aggregate_metrics fires DeprecationWarning mentioning metric_aggregates
-        with pytest.warns(DeprecationWarning, match="metric_aggregates"):
-            result = synced_experiment.aggregate_metrics
+        # When: accessing aggregate_metrics
+        result = synced_experiment.aggregate_metrics
 
+        # Then: a DEPRECATED warning is logged mentioning metric_aggregates
+        mock_logger.warning.assert_called_once()
+        warning_msg = mock_logger.warning.call_args[0][0]
+        assert "DEPRECATED" in warning_msg and "metric_aggregates" in warning_msg
         # And: the property still returns data (backward-compatible)
         assert result == {"average_cost": 0.05}
 

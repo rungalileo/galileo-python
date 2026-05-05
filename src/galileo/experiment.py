@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import builtins
 import datetime
-import warnings
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
@@ -1547,13 +1546,11 @@ class Experiment(StateManagementMixin):
                 if 'average_correctness' in metrics:
                     print(f"Average correctness: {metrics['average_correctness']:.2%}")
         """
-        warnings.warn(
-            "aggregate_metrics is deprecated and will be removed in a future release. "
+        _logger.warning(
+            "DEPRECATED: aggregate_metrics is deprecated and will be removed in a future release. "
             "Use metric_aggregates instead, which returns full statistical aggregates "
             "(avg, min, max, p50, p90, p95, p99) keyed by scorer UUID for scorer-backed "
-            "metrics or raw string for system metrics (e.g. 'cost', 'duration_ns').",
-            DeprecationWarning,
-            stacklevel=2,
+            "metrics or raw string for system metrics (e.g. 'cost', 'duration_ns')."
         )
         if self._experiment_response is None:
             return None
