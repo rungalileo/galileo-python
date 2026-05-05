@@ -1550,7 +1550,8 @@ class Experiment(StateManagementMixin):
         warnings.warn(
             "aggregate_metrics is deprecated and will be removed in a future release. "
             "Use metric_aggregates instead, which returns full statistical aggregates "
-            "(avg, min, max, p50, p90, p95, p99) keyed by metric id (UUID).",
+            "(avg, min, max, p50, p90, p95, p99) keyed by scorer UUID for scorer-backed "
+            "metrics or raw string for system metrics (e.g. 'cost', 'duration_ns').",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -1626,6 +1627,9 @@ class Experiment(StateManagementMixin):
 
         if hasattr(structured, "additional_properties"):
             return dict(structured.additional_properties)
+
+        if isinstance(structured, dict):
+            return structured
 
         return None
 
