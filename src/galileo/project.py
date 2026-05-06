@@ -310,9 +310,12 @@ class Project(StateManagementMixin):
         # Use the LogStream pattern to avoid duplication
         return LogStream(name=name, project_id=self.id).create()
 
-    def list_log_streams(self) -> builtins.list[LogStream]:
+    def list_log_streams(self, *, limit: Unset | int = 100) -> builtins.list[LogStream]:
         """
-        List all log streams for this project.
+        List log streams for this project.
+
+        Args:
+            limit (Union[Unset, int]): Maximum number of log streams to return. Defaults to 100.
 
         Returns
         -------
@@ -325,12 +328,15 @@ class Project(StateManagementMixin):
             for stream in log_streams:
                 # Process each log stream
                 pass
+
+            # Cap the number of returned log streams
+            log_streams = project.list_log_streams(limit=3)
         """
         if self.id is None:
             raise ValueError("Project ID is not set. Cannot list log streams for a local-only project.")
 
         # Use the LogStream pattern to avoid duplication
-        return LogStream.list(project_id=self.id)
+        return LogStream.list(project_id=self.id, limit=limit)
 
     def list_experiments(self) -> builtins.list[Experiment]:
         """

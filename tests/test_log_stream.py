@@ -393,7 +393,7 @@ class TestLogStreamList:
         assert all(isinstance(ls, LogStream) for ls in log_streams)
         assert all(ls.is_synced() for ls in log_streams)
         assert all(ls.project_name == "Test Project" for ls in log_streams)
-        mock_service.list.assert_called_once_with(project_id="test-project-id")
+        mock_service.list.assert_called_once_with(project_id="test-project-id", limit=100)
 
     @patch("galileo.log_stream.LogStreams")
     @patch("galileo.log_stream.Projects")
@@ -427,7 +427,7 @@ class TestLogStreamList:
 
         # Then: log streams are returned using resolved project_id
         assert all(ls.project_name == "Test Project" for ls in log_streams)
-        mock_service.list.assert_called_once_with(project_id="resolved-project-id")
+        mock_service.list.assert_called_once_with(project_id="resolved-project-id", limit=100)
 
     @patch("galileo.log_stream.Projects")
     def test_list_raises_error_without_project_info_and_no_env_fallback(
@@ -473,6 +473,30 @@ class TestLogStreamList:
 
     @patch("galileo.log_stream.LogStreams")
     @patch("galileo.log_stream.Projects")
+    def test_list_forwards_limit_to_service(
+        self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
+    ) -> None:
+        """Test list() forwards a custom limit value to the underlying service."""
+        # Given: project resolves and the service returns no log streams
+        mock_project = MagicMock()
+        mock_project.id = "test-project-id"
+        mock_project.name = "Test Project"
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
+
+        mock_service = MagicMock()
+        mock_logstreams_class.return_value = mock_service
+        mock_service.list.return_value = []
+
+        # When: calling list with a custom limit
+        LogStream.list(project_id="test-project-id", limit=3)
+
+        # Then: limit is forwarded to the service call
+        mock_service.list.assert_called_once_with(project_id="test-project-id", limit=3)
+
+    @patch("galileo.log_stream.LogStreams")
+    @patch("galileo.log_stream.Projects")
     def test_list_uses_env_fallback_when_no_project_specified(
         self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -494,7 +518,7 @@ class TestLogStreamList:
 
         # Then: project is resolved from env fallbacks
         mock_projects_service.get_with_env_fallbacks.assert_called_once()
-        mock_service.list.assert_called_once_with(project_id="env-project-id")
+        mock_service.list.assert_called_once_with(project_id="env-project-id", limit=100)
 
 
 class TestLogStreamRefresh:

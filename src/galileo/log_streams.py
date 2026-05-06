@@ -6,11 +6,12 @@ from galileo.projects import Projects
 from galileo.resources.api.log_stream import (
     create_log_stream_projects_project_id_log_streams_post,
     get_log_stream_projects_project_id_log_streams_log_stream_id_get,
-    list_log_streams_projects_project_id_log_streams_get,
+    list_log_streams_paginated_projects_project_id_log_streams_paginated_get,
 )
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
 from galileo.resources.models.log_stream_response import LogStreamResponse
+from galileo.resources.types import Unset
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.utils.env_helpers import _get_log_stream_from_env, _get_project_from_env
 from galileo.utils.log_config import get_logger
@@ -233,14 +234,16 @@ class LogStreams:
         self.config = GalileoPythonConfig.get()
 
     @overload
-    def list(self, *, project_id: str) -> list[LogStream]: ...
+    def list(self, *, project_id: str, limit: Unset | int = 100) -> list[LogStream]: ...
 
     @overload
-    def list(self, *, project_name: str) -> builtins.list[LogStream]: ...
+    def list(self, *, project_name: str, limit: Unset | int = 100) -> builtins.list[LogStream]: ...
 
-    def list(self, *, project_id: str | None = None, project_name: str | None = None) -> builtins.list[LogStream]:
+    def list(
+        self, *, project_id: str | None = None, project_name: str | None = None, limit: Unset | int = 100
+    ) -> builtins.list[LogStream]:
         """
-        Lists all log streams. Exactly one of `project_id` or `project_name` must be provided.
+        Lists log streams. Exactly one of `project_id` or `project_name` must be provided.
 
         Parameters
         ----------
@@ -248,6 +251,8 @@ class LogStreams:
             The ID of the project to list log streams for.
         project_name : Optional[str], optional
             The name of the project to list log streams for.
+        limit : Union[Unset, int], optional
+            The maximum number of log streams to return. Defaults to 100.
 
         Returns
         -------
@@ -266,18 +271,20 @@ class LogStreams:
         if (project_id is None) and (project_name is None):
             raise ValueError("Exactly one of 'project_id' or 'project_name' must be provided")
 
-        if project_id:
-            log_streams = list_log_streams_projects_project_id_log_streams_get.sync(
-                client=self.config.api_client, project_id=project_id
-            )
-        else:
+        if not project_id:
             project = Projects().get(name=project_name)
             if not project:
                 raise ValueError(f"Project {project_name} not found")
-            log_streams = list_log_streams_projects_project_id_log_streams_get.sync(
-                client=self.config.api_client, project_id=project.id
-            )
-        return [LogStream(log_stream=log_stream) for log_stream in log_streams] if log_streams else []
+            project_id = project.id
+
+        response = list_log_streams_paginated_projects_project_id_log_streams_paginated_get.sync(
+            client=self.config.api_client, project_id=project_id, limit=limit
+        )
+
+        if response is None or isinstance(response, HTTPValidationError):
+            return []
+
+        return [LogStream(log_stream=log_stream) for log_stream in response.log_streams]
 
     @overload
     def get(self, *, id: str, project_id: str | None = None, project_name: str | None = None) -> LogStream | None: ...
@@ -544,9 +551,11 @@ def get_log_stream(
     return LogStreams().get(name=name, project_id=project_id, project_name=project_name)
 
 
-def list_log_streams(*, project_id: str | None = None, project_name: str | None = None) -> list[LogStream]:
+def list_log_streams(
+    *, project_id: str | None = None, project_name: str | None = None, limit: Unset | int = 100
+) -> list[LogStream]:
     """
-    Lists all log streams. Exactly one of `project_id` or `project_name` must be provided.
+    Lists log streams. Exactly one of `project_id` or `project_name` must be provided.
 
     Parameters
     ----------
@@ -554,6 +563,8 @@ def list_log_streams(*, project_id: str | None = None, project_name: str | None 
         The id of the project.
     project_name : str
         The name of the project.
+    limit : Union[Unset, int], optional
+        The maximum number of log streams to return. Defaults to 100.
 
     Returns
     -------
@@ -568,7 +579,7 @@ def list_log_streams(*, project_id: str | None = None, project_name: str | None 
         If the request takes longer than Client.timeout.
 
     """
-    return LogStreams().list(project_id=project_id, project_name=project_name)
+    return LogStreams().list(project_id=project_id, project_name=project_name, limit=limit)
 
 
 def create_log_stream(name: str, project_id: str | None = None, project_name: str | None = None) -> LogStream:
