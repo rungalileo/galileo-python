@@ -46,7 +46,7 @@ class RegisteredScorerTaskResultResponse:
 
         status = self.status.value
 
-        result: Union[None, Unset, dict[str, Any], str]
+        result: None | Unset | dict[str, Any] | str
         if isinstance(self.result, Unset):
             result = UNSET
         elif isinstance(self.result, ValidateRegisteredScorerResult):

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -24,7 +24,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *, body: ListPromptTemplateParams, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    *, body: ListPromptTemplateParams, starting_token: Unset | int = 0, limit: Unset | int = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -53,9 +53,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, ListPromptTemplateResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ListPromptTemplateResponse:
     if response.status_code == 200:
         return ListPromptTemplateResponse.from_dict(response.json())
 
@@ -82,7 +80,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, ListPromptTemplateResponse]]:
+) -> Response[HTTPValidationError | ListPromptTemplateResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -92,12 +90,8 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: ApiClient,
-    body: ListPromptTemplateParams,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, ListPromptTemplateResponse]]:
+    *, client: ApiClient, body: ListPromptTemplateParams, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> Response[HTTPValidationError | ListPromptTemplateResponse]:
     """Query Templates.
 
      Query prompt templates the user has access to.
@@ -138,12 +132,8 @@ def sync_detailed(
 
 
 def sync(
-    *,
-    client: ApiClient,
-    body: ListPromptTemplateParams,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, ListPromptTemplateResponse]]:
+    *, client: ApiClient, body: ListPromptTemplateParams, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> HTTPValidationError | ListPromptTemplateResponse | None:
     """Query Templates.
 
      Query prompt templates the user has access to.
@@ -180,12 +170,8 @@ def sync(
 
 
 async def asyncio_detailed(
-    *,
-    client: ApiClient,
-    body: ListPromptTemplateParams,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, ListPromptTemplateResponse]]:
+    *, client: ApiClient, body: ListPromptTemplateParams, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> Response[HTTPValidationError | ListPromptTemplateResponse]:
     """Query Templates.
 
      Query prompt templates the user has access to.
@@ -226,12 +212,8 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: ApiClient,
-    body: ListPromptTemplateParams,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, ListPromptTemplateResponse]]:
+    *, client: ApiClient, body: ListPromptTemplateParams, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> HTTPValidationError | ListPromptTemplateResponse | None:
     """Query Templates.
 
      Query prompt templates the user has access to.

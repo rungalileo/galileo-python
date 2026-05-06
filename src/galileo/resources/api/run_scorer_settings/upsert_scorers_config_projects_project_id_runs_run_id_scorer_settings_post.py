@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,9 +42,7 @@ def _get_kwargs(project_id: str, run_id: str, *, body: RunScorerSettingsPatchReq
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, RunScorerSettingsResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | RunScorerSettingsResponse:
     if response.status_code == 200:
         return RunScorerSettingsResponse.from_dict(response.json())
 
@@ -71,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, RunScorerSettingsResponse]]:
+) -> Response[HTTPValidationError | RunScorerSettingsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
-) -> Response[Union[HTTPValidationError, RunScorerSettingsResponse]]:
+) -> Response[HTTPValidationError | RunScorerSettingsResponse]:
     """Upsert Scorers Config.
 
     Args:
@@ -108,7 +106,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
-) -> Optional[Union[HTTPValidationError, RunScorerSettingsResponse]]:
+) -> HTTPValidationError | RunScorerSettingsResponse | None:
     """Upsert Scorers Config.
 
     Args:
@@ -130,7 +128,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
-) -> Response[Union[HTTPValidationError, RunScorerSettingsResponse]]:
+) -> Response[HTTPValidationError | RunScorerSettingsResponse]:
     """Upsert Scorers Config.
 
     Args:
@@ -156,7 +154,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, run_id: str, *, client: ApiClient, body: RunScorerSettingsPatchRequest
-) -> Optional[Union[HTTPValidationError, RunScorerSettingsResponse]]:
+) -> HTTPValidationError | RunScorerSettingsResponse | None:
     """Upsert Scorers Config.
 
     Args:

@@ -27,7 +27,7 @@ class PreviewDatasetRequest:
     def to_dict(self) -> dict[str, Any]:
         from ..models.column_mapping import ColumnMapping
 
-        column_mapping: Union[None, Unset, dict[str, Any]]
+        column_mapping: None | Unset | dict[str, Any]
         if isinstance(self.column_mapping, Unset):
             column_mapping = UNSET
         elif isinstance(self.column_mapping, ColumnMapping):

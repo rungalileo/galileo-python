@@ -33,11 +33,11 @@ class AwsBedrockIntegration:
     """
 
     multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
-    credential_type: Union[Unset, AwsCredentialType] = UNSET
-    region: Union[Unset, str] = "us-west-2"
+    credential_type: Unset | AwsCredentialType = UNSET
+    region: Unset | str = "us-west-2"
     inference_profiles: Union[Unset, "AwsBedrockIntegrationInferenceProfiles"] = UNSET
-    id: Union[None, Unset, str] = UNSET
-    name: Union[Literal["aws_bedrock"], Unset] = "aws_bedrock"
+    id: None | Unset | str = UNSET
+    name: Literal["aws_bedrock"] | Unset = "aws_bedrock"
     extra: Union["AwsBedrockIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -45,7 +45,7 @@ class AwsBedrockIntegration:
         from ..models.aws_bedrock_integration_extra_type_0 import AwsBedrockIntegrationExtraType0
         from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
-        multi_modal_config: Union[None, Unset, dict[str, Any]]
+        multi_modal_config: None | Unset | dict[str, Any]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -53,22 +53,22 @@ class AwsBedrockIntegration:
         else:
             multi_modal_config = self.multi_modal_config
 
-        credential_type: Union[Unset, str] = UNSET
+        credential_type: Unset | str = UNSET
         if not isinstance(self.credential_type, Unset):
             credential_type = self.credential_type.value
 
         region = self.region
 
-        inference_profiles: Union[Unset, dict[str, Any]] = UNSET
+        inference_profiles: Unset | dict[str, Any] = UNSET
         if not isinstance(self.inference_profiles, Unset):
             inference_profiles = self.inference_profiles.to_dict()
 
-        id: Union[None, Unset, str]
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
-        extra: Union[None, Unset, dict[str, Any]]
+        extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, AwsBedrockIntegrationExtraType0):
@@ -121,28 +121,28 @@ class AwsBedrockIntegration:
         multi_modal_config = _parse_multi_modal_config(d.pop("multi_modal_config", UNSET))
 
         _credential_type = d.pop("credential_type", UNSET)
-        credential_type: Union[Unset, AwsCredentialType]
+        credential_type: Unset | AwsCredentialType
         credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
 
         region = d.pop("region", UNSET)
 
         _inference_profiles = d.pop("inference_profiles", UNSET)
-        inference_profiles: Union[Unset, AwsBedrockIntegrationInferenceProfiles]
+        inference_profiles: Unset | AwsBedrockIntegrationInferenceProfiles
         if isinstance(_inference_profiles, Unset):
             inference_profiles = UNSET
         else:
             inference_profiles = AwsBedrockIntegrationInferenceProfiles.from_dict(_inference_profiles)
 
-        def _parse_id(data: object) -> Union[None, Unset, str]:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        name = cast(Union[Literal["aws_bedrock"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["aws_bedrock"] | Unset, d.pop("name", UNSET))
         if name != "aws_bedrock" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'aws_bedrock', got '{name}'")
 

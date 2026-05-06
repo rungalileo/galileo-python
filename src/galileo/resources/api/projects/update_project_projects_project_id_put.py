@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,9 +42,7 @@ def _get_kwargs(project_id: str, *, body: ProjectUpdate) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, ProjectUpdateResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ProjectUpdateResponse:
     if response.status_code == 200:
         return ProjectUpdateResponse.from_dict(response.json())
 
@@ -71,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, ProjectUpdateResponse]]:
+) -> Response[HTTPValidationError | ProjectUpdateResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: ProjectUpdate
-) -> Response[Union[HTTPValidationError, ProjectUpdateResponse]]:
+) -> Response[HTTPValidationError | ProjectUpdateResponse]:
     """Update Project.
 
     Args:
@@ -107,7 +105,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: ProjectUpdate
-) -> Optional[Union[HTTPValidationError, ProjectUpdateResponse]]:
+) -> HTTPValidationError | ProjectUpdateResponse | None:
     """Update Project.
 
     Args:
@@ -128,7 +126,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: ProjectUpdate
-) -> Response[Union[HTTPValidationError, ProjectUpdateResponse]]:
+) -> Response[HTTPValidationError | ProjectUpdateResponse]:
     """Update Project.
 
     Args:
@@ -153,7 +151,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: ProjectUpdate
-) -> Optional[Union[HTTPValidationError, ProjectUpdateResponse]]:
+) -> HTTPValidationError | ProjectUpdateResponse | None:
     """Update Project.
 
     Args:

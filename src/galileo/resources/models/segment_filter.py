@@ -28,7 +28,7 @@ class SegmentFilter:
 
     sample_rate: float
     filter_: Union["MetadataFilter", "ModalityFilter", "NodeNameFilter", None, Unset] = UNSET
-    llm_scorers: Union[Unset, bool] = False
+    llm_scorers: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,10 +38,10 @@ class SegmentFilter:
 
         sample_rate = self.sample_rate
 
-        filter_: Union[None, Unset, dict[str, Any]]
+        filter_: None | Unset | dict[str, Any]
         if isinstance(self.filter_, Unset):
             filter_ = UNSET
-        elif isinstance(self.filter_, (NodeNameFilter, MetadataFilter, ModalityFilter)):
+        elif isinstance(self.filter_, NodeNameFilter | MetadataFilter | ModalityFilter):
             filter_ = self.filter_.to_dict()
         else:
             filter_ = self.filter_

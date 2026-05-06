@@ -56,7 +56,7 @@ class UpdateDatasetContentRequest:
             edits_item: dict[str, Any]
             if isinstance(
                 edits_item_data,
-                (DatasetPrependRow, DatasetAppendRow, DatasetUpdateRow, DatasetDeleteRow, DatasetFilterRows),
+                DatasetPrependRow | DatasetAppendRow | DatasetUpdateRow | DatasetDeleteRow | DatasetFilterRows,
             ):
                 edits_item = edits_item_data.to_dict()
             else:

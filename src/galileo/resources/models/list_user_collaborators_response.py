@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -26,10 +26,10 @@ class ListUserCollaboratorsResponse:
     """
 
     collaborators: list["UserCollaborator"]
-    starting_token: Union[Unset, int] = 0
-    limit: Union[Unset, int] = 100
-    paginated: Union[Unset, bool] = False
-    next_starting_token: Union[None, Unset, int] = UNSET
+    starting_token: Unset | int = 0
+    limit: Unset | int = 100
+    paginated: Unset | bool = False
+    next_starting_token: None | Unset | int = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,7 +44,7 @@ class ListUserCollaboratorsResponse:
 
         paginated = self.paginated
 
-        next_starting_token: Union[None, Unset, int]
+        next_starting_token: None | Unset | int
         next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
         field_dict: dict[str, Any] = {}
@@ -79,12 +79,12 @@ class ListUserCollaboratorsResponse:
 
         paginated = d.pop("paginated", UNSET)
 
-        def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
+        def _parse_next_starting_token(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 

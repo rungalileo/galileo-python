@@ -31,7 +31,7 @@ class ColumnMapping:
     def to_dict(self) -> dict[str, Any]:
         from ..models.column_mapping_config import ColumnMappingConfig
 
-        input_: Union[None, dict[str, Any], list[str]]
+        input_: None | dict[str, Any] | list[str]
         if isinstance(self.input_, ColumnMappingConfig):
             input_ = self.input_.to_dict()
         elif isinstance(self.input_, list):
@@ -40,7 +40,7 @@ class ColumnMapping:
         else:
             input_ = self.input_
 
-        output: Union[None, dict[str, Any], list[str]]
+        output: None | dict[str, Any] | list[str]
         if isinstance(self.output, ColumnMappingConfig):
             output = self.output.to_dict()
         elif isinstance(self.output, list):
@@ -49,7 +49,7 @@ class ColumnMapping:
         else:
             output = self.output
 
-        generated_output: Union[None, dict[str, Any], list[str]]
+        generated_output: None | dict[str, Any] | list[str]
         if isinstance(self.generated_output, ColumnMappingConfig):
             generated_output = self.generated_output.to_dict()
         elif isinstance(self.generated_output, list):
@@ -58,7 +58,7 @@ class ColumnMapping:
         else:
             generated_output = self.generated_output
 
-        metadata: Union[None, dict[str, Any], list[str]]
+        metadata: None | dict[str, Any] | list[str]
         if isinstance(self.metadata, ColumnMappingConfig):
             metadata = self.metadata.to_dict()
         elif isinstance(self.metadata, list):

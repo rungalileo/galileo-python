@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
     from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
+    from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
     from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_text_filter import LogRecordsTextFilter
@@ -24,22 +25,24 @@ class ExperimentMetricsRequest:
     Attributes
     ----------
         filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
-            'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
+            'LogRecordsDateFilter', 'LogRecordsFullyAnnotatedFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter',
+            'LogRecordsTextFilter']]]):
     """
 
-    filters: Union[
-        Unset,
-        list[
+    filters: (
+        Unset
+        | list[
             Union[
                 "LogRecordsBooleanFilter",
                 "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
+                "LogRecordsFullyAnnotatedFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
                 "LogRecordsTextFilter",
             ]
-        ],
-    ] = UNSET
+        ]
+    ) = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -48,21 +51,20 @@ class ExperimentMetricsRequest:
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
+        from ..models.log_records_text_filter import LogRecordsTextFilter
 
-        filters: Union[Unset, list[dict[str, Any]]] = UNSET
+        filters: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    (
-                        LogRecordsIDFilter,
-                        LogRecordsDateFilter,
-                        LogRecordsNumberFilter,
-                        LogRecordsBooleanFilter,
-                        LogRecordsCollectionFilter,
-                    ),
+                    LogRecordsIDFilter
+                    | LogRecordsDateFilter
+                    | LogRecordsNumberFilter
+                    | LogRecordsBooleanFilter
+                    | (LogRecordsCollectionFilter | LogRecordsTextFilter),
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -83,6 +85,7 @@ class ExperimentMetricsRequest:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
+        from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_text_filter import LogRecordsTextFilter
@@ -98,6 +101,7 @@ class ExperimentMetricsRequest:
                 "LogRecordsBooleanFilter",
                 "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
+                "LogRecordsFullyAnnotatedFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
                 "LogRecordsTextFilter",
@@ -137,9 +141,16 @@ class ExperimentMetricsRequest:
 
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return LogRecordsTextFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsTextFilter.from_dict(data)
+                return LogRecordsFullyAnnotatedFilter.from_dict(data)
 
             filters_item = _parse_filters_item(filters_item_data)
 

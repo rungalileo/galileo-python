@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,9 +42,7 @@ def _get_kwargs(template_id: str, *, body: UpdatePromptTemplateRequest) -> dict[
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[BasePromptTemplateResponse, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> BasePromptTemplateResponse | HTTPValidationError:
     if response.status_code == 200:
         return BasePromptTemplateResponse.from_dict(response.json())
 
@@ -71,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +80,7 @@ def _build_response(
 
 def sync_detailed(
     template_id: str, *, client: ApiClient, body: UpdatePromptTemplateRequest
-) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
     """Update Global Template.
 
      Update a global prompt template.
@@ -125,7 +123,7 @@ def sync_detailed(
 
 def sync(
     template_id: str, *, client: ApiClient, body: UpdatePromptTemplateRequest
-) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+) -> BasePromptTemplateResponse | HTTPValidationError | None:
     """Update Global Template.
 
      Update a global prompt template.
@@ -164,7 +162,7 @@ def sync(
 
 async def asyncio_detailed(
     template_id: str, *, client: ApiClient, body: UpdatePromptTemplateRequest
-) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
     """Update Global Template.
 
      Update a global prompt template.
@@ -207,7 +205,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     template_id: str, *, client: ApiClient, body: UpdatePromptTemplateRequest
-) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+) -> BasePromptTemplateResponse | HTTPValidationError | None:
     """Update Global Template.
 
      Update a global prompt template.

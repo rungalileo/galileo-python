@@ -43,7 +43,7 @@ class DatasetProject:
 
         name = self.name
 
-        created_by_user: Union[None, dict[str, Any]]
+        created_by_user: None | dict[str, Any]
         if isinstance(self.created_by_user, UserInfo):
             created_by_user = self.created_by_user.to_dict()
         else:

@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,27 +22,27 @@ class LlmMetrics:
         time_to_first_token_ns (Union[None, Unset, int]): Time until the first token was generated in nanoseconds.
     """
 
-    duration_ns: Union[None, Unset, int] = UNSET
-    num_input_tokens: Union[None, Unset, int] = UNSET
-    num_output_tokens: Union[None, Unset, int] = UNSET
-    num_total_tokens: Union[None, Unset, int] = UNSET
-    time_to_first_token_ns: Union[None, Unset, int] = UNSET
+    duration_ns: None | Unset | int = UNSET
+    num_input_tokens: None | Unset | int = UNSET
+    num_output_tokens: None | Unset | int = UNSET
+    num_total_tokens: None | Unset | int = UNSET
+    time_to_first_token_ns: None | Unset | int = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        duration_ns: Union[None, Unset, int]
+        duration_ns: None | Unset | int
         duration_ns = UNSET if isinstance(self.duration_ns, Unset) else self.duration_ns
 
-        num_input_tokens: Union[None, Unset, int]
+        num_input_tokens: None | Unset | int
         num_input_tokens = UNSET if isinstance(self.num_input_tokens, Unset) else self.num_input_tokens
 
-        num_output_tokens: Union[None, Unset, int]
+        num_output_tokens: None | Unset | int
         num_output_tokens = UNSET if isinstance(self.num_output_tokens, Unset) else self.num_output_tokens
 
-        num_total_tokens: Union[None, Unset, int]
+        num_total_tokens: None | Unset | int
         num_total_tokens = UNSET if isinstance(self.num_total_tokens, Unset) else self.num_total_tokens
 
-        time_to_first_token_ns: Union[None, Unset, int]
+        time_to_first_token_ns: None | Unset | int
         if isinstance(self.time_to_first_token_ns, Unset):
             time_to_first_token_ns = UNSET
         else:
@@ -68,48 +68,48 @@ class LlmMetrics:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_duration_ns(data: object) -> Union[None, Unset, int]:
+        def _parse_duration_ns(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         duration_ns = _parse_duration_ns(d.pop("duration_ns", UNSET))
 
-        def _parse_num_input_tokens(data: object) -> Union[None, Unset, int]:
+        def _parse_num_input_tokens(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         num_input_tokens = _parse_num_input_tokens(d.pop("num_input_tokens", UNSET))
 
-        def _parse_num_output_tokens(data: object) -> Union[None, Unset, int]:
+        def _parse_num_output_tokens(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         num_output_tokens = _parse_num_output_tokens(d.pop("num_output_tokens", UNSET))
 
-        def _parse_num_total_tokens(data: object) -> Union[None, Unset, int]:
+        def _parse_num_total_tokens(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         num_total_tokens = _parse_num_total_tokens(d.pop("num_total_tokens", UNSET))
 
-        def _parse_time_to_first_token_ns(data: object) -> Union[None, Unset, int]:
+        def _parse_time_to_first_token_ns(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         time_to_first_token_ns = _parse_time_to_first_token_ns(d.pop("time_to_first_token_ns", UNSET))
 

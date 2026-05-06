@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -44,7 +44,7 @@ def _get_kwargs(project_id: str, template_id: str, *, body: BasePromptTemplateVe
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[BasePromptTemplateVersionResponse, HTTPValidationError]:
+) -> BasePromptTemplateVersionResponse | HTTPValidationError:
     if response.status_code == 200:
         return BasePromptTemplateVersionResponse.from_dict(response.json())
 
@@ -71,7 +71,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
+) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +82,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, template_id: str, *, client: ApiClient, body: BasePromptTemplateVersion
-) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
+) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
     """Create Prompt Template Version.
 
      Create a prompt template version for a given prompt template.
@@ -128,7 +128,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, template_id: str, *, client: ApiClient, body: BasePromptTemplateVersion
-) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
+) -> BasePromptTemplateVersionResponse | HTTPValidationError | None:
     """Create Prompt Template Version.
 
      Create a prompt template version for a given prompt template.
@@ -170,7 +170,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, template_id: str, *, client: ApiClient, body: BasePromptTemplateVersion
-) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
+) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
     """Create Prompt Template Version.
 
      Create a prompt template version for a given prompt template.
@@ -216,7 +216,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, template_id: str, *, client: ApiClient, body: BasePromptTemplateVersion
-) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
+) -> BasePromptTemplateVersionResponse | HTTPValidationError | None:
     """Create Prompt Template Version.
 
      Create a prompt template version for a given prompt template.

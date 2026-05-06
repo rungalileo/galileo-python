@@ -27,7 +27,7 @@ class Document:
     def to_dict(self) -> dict[str, Any]:
         content = self.content
 
-        metadata: Union[Unset, dict[str, Any]] = UNSET
+        metadata: Unset | dict[str, Any] = UNSET
         if not isinstance(self.metadata, Unset):
             metadata = self.metadata.to_dict()
 
@@ -47,7 +47,7 @@ class Document:
         content = d.pop("content")
 
         _metadata = d.pop("metadata", UNSET)
-        metadata: Union[Unset, DocumentMetadata]
+        metadata: Unset | DocumentMetadata
         metadata = UNSET if isinstance(_metadata, Unset) else DocumentMetadata.from_dict(_metadata)
 
         return cls(content=content, metadata=metadata)

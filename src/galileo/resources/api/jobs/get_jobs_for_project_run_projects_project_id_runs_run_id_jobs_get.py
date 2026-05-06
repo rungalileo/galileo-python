@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -22,12 +22,12 @@ from ...models.job_db import JobDB
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(project_id: str, run_id: str, *, status: Union[None, Unset, str] = UNSET) -> dict[str, Any]:
+def _get_kwargs(project_id: str, run_id: str, *, status: None | Unset | str = UNSET) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_status: Union[None, Unset, str]
+    json_status: None | Unset | str
     json_status = UNSET if isinstance(status, Unset) else status
     params["status"] = json_status
 
@@ -46,7 +46,7 @@ def _get_kwargs(project_id: str, run_id: str, *, status: Union[None, Unset, str]
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, list["JobDB"]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list["JobDB"]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -78,9 +78,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, list["JobDB"]]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | list["JobDB"]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -90,8 +88,8 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, run_id: str, *, client: ApiClient, status: Union[None, Unset, str] = UNSET
-) -> Response[Union[HTTPValidationError, list["JobDB"]]]:
+    project_id: str, run_id: str, *, client: ApiClient, status: None | Unset | str = UNSET
+) -> Response[HTTPValidationError | list["JobDB"]]:
     """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.
@@ -120,8 +118,8 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str, run_id: str, *, client: ApiClient, status: Union[None, Unset, str] = UNSET
-) -> Optional[Union[HTTPValidationError, list["JobDB"]]]:
+    project_id: str, run_id: str, *, client: ApiClient, status: None | Unset | str = UNSET
+) -> HTTPValidationError | list["JobDB"] | None:
     """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.
@@ -146,8 +144,8 @@ def sync(
 
 
 async def asyncio_detailed(
-    project_id: str, run_id: str, *, client: ApiClient, status: Union[None, Unset, str] = UNSET
-) -> Response[Union[HTTPValidationError, list["JobDB"]]]:
+    project_id: str, run_id: str, *, client: ApiClient, status: None | Unset | str = UNSET
+) -> Response[HTTPValidationError | list["JobDB"]]:
     """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.
@@ -176,8 +174,8 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, run_id: str, *, client: ApiClient, status: Union[None, Unset, str] = UNSET
-) -> Optional[Union[HTTPValidationError, list["JobDB"]]]:
+    project_id: str, run_id: str, *, client: ApiClient, status: None | Unset | str = UNSET
+) -> HTTPValidationError | list["JobDB"] | None:
     """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.

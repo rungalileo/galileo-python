@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -37,9 +37,7 @@ def _get_kwargs(project_id: str, template_id: str, version: int) -> dict[str, An
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[BasePromptTemplateResponse, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> BasePromptTemplateResponse | HTTPValidationError:
     if response.status_code == 200:
         return BasePromptTemplateResponse.from_dict(response.json())
 
@@ -66,7 +64,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -77,7 +75,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
     """Set Selected Template Version.
 
     Args:
@@ -103,7 +101,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+) -> BasePromptTemplateResponse | HTTPValidationError | None:
     """Set Selected Template Version.
 
     Args:
@@ -125,7 +123,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
     """Set Selected Template Version.
 
     Args:
@@ -151,7 +149,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, template_id: str, version: int, *, client: ApiClient
-) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+) -> BasePromptTemplateResponse | HTTPValidationError | None:
     """Set Selected Template Version.
 
     Args:

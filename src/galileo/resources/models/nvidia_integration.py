@@ -23,20 +23,20 @@ class NvidiaIntegration:
         extra (Union['NvidiaIntegrationExtraType0', None, Unset]):
     """
 
-    id: Union[None, Unset, str] = UNSET
-    name: Union[Literal["nvidia"], Unset] = "nvidia"
+    id: None | Unset | str = UNSET
+    name: Literal["nvidia"] | Unset = "nvidia"
     extra: Union["NvidiaIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.nvidia_integration_extra_type_0 import NvidiaIntegrationExtraType0
 
-        id: Union[None, Unset, str]
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
-        extra: Union[None, Unset, dict[str, Any]]
+        extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, NvidiaIntegrationExtraType0):
@@ -62,16 +62,16 @@ class NvidiaIntegration:
 
         d = dict(src_dict)
 
-        def _parse_id(data: object) -> Union[None, Unset, str]:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        name = cast(Union[Literal["nvidia"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["nvidia"] | Unset, d.pop("name", UNSET))
         if name != "nvidia" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'nvidia', got '{name}'")
 

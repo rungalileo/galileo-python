@@ -13,7 +13,7 @@ from galileo.experiments import Experiments as ExperimentsService
 from galileo.experiments import _default_prompt_settings
 from galileo.export import ExportClient
 from galileo.job_progress import get_run_scorer_jobs, job_progress
-from galileo.projects import Projects
+from galileo.projects import ProjectNotFoundError, Projects
 from galileo.prompts import PromptTemplate, get_prompt
 from galileo.resources.api.experiment import (
     delete_experiment_projects_project_id_experiments_experiment_id_delete,
@@ -43,7 +43,7 @@ from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
+from galileo.shared.exceptions import ValidationError, _project_not_found_error
 from galileo.shared.experiment_result import ExperimentRunResult, ExperimentStatusInfo
 from galileo.shared.query_result import QueryResult
 
@@ -124,7 +124,7 @@ class Experiment(StateManagementMixin):
 
     Examples
     --------
-        # Create an experiment
+        # Prompt-based experiment
         experiment = Experiment(
             name="ml-expert-evaluation",
             dataset_name="ml-knowledge-dataset",
@@ -132,25 +132,30 @@ class Experiment(StateManagementMixin):
             metrics=["correctness", "completeness"],
             project_name="My AI Project"
         )
-
-        # Create and run
         experiment.create()
-        result = experiment.run()
 
-        # Check results
+        # Function-based / generated-output experiment (no prompt required)
+        experiment = Experiment(
+            name="otel-trace-eval",
+            dataset_name="trace-dataset",
+            metrics=["correctness"],
+            project_name="My AI Project"
+        )
+        experiment.create()
+
+        # Check results after the run completes
         experiment.refresh()
         metrics = experiment.aggregate_metrics
-        print(f"Average cost: ${metrics['average_cost']}")
+        print(f"Average correctness: {metrics['average_correctness']}")
 
-        # Re-run with different name
+        # Re-run with a different name
         experiment2 = Experiment(
             name=f"{experiment.name}-rerun-1",
             dataset_name=experiment.dataset_name,
             prompt_name=experiment.prompt_name,
             metrics=experiment.metrics,
-            project_name=experiment.project_name
+            project_name=experiment.project_name,
         ).create()
-        experiment2.run()
     """
 
     id: str | None
@@ -188,7 +193,6 @@ class Experiment(StateManagementMixin):
             f"created_at='{self.created_at}')"
         )
 
-    @require_exactly_one("prompt", "prompt_name")  # TODO: For function-based experiments, prompt is optional.
     def __init__(
         self,
         name: str,
@@ -201,8 +205,6 @@ class Experiment(StateManagementMixin):
         metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str] | None = None,
         project_id: str | None = None,
         project_name: str | None = None,
-        # TODO: Function-based experiments are temporarily disabled. Need to validate implementation and fix decorator logic.
-        # function: Callable | None = None,
         prompt_settings: PromptRunSettings | None = None,
     ) -> None:
         """
@@ -217,8 +219,9 @@ class Experiment(StateManagementMixin):
                     but required when running the experiment with a prompt template.
             dataset_name: Name of the dataset (alternative to dataset parameter). Optional at creation,
                          but required when running the experiment with a prompt template.
-            prompt: Prompt object, prompt name, or legacy PromptTemplate object.
-            prompt_name: Name of the prompt template (alternative to prompt parameter).
+            prompt: Prompt object, prompt name, or legacy PromptTemplate object. Optional — omit
+                   for function-based or generated-output experiments that don't use a prompt template.
+            prompt_name: Name of the prompt template (alternative to prompt parameter). Optional.
             model: Model object or model alias string to use for the experiment.
                   This will be used to configure the prompt_settings when running the experiment.
             metrics: List of metrics to evaluate.
@@ -236,11 +239,19 @@ class Experiment(StateManagementMixin):
 
         Examples
         --------
-            # Create by project name with dataset and prompt names
+            # Create a prompt-based experiment
             experiment = Experiment(
                 name="ml-evaluation",
                 dataset_name="ml-dataset",
                 prompt_name="ml-prompt",
+                project_name="My AI Project"
+            )
+
+            # Create a function-based experiment (no prompt required)
+            experiment = Experiment(
+                name="otel-trace-eval",
+                dataset_name="trace-dataset",
+                metrics=["correctness"],
                 project_name="My AI Project"
             )
 
@@ -324,6 +335,11 @@ class Experiment(StateManagementMixin):
 
         # TODO: Delegate the responsibilities to the serializer.
         if prompt is not None:
+            if prompt_name is not None:
+                _logger.warning(
+                    "Experiment.__init__: both 'prompt' and 'prompt_name' were provided; "
+                    "'prompt' takes precedence and 'prompt_name' will be ignored."
+                )
             # Local import to avoid circular dependency
             from galileo.prompt import Prompt
 
@@ -384,11 +400,12 @@ class Experiment(StateManagementMixin):
             _logger.info(f"Experiment.create: name='{self.name}' project_id='{self.project_id}' - started")
 
             # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-            project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
+            try:
+                project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
+            except ProjectNotFoundError:
+                project_obj = None
             if not project_obj:
-                raise ResourceNotFoundError(
-                    "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
-                )
+                raise _project_not_found_error(self.project_id, self.project_name)
 
             self.project_id = project_obj.id
             if self.project_name is None:
@@ -652,11 +669,12 @@ class Experiment(StateManagementMixin):
             experiment = Experiment.get(name="ml-evaluation")
         """
         # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+        try:
+            project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+        except ProjectNotFoundError:
+            project_obj = None
         if not project_obj:
-            raise ResourceNotFoundError(
-                "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
-            )
+            raise _project_not_found_error(project_id, project_name)
 
         experiments_service = ExperimentsService()
         retrieved_experiment = experiments_service.get(project_id=project_obj.id, experiment_name=name)
@@ -700,11 +718,12 @@ class Experiment(StateManagementMixin):
             experiments = Experiment.list()
         """
         # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+        try:
+            project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+        except ProjectNotFoundError:
+            project_obj = None
         if not project_obj:
-            raise ResourceNotFoundError(
-                "Project not found. Provide project_id, project_name, or set GALILEO_PROJECT env var."
-            )
+            raise _project_not_found_error(project_id, project_name)
 
         experiments_service = ExperimentsService()
         retrieved_experiments = experiments_service.list(project_id=project_obj.id)

@@ -30,8 +30,8 @@ class VertexAIIntegration:
 
     multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
     gcs_config: Union["VertexAIGCSConfigResponse", None, Unset] = UNSET
-    id: Union[None, Unset, str] = UNSET
-    name: Union[Literal["vertex_ai"], Unset] = "vertex_ai"
+    id: None | Unset | str = UNSET
+    name: Literal["vertex_ai"] | Unset = "vertex_ai"
     extra: Union["VertexAIIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -40,7 +40,7 @@ class VertexAIIntegration:
         from ..models.vertex_ai_integration_extra_type_0 import VertexAIIntegrationExtraType0
         from ..models.vertex_aigcs_config_response import VertexAIGCSConfigResponse
 
-        multi_modal_config: Union[None, Unset, dict[str, Any]]
+        multi_modal_config: None | Unset | dict[str, Any]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -48,7 +48,7 @@ class VertexAIIntegration:
         else:
             multi_modal_config = self.multi_modal_config
 
-        gcs_config: Union[None, Unset, dict[str, Any]]
+        gcs_config: None | Unset | dict[str, Any]
         if isinstance(self.gcs_config, Unset):
             gcs_config = UNSET
         elif isinstance(self.gcs_config, VertexAIGCSConfigResponse):
@@ -56,12 +56,12 @@ class VertexAIIntegration:
         else:
             gcs_config = self.gcs_config
 
-        id: Union[None, Unset, str]
+        id: None | Unset | str
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
 
-        extra: Union[None, Unset, dict[str, Any]]
+        extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, VertexAIIntegrationExtraType0):
@@ -125,16 +125,16 @@ class VertexAIIntegration:
 
         gcs_config = _parse_gcs_config(d.pop("gcs_config", UNSET))
 
-        def _parse_id(data: object) -> Union[None, Unset, str]:
+        def _parse_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        name = cast(Union[Literal["vertex_ai"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["vertex_ai"] | Unset, d.pop("name", UNSET))
         if name != "vertex_ai" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'vertex_ai', got '{name}'")
 

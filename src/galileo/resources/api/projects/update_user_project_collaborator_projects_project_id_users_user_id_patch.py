@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,7 +42,7 @@ def _get_kwargs(project_id: str, user_id: str, *, body: CollaboratorUpdate) -> d
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, UserCollaborator]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | UserCollaborator:
     if response.status_code == 200:
         return UserCollaborator.from_dict(response.json())
 
@@ -67,9 +67,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, UserCollaborator]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | UserCollaborator]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,7 +78,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Response[Union[HTTPValidationError, UserCollaborator]]:
+) -> Response[HTTPValidationError | UserCollaborator]:
     """Update User Project Collaborator.
 
      Update the sharing permissions of a user on a project.
@@ -108,7 +106,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
+) -> HTTPValidationError | UserCollaborator | None:
     """Update User Project Collaborator.
 
      Update the sharing permissions of a user on a project.
@@ -132,7 +130,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Response[Union[HTTPValidationError, UserCollaborator]]:
+) -> Response[HTTPValidationError | UserCollaborator]:
     """Update User Project Collaborator.
 
      Update the sharing permissions of a user on a project.
@@ -160,7 +158,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
+) -> HTTPValidationError | UserCollaborator | None:
     """Update User Project Collaborator.
 
      Update the sharing permissions of a user on a project.

@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -44,7 +44,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsPartialQueryRequest) -> dict
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, LogRecordsPartialQueryResponse]:
+) -> HTTPValidationError | LogRecordsPartialQueryResponse:
     if response.status_code == 200:
         return LogRecordsPartialQueryResponse.from_dict(response.json())
 
@@ -71,7 +71,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, LogRecordsPartialQueryResponse]]:
+) -> Response[HTTPValidationError | LogRecordsPartialQueryResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +82,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsPartialQueryRequest
-) -> Response[Union[HTTPValidationError, LogRecordsPartialQueryResponse]]:
+) -> Response[HTTPValidationError | LogRecordsPartialQueryResponse]:
     """Query Partial Traces.
 
     Args:
@@ -108,7 +108,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, *, client: ApiClient, body: LogRecordsPartialQueryRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsPartialQueryResponse]]:
+) -> HTTPValidationError | LogRecordsPartialQueryResponse | None:
     """Query Partial Traces.
 
     Args:
@@ -130,7 +130,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsPartialQueryRequest
-) -> Response[Union[HTTPValidationError, LogRecordsPartialQueryResponse]]:
+) -> Response[HTTPValidationError | LogRecordsPartialQueryResponse]:
     """Query Partial Traces.
 
     Args:
@@ -156,7 +156,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsPartialQueryRequest
-) -> Optional[Union[HTTPValidationError, LogRecordsPartialQueryResponse]]:
+) -> HTTPValidationError | LogRecordsPartialQueryResponse | None:
     """Query Partial Traces.
 
     Args:

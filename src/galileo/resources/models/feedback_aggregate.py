@@ -33,7 +33,7 @@ class FeedbackAggregate:
         from ..models.tags_aggregate import TagsAggregate
 
         aggregate: dict[str, Any]
-        if isinstance(self.aggregate, (LikeDislikeAggregate, StarAggregate, ScoreAggregate, TagsAggregate)):
+        if isinstance(self.aggregate, LikeDislikeAggregate | StarAggregate | ScoreAggregate | TagsAggregate):
             aggregate = self.aggregate.to_dict()
         else:
             aggregate = self.aggregate.to_dict()

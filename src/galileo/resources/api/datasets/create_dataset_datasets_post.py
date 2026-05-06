@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -25,16 +25,13 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *,
-    body: BodyCreateDatasetDatasetsPost,
-    format_: Union[Unset, DatasetFormat] = UNSET,
-    hidden: Union[Unset, bool] = False,
+    *, body: BodyCreateDatasetDatasetsPost, format_: Unset | DatasetFormat = UNSET, hidden: Unset | bool = False
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_format_: Union[Unset, str] = UNSET
+    json_format_: Unset | str = UNSET
     if not isinstance(format_, Unset):
         json_format_ = format_.value
 
@@ -59,7 +56,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[DatasetDB, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> DatasetDB | HTTPValidationError:
     if response.status_code == 200:
         return DatasetDB.from_dict(response.json())
 
@@ -84,7 +81,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Dat
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[DatasetDB, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[DatasetDB | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -97,9 +94,9 @@ def sync_detailed(
     *,
     client: ApiClient,
     body: BodyCreateDatasetDatasetsPost,
-    format_: Union[Unset, DatasetFormat] = UNSET,
-    hidden: Union[Unset, bool] = False,
-) -> Response[Union[DatasetDB, HTTPValidationError]]:
+    format_: Unset | DatasetFormat = UNSET,
+    hidden: Unset | bool = False,
+) -> Response[DatasetDB | HTTPValidationError]:
     """Create Dataset.
 
      Creates a standalone dataset.
@@ -129,9 +126,9 @@ def sync(
     *,
     client: ApiClient,
     body: BodyCreateDatasetDatasetsPost,
-    format_: Union[Unset, DatasetFormat] = UNSET,
-    hidden: Union[Unset, bool] = False,
-) -> Optional[Union[DatasetDB, HTTPValidationError]]:
+    format_: Unset | DatasetFormat = UNSET,
+    hidden: Unset | bool = False,
+) -> DatasetDB | HTTPValidationError | None:
     """Create Dataset.
 
      Creates a standalone dataset.
@@ -157,9 +154,9 @@ async def asyncio_detailed(
     *,
     client: ApiClient,
     body: BodyCreateDatasetDatasetsPost,
-    format_: Union[Unset, DatasetFormat] = UNSET,
-    hidden: Union[Unset, bool] = False,
-) -> Response[Union[DatasetDB, HTTPValidationError]]:
+    format_: Unset | DatasetFormat = UNSET,
+    hidden: Unset | bool = False,
+) -> Response[DatasetDB | HTTPValidationError]:
     """Create Dataset.
 
      Creates a standalone dataset.
@@ -189,9 +186,9 @@ async def asyncio(
     *,
     client: ApiClient,
     body: BodyCreateDatasetDatasetsPost,
-    format_: Union[Unset, DatasetFormat] = UNSET,
-    hidden: Union[Unset, bool] = False,
-) -> Optional[Union[DatasetDB, HTTPValidationError]]:
+    format_: Unset | DatasetFormat = UNSET,
+    hidden: Unset | bool = False,
+) -> DatasetDB | HTTPValidationError | None:
     """Create Dataset.
 
      Creates a standalone dataset.

@@ -39,12 +39,12 @@ class StandardError:
     error_group: str
     severity: ErrorSeverity
     message: str
-    user_action: Union[None, Unset, str] = UNSET
-    documentation_link: Union[None, Unset, str] = UNSET
-    retriable: Union[Unset, bool] = False
-    blocking: Union[Unset, bool] = False
-    http_status_code: Union[None, Unset, int] = UNSET
-    source_service: Union[None, Unset, str] = UNSET
+    user_action: None | Unset | str = UNSET
+    documentation_link: None | Unset | str = UNSET
+    retriable: Unset | bool = False
+    blocking: Unset | bool = False
+    http_status_code: None | Unset | int = UNSET
+    source_service: None | Unset | str = UNSET
     context: Union[Unset, "StandardErrorContext"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -59,23 +59,23 @@ class StandardError:
 
         message = self.message
 
-        user_action: Union[None, Unset, str]
+        user_action: None | Unset | str
         user_action = UNSET if isinstance(self.user_action, Unset) else self.user_action
 
-        documentation_link: Union[None, Unset, str]
+        documentation_link: None | Unset | str
         documentation_link = UNSET if isinstance(self.documentation_link, Unset) else self.documentation_link
 
         retriable = self.retriable
 
         blocking = self.blocking
 
-        http_status_code: Union[None, Unset, int]
+        http_status_code: None | Unset | int
         http_status_code = UNSET if isinstance(self.http_status_code, Unset) else self.http_status_code
 
-        source_service: Union[None, Unset, str]
+        source_service: None | Unset | str
         source_service = UNSET if isinstance(self.source_service, Unset) else self.source_service
 
-        context: Union[Unset, dict[str, Any]] = UNSET
+        context: Unset | dict[str, Any] = UNSET
         if not isinstance(self.context, Unset):
             context = self.context.to_dict()
 
@@ -122,21 +122,21 @@ class StandardError:
 
         message = d.pop("message")
 
-        def _parse_user_action(data: object) -> Union[None, Unset, str]:
+        def _parse_user_action(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         user_action = _parse_user_action(d.pop("user_action", UNSET))
 
-        def _parse_documentation_link(data: object) -> Union[None, Unset, str]:
+        def _parse_documentation_link(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         documentation_link = _parse_documentation_link(d.pop("documentation_link", UNSET))
 
@@ -144,26 +144,26 @@ class StandardError:
 
         blocking = d.pop("blocking", UNSET)
 
-        def _parse_http_status_code(data: object) -> Union[None, Unset, int]:
+        def _parse_http_status_code(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         http_status_code = _parse_http_status_code(d.pop("http_status_code", UNSET))
 
-        def _parse_source_service(data: object) -> Union[None, Unset, str]:
+        def _parse_source_service(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         source_service = _parse_source_service(d.pop("source_service", UNSET))
 
         _context = d.pop("context", UNSET)
-        context: Union[Unset, StandardErrorContext]
+        context: Unset | StandardErrorContext
         context = UNSET if isinstance(_context, Unset) else StandardErrorContext.from_dict(_context)
 
         standard_error = cls(

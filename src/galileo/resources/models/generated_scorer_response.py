@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -41,10 +41,10 @@ class GeneratedScorerResponse:
     created_by: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    scoreable_node_types: Union[None, list[NodeType]]
+    scoreable_node_types: None | list[NodeType]
     scorer_configuration: "GeneratedScorerConfiguration"
-    instructions: Union[None, Unset, str] = UNSET
-    user_prompt: Union[None, Unset, str] = UNSET
+    instructions: None | Unset | str = UNSET
+    user_prompt: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,7 +60,7 @@ class GeneratedScorerResponse:
 
         updated_at = self.updated_at.isoformat()
 
-        scoreable_node_types: Union[None, list[str]]
+        scoreable_node_types: None | list[str]
         if isinstance(self.scoreable_node_types, list):
             scoreable_node_types = []
             for scoreable_node_types_type_0_item_data in self.scoreable_node_types:
@@ -72,10 +72,10 @@ class GeneratedScorerResponse:
 
         scorer_configuration = self.scorer_configuration.to_dict()
 
-        instructions: Union[None, Unset, str]
+        instructions: None | Unset | str
         instructions = UNSET if isinstance(self.instructions, Unset) else self.instructions
 
-        user_prompt: Union[None, Unset, str]
+        user_prompt: None | Unset | str
         user_prompt = UNSET if isinstance(self.user_prompt, Unset) else self.user_prompt
 
         field_dict: dict[str, Any] = {}
@@ -117,7 +117,7 @@ class GeneratedScorerResponse:
 
         updated_at = isoparse(d.pop("updated_at"))
 
-        def _parse_scoreable_node_types(data: object) -> Union[None, list[NodeType]]:
+        def _parse_scoreable_node_types(data: object) -> None | list[NodeType]:
             if data is None:
                 return data
             try:
@@ -133,27 +133,27 @@ class GeneratedScorerResponse:
                 return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, list[NodeType]], data)
+            return cast(None | list[NodeType], data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types"))
 
         scorer_configuration = GeneratedScorerConfiguration.from_dict(d.pop("scorer_configuration"))
 
-        def _parse_instructions(data: object) -> Union[None, Unset, str]:
+        def _parse_instructions(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         instructions = _parse_instructions(d.pop("instructions", UNSET))
 
-        def _parse_user_prompt(data: object) -> Union[None, Unset, str]:
+        def _parse_user_prompt(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         user_prompt = _parse_user_prompt(d.pop("user_prompt", UNSET))
 

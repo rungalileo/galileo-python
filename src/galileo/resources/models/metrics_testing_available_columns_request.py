@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -32,29 +32,29 @@ class MetricsTestingAvailableColumnsRequest:
     """
 
     name: str
-    log_stream_id: Union[None, Unset, str] = UNSET
-    experiment_id: Union[None, Unset, str] = UNSET
-    metrics_testing_id: Union[None, Unset, str] = UNSET
-    output_type: Union[Unset, OutputTypeEnum] = UNSET
-    cot_enabled: Union[Unset, bool] = False
-    metric_key: Union[Unset, str] = "generated_scorer_validation"
-    required_scorers: Union[None, Unset, list[str]] = UNSET
-    score_type: Union[None, Unset, str] = UNSET
+    log_stream_id: None | Unset | str = UNSET
+    experiment_id: None | Unset | str = UNSET
+    metrics_testing_id: None | Unset | str = UNSET
+    output_type: Unset | OutputTypeEnum = UNSET
+    cot_enabled: Unset | bool = False
+    metric_key: Unset | str = "generated_scorer_validation"
+    required_scorers: None | Unset | list[str] = UNSET
+    score_type: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        log_stream_id: Union[None, Unset, str]
+        log_stream_id: None | Unset | str
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
-        experiment_id: Union[None, Unset, str]
+        experiment_id: None | Unset | str
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
-        metrics_testing_id: Union[None, Unset, str]
+        metrics_testing_id: None | Unset | str
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
-        output_type: Union[Unset, str] = UNSET
+        output_type: Unset | str = UNSET
         if not isinstance(self.output_type, Unset):
             output_type = self.output_type.value
 
@@ -62,7 +62,7 @@ class MetricsTestingAvailableColumnsRequest:
 
         metric_key = self.metric_key
 
-        required_scorers: Union[None, Unset, list[str]]
+        required_scorers: None | Unset | list[str]
         if isinstance(self.required_scorers, Unset):
             required_scorers = UNSET
         elif isinstance(self.required_scorers, list):
@@ -71,7 +71,7 @@ class MetricsTestingAvailableColumnsRequest:
         else:
             required_scorers = self.required_scorers
 
-        score_type: Union[None, Unset, str]
+        score_type: None | Unset | str
         score_type = UNSET if isinstance(self.score_type, Unset) else self.score_type
 
         field_dict: dict[str, Any] = {}
@@ -101,42 +101,42 @@ class MetricsTestingAvailableColumnsRequest:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
+        def _parse_log_stream_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
+        def _parse_experiment_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
+        def _parse_metrics_testing_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
         _output_type = d.pop("output_type", UNSET)
-        output_type: Union[Unset, OutputTypeEnum]
+        output_type: Unset | OutputTypeEnum
         output_type = UNSET if isinstance(_output_type, Unset) else OutputTypeEnum(_output_type)
 
         cot_enabled = d.pop("cot_enabled", UNSET)
 
         metric_key = d.pop("metric_key", UNSET)
 
-        def _parse_required_scorers(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_required_scorers(data: object) -> None | Unset | list[str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -148,16 +148,16 @@ class MetricsTestingAvailableColumnsRequest:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(None | Unset | list[str], data)
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
-        def _parse_score_type(data: object) -> Union[None, Unset, str]:
+        def _parse_score_type(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         score_type = _parse_score_type(d.pop("score_type", UNSET))
 

@@ -55,18 +55,18 @@ class ToolSelectionQualityTemplate:
                 output
     """
 
-    metric_system_prompt: Union[Unset, str] = (
+    metric_system_prompt: Unset | str = (
         'You will receive the chat history from a chatbot application. At the end of the  conversation, it will be the bot’s turn to act. The bot has several options: it can reflect and plan its next steps, choose to call tools, or respond directly to the user. If the bot opts to use tools, the tools execute separately, and the bot will subsequently review the output from those tools. Ultimately, the bot should reply to the user, choosing the relevant parts of the tools\' output.\n\nYour task is to evaluate the bot\'s decision-making process and ensure it follows these guidelines:\n- If all user queries have already been answered and can be found in the chat history, the bot should not call tools.\n- If no suitable tools are available to assist with user queries, the bot should not call tools.\n- If the chat history contains all the necessary information to directly answer all user queries, the bot should not call tools.\n- If the bot decided to call tools, the tools and argument values selected must relate to at least part of one user query.\n- If the bot decided to call tools, all arguments marked as \\"required\\" in the tools\' schema must be provided with values.\n\nRemember that there are many ways the bot\'s actions can comply with these rules. Your role is to determine whether the bot fundamentally violated any of these rules, not whether it chose the most optimal response.\n\nRespond in the following JSON format:\n```\n{\n    \\"explanation\\": string,\n    \\"bot_answer_follows_rules\\": boolean\n}\n```\n\n- **\\"explanation\\"**: Provide your step-by-step reasoning to determine whether the bot\'s reply follows the above-mentioned guidelines.\n\n- **\\"bot_answer_follows_rules\\"**: Respond `true` if you believe the bot followed the above guidelines, respond `false` otherwise.\n\nYou must respond with a valid JSON object; don\'t forget to escape special characters.'
     )
-    metric_description: Union[Unset, str] = (
+    metric_description: Unset | str = (
         "I have a multi-turn chatbot application where the assistant is an agent that has access to tools. I want a metric that assesses whether the assistant made the correct decision in choosing to either use tools or to directly respond, and in cases where it uses tools, whether it selected the correct tools with the correct arguments."
     )
-    value_field_name: Union[Unset, str] = "bot_answer_follows_rules"
-    explanation_field_name: Union[Unset, str] = "explanation"
-    template: Union[Unset, str] = (
+    value_field_name: Unset | str = "bot_answer_follows_rules"
+    explanation_field_name: Unset | str = "explanation"
+    template: Unset | str = (
         "Chatbot history:\n```\n{query}\n```\n\nThe bot's available tools:\n```\n{tools}\n```\n\nThe answer to evaluate:\n```\n{response}\n```"
     )
-    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
+    metric_few_shot_examples: Unset | list["FewShotExample"] = UNSET
     response_schema: Union["ToolSelectionQualityTemplateResponseSchemaType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -85,14 +85,14 @@ class ToolSelectionQualityTemplate:
 
         template = self.template
 
-        metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
+        metric_few_shot_examples: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
             metric_few_shot_examples = []
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        response_schema: Union[None, Unset, dict[str, Any]]
+        response_schema: None | Unset | dict[str, Any]
         if isinstance(self.response_schema, Unset):
             response_schema = UNSET
         elif isinstance(self.response_schema, ToolSelectionQualityTemplateResponseSchemaType0):

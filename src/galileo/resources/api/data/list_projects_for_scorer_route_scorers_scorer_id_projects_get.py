@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -22,9 +22,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    scorer_id: str, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
-) -> dict[str, Any]:
+def _get_kwargs(scorer_id: str, *, starting_token: Unset | int = 0, limit: Unset | int = 100) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -50,7 +48,7 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[GetProjectsPaginatedResponseV2, HTTPValidationError]:
+) -> GetProjectsPaginatedResponseV2 | HTTPValidationError:
     if response.status_code == 200:
         return GetProjectsPaginatedResponseV2.from_dict(response.json())
 
@@ -77,7 +75,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
+) -> Response[GetProjectsPaginatedResponseV2 | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -87,8 +85,8 @@ def _build_response(
 
 
 def sync_detailed(
-    scorer_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
-) -> Response[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
+    scorer_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> Response[GetProjectsPaginatedResponseV2 | HTTPValidationError]:
     """List Projects For Scorer Route.
 
      List all projects associated with a specific scorer.
@@ -115,8 +113,8 @@ def sync_detailed(
 
 
 def sync(
-    scorer_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
-) -> Optional[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
+    scorer_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> GetProjectsPaginatedResponseV2 | HTTPValidationError | None:
     """List Projects For Scorer Route.
 
      List all projects associated with a specific scorer.
@@ -139,8 +137,8 @@ def sync(
 
 
 async def asyncio_detailed(
-    scorer_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
-) -> Response[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
+    scorer_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> Response[GetProjectsPaginatedResponseV2 | HTTPValidationError]:
     """List Projects For Scorer Route.
 
      List all projects associated with a specific scorer.
@@ -167,8 +165,8 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    scorer_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
-) -> Optional[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
+    scorer_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> GetProjectsPaginatedResponseV2 | HTTPValidationError | None:
     """List Projects For Scorer Route.
 
      List all projects associated with a specific scorer.

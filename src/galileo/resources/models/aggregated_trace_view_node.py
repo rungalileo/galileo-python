@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -33,21 +33,21 @@ class AggregatedTraceViewNode:
     """
 
     id: str
-    name: Union[None, str]
+    name: None | str
     type_: StepType
     occurrences: int
     has_children: bool
     metrics: "AggregatedTraceViewNodeMetrics"
     trace_count: int
     weight: float
-    parent_id: Union[None, Unset, str] = UNSET
-    insights: Union[Unset, list["InsightSummary"]] = UNSET
+    parent_id: None | Unset | str = UNSET
+    insights: Unset | list["InsightSummary"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         id = self.id
 
-        name: Union[None, str]
+        name: None | str
         name = self.name
 
         type_ = self.type_.value
@@ -62,10 +62,10 @@ class AggregatedTraceViewNode:
 
         weight = self.weight
 
-        parent_id: Union[None, Unset, str]
+        parent_id: None | Unset | str
         parent_id = UNSET if isinstance(self.parent_id, Unset) else self.parent_id
 
-        insights: Union[Unset, list[dict[str, Any]]] = UNSET
+        insights: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.insights, Unset):
             insights = []
             for insights_item_data in self.insights:
@@ -101,10 +101,10 @@ class AggregatedTraceViewNode:
         d = dict(src_dict)
         id = d.pop("id")
 
-        def _parse_name(data: object) -> Union[None, str]:
+        def _parse_name(data: object) -> None | str:
             if data is None:
                 return data
-            return cast(Union[None, str], data)
+            return cast(None | str, data)
 
         name = _parse_name(d.pop("name"))
 
@@ -120,12 +120,12 @@ class AggregatedTraceViewNode:
 
         weight = d.pop("weight")
 
-        def _parse_parent_id(data: object) -> Union[None, Unset, str]:
+        def _parse_parent_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         parent_id = _parse_parent_id(d.pop("parent_id", UNSET))
 

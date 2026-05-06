@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,19 +19,19 @@ class ExperimentDataset:
         name (Union[None, Unset, str]):
     """
 
-    dataset_id: Union[None, Unset, str] = UNSET
-    version_index: Union[None, Unset, int] = UNSET
-    name: Union[None, Unset, str] = UNSET
+    dataset_id: None | Unset | str = UNSET
+    version_index: None | Unset | int = UNSET
+    name: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        dataset_id: Union[None, Unset, str]
+        dataset_id: None | Unset | str
         dataset_id = UNSET if isinstance(self.dataset_id, Unset) else self.dataset_id
 
-        version_index: Union[None, Unset, int]
+        version_index: None | Unset | int
         version_index = UNSET if isinstance(self.version_index, Unset) else self.version_index
 
-        name: Union[None, Unset, str]
+        name: None | Unset | str
         name = UNSET if isinstance(self.name, Unset) else self.name
 
         field_dict: dict[str, Any] = {}
@@ -50,30 +50,30 @@ class ExperimentDataset:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_dataset_id(data: object) -> Union[None, Unset, str]:
+        def _parse_dataset_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         dataset_id = _parse_dataset_id(d.pop("dataset_id", UNSET))
 
-        def _parse_version_index(data: object) -> Union[None, Unset, int]:
+        def _parse_version_index(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         version_index = _parse_version_index(d.pop("version_index", UNSET))
 
-        def _parse_name(data: object) -> Union[None, Unset, str]:
+        def _parse_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         name = _parse_name(d.pop("name", UNSET))
 

@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from io import BytesIO
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,13 +21,13 @@ class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
     """
 
     file: File
-    validation_result: Union[None, Unset, str] = UNSET
+    validation_result: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         file = self.file.to_tuple()
 
-        validation_result: Union[None, Unset, str]
+        validation_result: None | Unset | str
         validation_result = UNSET if isinstance(self.validation_result, Unset) else self.validation_result
 
         field_dict: dict[str, Any] = {}
@@ -59,12 +59,12 @@ class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
         d = dict(src_dict)
         file = File(payload=BytesIO(d.pop("file")))
 
-        def _parse_validation_result(data: object) -> Union[None, Unset, str]:
+        def _parse_validation_result(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         validation_result = _parse_validation_result(d.pop("validation_result", UNSET))
 

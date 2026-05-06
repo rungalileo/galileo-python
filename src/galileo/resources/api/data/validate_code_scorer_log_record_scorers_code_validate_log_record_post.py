@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -44,7 +44,7 @@ def _get_kwargs(*, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRe
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, ValidateScorerLogRecordResponse]:
+) -> HTTPValidationError | ValidateScorerLogRecordResponse:
     if response.status_code == 200:
         return ValidateScorerLogRecordResponse.from_dict(response.json())
 
@@ -71,7 +71,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]:
+) -> Response[HTTPValidationError | ValidateScorerLogRecordResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,7 +82,7 @@ def _build_response(
 
 def sync_detailed(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
-) -> Response[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]:
+) -> Response[HTTPValidationError | ValidateScorerLogRecordResponse]:
     """Validate Code Scorer Log Record.
 
      Validate a code scorer using actual log records.
@@ -108,7 +108,7 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
-) -> Optional[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]:
+) -> HTTPValidationError | ValidateScorerLogRecordResponse | None:
     """Validate Code Scorer Log Record.
 
      Validate a code scorer using actual log records.
@@ -130,7 +130,7 @@ def sync(
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
-) -> Response[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]:
+) -> Response[HTTPValidationError | ValidateScorerLogRecordResponse]:
     """Validate Code Scorer Log Record.
 
      Validate a code scorer using actual log records.
@@ -156,7 +156,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
-) -> Optional[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]:
+) -> HTTPValidationError | ValidateScorerLogRecordResponse | None:
     """Validate Code Scorer Log Record.
 
      Validate a code scorer using actual log records.

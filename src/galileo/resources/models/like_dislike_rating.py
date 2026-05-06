@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,7 +19,7 @@ class LikeDislikeRating:
     """
 
     value: bool
-    feedback_type: Union[Literal["like_dislike"], Unset] = "like_dislike"
+    feedback_type: Literal["like_dislike"] | Unset = "like_dislike"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,7 +40,7 @@ class LikeDislikeRating:
         d = dict(src_dict)
         value = d.pop("value")
 
-        feedback_type = cast(Union[Literal["like_dislike"], Unset], d.pop("feedback_type", UNSET))
+        feedback_type = cast(Literal["like_dislike"] | Unset, d.pop("feedback_type", UNSET))
         if feedback_type != "like_dislike" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'like_dislike', got '{feedback_type}'")
 

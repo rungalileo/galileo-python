@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -38,7 +38,7 @@ def _get_kwargs(*, body: CreateJobRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[CreateJobResponse, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> CreateJobResponse | HTTPValidationError:
     if response.status_code == 200:
         return CreateJobResponse.from_dict(response.json())
 
@@ -65,7 +65,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Cre
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[CreateJobResponse, HTTPValidationError]]:
+) -> Response[CreateJobResponse | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -74,9 +74,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    *, client: ApiClient, body: CreateJobRequest
-) -> Response[Union[CreateJobResponse, HTTPValidationError]]:
+def sync_detailed(*, client: ApiClient, body: CreateJobRequest) -> Response[CreateJobResponse | HTTPValidationError]:
     """Create Job.
 
     Args:
@@ -98,7 +96,7 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: CreateJobRequest) -> Optional[Union[CreateJobResponse, HTTPValidationError]]:
+def sync(*, client: ApiClient, body: CreateJobRequest) -> CreateJobResponse | HTTPValidationError | None:
     """Create Job.
 
     Args:
@@ -118,7 +116,7 @@ def sync(*, client: ApiClient, body: CreateJobRequest) -> Optional[Union[CreateJ
 
 async def asyncio_detailed(
     *, client: ApiClient, body: CreateJobRequest
-) -> Response[Union[CreateJobResponse, HTTPValidationError]]:
+) -> Response[CreateJobResponse | HTTPValidationError]:
     """Create Job.
 
     Args:
@@ -140,9 +138,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *, client: ApiClient, body: CreateJobRequest
-) -> Optional[Union[CreateJobResponse, HTTPValidationError]]:
+async def asyncio(*, client: ApiClient, body: CreateJobRequest) -> CreateJobResponse | HTTPValidationError | None:
     """Create Job.
 
     Args:

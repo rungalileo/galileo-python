@@ -40,7 +40,7 @@ class BasePromptTemplateVersionResponse:
         lines_removed (Union[Unset, int]):  Default: 0.
     """
 
-    template: Union[list["MessagesListItem"], str]
+    template: list["MessagesListItem"] | str
     version: int
     settings: "PromptRunSettings"
     id: str
@@ -50,17 +50,17 @@ class BasePromptTemplateVersionResponse:
     created_at: datetime.datetime
     updated_at: datetime.datetime
     created_by_user: Union["UserInfo", None]
-    raw: Union[Unset, bool] = False
-    output_type: Union[None, Unset, str] = UNSET
-    lines_added: Union[Unset, int] = 0
-    lines_edited: Union[Unset, int] = 0
-    lines_removed: Union[Unset, int] = 0
+    raw: Unset | bool = False
+    output_type: None | Unset | str = UNSET
+    lines_added: Unset | int = 0
+    lines_edited: Unset | int = 0
+    lines_removed: Unset | int = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.user_info import UserInfo
 
-        template: Union[list[dict[str, Any]], str]
+        template: list[dict[str, Any]] | str
         if isinstance(self.template, list):
             template = []
             for componentsschemas_messages_item_data in self.template:
@@ -86,7 +86,7 @@ class BasePromptTemplateVersionResponse:
 
         updated_at = self.updated_at.isoformat()
 
-        created_by_user: Union[None, dict[str, Any]]
+        created_by_user: None | dict[str, Any]
         if isinstance(self.created_by_user, UserInfo):
             created_by_user = self.created_by_user.to_dict()
         else:
@@ -94,7 +94,7 @@ class BasePromptTemplateVersionResponse:
 
         raw = self.raw
 
-        output_type: Union[None, Unset, str]
+        output_type: None | Unset | str
         output_type = UNSET if isinstance(self.output_type, Unset) else self.output_type
 
         lines_added = self.lines_added
@@ -140,7 +140,7 @@ class BasePromptTemplateVersionResponse:
 
         d = dict(src_dict)
 
-        def _parse_template(data: object) -> Union[list["MessagesListItem"], str]:
+        def _parse_template(data: object) -> list["MessagesListItem"] | str:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
@@ -154,7 +154,7 @@ class BasePromptTemplateVersionResponse:
                 return template_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[list["MessagesListItem"], str], data)
+            return cast(list["MessagesListItem"] | str, data)
 
         template = _parse_template(d.pop("template"))
 
@@ -190,12 +190,12 @@ class BasePromptTemplateVersionResponse:
 
         raw = d.pop("raw", UNSET)
 
-        def _parse_output_type(data: object) -> Union[None, Unset, str]:
+        def _parse_output_type(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 

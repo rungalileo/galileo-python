@@ -25,22 +25,22 @@ class Ruleset:
         description (Union[None, Unset, str]): Description of the ruleset.
     """
 
-    rules: Union[Unset, list["Rule"]] = UNSET
+    rules: Unset | list["Rule"] = UNSET
     action: Union["OverrideAction", "PassthroughAction", Unset] = UNSET
-    description: Union[None, Unset, str] = UNSET
+    description: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.override_action import OverrideAction
 
-        rules: Union[Unset, list[dict[str, Any]]] = UNSET
+        rules: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.rules, Unset):
             rules = []
             for rules_item_data in self.rules:
                 rules_item = rules_item_data.to_dict()
                 rules.append(rules_item)
 
-        action: Union[Unset, dict[str, Any]]
+        action: Unset | dict[str, Any]
         if isinstance(self.action, Unset):
             action = UNSET
         elif isinstance(self.action, OverrideAction):
@@ -48,7 +48,7 @@ class Ruleset:
         else:
             action = self.action.to_dict()
 
-        description: Union[None, Unset, str]
+        description: None | Unset | str
         description = UNSET if isinstance(self.description, Unset) else self.description
 
         field_dict: dict[str, Any] = {}
@@ -93,12 +93,12 @@ class Ruleset:
 
         action = _parse_action(d.pop("action", UNSET))
 
-        def _parse_description(data: object) -> Union[None, Unset, str]:
+        def _parse_description(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         description = _parse_description(d.pop("description", UNSET))
 

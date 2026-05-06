@@ -36,7 +36,7 @@ class OrNodeLogRecordsFilter:
         or_ = []
         for or_item_data in self.or_:
             or_item: dict[str, Any]
-            if isinstance(or_item_data, (FilterLeafLogRecordsFilter, AndNodeLogRecordsFilter, OrNodeLogRecordsFilter)):
+            if isinstance(or_item_data, FilterLeafLogRecordsFilter | AndNodeLogRecordsFilter | OrNodeLogRecordsFilter):
                 or_item = or_item_data.to_dict()
             else:
                 or_item = or_item_data.to_dict()

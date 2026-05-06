@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -22,9 +22,7 @@ from ...models.list_dataset_projects_response import ListDatasetProjectsResponse
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    dataset_id: str, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
-) -> dict[str, Any]:
+def _get_kwargs(dataset_id: str, *, starting_token: Unset | int = 0, limit: Unset | int = 100) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -50,7 +48,7 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, ListDatasetProjectsResponse]:
+) -> HTTPValidationError | ListDatasetProjectsResponse:
     if response.status_code == 200:
         return ListDatasetProjectsResponse.from_dict(response.json())
 
@@ -77,7 +75,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, ListDatasetProjectsResponse]]:
+) -> Response[HTTPValidationError | ListDatasetProjectsResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -87,8 +85,8 @@ def _build_response(
 
 
 def sync_detailed(
-    dataset_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
-) -> Response[Union[HTTPValidationError, ListDatasetProjectsResponse]]:
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> Response[HTTPValidationError | ListDatasetProjectsResponse]:
     """List Dataset Projects.
 
     Args:
@@ -113,8 +111,8 @@ def sync_detailed(
 
 
 def sync(
-    dataset_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
-) -> Optional[Union[HTTPValidationError, ListDatasetProjectsResponse]]:
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> HTTPValidationError | ListDatasetProjectsResponse | None:
     """List Dataset Projects.
 
     Args:
@@ -135,8 +133,8 @@ def sync(
 
 
 async def asyncio_detailed(
-    dataset_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
-) -> Response[Union[HTTPValidationError, ListDatasetProjectsResponse]]:
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> Response[HTTPValidationError | ListDatasetProjectsResponse]:
     """List Dataset Projects.
 
     Args:
@@ -161,8 +159,8 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
-) -> Optional[Union[HTTPValidationError, ListDatasetProjectsResponse]]:
+    dataset_id: str, *, client: ApiClient, starting_token: Unset | int = 0, limit: Unset | int = 100
+) -> HTTPValidationError | ListDatasetProjectsResponse | None:
     """List Dataset Projects.
 
     Args:

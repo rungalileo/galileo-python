@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, cast
 
 import httpx
 
@@ -23,7 +23,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    dataset_id: str, *, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
+    dataset_id: str, *, body: UpdateDatasetContentRequest, if_match: None | Unset | str = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(if_match, Unset):
@@ -45,7 +45,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 204:
         return cast(Any, None)
 
@@ -70,7 +70,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,8 +80,8 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(
-    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
-) -> Response[Union[Any, HTTPValidationError]]:
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: None | Unset | str = UNSET
+) -> Response[Any | HTTPValidationError]:
     """Update Dataset Content.
 
      Update the content of a dataset.
@@ -128,8 +128,8 @@ def sync_detailed(
 
 
 def sync(
-    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
-) -> Optional[Union[Any, HTTPValidationError]]:
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: None | Unset | str = UNSET
+) -> Any | HTTPValidationError | None:
     """Update Dataset Content.
 
      Update the content of a dataset.
@@ -172,8 +172,8 @@ def sync(
 
 
 async def asyncio_detailed(
-    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
-) -> Response[Union[Any, HTTPValidationError]]:
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: None | Unset | str = UNSET
+) -> Response[Any | HTTPValidationError]:
     """Update Dataset Content.
 
      Update the content of a dataset.
@@ -220,8 +220,8 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
-) -> Optional[Union[Any, HTTPValidationError]]:
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: None | Unset | str = UNSET
+) -> Any | HTTPValidationError | None:
     """Update Dataset Content.
 
      Update the content of a dataset.

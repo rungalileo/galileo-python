@@ -42,12 +42,10 @@ class AnnotationAggregate:
         aggregate: dict[str, Any]
         if isinstance(
             self.aggregate,
-            (
-                AnnotationLikeDislikeAggregate,
-                AnnotationStarAggregate,
-                AnnotationScoreAggregate,
-                AnnotationTagsAggregate,
-            ),
+            AnnotationLikeDislikeAggregate
+            | AnnotationStarAggregate
+            | AnnotationScoreAggregate
+            | AnnotationTagsAggregate,
         ):
             aggregate = self.aggregate.to_dict()
         else:

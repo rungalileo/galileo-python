@@ -27,7 +27,7 @@ class ListDatasetVersionParams:
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_version_index_sort import DatasetVersionIndexSort
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: None | Unset | dict[str, Any]
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(self.sort, DatasetVersionIndexSort):

@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -25,7 +25,7 @@ class ModelProperties:
     alias: str
     name: str
     input_modalities: list[ContentModality]
-    multimodal_capabilities: Union[Unset, list[MultimodalCapability]] = UNSET
+    multimodal_capabilities: Unset | list[MultimodalCapability] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,7 +38,7 @@ class ModelProperties:
             input_modalities_item = input_modalities_item_data.value
             input_modalities.append(input_modalities_item)
 
-        multimodal_capabilities: Union[Unset, list[str]] = UNSET
+        multimodal_capabilities: Unset | list[str] = UNSET
         if not isinstance(self.multimodal_capabilities, Unset):
             multimodal_capabilities = []
             for multimodal_capabilities_item_data in self.multimodal_capabilities:

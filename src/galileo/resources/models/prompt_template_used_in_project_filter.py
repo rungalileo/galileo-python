@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,7 +19,7 @@ class PromptTemplateUsedInProjectFilter:
     """
 
     value: str
-    name: Union[Literal["used_in_project"], Unset] = "used_in_project"
+    name: Literal["used_in_project"] | Unset = "used_in_project"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,7 +40,7 @@ class PromptTemplateUsedInProjectFilter:
         d = dict(src_dict)
         value = d.pop("value")
 
-        name = cast(Union[Literal["used_in_project"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["used_in_project"] | Unset, d.pop("name", UNSET))
         if name != "used_in_project" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'used_in_project', got '{name}'")
 

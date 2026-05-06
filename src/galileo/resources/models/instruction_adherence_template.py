@@ -56,18 +56,16 @@ class InstructionAdherenceTemplate:
             output.
     """
 
-    metric_system_prompt: Union[Unset, str] = (
+    metric_system_prompt: Unset | str = (
         'The user will provide you with a prompt that was sent to a chatbot system, and the chatbot\'s latest response. Both will be provided as JSON strings.\n\nIn some cases, the prompt may be split up into multiple messages. If so, each message will begin with one of the following prefixes:\n\n- \\"System: \\"\n- \\"Human: \\"\n- \\"AI: \\"\n\nIf you see these prefixes, pay attention to them because they indicate where messages begin and end. Messages prefixed with \\"System: \\" contain system instructions which the chatbot should follow. Messages prefixed with \\"Human: \\" are user input. Messages prefixed with \\"AI: \\" are system responses to user input.\nIf you do not see these prefixes, treat the prompt as though it was a single user input message prefixed with \\"Human: \\".\n\nYour task is to determine whether the latest response from the chatbot is consistent with the instructions provided in the system prompt (if there is one) or in the first user message (if there is no system prompt).\n\nFocus only on the latest response and the instructions. Do not consider the chat history or any previous messages from the chatbot.\n\nThink step by step, and explain your reasoning carefully.\nState your observations first, before drawing any conclusions.\n\nRespond in the following JSON format:\n\n```\n{\n    \\"explanation\\": string,\n    \\"is_consistent\\": boolean\n}\n```\n\n\\"explanation\\": Your step-by-step reasoning process. List out the relevant instructions and explain whether the latest response adheres to each of them.\n\n\\"is_consistent\\": `true` if the latest response is consistent with the instructions, `false` otherwise.\n\nYou must respond with a valid JSON string.'
     )
-    metric_description: Union[Unset, str] = (
+    metric_description: Unset | str = (
         "I have a chatbot application.\nMy system prompt contains a list of instructions for what the chatbot should and should not do in every interaction. I want a metric that checks whether the latest response from the chatbot is consistent with the instructions.\n\nThe metric should only evaluate the latest message (the response), not the chat history. It should return false only if the latest message violates one or more instructions. Violations earlier in the chat history should not affect whether the value is true or false. The value should only depend on whether the latest message was consistent with the instructions, considered in context. The metric should only consider instructions that are applicable to the latest message."
     )
-    value_field_name: Union[Unset, str] = "is_consistent"
-    explanation_field_name: Union[Unset, str] = "explanation"
-    template: Union[Unset, str] = (
-        "Prompt JSON:\n\n```\n{query_json}\n```\n\nResponse JSON:\n\n```\n{response_json}\n```"
-    )
-    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
+    value_field_name: Unset | str = "is_consistent"
+    explanation_field_name: Unset | str = "explanation"
+    template: Unset | str = "Prompt JSON:\n\n```\n{query_json}\n```\n\nResponse JSON:\n\n```\n{response_json}\n```"
+    metric_few_shot_examples: Unset | list["FewShotExample"] = UNSET
     response_schema: Union["InstructionAdherenceTemplateResponseSchemaType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -86,14 +84,14 @@ class InstructionAdherenceTemplate:
 
         template = self.template
 
-        metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
+        metric_few_shot_examples: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
             metric_few_shot_examples = []
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        response_schema: Union[None, Unset, dict[str, Any]]
+        response_schema: None | Unset | dict[str, Any]
         if isinstance(self.response_schema, Unset):
             response_schema = UNSET
         elif isinstance(self.response_schema, InstructionAdherenceTemplateResponseSchemaType0):

@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from io import BytesIO
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,12 +20,12 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
         column_names (Union[None, Unset, list[str]]):
     """
 
-    file: Union[File, None, Unset] = UNSET
-    column_names: Union[None, Unset, list[str]] = UNSET
+    file: File | None | Unset = UNSET
+    column_names: None | Unset | list[str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        file: Union[FileTypes, None, Unset]
+        file: FileTypes | None | Unset
         if isinstance(self.file, Unset):
             file = UNSET
         elif isinstance(self.file, File):
@@ -34,7 +34,7 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
         else:
             file = self.file
 
-        column_names: Union[None, Unset, list[str]]
+        column_names: None | Unset | list[str]
         if isinstance(self.column_names, Unset):
             column_names = UNSET
         elif isinstance(self.column_names, list):
@@ -78,7 +78,7 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_file(data: object) -> Union[File, None, Unset]:
+        def _parse_file(data: object) -> File | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -90,11 +90,11 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[File, None, Unset], data)
+            return cast(File | None | Unset, data)
 
         file = _parse_file(d.pop("file", UNSET))
 
-        def _parse_column_names(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_column_names(data: object) -> None | Unset | list[str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -106,7 +106,7 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(None | Unset | list[str], data)
 
         column_names = _parse_column_names(d.pop("column_names", UNSET))
 

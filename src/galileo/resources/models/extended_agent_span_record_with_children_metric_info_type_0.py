@@ -49,15 +49,12 @@ class ExtendedAgentSpanRecordWithChildrenMetricInfoType0:
         for prop_name, prop in self.additional_properties.items():
             if isinstance(
                 prop,
-                (
-                    MetricNotComputed,
-                    MetricPending,
-                    MetricComputing,
-                    MetricNotApplicable,
-                    MetricSuccess,
-                    MetricError,
-                    MetricFailed,
-                ),
+                MetricNotComputed
+                | MetricPending
+                | MetricComputing
+                | MetricNotApplicable
+                | (MetricSuccess | MetricError)
+                | MetricFailed,
             ):
                 field_dict[prop_name] = prop.to_dict()
             else:

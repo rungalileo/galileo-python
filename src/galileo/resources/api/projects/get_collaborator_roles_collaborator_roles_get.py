@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 
@@ -89,7 +89,7 @@ def sync_detailed(*, client: ApiClient) -> Response[list["CollaboratorRoleInfo"]
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient) -> Optional[list["CollaboratorRoleInfo"]]:
+def sync(*, client: ApiClient) -> list["CollaboratorRoleInfo"] | None:
     """Get Collaborator Roles.
 
     Raises
@@ -123,7 +123,7 @@ async def asyncio_detailed(*, client: ApiClient) -> Response[list["CollaboratorR
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient) -> Optional[list["CollaboratorRoleInfo"]]:
+async def asyncio(*, client: ApiClient) -> list["CollaboratorRoleInfo"] | None:
     """Get Collaborator Roles.
 
     Raises

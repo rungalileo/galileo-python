@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,7 +24,7 @@ class MetricCritiqueColumnar:
 
     id: str
     is_computed: bool
-    revised_explanation: Union[None, str]
+    revised_explanation: None | str
     critique_info: "MetricCritiqueContent"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -33,7 +33,7 @@ class MetricCritiqueColumnar:
 
         is_computed = self.is_computed
 
-        revised_explanation: Union[None, str]
+        revised_explanation: None | str
         revised_explanation = self.revised_explanation
 
         critique_info = self.critique_info.to_dict()
@@ -60,10 +60,10 @@ class MetricCritiqueColumnar:
 
         is_computed = d.pop("is_computed")
 
-        def _parse_revised_explanation(data: object) -> Union[None, str]:
+        def _parse_revised_explanation(data: object) -> None | str:
             if data is None:
                 return data
-            return cast(Union[None, str], data)
+            return cast(None | str, data)
 
         revised_explanation = _parse_revised_explanation(d.pop("revised_explanation"))
 

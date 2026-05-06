@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,7 +42,7 @@ def _get_kwargs(project_id: str, stage_id: str, *, body: RulesetsMixin) -> dict[
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, StageDB]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | StageDB:
     if response.status_code == 200:
         return StageDB.from_dict(response.json())
 
@@ -67,7 +67,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, StageDB]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | StageDB]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -78,7 +78,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 def sync_detailed(
     project_id: str, stage_id: str, *, client: ApiClient, body: RulesetsMixin
-) -> Response[Union[HTTPValidationError, StageDB]]:
+) -> Response[HTTPValidationError | StageDB]:
     """Update Stage.
 
     Args:
@@ -104,7 +104,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, stage_id: str, *, client: ApiClient, body: RulesetsMixin
-) -> Optional[Union[HTTPValidationError, StageDB]]:
+) -> HTTPValidationError | StageDB | None:
     """Update Stage.
 
     Args:
@@ -126,7 +126,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, stage_id: str, *, client: ApiClient, body: RulesetsMixin
-) -> Response[Union[HTTPValidationError, StageDB]]:
+) -> Response[HTTPValidationError | StageDB]:
     """Update Stage.
 
     Args:
@@ -152,7 +152,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, stage_id: str, *, client: ApiClient, body: RulesetsMixin
-) -> Optional[Union[HTTPValidationError, StageDB]]:
+) -> HTTPValidationError | StageDB | None:
     """Update Stage.
 
     Args:

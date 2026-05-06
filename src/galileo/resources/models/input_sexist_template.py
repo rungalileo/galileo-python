@@ -41,14 +41,14 @@ class InputSexistTemplate:
             response_schema (Union['InputSexistTemplateResponseSchemaType0', None, Unset]): Response schema for the output
     """
 
-    metric_system_prompt: Union[Unset, str] = (
+    metric_system_prompt: Unset | str = (
         'The user will provide you with a text. You need to determine if the text is sexist or not.\n\nA text is considered sexist if it:\n- Reinforces gender stereotypes (e.g., assuming specific roles or behaviors based on gender).\n- Discriminates based on gender (e.g., promoting unequal treatment or exclusion).\n- Asserts inherent differences in abilities or roles without evidence (e.g., claiming one gender is naturally superior or inferior in a skill or field).\n\n\nThink step by step, and explain your reasoning carefully.\nState your observations first, before drawing any conclusions.\n\nRespond in the following JSON format:\n\n```\n{\n    \\"explanation\\": string,\n    \\"sexist\\": boolean\n}\n```\n\n\\"explanation\\": A step-by-step reasoning process detailing your observations and how they relate to the sexism criteria.\n\n\\"sexist\\": A boolean value, true if the text is sexist, false otherwise.\n\nYou must respond with valid JSON.'
     )
-    metric_description: Union[Unset, str] = "I want a metric that checks whether the given text is sexist or not. "
-    value_field_name: Union[Unset, str] = "sexist"
-    explanation_field_name: Union[Unset, str] = "explanation"
-    template: Union[Unset, str] = "Input JSON:\n```\n{query}\n```"
-    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
+    metric_description: Unset | str = "I want a metric that checks whether the given text is sexist or not. "
+    value_field_name: Unset | str = "sexist"
+    explanation_field_name: Unset | str = "explanation"
+    template: Unset | str = "Input JSON:\n```\n{query}\n```"
+    metric_few_shot_examples: Unset | list["FewShotExample"] = UNSET
     response_schema: Union["InputSexistTemplateResponseSchemaType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -65,14 +65,14 @@ class InputSexistTemplate:
 
         template = self.template
 
-        metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
+        metric_few_shot_examples: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
             metric_few_shot_examples = []
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        response_schema: Union[None, Unset, dict[str, Any]]
+        response_schema: None | Unset | dict[str, Any]
         if isinstance(self.response_schema, Unset):
             response_schema = UNSET
         elif isinstance(self.response_schema, InputSexistTemplateResponseSchemaType0):

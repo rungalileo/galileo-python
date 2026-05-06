@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -26,8 +26,8 @@ class OverrideAction:
     """
 
     choices: list[str]
-    type_: Union[Literal["OVERRIDE"], Unset] = "OVERRIDE"
-    subscriptions: Union[Unset, list["SubscriptionConfig"]] = UNSET
+    type_: Literal["OVERRIDE"] | Unset = "OVERRIDE"
+    subscriptions: Unset | list["SubscriptionConfig"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,7 +35,7 @@ class OverrideAction:
 
         type_ = self.type_
 
-        subscriptions: Union[Unset, list[dict[str, Any]]] = UNSET
+        subscriptions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.subscriptions, Unset):
             subscriptions = []
             for subscriptions_item_data in self.subscriptions:
@@ -59,7 +59,7 @@ class OverrideAction:
         d = dict(src_dict)
         choices = cast(list[str], d.pop("choices"))
 
-        type_ = cast(Union[Literal["OVERRIDE"], Unset], d.pop("type", UNSET))
+        type_ = cast(Literal["OVERRIDE"] | Unset, d.pop("type", UNSET))
         if type_ != "OVERRIDE" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'OVERRIDE', got '{type_}'")
 

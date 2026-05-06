@@ -4,12 +4,12 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="MetricRollUpRollUpMetricsType0")
+T = TypeVar("T", bound="PartialExtendedAgentSpanRecordAnnotationAgreement")
 
 
 @_attrs_define
-class MetricRollUpRollUpMetricsType0:
-    """ """
+class PartialExtendedAgentSpanRecordAnnotationAgreement:
+    """Annotation agreement scores keyed by template ID."""
 
     additional_properties: dict[str, float] = _attrs_field(init=False, factory=dict)
 
@@ -22,10 +22,10 @@ class MetricRollUpRollUpMetricsType0:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        metric_roll_up_roll_up_metrics_type_0 = cls()
+        partial_extended_agent_span_record_annotation_agreement = cls()
 
-        metric_roll_up_roll_up_metrics_type_0.additional_properties = d
-        return metric_roll_up_roll_up_metrics_type_0
+        partial_extended_agent_span_record_annotation_agreement.additional_properties = d
+        return partial_extended_agent_span_record_annotation_agreement
 
     @property
     def additional_keys(self) -> list[str]:

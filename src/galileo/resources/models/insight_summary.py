@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -30,7 +30,7 @@ class InsightSummary:
     details: str
     suggested_action: str
     priority: int
-    priority_category: Union[InsightSummaryPriorityCategoryType0, None, Unset] = UNSET
+    priority_category: InsightSummaryPriorityCategoryType0 | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,7 +46,7 @@ class InsightSummary:
 
         priority = self.priority
 
-        priority_category: Union[None, Unset, str]
+        priority_category: None | Unset | str
         if isinstance(self.priority_category, Unset):
             priority_category = UNSET
         elif isinstance(self.priority_category, InsightSummaryPriorityCategoryType0):
@@ -86,7 +86,7 @@ class InsightSummary:
 
         priority = d.pop("priority")
 
-        def _parse_priority_category(data: object) -> Union[InsightSummaryPriorityCategoryType0, None, Unset]:
+        def _parse_priority_category(data: object) -> InsightSummaryPriorityCategoryType0 | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -98,7 +98,7 @@ class InsightSummary:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[InsightSummaryPriorityCategoryType0, None, Unset], data)
+            return cast(InsightSummaryPriorityCategoryType0 | None | Unset, data)
 
         priority_category = _parse_priority_category(d.pop("priority_category", UNSET))
 

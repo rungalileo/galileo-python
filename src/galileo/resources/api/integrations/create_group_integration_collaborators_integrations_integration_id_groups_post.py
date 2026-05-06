@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -45,9 +45,7 @@ def _get_kwargs(integration_id: str, *, body: list["GroupCollaboratorCreate"]) -
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Union[HTTPValidationError, list["GroupCollaborator"]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list["GroupCollaborator"]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -81,7 +79,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
+) -> Response[HTTPValidationError | list["GroupCollaborator"]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -92,7 +90,7 @@ def _build_response(
 
 def sync_detailed(
     integration_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
+) -> Response[HTTPValidationError | list["GroupCollaborator"]]:
     """Create Group Integration Collaborators.
 
      Share an integration with groups.
@@ -119,7 +117,7 @@ def sync_detailed(
 
 def sync(
     integration_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
+) -> HTTPValidationError | list["GroupCollaborator"] | None:
     """Create Group Integration Collaborators.
 
      Share an integration with groups.
@@ -142,7 +140,7 @@ def sync(
 
 async def asyncio_detailed(
     integration_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
+) -> Response[HTTPValidationError | list["GroupCollaborator"]]:
     """Create Group Integration Collaborators.
 
      Share an integration with groups.
@@ -169,7 +167,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     integration_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
-) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
+) -> HTTPValidationError | list["GroupCollaborator"] | None:
     """Create Group Integration Collaborators.
 
      Share an integration with groups.

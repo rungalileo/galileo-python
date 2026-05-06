@@ -4,14 +4,14 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="MetricRollUpRollUpMetricsType1AdditionalProperty")
+T = TypeVar("T", bound="ExtendedSessionRecordWithChildrenAnnotationAgreement")
 
 
 @_attrs_define
-class MetricRollUpRollUpMetricsType1AdditionalProperty:
-    """ """
+class ExtendedSessionRecordWithChildrenAnnotationAgreement:
+    """Annotation agreement scores keyed by template ID."""
 
-    additional_properties: dict[str, int] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, float] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         field_dict: dict[str, Any] = {}
@@ -22,19 +22,19 @@ class MetricRollUpRollUpMetricsType1AdditionalProperty:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        metric_roll_up_roll_up_metrics_type_1_additional_property = cls()
+        extended_session_record_with_children_annotation_agreement = cls()
 
-        metric_roll_up_roll_up_metrics_type_1_additional_property.additional_properties = d
-        return metric_roll_up_roll_up_metrics_type_1_additional_property
+        extended_session_record_with_children_annotation_agreement.additional_properties = d
+        return extended_session_record_with_children_annotation_agreement
 
     @property
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> int:
+    def __getitem__(self, key: str) -> float:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: int) -> None:
+    def __setitem__(self, key: str, value: float) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

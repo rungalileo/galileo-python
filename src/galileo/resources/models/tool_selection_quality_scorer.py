@@ -29,11 +29,11 @@ class ToolSelectionQualityScorer:
         num_judges (Union[None, Unset, int]): Number of judges for the scorer.
     """
 
-    name: Union[Literal["tool_selection_quality"], Unset] = "tool_selection_quality"
-    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
-    type_: Union[Unset, ToolSelectionQualityScorerType] = ToolSelectionQualityScorerType.PLUS
-    model_name: Union[None, Unset, str] = UNSET
-    num_judges: Union[None, Unset, int] = UNSET
+    name: Literal["tool_selection_quality"] | Unset = "tool_selection_quality"
+    filters: None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]] = UNSET
+    type_: Unset | ToolSelectionQualityScorerType = ToolSelectionQualityScorerType.PLUS
+    model_name: None | Unset | str = UNSET
+    num_judges: None | Unset | int = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,14 +42,14 @@ class ToolSelectionQualityScorer:
 
         name = self.name
 
-        filters: Union[None, Unset, list[dict[str, Any]]]
+        filters: None | Unset | list[dict[str, Any]]
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, (NodeNameFilter, MetadataFilter)):
+                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -59,14 +59,14 @@ class ToolSelectionQualityScorer:
         else:
             filters = self.filters
 
-        type_: Union[Unset, str] = UNSET
+        type_: Unset | str = UNSET
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
 
-        model_name: Union[None, Unset, str]
+        model_name: None | Unset | str
         model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
-        num_judges: Union[None, Unset, int]
+        num_judges: None | Unset | int
         num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
         field_dict: dict[str, Any] = {}
@@ -92,13 +92,13 @@ class ToolSelectionQualityScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
-        name = cast(Union[Literal["tool_selection_quality"], Unset], d.pop("name", UNSET))
+        name = cast(Literal["tool_selection_quality"] | Unset, d.pop("name", UNSET))
         if name != "tool_selection_quality" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'tool_selection_quality', got '{name}'")
 
         def _parse_filters(
             data: object,
-        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
+        ) -> None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -138,29 +138,29 @@ class ToolSelectionQualityScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
+            return cast(None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
         _type_ = d.pop("type", UNSET)
-        type_: Union[Unset, ToolSelectionQualityScorerType]
+        type_: Unset | ToolSelectionQualityScorerType
         type_ = UNSET if isinstance(_type_, Unset) else ToolSelectionQualityScorerType(_type_)
 
-        def _parse_model_name(data: object) -> Union[None, Unset, str]:
+        def _parse_model_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         model_name = _parse_model_name(d.pop("model_name", UNSET))
 
-        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
+        def _parse_num_judges(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 

@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,8 +20,8 @@ class LogRecordsSortClause:
     """
 
     column_id: str
-    ascending: Union[Unset, bool] = True
-    sort_type: Union[Literal["column"], Unset] = "column"
+    ascending: Unset | bool = True
+    sort_type: Literal["column"] | Unset = "column"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -48,7 +48,7 @@ class LogRecordsSortClause:
 
         ascending = d.pop("ascending", UNSET)
 
-        sort_type = cast(Union[Literal["column"], Unset], d.pop("sort_type", UNSET))
+        sort_type = cast(Literal["column"] | Unset, d.pop("sort_type", UNSET))
         if sort_type != "column" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'column', got '{sort_type}'")
 

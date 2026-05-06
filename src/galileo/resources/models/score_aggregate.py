@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,7 +21,7 @@ class ScoreAggregate:
 
     average: float
     unrated_count: int
-    feedback_type: Union[Literal["score"], Unset] = "score"
+    feedback_type: Literal["score"] | Unset = "score"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,7 +46,7 @@ class ScoreAggregate:
 
         unrated_count = d.pop("unrated_count")
 
-        feedback_type = cast(Union[Literal["score"], Unset], d.pop("feedback_type", UNSET))
+        feedback_type = cast(Literal["score"] | Unset, d.pop("feedback_type", UNSET))
         if feedback_type != "score" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'score', got '{feedback_type}'")
 

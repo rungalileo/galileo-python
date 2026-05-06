@@ -42,7 +42,7 @@ class DatasetRow:
 
         values = []
         for values_item_data in self.values:
-            values_item: Union[None, dict[str, Any], float, int, str]
+            values_item: None | dict[str, Any] | float | int | str
             if isinstance(values_item_data, DatasetRowValuesItemType3):
                 values_item = values_item_data.to_dict()
             else:
@@ -51,7 +51,7 @@ class DatasetRow:
 
         values_dict = self.values_dict.to_dict()
 
-        metadata: Union[None, dict[str, Any]]
+        metadata: None | dict[str, Any]
         metadata = self.metadata.to_dict() if isinstance(self.metadata, DatasetRowMetadata) else self.metadata
 
         field_dict: dict[str, Any] = {}

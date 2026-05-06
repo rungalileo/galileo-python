@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -35,10 +35,10 @@ class UserCollaborator:
     role: CollaboratorRole
     created_at: datetime.datetime
     user_id: str
-    first_name: Union[None, str]
-    last_name: Union[None, str]
+    first_name: None | str
+    last_name: None | str
     email: str
-    permissions: Union[Unset, list["Permission"]] = UNSET
+    permissions: Unset | list["Permission"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -50,15 +50,15 @@ class UserCollaborator:
 
         user_id = self.user_id
 
-        first_name: Union[None, str]
+        first_name: None | str
         first_name = self.first_name
 
-        last_name: Union[None, str]
+        last_name: None | str
         last_name = self.last_name
 
         email = self.email
 
-        permissions: Union[Unset, list[dict[str, Any]]] = UNSET
+        permissions: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
@@ -96,17 +96,17 @@ class UserCollaborator:
 
         user_id = d.pop("user_id")
 
-        def _parse_first_name(data: object) -> Union[None, str]:
+        def _parse_first_name(data: object) -> None | str:
             if data is None:
                 return data
-            return cast(Union[None, str], data)
+            return cast(None | str, data)
 
         first_name = _parse_first_name(d.pop("first_name"))
 
-        def _parse_last_name(data: object) -> Union[None, str]:
+        def _parse_last_name(data: object) -> None | str:
             if data is None:
                 return data
-            return cast(Union[None, str], data)
+            return cast(None | str, data)
 
         last_name = _parse_last_name(d.pop("last_name"))
 

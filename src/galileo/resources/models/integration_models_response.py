@@ -32,9 +32,9 @@ class IntegrationModelsResponse:
     models: list[str]
     scorer_models: list[str]
     recommended_models: Union[Unset, "IntegrationModelsResponseRecommendedModels"] = UNSET
-    supports_num_judges: Union[Unset, bool] = True
-    supports_file_uploads: Union[Unset, bool] = False
-    model_properties: Union[Unset, list["ModelProperties"]] = UNSET
+    supports_num_judges: Unset | bool = True
+    supports_file_uploads: Unset | bool = False
+    model_properties: Unset | list["ModelProperties"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,7 +44,7 @@ class IntegrationModelsResponse:
 
         scorer_models = self.scorer_models
 
-        recommended_models: Union[Unset, dict[str, Any]] = UNSET
+        recommended_models: Unset | dict[str, Any] = UNSET
         if not isinstance(self.recommended_models, Unset):
             recommended_models = self.recommended_models.to_dict()
 
@@ -52,7 +52,7 @@ class IntegrationModelsResponse:
 
         supports_file_uploads = self.supports_file_uploads
 
-        model_properties: Union[Unset, list[dict[str, Any]]] = UNSET
+        model_properties: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.model_properties, Unset):
             model_properties = []
             for model_properties_item_data in self.model_properties:
@@ -86,7 +86,7 @@ class IntegrationModelsResponse:
         scorer_models = cast(list[str], d.pop("scorer_models"))
 
         _recommended_models = d.pop("recommended_models", UNSET)
-        recommended_models: Union[Unset, IntegrationModelsResponseRecommendedModels]
+        recommended_models: Unset | IntegrationModelsResponseRecommendedModels
         if isinstance(_recommended_models, Unset):
             recommended_models = UNSET
         else:

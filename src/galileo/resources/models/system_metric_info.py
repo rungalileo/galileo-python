@@ -36,16 +36,16 @@ class SystemMetricInfo:
 
     name: str
     label: str
-    unit: Union[DataUnit, None, Unset] = UNSET
-    values: Union[Unset, list[float]] = UNSET
-    mean: Union[None, Unset, float] = UNSET
-    median: Union[None, Unset, float] = UNSET
-    p5: Union[None, Unset, float] = UNSET
-    p25: Union[None, Unset, float] = UNSET
-    p75: Union[None, Unset, float] = UNSET
-    p95: Union[None, Unset, float] = UNSET
-    min_: Union[None, Unset, float] = UNSET
-    max_: Union[None, Unset, float] = UNSET
+    unit: DataUnit | None | Unset = UNSET
+    values: Unset | list[float] = UNSET
+    mean: None | Unset | float = UNSET
+    median: None | Unset | float = UNSET
+    p5: None | Unset | float = UNSET
+    p25: None | Unset | float = UNSET
+    p75: None | Unset | float = UNSET
+    p95: None | Unset | float = UNSET
+    min_: None | Unset | float = UNSET
+    max_: None | Unset | float = UNSET
     histogram: Union["Histogram", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -56,7 +56,7 @@ class SystemMetricInfo:
 
         label = self.label
 
-        unit: Union[None, Unset, str]
+        unit: None | Unset | str
         if isinstance(self.unit, Unset):
             unit = UNSET
         elif isinstance(self.unit, DataUnit):
@@ -64,35 +64,35 @@ class SystemMetricInfo:
         else:
             unit = self.unit
 
-        values: Union[Unset, list[float]] = UNSET
+        values: Unset | list[float] = UNSET
         if not isinstance(self.values, Unset):
             values = self.values
 
-        mean: Union[None, Unset, float]
+        mean: None | Unset | float
         mean = UNSET if isinstance(self.mean, Unset) else self.mean
 
-        median: Union[None, Unset, float]
+        median: None | Unset | float
         median = UNSET if isinstance(self.median, Unset) else self.median
 
-        p5: Union[None, Unset, float]
+        p5: None | Unset | float
         p5 = UNSET if isinstance(self.p5, Unset) else self.p5
 
-        p25: Union[None, Unset, float]
+        p25: None | Unset | float
         p25 = UNSET if isinstance(self.p25, Unset) else self.p25
 
-        p75: Union[None, Unset, float]
+        p75: None | Unset | float
         p75 = UNSET if isinstance(self.p75, Unset) else self.p75
 
-        p95: Union[None, Unset, float]
+        p95: None | Unset | float
         p95 = UNSET if isinstance(self.p95, Unset) else self.p95
 
-        min_: Union[None, Unset, float]
+        min_: None | Unset | float
         min_ = UNSET if isinstance(self.min_, Unset) else self.min_
 
-        max_: Union[None, Unset, float]
+        max_: None | Unset | float
         max_ = UNSET if isinstance(self.max_, Unset) else self.max_
 
-        histogram: Union[None, Unset, dict[str, Any]]
+        histogram: None | Unset | dict[str, Any]
         if isinstance(self.histogram, Unset):
             histogram = UNSET
         elif isinstance(self.histogram, Histogram):
@@ -137,7 +137,7 @@ class SystemMetricInfo:
 
         label = d.pop("label")
 
-        def _parse_unit(data: object) -> Union[DataUnit, None, Unset]:
+        def _parse_unit(data: object) -> DataUnit | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -149,81 +149,81 @@ class SystemMetricInfo:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[DataUnit, None, Unset], data)
+            return cast(DataUnit | None | Unset, data)
 
         unit = _parse_unit(d.pop("unit", UNSET))
 
         values = cast(list[float], d.pop("values", UNSET))
 
-        def _parse_mean(data: object) -> Union[None, Unset, float]:
+        def _parse_mean(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(None | Unset | float, data)
 
         mean = _parse_mean(d.pop("mean", UNSET))
 
-        def _parse_median(data: object) -> Union[None, Unset, float]:
+        def _parse_median(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(None | Unset | float, data)
 
         median = _parse_median(d.pop("median", UNSET))
 
-        def _parse_p5(data: object) -> Union[None, Unset, float]:
+        def _parse_p5(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(None | Unset | float, data)
 
         p5 = _parse_p5(d.pop("p5", UNSET))
 
-        def _parse_p25(data: object) -> Union[None, Unset, float]:
+        def _parse_p25(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(None | Unset | float, data)
 
         p25 = _parse_p25(d.pop("p25", UNSET))
 
-        def _parse_p75(data: object) -> Union[None, Unset, float]:
+        def _parse_p75(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(None | Unset | float, data)
 
         p75 = _parse_p75(d.pop("p75", UNSET))
 
-        def _parse_p95(data: object) -> Union[None, Unset, float]:
+        def _parse_p95(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(None | Unset | float, data)
 
         p95 = _parse_p95(d.pop("p95", UNSET))
 
-        def _parse_min_(data: object) -> Union[None, Unset, float]:
+        def _parse_min_(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(None | Unset | float, data)
 
         min_ = _parse_min_(d.pop("min", UNSET))
 
-        def _parse_max_(data: object) -> Union[None, Unset, float]:
+        def _parse_max_(data: object) -> None | Unset | float:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(None | Unset | float, data)
 
         max_ = _parse_max_(d.pop("max", UNSET))
 

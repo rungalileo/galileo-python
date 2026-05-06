@@ -26,14 +26,14 @@ class UpdateDatasetRequest:
 
     name: Union["Name", None, Unset, str] = UNSET
     column_mapping: Union["ColumnMapping", None, Unset] = UNSET
-    draft: Union[None, Unset, bool] = UNSET
+    draft: None | Unset | bool = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.column_mapping import ColumnMapping
         from ..models.name import Name
 
-        name: Union[None, Unset, dict[str, Any], str]
+        name: None | Unset | dict[str, Any] | str
         if isinstance(self.name, Unset):
             name = UNSET
         elif isinstance(self.name, Name):
@@ -41,7 +41,7 @@ class UpdateDatasetRequest:
         else:
             name = self.name
 
-        column_mapping: Union[None, Unset, dict[str, Any]]
+        column_mapping: None | Unset | dict[str, Any]
         if isinstance(self.column_mapping, Unset):
             column_mapping = UNSET
         elif isinstance(self.column_mapping, ColumnMapping):
@@ -49,7 +49,7 @@ class UpdateDatasetRequest:
         else:
             column_mapping = self.column_mapping
 
-        draft: Union[None, Unset, bool]
+        draft: None | Unset | bool
         draft = UNSET if isinstance(self.draft, Unset) else self.draft
 
         field_dict: dict[str, Any] = {}
@@ -103,12 +103,12 @@ class UpdateDatasetRequest:
 
         column_mapping = _parse_column_mapping(d.pop("column_mapping", UNSET))
 
-        def _parse_draft(data: object) -> Union[None, Unset, bool]:
+        def _parse_draft(data: object) -> None | Unset | bool:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(None | Unset | bool, data)
 
         draft = _parse_draft(d.pop("draft", UNSET))
 

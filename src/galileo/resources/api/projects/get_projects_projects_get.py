@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -24,17 +24,17 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
+    *, project_name: None | Unset | str = UNSET, type_: None | ProjectType | Unset = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_project_name: Union[None, Unset, str]
+    json_project_name: None | Unset | str
     json_project_name = UNSET if isinstance(project_name, Unset) else project_name
     params["project_name"] = json_project_name
 
-    json_type_: Union[None, Unset, str]
+    json_type_: None | Unset | str
     if isinstance(type_, Unset):
         json_type_ = UNSET
     elif isinstance(type_, ProjectType):
@@ -58,7 +58,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, list["ProjectDB"]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list["ProjectDB"]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -92,7 +92,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
+) -> Response[HTTPValidationError | list["ProjectDB"]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -102,8 +102,8 @@ def _build_response(
 
 
 def sync_detailed(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
+    *, client: ApiClient, project_name: None | Unset | str = UNSET, type_: None | ProjectType | Unset = UNSET
+) -> Response[HTTPValidationError | list["ProjectDB"]]:
     """Get Projects.
 
      Gets projects for a user.
@@ -133,8 +133,8 @@ def sync_detailed(
 
 
 def sync(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Optional[Union[HTTPValidationError, list["ProjectDB"]]]:
+    *, client: ApiClient, project_name: None | Unset | str = UNSET, type_: None | ProjectType | Unset = UNSET
+) -> HTTPValidationError | list["ProjectDB"] | None:
     """Get Projects.
 
      Gets projects for a user.
@@ -160,8 +160,8 @@ def sync(
 
 
 async def asyncio_detailed(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
+    *, client: ApiClient, project_name: None | Unset | str = UNSET, type_: None | ProjectType | Unset = UNSET
+) -> Response[HTTPValidationError | list["ProjectDB"]]:
     """Get Projects.
 
      Gets projects for a user.
@@ -191,8 +191,8 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Optional[Union[HTTPValidationError, list["ProjectDB"]]]:
+    *, client: ApiClient, project_name: None | Unset | str = UNSET, type_: None | ProjectType | Unset = UNSET
+) -> HTTPValidationError | list["ProjectDB"] | None:
     """Get Projects.
 
      Gets projects for a user.

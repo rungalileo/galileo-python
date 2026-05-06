@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any
 
 import httpx
 
@@ -42,10 +42,10 @@ def _get_kwargs(name: IntegrationName) -> dict[str, Any]:
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Union[
-    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
-    HTTPValidationError,
-]:
+) -> (
+    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
+    | HTTPValidationError
+):
     if response.status_code == 200:
         return GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet.from_dict(
             response.json()
@@ -75,10 +75,8 @@ def _parse_response(
 def _build_response(
     *, client: ApiClient, response: httpx.Response
 ) -> Response[
-    Union[
-        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
-        HTTPValidationError,
-    ]
+    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
+    | HTTPValidationError
 ]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -91,10 +89,8 @@ def _build_response(
 def sync_detailed(
     name: IntegrationName, *, client: ApiClient
 ) -> Response[
-    Union[
-        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
-        HTTPValidationError,
-    ]
+    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
+    | HTTPValidationError
 ]:
     """Get Integration Status.
 
@@ -121,12 +117,11 @@ def sync_detailed(
 
 def sync(
     name: IntegrationName, *, client: ApiClient
-) -> Optional[
-    Union[
-        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
-        HTTPValidationError,
-    ]
-]:
+) -> (
+    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
+    | HTTPValidationError
+    | None
+):
     """Get Integration Status.
 
      Checks if the integration status is active or not.
@@ -149,10 +144,8 @@ def sync(
 async def asyncio_detailed(
     name: IntegrationName, *, client: ApiClient
 ) -> Response[
-    Union[
-        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
-        HTTPValidationError,
-    ]
+    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
+    | HTTPValidationError
 ]:
     """Get Integration Status.
 
@@ -179,12 +172,11 @@ async def asyncio_detailed(
 
 async def asyncio(
     name: IntegrationName, *, client: ApiClient
-) -> Optional[
-    Union[
-        GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
-        HTTPValidationError,
-    ]
-]:
+) -> (
+    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet
+    | HTTPValidationError
+    | None
+):
     """Get Integration Status.
 
      Checks if the integration status is active or not.

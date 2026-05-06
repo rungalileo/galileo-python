@@ -39,13 +39,13 @@ class ProtectRequest:
     """
 
     payload: "Payload"
-    prioritized_rulesets: Union[Unset, list["Ruleset"]] = UNSET
-    project_name: Union[None, Unset, str] = UNSET
-    project_id: Union[None, Unset, str] = UNSET
-    stage_name: Union[None, Unset, str] = UNSET
-    stage_id: Union[None, Unset, str] = UNSET
-    stage_version: Union[None, Unset, int] = UNSET
-    timeout: Union[Unset, float] = 300.0
+    prioritized_rulesets: Unset | list["Ruleset"] = UNSET
+    project_name: None | Unset | str = UNSET
+    project_id: None | Unset | str = UNSET
+    stage_name: None | Unset | str = UNSET
+    stage_id: None | Unset | str = UNSET
+    stage_version: None | Unset | int = UNSET
+    timeout: Unset | float = 300.0
     metadata: Union["ProtectRequestMetadataType0", None, Unset] = UNSET
     headers: Union["ProtectRequestHeadersType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -56,31 +56,31 @@ class ProtectRequest:
 
         payload = self.payload.to_dict()
 
-        prioritized_rulesets: Union[Unset, list[dict[str, Any]]] = UNSET
+        prioritized_rulesets: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.prioritized_rulesets, Unset):
             prioritized_rulesets = []
             for prioritized_rulesets_item_data in self.prioritized_rulesets:
                 prioritized_rulesets_item = prioritized_rulesets_item_data.to_dict()
                 prioritized_rulesets.append(prioritized_rulesets_item)
 
-        project_name: Union[None, Unset, str]
+        project_name: None | Unset | str
         project_name = UNSET if isinstance(self.project_name, Unset) else self.project_name
 
-        project_id: Union[None, Unset, str]
+        project_id: None | Unset | str
         project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
-        stage_name: Union[None, Unset, str]
+        stage_name: None | Unset | str
         stage_name = UNSET if isinstance(self.stage_name, Unset) else self.stage_name
 
-        stage_id: Union[None, Unset, str]
+        stage_id: None | Unset | str
         stage_id = UNSET if isinstance(self.stage_id, Unset) else self.stage_id
 
-        stage_version: Union[None, Unset, int]
+        stage_version: None | Unset | int
         stage_version = UNSET if isinstance(self.stage_version, Unset) else self.stage_version
 
         timeout = self.timeout
 
-        metadata: Union[None, Unset, dict[str, Any]]
+        metadata: None | Unset | dict[str, Any]
         if isinstance(self.metadata, Unset):
             metadata = UNSET
         elif isinstance(self.metadata, ProtectRequestMetadataType0):
@@ -88,7 +88,7 @@ class ProtectRequest:
         else:
             metadata = self.metadata
 
-        headers: Union[None, Unset, dict[str, Any]]
+        headers: None | Unset | dict[str, Any]
         if isinstance(self.headers, Unset):
             headers = UNSET
         elif isinstance(self.headers, ProtectRequestHeadersType0):
@@ -137,48 +137,48 @@ class ProtectRequest:
 
             prioritized_rulesets.append(prioritized_rulesets_item)
 
-        def _parse_project_name(data: object) -> Union[None, Unset, str]:
+        def _parse_project_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         project_name = _parse_project_name(d.pop("project_name", UNSET))
 
-        def _parse_project_id(data: object) -> Union[None, Unset, str]:
+        def _parse_project_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         project_id = _parse_project_id(d.pop("project_id", UNSET))
 
-        def _parse_stage_name(data: object) -> Union[None, Unset, str]:
+        def _parse_stage_name(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         stage_name = _parse_stage_name(d.pop("stage_name", UNSET))
 
-        def _parse_stage_id(data: object) -> Union[None, Unset, str]:
+        def _parse_stage_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         stage_id = _parse_stage_id(d.pop("stage_id", UNSET))
 
-        def _parse_stage_version(data: object) -> Union[None, Unset, int]:
+        def _parse_stage_version(data: object) -> None | Unset | int:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, int], data)
+            return cast(None | Unset | int, data)
 
         stage_version = _parse_stage_version(d.pop("stage_version", UNSET))
 

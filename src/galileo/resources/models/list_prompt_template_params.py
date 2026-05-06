@@ -30,17 +30,17 @@ class ListPromptTemplateParams:
             Unset]):  Default: None.
     """
 
-    filters: Union[
-        Unset,
-        list[
+    filters: (
+        Unset
+        | list[
             Union[
                 "PromptTemplateCreatedByFilter",
                 "PromptTemplateNameFilter",
                 "PromptTemplateNotInProjectFilter",
                 "PromptTemplateUsedInProjectFilter",
             ]
-        ],
-    ] = UNSET
+        ]
+    ) = UNSET
     sort: Union["PromptTemplateCreatedAtSort", "PromptTemplateNameSort", "PromptTemplateUpdatedAtSort", None, Unset] = (
         None
     )
@@ -54,14 +54,14 @@ class ListPromptTemplateParams:
         from ..models.prompt_template_updated_at_sort import PromptTemplateUpdatedAtSort
         from ..models.prompt_template_used_in_project_filter import PromptTemplateUsedInProjectFilter
 
-        filters: Union[Unset, list[dict[str, Any]]] = UNSET
+        filters: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    (PromptTemplateNameFilter, PromptTemplateCreatedByFilter, PromptTemplateUsedInProjectFilter),
+                    PromptTemplateNameFilter | PromptTemplateCreatedByFilter | PromptTemplateUsedInProjectFilter,
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -69,10 +69,10 @@ class ListPromptTemplateParams:
 
                 filters.append(filters_item)
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: None | Unset | dict[str, Any]
         if isinstance(self.sort, Unset):
             sort = UNSET
-        elif isinstance(self.sort, (PromptTemplateNameSort, PromptTemplateCreatedAtSort, PromptTemplateUpdatedAtSort)):
+        elif isinstance(self.sort, PromptTemplateNameSort | PromptTemplateCreatedAtSort | PromptTemplateUpdatedAtSort):
             sort = self.sort.to_dict()
         else:
             sort = self.sort

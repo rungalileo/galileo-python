@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
     from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
+    from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
     from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_sort_clause import LogRecordsSortClause
@@ -38,7 +39,8 @@ class RecomputeLogRecordsMetricsRequest:
             experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
             metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
             filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
-                'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
+                'LogRecordsDateFilter', 'LogRecordsFullyAnnotatedFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter',
+                'LogRecordsTextFilter']]]):
             filter_tree (Union['AndNodeLogRecordsFilter', 'FilterLeafLogRecordsFilter', 'NotNodeLogRecordsFilter',
                 'OrNodeLogRecordsFilter', None, Unset]):
             sort (Union['LogRecordsSortClause', None, Unset]): Sort for the query.  Defaults to native sort (created_at, id
@@ -49,25 +51,26 @@ class RecomputeLogRecordsMetricsRequest:
     """
 
     scorer_ids: list[str]
-    starting_token: Union[Unset, int] = 0
-    limit: Union[Unset, int] = 100
-    previous_last_row_id: Union[None, Unset, str] = UNSET
-    log_stream_id: Union[None, Unset, str] = UNSET
-    experiment_id: Union[None, Unset, str] = UNSET
-    metrics_testing_id: Union[None, Unset, str] = UNSET
-    filters: Union[
-        Unset,
-        list[
+    starting_token: Unset | int = 0
+    limit: Unset | int = 100
+    previous_last_row_id: None | Unset | str = UNSET
+    log_stream_id: None | Unset | str = UNSET
+    experiment_id: None | Unset | str = UNSET
+    metrics_testing_id: None | Unset | str = UNSET
+    filters: (
+        Unset
+        | list[
             Union[
                 "LogRecordsBooleanFilter",
                 "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
+                "LogRecordsFullyAnnotatedFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
                 "LogRecordsTextFilter",
             ]
-        ],
-    ] = UNSET
+        ]
+    ) = UNSET
     filter_tree: Union[
         "AndNodeLogRecordsFilter",
         "FilterLeafLogRecordsFilter",
@@ -77,8 +80,8 @@ class RecomputeLogRecordsMetricsRequest:
         Unset,
     ] = UNSET
     sort: Union["LogRecordsSortClause", None, Unset] = UNSET
-    truncate_fields: Union[Unset, bool] = False
-    include_counts: Union[Unset, bool] = False
+    truncate_fields: Unset | bool = False
+    include_counts: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -90,6 +93,7 @@ class RecomputeLogRecordsMetricsRequest:
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_sort_clause import LogRecordsSortClause
+        from ..models.log_records_text_filter import LogRecordsTextFilter
         from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
         from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
@@ -99,32 +103,30 @@ class RecomputeLogRecordsMetricsRequest:
 
         limit = self.limit
 
-        previous_last_row_id: Union[None, Unset, str]
+        previous_last_row_id: None | Unset | str
         previous_last_row_id = UNSET if isinstance(self.previous_last_row_id, Unset) else self.previous_last_row_id
 
-        log_stream_id: Union[None, Unset, str]
+        log_stream_id: None | Unset | str
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
-        experiment_id: Union[None, Unset, str]
+        experiment_id: None | Unset | str
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
-        metrics_testing_id: Union[None, Unset, str]
+        metrics_testing_id: None | Unset | str
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
-        filters: Union[Unset, list[dict[str, Any]]] = UNSET
+        filters: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    (
-                        LogRecordsIDFilter,
-                        LogRecordsDateFilter,
-                        LogRecordsNumberFilter,
-                        LogRecordsBooleanFilter,
-                        LogRecordsCollectionFilter,
-                    ),
+                    LogRecordsIDFilter
+                    | LogRecordsDateFilter
+                    | LogRecordsNumberFilter
+                    | LogRecordsBooleanFilter
+                    | (LogRecordsCollectionFilter | LogRecordsTextFilter),
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -132,18 +134,18 @@ class RecomputeLogRecordsMetricsRequest:
 
                 filters.append(filters_item)
 
-        filter_tree: Union[None, Unset, dict[str, Any]]
+        filter_tree: None | Unset | dict[str, Any]
         if isinstance(self.filter_tree, Unset):
             filter_tree = UNSET
         elif isinstance(
             self.filter_tree,
-            (FilterLeafLogRecordsFilter, AndNodeLogRecordsFilter, OrNodeLogRecordsFilter, NotNodeLogRecordsFilter),
+            FilterLeafLogRecordsFilter | AndNodeLogRecordsFilter | OrNodeLogRecordsFilter | NotNodeLogRecordsFilter,
         ):
             filter_tree = self.filter_tree.to_dict()
         else:
             filter_tree = self.filter_tree
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: None | Unset | dict[str, Any]
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(self.sort, LogRecordsSortClause):
@@ -190,6 +192,7 @@ class RecomputeLogRecordsMetricsRequest:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
+        from ..models.log_records_fully_annotated_filter import LogRecordsFullyAnnotatedFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_sort_clause import LogRecordsSortClause
@@ -204,39 +207,39 @@ class RecomputeLogRecordsMetricsRequest:
 
         limit = d.pop("limit", UNSET)
 
-        def _parse_previous_last_row_id(data: object) -> Union[None, Unset, str]:
+        def _parse_previous_last_row_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         previous_last_row_id = _parse_previous_last_row_id(d.pop("previous_last_row_id", UNSET))
 
-        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
+        def _parse_log_stream_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
+        def _parse_experiment_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
+        def _parse_metrics_testing_id(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
@@ -250,6 +253,7 @@ class RecomputeLogRecordsMetricsRequest:
                 "LogRecordsBooleanFilter",
                 "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
+                "LogRecordsFullyAnnotatedFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
                 "LogRecordsTextFilter",
@@ -289,9 +293,16 @@ class RecomputeLogRecordsMetricsRequest:
 
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return LogRecordsTextFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsTextFilter.from_dict(data)
+                return LogRecordsFullyAnnotatedFilter.from_dict(data)
 
             filters_item = _parse_filters_item(filters_item_data)
 

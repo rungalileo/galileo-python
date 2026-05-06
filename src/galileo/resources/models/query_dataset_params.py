@@ -23,21 +23,21 @@ class QueryDatasetParams:
         sort (Union['DatasetContentSortClause', None, Unset]):
     """
 
-    filters: Union[Unset, list["DatasetContentFilter"]] = UNSET
+    filters: Unset | list["DatasetContentFilter"] = UNSET
     sort: Union["DatasetContentSortClause", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_content_sort_clause import DatasetContentSortClause
 
-        filters: Union[Unset, list[dict[str, Any]]] = UNSET
+        filters: Unset | list[dict[str, Any]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item = filters_item_data.to_dict()
                 filters.append(filters_item)
 
-        sort: Union[None, Unset, dict[str, Any]]
+        sort: None | Unset | dict[str, Any]
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(self.sort, DatasetContentSortClause):

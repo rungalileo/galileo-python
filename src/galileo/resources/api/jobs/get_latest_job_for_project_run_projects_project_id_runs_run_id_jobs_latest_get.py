@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Union, cast
 
 import httpx
 
@@ -37,7 +37,7 @@ def _get_kwargs(project_id: str, run_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, Union["JobDB", None]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | Union["JobDB", None]:
     if response.status_code == 200:
 
         def _parse_response_200(data: object) -> Union["JobDB", None]:
@@ -77,7 +77,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTT
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, Union["JobDB", None]]]:
+) -> Response[HTTPValidationError | Union["JobDB", None]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -88,7 +88,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, run_id: str, *, client: ApiClient
-) -> Response[Union[HTTPValidationError, Union["JobDB", None]]]:
+) -> Response[HTTPValidationError | Union["JobDB", None]]:
     """Get Latest Job For Project Run.
 
      Returns the most recently updated job for a run.
@@ -113,9 +113,7 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(
-    project_id: str, run_id: str, *, client: ApiClient
-) -> Optional[Union[HTTPValidationError, Union["JobDB", None]]]:
+def sync(project_id: str, run_id: str, *, client: ApiClient) -> HTTPValidationError | Union["JobDB", None] | None:
     """Get Latest Job For Project Run.
 
      Returns the most recently updated job for a run.
@@ -138,7 +136,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, run_id: str, *, client: ApiClient
-) -> Response[Union[HTTPValidationError, Union["JobDB", None]]]:
+) -> Response[HTTPValidationError | Union["JobDB", None]]:
     """Get Latest Job For Project Run.
 
      Returns the most recently updated job for a run.
@@ -165,7 +163,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, run_id: str, *, client: ApiClient
-) -> Optional[Union[HTTPValidationError, Union["JobDB", None]]]:
+) -> HTTPValidationError | Union["JobDB", None] | None:
     """Get Latest Job For Project Run.
 
      Returns the most recently updated job for a run.

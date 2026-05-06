@@ -1,6 +1,6 @@
 from collections.abc import Mapping
 from io import BytesIO
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,22 +24,22 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
     """
 
     file: File
-    test_input: Union[None, Unset, str] = UNSET
-    test_output: Union[None, Unset, str] = UNSET
-    required_scorers: Union[None, Unset, list[str], str] = UNSET
-    scoreable_node_types: Union[None, Unset, list[str], str] = UNSET
+    test_input: None | Unset | str = UNSET
+    test_output: None | Unset | str = UNSET
+    required_scorers: None | Unset | list[str] | str = UNSET
+    scoreable_node_types: None | Unset | list[str] | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         file = self.file.to_tuple()
 
-        test_input: Union[None, Unset, str]
+        test_input: None | Unset | str
         test_input = UNSET if isinstance(self.test_input, Unset) else self.test_input
 
-        test_output: Union[None, Unset, str]
+        test_output: None | Unset | str
         test_output = UNSET if isinstance(self.test_output, Unset) else self.test_output
 
-        required_scorers: Union[None, Unset, list[str], str]
+        required_scorers: None | Unset | list[str] | str
         if isinstance(self.required_scorers, Unset):
             required_scorers = UNSET
         elif isinstance(self.required_scorers, list):
@@ -48,7 +48,7 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
         else:
             required_scorers = self.required_scorers
 
-        scoreable_node_types: Union[None, Unset, list[str], str]
+        scoreable_node_types: None | Unset | list[str] | str
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
         elif isinstance(self.scoreable_node_types, list):
@@ -123,25 +123,25 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
         d = dict(src_dict)
         file = File(payload=BytesIO(d.pop("file")))
 
-        def _parse_test_input(data: object) -> Union[None, Unset, str]:
+        def _parse_test_input(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         test_input = _parse_test_input(d.pop("test_input", UNSET))
 
-        def _parse_test_output(data: object) -> Union[None, Unset, str]:
+        def _parse_test_output(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(None | Unset | str, data)
 
         test_output = _parse_test_output(d.pop("test_output", UNSET))
 
-        def _parse_required_scorers(data: object) -> Union[None, Unset, list[str], str]:
+        def _parse_required_scorers(data: object) -> None | Unset | list[str] | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -153,11 +153,11 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str], str], data)
+            return cast(None | Unset | list[str] | str, data)
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
-        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str], str]:
+        def _parse_scoreable_node_types(data: object) -> None | Unset | list[str] | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -169,7 +169,7 @@ class BodyValidateCodeScorerScorersCodeValidatePost:
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str], str], data)
+            return cast(None | Unset | list[str] | str, data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
