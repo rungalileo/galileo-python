@@ -1426,6 +1426,201 @@ class TestMetricColumns:
             _ = experiment.experiment_columns
 
 
+class TestGetMetricAggregate:
+    """Tests for Experiment.get_metric_aggregate."""
+
+    SCORER_UUID = "550e8400-e29b-41d4-a716-446655440000"
+
+    def _make_experiment_with_aggregates(
+        self, synced_experiment: Experiment, scorer_uuid: str = SCORER_UUID, avg: float = 0.85
+    ) -> Experiment:
+        """Set up metric_aggregates on the experiment."""
+        mock_agg = MagicMock()
+        mock_agg.avg = avg
+        mock_structured = MagicMock()
+        mock_structured.additional_properties = {scorer_uuid: mock_agg}
+        mock_response = MagicMock()
+        mock_response.structured_aggregate_metrics = mock_structured
+        synced_experiment._experiment_response = mock_response
+        return synced_experiment
+
+    def _make_column_response(self, scorer_uuid: str, label: str, alias: str) -> MagicMock:
+        col_info = ColumnInfo(
+            id=f"metrics/{scorer_uuid}",
+            category=ColumnCategory.METRIC,
+            data_type=DataType.FLOATING_POINT,
+            label=label,
+            metric_key_alias=alias,
+        )
+        mock_response = MagicMock()
+        mock_response.columns = [col_info]
+        return mock_response
+
+    def test_returns_none_when_metric_aggregates_empty(
+        self, synced_experiment: Experiment, reset_configuration: None
+    ) -> None:
+        # Given: no structured_aggregate_metrics on the response
+        mock_response = MagicMock()
+        mock_response.structured_aggregate_metrics = None
+        synced_experiment._experiment_response = mock_response
+
+        # When: getting a metric aggregate
+        result = synced_experiment.get_metric_aggregate(GalileoMetrics.correctness)
+
+        # Then: None is returned without error
+        assert result is None
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_lookup_by_galileo_metrics_enum(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: metric_aggregates keyed by UUID, columns returning Correctness
+        experiment = self._make_experiment_with_aggregates(synced_experiment)
+        mock_api.sync.return_value = self._make_column_response(
+            self.SCORER_UUID, label="Correctness", alias="correctness"
+        )
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: looking up by GalileoMetrics enum (value == label "Correctness")
+        result = experiment.get_metric_aggregate(GalileoMetrics.correctness)
+
+        # Then: the aggregate for the scorer UUID is returned
+        assert result is not None
+        assert result.avg == 0.85
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_lookup_by_label_string(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: metric_aggregates and a column with label "Correctness"
+        experiment = self._make_experiment_with_aggregates(synced_experiment)
+        mock_api.sync.return_value = self._make_column_response(
+            self.SCORER_UUID, label="Correctness", alias="correctness"
+        )
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: looking up by human-readable label string
+        result = experiment.get_metric_aggregate("Correctness")
+
+        # Then: the aggregate is returned
+        assert result is not None
+        assert result.avg == 0.85
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_lookup_by_metric_key_alias(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: metric_aggregates and a column with alias "correctness"
+        experiment = self._make_experiment_with_aggregates(synced_experiment)
+        mock_api.sync.return_value = self._make_column_response(
+            self.SCORER_UUID, label="Correctness", alias="correctness"
+        )
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: looking up by legacy metric_key_alias
+        result = experiment.get_metric_aggregate("correctness")
+
+        # Then: the aggregate is returned (alias fallback)
+        assert result is not None
+        assert result.avg == 0.85
+
+    def test_lookup_by_uuid_string(self, synced_experiment: Experiment, reset_configuration: None) -> None:
+        # Given: metric_aggregates keyed by scorer UUID
+        experiment = self._make_experiment_with_aggregates(synced_experiment)
+
+        # When: looking up directly by UUID string (no column resolution needed)
+        result = experiment.get_metric_aggregate(self.SCORER_UUID)
+
+        # Then: the aggregate is returned without calling experiment_columns
+        assert result is not None
+        assert result.avg == 0.85
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_returns_none_for_unknown_metric(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: metric_aggregates and columns that don't include "Toxicity"
+        experiment = self._make_experiment_with_aggregates(synced_experiment)
+        mock_api.sync.return_value = self._make_column_response(
+            self.SCORER_UUID, label="Correctness", alias="correctness"
+        )
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: looking up a metric that doesn't exist
+        result = experiment.get_metric_aggregate("Toxicity")
+
+        # Then: None is returned
+        assert result is None
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_label_takes_priority_over_alias(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: two columns where one label equals another's alias (edge case)
+        uuid_a = "aaaaaaaa-0000-0000-0000-000000000001"
+        uuid_b = "bbbbbbbb-0000-0000-0000-000000000002"
+        mock_agg_a = MagicMock()
+        mock_agg_a.avg = 0.70
+        mock_agg_b = MagicMock()
+        mock_agg_b.avg = 0.90
+        mock_structured = MagicMock()
+        mock_structured.additional_properties = {uuid_a: mock_agg_a, uuid_b: mock_agg_b}
+        mock_response = MagicMock()
+        mock_response.structured_aggregate_metrics = mock_structured
+        synced_experiment._experiment_response = mock_response
+
+        col_a = ColumnInfo(
+            id=f"metrics/{uuid_a}",
+            category=ColumnCategory.METRIC,
+            data_type=DataType.FLOATING_POINT,
+            label="foo",
+            metric_key_alias="foo",
+        )
+        col_b = ColumnInfo(
+            id=f"metrics/{uuid_b}",
+            category=ColumnCategory.METRIC,
+            data_type=DataType.FLOATING_POINT,
+            label="Correctness",
+            metric_key_alias="foo",  # alias also "foo" — but label wins
+        )
+        mock_col_response = MagicMock()
+        mock_col_response.columns = [col_a, col_b]
+        mock_api.sync.return_value = mock_col_response
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: looking up by the label "Correctness"
+        result = synced_experiment.get_metric_aggregate("Correctness")
+
+        # Then: the label-matched column (uuid_b, avg=0.90) wins over the alias match
+        assert result is not None
+        assert result.avg == 0.90
+
+
 class TestExperimentTagging:
     """Test suite for Experiment tagging functionality."""
 

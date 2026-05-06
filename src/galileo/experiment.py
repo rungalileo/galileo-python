@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import builtins
 import datetime
+import re
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
@@ -63,6 +64,8 @@ if TYPE_CHECKING:
     from galileo.shared.column import ColumnCollection
 
 _logger = get_logger(__name__)
+
+_UUID_RE = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE)
 
 EXPERIMENT_TASK_TYPE: int = 16
 
@@ -2003,6 +2006,74 @@ class Experiment(StateManagementMixin):
             raise ValueError("Unable to retrieve metric columns.")
         columns = [Column(col) for col in response.columns]
         return ColumnCollection(columns)
+
+    def get_metric_aggregate(self, metric: GalileoMetrics | str) -> MetricAggregates | None:
+        """Return aggregate statistics for a specific metric.
+
+        Looks up a metric by any of the following identifiers, tried in order:
+
+        1. :class:`~galileo.schema.metrics.GalileoMetrics` enum value — its
+           ``value`` IS the human-readable label (e.g.
+           ``GalileoMetrics.correctness`` → ``"Correctness"``).
+        2. Scorer UUID string — direct lookup in :attr:`metric_aggregates`,
+           no column resolution needed.
+        3. Human-readable label string (e.g. ``"Correctness"``) — resolved
+           via :attr:`experiment_columns`.
+        4. Legacy ``metric_key_alias`` string (e.g. ``"correctness"``) —
+           fallback after label matching fails.
+
+        Returns ``None`` if :attr:`metric_aggregates` is not yet populated
+        (metrics still computing) or the metric is not found.
+
+        Parameters
+        ----------
+        metric :
+            Any of: a :class:`GalileoMetrics` enum value, scorer UUID string,
+            human-readable label, or legacy metric_key_alias.
+
+        Returns
+        -------
+        MetricAggregates | None
+            Aggregate stats with ``avg``, ``min_``, ``max_``, ``p50``,
+            ``p90``, ``p95``, ``p99``, ``count``, and ``value_distribution``
+            fields; or ``None`` if not available.
+
+        Examples
+        --------
+        Poll until a specific metric is computed, then assert::
+
+            from galileo.schema.metrics import GalileoMetrics
+
+            while experiment.get_metric_aggregate(GalileoMetrics.correctness) is None:
+                time.sleep(5)
+                experiment.refresh()
+
+            agg = experiment.get_metric_aggregate(GalileoMetrics.correctness)
+            assert agg.avg >= 0.95
+        """
+        aggregates = self.metric_aggregates
+        if not aggregates:
+            return None
+
+        # GalileoMetrics.value IS the human-readable label (e.g. "Correctness")
+        metric_str = metric.value if isinstance(metric, GalileoMetrics) else metric
+
+        # Scorer UUID → direct lookup, no column resolution needed
+        if _UUID_RE.fullmatch(metric_str):
+            return aggregates.get(metric_str)
+
+        # Label or metric_key_alias → iterate experiment_columns once, prefer label match
+        alias_match = None
+        for col in self.experiment_columns.values():
+            if col.label == metric_str:
+                return aggregates.get(col.id.removeprefix("metrics/"))
+            if col.metric_key_alias == metric_str and alias_match is None:
+                alias_match = col
+
+        if alias_match:
+            return aggregates.get(alias_match.id.removeprefix("metrics/"))
+
+        return None
 
 
 # Import at end to avoid circular import (dataset.py, prompt.py, project.py import Experiment)
