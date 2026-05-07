@@ -485,6 +485,26 @@ def test_add_control_span_uses_model_default_name_in_fallback_mode(
     setup_mock_logstreams_client(mock_logstreams_client)
     original_import = builtins.__import__
 
+    def assert_fallback_default_name() -> None:
+        logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+        logger.start_trace(input="trace input")
+        workflow = logger.add_workflow_span(input="workflow input", name="workflow")
+
+        # When: adding a control span without an explicit name
+        control_span = logger.add_control_span(input="selected text", name=None)
+
+        # Then: the fallback model default is applied and the span is preserved
+        assert control_span is not None
+        assert control_module.HAS_NATIVE_CONTROL_SPAN is False
+        assert isinstance(control_span, logged_module.LoggedControlSpan)
+        assert isinstance(control_span, control_module.ControlSpan)
+        assert control_span.name == "control"
+        assert workflow.spans == [control_span]
+
+    if not control_module.HAS_NATIVE_CONTROL_SPAN:
+        assert_fallback_default_name()
+        return
+
     def force_fallback_import(name, globals=None, locals=None, fromlist=(), level=0):
         if name == "galileo_core.schemas.logging.control":
             raise ImportError("forced fallback for test")
@@ -497,20 +517,7 @@ def test_add_control_span_uses_model_default_name_in_fallback_mode(
             importlib.reload(logged_module)
             context.setattr(logger_module, "LoggedControlSpan", logged_module.LoggedControlSpan)
 
-            logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
-            logger.start_trace(input="trace input")
-            workflow = logger.add_workflow_span(input="workflow input", name="workflow")
-
-            # When: adding a control span without an explicit name
-            control_span = logger.add_control_span(input="selected text", name=None)
-
-            # Then: the fallback model default is applied and the span is preserved
-            assert control_span is not None
-            assert control_module.HAS_NATIVE_CONTROL_SPAN is False
-            assert isinstance(control_span, logged_module.LoggedControlSpan)
-            assert isinstance(control_span, control_module.ControlSpan)
-            assert control_span.name == "control"
-            assert workflow.spans == [control_span]
+            assert_fallback_default_name()
     finally:
         importlib.reload(control_module)
         importlib.reload(logged_module)

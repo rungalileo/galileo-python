@@ -7,6 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 import galileo.logger.control as control_module
+import galileo.logger.logger as logger_module
 import galileo.schema.logged as logged_module
 from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
 from galileo.schema.logged import LoggedAgentSpan, LoggedControlSpan, LoggedLlmSpan, LoggedTrace, LoggedWorkflowSpan
@@ -342,6 +343,16 @@ class TestJsonRoundtripNoCoercion:
 
     def test_logged_trace_roundtrip_with_fallback_control_span(self, monkeypatch: pytest.MonkeyPatch) -> None:
         # Given: galileo.logger.control is reloaded without native ControlSpan support
+        if not control_module.HAS_NATIVE_CONTROL_SPAN:
+            control_payload = control_module.ControlSpan(input="selected text").model_dump(mode="python")
+            trace = logged_module.LoggedTrace(input="query", spans=[control_payload])
+            restored = logged_module.LoggedTrace.model_validate(trace.model_dump(mode="json"))
+
+            assert restored.spans[0].type == "control"
+            assert restored.spans[0].__class__.__name__ == "LoggedControlSpan"
+            assert restored.spans[0].model_dump(mode="json")["input"] == "selected text"
+            return
+
         original_import = builtins.__import__
 
         def force_fallback_import(name, globals=None, locals=None, fromlist=(), level=0):
@@ -368,12 +379,18 @@ class TestJsonRoundtripNoCoercion:
         finally:
             importlib.reload(control_module)
             importlib.reload(logged_module)
+            logger_module.LoggedControlSpan = logged_module.LoggedControlSpan
 
     @pytest.mark.parametrize("field_name", ["id", "session_id", "trace_id", "parent_id"])
     def test_fallback_control_span_rejects_non_uuidish_id_fields(
         self, field_name: str, monkeypatch: pytest.MonkeyPatch
     ) -> None:
         # Given: galileo.logger.control is reloaded without native ControlSpan support
+        if not control_module.HAS_NATIVE_CONTROL_SPAN:
+            with pytest.raises(ValidationError):
+                control_module.ControlSpan(input="selected text", **{field_name: 123})
+            return
+
         original_import = builtins.__import__
 
         def force_fallback_import(name, globals=None, locals=None, fromlist=(), level=0):
@@ -392,6 +409,8 @@ class TestJsonRoundtripNoCoercion:
                     control_module.ControlSpan(input="selected text", **{field_name: 123})
         finally:
             importlib.reload(control_module)
+            importlib.reload(logged_module)
+            logger_module.LoggedControlSpan = logged_module.LoggedControlSpan
 
 
 class TestLoggedAndCoreParity:
