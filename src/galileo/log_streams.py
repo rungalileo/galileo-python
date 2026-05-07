@@ -234,16 +234,28 @@ class LogStreams:
         self.config = GalileoPythonConfig.get()
 
     @overload
-    def list(self, *, project_id: str, limit: Unset | int = 100) -> list[LogStream]: ...
+    def list(
+        self, *, project_id: str, limit: Unset | int = 100, starting_token: Unset | int = 0
+    ) -> builtins.list[LogStream]: ...
 
     @overload
-    def list(self, *, project_name: str, limit: Unset | int = 100) -> builtins.list[LogStream]: ...
+    def list(
+        self, *, project_name: str, limit: Unset | int = 100, starting_token: Unset | int = 0
+    ) -> builtins.list[LogStream]: ...
 
     def list(
-        self, *, project_id: str | None = None, project_name: str | None = None, limit: Unset | int = 100
+        self,
+        *,
+        project_id: str | None = None,
+        project_name: str | None = None,
+        limit: Unset | int = 100,
+        starting_token: Unset | int = 0,
     ) -> builtins.list[LogStream]:
         """
         Lists log streams. Exactly one of `project_id` or `project_name` must be provided.
+
+        Returns a single page of results. Use `starting_token` (from
+        `next_starting_token` on a prior response) to fetch subsequent pages.
 
         Parameters
         ----------
@@ -252,12 +264,14 @@ class LogStreams:
         project_name : Optional[str], optional
             The name of the project to list log streams for.
         limit : Union[Unset, int], optional
-            The maximum number of log streams to return. Defaults to 100.
+            The maximum number of log streams to return per page. Defaults to 100.
+        starting_token : Union[Unset, int], optional
+            The pagination token to start from. Defaults to 0 (first page).
 
         Returns
         -------
         builtins.list[LogStream]
-            A list of log streams.
+            A page of log streams.
 
         Raises
         ------
@@ -278,13 +292,38 @@ class LogStreams:
             project_id = project.id
 
         response = list_log_streams_paginated_projects_project_id_log_streams_paginated_get.sync(
-            client=self.config.api_client, project_id=project_id, limit=limit
+            client=self.config.api_client, project_id=project_id, limit=limit, starting_token=starting_token
         )
 
         if response is None or isinstance(response, HTTPValidationError):
             return []
 
         return [LogStream(log_stream=log_stream) for log_stream in response.log_streams]
+
+    def _list_all(self, *, project_id: str) -> builtins.list[LogStream]:
+        """Internal helper: paginate through every page and return all log streams.
+
+        Used by callers that need a globally-complete view (e.g. name-based lookup,
+        oldest-stream fallback). Public callers should use `list()` with explicit
+        pagination instead.
+        """
+        all_log_streams: builtins.list[LogStream] = []
+        starting_token: Unset | int = 0
+        while True:
+            response = list_log_streams_paginated_projects_project_id_log_streams_paginated_get.sync(
+                client=self.config.api_client, project_id=project_id, starting_token=starting_token
+            )
+            if response is None or isinstance(response, HTTPValidationError):
+                break
+
+            all_log_streams.extend(LogStream(log_stream=log_stream) for log_stream in response.log_streams)
+
+            next_token = response.next_starting_token
+            if next_token is None or isinstance(next_token, Unset) or not response.paginated:
+                break
+            starting_token = next_token
+
+        return all_log_streams
 
     @overload
     def get(self, *, id: str, project_id: str | None = None, project_name: str | None = None) -> LogStream | None: ...
@@ -348,12 +387,7 @@ class LogStreams:
             return LogStream(log_stream=log_stream_response)
 
         if name:
-            log_streams = self.list(project_id=project_id)
-
-            if not log_streams or len(log_streams) == 0:
-                return None
-
-            for log_stream in log_streams:
+            for log_stream in self._list_all(project_id=project_id):
                 if log_stream.name == name:
                     return log_stream
         return None
@@ -552,10 +586,17 @@ def get_log_stream(
 
 
 def list_log_streams(
-    *, project_id: str | None = None, project_name: str | None = None, limit: Unset | int = 100
-) -> list[LogStream]:
+    *,
+    project_id: str | None = None,
+    project_name: str | None = None,
+    limit: Unset | int = 100,
+    starting_token: Unset | int = 0,
+) -> builtins.list[LogStream]:
     """
     Lists log streams. Exactly one of `project_id` or `project_name` must be provided.
+
+    Returns a single page of results. Use `starting_token` (from
+    `next_starting_token` on a prior response) to fetch subsequent pages.
 
     Parameters
     ----------
@@ -564,12 +605,14 @@ def list_log_streams(
     project_name : str
         The name of the project.
     limit : Union[Unset, int], optional
-        The maximum number of log streams to return. Defaults to 100.
+        The maximum number of log streams to return per page. Defaults to 100.
+    starting_token : Union[Unset, int], optional
+        The pagination token to start from. Defaults to 0 (first page).
 
     Returns
     -------
-    list[LogStream]
-        A list of Log streams.
+    builtins.list[LogStream]
+        A page of log streams.
 
     Raises
     ------
@@ -579,7 +622,9 @@ def list_log_streams(
         If the request takes longer than Client.timeout.
 
     """
-    return LogStreams().list(project_id=project_id, project_name=project_name, limit=limit)
+    return LogStreams().list(
+        project_id=project_id, project_name=project_name, limit=limit, starting_token=starting_token
+    )
 
 
 def create_log_stream(name: str, project_id: str | None = None, project_name: str | None = None) -> LogStream:

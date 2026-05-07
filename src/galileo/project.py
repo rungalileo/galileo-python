@@ -310,16 +310,22 @@ class Project(StateManagementMixin):
         # Use the LogStream pattern to avoid duplication
         return LogStream(name=name, project_id=self.id).create()
 
-    def list_log_streams(self, *, limit: Unset | int = 100) -> builtins.list[LogStream]:
+    def list_log_streams(
+        self, *, limit: Unset | int = 100, starting_token: Unset | int = 0
+    ) -> builtins.list[LogStream]:
         """
         List log streams for this project.
 
+        Returns a single page of results. Use `starting_token` (from
+        `next_starting_token` on a prior response) to fetch subsequent pages.
+
         Args:
-            limit (Union[Unset, int]): Maximum number of log streams to return. Defaults to 100.
+            limit (Union[Unset, int]): Maximum number of log streams to return per page. Defaults to 100.
+            starting_token (Union[Unset, int]): Pagination token to start from. Defaults to 0 (first page).
 
         Returns
         -------
-            List[LogStream]: A list of log streams belonging to this project.
+            List[LogStream]: A page of log streams belonging to this project.
 
         Examples
         --------
@@ -331,12 +337,15 @@ class Project(StateManagementMixin):
 
             # Cap the number of returned log streams
             log_streams = project.list_log_streams(limit=3)
+
+            # Fetch the next page
+            page_2 = project.list_log_streams(starting_token=100)
         """
         if self.id is None:
             raise ValueError("Project ID is not set. Cannot list log streams for a local-only project.")
 
         # Use the LogStream pattern to avoid duplication
-        return LogStream.list(project_id=self.id, limit=limit)
+        return LogStream.list(project_id=self.id, limit=limit, starting_token=starting_token)
 
     def list_experiments(self) -> builtins.list[Experiment]:
         """
