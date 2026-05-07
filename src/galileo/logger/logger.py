@@ -1843,7 +1843,7 @@ class GalileoLogger(TracesLogger):
         applies_to: ControlAppliesTo | None = None,
         evaluator_name: str | None = None,
         selector_path: str | None = None,
-    ) -> LoggedControlSpan:
+    ) -> LoggedControlSpan | None:
         """
         Add a control span to the current parent.
 
@@ -1854,6 +1854,12 @@ class GalileoLogger(TracesLogger):
         control execution. This is the right place to map an upstream
         control-execution identifier such as Agent Control's
         ``control_execution_id``.
+
+        Returns
+        -------
+        LoggedControlSpan | None
+            The created span, or None when logging is disabled or span creation
+            is skipped by resilient ingestion error handling.
         """
         if metadata:
             metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}

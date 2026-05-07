@@ -490,28 +490,31 @@ def test_add_control_span_uses_model_default_name_in_fallback_mode(
             raise ImportError("forced fallback for test")
         return original_import(name, globals, locals, fromlist, level)
 
-    with monkeypatch.context() as context:
-        context.setattr(builtins, "__import__", force_fallback_import)
+    try:
+        with monkeypatch.context() as context:
+            context.setattr(builtins, "__import__", force_fallback_import)
+            importlib.reload(control_module)
+            importlib.reload(logged_module)
+            context.setattr(logger_module, "LoggedControlSpan", logged_module.LoggedControlSpan)
+
+            logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+            logger.start_trace(input="trace input")
+            workflow = logger.add_workflow_span(input="workflow input", name="workflow")
+
+            # When: adding a control span without an explicit name
+            control_span = logger.add_control_span(input="selected text", name=None)
+
+            # Then: the fallback model default is applied and the span is preserved
+            assert control_span is not None
+            assert control_module.HAS_NATIVE_CONTROL_SPAN is False
+            assert isinstance(control_span, logged_module.LoggedControlSpan)
+            assert isinstance(control_span, control_module.ControlSpan)
+            assert control_span.name == "control"
+            assert workflow.spans == [control_span]
+    finally:
         importlib.reload(control_module)
         importlib.reload(logged_module)
-        context.setattr(logger_module, "LoggedControlSpan", logged_module.LoggedControlSpan)
-
-        logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
-        logger.start_trace(input="trace input")
-        workflow = logger.add_workflow_span(input="workflow input", name="workflow")
-
-        # When: adding a control span without an explicit name
-        control_span = logger.add_control_span(input="selected text", name=None)
-
-        # Then: the fallback model default is applied and the span is preserved
-        assert control_span is not None
-        assert control_module.HAS_NATIVE_CONTROL_SPAN is False
-        assert isinstance(control_span, logged_module.LoggedControlSpan)
-        assert isinstance(control_span, control_module.ControlSpan)
-        assert control_span.name == "control"
-        assert workflow.spans == [control_span]
-
-    importlib.reload(control_module)
+        logger_module.LoggedControlSpan = logged_module.LoggedControlSpan
 
 
 @patch("galileo.logger.logger.LogStreams")
