@@ -42,10 +42,14 @@ RECORD_TYPE_TO_ROOT_TYPE = {
 
 
 def _resolve_project(project_id: str | None, project_name: str | None) -> ProjectRecord:
-    """Resolve a project from explicit params or env fallbacks, raising NotFoundError on 404."""
+    """Resolve a project from explicit params or env fallbacks, raising ResourceNotFoundError on 404.
+
+    Catches ``ValueError`` from ``Projects.get(id=None, name=None)`` so callers that pass nothing
+    and have no env fallback get the documented not-found error instead of a generic ValueError.
+    """
     try:
         project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
-    except ProjectNotFoundError:
+    except (ProjectNotFoundError, ValueError):
         project_obj = None
     if not project_obj:
         raise _project_not_found_error(project_id, project_name)
@@ -189,13 +193,10 @@ class LogStream(StateManagementMixin):
         try:
             logger.info(f"LogStream.create: name='{self.name}' project_id='{self.project_id}' - started")
 
-            # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-            try:
-                project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
-            except ProjectNotFoundError:
-                project_obj = None
-            if not project_obj:
-                raise _project_not_found_error(self.project_id, self.project_name)
+            # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT).
+            # _resolve_project raises ResourceNotFoundError when no project can be found, matching
+            # the contract of LogStream.get() and LogStream.list().
+            project_obj = _resolve_project(self.project_id, self.project_name)
 
             # Update project info from resolved project
             self.project_id = project_obj.id

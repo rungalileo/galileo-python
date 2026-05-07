@@ -1,5 +1,7 @@
 """Galileo SDK exceptions."""
 
+from typing import overload
+
 __all__ = [
     "AuthenticationError",
     "BadRequestError",
@@ -62,11 +64,23 @@ class ForbiddenError(GalileoAPIError):
 class NotFoundError(GalileoAPIError):
     """HTTP 404 - Resource not found.
 
-    Accepts either an HTTP response (status_code, content) or a plain string message for
-    SDK-level lookups where no HTTP response is available.
+    Two construction paths:
+
+    - ``NotFoundError(status_code, content)`` — built from an HTTP 404 response by the
+      generated client. Uses the standard "Resource not found..." message.
+    - ``NotFoundError(message)`` — built from an SDK-level lookup that has no HTTP
+      response (e.g. resolving a project from env vars). The string is the full message.
+
+    The two paths are exposed via ``@overload`` so type checkers see the right shape
+    for each call site instead of an opaque ``int | str`` parameter.
     """
 
-    def __init__(self, status_code_or_message: int | str, content: bytes = b""):
+    @overload
+    def __init__(self, message: str) -> None: ...
+    @overload
+    def __init__(self, status_code: int, content: bytes) -> None: ...
+
+    def __init__(self, status_code_or_message: int | str, content: bytes = b"") -> None:
         if isinstance(status_code_or_message, str):
             self.status_code = 404
             self.content = b""

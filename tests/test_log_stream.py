@@ -12,7 +12,7 @@ from galileo.resources.models.step_type import StepType
 from galileo.search import RecordType
 from galileo.shared.base import SyncState
 from galileo.shared.column import ColumnCollection
-from galileo.shared.exceptions import ValidationError
+from galileo.shared.exceptions import ResourceNotFoundError, ValidationError
 from galileo.shared.query_result import QueryResult
 
 
@@ -1021,3 +1021,76 @@ class TestLogStreamMethods:
         assert "test-id-123" in repr(log_stream)
         assert "test-project-id" in repr(log_stream)
         assert "2024-01-01 12:00:00" in repr(log_stream)
+
+
+class TestProjectNotFoundErrorBackwardCompat:
+    """Verify _project_not_found_error returns ResourceNotFoundError so both catch idioms work.
+
+    Both `except NotFoundError` and `except ResourceNotFoundError` must keep working since
+    ResourceNotFoundError inherits from NotFoundError.
+    """
+
+    @patch("galileo.log_stream.Projects")
+    def test_create_raises_resource_not_found_error_subclass(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: env fallback returns None
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = None
+
+        log_stream = LogStream(name="Test Stream", project_name="missing-proj")
+
+        # When/Then: the raised exception is BOTH a NotFoundError AND a ResourceNotFoundError
+        with pytest.raises(NotFoundError) as exc_info:
+            log_stream.create()
+        assert isinstance(exc_info.value, ResourceNotFoundError)
+
+    @patch("galileo.log_stream.Projects")
+    def test_create_handles_value_error_from_projects_get(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        """When both project_id and project_name are None (and no env), Projects.get raises ValueError.
+
+        _resolve_project must catch that ValueError and convert it into ResourceNotFoundError so the
+        documented contract holds.
+        """
+        # Given: get_with_env_fallbacks raises ValueError (Projects.get(id=None, name=None) does this)
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.side_effect = ValueError(
+            "Exactly one of 'id' or 'name' must be provided."
+        )
+
+        log_stream = LogStream._create_empty()
+        log_stream.name = "Test Stream"
+        log_stream.project_id = None
+        log_stream.project_name = None
+        log_stream._set_state(SyncState.LOCAL_ONLY)
+
+        # When/Then: ValueError is converted to NotFoundError, not propagated raw
+        with pytest.raises(NotFoundError, match="No project specified"):
+            log_stream.create()
+
+
+class TestNotFoundErrorOverloads:
+    """Verify NotFoundError supports both HTTP-style and string-only construction."""
+
+    def test_construct_from_status_code_and_content(self) -> None:
+        # Given/When: HTTP-style construction (matches generated client call sites)
+        err = NotFoundError(404, b"some body")
+
+        # Then: standard message is used and HTTP attributes are set
+        assert err.status_code == 404
+        assert err.content == b"some body"
+        assert "Resource not found" in err.message
+
+    def test_construct_from_message(self) -> None:
+        # Given/When: string-only construction (used by SDK-level lookups)
+        err = NotFoundError("custom not-found message")
+
+        # Then: the string is used verbatim and HTTP fields default sanely
+        assert err.status_code == 404
+        assert err.content == b""
+        assert err.message == "custom not-found message"
+        assert str(err) == "custom not-found message"

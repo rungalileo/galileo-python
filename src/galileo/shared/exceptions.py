@@ -105,23 +105,28 @@ class IntegrationNotConfiguredError(GalileoFutureError):
         self.integration_name = integration_name
 
 
-def _project_not_found_error(project_id: str | None, project_name: str | None) -> "NotFoundError":
-    """Return a context-aware NotFoundError for a missing project.
+def _project_not_found_error(project_id: str | None, project_name: str | None) -> "ResourceNotFoundError":
+    """Return a context-aware ResourceNotFoundError for a missing project.
 
     Distinguishes between "a name/id was given but the project doesn't exist" (actionable: create it)
     and "no identifier was specified at all" (actionable: provide one).
     Falls back to env vars so the message is accurate even when the identifier came from the environment.
+
+    Returns ``ResourceNotFoundError`` (a subclass of :class:`NotFoundError`) so callers using either
+    ``except NotFoundError`` or ``except ResourceNotFoundError`` continue to work.
     """
     effective_id = project_id or _get_project_id_from_env()
     effective_name = project_name or (None if effective_id else _get_project_from_env())
     if effective_name:
-        return NotFoundError(
+        return ResourceNotFoundError(
             f'Project "{effective_name}" not found. '
             f'Use Project(name="{effective_name}").create() or the Galileo UI to create it first.'
         )
     if effective_id:
-        return NotFoundError(
+        return ResourceNotFoundError(
             f'Project with id "{effective_id}" not found. '
             "Use Project(name=...).create() or the Galileo UI to create a project first."
         )
-    return NotFoundError("No project specified. Provide project_id, project_name, or set GALILEO_PROJECT env var.")
+    return ResourceNotFoundError(
+        "No project specified. Provide project_id, project_name, or set GALILEO_PROJECT env var."
+    )
