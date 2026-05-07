@@ -53,6 +53,8 @@ class Column:
         category (str): The column category.
         multi_valued (bool): Whether the column contains multiple values.
         allowed_values (list[Any] | None): Allowed values for this column.
+        metric_key_alias (str | None): For metric columns keyed by scorer UUID, the legacy snake_case metric name
+            (e.g. ``"correctness"``). None for non-metric columns and system metrics.
 
     Examples
     --------
@@ -77,6 +79,7 @@ class Column:
         "filterable",
         "id",
         "label",
+        "metric_key_alias",
         "multi_valued",
         "sortable",
     )
@@ -97,12 +100,14 @@ class Column:
         self.category = column_info.category
         self.multi_valued = _unwrap_unset(column_info.multi_valued, default=False)
         self.allowed_values = _unwrap_unset(column_info.allowed_values)
+        self.metric_key_alias = _unwrap_unset(column_info.metric_key_alias)
 
     def __repr__(self) -> str:
         """String representation of the column."""
         label_str = f", label='{self.label}'" if self.label else ""
         type_str = f", type='{self.data_type.value}'" if self.data_type else ""
-        return f"Column(id='{self.id}'{label_str}{type_str}, filterable={self.filterable}, sortable={self.sortable})"
+        alias_str = f", metric_key_alias='{self.metric_key_alias}'" if self.metric_key_alias else ""
+        return f"Column(id='{self.id}'{label_str}{type_str}{alias_str}, filterable={self.filterable}, sortable={self.sortable})"
 
     __str__ = __repr__
 
