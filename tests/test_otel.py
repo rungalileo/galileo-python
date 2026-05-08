@@ -125,6 +125,124 @@ class TestGalileoOTLPExporter:
         with pytest.raises(ValueError, match="API key is required"):
             GalileoOTLPExporter()
 
+    @pytest.fixture
+    def exporter(self, mock_config, clear_env_vars):
+        """Build a GalileoOTLPExporter without hitting OTLPSpanExporter.__init__."""
+        with patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None):
+            return GalileoOTLPExporter(project="test-project", logstream="test-logstream")
+
+    @staticmethod
+    def _fake_response(status_code: int, content: bytes, content_type: str) -> Mock:
+        resp = Mock()
+        resp.status_code = status_code
+        resp.ok = 200 <= status_code < 300
+        resp.content = content
+        resp.headers = {"content-type": content_type}
+        return resp
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    @patch("galileo.otel.OTLPSpanExporter._export")
+    def test_export_logs_warning_on_json_partial_success(self, mock_parent_export, exporter, caplog):
+        """Logs a WARNING when the server reports rejected spans via JSON partial_success."""
+        # Given: the Galileo server returns a JSON partial_success body with rejected spans
+        body = (
+            b'{"partialSuccess":{"rejectedSpans":"2",'
+            b'"errorMessage":"Group 0: No GenAI patterns detected in spans."}}'
+        )
+        mock_parent_export.return_value = self._fake_response(200, body, "application/json")
+
+        # When: _export is invoked
+        with caplog.at_level("WARNING", logger="galileo.otel"):
+            result = exporter._export(b"fake-serialized-spans", timeout_sec=1.0)
+
+        # Then: a WARNING is emitted with the rejection count and error message, and the
+        # underlying response object is passed through unchanged.
+        assert result is mock_parent_export.return_value
+        assert any(
+            "rejected 2 span(s)" in rec.message and "No GenAI patterns detected" in rec.message
+            for rec in caplog.records
+        )
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    @patch("galileo.otel.OTLPSpanExporter._export")
+    def test_export_logs_warning_on_protobuf_partial_success(self, mock_parent_export, exporter, caplog):
+        """Logs a WARNING for protobuf partial_success too (forward-compat for a spec-compliant server)."""
+        from opentelemetry.proto.collector.trace.v1.trace_service_pb2 import ExportTraceServiceResponse
+
+        # Given: a spec-compliant server returning protobuf with rejected_spans set
+        response_msg = ExportTraceServiceResponse()
+        response_msg.partial_success.rejected_spans = 3
+        response_msg.partial_success.error_message = "bad spans"
+        mock_parent_export.return_value = self._fake_response(
+            200, response_msg.SerializeToString(), "application/x-protobuf"
+        )
+
+        # When: _export is invoked
+        with caplog.at_level("WARNING", logger="galileo.otel"):
+            exporter._export(b"fake-serialized-spans", timeout_sec=1.0)
+
+        # Then: warning names the rejected count and surfaces the server error message
+        assert any("rejected 3 span(s)" in rec.message and "bad spans" in rec.message for rec in caplog.records)
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    @patch("galileo.otel.OTLPSpanExporter._export")
+    def test_export_silent_on_full_success(self, mock_parent_export, exporter, caplog):
+        """No WARNING when rejected_spans is zero (full success)."""
+        # Given: a successful response with no rejections
+        body = b'{"partialSuccess":{"rejectedSpans":"0","errorMessage":""}}'
+        mock_parent_export.return_value = self._fake_response(200, body, "application/json")
+
+        # When: _export is invoked
+        with caplog.at_level("WARNING", logger="galileo.otel"):
+            exporter._export(b"fake-serialized-spans", timeout_sec=1.0)
+
+        # Then: no WARNING records are emitted by the partial_success handler
+        assert not [rec for rec in caplog.records if "rejected" in rec.message]
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    @patch("galileo.otel.OTLPSpanExporter._export")
+    def test_export_silent_on_empty_body(self, mock_parent_export, exporter, caplog):
+        """No WARNING when the response body is empty."""
+        # Given: a 200 with no body (still legal)
+        mock_parent_export.return_value = self._fake_response(200, b"", "application/json")
+
+        # When: _export is invoked
+        with caplog.at_level("WARNING", logger="galileo.otel"):
+            exporter._export(b"fake-serialized-spans", timeout_sec=1.0)
+
+        # Then: nothing is logged at WARNING level from this handler
+        assert not [rec for rec in caplog.records if "rejected" in rec.message]
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    @patch("galileo.otel.OTLPSpanExporter._export")
+    def test_export_swallows_malformed_body(self, mock_parent_export, exporter, caplog):
+        """Malformed response body does not raise — error is downgraded to DEBUG."""
+        # Given: a 200 with a body that is neither valid JSON-proto nor valid protobuf
+        mock_parent_export.return_value = self._fake_response(200, b"not-a-valid-body", "application/json")
+
+        # When: _export is invoked
+        with caplog.at_level("DEBUG", logger="galileo.otel"):
+            result = exporter._export(b"fake-serialized-spans", timeout_sec=1.0)
+
+        # Then: the response is still returned, no WARNING leaks to the caller
+        assert result is mock_parent_export.return_value
+        assert not [rec for rec in caplog.records if rec.levelname == "WARNING" and "rejected" in rec.message]
+
+    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
+    @patch("galileo.otel.OTLPSpanExporter._export")
+    def test_export_passes_through_non_2xx(self, mock_parent_export, exporter, caplog):
+        """Non-2xx responses skip parsing — upstream retry logic still handles them."""
+        # Given: a 500 response with nothing useful in the body
+        mock_parent_export.return_value = self._fake_response(500, b"server error", "text/plain")
+
+        # When: _export is invoked
+        with caplog.at_level("WARNING", logger="galileo.otel"):
+            result = exporter._export(b"fake-serialized-spans", timeout_sec=1.0)
+
+        # Then: no WARNING from the partial_success handler, and upstream retry path is unaffected
+        assert result is mock_parent_export.return_value
+        assert not [rec for rec in caplog.records if "rejected" in rec.message]
+
 
 class TestGalileoSpanProcessor:
     """Test suite for GalileoSpanProcessor class."""

@@ -3,6 +3,10 @@
 
 ## Unreleased
 
+### Bug Fixes
+
+- **OTel: surface silently-rejected spans**: `GalileoOTLPExporter` now parses the OTLP `partial_success` field on the server response and logs a `WARNING` on the `galileo.otel` logger whenever the backend rejects one or more spans. Previously the standard Python `OTLPSpanExporter` treated any 2xx response as success and discarded the response body, hiding rejection counts and error messages from users. The new `_export` override handles both JSON and protobuf response bodies, degrades to a DEBUG log on malformed bodies, and does not change the `SpanExportResult` returned to upstream retry logic ([sc-62612](https://app.shortcut.com/galileo/story/62612)).
+
 ### Features
 
 - **New `generated_output` field**: Add `generated_output` field to `DatasetRecord` for storing model-generated outputs separately from ground truth. This allows you to track both the expected output (ground truth) and the actual model output in the same dataset record. In the UI, this field is displayed as "Generated Output".
