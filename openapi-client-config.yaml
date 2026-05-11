@@ -1,5 +1,5 @@
 post_hooks:
-  - "ruff check . --fix"
+  - "ruff check . --fix --select F,I"
   - "ruff format ."
   # The HTTPValidationError post-generation patch runs from
   # scripts/auto-generate-api-client.sh (after `openapi-python-client generate`)
