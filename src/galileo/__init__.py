@@ -1,5 +1,11 @@
 """Galileo."""
 
+from galileo.agent_control import (
+    AgentControlTarget,
+    AgentControlTargetUnresolvedError,
+    get_agent_control_target,
+    get_log_stream_id,
+)
 from galileo.collaborator import Collaborator, CollaboratorRole
 from galileo.configuration import Configuration
 from galileo.dataset import Dataset
@@ -74,6 +80,8 @@ __version__ = "2.2.0"
 
 __all__ = [
     "APIError",
+    "AgentControlTarget",
+    "AgentControlTargetUnresolvedError",
     "AgentSpan",
     "AnthropicProvider",
     "AuthenticationError",
@@ -145,6 +153,8 @@ __all__ = [
     "delete_api_key",
     "enable_console_logging",
     "galileo_context",
+    "get_agent_control_target",
+    "get_log_stream_id",
     "get_protect_stage",
     "get_tracing_headers",
     "invoke_protect",

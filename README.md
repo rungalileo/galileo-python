@@ -155,6 +155,27 @@ logger.conclude(output="Hello, this is a test", duration_ns=1000)
 logger.flush() # This will upload the trace to Galileo
 ```
 
+#### Using Galileo context with Agent Control
+
+If you use Galileo-hosted Agent Control, pass the current Galileo log stream as
+the Agent Control runtime target:
+
+```python
+from galileo import get_agent_control_target
+
+target = get_agent_control_target()
+
+agent_control_client.evaluate(
+    ...,
+    target_type=target.target_type,
+    target_id=target.target_id,
+)
+```
+
+The helper resolves an explicit log stream ID, `GALILEO_LOG_STREAM_ID`, or an
+already-initialized `galileo_context` logger. It does not import the Agent
+Control SDK or resolve log stream names over the network.
+
 OpenAI streaming example:
 
 ```python
