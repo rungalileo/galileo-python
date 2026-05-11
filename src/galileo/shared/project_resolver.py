@@ -10,43 +10,32 @@ from __future__ import annotations
 
 from galileo.projects import Project as ProjectRecord
 from galileo.projects import ProjectNotFoundError, Projects
-from galileo.shared.exceptions import _normalize_identifier, _project_not_found_error
-from galileo.utils.env_helpers import _get_project_from_env, _get_project_id_from_env
+from galileo.shared.exceptions import _project_not_found_error, _resolve_project_identifiers
 
 
 def _resolve_project(project_id: str | None, project_name: str | None) -> ProjectRecord:
     """Resolve a project from explicit params or env fallbacks.
 
-    Resolution order matches :meth:`galileo.projects.Projects.get_with_env_fallbacks`:
-    explicit ``project_id`` > ``GALILEO_PROJECT_ID`` > explicit ``project_name``
-    > ``GALILEO_PROJECT``.
+    Identifier precedence and whitespace handling are delegated to
+    :func:`galileo.shared.exceptions._resolve_project_identifiers`, which matches
+    the contract of :meth:`galileo.projects.Projects.get_with_env_fallbacks`.
 
     Raises ``NotFoundError`` (specifically the ``ResourceNotFoundError`` subclass for
     backward compat) when no project can be located. Catching either type works.
 
     The helper pre-checks "no identifier anywhere" so it never relies on the
     ``ValueError`` ``Projects.get(id=None, name=None)`` raises in that one case —
-    unrelated ``ValueError``s from the API client surface unchanged. Inputs are
-    trimmed before the pre-check so whitespace-only values follow the same
-    not-found path as missing values instead of leaking a client ``ValueError``.
+    unrelated ``ValueError``s from the API client surface unchanged.
     """
-    # Normalize before the pre-check so whitespace-only values (e.g. ``" "``)
-    # are treated as missing — otherwise ``Projects.get`` strips them and raises
-    # the unrelated "Exactly one of 'id' or 'name'" ValueError downstream.
-    normalized_id = _normalize_identifier(project_id) or _normalize_identifier(_get_project_id_from_env())
-    normalized_name = (
-        None
-        if normalized_id
-        else (_normalize_identifier(project_name) or _normalize_identifier(_get_project_from_env()))
-    )
+    resolved_id, resolved_name = _resolve_project_identifiers(project_id, project_name)
 
-    if not normalized_id and not normalized_name:
+    if not resolved_id and not resolved_name:
         raise _project_not_found_error(None, None)
 
     try:
-        project_obj = Projects().get_with_env_fallbacks(id=normalized_id, name=normalized_name)
+        project_obj = Projects().get_with_env_fallbacks(id=resolved_id, name=resolved_name)
     except ProjectNotFoundError:
         project_obj = None
     if not project_obj:
-        raise _project_not_found_error(normalized_id, normalized_name)
+        raise _project_not_found_error(resolved_id, resolved_name)
     return project_obj

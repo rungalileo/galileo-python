@@ -153,3 +153,28 @@ class TestResolveProject:
         # Then: the trimmed value is forwarded to get_with_env_fallbacks
         assert resolved is mock_project
         mock_service.get_with_env_fallbacks.assert_called_once_with(id=None, name="P One")
+
+    @patch("galileo.shared.project_resolver.Projects")
+    def test_explicit_name_suppresses_env_id_fallback(
+        self, mock_projects_class: MagicMock, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Explicit ``project_name`` must beat ``GALILEO_PROJECT_ID``.
+
+        ``Projects.get_with_env_fallbacks`` documents that an explicit name suppresses
+        the env-id fallback (``id = id or (None if name else env_id)``). The resolver
+        must match this precedence so it doesn't silently look up the wrong project.
+        """
+        # Given: GALILEO_PROJECT_ID is set, but the caller passed an explicit name
+        monkeypatch.setenv("GALILEO_PROJECT_ID", "env-id-should-be-ignored")
+        mock_project = MagicMock()
+        mock_project.id = "name-resolved-id"
+        mock_project.name = "Explicit Name"
+        mock_service = MagicMock()
+        mock_projects_class.return_value = mock_service
+        mock_service.get_with_env_fallbacks.return_value = mock_project
+
+        # When: resolving with explicit project_name only
+        _resolve_project(project_id=None, project_name="Explicit Name")
+
+        # Then: get_with_env_fallbacks is called with the name, NOT the env id
+        mock_service.get_with_env_fallbacks.assert_called_once_with(id=None, name="Explicit Name")
