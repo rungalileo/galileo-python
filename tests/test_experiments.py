@@ -16,7 +16,14 @@ import galileo.jobs
 import galileo.utils.datasets
 from galileo import galileo_context
 from galileo.decorator import SPAN_TYPE
-from galileo.experiments import Experiments, create_experiment, get_experiment, get_experiments, run_experiment
+from galileo.experiments import (
+    Experiments,
+    create_experiment,
+    get_experiment,
+    get_experiments,
+    list_experiment_groups,
+    run_experiment,
+)
 from galileo.projects import Project
 from galileo.prompts import PromptTemplate
 from galileo.resources.models import (
@@ -26,6 +33,7 @@ from galileo.resources.models import (
     DatasetRow,
     DatasetRowValuesDict,
     ExperimentResponse,
+    HTTPValidationError,
     ProjectCreateResponse,
     ProjectType,
     PromptRunSettings,
@@ -33,10 +41,14 @@ from galileo.resources.models import (
     ScorerResponse,
     ScorerTypes,
     TaskType,
+    ValidationError,
 )
+from galileo.resources.types import UNSET
 from galileo.schema.datasets import DatasetRecord
+from galileo.schema.experiment_group import ExperimentGroupResponse
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
 from galileo.utils.datasets import load_dataset_and_records
+from galileo.utils.exceptions import _format_http_validation_error
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.shared.metric import MetricValueType
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
@@ -227,6 +239,22 @@ class TestExperiments:
         msg = str(exc_info.value)
         assert "model_alias" in msg
         assert "gpt-4o-mini" in msg
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    def test_create_raises_value_error_when_api_returns_string_detail(
+        self, galileo_resources_api_create_experiment: Mock
+    ) -> None:
+        """Experiments.create() surfaces the API message when the 422 detail is a plain string."""
+        # Given: the API returns a 422 whose 'detail' field is a plain string (not the standard list shape)
+        galileo_resources_api_create_experiment.sync = Mock(
+            return_value=HTTPValidationError.from_dict({"detail": "Model alias 'gpt-4o-mini' not found"})
+        )
+
+        # When/Then: a ValueError is raised that contains the original API message
+        with pytest.raises(ValueError, match="Model alias 'gpt-4o-mini' not found"):
+            Experiments().create(
+                project_id="test", name="test_experiment", prompt_settings=PromptRunSettings(model_alias="gpt-4o-mini")
+            )
 
     @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
     def test_create_with_dict_prompt_settings(self, galileo_resources_api_create_experiment: Mock) -> None:
@@ -1718,3 +1746,413 @@ class TestExperiments:
             payload = call[0][0]
             total_traces += len(payload.traces)
         assert total_traces == 1500
+
+
+class TestHTTPValidationErrorParsing:
+    """Tests for HTTPValidationError.from_dict handling of different API response shapes."""
+
+    def test_from_dict_with_standard_list_detail(self) -> None:
+        """from_dict correctly parses the standard list-of-ValidationError shape."""
+        # Given: a 422 response body with a list of validation errors
+        raw = {
+            "detail": [
+                {"loc": ["body", "prompt_settings", "model_alias"], "msg": "Invalid model alias", "type": "value_error"}
+            ]
+        }
+
+        # When: parsed
+        error = HTTPValidationError.from_dict(raw)
+
+        # Then: detail is a list with the correct ValidationError fields
+        assert len(error.detail) == 1
+        ve = error.detail[0]
+        assert ve.loc == ["body", "prompt_settings", "model_alias"]
+        assert ve.msg == "Invalid model alias"
+        assert ve.type_ == "value_error"
+
+    def test_from_dict_with_string_detail(self) -> None:
+        """from_dict wraps a plain-string detail into a single ValidationError."""
+        # Given: a 422 response body where detail is a plain string (non-standard)
+        raw = {"detail": "Model alias 'gpt-4o-mini' not found"}
+
+        # When: parsed
+        error = HTTPValidationError.from_dict(raw)
+
+        # Then: detail is a list with one entry whose msg is the original string
+        assert len(error.detail) == 1
+        ve = error.detail[0]
+        assert ve.msg == "Model alias 'gpt-4o-mini' not found"
+        assert ve.loc == []
+        assert ve.type_ == "server_error"
+
+    def test_from_dict_with_missing_detail(self) -> None:
+        """from_dict leaves detail as UNSET when the key is absent."""
+        # Given: a response body with no 'detail' key
+        raw: dict = {}
+
+        # When: parsed
+        error = HTTPValidationError.from_dict(raw)
+
+        # Then: detail is UNSET (no empty list masking the absence)
+        assert error.detail is UNSET
+
+    def test_from_dict_with_empty_string_detail(self) -> None:
+        """from_dict leaves detail as UNSET for an empty string (falsy guard)."""
+        # Given: a response body where detail is an empty string
+        raw = {"detail": ""}
+
+        # When: parsed
+        error = HTTPValidationError.from_dict(raw)
+
+        # Then: detail is UNSET because an empty string carries no information
+        assert error.detail is UNSET
+
+
+class TestFormatHttpValidationError:
+    """Tests for the _format_http_validation_error helper."""
+
+    def test_format_with_loc_and_msg(self) -> None:
+        """Errors with a field path produce '[path] message' format."""
+        # Given: an HTTPValidationError with a non-empty loc
+        error = HTTPValidationError(
+            detail=[
+                ValidationError(loc=["body", "prompt_settings", "model_alias"], msg="bad alias", type_="value_error")
+            ]
+        )
+
+        # When: formatted
+        result = _format_http_validation_error(error)
+
+        # Then: output includes field path and message
+        assert result == "Request validation failed — [body.prompt_settings.model_alias] bad alias"
+
+    def test_format_with_empty_loc(self) -> None:
+        """Errors with an empty loc produce just the message without brackets."""
+        # Given: an HTTPValidationError with empty loc (plain string wrapped by from_dict)
+        error = HTTPValidationError(detail=[ValidationError(loc=[], msg="Model alias not found", type_="server_error")])
+
+        # When: formatted
+        result = _format_http_validation_error(error)
+
+        # Then: output contains the message without spurious '[]' prefix
+        assert result == "Request validation failed — Model alias not found"
+        assert "[]" not in result
+
+    def test_format_with_no_detail(self) -> None:
+        """An HTTPValidationError with no detail produces the fallback message."""
+        # Given: an HTTPValidationError with UNSET detail
+        error = HTTPValidationError(detail=UNSET)
+
+        # When: formatted
+        result = _format_http_validation_error(error)
+
+        # Then: fallback message is returned
+        assert result == "Request validation failed (no details provided)"
+
+
+# ===========================================================================
+# Experiment Groups V1 — group identity + discovery helper
+# ===========================================================================
+
+
+class TestExperimentGroups:
+    """V1 experiment-group support: group-aware run/create + list_experiment_groups()."""
+
+    @patch.object(
+        galileo.experiments.Experiments,
+        "run",
+        return_value={"experiment": experiment_response(), "link": "x", "message": "y"},
+    )
+    @patch.object(galileo.experiments.Experiments, "get", return_value=None)
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    @patch("galileo.experiments.load_dataset")
+    def test_run_experiment_with_experiment_group_name(
+        self, load_dataset_mock: Mock, get_project_mock: Mock, get_experiment_mock: Mock, run_mock: Mock
+    ) -> None:
+        """run_experiment(experiment_group=...) forwards experiment_group_name to Experiments.run()."""
+        # Given: a resolved project, no existing experiment, and a stubbed dataset
+        load_dataset_mock.return_value = MagicMock()
+
+        # When: running an experiment with experiment_group=
+        run_experiment(
+            experiment_name="grouped-run",
+            project="awesome-new-project",
+            dataset_id=str(UUID(int=0)),
+            prompt_template=prompt_template(),
+            experiment_group="my-rag-bench",
+        )
+
+        # Then: Experiments.run was called with the group name (and no group id)
+        run_mock.assert_called_once()
+        call_kwargs = run_mock.call_args.kwargs
+        assert call_kwargs.get("experiment_group_name") == "my-rag-bench"
+        assert "experiment_group_id" not in call_kwargs
+
+    @patch.object(
+        galileo.experiments.Experiments,
+        "run",
+        return_value={"experiment": experiment_response(), "link": "x", "message": "y"},
+    )
+    @patch.object(galileo.experiments.Experiments, "get", return_value=None)
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    @patch("galileo.experiments.load_dataset")
+    def test_run_experiment_with_experiment_group_id(
+        self, load_dataset_mock: Mock, get_project_mock: Mock, get_experiment_mock: Mock, run_mock: Mock
+    ) -> None:
+        """run_experiment(experiment_group_id=...) forwards experiment_group_id to Experiments.run()."""
+        # Given: a resolved project, no existing experiment, and a stubbed dataset
+        load_dataset_mock.return_value = MagicMock()
+        group_uuid = str(UUID(int=42))
+
+        # When: running an experiment with experiment_group_id=
+        run_experiment(
+            experiment_name="id-run",
+            project="awesome-new-project",
+            dataset_id=str(UUID(int=0)),
+            prompt_template=prompt_template(),
+            experiment_group_id=group_uuid,
+        )
+
+        # Then: Experiments.run was called with the group id (and no group name)
+        run_mock.assert_called_once()
+        call_kwargs = run_mock.call_args.kwargs
+        assert call_kwargs.get("experiment_group_id") == group_uuid
+        assert "experiment_group_name" not in call_kwargs
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_create_experiment_with_experiment_group_name(
+        self, get_project_mock: Mock, create_experiment_mock: Mock
+    ) -> None:
+        """create_experiment(experiment_group=...) flows the name through to the API body."""
+        # Given: a resolved project and a mocked create endpoint
+        get_project_mock.return_value = project()
+        create_experiment_mock.sync = Mock(return_value=experiment_response())
+
+        # When: creating an experiment with experiment_group=
+        create_experiment(
+            experiment_name="grouped-create", project_name="awesome-new-project", experiment_group="standalone-bench"
+        )
+
+        # Then: the create body carries experiment_group_name
+        body = create_experiment_mock.sync.call_args.kwargs["body"]
+        assert body.additional_properties["experiment_group_name"] == "standalone-bench"
+        assert "experiment_group_id" not in body.additional_properties
+
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_create_experiment_with_experiment_group_id(
+        self, get_project_mock: Mock, create_experiment_mock: Mock
+    ) -> None:
+        """create_experiment(experiment_group_id=...) flows the id through to the API body."""
+        # Given: a resolved project and a mocked create endpoint
+        get_project_mock.return_value = project()
+        create_experiment_mock.sync = Mock(return_value=experiment_response())
+
+        # When: creating an experiment with experiment_group_id=
+        group_uuid = str(UUID(int=99))
+        create_experiment(
+            experiment_name="id-create", project_name="awesome-new-project", experiment_group_id=group_uuid
+        )
+
+        # Then: the create body carries experiment_group_id
+        body = create_experiment_mock.sync.call_args.kwargs["body"]
+        assert body.additional_properties["experiment_group_id"] == group_uuid
+        assert "experiment_group_name" not in body.additional_properties
+
+    @patch("galileo.experiments.GalileoPythonConfig")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_list_experiment_groups(self, get_project_mock: Mock, config_mock: Mock) -> None:
+        """list_experiment_groups() POSTs to /experiment-groups/query and returns typed objects."""
+        # Given: a resolved project and a mocked httpx client returning two groups
+
+        get_project_mock.return_value = project()
+
+        now_iso = datetime.now().isoformat() + "Z"
+        api_payload = {
+            "starting_token": 0,
+            "limit": 100,
+            "paginated": False,
+            "next_starting_token": None,
+            "experiment_groups": [
+                {
+                    "id": str(UUID(int=1)),
+                    "name": "group-a",
+                    "project_id": str(UUID(int=0)),
+                    "created_at": now_iso,
+                    "updated_at": now_iso,
+                    "is_system": False,
+                    "experiment_count": 2,
+                    "datasets": [],
+                },
+                {
+                    "id": str(UUID(int=2)),
+                    "name": "Ungrouped",
+                    "project_id": str(UUID(int=0)),
+                    "created_at": now_iso,
+                    "updated_at": now_iso,
+                    "is_system": True,
+                    "experiment_count": 0,
+                    "datasets": [],
+                },
+            ],
+        }
+
+        fake_response = MagicMock()
+        fake_response.json.return_value = api_payload
+        fake_response.raise_for_status = MagicMock()
+
+        # API returns a single page (paginated=False)
+        api_payload["paginated"] = False
+        api_payload["next_starting_token"] = None
+        config_mock.get.return_value.api_client.request.return_value = fake_response
+
+        # When: listing experiment groups
+        groups = list_experiment_groups(project_name="awesome-new-project")
+
+        # Then: it calls ApiClient.request once with the right path and pagination body
+        config_mock.get.return_value.api_client.request.assert_called_once()
+        call_kwargs = config_mock.get.return_value.api_client.request.call_args.kwargs
+        assert call_kwargs["path"] == f"/projects/{UUID(int=0)}/experiment-groups/query"
+        assert call_kwargs["json"] == {"starting_token": 0, "limit": 100}
+        assert call_kwargs["return_raw_response"] is True
+
+        assert len(groups) == 2
+        assert all(isinstance(g, ExperimentGroupResponse) for g in groups)
+        assert groups[0].name == "group-a"
+        assert groups[0].experiment_count == 2
+        assert groups[1].is_system is True
+
+    @patch("galileo.experiments.GalileoPythonConfig")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_list_experiment_groups_paginates_internally(self, get_project_mock: Mock, config_mock: Mock) -> None:
+        """list_experiment_groups() walks all pages and returns the combined list."""
+        # Given: a project and an API that returns 2 pages
+
+        get_project_mock.return_value = project()
+
+        now_iso = datetime.now().isoformat() + "Z"
+
+        def make_group(idx: int, system: bool = False) -> dict:
+            return {
+                "id": str(UUID(int=idx)),
+                "name": f"group-{idx}",
+                "project_id": str(UUID(int=0)),
+                "created_at": now_iso,
+                "updated_at": now_iso,
+                "is_system": system,
+                "experiment_count": 0,
+                "datasets": [],
+            }
+
+        page1 = MagicMock()
+        page1.json.return_value = {
+            "experiment_groups": [make_group(1), make_group(2)],
+            "paginated": True,
+            "next_starting_token": 100,
+        }
+        page1.raise_for_status = MagicMock()
+
+        page2 = MagicMock()
+        page2.json.return_value = {
+            "experiment_groups": [make_group(3)],
+            "paginated": False,
+            "next_starting_token": None,
+        }
+        page2.raise_for_status = MagicMock()
+
+        config_mock.get.return_value.api_client.request.side_effect = [page1, page2]
+
+        # When: listing experiment groups
+        groups = list_experiment_groups(project_name="awesome-new-project")
+
+        # Then: both pages are walked and the combined list is returned
+        assert config_mock.get.return_value.api_client.request.call_count == 2
+        starting_tokens = [
+            c.kwargs["json"]["starting_token"] for c in config_mock.get.return_value.api_client.request.call_args_list
+        ]
+        assert starting_tokens == [0, 100]
+        assert len(groups) == 3
+        assert [g.name for g in groups] == ["group-1", "group-2", "group-3"]
+
+    @patch("galileo.experiments.GalileoPythonConfig")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_get_experiments_with_group_name_filter(self, get_project_mock: Mock, config_mock: Mock) -> None:
+        """get_experiments(experiment_group=...) calls the search endpoint with a name filter."""
+        # Given: a resolved project and a search endpoint that returns one matching experiment
+        get_project_mock.return_value = project()
+        fake_response = MagicMock()
+        fake_response.json.return_value = {
+            "experiments": [experiment_response().to_dict()],
+            "paginated": False,
+            "next_starting_token": None,
+        }
+        fake_response.raise_for_status = MagicMock()
+        config_mock.get.return_value.api_client.request.return_value = fake_response
+
+        # When: filtering by group name
+        result = get_experiments(project_name="awesome-new-project", experiment_group="my-group")
+
+        # Then: it calls /experiments/search with the right filter and returns the experiment
+        config_mock.get.return_value.api_client.request.assert_called_once()
+        kwargs = config_mock.get.return_value.api_client.request.call_args.kwargs
+        assert kwargs["path"] == f"/projects/{UUID(int=0)}/experiments/search"
+        body = kwargs["json"]
+        assert body["filters"] == [
+            {
+                "filter_type": "string",
+                "name": "experiment_group_name",
+                "operator": "eq",
+                "value": "my-group",
+                "case_sensitive": True,
+            }
+        ]
+        assert body["starting_token"] == 0
+        assert isinstance(result, list)
+        assert len(result) == 1
+
+    @patch("galileo.experiments.GalileoPythonConfig")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_get_experiments_with_group_id_filter(self, get_project_mock: Mock, config_mock: Mock) -> None:
+        """get_experiments(experiment_group_id=...) calls the search endpoint with an id filter."""
+        # Given: a resolved project and a search endpoint that returns one matching experiment
+        get_project_mock.return_value = project()
+        fake_response = MagicMock()
+        fake_response.json.return_value = {
+            "experiments": [experiment_response().to_dict()],
+            "paginated": False,
+            "next_starting_token": None,
+        }
+        fake_response.raise_for_status = MagicMock()
+        config_mock.get.return_value.api_client.request.return_value = fake_response
+
+        group_uuid = str(UUID(int=42))
+
+        # When: filtering by group ID
+        result = get_experiments(project_name="awesome-new-project", experiment_group_id=group_uuid)
+
+        # Then: filter sends a custom_uuid filter clause (matches API schema —
+        # ExperimentGroupIDFilter extends CustomUUIDFilter, which has no operator)
+        kwargs = config_mock.get.return_value.api_client.request.call_args.kwargs
+        body = kwargs["json"]
+        assert body["filters"] == [{"filter_type": "custom_uuid", "name": "experiment_group_id", "value": group_uuid}]
+        assert isinstance(result, list)
+        assert len(result) == 1
+
+    @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks")
+    def test_get_experiments_without_filter_unchanged(
+        self, get_project_mock: Mock, list_experiments_mock: Mock
+    ) -> None:
+        """get_experiments() without any filter still calls the legacy list endpoint."""
+        # Given: a resolved project and the existing list endpoint
+        get_project_mock.return_value = project()
+        list_experiments_mock.sync = Mock(return_value=[experiment_response()])
+
+        # When: calling without filter
+        result = get_experiments(project_name="awesome-new-project")
+
+        # Then: legacy list endpoint is used (no search call), returning the project's experiments
+        list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
+        assert isinstance(result, list)
+        assert len(result) == 1

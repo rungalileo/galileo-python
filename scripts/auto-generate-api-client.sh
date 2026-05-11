@@ -4,6 +4,8 @@
 # Generates an OpenAPI Python client from the provided OpenAPI spec and config file.
 #
 
+set -euo pipefail
+
 # Define the paths to the OpenAPI spec and config file
 OPENAPI_SPEC_PATH="../openapi.yaml"
 CONFIG_PATH="../openapi-client-config.yaml"
@@ -23,5 +25,10 @@ poetry run openapi-python-client generate --meta none  --path "$OPENAPI_SPEC_PAT
 
 # Remove the backup directory
 rm -r "$OUTPUT_PATH"_backup
+
+# Post-generation patch: rewrite HTTPValidationError.from_dict so plain-string
+# `detail` payloads (e.g. invalid model alias) don't crash. Exits 2 on template
+# drift, which `set -e` propagates to fail the regen.
+poetry run python "$HOME_DIR/patch_http_validation_error.py" "$HOME_DIR/$OUTPUT_PATH/models/http_validation_error.py"
 
 echo "OpenAPI Python client generated."

@@ -20,11 +20,14 @@ from galileo.resources.api.experiment import (
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
 from galileo.schema.datasets import DatasetRecord
+from galileo.schema.experiment_group import ExperimentGroupResponse
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.utils.datasets import create_rows_from_records, load_dataset
 from galileo.utils.exceptions import _format_http_validation_error
+from galileo.utils.headers_data import get_sdk_header
 from galileo.utils.log_config import get_logger
 from galileo.utils.metrics import create_metric_configs
+from galileo_core.constants.request_method import RequestMethod
 
 _logger = get_logger(__name__)
 
@@ -60,6 +63,10 @@ def _default_prompt_settings(model_alias: str = "GPT-4o") -> PromptRunSettings:
 MAX_REQUEST_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
 MAX_INGEST_BATCH_SIZE = 128
 DATASET_CONTENT_PAGE_SIZE = 1000
+# Page size used by both list_experiment_groups() and the group-filter branch of get_experiments().
+# Both call internal APIs with internal pagination; the public helpers return the full list and
+# do not expose pagination tokens to customers.
+_GROUP_LIST_PAGE_SIZE = 100
 
 
 @_attrs_define
@@ -95,7 +102,19 @@ class Experiments:
         prompt_template: PromptTemplate | None = None,
         scorers: builtins.list[ScorerConfig] | None = None,
         prompt_settings: PromptRunSettings | dict[str, Any] | None = None,
+        experiment_group_id: str | None = None,
+        experiment_group_name: str | None = None,
     ) -> ExperimentResponse:
+        # If both experiment_group_id and experiment_group_name are provided, the API gives
+        # precedence to the ID and silently ignores the name (see resolve_and_assign_group).
+        # We log it here so customers can spot unintentional duplication, but we do not
+        # reject — the API contract permits both.
+        if experiment_group_id is not None and experiment_group_name is not None:
+            _logger.debug(
+                "Both experiment_group_id and experiment_group_name provided; "
+                "the API will use experiment_group_id and ignore the name."
+            )
+
         resolved_settings: PromptRunSettings | None = (
             PromptRunSettings.from_dict(prompt_settings) if isinstance(prompt_settings, dict) else prompt_settings
         )
@@ -119,6 +138,11 @@ class Experiments:
 
         if trigger:
             body.additional_properties["trigger"] = True
+
+        if experiment_group_id is not None:
+            body.additional_properties["experiment_group_id"] = experiment_group_id
+        if experiment_group_name is not None:
+            body.additional_properties["experiment_group_name"] = experiment_group_name
 
         experiment = create_experiment_projects_project_id_experiments_post.sync(
             project_id=project_id, client=self.config.api_client, body=body
@@ -163,6 +187,8 @@ class Experiments:
         prompt_template: PromptTemplate | None,
         scorers: builtins.list[ScorerConfig] | None,
         prompt_settings: PromptRunSettings | dict[str, Any] | None = None,
+        experiment_group_id: str | None = None,
+        experiment_group_name: str | None = None,
     ) -> dict[str, Any]:
         if isinstance(prompt_settings, dict):
             prompt_settings = PromptRunSettings.from_dict(prompt_settings)
@@ -172,6 +198,12 @@ class Experiments:
             prompt_settings = _default_prompt_settings()
 
         # Single API call: create experiment + trigger job via trigger=True
+        # Only forward group kwargs when set so existing callers/tests aren't affected.
+        group_kwargs: dict[str, Any] = {}
+        if experiment_group_id is not None:
+            group_kwargs["experiment_group_id"] = experiment_group_id
+        if experiment_group_name is not None:
+            group_kwargs["experiment_group_name"] = experiment_group_name
         experiment_obj = self.create(
             project_id=project_obj.id,
             name=experiment_name,
@@ -180,6 +212,7 @@ class Experiments:
             prompt_template=prompt_template,
             scorers=scorers,
             prompt_settings=prompt_settings,
+            **group_kwargs,
         )
 
         link = f"{str(self.config.console_url).rstrip('/')}/project/{project_obj.id}/experiments/{experiment_obj.id}"
@@ -283,6 +316,8 @@ def run_experiment(
     function: Callable | None = None,
     experiment_tags: dict[str, str] | None = None,
     on_error: Callable[[Exception], None] | None = None,
+    experiment_group: str | None = None,
+    experiment_group_id: str | None = None,
 ) -> Any:
     """
     Run an experiment with the specified parameters.
@@ -325,6 +360,18 @@ def run_experiment(
         to the function flow — ignored in the prompt-template flow (a warning is logged if
         provided there). Creation errors always propagate regardless of this callback. If None,
         flush errors are logged as warnings. Defaults to None.
+    experiment_group
+        Optional name of an experiment group to assign this run to. If a group with this
+        name does not exist in the project, the API auto-creates it. If neither
+        ``experiment_group`` nor ``experiment_group_id`` is provided and the run has a
+        dataset, the API auto-creates a group named ``"<dataset_name> Experiment Group"``;
+        otherwise the run lands in the project's system "Ungrouped" group.
+    experiment_group_id
+        Optional UUID of an existing experiment group. If the group does not exist in this
+        project, the SDK raises ``galileo.NotFoundError`` (HTTP 404,
+        API error_code 3520) before the run is created.
+        If both ``experiment_group_id`` and ``experiment_group`` are provided, the API
+        uses the ID and silently ignores the name.
 
     Returns
     -------
@@ -333,7 +380,9 @@ def run_experiment(
     Raises
     ------
     ValueError
-        If required parameters are missing or invalid
+        If required parameters are missing or invalid.
+    galileo.NotFoundError
+        If ``experiment_group_id`` is provided but the group does not exist in the project.
     """
     if isinstance(prompt_settings, dict):
         prompt_settings = PromptRunSettings.from_dict(prompt_settings)
@@ -373,8 +422,15 @@ def run_experiment(
         experiment_name = f"{existing_experiment.name} {now:%Y-%m-%d} at {now:%H:%M:%S}.{now.microsecond // 1000:03d}"
 
     # Execute a runner function experiment (custom function flow — uses logstream pipeline)
+    # Only forward group kwargs when set so existing callers/tests aren't affected.
+    group_kwargs: dict[str, Any] = {}
+    if experiment_group_id is not None:
+        group_kwargs["experiment_group_id"] = experiment_group_id
+    if experiment_group is not None:
+        group_kwargs["experiment_group_name"] = experiment_group
+
     if function is not None:
-        experiment_obj = Experiments().create(project_obj.id, experiment_name, dataset_obj)
+        experiment_obj = Experiments().create(project_obj.id, experiment_name, dataset_obj, **group_kwargs)
 
         # Set up metrics WITH run_id — custom function flow needs ScorerSettings registered
         local_metrics: list[LocalMetricConfig] = []
@@ -422,7 +478,7 @@ def run_experiment(
     # If prompt_template is None, the API determines the flow based on the dataset contents.
     # The API will return error 3512 if the dataset has no generated_output column.
     result = Experiments().run(
-        project_obj, dataset_obj, experiment_name, prompt_template, scorer_settings, prompt_settings
+        project_obj, dataset_obj, experiment_name, prompt_template, scorer_settings, prompt_settings, **group_kwargs
     )
 
     if experiment_tags is not None:
@@ -438,7 +494,12 @@ def run_experiment(
 
 
 def create_experiment(
-    project_id: str | None = None, experiment_name: str | None = None, project_name: str | None = None
+    project_id: str | None = None,
+    experiment_name: str | None = None,
+    project_name: str | None = None,
+    *,
+    experiment_group: str | None = None,
+    experiment_group_id: str | None = None,
 ) -> ExperimentResponse:
     """
     Create an experiment with the specified parameters.
@@ -454,6 +515,15 @@ def create_experiment(
         Name of the experiment. Required.
     project
         Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
+    experiment_group
+        Optional name of an experiment group to assign this experiment to. If a group with
+        this name does not exist in the project, the API auto-creates it.
+    experiment_group_id
+        Optional UUID of an existing experiment group. If the group does not exist in this
+        project, the SDK raises ``galileo.NotFoundError`` (HTTP 404,
+        API error_code 3520).
+        If both ``experiment_group_id`` and ``experiment_group`` are provided, the API
+        uses the ID and silently ignores the name.
 
     Returns
     -------
@@ -463,7 +533,10 @@ def create_experiment(
     Raises
     ------
     ValueError
-        If `experiment_name` is not provided, or if the project cannot be resolved from `project_id` or `project`.
+        If `experiment_name` is not provided or if the project cannot be resolved from
+        `project_id` or `project`.
+    galileo.NotFoundError
+        If ``experiment_group_id`` is provided but the group does not exist in the project.
     HTTPValidationError
         If there's a validation error in returning an ExperimentResponse.
     """
@@ -478,7 +551,12 @@ def create_experiment(
             raise ValueError(f"Project {project_name} does not exist")
         raise ValueError("Project not specified and no defaults found")
 
-    return Experiments().create(project_obj.id, experiment_name)
+    group_kwargs: dict[str, Any] = {}
+    if experiment_group_id is not None:
+        group_kwargs["experiment_group_id"] = experiment_group_id
+    if experiment_group is not None:
+        group_kwargs["experiment_group_name"] = experiment_group
+    return Experiments().create(project_obj.id, experiment_name, **group_kwargs)
 
 
 def get_experiment(
@@ -525,10 +603,19 @@ def get_experiment(
 
 
 def get_experiments(
-    project_id: str | None = None, project_name: str | None = None
+    project_id: str | None = None,
+    project_name: str | None = None,
+    *,
+    experiment_group: str | None = None,
+    experiment_group_id: str | None = None,
 ) -> HTTPValidationError | list[ExperimentResponse] | None:
     """
     Get experiments from the specified Project.
+
+    When no group filter is given, returns all experiments in the project (existing
+    behavior, calls ``GET /projects/{id}/experiments``). When ``experiment_group`` or
+    ``experiment_group_id`` is provided, returns only experiments assigned to that group
+    (calls ``POST /projects/{id}/experiments/search`` and pages internally).
 
     Parameters
     ----------
@@ -536,15 +623,25 @@ def get_experiments(
         Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using ``project``
     project_name
         Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using ``project_id``
+    experiment_group
+        Optional experiment-group name to filter by. Returns only experiments assigned to
+        a group with this name. Mutually compatible with ``experiment_group_id``: if both
+        are provided, both filters are sent and the API resolves precedence.
+    experiment_group_id
+        Optional experiment-group UUID to filter by. Returns only experiments assigned to
+        this group.
 
     Returns
     -------
-    List of ExperimentResponse results
+    List of ExperimentResponse results. When a filter is set, the list is scoped to the
+    matching group; otherwise it is the full project listing.
 
     Raises
     ------
     HTTPValidationError
         If there's a validation error in returning a list of ExperimentResponse
+    httpx.HTTPStatusError
+        If the search endpoint returns a non-2xx response (only when a group filter is set).
     """
     # Resolve project by id, name, or environment fallbacks
     project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
@@ -553,4 +650,116 @@ def get_experiments(
             raise ValueError(f"Project {project_name} does not exist")
         raise ValueError("Project not specified and no defaults found")
 
-    return Experiments().list(project_id=project_obj.id)
+    # No filter → keep existing behavior unchanged (calls GET /experiments via generated client)
+    if experiment_group is None and experiment_group_id is None:
+        return Experiments().list(project_id=project_obj.id)
+
+    # Filter set → call the search endpoint, page through all results.
+    # The search endpoint is not in the generated client today; once it is, this branch
+    # should be rewritten to use the generated function.
+    filters: list[dict[str, Any]] = []
+    if experiment_group_id is not None:
+        # The experiment_group_id column is registered as CustomUUIDFilterConfig in the API
+        # (see api/daos/run.py); the matching schema (ExperimentGroupIDFilter) extends
+        # CustomUUIDFilter, which has no operator and uses filter_type="custom_uuid".
+        filters.append({"filter_type": "custom_uuid", "name": "experiment_group_id", "value": experiment_group_id})
+    if experiment_group is not None:
+        filters.append(
+            {
+                "filter_type": "string",
+                "name": "experiment_group_name",
+                "operator": "eq",
+                "value": experiment_group,
+                "case_sensitive": True,
+            }
+        )
+
+    config = GalileoPythonConfig.get()
+    headers = {"Content-Type": "application/json", "X-Galileo-SDK": get_sdk_header()}
+    path = f"/projects/{project_obj.id}/experiments/search"
+
+    all_experiments: list[ExperimentResponse] = []
+    starting_token: int | None = 0
+    while starting_token is not None:
+        response = config.api_client.request(
+            method=RequestMethod.POST,
+            path=path,
+            json={"filters": filters, "starting_token": starting_token, "limit": _GROUP_LIST_PAGE_SIZE},
+            content_headers=headers,
+            return_raw_response=True,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        all_experiments.extend(ExperimentResponse.from_dict(e) for e in payload.get("experiments", []))
+        # Advance on next_starting_token directly — `paginated` is optional in the schema
+        # and absent does not mean "no more pages". A non-None token is the only reliable signal.
+        starting_token = payload.get("next_starting_token")
+
+    return all_experiments
+
+
+def list_experiment_groups(
+    project_id: str | None = None, project_name: str | None = None
+) -> list[ExperimentGroupResponse]:
+    """List all experiment groups in a project.
+
+    Calls ``POST /projects/{project_id}/experiment-groups/query`` and pages through
+    every group internally. The full list is returned in a single call; customers
+    do not need to handle pagination tokens.
+
+    The project can be specified by providing exactly one of the project name (via the
+    ``project_name`` parameter or the ``GALILEO_PROJECT`` environment variable) or the
+    project ID (via the ``project_id`` parameter or the ``GALILEO_PROJECT_ID``
+    environment variable).
+
+    Parameters
+    ----------
+    project_id
+        Optional project ID. Takes preference over the ``GALILEO_PROJECT_ID`` env var.
+    project_name
+        Optional project name. Takes preference over the ``GALILEO_PROJECT`` env var.
+
+    Returns
+    -------
+    list[ExperimentGroupResponse]
+        All experiment groups in the project.
+
+    Raises
+    ------
+    ValueError
+        If the project cannot be resolved.
+    httpx.HTTPStatusError
+        If the API returns a non-2xx response.
+    """
+    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+    if not project_obj:
+        if project_name:
+            raise ValueError(f"Project {project_name} does not exist")
+        raise ValueError("Project not specified and no defaults found")
+
+    # Use the SDK's configured ApiClient — the same client every generated endpoint call
+    # uses (see src/galileo/resources/api/experiment/*.py). This preserves auth, base URL,
+    # timeout, and SDK headers. The experiment-group routes are not yet in the generated
+    # client; once they are, this helper should be rewritten to use the generated function.
+    config = GalileoPythonConfig.get()
+    headers = {"Content-Type": "application/json", "X-Galileo-SDK": get_sdk_header()}
+    path = f"/projects/{project_obj.id}/experiment-groups/query"
+
+    all_groups: list[ExperimentGroupResponse] = []
+    starting_token: int | None = 0
+    while starting_token is not None:
+        response = config.api_client.request(
+            method=RequestMethod.POST,
+            path=path,
+            json={"starting_token": starting_token, "limit": _GROUP_LIST_PAGE_SIZE},
+            content_headers=headers,
+            return_raw_response=True,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        all_groups.extend(ExperimentGroupResponse.model_validate(g) for g in payload.get("experiment_groups", []))
+        # Advance on next_starting_token directly — `paginated` is optional in the schema
+        # and absent does not mean "no more pages". A non-None token is the only reliable signal.
+        starting_token = payload.get("next_starting_token")
+
+    return all_groups
