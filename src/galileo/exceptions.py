@@ -72,7 +72,9 @@ class NotFoundError(GalileoAPIError):
       response (e.g. resolving a project from env vars). The string is the full message.
 
     The two paths are exposed via ``@overload`` so type checkers see the right shape
-    for each call site instead of an opaque ``int | str`` parameter.
+    for each call site instead of an opaque ``int | str`` parameter. The runtime
+    constructor also enforces the contract: mixing the two shapes
+    (e.g. ``NotFoundError("msg", b"body")``) or passing ``None`` raises ``TypeError``.
     """
 
     @overload
@@ -82,16 +84,26 @@ class NotFoundError(GalileoAPIError):
 
     def __init__(self, status_code_or_message: int | str, content: bytes = b"") -> None:
         if isinstance(status_code_or_message, str):
+            if content != b"":
+                raise TypeError(
+                    "NotFoundError(message) does not accept a content argument. "
+                    "Use NotFoundError(status_code, content) for HTTP-style construction."
+                )
             self.status_code = 404
             self.content = b""
             self.message = status_code_or_message
             Exception.__init__(self, status_code_or_message)
-        else:
+        elif isinstance(status_code_or_message, int):
             super().__init__(
                 status_code_or_message,
                 content,
                 "Resource not found. The requested project, dataset, or resource doesn't exist. "
                 "Verify the ID or name is correct.",
+            )
+        else:
+            raise TypeError(
+                "NotFoundError requires either (status_code: int, content: bytes) "
+                f"or (message: str); got {type(status_code_or_message).__name__}."
             )
 
 

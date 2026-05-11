@@ -66,7 +66,7 @@ class TestLogStreamCreate:
     """Test suite for LogStream.create() method."""
 
     @patch("galileo.log_stream.LogStreams")
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_create_persists_log_stream_to_api_with_project_id(
         self,
         mock_projects_class: MagicMock,
@@ -96,7 +96,7 @@ class TestLogStreamCreate:
         assert log_stream.is_synced()
 
     @patch("galileo.log_stream.LogStreams")
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_create_persists_log_stream_to_api_with_project_name(
         self,
         mock_projects_class: MagicMock,
@@ -129,7 +129,7 @@ class TestLogStreamCreate:
         assert log_stream.project_name == "Test Project"
 
     @patch("galileo.log_stream.LogStreams")
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_create_handles_api_failure(
         self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -154,7 +154,7 @@ class TestLogStreamCreate:
 
         assert log_stream.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_create_names_project_in_error_when_project_name_not_found(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -171,7 +171,7 @@ class TestLogStreamCreate:
         with pytest.raises(NotFoundError, match=r'Project "my-nonexistent-project" not found'):
             log_stream.create()
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_create_without_project_info_raises_error(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -197,7 +197,7 @@ class TestLogStreamGet:
     """Test suite for LogStream.get() class method."""
 
     @patch("galileo.log_stream.LogStreams")
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_get_returns_log_stream_with_project_id(
         self,
         mock_projects_class: MagicMock,
@@ -228,7 +228,7 @@ class TestLogStreamGet:
         mock_service.get.assert_called_once_with(name="Test Stream", project_id="test-project-id")
 
     @patch("galileo.log_stream.LogStreams")
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_get_returns_log_stream_with_project_name(
         self,
         mock_projects_class: MagicMock,
@@ -259,7 +259,7 @@ class TestLogStreamGet:
         mock_service.get.assert_called_once_with(name="Test Stream", project_id="resolved-project-id")
 
     @patch("galileo.log_stream.LogStreams")
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_get_returns_none_when_not_found(
         self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -282,7 +282,7 @@ class TestLogStreamGet:
         # Then: None is returned
         assert log_stream is None
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_get_raises_error_without_project_info_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -296,7 +296,7 @@ class TestLogStreamGet:
         with pytest.raises(NotFoundError, match="No project specified"):
             LogStream.get(name="Test Stream")
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_get_raises_not_found_when_project_id_unknown(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -310,7 +310,7 @@ class TestLogStreamGet:
         with pytest.raises(NotFoundError, match=r'Project with id "unknown-id" not found'):
             LogStream.get(name="Test Stream", project_id="unknown-id")
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_get_reraises_non_404_projects_api_exception(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -325,16 +325,18 @@ class TestLogStreamGet:
             LogStream.get(name="Test Stream", project_id="some-id")
 
     @patch("galileo.log_stream.LogStreams")
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_get_uses_env_fallback_when_no_project_specified(
         self,
         mock_projects_class: MagicMock,
         mock_logstreams_class: MagicMock,
         reset_configuration: None,
         mock_logstream: MagicMock,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test get() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: env fallback resolves to a project
+        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
         mock_project = MagicMock()
         mock_project.id = "env-project-id"
         mock_project.name = "Env Project"
@@ -358,7 +360,7 @@ class TestLogStreamList:
     """Test suite for LogStream.list() class method."""
 
     @patch("galileo.log_stream.LogStreams")
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_list_returns_all_log_streams_with_project_id(
         self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -399,7 +401,7 @@ class TestLogStreamList:
         mock_service.list.assert_called_once_with(project_id="test-project-id")
 
     @patch("galileo.log_stream.LogStreams")
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_list_returns_all_log_streams_with_project_name(
         self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -432,7 +434,7 @@ class TestLogStreamList:
         assert all(ls.project_name == "Test Project" for ls in log_streams)
         mock_service.list.assert_called_once_with(project_id="resolved-project-id")
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_list_raises_error_without_project_info_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -446,7 +448,7 @@ class TestLogStreamList:
         with pytest.raises(NotFoundError, match="No project specified"):
             LogStream.list()
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_list_raises_not_found_when_project_id_unknown(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -460,7 +462,7 @@ class TestLogStreamList:
         with pytest.raises(NotFoundError, match=r'Project with id "unknown-id" not found'):
             LogStream.list(project_id="unknown-id")
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_list_reraises_non_404_projects_api_exception(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -475,12 +477,17 @@ class TestLogStreamList:
             LogStream.list(project_id="some-id")
 
     @patch("galileo.log_stream.LogStreams")
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_list_uses_env_fallback_when_no_project_specified(
-        self, mock_projects_class: MagicMock, mock_logstreams_class: MagicMock, reset_configuration: None
+        self,
+        mock_projects_class: MagicMock,
+        mock_logstreams_class: MagicMock,
+        reset_configuration: None,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test list() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: env fallback resolves to a project
+        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
         mock_project = MagicMock()
         mock_project.id = "env-project-id"
         mock_project.name = "Env Project"
@@ -503,7 +510,7 @@ class TestLogStreamList:
 class TestLogStreamRefresh:
     """Test suite for LogStream.refresh() method."""
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.log_stream.LogStreams")
     def test_refresh_updates_attributes_from_api(
         self,
@@ -554,7 +561,7 @@ class TestLogStreamRefresh:
         with pytest.raises(ValueError, match="Log stream ID is not set"):
             log_stream.refresh()
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.log_stream.LogStreams")
     def test_refresh_raises_error_if_log_stream_no_longer_exists(
         self,
@@ -607,7 +614,7 @@ class TestLogStreamQuery:
             ("get_sessions", RecordType.SESSION, 10),
         ],
     )
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.log_stream.Search")
     @patch("galileo.log_stream.LogStreams")
     def test_query_methods(
@@ -681,7 +688,7 @@ class TestLogStreamQuery:
 class TestLogStreamExportRecords:
     """Test suite for LogStream.export_records() method."""
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.log_stream.ExportClient")
     @patch("galileo.log_stream.LogStreams")
     def test_export_records_with_default_params(
@@ -720,7 +727,7 @@ class TestLogStreamExportRecords:
         )
         assert result == mock_iterator
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.log_stream.ExportClient")
     @patch("galileo.log_stream.LogStreams")
     def test_export_records_with_custom_params(
@@ -791,7 +798,7 @@ class TestLogStreamExportRecords:
 class TestLogStreamContext:
     """Test suite for LogStream.context() method."""
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.log_stream.galileo_context")
     @patch("galileo.log_stream.LogStreams")
     def test_context_returns_galileo_context(
@@ -828,7 +835,7 @@ class TestLogStreamContext:
 class TestLogStreamProject:
     """Test suite for LogStream.project property."""
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.log_stream.Project")
     @patch("galileo.log_stream.LogStreams")
     def test_project_property_returns_project(
@@ -881,7 +888,7 @@ class TestLogStreamColumns:
             ),
         ],
     )
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.log_stream.GalileoPythonConfig")
     @patch("galileo.log_stream.LogStreams")
     def test_column_properties_return_column_collection(
@@ -951,7 +958,7 @@ class TestLogStreamColumns:
             ("trace_columns", "traces_available_columns_projects_project_id_traces_available_columns_post"),
         ],
     )
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.log_stream.GalileoPythonConfig")
     @patch("galileo.log_stream.LogStreams")
     def test_column_properties_raise_error_on_empty_response(
@@ -1030,7 +1037,7 @@ class TestProjectNotFoundErrorBackwardCompat:
     ResourceNotFoundError inherits from NotFoundError.
     """
 
-    @patch("galileo.log_stream.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_create_raises_resource_not_found_error_subclass(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -1046,21 +1053,21 @@ class TestProjectNotFoundErrorBackwardCompat:
             log_stream.create()
         assert isinstance(exc_info.value, ResourceNotFoundError)
 
-    @patch("galileo.log_stream.Projects")
-    def test_create_handles_value_error_from_projects_get(
-        self, mock_projects_class: MagicMock, reset_configuration: None
+    @patch("galileo.shared.project_resolver.Projects")
+    def test_create_skips_api_when_no_identifier_anywhere(
+        self, mock_projects_class: MagicMock, reset_configuration: None, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """When both project_id and project_name are None (and no env), Projects.get raises ValueError.
+        """When no project_id/project_name and no env vars, the resolver short-circuits.
 
-        _resolve_project must catch that ValueError and convert it into ResourceNotFoundError so the
-        documented contract holds.
+        Previously the resolver called ``Projects().get_with_env_fallbacks(None, None)``
+        which raised ``ValueError`` from ``Projects.get``; the resolver then caught that
+        ``ValueError`` and converted it to ``NotFoundError``. That broad catch could
+        swallow unrelated ``ValueError``s. The new contract: pre-check before the API
+        call and raise ``NotFoundError`` directly.
         """
-        # Given: get_with_env_fallbacks raises ValueError (Projects.get(id=None, name=None) does this)
-        mock_projects_service = MagicMock()
-        mock_projects_class.return_value = mock_projects_service
-        mock_projects_service.get_with_env_fallbacks.side_effect = ValueError(
-            "Exactly one of 'id' or 'name' must be provided."
-        )
+        # Given: env vars are unset and Projects() shouldn't be touched
+        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+        monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
 
         log_stream = LogStream._create_empty()
         log_stream.name = "Test Stream"
@@ -1068,8 +1075,34 @@ class TestProjectNotFoundErrorBackwardCompat:
         log_stream.project_name = None
         log_stream._set_state(SyncState.LOCAL_ONLY)
 
-        # When/Then: ValueError is converted to NotFoundError, not propagated raw
+        # When/Then: NotFoundError is raised without calling the Projects API at all
         with pytest.raises(NotFoundError, match="No project specified"):
+            log_stream.create()
+        mock_projects_class.assert_not_called()
+
+    @patch("galileo.shared.project_resolver.Projects")
+    def test_resolver_does_not_swallow_unrelated_value_error(
+        self, mock_projects_class: MagicMock, reset_configuration: None
+    ) -> None:
+        """Unrelated ``ValueError``s from ``get_with_env_fallbacks`` propagate unchanged.
+
+        The resolver used to ``except (ProjectNotFoundError, ValueError)``, which masked
+        any ``ValueError`` raised deeper in the resolution chain. Confirms the narrower
+        catch leaves them visible.
+        """
+        # Given: get_with_env_fallbacks raises a ValueError unrelated to missing id/name
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.side_effect = ValueError("HTTP client blew up")
+
+        log_stream = LogStream._create_empty()
+        log_stream.name = "Test Stream"
+        log_stream.project_id = "explicit-id"
+        log_stream.project_name = None
+        log_stream._set_state(SyncState.LOCAL_ONLY)
+
+        # When/Then: ValueError propagates unchanged (no longer rewritten as NotFoundError)
+        with pytest.raises(ValueError, match="HTTP client blew up"):
             log_stream.create()
 
 
@@ -1094,3 +1127,16 @@ class TestNotFoundErrorOverloads:
         assert err.content == b""
         assert err.message == "custom not-found message"
         assert str(err) == "custom not-found message"
+
+    def test_mixing_message_with_content_raises_type_error(self) -> None:
+        # When/Then: passing both a message string and content bytes is a misuse.
+        # The runtime guard prevents NotFoundError("msg", b"junk") from silently
+        # discarding the content under the str-overload path.
+        with pytest.raises(TypeError, match="does not accept a content argument"):
+            NotFoundError("a message", b"junk")  # type: ignore[call-overload]
+
+    def test_none_first_arg_raises_type_error(self) -> None:
+        # When/Then: ``None`` is neither a status code nor a message; the previous
+        # implementation fell through to GalileoAPIError and produced "HTTP None".
+        with pytest.raises(TypeError, match="requires either"):
+            NotFoundError(None)  # type: ignore[call-overload]

@@ -10,8 +10,6 @@ from galileo.config import GalileoPythonConfig
 from galileo.decorator import galileo_context
 from galileo.export import ExportClient
 from galileo.log_streams import LogStreams
-from galileo.projects import Project as ProjectRecord
-from galileo.projects import ProjectNotFoundError, Projects
 from galileo.resources.api.trace import (
     sessions_available_columns_projects_project_id_sessions_available_columns_post,
     spans_available_columns_projects_project_id_spans_available_columns_post,
@@ -25,7 +23,8 @@ from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import ValidationError, _project_not_found_error
+from galileo.shared.exceptions import ValidationError
+from galileo.shared.project_resolver import _resolve_project
 from galileo.shared.query_result import QueryResult
 
 if TYPE_CHECKING:
@@ -39,21 +38,6 @@ RECORD_TYPE_TO_ROOT_TYPE = {
     RecordType.TRACE: RootType.TRACE,
     RecordType.SESSION: RootType.SESSION,
 }
-
-
-def _resolve_project(project_id: str | None, project_name: str | None) -> ProjectRecord:
-    """Resolve a project from explicit params or env fallbacks, raising ResourceNotFoundError on 404.
-
-    Catches ``ValueError`` from ``Projects.get(id=None, name=None)`` so callers that pass nothing
-    and have no env fallback get the documented not-found error instead of a generic ValueError.
-    """
-    try:
-        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
-    except (ProjectNotFoundError, ValueError):
-        project_obj = None
-    if not project_obj:
-        raise _project_not_found_error(project_id, project_name)
-    return project_obj
 
 
 class LogStream(StateManagementMixin):
@@ -187,14 +171,13 @@ class LogStream(StateManagementMixin):
         if not self.name:
             raise ValueError("Log stream name is not set. Cannot create log stream without a name.")
 
-        # Note: project_id and project_name can both be None here - resolution happens below
-        # via Projects().get_with_env_fallbacks() which reads from env vars
+        # Note: project_id and project_name can both be None here — resolution happens below
+        # via _resolve_project, which reads GALILEO_PROJECT_ID / GALILEO_PROJECT env vars.
 
         try:
             logger.info(f"LogStream.create: name='{self.name}' project_id='{self.project_id}' - started")
 
-            # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT).
-            # _resolve_project raises ResourceNotFoundError when no project can be found, matching
+            # _resolve_project raises NotFoundError when no project can be found, matching
             # the contract of LogStream.get() and LogStream.list().
             project_obj = _resolve_project(self.project_id, self.project_name)
 
