@@ -1,6 +1,6 @@
 """Galileo SDK exceptions."""
 
-from typing import overload
+from typing import Any, overload
 
 __all__ = [
     "AuthenticationError",
@@ -13,6 +13,10 @@ __all__ = [
     "RateLimitError",
     "ServerError",
 ]
+
+# Sentinel for "argument not provided" so the message overload of NotFoundError can
+# reject _any_ explicit second argument (including ``b""``), not just non-empty bytes.
+_UNSET: Any = object()
 
 
 class GalileoLoggerException(Exception):
@@ -62,19 +66,40 @@ class ForbiddenError(GalileoAPIError):
 
 
 class NotFoundError(GalileoAPIError):
-    """HTTP 404 - Resource not found.
+    r"""HTTP 404 - Resource not found.
 
-    Two construction paths:
+    Parameters
+    ----------
+    status_code_or_message : int | str
+        Either an HTTP status code (``int``, paired with ``content``) or a
+        full message string (``str``, used on its own).
+    content : bytes, optional
+        Raw response body. Only valid alongside an ``int`` status code; on the
+        message path it must be omitted.
 
-    - ``NotFoundError(status_code, content)`` — built from an HTTP 404 response by the
-      generated client. Uses the standard "Resource not found..." message.
-    - ``NotFoundError(message)`` — built from an SDK-level lookup that has no HTTP
-      response (e.g. resolving a project from env vars). The string is the full message.
+    Notes
+    -----
+    Two construction paths are supported, exposed via ``@overload`` so type
+    checkers see the right shape per call site:
 
-    The two paths are exposed via ``@overload`` so type checkers see the right shape
-    for each call site instead of an opaque ``int | str`` parameter. The runtime
-    constructor also enforces the contract: mixing the two shapes
-    (e.g. ``NotFoundError("msg", b"body")``) or passing ``None`` raises ``TypeError``.
+    - ``NotFoundError(status_code, content)`` — built from an HTTP 404 response
+      by the generated client. Uses the standard "Resource not found…" message.
+    - ``NotFoundError(message)`` — built from an SDK-level lookup that has no
+      HTTP response (e.g. resolving a project from env vars). The string is the
+      full message; no ``content`` argument is accepted.
+
+    The runtime constructor also enforces the contract. The following all raise
+    ``TypeError`` instead of producing nonsensical state:
+
+    - Mixing shapes: ``NotFoundError("msg", b"")`` / ``NotFoundError("msg", b"body")``
+    - Passing ``None``: ``NotFoundError(None)``
+    - Passing ``bool``: ``NotFoundError(True, b"x")`` (``bool`` is technically an
+      ``int`` subclass but is rejected explicitly to avoid silent acceptance)
+
+    Examples
+    --------
+    >>> NotFoundError(404, b"{\\"detail\\": ...}")  # HTTP response path
+    >>> NotFoundError("Project \\"foo\\" not found.")  # SDK lookup path
     """
 
     @overload
@@ -82,9 +107,9 @@ class NotFoundError(GalileoAPIError):
     @overload
     def __init__(self, status_code: int, content: bytes) -> None: ...
 
-    def __init__(self, status_code_or_message: int | str, content: bytes = b"") -> None:
+    def __init__(self, status_code_or_message: int | str, content: bytes = _UNSET) -> None:
         if isinstance(status_code_or_message, str):
-            if content != b"":
+            if content is not _UNSET:
                 raise TypeError(
                     "NotFoundError(message) does not accept a content argument. "
                     "Use NotFoundError(status_code, content) for HTTP-style construction."
@@ -93,10 +118,16 @@ class NotFoundError(GalileoAPIError):
             self.content = b""
             self.message = status_code_or_message
             Exception.__init__(self, status_code_or_message)
-        elif isinstance(status_code_or_message, int):
+        # mypy narrows to ``int`` here from the ``int | str`` annotation, so the
+        # ``not isinstance(..., bool)`` half looks redundant statically — but at
+        # runtime ``bool`` is an ``int`` subclass, so this guard is real
+        # protection against callers passing ``True``/``False`` accidentally.
+        elif isinstance(status_code_or_message, int) and not isinstance(  # type: ignore[redundant-expr]
+            status_code_or_message, bool
+        ):
             super().__init__(
                 status_code_or_message,
-                content,
+                b"" if content is _UNSET else content,
                 "Resource not found. The requested project, dataset, or resource doesn't exist. "
                 "Verify the ID or name is correct.",
             )

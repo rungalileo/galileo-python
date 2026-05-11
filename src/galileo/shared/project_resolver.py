@@ -14,6 +14,19 @@ from galileo.shared.exceptions import _project_not_found_error
 from galileo.utils.env_helpers import _get_project_from_env, _get_project_id_from_env
 
 
+def _normalize(value: str | None) -> str | None:
+    """Strip and return ``None`` for empty/whitespace-only inputs.
+
+    Mirrors the trimming :meth:`galileo.projects.Projects.get` does internally,
+    so the pre-check below sees the same "effectively empty" value the API
+    client would see.
+    """
+    if value is None:
+        return None
+    stripped = value.strip()
+    return stripped or None
+
+
 def _resolve_project(project_id: str | None, project_name: str | None) -> ProjectRecord:
     """Resolve a project from explicit params or env fallbacks.
 
@@ -26,19 +39,23 @@ def _resolve_project(project_id: str | None, project_name: str | None) -> Projec
 
     The helper pre-checks "no identifier anywhere" so it never relies on the
     ``ValueError`` ``Projects.get(id=None, name=None)`` raises in that one case —
-    unrelated ``ValueError``s from the API client surface unchanged.
+    unrelated ``ValueError``s from the API client surface unchanged. Inputs are
+    trimmed before the pre-check so whitespace-only values follow the same
+    not-found path as missing values instead of leaking a client ``ValueError``.
     """
-    # Pre-check before delegating: when no identifier is available anywhere,
-    # surface the documented not-found error directly instead of going through
-    # the API client (whose only ValueError source for this call is exactly
-    # "neither id nor name available", which we already know).
-    if not project_id and not project_name and not _get_project_id_from_env() and not _get_project_from_env():
+    # Normalize before the pre-check so whitespace-only values (e.g. ``" "``)
+    # are treated as missing — otherwise ``Projects.get`` strips them and raises
+    # the unrelated "Exactly one of 'id' or 'name'" ValueError downstream.
+    normalized_id = _normalize(project_id) or _normalize(_get_project_id_from_env())
+    normalized_name = None if normalized_id else (_normalize(project_name) or _normalize(_get_project_from_env()))
+
+    if not normalized_id and not normalized_name:
         raise _project_not_found_error(None, None)
 
     try:
-        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+        project_obj = Projects().get_with_env_fallbacks(id=normalized_id, name=normalized_name)
     except ProjectNotFoundError:
         project_obj = None
     if not project_obj:
-        raise _project_not_found_error(project_id, project_name)
+        raise _project_not_found_error(normalized_id, normalized_name)
     return project_obj

@@ -1135,8 +1135,22 @@ class TestNotFoundErrorOverloads:
         with pytest.raises(TypeError, match="does not accept a content argument"):
             NotFoundError("a message", b"junk")  # type: ignore[call-overload]
 
+    def test_mixing_message_with_empty_content_raises_type_error(self) -> None:
+        # When/Then: even empty bytes count as "explicitly provided" on the message
+        # path. Using a sentinel default lets the guard reject this misuse instead
+        # of silently treating ``b""`` as the omitted-default.
+        with pytest.raises(TypeError, match="does not accept a content argument"):
+            NotFoundError("a message", b"")  # type: ignore[call-overload]
+
     def test_none_first_arg_raises_type_error(self) -> None:
         # When/Then: ``None`` is neither a status code nor a message; the previous
         # implementation fell through to GalileoAPIError and produced "HTTP None".
         with pytest.raises(TypeError, match="requires either"):
             NotFoundError(None)  # type: ignore[call-overload]
+
+    def test_bool_first_arg_raises_type_error(self) -> None:
+        # When/Then: ``bool`` is technically an ``int`` subclass, so a plain
+        # ``isinstance(x, int)`` would let ``NotFoundError(True, b"x")`` produce
+        # an error with ``status_code=True``. The guard rejects it explicitly.
+        with pytest.raises(TypeError, match="requires either"):
+            NotFoundError(True, b"x")  # type: ignore[call-overload]

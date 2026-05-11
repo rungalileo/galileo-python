@@ -112,11 +112,22 @@ def _project_not_found_error(project_id: str | None, project_name: str | None) -
     and "no identifier was specified at all" (actionable: provide one).
     Falls back to env vars so the message is accurate even when the identifier came from the environment.
 
+    Whitespace-only values (explicit kwargs or env vars) are normalized to ``None`` so callers
+    get the actionable "No project specified" message instead of an empty-quoted identifier
+    like ``Project "   " not found``.
+
     Returns ``ResourceNotFoundError`` (a subclass of :class:`NotFoundError`) so callers using either
     ``except NotFoundError`` or ``except ResourceNotFoundError`` continue to work.
     """
-    effective_id = project_id or _get_project_id_from_env()
-    effective_name = project_name or (None if effective_id else _get_project_from_env())
+
+    def _normalize(value: str | None) -> str | None:
+        if value is None:
+            return None
+        stripped = value.strip()
+        return stripped or None
+
+    effective_id = _normalize(project_id) or _normalize(_get_project_id_from_env())
+    effective_name = _normalize(project_name) or (None if effective_id else _normalize(_get_project_from_env()))
     if effective_name:
         return ResourceNotFoundError(
             f'Project "{effective_name}" not found. '
