@@ -116,7 +116,7 @@ def export_records(
         # stream, not just the oldest in the first page (default page size is 100).
         log_streams = LogStreams()._list_all(project_id=project_id)
         if log_streams:
-            sorted_log_streams = sorted(log_streams, key=lambda ls: ls.created_at)
+            sorted_log_streams = sorted(log_streams, key=lambda ls: (ls.created_at, ls.id))
             log_stream_id = sorted_log_streams[0].id
 
     if (log_stream_id is None) == (experiment_id is None):

@@ -2,6 +2,7 @@
 
 Covers:
 - `_list_all` paginates across all pages until the API signals no more pages.
+- `_list_all` raises on mid-pagination errors and guards against non-advancing tokens.
 - `get(name=...)` finds matches that span beyond the first page.
 - `list()` forwards `starting_token` to the underlying paginated endpoint.
 """
@@ -9,7 +10,10 @@ Covers:
 from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
+import pytest
+
 from galileo.log_streams import LogStreams
+from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.list_log_stream_response import ListLogStreamResponse
 from galileo.resources.models.log_stream_response import LogStreamResponse
 from galileo.resources.types import UNSET
@@ -84,6 +88,59 @@ class TestListAllPagination:
 
         # Then: pagination stops on UNSET token
         assert len(all_streams) == 2
+        assert mock_endpoint.sync.call_count == 1
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_uses_larger_page_size(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
+        # Given: a single page
+        mock_endpoint.sync.return_value = _make_response(names=["a"], next_token=None, paginated=True)
+
+        # When: _list_all is called
+        LogStreams()._list_all(project_id="proj-1")
+
+        # Then: it uses the larger page size (500) to reduce round trips
+        kwargs = mock_endpoint.sync.call_args.kwargs
+        assert kwargs["limit"] == LogStreams._LIST_ALL_PAGE_SIZE
+        assert kwargs["limit"] == 500
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_raises_on_http_validation_error(
+        self, mock_config_class: MagicMock, mock_endpoint: MagicMock
+    ) -> None:
+        # Given: first page succeeds, second page returns HTTPValidationError
+        page_1 = _make_response(names=["a", "b"], next_token=2, paginated=True)
+        mock_endpoint.sync.side_effect = [page_1, HTTPValidationError()]
+
+        # When/Then: _list_all raises instead of silently returning the partial accumulator
+        with pytest.raises(ValueError, match="Failed to list log streams"):
+            LogStreams()._list_all(project_id="proj-1")
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_raises_on_none_response(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
+        # Given: the endpoint returns None (unexpected protocol error)
+        mock_endpoint.sync.return_value = None
+
+        # When/Then: _list_all raises ValueError instead of returning an empty list
+        with pytest.raises(ValueError, match="Unexpected empty response"):
+            LogStreams()._list_all(project_id="proj-1")
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_breaks_on_non_advancing_token(
+        self, mock_config_class: MagicMock, mock_endpoint: MagicMock
+    ) -> None:
+        # Given: server keeps returning the same next_starting_token (would loop forever without a guard)
+        same_token_page = _make_response(names=["a"], next_token=0, paginated=True)
+        mock_endpoint.sync.return_value = same_token_page
+
+        # When: _list_all is called
+        all_streams = LogStreams()._list_all(project_id="proj-1")
+
+        # Then: the loop terminates after one iteration thanks to the progress guard
+        assert len(all_streams) == 1
         assert mock_endpoint.sync.call_count == 1
 
 

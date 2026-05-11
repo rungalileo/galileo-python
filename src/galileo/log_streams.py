@@ -300,26 +300,42 @@ class LogStreams:
 
         return [LogStream(log_stream=log_stream) for log_stream in response.log_streams]
 
+    # Page size used by `_list_all`. Larger than the default `list()` page size so
+    # full scans (name-based `get`, oldest-stream fallback) issue fewer round trips.
+    _LIST_ALL_PAGE_SIZE = 500
+
     def _list_all(self, *, project_id: str) -> builtins.list[LogStream]:
         """Internal helper: paginate through every page and return all log streams.
 
         Used by callers that need a globally-complete view (e.g. name-based lookup,
         oldest-stream fallback). Public callers should use `list()` with explicit
         pagination instead.
+
+        Raises ValueError on server validation failures or unexpected protocol
+        errors so mid-pagination failures aren't silently swallowed into a
+        truncated result.
         """
         all_log_streams: builtins.list[LogStream] = []
-        starting_token: Unset | int = 0
+        starting_token: int = 0
         while True:
             response = list_log_streams_paginated_projects_project_id_log_streams_paginated_get.sync(
-                client=self.config.api_client, project_id=project_id, starting_token=starting_token
+                client=self.config.api_client,
+                project_id=project_id,
+                starting_token=starting_token,
+                limit=self._LIST_ALL_PAGE_SIZE,
             )
-            if response is None or isinstance(response, HTTPValidationError):
-                break
+            if isinstance(response, HTTPValidationError):
+                raise ValueError(f"Failed to list log streams: {response.detail}")
+            if response is None:
+                raise ValueError("Unexpected empty response while paginating log streams")
 
             all_log_streams.extend(LogStream(log_stream=log_stream) for log_stream in response.log_streams)
 
             next_token = response.next_starting_token
             if next_token is None or isinstance(next_token, Unset) or not response.paginated:
+                break
+            if not isinstance(next_token, int) or next_token <= starting_token:
+                # Defensive: server returned a non-advancing token; stop instead of looping forever.
                 break
             starting_token = next_token
 
