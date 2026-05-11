@@ -10,21 +10,8 @@ from __future__ import annotations
 
 from galileo.projects import Project as ProjectRecord
 from galileo.projects import ProjectNotFoundError, Projects
-from galileo.shared.exceptions import _project_not_found_error
+from galileo.shared.exceptions import _normalize_identifier, _project_not_found_error
 from galileo.utils.env_helpers import _get_project_from_env, _get_project_id_from_env
-
-
-def _normalize(value: str | None) -> str | None:
-    """Strip and return ``None`` for empty/whitespace-only inputs.
-
-    Mirrors the trimming :meth:`galileo.projects.Projects.get` does internally,
-    so the pre-check below sees the same "effectively empty" value the API
-    client would see.
-    """
-    if value is None:
-        return None
-    stripped = value.strip()
-    return stripped or None
 
 
 def _resolve_project(project_id: str | None, project_name: str | None) -> ProjectRecord:
@@ -46,8 +33,12 @@ def _resolve_project(project_id: str | None, project_name: str | None) -> Projec
     # Normalize before the pre-check so whitespace-only values (e.g. ``" "``)
     # are treated as missing — otherwise ``Projects.get`` strips them and raises
     # the unrelated "Exactly one of 'id' or 'name'" ValueError downstream.
-    normalized_id = _normalize(project_id) or _normalize(_get_project_id_from_env())
-    normalized_name = None if normalized_id else (_normalize(project_name) or _normalize(_get_project_from_env()))
+    normalized_id = _normalize_identifier(project_id) or _normalize_identifier(_get_project_id_from_env())
+    normalized_name = (
+        None
+        if normalized_id
+        else (_normalize_identifier(project_name) or _normalize_identifier(_get_project_from_env()))
+    )
 
     if not normalized_id and not normalized_name:
         raise _project_not_found_error(None, None)

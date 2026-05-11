@@ -105,6 +105,20 @@ class IntegrationNotConfiguredError(GalileoFutureError):
         self.integration_name = integration_name
 
 
+def _normalize_identifier(value: str | None) -> str | None:
+    """Strip and return ``None`` for empty/whitespace-only inputs.
+
+    Mirrors the trimming :meth:`galileo.projects.Projects.get` does internally,
+    so callers that pre-check identifiers see the same "effectively empty"
+    values the API client would see. Shared by :func:`_project_not_found_error`
+    and :func:`galileo.shared.project_resolver._resolve_project`.
+    """
+    if value is None:
+        return None
+    stripped = value.strip()
+    return stripped or None
+
+
 def _project_not_found_error(project_id: str | None, project_name: str | None) -> "ResourceNotFoundError":
     """Return a context-aware ResourceNotFoundError for a missing project.
 
@@ -119,15 +133,10 @@ def _project_not_found_error(project_id: str | None, project_name: str | None) -
     Returns ``ResourceNotFoundError`` (a subclass of :class:`NotFoundError`) so callers using either
     ``except NotFoundError`` or ``except ResourceNotFoundError`` continue to work.
     """
-
-    def _normalize(value: str | None) -> str | None:
-        if value is None:
-            return None
-        stripped = value.strip()
-        return stripped or None
-
-    effective_id = _normalize(project_id) or _normalize(_get_project_id_from_env())
-    effective_name = _normalize(project_name) or (None if effective_id else _normalize(_get_project_from_env()))
+    effective_id = _normalize_identifier(project_id) or _normalize_identifier(_get_project_id_from_env())
+    effective_name = _normalize_identifier(project_name) or (
+        None if effective_id else _normalize_identifier(_get_project_from_env())
+    )
     if effective_name:
         return ResourceNotFoundError(
             f'Project "{effective_name}" not found. '
