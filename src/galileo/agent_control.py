@@ -7,6 +7,7 @@ not import the Agent Control SDK; callers wire the two SDKs together explicitly.
 from __future__ import annotations
 
 import os
+import threading
 from dataclasses import dataclass
 from uuid import UUID
 
@@ -64,8 +65,13 @@ def get_agent_control_target(
     log stream name is available, resolve it with the Galileo SDK first and pass
     the resulting ID explicitly.
     """
-    env_project_id = os.getenv("GALILEO_PROJECT_ID")
-    resolved_project_id = project_id or env_project_id
+    explicit_project_id = _strip_optional_string(project_id)
+    env_project_id = _strip_optional_string(os.getenv("GALILEO_PROJECT_ID"))
+    resolved_project_id = explicit_project_id or env_project_id
+
+    if target_type == LOG_STREAM_TARGET_TYPE:
+        target_id = _strip_optional_string(target_id)
+    log_stream_id = _strip_optional_string(log_stream_id)
 
     if target_type != LOG_STREAM_TARGET_TYPE and log_stream_id is not None:
         raise AgentControlTargetUnresolvedError("log_stream_id can only be used with target_type='log_stream'.")
@@ -73,7 +79,7 @@ def get_agent_control_target(
     if target_id is not None and log_stream_id is not None and target_id != log_stream_id:
         raise AgentControlTargetUnresolvedError("target_id and log_stream_id must match when both are provided.")
 
-    resolved_target_id = target_id or log_stream_id
+    resolved_target_id = target_id if target_id is not None else log_stream_id
     if resolved_target_id is not None:
         if target_type == LOG_STREAM_TARGET_TYPE:
             source_label = "target_id" if target_id is not None else "log_stream_id"
@@ -86,7 +92,7 @@ def get_agent_control_target(
             "Provide target_id=<id> explicitly."
         )
 
-    env_log_stream_id = os.getenv("GALILEO_LOG_STREAM_ID")
+    env_log_stream_id = _strip_optional_string(os.getenv("GALILEO_LOG_STREAM_ID"))
     if env_log_stream_id:
         _validate_uuid(env_log_stream_id, "GALILEO_LOG_STREAM_ID")
         return AgentControlTarget(
@@ -98,7 +104,7 @@ def get_agent_control_target(
         return AgentControlTarget(
             target_type=context_target.target_type,
             target_id=context_target.target_id,
-            project_id=project_id or context_target.project_id or env_project_id,
+            project_id=explicit_project_id or context_target.project_id or env_project_id,
         )
 
     raise AgentControlTargetUnresolvedError(
@@ -109,11 +115,6 @@ def get_agent_control_target(
     )
 
 
-def get_log_stream_id(*, log_stream_id: str | None = None) -> str:
-    """Resolve the current Galileo log stream ID for Agent Control calls."""
-    return get_agent_control_target(log_stream_id=log_stream_id).target_id
-
-
 def _validate_uuid(value: str, source: str) -> None:
     try:
         UUID(value)
@@ -121,15 +122,24 @@ def _validate_uuid(value: str, source: str) -> None:
         raise AgentControlTargetUnresolvedError(f"{source}={value!r} is not a valid UUID.") from exc
 
 
+def _strip_optional_string(value: str | None) -> str | None:
+    if value is None:
+        return None
+    return value.strip()
+
+
 def _resolve_log_stream_from_cached_context() -> AgentControlTarget | None:
     current_project = _get_project_or_default(galileo_context.get_current_project())
     current_log_stream = _get_log_stream_or_default(galileo_context.get_current_log_stream())
+    current_thread_name = threading.current_thread().name
 
     # Read cached logger state directly so this helper never creates or resolves
     # projects/log streams as a side effect of building an Agent Control target.
     # Use the same default/env fallback as GalileoLogger so callers that rely on
     # default project/log-stream creation can still reuse the resolved IDs.
-    for logger in GalileoLoggerSingleton().get_all_loggers().values():
+    for key, logger in GalileoLoggerSingleton().get_all_loggers().items():
+        if not key or key[0] != current_thread_name:
+            continue
         if logger.project_name != current_project or logger.log_stream_name != current_log_stream:
             continue
         if logger.log_stream_id is None:
@@ -141,4 +151,4 @@ def _resolve_log_stream_from_cached_context() -> AgentControlTarget | None:
     return None
 
 
-__all__ = ["AgentControlTarget", "AgentControlTargetUnresolvedError", "get_agent_control_target", "get_log_stream_id"]
+__all__ = ["AgentControlTarget", "AgentControlTargetUnresolvedError", "get_agent_control_target"]
