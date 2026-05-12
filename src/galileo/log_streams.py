@@ -276,13 +276,15 @@ class LogStreams:
         Raises
         ------
         ValueError
-            If neither or both `project_id` and `project_name` are provided.
+            If neither or both `project_id` and `project_name` are provided,
+            if the named project is not found, if the server returns a
+            validation error, or if the response is unexpectedly empty.
         errors.UnexpectedStatus
             If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException
             If the request takes longer than Client.timeout.
         """
-        if (project_id is None) and (project_name is None):
+        if (project_id is None) == (project_name is None):
             raise ValueError("Exactly one of 'project_id' or 'project_name' must be provided")
 
         if not project_id:
@@ -295,8 +297,10 @@ class LogStreams:
             client=self.config.api_client, project_id=project_id, limit=limit, starting_token=starting_token
         )
 
-        if response is None or isinstance(response, HTTPValidationError):
-            return []
+        if isinstance(response, HTTPValidationError):
+            raise ValueError(f"Failed to list log streams: {response.detail}")
+        if response is None:
+            raise ValueError("Unexpected empty response while listing log streams")
 
         return [LogStream(log_stream=log_stream) for log_stream in response.log_streams]
 
@@ -317,6 +321,7 @@ class LogStreams:
         """
         all_log_streams: builtins.list[LogStream] = []
         starting_token: int = 0
+        seen_tokens: set[int] = {starting_token}
         while True:
             response = list_log_streams_paginated_projects_project_id_log_streams_paginated_get.sync(
                 client=self.config.api_client,
@@ -334,9 +339,13 @@ class LogStreams:
             next_token = response.next_starting_token
             if next_token is None or isinstance(next_token, Unset) or not response.paginated:
                 break
-            if not isinstance(next_token, int) or next_token <= starting_token:
-                # Defensive: server returned a non-advancing token; stop instead of looping forever.
+            # Progress guard: stop if we've already seen this token. Catches both
+            # repeated and non-advancing tokens without assuming monotonic-integer
+            # ordering, so the loop stays safe if the server ever switches to
+            # opaque cursor tokens.
+            if not isinstance(next_token, int) or next_token in seen_tokens:
                 break
+            seen_tokens.add(next_token)
             starting_token = next_token
 
         return all_log_streams
