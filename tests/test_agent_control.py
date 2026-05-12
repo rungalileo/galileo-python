@@ -4,6 +4,7 @@ from uuid import uuid4
 import pytest
 
 from galileo import AgentControlTarget, AgentControlTargetUnresolvedError, get_agent_control_target, get_log_stream_id
+from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.decorator import galileo_context
 from galileo.utils.singleton import GalileoLoggerSingleton
 
@@ -11,6 +12,8 @@ from galileo.utils.singleton import GalileoLoggerSingleton
 @pytest.fixture(autouse=True)
 def reset_agent_control_helper_state(monkeypatch):
     # Given: no log stream ID environment override or cached logger state
+    monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+    monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
     monkeypatch.delenv("GALILEO_LOG_STREAM_ID", raising=False)
     monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
     singleton = GalileoLoggerSingleton()
@@ -93,6 +96,48 @@ def test_get_agent_control_target_uses_cached_context_logger() -> None:
     target = get_agent_control_target()
 
     # Then: the helper reads the resolved IDs without creating a new logger
+    assert target == AgentControlTarget(target_type="log_stream", target_id=log_stream_id, project_id=project_id)
+
+
+def test_get_agent_control_target_uses_cached_default_logger() -> None:
+    # Given: Galileo initialized a logger with default project and log-stream names
+    project_id = str(uuid4())
+    log_stream_id = str(uuid4())
+    logger = SimpleNamespace(
+        project_name=DEFAULT_PROJECT_NAME,
+        log_stream_name=DEFAULT_LOG_STREAM_NAME,
+        project_id=project_id,
+        log_stream_id=log_stream_id,
+        terminate=lambda: None,
+    )
+    GalileoLoggerSingleton()._galileo_loggers[("test",)] = logger
+
+    # When: resolving an Agent Control target without explicit context names
+    target = get_agent_control_target()
+
+    # Then: the helper reuses the default logger's resolved log-stream ID
+    assert target == AgentControlTarget(target_type="log_stream", target_id=log_stream_id, project_id=project_id)
+
+
+def test_get_agent_control_target_uses_cached_env_default_logger(monkeypatch) -> None:
+    # Given: Galileo initialized a logger using environment-provided default names
+    project_id = str(uuid4())
+    log_stream_id = str(uuid4())
+    monkeypatch.setenv("GALILEO_PROJECT", "project-env")
+    monkeypatch.setenv("GALILEO_LOG_STREAM", "stream-env")
+    logger = SimpleNamespace(
+        project_name="project-env",
+        log_stream_name="stream-env",
+        project_id=project_id,
+        log_stream_id=log_stream_id,
+        terminate=lambda: None,
+    )
+    GalileoLoggerSingleton()._galileo_loggers[("test",)] = logger
+
+    # When: resolving an Agent Control target without explicit context names
+    target = get_agent_control_target()
+
+    # Then: the helper follows Galileo's env fallback and reuses the resolved ID
     assert target == AgentControlTarget(target_type="log_stream", target_id=log_stream_id, project_id=project_id)
 
 

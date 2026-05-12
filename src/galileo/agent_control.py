@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from galileo.decorator import galileo_context
+from galileo.utils.env_helpers import _get_log_stream_or_default, _get_project_or_default
 from galileo.utils.singleton import GalileoLoggerSingleton
 
 LOG_STREAM_TARGET_TYPE = "log_stream"
@@ -121,13 +122,13 @@ def _validate_uuid(value: str, source: str) -> None:
 
 
 def _resolve_log_stream_from_cached_context() -> AgentControlTarget | None:
-    current_project = galileo_context.get_current_project()
-    current_log_stream = galileo_context.get_current_log_stream()
-    if current_project is None or current_log_stream is None:
-        return None
+    current_project = _get_project_or_default(galileo_context.get_current_project())
+    current_log_stream = _get_log_stream_or_default(galileo_context.get_current_log_stream())
 
     # Read cached logger state directly so this helper never creates or resolves
     # projects/log streams as a side effect of building an Agent Control target.
+    # Use the same default/env fallback as GalileoLogger so callers that rely on
+    # default project/log-stream creation can still reuse the resolved IDs.
     for logger in GalileoLoggerSingleton()._galileo_loggers.values():
         if logger.project_name != current_project or logger.log_stream_name != current_log_stream:
             continue
