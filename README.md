@@ -162,7 +162,9 @@ current Galileo log stream as the runtime target:
 
 ```python
 import agent_control
-from galileo import get_agent_control_target
+from galileo import galileo_context, get_agent_control_target
+
+galileo_context.init(project="my-project", log_stream="prod")
 
 target = get_agent_control_target()
 

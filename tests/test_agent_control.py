@@ -17,6 +17,7 @@ def reset_agent_control_helper_state(monkeypatch):
     monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
     monkeypatch.delenv("GALILEO_LOG_STREAM_ID", raising=False)
     monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
+    GalileoLoggerSingleton().reset_all()
     monkeypatch.setattr(GalileoLoggerSingleton, "get_all_loggers", lambda self: {})
     monkeypatch.setattr(
         galileo_context, "get_logger_instance", lambda *args, **kwargs: SimpleNamespace(flush=lambda: None)
@@ -27,6 +28,7 @@ def reset_agent_control_helper_state(monkeypatch):
 
     # Then: context and singleton state are restored for following tests
     galileo_context.reset()
+    GalileoLoggerSingleton().reset_all()
 
 
 def _stub_cached_logger(monkeypatch, logger: SimpleNamespace) -> None:
