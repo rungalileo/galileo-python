@@ -167,6 +167,7 @@ from galileo import get_agent_control_target
 target = get_agent_control_target()
 
 agent_control.init(
+    agent_name="my-agent",
     target_type=target.target_type,
     target_id=target.target_id,
     # server_url, api_key, and api_key_header can be passed here or configured
