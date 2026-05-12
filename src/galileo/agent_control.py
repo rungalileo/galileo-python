@@ -64,18 +64,20 @@ def get_agent_control_target(
     log stream name is available, resolve it with the Galileo SDK first and pass
     the resulting ID explicitly.
     """
-    resolved_project_id = project_id or os.getenv("GALILEO_PROJECT_ID")
+    env_project_id = os.getenv("GALILEO_PROJECT_ID")
+    resolved_project_id = project_id or env_project_id
 
     if target_type != LOG_STREAM_TARGET_TYPE and log_stream_id is not None:
-        raise ValueError("log_stream_id can only be used with target_type='log_stream'.")
+        raise AgentControlTargetUnresolvedError("log_stream_id can only be used with target_type='log_stream'.")
 
     if target_id is not None and log_stream_id is not None and target_id != log_stream_id:
-        raise ValueError("target_id and log_stream_id must match when both are provided.")
+        raise AgentControlTargetUnresolvedError("target_id and log_stream_id must match when both are provided.")
 
     resolved_target_id = target_id or log_stream_id
     if resolved_target_id is not None:
         if target_type == LOG_STREAM_TARGET_TYPE:
-            _validate_uuid(resolved_target_id, "log_stream_id")
+            source_label = "target_id" if target_id is not None else "log_stream_id"
+            _validate_uuid(resolved_target_id, source_label)
         return AgentControlTarget(target_type=target_type, target_id=resolved_target_id, project_id=resolved_project_id)
 
     if target_type != LOG_STREAM_TARGET_TYPE:
@@ -93,13 +95,11 @@ def get_agent_control_target(
 
     context_target = _resolve_log_stream_from_cached_context()
     if context_target is not None:
-        if resolved_project_id is not None:
-            return AgentControlTarget(
-                target_type=context_target.target_type,
-                target_id=context_target.target_id,
-                project_id=resolved_project_id,
-            )
-        return context_target
+        return AgentControlTarget(
+            target_type=context_target.target_type,
+            target_id=context_target.target_id,
+            project_id=project_id or context_target.project_id or env_project_id,
+        )
 
     raise AgentControlTargetUnresolvedError(
         "Could not resolve Galileo log stream ID for Agent Control. Provide one of:\n"
@@ -129,7 +129,7 @@ def _resolve_log_stream_from_cached_context() -> AgentControlTarget | None:
     # projects/log streams as a side effect of building an Agent Control target.
     # Use the same default/env fallback as GalileoLogger so callers that rely on
     # default project/log-stream creation can still reuse the resolved IDs.
-    for logger in GalileoLoggerSingleton()._galileo_loggers.values():
+    for logger in GalileoLoggerSingleton().get_all_loggers().values():
         if logger.project_name != current_project or logger.log_stream_name != current_log_stream:
             continue
         if logger.log_stream_id is None:
