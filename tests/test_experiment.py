@@ -204,7 +204,7 @@ class TestExperimentEnvFallback:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_uses_env_fallback_when_no_project_specified(
         self,
@@ -216,9 +216,11 @@ class TestExperimentEnvFallback:
         reset_configuration: None,
         mock_experiment_response: MagicMock,
         mock_project: MagicMock,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test create() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: env fallback resolves to a project
+        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -242,7 +244,7 @@ class TestExperimentEnvFallback:
         assert experiment.project_id == mock_project.id
         assert experiment.is_synced()
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_create_raises_named_error_when_project_name_not_found(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -262,7 +264,7 @@ class TestExperimentEnvFallback:
         with pytest.raises(ResourceNotFoundError, match=r'Project "my-nonexistent-project" not found'):
             experiment.create()
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_create_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -279,7 +281,7 @@ class TestExperimentEnvFallback:
 
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_without_prompt_succeeds(
         self,
@@ -318,7 +320,7 @@ class TestExperimentEnvFallback:
         assert kwargs.get("prompt_template") is None
         assert kwargs.get("prompt_settings") is None
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_get_uses_env_fallback_when_no_project_specified(
         self,
@@ -327,9 +329,11 @@ class TestExperimentEnvFallback:
         reset_configuration: None,
         mock_experiment_response: MagicMock,
         mock_project: MagicMock,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test get() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: env fallback resolves to a project
+        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -345,7 +349,7 @@ class TestExperimentEnvFallback:
         mock_projects_service.get_with_env_fallbacks.assert_called_once()
         assert experiment.project_id == mock_project.id
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_get_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -359,7 +363,7 @@ class TestExperimentEnvFallback:
         with pytest.raises(ResourceNotFoundError, match="No project specified"):
             Experiment.get(name="Test Experiment")
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_list_uses_env_fallback_when_no_project_specified(
         self,
@@ -367,9 +371,11 @@ class TestExperimentEnvFallback:
         mock_projects_class: MagicMock,
         reset_configuration: None,
         mock_project: MagicMock,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test list() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: env fallback resolves to a project
+        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -385,7 +391,7 @@ class TestExperimentEnvFallback:
         mock_projects_service.get_with_env_fallbacks.assert_called_once()
         assert experiments == []
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_list_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -399,6 +405,27 @@ class TestExperimentEnvFallback:
         with pytest.raises(ResourceNotFoundError, match="No project specified"):
             Experiment.list()
 
+    @patch("galileo.shared.project_resolver.Projects")
+    def test_list_no_project_no_env_does_not_leak_value_error(
+        self, mock_projects_class: MagicMock, reset_configuration: None, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Regression: Experiment.list() with no project/no env used to leak a raw ValueError.
+
+        Before the shared resolver, ``Experiment.list()`` called
+        ``Projects().get_with_env_fallbacks(None, None)`` which raised ``ValueError`` from
+        ``Projects.get(id=None, name=None)``. The error wasn't caught (only
+        ``ProjectNotFoundError`` was), so callers saw a ``ValueError`` instead of the
+        documented ``NotFoundError``. The shared ``_resolve_project`` fixes this.
+        """
+        # Given: env vars are unset
+        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+        monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
+
+        # When/Then: NotFoundError is raised without instantiating Projects or leaking ValueError
+        with pytest.raises(ResourceNotFoundError, match="No project specified"):
+            Experiment.list()
+        mock_projects_class.assert_not_called()
+
 
 class TestExperimentCreate:
     """Test suite for Experiment.create() method."""
@@ -406,7 +433,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_persists_and_triggers_experiment(
         self,
@@ -456,7 +483,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_handles_existing_experiment_with_timestamp(
         self,
@@ -502,7 +529,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_handles_api_failure(
         self,
@@ -544,7 +571,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_fills_default_prompt_settings_for_prompt_template(
         self,
@@ -597,7 +624,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_preserves_user_prompt_settings_when_overriding_model_alias(
         self,
@@ -654,7 +681,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_treats_not_found_as_no_existing_experiment(
         self,
@@ -705,7 +732,7 @@ class TestExperimentCreate:
 class TestExperimentGet:
     """Test suite for Experiment.get() class method."""
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_get_retrieves_experiment_by_name(
         self,
@@ -735,7 +762,7 @@ class TestExperimentGet:
         assert experiment.is_synced()
         assert experiment.project_id == mock_project.id
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_get_returns_none_when_not_found(
         self,
@@ -764,7 +791,7 @@ class TestExperimentGet:
 class TestExperimentList:
     """Test suite for Experiment.list() class method."""
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_list_retrieves_all_experiments(
         self,
@@ -867,7 +894,7 @@ class TestExperimentRun:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_run_raises_error_on_second_call_after_result_consumed(
         self,
@@ -916,7 +943,7 @@ class TestExperimentRun:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_run_create_run_resets_consumed_flag(
         self,

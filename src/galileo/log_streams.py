@@ -306,6 +306,9 @@ class LogStreams:
 
     # Page size used by `_list_all`. Larger than the default `list()` page size so
     # full scans (name-based `get`, oldest-stream fallback) issue fewer round trips.
+    # The OpenAPI spec does not declare a server-side maximum, so this value is a
+    # heuristic. If the server ever rejects it (e.g. 422), `_list_all` now raises
+    # `ValueError` instead of silently truncating, so the regression is loud.
     _LIST_ALL_PAGE_SIZE = 500
 
     def _list_all(self, *, project_id: str) -> builtins.list[LogStream]:

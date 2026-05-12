@@ -1,5 +1,6 @@
 from typing import ClassVar
 
+from galileo.exceptions import NotFoundError
 from galileo.utils.env_helpers import _get_project_from_env, _get_project_id_from_env
 
 
@@ -29,12 +30,16 @@ class ValidationError(GalileoFutureError):
     """
 
 
-class ResourceNotFoundError(GalileoFutureError):
+class ResourceNotFoundError(NotFoundError, GalileoFutureError):
     """
-    Raised when a requested resource cannot be found.
+    Backward-compatible alias for NotFoundError.
 
-    This includes projects, datasets, prompts, or log streams that don't exist.
+    Raised when a requested resource cannot be found.
+    New code should catch NotFoundError instead.
     """
+
+    def __init__(self, message: str):
+        NotFoundError.__init__(self, message)
 
 
 class ResourceConflictError(GalileoFutureError):
@@ -100,15 +105,65 @@ class IntegrationNotConfiguredError(GalileoFutureError):
         self.integration_name = integration_name
 
 
+def _normalize_identifier(value: str | None) -> str | None:
+    """Strip and return ``None`` for empty/whitespace-only inputs.
+
+    Mirrors the trimming :meth:`galileo.projects.Projects.get` does internally,
+    so callers that pre-check identifiers see the same "effectively empty"
+    values the API client would see.
+    """
+    if value is None:
+        return None
+    stripped = value.strip()
+    return stripped or None
+
+
+def _resolve_project_identifiers(project_id: str | None, project_name: str | None) -> tuple[str | None, str | None]:
+    """Apply env-fallback precedence to produce a normalized ``(id, name)`` tuple.
+
+    Matches the precedence documented by :meth:`galileo.projects.Projects.get_with_env_fallbacks`
+    exactly: explicit ``project_id`` > explicit ``project_name`` > ``GALILEO_PROJECT_ID``
+    > ``GALILEO_PROJECT``. Once an id is chosen, name is dropped; once a name is chosen,
+    env-id is *not* consulted (an explicit name suppresses env-id fallback).
+
+    Whitespace-only values (explicit kwargs or env vars) are treated as missing, so
+    ``" "`` follows the same path as ``None`` instead of leaking a raw ``ValueError``
+    from the API client's internal strip-and-validate.
+
+    Shared by :func:`_project_not_found_error` (uses the result for error-message
+    context) and :func:`galileo.shared.project_resolver._resolve_project` (uses the
+    result for both the pre-check and the actual API call).
+    """
+    explicit_id = _normalize_identifier(project_id)
+    if explicit_id:
+        return explicit_id, None
+    explicit_name = _normalize_identifier(project_name)
+    if explicit_name:
+        return None, explicit_name
+    env_id = _normalize_identifier(_get_project_id_from_env())
+    if env_id:
+        return env_id, None
+    env_name = _normalize_identifier(_get_project_from_env())
+    if env_name:
+        return None, env_name
+    return None, None
+
+
 def _project_not_found_error(project_id: str | None, project_name: str | None) -> "ResourceNotFoundError":
     """Return a context-aware ResourceNotFoundError for a missing project.
 
     Distinguishes between "a name/id was given but the project doesn't exist" (actionable: create it)
     and "no identifier was specified at all" (actionable: provide one).
     Falls back to env vars so the message is accurate even when the identifier came from the environment.
+
+    Whitespace-only values (explicit kwargs or env vars) are normalized to ``None`` so callers
+    get the actionable "No project specified" message instead of an empty-quoted identifier
+    like ``Project "   " not found``.
+
+    Returns ``ResourceNotFoundError`` (a subclass of :class:`NotFoundError`) so callers using either
+    ``except NotFoundError`` or ``except ResourceNotFoundError`` continue to work.
     """
-    effective_id = project_id or _get_project_id_from_env()
-    effective_name = project_name or (None if effective_id else _get_project_from_env())
+    effective_id, effective_name = _resolve_project_identifiers(project_id, project_name)
     if effective_name:
         return ResourceNotFoundError(
             f'Project "{effective_name}" not found. '
