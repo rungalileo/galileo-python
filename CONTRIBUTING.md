@@ -34,11 +34,17 @@
 
    which should print out `Python 3.13.x`.
 
-1. Install dependencies and setup pre-commit hooks:
+2. Install dependencies and setup pre-commit hooks:
 
    ```sh
    pip3 install --upgrade invoke
    inv setup
+   ```
+
+3. Run unit tests
+
+   ```sh
+   pytest
    ```
 
 ## Auto-generating the API client
