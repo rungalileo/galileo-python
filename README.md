@@ -183,6 +183,10 @@ Control SDK or resolve log stream names over the network. If you use a direct
 Agent Control client instead of `agent_control.init(...)`, pass
 `target.target_type` and `target.target_id` on each evaluation call.
 
+`galileo.agent_control` resolves targets for Agent Control calls.
+`galileo.handlers.agent_control` bridges Agent Control telemetry into Galileo
+logging.
+
 OpenAI streaming example:
 
 ```python

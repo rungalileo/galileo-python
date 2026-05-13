@@ -2,6 +2,8 @@
 
 This module produces generic Agent Control targets from Galileo state. It does
 not import the Agent Control SDK; callers wire the two SDKs together explicitly.
+
+For Agent Control telemetry ingestion, use ``galileo.handlers.agent_control``.
 """
 
 from __future__ import annotations
