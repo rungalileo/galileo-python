@@ -19,6 +19,7 @@ from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, Root
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_records_available_columns_request import LogRecordsAvailableColumnsRequest
 from galileo.resources.models.log_records_available_columns_response import LogRecordsAvailableColumnsResponse
+from galileo.resources.types import Unset
 from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
@@ -294,19 +295,31 @@ class LogStream(StateManagementMixin):
         return instance
 
     @classmethod
-    def list(cls, *, project_id: str | None = None, project_name: str | None = None) -> list[LogStream]:
+    def list(
+        cls,
+        *,
+        project_id: str | None = None,
+        project_name: str | None = None,
+        limit: Unset | int = 100,
+        starting_token: Unset | int = 0,
+    ) -> list[LogStream]:
         """
-        List all log streams for a project.
+        List log streams for a project.
+
+        Returns a single page of results. Use `starting_token` (from
+        `next_starting_token` on a prior response) to fetch subsequent pages.
 
         Args:
             project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
                        falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
             project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
                          falls back to GALILEO_PROJECT environment variable.
+            limit (Union[Unset, int]): Maximum number of log streams to return per page. Defaults to 100.
+            starting_token (Union[Unset, int]): Pagination token to start from. Defaults to 0 (first page).
 
         Returns
         -------
-            List[LogStream]: A list of log streams for the project.
+            List[LogStream]: A page of log streams for the project.
 
         Raises
         ------
@@ -322,11 +335,19 @@ class LogStream(StateManagementMixin):
 
             # List using GALILEO_PROJECT environment variable
             log_streams = LogStream.list()
+
+            # Cap the number of returned log streams
+            log_streams = LogStream.list(project_name="My AI Project", limit=3)
+
+            # Fetch the next page
+            page_2 = LogStream.list(project_name="My AI Project", starting_token=100)
         """
         project_obj = _resolve_project(project_id, project_name)
 
         log_streams_service = LogStreams()
-        retrieved_log_streams = log_streams_service.list(project_id=project_obj.id)
+        retrieved_log_streams = log_streams_service.list(
+            project_id=project_obj.id, limit=limit, starting_token=starting_token
+        )
 
         instances = [cls._from_api_response(retrieved_log_stream) for retrieved_log_stream in retrieved_log_streams]
         # Set project_name from resolved project for all instances

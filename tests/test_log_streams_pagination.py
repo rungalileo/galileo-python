@@ -1,0 +1,272 @@
+"""Tests for pagination behavior of the LogStreams service.
+
+Covers:
+- `_list_all` paginates across all pages until the API signals no more pages.
+- `_list_all` raises on mid-pagination errors and guards against non-advancing tokens.
+- `get(name=...)` finds matches that span beyond the first page.
+- `list()` forwards `starting_token` to the underlying paginated endpoint.
+"""
+
+from unittest.mock import MagicMock, patch
+from uuid import uuid4
+
+import pytest
+
+from galileo.log_streams import LogStreams
+from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.list_log_stream_response import ListLogStreamResponse
+from galileo.resources.models.log_stream_response import LogStreamResponse
+from galileo.resources.types import UNSET
+
+
+def _make_response(*, names: list[str], next_token, paginated: bool) -> ListLogStreamResponse:
+    """Build a mock paginated response with the given names and pagination flags."""
+    log_streams = [
+        LogStreamResponse(
+            id=str(uuid4()),
+            name=name,
+            project_id="proj-1",
+            created_at="2023-01-01T00:00:00Z",
+            updated_at="2023-01-01T00:00:00Z",
+            created_by="test-user",
+        )
+        for name in names
+    ]
+    return ListLogStreamResponse(
+        log_streams=log_streams, starting_token=0, limit=100, paginated=paginated, next_starting_token=next_token
+    )
+
+
+class TestListAllPagination:
+    """Tests for LogStreams._list_all (internal helper)."""
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_paginates_across_multiple_pages(
+        self, mock_config_class: MagicMock, mock_endpoint: MagicMock
+    ) -> None:
+        # Given: two pages of results
+        page_1 = _make_response(names=[f"stream-{i}" for i in range(5)], next_token=5, paginated=True)
+        page_2 = _make_response(names=[f"stream-{i}" for i in range(5, 8)], next_token=None, paginated=True)
+        mock_endpoint.sync.side_effect = [page_1, page_2]
+
+        # When: _list_all is called
+        all_streams = LogStreams()._list_all(project_id="proj-1")
+
+        # Then: every page is fetched and concatenated
+        assert len(all_streams) == 8
+        assert [ls.name for ls in all_streams] == [f"stream-{i}" for i in range(8)]
+        assert mock_endpoint.sync.call_count == 2
+        # Second call passes the token from the first response
+        assert mock_endpoint.sync.call_args_list[1].kwargs["starting_token"] == 5
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_stops_when_paginated_false(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
+        # Given: a single page with paginated=False
+        page = _make_response(names=["only-stream"], next_token=42, paginated=False)
+        mock_endpoint.sync.return_value = page
+
+        # When: _list_all is called
+        all_streams = LogStreams()._list_all(project_id="proj-1")
+
+        # Then: only one fetch happens regardless of next_starting_token
+        assert len(all_streams) == 1
+        assert mock_endpoint.sync.call_count == 1
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_stops_when_next_token_is_unset(
+        self, mock_config_class: MagicMock, mock_endpoint: MagicMock
+    ) -> None:
+        # Given: a page with next_starting_token == UNSET
+        page = _make_response(names=["a", "b"], next_token=UNSET, paginated=True)
+        mock_endpoint.sync.return_value = page
+
+        # When: _list_all is called
+        all_streams = LogStreams()._list_all(project_id="proj-1")
+
+        # Then: pagination stops on UNSET token
+        assert len(all_streams) == 2
+        assert mock_endpoint.sync.call_count == 1
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_uses_larger_page_size(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
+        # Given: a single page
+        mock_endpoint.sync.return_value = _make_response(names=["a"], next_token=None, paginated=True)
+
+        # When: _list_all is called
+        LogStreams()._list_all(project_id="proj-1")
+
+        # Then: it uses the larger page size (500) to reduce round trips
+        kwargs = mock_endpoint.sync.call_args.kwargs
+        assert kwargs["limit"] == LogStreams._LIST_ALL_PAGE_SIZE
+        assert kwargs["limit"] == 500
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_raises_on_http_validation_error(
+        self, mock_config_class: MagicMock, mock_endpoint: MagicMock
+    ) -> None:
+        # Given: first page succeeds, second page returns HTTPValidationError
+        page_1 = _make_response(names=["a", "b"], next_token=2, paginated=True)
+        mock_endpoint.sync.side_effect = [page_1, HTTPValidationError()]
+
+        # When/Then: _list_all raises instead of silently returning the partial accumulator
+        with pytest.raises(ValueError, match="Failed to list log streams"):
+            LogStreams()._list_all(project_id="proj-1")
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_raises_on_none_response(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
+        # Given: the endpoint returns None (unexpected protocol error)
+        mock_endpoint.sync.return_value = None
+
+        # When/Then: _list_all raises ValueError instead of returning an empty list
+        with pytest.raises(ValueError, match="Unexpected empty response"):
+            LogStreams()._list_all(project_id="proj-1")
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_breaks_on_non_advancing_token(
+        self, mock_config_class: MagicMock, mock_endpoint: MagicMock
+    ) -> None:
+        # Given: server keeps returning the same next_starting_token (would loop forever without a guard)
+        same_token_page = _make_response(names=["a"], next_token=0, paginated=True)
+        mock_endpoint.sync.return_value = same_token_page
+
+        # When: _list_all is called
+        all_streams = LogStreams()._list_all(project_id="proj-1")
+
+        # Then: the loop terminates after one iteration thanks to the progress guard
+        assert len(all_streams) == 1
+        assert mock_endpoint.sync.call_count == 1
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_all_breaks_on_repeated_seen_token(
+        self, mock_config_class: MagicMock, mock_endpoint: MagicMock
+    ) -> None:
+        # Given: server advances forward then returns a previously-seen token (cycle)
+        page_1 = _make_response(names=["a"], next_token=5, paginated=True)
+        page_2 = _make_response(names=["b"], next_token=10, paginated=True)
+        # Token 5 was already seen on page_1's response; without a seen-tokens guard
+        # we'd re-enter the loop and risk infinite recursion through the cycle.
+        page_3 = _make_response(names=["c"], next_token=5, paginated=True)
+        mock_endpoint.sync.side_effect = [page_1, page_2, page_3]
+
+        # When: _list_all is called
+        all_streams = LogStreams()._list_all(project_id="proj-1")
+
+        # Then: the loop terminates on the third page when the cycle is detected
+        assert len(all_streams) == 3
+        assert mock_endpoint.sync.call_count == 3
+
+
+class TestGetByNamePaginates:
+    """Tests for LogStreams.get(name=...) finding matches across pages."""
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_get_by_name_finds_match_on_second_page(
+        self, mock_config_class: MagicMock, mock_endpoint: MagicMock
+    ) -> None:
+        # Given: target stream lives on page 2
+        page_1 = _make_response(names=[f"stream-{i}" for i in range(3)], next_token=3, paginated=True)
+        page_2 = _make_response(names=["target-stream", "other"], next_token=None, paginated=True)
+        mock_endpoint.sync.side_effect = [page_1, page_2]
+
+        # When: looking up by name
+        result = LogStreams().get(name="target-stream", project_id="proj-1")
+
+        # Then: the match on page 2 is found (would have returned None before this fix)
+        assert result is not None
+        assert result.name == "target-stream"
+        assert mock_endpoint.sync.call_count == 2
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_get_by_name_returns_none_when_missing(
+        self, mock_config_class: MagicMock, mock_endpoint: MagicMock
+    ) -> None:
+        # Given: name does not exist on any page
+        page = _make_response(names=["a", "b"], next_token=None, paginated=True)
+        mock_endpoint.sync.return_value = page
+
+        # When: looking up a missing name
+        result = LogStreams().get(name="nonexistent", project_id="proj-1")
+
+        # Then: returns None
+        assert result is None
+
+
+class TestListForwardsStartingToken:
+    """Tests that LogStreams.list forwards starting_token to the paginated endpoint."""
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_forwards_starting_token(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
+        # Given: a single page response
+        mock_endpoint.sync.return_value = _make_response(names=["s1"], next_token=None, paginated=True)
+
+        # When: list is called with a custom starting_token
+        LogStreams().list(project_id="proj-1", starting_token=200, limit=50)
+
+        # Then: starting_token and limit are passed to the underlying endpoint
+        kwargs = mock_endpoint.sync.call_args.kwargs
+        assert kwargs["starting_token"] == 200
+        assert kwargs["limit"] == 50
+        assert kwargs["project_id"] == "proj-1"
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_default_starting_token_is_zero(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
+        # Given: a single page response
+        mock_endpoint.sync.return_value = _make_response(names=[], next_token=None, paginated=True)
+
+        # When: list is called without starting_token
+        LogStreams().list(project_id="proj-1")
+
+        # Then: starting_token defaults to 0
+        kwargs = mock_endpoint.sync.call_args.kwargs
+        assert kwargs["starting_token"] == 0
+        assert kwargs["limit"] == 100
+
+
+class TestListValidatesArguments:
+    """Tests that LogStreams.list rejects invalid (project_id, project_name) combinations."""
+
+    def test_list_raises_when_both_project_id_and_name_provided(self) -> None:
+        # When/Then: passing both project_id and project_name is rejected (matches get/create XOR contract)
+        with pytest.raises(ValueError, match="Exactly one of 'project_id' or 'project_name'"):
+            LogStreams().list(project_id="proj-1", project_name="My Project")
+
+    def test_list_raises_when_neither_project_id_nor_name_provided(self) -> None:
+        # When/Then: passing neither is rejected
+        with pytest.raises(ValueError, match="Exactly one of 'project_id' or 'project_name'"):
+            LogStreams().list()
+
+
+class TestListPropagatesErrors:
+    """Tests that LogStreams.list raises instead of silently returning [] on server errors."""
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_raises_on_http_validation_error(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
+        # Given: the endpoint returns an HTTPValidationError (e.g. bad starting_token type)
+        mock_endpoint.sync.return_value = HTTPValidationError()
+
+        # When/Then: list raises ValueError instead of masking the error as an empty page
+        with pytest.raises(ValueError, match="Failed to list log streams"):
+            LogStreams().list(project_id="proj-1")
+
+    @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
+    @patch("galileo.log_streams.GalileoPythonConfig")
+    def test_list_raises_on_none_response(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
+        # Given: the endpoint returns None (unexpected protocol error)
+        mock_endpoint.sync.return_value = None
+
+        # When/Then: list raises ValueError
+        with pytest.raises(ValueError, match="Unexpected empty response"):
+            LogStreams().list(project_id="proj-1")
