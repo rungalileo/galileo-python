@@ -1,4 +1,4 @@
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 
 from galileo_adk.callback import GalileoADKCallback
 from galileo_adk.decorator import galileo_retriever

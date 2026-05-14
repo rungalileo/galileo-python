@@ -1,6 +1,6 @@
 [project]
 name = "galileo-adk"
-version = "2.0.0"
+version = "2.0.1"
 description = "Galileo observability integration for Google ADK"
 readme = "README.md"
 requires-python = ">=3.10,<3.15"
@@ -23,6 +23,7 @@ dependencies = [
 Repository = "https://github.com/rungalileo/galileo-python"
 
 # UV-specific configuration (path for dev, ignored when installed from PyPI)
+
 
 [tool.uv]
 sources = { galileo = { path = "../", editable = true } }
@@ -123,6 +124,7 @@ type = "github"
 
 [tool.semantic_release.publish]
 dist_glob_patterns = ["dist/*"]
+
 
 [dependency-groups]
 dev = [

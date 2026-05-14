@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v2.0.1 (2026-05-14)
+
+### Bug Fixes
+
+- Bump galileo dep rev constraint in galileo-adk
+  ([#583](https://github.com/rungalileo/galileo-python/pull/583),
+  [`8b45a91`](https://github.com/rungalileo/galileo-python/commit/8b45a91676a647f0acdd993ba52c2b5e97ff881e))
+
+
 ## v2.0.0 (2026-05-14)
 
 ### Bug Fixes
