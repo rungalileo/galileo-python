@@ -1,6 +1,6 @@
 [project]
 name = "galileo-adk"
-version = "1.0.0"
+version = "2.0.0"
 description = "Galileo observability integration for Google ADK"
 readme = "README.md"
 requires-python = ">=3.10,<3.15"
@@ -23,29 +23,13 @@ dependencies = [
 Repository = "https://github.com/rungalileo/galileo-python"
 
 # UV-specific configuration (path for dev, ignored when installed from PyPI)
+
 [tool.uv]
 sources = { galileo = { path = "../", editable = true } }
 
-[dependency-groups]
-dev = [
-    "pytest>=8.4.0",
-    "pytest-asyncio>=1.0.0",
-    "pytest-cov>=6.0.0",
-    "pytest-xdist>=3.7.0",
-    "pytest-socket>=0.7",
-    "vcrpy>=7.0.0",
-    "ruff>=0.12.3",
-    "mypy>=1.16.0",
-    "coverage>=7.9.2",
-    "galileo-core[testing]>=3.82.0",
-]
-
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [tool.hatch.build.targets.wheel]
 packages = ["src/galileo_adk"]
+
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -67,6 +51,7 @@ addopts = [
     "--disable-warnings",
     "--showlocals",
 ]
+
 
 [tool.ruff]
 line-length = 120
@@ -95,6 +80,7 @@ ignore = [
 [tool.ruff.lint.isort]
 known-first-party = ["galileo_adk", "galileo"]
 
+
 [tool.mypy]
 python_version = "3.10"
 warn_return_any = false
@@ -121,6 +107,7 @@ exclude_lines = [
 # Release Configuration
 # =============================================================================
 
+
 [tool.semantic_release]
 version_variables = ["src/galileo_adk/__init__.py:__version__"]
 version_toml = ["pyproject.toml:project.version"]
@@ -136,3 +123,22 @@ type = "github"
 
 [tool.semantic_release.publish]
 dist_glob_patterns = ["dist/*"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+    "pytest-asyncio>=1.0.0",
+    "pytest-cov>=6.0.0",
+    "pytest-xdist>=3.7.0",
+    "pytest-socket>=0.7",
+    "vcrpy>=7.0.0",
+    "ruff>=0.12.3",
+    "mypy>=1.16.0",
+    "coverage>=7.9.2",
+    "galileo-core[testing]>=3.82.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
