@@ -44,6 +44,9 @@ class LogRecordsExportRequest:
             'LogRecordsTextFilter']]]): Filters to apply on the export
         sort (Union['LogRecordsSortClause', None, Unset]): Sort clause for the export.  Defaults to native sort
             (created_at, id descending).
+        include_code_metric_metadata (Union[Unset, bool]): If True, include per-row scorer metadata (the dict
+            returned alongside the score by code-based scorers via the (score, metadata) tuple-return contract) on
+            each MetricSuccess in the export. Default: False.
     """
 
     root_type: RootType
@@ -69,6 +72,7 @@ class LogRecordsExportRequest:
         ]
     ) = UNSET
     sort: Union["LogRecordsSortClause", None, Unset] = UNSET
+    include_code_metric_metadata: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -136,6 +140,8 @@ class LogRecordsExportRequest:
         else:
             sort = self.sort
 
+        include_code_metric_metadata = self.include_code_metric_metadata
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"root_type": root_type})
@@ -157,6 +163,8 @@ class LogRecordsExportRequest:
             field_dict["filters"] = filters
         if sort is not UNSET:
             field_dict["sort"] = sort
+        if include_code_metric_metadata is not UNSET:
+            field_dict["include_code_metric_metadata"] = include_code_metric_metadata
 
         return field_dict
 
@@ -313,6 +321,8 @@ class LogRecordsExportRequest:
 
         sort = _parse_sort(d.pop("sort", UNSET))
 
+        include_code_metric_metadata = d.pop("include_code_metric_metadata", UNSET)
+
         log_records_export_request = cls(
             root_type=root_type,
             column_ids=column_ids,
@@ -324,6 +334,7 @@ class LogRecordsExportRequest:
             metrics_testing_id=metrics_testing_id,
             filters=filters,
             sort=sort,
+            include_code_metric_metadata=include_code_metric_metadata,
         )
 
         log_records_export_request.additional_properties = d

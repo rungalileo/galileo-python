@@ -40,6 +40,7 @@ class ExportClient:
         experiment_id: str | None = None,
         column_ids: list[str] | None = None,
         redact: bool = True,
+        include_code_metric_metadata: bool = False,
     ) -> Iterator[dict[str, Any]]:
         if filters is None:
             filters = []
@@ -56,6 +57,7 @@ class ExportClient:
                 column_ids=column_ids,
                 sort=sort,
                 redact=redact,
+                include_code_metric_metadata=include_code_metric_metadata,
             ),
         )
 
@@ -78,6 +80,7 @@ def export_records(
     experiment_id: str | None = None,
     column_ids: list[str] | None = None,
     redact: bool = True,
+    include_code_metric_metadata: bool = False,
 ) -> Iterator[dict[str, Any]]:
     """Exports records from a Galileo project.
 
@@ -103,6 +106,10 @@ def export_records(
         A sort clause to order the exported records.
     redact
         Redact sensitive data from the response.
+    include_code_metric_metadata
+        If True, include per-row scorer metadata (the dict returned alongside the score by
+        code-based scorers via the (score, metadata) tuple-return contract) on each
+        MetricSuccess in the export. Off by default to keep payloads small.
 
     Returns
     -------
@@ -132,4 +139,5 @@ def export_records(
         column_ids=column_ids,
         sort=sort,
         redact=redact,
+        include_code_metric_metadata=include_code_metric_metadata,
     )
