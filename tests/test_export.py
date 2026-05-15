@@ -296,13 +296,7 @@ def test_export_records_include_code_metric_metadata_opt_in(mock_export_records_
     mock_export_records_stream.return_value = iter([])
 
     # When: export_records is invoked with include_code_metric_metadata=True.
-    list(
-        export_records(
-            project_id=project_id,
-            log_stream_id=str(uuid4()),
-            include_code_metric_metadata=True,
-        )
-    )
+    list(export_records(project_id=project_id, log_stream_id=str(uuid4()), include_code_metric_metadata=True))
 
     # Then: the kwarg flows into the request body and serializes to True.
     request_body = mock_export_records_stream.call_args.kwargs["body"]
