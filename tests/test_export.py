@@ -272,3 +272,33 @@ def test_export_records_redact(mock_export_records_stream, redact_param):
     mock_export_records_stream.assert_called_once()
     request_body = mock_export_records_stream.call_args.kwargs["body"]
     assert request_body.redact == redact_param
+
+
+@patch("galileo.export.export_records_stream")
+def test_export_records_include_code_metric_metadata_default(mock_export_records_stream):
+    # Given: a caller that does not pass include_code_metric_metadata.
+    project_id = str(uuid4())
+    mock_export_records_stream.return_value = iter([])
+
+    # When: export_records is invoked with default kwargs.
+    list(export_records(project_id=project_id, log_stream_id=str(uuid4())))
+
+    # Then: the request body's flag defaults to False and is serialized as such.
+    request_body = mock_export_records_stream.call_args.kwargs["body"]
+    assert request_body.include_code_metric_metadata is False
+    assert request_body.to_dict()["include_code_metric_metadata"] is False
+
+
+@patch("galileo.export.export_records_stream")
+def test_export_records_include_code_metric_metadata_opt_in(mock_export_records_stream):
+    # Given: a caller that opts into per-row scorer metadata.
+    project_id = str(uuid4())
+    mock_export_records_stream.return_value = iter([])
+
+    # When: export_records is invoked with include_code_metric_metadata=True.
+    list(export_records(project_id=project_id, log_stream_id=str(uuid4()), include_code_metric_metadata=True))
+
+    # Then: the kwarg flows into the request body and serializes to True.
+    request_body = mock_export_records_stream.call_args.kwargs["body"]
+    assert request_body.include_code_metric_metadata is True
+    assert request_body.to_dict()["include_code_metric_metadata"] is True
