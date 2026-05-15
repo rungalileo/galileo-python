@@ -20,18 +20,18 @@
 
 ### Installation
 
-`pip install galileo`
+`pip install splunkao`
 
 ### Setup
 
 Set the following environment variables:
 
-- `GALILEO_API_KEY`: Your Galileo API key
-- `GALILEO_PROJECT`: (Optional) Project name
-- `GALILEO_LOG_STREAM`: (Optional) Log stream name
-- `GALILEO_LOGGING_DISABLED`: (Optional) Disable collecting and sending logs to galileo.
+- `SPLUNKAO_API_KEY`: Your Splunk AI API key
+- `SPLUNKAO_PROJECT`: (Optional) Project name
+- `SPLUNKAO_LOG_STREAM`: (Optional) Log stream name
+- `SPLUNKAO_LOGGING_DISABLED`: (Optional) Disable collecting and sending logs to Splunk AI.
 
-Note: if you would like to point to an environment other than `app.galileo.ai`, you'll need to set the `GALILEO_CONSOLE_URL` environment variable.
+Note: if you would like to point to an environment other than `app.galileo.ai`, you'll need to set the `SPLUNKAO_CONSOLE_URL` environment variable.
 
 ### Usage
 
@@ -40,11 +40,11 @@ Note: if you would like to point to an environment other than `app.galileo.ai`, 
 ```python
 import os
 
-from galileo import galileo_context
-from galileo.openai import openai
+from splunkao import context
+from splunkao.openai import openai
 
-# If you've set your GALILEO_PROJECT and GALILEO_LOG_STREAM env vars, you can skip this step
-galileo_context.init(project="your-project-name", log_stream="your-log-stream-name")
+# If you've set your SPLUNK_AI_PROJECT and SPLUNK_AI_LOG_STREAM env vars, you can skip this step
+context.init(project="your-project-name", log_stream="your-log-stream-name")
 
 # Initialize the Galileo wrapped OpenAI client
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -60,8 +60,8 @@ def call_openai():
 # This will create a single span trace with the OpenAI call
 call_openai()
 
-# This will upload the trace to Galileo
-galileo_context.flush()
+# This will upload the trace to Splunk AI
+context.flush()
 ```
 
 You can also use the `@log` decorator to log spans. Here's how to create a workflow span with two nested LLM spans:
