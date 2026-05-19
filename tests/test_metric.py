@@ -177,6 +177,21 @@ class TestMetricInitialization:
         assert metric.description == "Test metric description"
         assert metric.tags == ["test", "factuality"]
         assert metric.output_type == OutputTypeEnum.PERCENTAGE
+        assert metric.ground_truth is False
+
+    def test_init_ground_truth_defaults_false(self, reset_configuration: None) -> None:
+        # Given: an LlmMetric created without specifying ground_truth
+        metric = LlmMetric(name="Test Metric", prompt="Is it accurate?")
+
+        # Then: ground_truth defaults to False
+        assert metric.ground_truth is False
+
+    def test_init_with_ground_truth_true(self, reset_configuration: None) -> None:
+        # Given: an LlmMetric created with ground_truth=True
+        metric = LlmMetric(name="Test Metric", prompt="Compare against reference_output.", ground_truth=True)
+
+        # Then: ground_truth is exposed on the instance
+        assert metric.ground_truth is True
 
     def test_init_without_name_raises_error(self, reset_configuration: None) -> None:
         """Test initializing a metric without name raises TypeError."""
@@ -237,6 +252,52 @@ class TestMetricCreate:
         mock_metrics_service.create_custom_llm_metric.assert_called_once()
         assert metric.id == scorer_id
         assert metric.is_synced()
+
+    @patch("galileo.metric.Metrics")
+    @patch("galileo.metric.Scorers")
+    def test_create_forwards_ground_truth(
+        self, mock_scorers_class: MagicMock, mock_metrics_class: MagicMock, reset_configuration: None
+    ) -> None:
+        # Given: a mocked metrics service that records the create_custom_llm_metric kwargs
+        mock_metrics_service = MagicMock()
+        mock_metrics_class.return_value = mock_metrics_service
+
+        mock_scorers_service = MagicMock()
+        mock_scorers_class.return_value = mock_scorers_service
+
+        scorer_id = str(uuid4())
+        mock_version = MagicMock()
+        mock_version.scorer_id = scorer_id
+        mock_version.created_at = MagicMock()
+        mock_version.updated_at = MagicMock()
+
+        mock_scorer = MagicMock()
+        mock_scorer.id = scorer_id
+        mock_scorer.name = "GT Metric"
+        mock_scorer.scorer_type = ScorerTypes.LLM
+        mock_scorer.tags = []
+        mock_scorer.description = ""
+        mock_scorer.created_at = MagicMock()
+        mock_scorer.updated_at = MagicMock()
+        mock_scorer.output_type = OutputTypeEnum.BOOLEAN
+        mock_scorer.user_prompt = "Compare against reference_output."
+        mock_scorer.defaults = MagicMock()
+        mock_scorer.defaults.model_name = "gpt-4.1-mini"
+        mock_scorer.defaults.num_judges = 3
+        mock_scorer.defaults.cot_enabled = True
+        mock_scorer.scoreable_node_types = ["llm"]
+        mock_scorer.ground_truth = True
+
+        mock_metrics_service.create_custom_llm_metric.return_value = mock_version
+        mock_scorers_service.list.return_value = [mock_scorer]
+
+        # When: an LlmMetric with ground_truth=True is created
+        metric = LlmMetric(name="GT Metric", prompt="Compare against reference_output.", ground_truth=True).create()
+
+        # Then: ground_truth=True is forwarded to the metrics service and reflected on the synced instance
+        _, kwargs = mock_metrics_service.create_custom_llm_metric.call_args
+        assert kwargs["ground_truth"] is True
+        assert metric.ground_truth is True
 
     @patch("galileo.metric.Metrics")
     def test_create_handles_api_failure(self, mock_metrics_class: MagicMock, reset_configuration: None) -> None:

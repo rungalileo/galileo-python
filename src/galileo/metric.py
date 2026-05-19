@@ -404,7 +404,13 @@ class Metric(StateManagementMixin, ABC):
             else:
                 node_level = None
 
-            self._sync_attrs(output_type=output_type, prompt=prompt, node_level=node_level)
+            ground_truth = (
+                False
+                if isinstance(scorer_response.ground_truth, Unset) or scorer_response.ground_truth is None
+                else scorer_response.ground_truth
+            )
+
+            self._sync_attrs(output_type=output_type, prompt=prompt, node_level=node_level, ground_truth=ground_truth)
 
         # Code-specific attributes (only set if this is a CodeMetric)
         if isinstance(self, CodeMetric):
@@ -661,6 +667,7 @@ class LlmMetric(Metric):
     cot_enabled: bool | None
     node_level: StepType | None
     output_type: OutputTypeEnum | None
+    ground_truth: bool
 
     def __init__(
         self,
@@ -678,6 +685,7 @@ class LlmMetric(Metric):
         node_level: StepType | None = None,
         cot_enabled: bool | None = None,
         output_type: str | OutputTypeEnum | None = None,
+        ground_truth: bool = False,
         # Common parameters
         description: str = "",
         tags: list[str] | None = None,
@@ -698,6 +706,8 @@ class LlmMetric(Metric):
             node_level: Node level for the metric. Defaults to StepType.llm.
             cot_enabled: Whether chain-of-thought is enabled. Defaults to True.
             output_type: Output type ("percentage", "boolean", etc.).
+            ground_truth: Whether the scorer requires ground truth (``reference_output``) from the dataset.
+                When True, the judge LLM receives the row's ground-truth value in its prompt.
             description: Description of the metric.
             tags: Tags associated with the metric.
             version: Specific version to reference (for existing metrics).
@@ -752,6 +762,8 @@ class LlmMetric(Metric):
         else:
             self.output_type = output_type or OutputTypeEnum.BOOLEAN
 
+        self.ground_truth = ground_truth
+
         self.scorer_type = ScorerTypes.LLM
 
     def create(self) -> LlmMetric:
@@ -792,6 +804,7 @@ class LlmMetric(Metric):
                 output_type=self.output_type
                 if isinstance(self.output_type, OutputTypeEnum)
                 else OutputTypeEnum.BOOLEAN,
+                ground_truth=self.ground_truth,
             )
 
             # Update attributes from response without triggering dirty-tracking
