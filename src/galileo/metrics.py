@@ -56,6 +56,7 @@ class Metrics:
         description: str = "",
         tags: list[str] | None = None,
         output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN,
+        ground_truth: bool = False,
     ) -> BaseScorerVersionResponse:
         """
         Create a custom LLM metric.
@@ -80,6 +81,9 @@ class Metrics:
             Tags associated with the metric.
         output_type: OutputTypeEnum
             Output type for the metric.
+        ground_truth: bool
+            Whether the scorer requires ground truth (``reference_output``) from the dataset.
+            When True, the judge LLM receives the row's ground-truth value in its prompt.
 
         Returns
         -------
@@ -96,6 +100,7 @@ class Metrics:
             defaults=ScorerDefaults(model_name=model_name, num_judges=num_judges, cot_enabled=cot_enabled),
             scoreable_node_types=[node_level],
             output_type=output_type,
+            ground_truth=ground_truth,
         )
 
         scorer = create_scorers_post.sync(body=create_scorer_request, client=self.config.api_client)
@@ -153,6 +158,7 @@ def create_custom_llm_metric(
     description: str = "",
     tags: list[str] | None = None,
     output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN,
+    ground_truth: bool = False,
 ) -> BaseScorerVersionResponse:
     """
     Create a custom LLM metric.
@@ -177,6 +183,9 @@ def create_custom_llm_metric(
         Tags associated with the metric.
     output_type: OutputTypeEnum
         Output type for the metric.
+    ground_truth: bool
+        Whether the scorer requires ground truth (``reference_output``) from the dataset.
+        When True, the judge LLM receives the row's ground-truth value in its prompt.
 
     Returns
     -------
@@ -186,7 +195,7 @@ def create_custom_llm_metric(
     if tags is None:
         tags = []
     return Metrics().create_custom_llm_metric(
-        name, user_prompt, node_level, cot_enabled, model_name, num_judges, description, tags, output_type
+        name, user_prompt, node_level, cot_enabled, model_name, num_judges, description, tags, output_type, ground_truth
     )
 
 

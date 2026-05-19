@@ -113,6 +113,7 @@ class TestMetrics:
         assert scorer_request.output_type == OutputTypeEnum.BOOLEAN
         assert scorer_request.defaults.cot_enabled is True
         assert scorer_request.scoreable_node_types == [StepType.llm]
+        assert scorer_request.ground_truth is False
 
         # Verify create_version was called with correct parameters
         mock_create_version.sync.assert_called_once()
@@ -146,6 +147,7 @@ class TestMetrics:
             description="Custom metric description",
             tags=["custom", "evaluation", "quality"],
             output_type=OutputTypeEnum.CATEGORICAL,
+            ground_truth=True,
         )
 
         # Verify the result
@@ -161,6 +163,7 @@ class TestMetrics:
         assert scorer_request.output_type == OutputTypeEnum.CATEGORICAL
         assert scorer_request.defaults.cot_enabled is False
         assert scorer_request.scoreable_node_types == [StepType.workflow]
+        assert scorer_request.ground_truth is True
 
         # Verify create_version was called with correct parameters
         version_request = mock_create_version.sync.call_args.kwargs["body"]
@@ -278,6 +281,7 @@ class TestPublicFunctions:
             description="Test description",
             tags=["test"],
             output_type=OutputTypeEnum.CATEGORICAL,
+            ground_truth=True,
         )
 
         # Verify Metrics class was instantiated
@@ -294,6 +298,7 @@ class TestPublicFunctions:
             "Test description",
             ["test"],
             OutputTypeEnum.CATEGORICAL,
+            True,
         )
 
         # Verify the result is returned
@@ -322,6 +327,7 @@ class TestPublicFunctions:
             "",  # default
             [],  # default
             OutputTypeEnum.BOOLEAN,  # default
+            False,  # default ground_truth
         )
 
         # Verify the result is returned
