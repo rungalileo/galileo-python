@@ -79,7 +79,9 @@ def export_records(
     column_ids: list[str] | None = None,
     redact: bool = True,
 ) -> Iterator[dict[str, Any]]:
-    """Exports records from a Galileo project.
+    """Exports records from a Galileo project. 
+
+    Supports exporting 1 GB of data.
 
     Defaults to the first logstream if `log_stream_id` and `experiment_id` are not provided.
 
