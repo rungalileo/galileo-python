@@ -192,6 +192,26 @@ class Metric(StateManagementMixin, ABC):
 
         self._set_state(SyncState.LOCAL_ONLY)
 
+    @staticmethod
+    def _parse_output_type(
+        output_type: str | OutputTypeEnum | None, default: OutputTypeEnum | None = None
+    ) -> OutputTypeEnum | None:
+        """Map a string or OutputTypeEnum to OutputTypeEnum, with an optional fallback default."""
+        if output_type is None:
+            return default
+        if isinstance(output_type, OutputTypeEnum):
+            return output_type
+        _map = {
+            "percentage": OutputTypeEnum.PERCENTAGE,
+            "boolean": OutputTypeEnum.BOOLEAN,
+            "categorical": OutputTypeEnum.CATEGORICAL,
+            "count": OutputTypeEnum.COUNT,
+            "discrete": OutputTypeEnum.DISCRETE,
+            "freeform": OutputTypeEnum.FREEFORM,
+            "multilabel": OutputTypeEnum.MULTILABEL,
+        }
+        return _map.get(output_type.lower(), default)
+
     @classmethod
     def _create_metric_from_type(cls, scorer_type: ScorerTypes) -> Metric:
         """
@@ -748,17 +768,7 @@ class LlmMetric(Metric):
 
         # Handle output_type (accept string or enum)
         if isinstance(output_type, str):
-            # Map common string values to enum
-            output_type_map = {
-                "percentage": OutputTypeEnum.PERCENTAGE,
-                "boolean": OutputTypeEnum.BOOLEAN,
-                "categorical": OutputTypeEnum.CATEGORICAL,
-                "count": OutputTypeEnum.COUNT,
-                "discrete": OutputTypeEnum.DISCRETE,
-                "freeform": OutputTypeEnum.FREEFORM,
-                "multilabel": OutputTypeEnum.MULTILABEL,
-            }
-            self.output_type = output_type_map.get(output_type.lower(), OutputTypeEnum.PERCENTAGE)
+            self.output_type = Metric._parse_output_type(output_type, default=OutputTypeEnum.PERCENTAGE)
         else:
             self.output_type = output_type or OutputTypeEnum.BOOLEAN
 
@@ -906,19 +916,7 @@ class CodeMetric(Metric):
         self.required_metrics = required_metrics
         self.scorer_type = ScorerTypes.CODE
 
-        if isinstance(output_type, str):
-            output_type_map = {
-                "percentage": OutputTypeEnum.PERCENTAGE,
-                "boolean": OutputTypeEnum.BOOLEAN,
-                "categorical": OutputTypeEnum.CATEGORICAL,
-                "count": OutputTypeEnum.COUNT,
-                "discrete": OutputTypeEnum.DISCRETE,
-                "freeform": OutputTypeEnum.FREEFORM,
-                "multilabel": OutputTypeEnum.MULTILABEL,
-            }
-            self.output_type = output_type_map.get(output_type.lower())
-        else:
-            self.output_type = output_type
+        self.output_type = Metric._parse_output_type(output_type)
 
     def load_code(self, code_file_path: str) -> CodeMetric:
         """
