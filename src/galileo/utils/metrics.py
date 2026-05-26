@@ -1,4 +1,7 @@
 import builtins
+import json
+import logging
+from typing import Any
 from uuid import UUID
 
 from galileo.resources.models.scorer_config import ScorerConfig
@@ -8,6 +11,50 @@ from galileo.scorers import Scorers, ScorerSettings
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.metric import MetricValueType
+
+logger = logging.getLogger(__name__)
+
+# Per-row, per-metric upper bound for serialized scorer metadata. Mirrors the
+# server-side cap enforced in the runners sandbox so SDK-side and code-scorer
+# scorers are subject to the same constraint.
+_MAX_METADATA_SERIALIZED_BYTES = 8 * 1024
+
+
+def _split_score_and_metadata(result: Any) -> tuple[Any, dict | None]:
+    """Split a scorer return value into ``(score, metadata)``.
+
+    A 2-tuple whose second element is a dict is the ``(score, metadata)`` shape:
+    we use a tuple (not list) check so a vector-valued score like ``[0.1, 0.2]``
+    flows through unchanged, and a dict check so a ``(score1, score2)`` 2-tuple
+    isn't mistakenly unpacked as metadata. Anything else passes through with
+    ``metadata=None``.
+    """
+    if isinstance(result, tuple) and len(result) == 2 and isinstance(result[1], dict):
+        return result[0], result[1]
+    return result, None
+
+
+def _safe_scorer_metadata(metadata: dict, metric_name: str) -> dict | None:
+    """Return ``metadata`` if it is safe to attach to ``step.metrics``, else ``None``.
+
+    Metadata flows into HTTPX ``json=`` during trace upload, so a non-serializable
+    value (e.g. a ``set``, a ``datetime``) would blow up far from the scorer with
+    no useful context. Oversized payloads also bloat ingest. Both are dropped
+    with an error log; the score still flows through so the user keeps the metric.
+    """
+    try:
+        serialized = json.dumps(metadata)
+    except (TypeError, ValueError) as exc:
+        logger.error("Dropping non-JSON-serializable metadata from local metric '%s': %s", metric_name, exc)
+        return None
+    if len(serialized.encode("utf-8")) > _MAX_METADATA_SERIALIZED_BYTES:
+        logger.error(
+            "Dropping metadata from local metric '%s': serialized size exceeds %d bytes",
+            metric_name,
+            _MAX_METADATA_SERIALIZED_BYTES,
+        )
+        return None
+    return metadata
 
 
 def populate_local_metrics(step: Trace | Span, local_metrics: list[LocalMetricConfig]) -> None:
@@ -27,8 +74,12 @@ def _populate_local_metric(step: Trace | Span, local_metric: LocalMetricConfig, 
             else:
                 setattr(step.metrics, local_metric.name, aggregate_metric_result)
     if step.type in local_metric.scorable_types:
-        metric_value = local_metric.scorer_fn(step)
-        setattr(step.metrics, local_metric.name, local_metric.scorer_fn(step))
+        metric_value, metadata = _split_score_and_metadata(local_metric.scorer_fn(step))
+        if metadata is not None:
+            safe_metadata = _safe_scorer_metadata(metadata, local_metric.name)
+            if safe_metadata is not None:
+                setattr(step.metrics, f"{local_metric.name}_metadata", safe_metadata)
+        setattr(step.metrics, local_metric.name, metric_value)
         scores.append(metric_value)
 
 

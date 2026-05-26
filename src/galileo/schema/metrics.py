@@ -125,8 +125,12 @@ MetricType = TypeVar("MetricType", bound=MetricValueType)
 
 class LocalMetricConfig(BaseModel, Generic[MetricType]):
     name: str = Field(description="Name of the local metric")
-    scorer_fn: Callable[[Trace | Span], MetricType] = Field(
-        description="function to call to produce the metric value (takes a trace or span as input"
+    scorer_fn: Callable[[Trace | Span], MetricType | tuple[MetricType, dict[str, Any]]] = Field(
+        description=(
+            "function to call to produce the metric value (takes a trace or span as input). "
+            "May return either the score directly, or a (score, metadata) tuple where metadata "
+            "is an explainability dict surfaced alongside the score."
+        )
     )
     aggregator_fn: Callable[[list[MetricType]], MetricType | dict[str, MetricType]] | None = Field(
         default=None,
