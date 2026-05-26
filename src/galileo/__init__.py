@@ -28,6 +28,7 @@ from galileo.project import Project
 from galileo.prompt import Prompt
 from galileo.protect import ainvoke_protect, invoke_protect
 from galileo.provider import AnthropicProvider, AzureProvider, BedrockProvider, OpenAIProvider, Provider
+from galileo.resources.models.document import Document
 from galileo.schema.message import Message
 from galileo.schema.metrics import GalileoMetrics, GalileoScorers
 from galileo.shared.base import SyncState
@@ -94,6 +95,7 @@ __all__ = [
     "ControlResult",
     "ControlSpan",
     "Dataset",
+    "Document",
     "ExecutionStatus",
     "Experiment",
     "ForbiddenError",
