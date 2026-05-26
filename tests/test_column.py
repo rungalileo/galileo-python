@@ -7,6 +7,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from galileo.resources.models import (
+    ColumnCategory,
     DataType,
     LogRecordsBooleanFilter,
     LogRecordsDateFilter,
@@ -17,6 +18,7 @@ from galileo.resources.models import (
     LogRecordsTextFilter,
     LogRecordsTextFilterOperator,
 )
+from galileo.resources.models.column_info import ColumnInfo
 from galileo.resources.types import UNSET
 from galileo.shared.column import Column, ColumnCollection, _unwrap_unset
 from galileo.shared.exceptions import ValidationError
@@ -42,6 +44,7 @@ def _create_mock_column_info(
     mock.description = kwargs.get("description", UNSET)
     mock.multi_valued = kwargs.get("multi_valued", UNSET)
     mock.allowed_values = kwargs.get("allowed_values", UNSET)
+    mock.metric_key_alias = kwargs.get("metric_key_alias", UNSET)
     return mock
 
 
@@ -311,3 +314,103 @@ class TestColumnCollection:
         repr_str = repr(coll)
         assert "ColumnCollection" in repr_str and "3 columns" in repr_str
         assert str(coll) == repr_str
+
+
+class TestColumnMetricKeyAlias:
+    """Tests for metric_key_alias support on ColumnInfo and Column."""
+
+    def test_column_info_from_dict_parses_metric_key_alias(self) -> None:
+        # Given: a raw API dict for a UUID-keyed metric column including metric_key_alias
+        raw = {
+            "id": "metrics/550e8400-e29b-41d4-a716-446655440000",
+            "category": "metric",
+            "data_type": "floating_point",
+            "label": "Correctness",
+            "metric_key_alias": "correctness",
+        }
+
+        # When: parsed through ColumnInfo.from_dict
+        col_info = ColumnInfo.from_dict(raw)
+
+        # Then: metric_key_alias is preserved
+        assert col_info.metric_key_alias == "correctness"
+        assert col_info.label == "Correctness"
+        assert col_info.id == "metrics/550e8400-e29b-41d4-a716-446655440000"
+
+    def test_column_info_to_dict_serializes_metric_key_alias(self) -> None:
+        # Given: a ColumnInfo with metric_key_alias set
+        col_info = ColumnInfo(
+            id="metrics/550e8400-e29b-41d4-a716-446655440000",
+            category=ColumnCategory.METRIC,
+            data_type=DataType.FLOATING_POINT,
+            label="Correctness",
+            metric_key_alias="correctness",
+        )
+
+        # When: serialized to dict
+        d = col_info.to_dict()
+
+        # Then: metric_key_alias appears in output
+        assert d["metric_key_alias"] == "correctness"
+
+    def test_column_info_round_trip_preserves_metric_key_alias(self) -> None:
+        # Given: a raw dict with metric_key_alias
+        raw = {
+            "id": "metrics/abc-123",
+            "category": "metric",
+            "data_type": "boolean",
+            "metric_key_alias": "groundedness",
+        }
+
+        # When: round-tripped through from_dict / to_dict
+        result = ColumnInfo.from_dict(raw).to_dict()
+
+        # Then: the alias survives
+        assert result["metric_key_alias"] == "groundedness"
+
+    def test_column_info_without_metric_key_alias_omits_field(self) -> None:
+        # Given: a raw dict with no metric_key_alias
+        raw = {"id": "input", "category": "standard", "data_type": "text"}
+
+        # When: parsed and serialized
+        result = ColumnInfo.from_dict(raw).to_dict()
+
+        # Then: metric_key_alias is absent (UNSET, omitted from output)
+        assert "metric_key_alias" not in result
+
+    def test_column_exposes_metric_key_alias_from_column_info(self) -> None:
+        # Given: a ColumnInfo with metric_key_alias="correctness"
+        mock_info = _create_mock_column_info(
+            column_id="metrics/abc-123", label="Correctness", metric_key_alias="correctness"
+        )
+
+        # When: wrapped in Column
+        col = Column(mock_info)
+
+        # Then: the alias is accessible
+        assert col.metric_key_alias == "correctness"
+
+    def test_column_metric_key_alias_is_none_when_unset(self) -> None:
+        # Given: a ColumnInfo without metric_key_alias
+        mock_info = _create_mock_column_info(column_id="input")
+
+        # When: wrapped in Column (metric_key_alias defaults to UNSET in helper)
+        col = Column(mock_info)
+
+        # Then: the alias resolves to None
+        assert col.metric_key_alias is None
+
+    def test_column_repr_includes_metric_key_alias_for_metric_columns(self) -> None:
+        # Given: a metric Column with an alias
+        mock_info = _create_mock_column_info(
+            column_id="metrics/abc-123",
+            label="Correctness",
+            data_type=DataType.FLOATING_POINT,
+            metric_key_alias="correctness",
+        )
+
+        # When: repr is called
+        col = Column(mock_info)
+
+        # Then: alias appears in the string
+        assert "metric_key_alias='correctness'" in repr(col)

@@ -4,6 +4,7 @@ from galileo.schema.logged import (
     IngestInputType,
     IngestOutputType,
     LoggedAgentSpan,
+    LoggedControlSpan,
     LoggedLlmSpan,
     LoggedSpan,
     LoggedTrace,

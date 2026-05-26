@@ -11,6 +11,7 @@ from typing import Annotated, Any
 
 from pydantic import Field
 
+from galileo.logger.control import ControlSpan
 from galileo.schema.content_blocks import IngestContentBlock, IngestMessageContent
 from galileo.schema.message import LoggedMessage
 from galileo_core.schemas.logging.llm import Message, MessageRole
@@ -118,12 +119,22 @@ class LoggedLlmSpan(LlmSpan):
         return cls._to_logged_message(message)
 
 
+class LoggedControlSpan(ControlSpan):
+    """ControlSpan for ingestion using plain string input."""
+
+    input: str = Field(default="", description=BaseStep.model_fields["input"].description)
+    redacted_input: str | None = Field(default=None, description=BaseStep.model_fields["redacted_input"].description)
+
+
 # RetrieverSpan and ToolSpan use plain string/document I/O and don't need multimodal widening.
+# LoggedControlSpan narrows ControlSpan's Any input to str for the same reason.
 LoggedSpan = Annotated[
-    LoggedAgentSpan | LoggedWorkflowSpan | LoggedLlmSpan | RetrieverSpan | ToolSpan, Field(discriminator="type")
+    LoggedAgentSpan | LoggedWorkflowSpan | LoggedLlmSpan | RetrieverSpan | ToolSpan | LoggedControlSpan,
+    Field(discriminator="type"),
 ]
 
 LoggedTrace.model_rebuild()
 LoggedWorkflowSpan.model_rebuild()
 LoggedAgentSpan.model_rebuild()
 LoggedLlmSpan.model_rebuild()
+LoggedControlSpan.model_rebuild()

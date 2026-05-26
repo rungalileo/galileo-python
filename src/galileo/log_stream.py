@@ -10,8 +10,6 @@ from galileo.config import GalileoPythonConfig
 from galileo.decorator import galileo_context
 from galileo.export import ExportClient
 from galileo.log_streams import LogStreams
-from galileo.projects import Project as ProjectRecord
-from galileo.projects import ProjectNotFoundError, Projects
 from galileo.resources.api.trace import (
     sessions_available_columns_projects_project_id_sessions_available_columns_post,
     spans_available_columns_projects_project_id_spans_available_columns_post,
@@ -21,11 +19,13 @@ from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, Root
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_records_available_columns_request import LogRecordsAvailableColumnsRequest
 from galileo.resources.models.log_records_available_columns_response import LogRecordsAvailableColumnsResponse
+from galileo.resources.types import Unset
 from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 from galileo.shared.base import StateManagementMixin, SyncState
-from galileo.shared.exceptions import ValidationError, _project_not_found_error
+from galileo.shared.exceptions import ValidationError
+from galileo.shared.project_resolver import _resolve_project
 from galileo.shared.query_result import QueryResult
 
 if TYPE_CHECKING:
@@ -39,17 +39,6 @@ RECORD_TYPE_TO_ROOT_TYPE = {
     RecordType.TRACE: RootType.TRACE,
     RecordType.SESSION: RootType.SESSION,
 }
-
-
-def _resolve_project(project_id: str | None, project_name: str | None) -> ProjectRecord:
-    """Resolve a project from explicit params or env fallbacks, raising ResourceNotFoundError on 404."""
-    try:
-        project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
-    except ProjectNotFoundError:
-        project_obj = None
-    if not project_obj:
-        raise _project_not_found_error(project_id, project_name)
-    return project_obj
 
 
 class LogStream(StateManagementMixin):
@@ -172,7 +161,7 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
+            NotFoundError: If the project cannot be found (no explicit param and no env fallback).
             Exception: If the API call fails.
 
         Examples
@@ -183,19 +172,15 @@ class LogStream(StateManagementMixin):
         if not self.name:
             raise ValueError("Log stream name is not set. Cannot create log stream without a name.")
 
-        # Note: project_id and project_name can both be None here - resolution happens below
-        # via Projects().get_with_env_fallbacks() which reads from env vars
+        # Note: project_id and project_name can both be None here — resolution happens below
+        # via _resolve_project, which reads GALILEO_PROJECT_ID / GALILEO_PROJECT env vars.
 
         try:
             logger.info(f"LogStream.create: name='{self.name}' project_id='{self.project_id}' - started")
 
-            # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
-            try:
-                project_obj = Projects().get_with_env_fallbacks(id=self.project_id, name=self.project_name)
-            except ProjectNotFoundError:
-                project_obj = None
-            if not project_obj:
-                raise _project_not_found_error(self.project_id, self.project_name)
+            # _resolve_project raises NotFoundError when no project can be found, matching
+            # the contract of LogStream.get() and LogStream.list().
+            project_obj = _resolve_project(self.project_id, self.project_name)
 
             # Update project info from resolved project
             self.project_id = project_obj.id
@@ -278,7 +263,7 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
+            NotFoundError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------
@@ -310,23 +295,35 @@ class LogStream(StateManagementMixin):
         return instance
 
     @classmethod
-    def list(cls, *, project_id: str | None = None, project_name: str | None = None) -> list[LogStream]:
+    def list(
+        cls,
+        *,
+        project_id: str | None = None,
+        project_name: str | None = None,
+        limit: Unset | int = 100,
+        starting_token: Unset | int = 0,
+    ) -> list[LogStream]:
         """
-        List all log streams for a project.
+        List log streams for a project.
+
+        Returns a single page of results. Use `starting_token` (from
+        `next_starting_token` on a prior response) to fetch subsequent pages.
 
         Args:
             project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
                        falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
             project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
                          falls back to GALILEO_PROJECT environment variable.
+            limit (Union[Unset, int]): Maximum number of log streams to return per page. Defaults to 100.
+            starting_token (Union[Unset, int]): Pagination token to start from. Defaults to 0 (first page).
 
         Returns
         -------
-            List[LogStream]: A list of log streams for the project.
+            List[LogStream]: A page of log streams for the project.
 
         Raises
         ------
-            ResourceNotFoundError: If the project cannot be found (no explicit param and no env fallback).
+            NotFoundError: If the project cannot be found (no explicit param and no env fallback).
 
         Examples
         --------
@@ -338,11 +335,19 @@ class LogStream(StateManagementMixin):
 
             # List using GALILEO_PROJECT environment variable
             log_streams = LogStream.list()
+
+            # Cap the number of returned log streams
+            log_streams = LogStream.list(project_name="My AI Project", limit=3)
+
+            # Fetch the next page
+            page_2 = LogStream.list(project_name="My AI Project", starting_token=100)
         """
         project_obj = _resolve_project(project_id, project_name)
 
         log_streams_service = LogStreams()
-        retrieved_log_streams = log_streams_service.list(project_id=project_obj.id)
+        retrieved_log_streams = log_streams_service.list(
+            project_id=project_obj.id, limit=limit, starting_token=starting_token
+        )
 
         instances = [cls._from_api_response(retrieved_log_stream) for retrieved_log_stream in retrieved_log_streams]
         # Set project_name from resolved project for all instances

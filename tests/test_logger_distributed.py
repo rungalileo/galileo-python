@@ -97,6 +97,54 @@ def test_start_trace(mock_traces_client: Mock, mock_projects_client: Mock, mock_
     assert request.traces[0].metrics.duration_ns == 1_000_000
 
 
+@patch("galileo.logger.logger.IngestTraces")
+@patch("galileo.logger.logger.Traces")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+def test_distributed_logger_uses_ingest_client_when_ingest_service_is_available(
+    mock_projects_client: Mock, mock_logstreams_client: Mock, mock_traces_client: Mock, mock_ingest_traces_client: Mock
+) -> None:
+    # Given: the ingest service reports healthy and project/log stream lookups succeed
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    with patch.object(GalileoLogger, "_is_ingest_service_available", return_value=True):
+        # When: creating a distributed logger
+        logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+
+    # Then: distributed mode uses IngestTraces when available, same as batch mode
+    assert logger._traces_client is mock_ingest_traces_client.return_value
+    mock_ingest_traces_client.assert_called_once()
+    mock_traces_client.assert_not_called()
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_nested_distributed_spans_submit_independently(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    # Given: a distributed logger with nested workflow and control spans
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+    capture = setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="input", name="test-trace")
+    workflow = logger.add_workflow_span(input="workflow input", name="workflow")
+
+    # When: a control span is emitted under the active workflow
+    logger.add_control_span(input="selected input", name="control")
+
+    # Then: distributed spans are submitted immediately without task dependencies
+    span_tasks = [task for task in capture.get_all_tasks() if task.function_name == "ingest_spans_with_backoff"]
+    assert len(span_tasks) == 2
+    assert all(task.kwargs == {"dependent_on_prev": False} for task in span_tasks)
+    assert span_tasks[0].request.parent_id == logger.traces[0].id
+    assert span_tasks[1].request.parent_id == workflow.id
+
+
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
@@ -2534,6 +2582,35 @@ def test_distributed_flush_waits_for_tasks(
 
     # Verify all tasks completed successfully
     assert logger._task_handler.all_tasks_completed()
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_terminate_stops_task_handler_when_agent_control_unregister_fails(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    # Given: a distributed logger whose Agent Control cleanup fails during shutdown
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
+    task_handler = Mock()
+    logger._task_handler = task_handler
+
+    # When: terminating the logger
+    with (
+        patch.object(
+            GalileoLogger, "disable_agent_control", autospec=True, side_effect=RuntimeError("unregister failed")
+        ) as disable_agent_control,
+        patch.object(logger, "_auto_conclude_trace"),
+        patch.object(logger, "_wait_for_all_tasks_sync"),
+    ):
+        logger.terminate()
+
+    # Then: task-handler cleanup still runs after the Agent Control warning
+    disable_agent_control.assert_called_once_with(logger)
+    task_handler.terminate.assert_called_once()
 
 
 @patch("galileo.logger.logger.LogStreams")

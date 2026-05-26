@@ -64,9 +64,9 @@ def test_export_records_with_defaults(mock_export_records_stream):
     assert request_body.sort == LogRecordsSortClause(column_id="created_at", ascending=False)
 
 
-@patch("galileo.export.LogStreams.list")
+@patch("galileo.export.LogStreams._list_all")
 @patch("galileo.export.export_records_stream")
-def test_export_records_default_log_stream(mock_export_records_stream, mock_log_streams_list):
+def test_export_records_default_log_stream(mock_export_records_stream, mock_log_streams_list_all):
     project_id = str(uuid4())
     oldest_log_stream_id = str(uuid4())
     now = datetime.now()
@@ -85,30 +85,31 @@ def test_export_records_default_log_stream(mock_export_records_stream, mock_log_
     log_stream_3.created_at = now + timedelta(days=1)
 
     # Return them in a non-sorted order
-    mock_log_streams_list.return_value = [log_stream_1, log_stream_2, log_stream_3]
+    mock_log_streams_list_all.return_value = [log_stream_1, log_stream_2, log_stream_3]
 
     mock_export_records_stream.return_value = iter([])
 
     list(export_records(project_id=project_id))
 
-    mock_log_streams_list.assert_called_once_with(project_id=project_id)
+    # _list_all paginates across every page so we pick the globally-oldest stream
+    mock_log_streams_list_all.assert_called_once_with(project_id=project_id)
     mock_export_records_stream.assert_called_once()
     request_body = mock_export_records_stream.call_args.kwargs["body"]
     assert request_body.log_stream_id == oldest_log_stream_id
     assert request_body.experiment_id is None
 
 
-@patch("galileo.export.LogStreams.list")
+@patch("galileo.export.LogStreams._list_all")
 @patch("galileo.export.export_records_stream")
-def test_export_records_no_default_log_stream(mock_export_records_stream, mock_log_streams_list):
+def test_export_records_no_default_log_stream(mock_export_records_stream, mock_log_streams_list_all):
     project_id = str(uuid4())
-    mock_log_streams_list.return_value = []
+    mock_log_streams_list_all.return_value = []
     mock_export_records_stream.return_value = iter([])
 
     with pytest.raises(ValueError, match="Exactly one of log_stream_id or experiment_id must be provided."):
         list(export_records(project_id=project_id))
 
-    mock_log_streams_list.assert_called_once_with(project_id=project_id)
+    mock_log_streams_list_all.assert_called_once_with(project_id=project_id)
     mock_export_records_stream.assert_not_called()
 
 

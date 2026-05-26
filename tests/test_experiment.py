@@ -8,6 +8,9 @@ import pytest
 from galileo.exceptions import NotFoundError
 from galileo.experiment import Experiment
 from galileo.resources.models import ExperimentResponse, PromptRunSettings
+from galileo.resources.models.column_category import ColumnCategory
+from galileo.resources.models.column_info import ColumnInfo
+from galileo.resources.models.data_type import DataType
 from galileo.schema.metrics import GalileoMetrics
 from galileo.search import RecordType
 from galileo.shared.base import SyncState
@@ -201,7 +204,7 @@ class TestExperimentEnvFallback:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_uses_env_fallback_when_no_project_specified(
         self,
@@ -213,9 +216,11 @@ class TestExperimentEnvFallback:
         reset_configuration: None,
         mock_experiment_response: MagicMock,
         mock_project: MagicMock,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test create() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: env fallback resolves to a project
+        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -239,7 +244,7 @@ class TestExperimentEnvFallback:
         assert experiment.project_id == mock_project.id
         assert experiment.is_synced()
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_create_raises_named_error_when_project_name_not_found(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -259,7 +264,7 @@ class TestExperimentEnvFallback:
         with pytest.raises(ResourceNotFoundError, match=r'Project "my-nonexistent-project" not found'):
             experiment.create()
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_create_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -276,7 +281,7 @@ class TestExperimentEnvFallback:
 
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_without_prompt_succeeds(
         self,
@@ -315,7 +320,7 @@ class TestExperimentEnvFallback:
         assert kwargs.get("prompt_template") is None
         assert kwargs.get("prompt_settings") is None
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_get_uses_env_fallback_when_no_project_specified(
         self,
@@ -324,9 +329,11 @@ class TestExperimentEnvFallback:
         reset_configuration: None,
         mock_experiment_response: MagicMock,
         mock_project: MagicMock,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test get() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: env fallback resolves to a project
+        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -342,7 +349,7 @@ class TestExperimentEnvFallback:
         mock_projects_service.get_with_env_fallbacks.assert_called_once()
         assert experiment.project_id == mock_project.id
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_get_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -356,7 +363,7 @@ class TestExperimentEnvFallback:
         with pytest.raises(ResourceNotFoundError, match="No project specified"):
             Experiment.get(name="Test Experiment")
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_list_uses_env_fallback_when_no_project_specified(
         self,
@@ -364,9 +371,11 @@ class TestExperimentEnvFallback:
         mock_projects_class: MagicMock,
         reset_configuration: None,
         mock_project: MagicMock,
+        monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test list() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: env fallback resolves to a project
+        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -382,7 +391,7 @@ class TestExperimentEnvFallback:
         mock_projects_service.get_with_env_fallbacks.assert_called_once()
         assert experiments == []
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     def test_list_raises_error_when_no_project_and_no_env_fallback(
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
@@ -396,6 +405,27 @@ class TestExperimentEnvFallback:
         with pytest.raises(ResourceNotFoundError, match="No project specified"):
             Experiment.list()
 
+    @patch("galileo.shared.project_resolver.Projects")
+    def test_list_no_project_no_env_does_not_leak_value_error(
+        self, mock_projects_class: MagicMock, reset_configuration: None, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Regression: Experiment.list() with no project/no env used to leak a raw ValueError.
+
+        Before the shared resolver, ``Experiment.list()`` called
+        ``Projects().get_with_env_fallbacks(None, None)`` which raised ``ValueError`` from
+        ``Projects.get(id=None, name=None)``. The error wasn't caught (only
+        ``ProjectNotFoundError`` was), so callers saw a ``ValueError`` instead of the
+        documented ``NotFoundError``. The shared ``_resolve_project`` fixes this.
+        """
+        # Given: env vars are unset
+        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
+        monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
+
+        # When/Then: NotFoundError is raised without instantiating Projects or leaking ValueError
+        with pytest.raises(ResourceNotFoundError, match="No project specified"):
+            Experiment.list()
+        mock_projects_class.assert_not_called()
+
 
 class TestExperimentCreate:
     """Test suite for Experiment.create() method."""
@@ -403,7 +433,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_persists_and_triggers_experiment(
         self,
@@ -453,7 +483,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_handles_existing_experiment_with_timestamp(
         self,
@@ -499,7 +529,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_handles_api_failure(
         self,
@@ -541,7 +571,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_fills_default_prompt_settings_for_prompt_template(
         self,
@@ -594,7 +624,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_preserves_user_prompt_settings_when_overriding_model_alias(
         self,
@@ -651,7 +681,7 @@ class TestExperimentCreate:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_treats_not_found_as_no_existing_experiment(
         self,
@@ -702,7 +732,7 @@ class TestExperimentCreate:
 class TestExperimentGet:
     """Test suite for Experiment.get() class method."""
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_get_retrieves_experiment_by_name(
         self,
@@ -732,7 +762,7 @@ class TestExperimentGet:
         assert experiment.is_synced()
         assert experiment.project_id == mock_project.id
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_get_returns_none_when_not_found(
         self,
@@ -761,7 +791,7 @@ class TestExperimentGet:
 class TestExperimentList:
     """Test suite for Experiment.list() class method."""
 
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_list_retrieves_all_experiments(
         self,
@@ -864,7 +894,7 @@ class TestExperimentRun:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_run_raises_error_on_second_call_after_result_consumed(
         self,
@@ -913,7 +943,7 @@ class TestExperimentRun:
     @patch("galileo.experiment.create_metric_configs")
     @patch("galileo.experiment.get_prompt")
     @patch("galileo.experiment.load_dataset_and_records")
-    @patch("galileo.experiment.Projects")
+    @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
     def test_create_run_create_run_resets_consumed_flag(
         self,
@@ -1272,7 +1302,7 @@ class TestExperimentProperties:
 
         synced_experiment._experiment_response = mock_response
 
-        # Assert all properties
+        # Assert all properties (aggregate_metrics logs a DEPRECATED warning)
         assert synced_experiment.aggregate_metrics == {"average_cost": 0.05, "total_responses": 100}
         assert synced_experiment.rank == 1
         assert synced_experiment.ranking_score == 0.95
@@ -1294,6 +1324,328 @@ class TestExperimentProperties:
         assert synced_experiment.prompt_model is None
         assert synced_experiment.playground_name is None
         assert synced_experiment.tags is None
+
+
+class TestMetricAggregates:
+    """Tests for Experiment.metric_aggregates and aggregate_metrics deprecation."""
+
+    def test_metric_aggregates_returns_none_without_response(
+        self, synced_experiment: Experiment, reset_configuration: None
+    ) -> None:
+        # Given: no experiment response
+        synced_experiment._experiment_response = None
+
+        # When: accessing metric_aggregates
+        result = synced_experiment.metric_aggregates
+
+        # Then: None is returned without error
+        assert result is None
+
+    def test_metric_aggregates_returns_none_when_field_missing(
+        self, synced_experiment: Experiment, reset_configuration: None
+    ) -> None:
+        # Given: a response where structured_aggregate_metrics is None
+        mock_response = MagicMock()
+        mock_response.structured_aggregate_metrics = None
+        synced_experiment._experiment_response = mock_response
+
+        # When: accessing metric_aggregates
+        result = synced_experiment.metric_aggregates
+
+        # Then: None is returned
+        assert result is None
+
+    def test_metric_aggregates_returns_populated_dict(
+        self, synced_experiment: Experiment, reset_configuration: None
+    ) -> None:
+        # Given: a response with UUID-keyed structured_aggregate_metrics
+        scorer_uuid = "550e8400-e29b-41d4-a716-446655440000"
+        mock_agg = MagicMock()
+        mock_agg.avg = 0.85
+        mock_agg.p90 = 0.92
+
+        mock_structured = MagicMock()
+        mock_structured.additional_properties = {scorer_uuid: mock_agg, "cost": MagicMock(avg=0.02)}
+        mock_response = MagicMock()
+        mock_response.structured_aggregate_metrics = mock_structured
+        synced_experiment._experiment_response = mock_response
+
+        # When: accessing metric_aggregates
+        result = synced_experiment.metric_aggregates
+
+        # Then: dict is returned with UUID and system-metric keys
+        assert result is not None
+        assert scorer_uuid in result
+        assert result[scorer_uuid].avg == 0.85
+        assert "cost" in result
+
+    @patch("galileo.experiment._logger")
+    def test_aggregate_metrics_logs_deprecation_warning(
+        self, mock_logger: MagicMock, synced_experiment: Experiment, reset_configuration: None
+    ) -> None:
+        # Given: a response with aggregate_metrics data
+        mock_response = MagicMock()
+        mock_response.aggregate_metrics.to_dict.return_value = {"average_cost": 0.05}
+        synced_experiment._experiment_response = mock_response
+
+        # When: accessing aggregate_metrics
+        result = synced_experiment.aggregate_metrics
+
+        # Then: a DEPRECATED warning is logged mentioning metric_aggregates
+        mock_logger.warning.assert_called_once()
+        warning_msg = mock_logger.warning.call_args[0][0]
+        assert "DEPRECATED" in warning_msg and "metric_aggregates" in warning_msg
+        # And: the property still returns data (backward-compatible)
+        assert result == {"average_cost": 0.05}
+
+
+class TestMetricColumns:
+    """Tests for Experiment.experiment_columns."""
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_experiment_columns_returns_column_collection(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: a mocked available_columns response with one UUID metric column
+        scorer_uuid = "550e8400-e29b-41d4-a716-446655440000"
+        col_info = ColumnInfo(
+            id=f"metrics/{scorer_uuid}",
+            category=ColumnCategory.METRIC,
+            data_type=DataType.FLOATING_POINT,
+            label="Correctness",
+            metric_key_alias="correctness",
+        )
+        mock_response = MagicMock()
+        mock_response.columns = [col_info]
+        mock_api.sync.return_value = mock_response
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: accessing experiment_columns
+        result = synced_experiment.experiment_columns
+
+        # Then: a ColumnCollection is returned with the metric column accessible by full ID
+        assert isinstance(result, ColumnCollection)
+        col = result[f"metrics/{scorer_uuid}"]
+        assert col.label == "Correctness"
+        assert col.metric_key_alias == "correctness"
+
+    def test_experiment_columns_raises_without_experiment_id(self, reset_configuration: None) -> None:
+        # Given: an experiment with no ID
+        experiment = Experiment._create_empty()
+        experiment.project_id = str(uuid4())
+
+        # When/Then: accessing experiment_columns raises ValueError
+        with pytest.raises(ValueError, match="Experiment ID is not set"):
+            _ = experiment.experiment_columns
+
+    def test_experiment_columns_raises_without_project_id(self, reset_configuration: None) -> None:
+        # Given: an experiment with no project_id
+        experiment = Experiment._create_empty()
+        experiment.id = str(uuid4())
+
+        # When/Then: accessing experiment_columns raises ValueError
+        with pytest.raises(ValueError, match="Project ID is not set"):
+            _ = experiment.experiment_columns
+
+
+class TestGetMetricAggregate:
+    """Tests for Experiment.get_metric_aggregate."""
+
+    SCORER_UUID = "550e8400-e29b-41d4-a716-446655440000"
+
+    def _make_experiment_with_aggregates(
+        self, synced_experiment: Experiment, scorer_uuid: str = SCORER_UUID, avg: float = 0.85
+    ) -> Experiment:
+        """Set up metric_aggregates on the experiment."""
+        mock_agg = MagicMock()
+        mock_agg.avg = avg
+        mock_structured = MagicMock()
+        mock_structured.additional_properties = {scorer_uuid: mock_agg}
+        mock_response = MagicMock()
+        mock_response.structured_aggregate_metrics = mock_structured
+        synced_experiment._experiment_response = mock_response
+        return synced_experiment
+
+    def _make_column_response(self, scorer_uuid: str, label: str, alias: str) -> MagicMock:
+        col_info = ColumnInfo(
+            id=f"metrics/{scorer_uuid}",
+            category=ColumnCategory.METRIC,
+            data_type=DataType.FLOATING_POINT,
+            label=label,
+            metric_key_alias=alias,
+        )
+        mock_response = MagicMock()
+        mock_response.columns = [col_info]
+        return mock_response
+
+    def test_returns_none_when_metric_aggregates_empty(
+        self, synced_experiment: Experiment, reset_configuration: None
+    ) -> None:
+        # Given: no structured_aggregate_metrics on the response
+        mock_response = MagicMock()
+        mock_response.structured_aggregate_metrics = None
+        synced_experiment._experiment_response = mock_response
+
+        # When: getting a metric aggregate
+        result = synced_experiment.get_metric_aggregate(GalileoMetrics.correctness)
+
+        # Then: None is returned without error
+        assert result is None
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_lookup_by_galileo_metrics_enum(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: metric_aggregates keyed by UUID, columns returning Correctness
+        experiment = self._make_experiment_with_aggregates(synced_experiment)
+        mock_api.sync.return_value = self._make_column_response(
+            self.SCORER_UUID, label="Correctness", alias="correctness"
+        )
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: looking up by GalileoMetrics enum (value == label "Correctness")
+        result = experiment.get_metric_aggregate(GalileoMetrics.correctness)
+
+        # Then: the aggregate for the scorer UUID is returned
+        assert result is not None
+        assert result.avg == 0.85
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_lookup_by_label_string(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: metric_aggregates and a column with label "Correctness"
+        experiment = self._make_experiment_with_aggregates(synced_experiment)
+        mock_api.sync.return_value = self._make_column_response(
+            self.SCORER_UUID, label="Correctness", alias="correctness"
+        )
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: looking up by human-readable label string
+        result = experiment.get_metric_aggregate("Correctness")
+
+        # Then: the aggregate is returned
+        assert result is not None
+        assert result.avg == 0.85
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_lookup_by_metric_key_alias(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: metric_aggregates and a column with alias "correctness"
+        experiment = self._make_experiment_with_aggregates(synced_experiment)
+        mock_api.sync.return_value = self._make_column_response(
+            self.SCORER_UUID, label="Correctness", alias="correctness"
+        )
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: looking up by legacy metric_key_alias
+        result = experiment.get_metric_aggregate("correctness")
+
+        # Then: the aggregate is returned (alias fallback)
+        assert result is not None
+        assert result.avg == 0.85
+
+    def test_lookup_by_uuid_string(self, synced_experiment: Experiment, reset_configuration: None) -> None:
+        # Given: metric_aggregates keyed by scorer UUID
+        experiment = self._make_experiment_with_aggregates(synced_experiment)
+
+        # When: looking up directly by UUID string (no column resolution needed)
+        result = experiment.get_metric_aggregate(self.SCORER_UUID)
+
+        # Then: the aggregate is returned without calling experiment_columns
+        assert result is not None
+        assert result.avg == 0.85
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_returns_none_for_unknown_metric(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: metric_aggregates and columns that don't include "Toxicity"
+        experiment = self._make_experiment_with_aggregates(synced_experiment)
+        mock_api.sync.return_value = self._make_column_response(
+            self.SCORER_UUID, label="Correctness", alias="correctness"
+        )
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: looking up a metric that doesn't exist
+        result = experiment.get_metric_aggregate("Toxicity")
+
+        # Then: None is returned
+        assert result is None
+
+    @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
+    @patch("galileo.experiment.GalileoPythonConfig")
+    def test_label_takes_priority_over_alias(
+        self,
+        mock_config_class: MagicMock,
+        mock_api: MagicMock,
+        synced_experiment: Experiment,
+        reset_configuration: None,
+    ) -> None:
+        # Given: two columns where one label equals another's alias (edge case)
+        uuid_a = "aaaaaaaa-0000-0000-0000-000000000001"
+        uuid_b = "bbbbbbbb-0000-0000-0000-000000000002"
+        mock_agg_a = MagicMock()
+        mock_agg_a.avg = 0.70
+        mock_agg_b = MagicMock()
+        mock_agg_b.avg = 0.90
+        mock_structured = MagicMock()
+        mock_structured.additional_properties = {uuid_a: mock_agg_a, uuid_b: mock_agg_b}
+        mock_response = MagicMock()
+        mock_response.structured_aggregate_metrics = mock_structured
+        synced_experiment._experiment_response = mock_response
+
+        col_a = ColumnInfo(
+            id=f"metrics/{uuid_a}",
+            category=ColumnCategory.METRIC,
+            data_type=DataType.FLOATING_POINT,
+            label="foo",
+            metric_key_alias="foo",
+        )
+        col_b = ColumnInfo(
+            id=f"metrics/{uuid_b}",
+            category=ColumnCategory.METRIC,
+            data_type=DataType.FLOATING_POINT,
+            label="Correctness",
+            metric_key_alias="foo",  # alias also "foo" — but label wins
+        )
+        mock_col_response = MagicMock()
+        mock_col_response.columns = [col_a, col_b]
+        mock_api.sync.return_value = mock_col_response
+        mock_config_class.get.return_value = MagicMock()
+
+        # When: looking up by the label "Correctness"
+        result = synced_experiment.get_metric_aggregate("Correctness")
+
+        # Then: the label-matched column (uuid_b, avg=0.90) wins over the alias match
+        assert result is not None
+        assert result.avg == 0.90
 
 
 class TestExperimentTagging:

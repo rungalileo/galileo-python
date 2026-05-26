@@ -41,6 +41,7 @@ _galileo_logger_module.DEFAULT_TERMINATE_TIMEOUT_SECONDS = 2
 
 import datetime  # noqa: E402
 import logging  # noqa: E402
+import sys  # noqa: E402
 from collections.abc import Callable, Generator  # noqa: E402
 from io import StringIO  # noqa: E402
 from pathlib import Path  # noqa: E402
@@ -98,6 +99,20 @@ def mock_decode_jwt() -> Generator[MagicMock, None, None]:
     with patch("galileo_core.schemas.base_config.jwt_decode") as _fixture:
         _fixture.return_value = {"exp": float("inf")}
         yield _fixture
+
+
+@pytest.fixture(autouse=True)
+def reset_agent_control_bridge_state() -> Generator[None, None, None]:
+    """Reset optional Agent Control bridge globals when tests load that module."""
+    yield
+
+    bridge_module = sys.modules.get("galileo.handlers.agent_control.bridge")
+    if bridge_module is None:
+        return
+
+    with bridge_module._REGISTRATION_LOCK:
+        bridge_module._REGISTERED_BRIDGES.clear()
+        bridge_module._PREVIOUS_TRACE_CONTEXT_PROVIDER = None
 
 
 @pytest.fixture(autouse=True)
