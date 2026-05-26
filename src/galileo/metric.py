@@ -192,6 +192,26 @@ class Metric(StateManagementMixin, ABC):
 
         self._set_state(SyncState.LOCAL_ONLY)
 
+    @staticmethod
+    def _parse_output_type(
+        output_type: str | OutputTypeEnum | None, default: OutputTypeEnum | None = None
+    ) -> OutputTypeEnum | None:
+        """Map a string or OutputTypeEnum to OutputTypeEnum, with an optional fallback default."""
+        if output_type is None:
+            return default
+        if isinstance(output_type, OutputTypeEnum):
+            return output_type
+        _map = {
+            "percentage": OutputTypeEnum.PERCENTAGE,
+            "boolean": OutputTypeEnum.BOOLEAN,
+            "categorical": OutputTypeEnum.CATEGORICAL,
+            "count": OutputTypeEnum.COUNT,
+            "discrete": OutputTypeEnum.DISCRETE,
+            "freeform": OutputTypeEnum.FREEFORM,
+            "multilabel": OutputTypeEnum.MULTILABEL,
+        }
+        return _map.get(output_type.lower(), default)
+
     @classmethod
     def _create_metric_from_type(cls, scorer_type: ScorerTypes) -> Metric:
         """
@@ -423,7 +443,9 @@ class Metric(StateManagementMixin, ABC):
             else:
                 code_node_level = None
 
-            self._sync_attrs(node_level=code_node_level)
+            code_output_type = None if isinstance(scorer_response.output_type, Unset) else scorer_response.output_type
+
+            self._sync_attrs(node_level=code_node_level, output_type=code_output_type)
 
     def update(self, **kwargs: Any) -> Metric:
         """
@@ -748,17 +770,7 @@ class LlmMetric(Metric):
 
         # Handle output_type (accept string or enum)
         if isinstance(output_type, str):
-            # Map common string values to enum
-            output_type_map = {
-                "percentage": OutputTypeEnum.PERCENTAGE,
-                "boolean": OutputTypeEnum.BOOLEAN,
-                "categorical": OutputTypeEnum.CATEGORICAL,
-                "count": OutputTypeEnum.COUNT,
-                "discrete": OutputTypeEnum.DISCRETE,
-                "freeform": OutputTypeEnum.FREEFORM,
-                "multilabel": OutputTypeEnum.MULTILABEL,
-            }
-            self.output_type = output_type_map.get(output_type.lower(), OutputTypeEnum.PERCENTAGE)
+            self.output_type = Metric._parse_output_type(output_type, default=OutputTypeEnum.PERCENTAGE)
         else:
             self.output_type = output_type or OutputTypeEnum.BOOLEAN
 
@@ -842,6 +854,7 @@ class CodeMetric(Metric):
     ----------
         node_level (StepType | None): Node level for the metric.
         code (str | None): The Python code for the scorer.
+        output_type (OutputTypeEnum | None): Output type for the metric.
 
     Examples
     --------
@@ -856,6 +869,7 @@ class CodeMetric(Metric):
             description="Custom code-based scorer",
             tags=["custom", "code"],
             node_level=StepType.llm,
+            output_type=OutputTypeEnum.PERCENTAGE,
         ).create()
 
         # Load code from file
@@ -868,6 +882,7 @@ class CodeMetric(Metric):
     # Type annotations for code-specific attributes
     node_level: StepType | None
     code: str | None
+    output_type: OutputTypeEnum | None
     required_metrics: list[str] | None
 
     def __init__(
@@ -876,6 +891,7 @@ class CodeMetric(Metric):
         *,
         code: str | None = None,
         node_level: StepType | None = None,
+        output_type: str | OutputTypeEnum | None = None,
         required_metrics: list[str] | None = None,
         description: str = "",
         tags: list[str] | None = None,
@@ -888,6 +904,8 @@ class CodeMetric(Metric):
             name: The name of the metric.
             code: The Python code for the scorer (optional, can be set later or loaded from file).
             node_level: Node level for the metric. Defaults to StepType.llm.
+            output_type: Output type for the metric ("percentage", "boolean", "categorical",
+                "count", "discrete"). Accepts string or OutputTypeEnum.
             required_metrics: List of metric names that this code metric depends on.
             description: Description of the metric.
             tags: Tags associated with the metric.
@@ -899,6 +917,8 @@ class CodeMetric(Metric):
         self.node_level = node_level or StepType.llm
         self.required_metrics = required_metrics
         self.scorer_type = ScorerTypes.CODE
+
+        self.output_type = Metric._parse_output_type(output_type)
 
     def load_code(self, code_file_path: str) -> CodeMetric:
         """
@@ -1091,6 +1111,7 @@ class CodeMetric(Metric):
                 description=self.description,
                 tags=self.tags,
                 scoreable_node_types=[self.node_level.value],
+                output_type=self.output_type,
                 required_scorers=self.required_metrics,
             )
 
