@@ -443,7 +443,9 @@ class Metric(StateManagementMixin, ABC):
             else:
                 code_node_level = None
 
-            self._sync_attrs(node_level=code_node_level)
+            code_output_type = None if isinstance(scorer_response.output_type, Unset) else scorer_response.output_type
+
+            self._sync_attrs(node_level=code_node_level, output_type=code_output_type)
 
     def update(self, **kwargs: Any) -> Metric:
         """
