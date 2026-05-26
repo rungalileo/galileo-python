@@ -40,18 +40,21 @@ jobs:
       - name: Set Custom Version
         id: custom_version
         if: inputs.version != ''
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          echo "Using custom version: ${{ inputs.version }}"
-          poetry version ${{ inputs.version }}
+          echo "Using custom version: $INPUT_VERSION"
+          poetry version "$INPUT_VERSION"
           git config user.name "galileo-automation"
           git config user.email "ci@rungalileo.io"
           git add pyproject.toml
-          git commit -m "chore: release version ${{ inputs.version }}"
-          git tag -a "v${{ inputs.version }}" -m "Release v${{ inputs.version }}"
-          git push origin HEAD:${{ github.ref_name }}
-          git push origin "v${{ inputs.version }}"
-          echo "released=true" >> $GITHUB_OUTPUT
-          echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          git commit -m "chore: release version $INPUT_VERSION"
+          git tag -a "v$INPUT_VERSION" -m "Release v$INPUT_VERSION"
+          git push origin "HEAD:$REF_NAME"
+          git push origin "v$INPUT_VERSION"
+          echo "released=true" >> "$GITHUB_OUTPUT"
+          echo "version=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
 
       # Semantic Release Path
       - name: Python Semantic Release
@@ -69,13 +72,19 @@ jobs:
       # Determine which release method was used
       - name: Set Release Status
         id: release
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          CUSTOM_RELEASED: ${{ steps.custom_version.outputs.released }}
+          CUSTOM_VERSION: ${{ steps.custom_version.outputs.version }}
+          SEMANTIC_RELEASED: ${{ steps.semantic_release.outputs.released }}
+          SEMANTIC_VERSION: ${{ steps.semantic_release.outputs.version }}
         run: |
-          if [ "${{ inputs.version }}" != "" ]; then
-            echo "released=${{ steps.custom_version.outputs.released }}" >> $GITHUB_OUTPUT
-            echo "version=${{ steps.custom_version.outputs.version }}" >> $GITHUB_OUTPUT
+          if [ -n "$INPUT_VERSION" ]; then
+            echo "released=$CUSTOM_RELEASED" >> "$GITHUB_OUTPUT"
+            echo "version=$CUSTOM_VERSION" >> "$GITHUB_OUTPUT"
           else
-            echo "released=${{ steps.semantic_release.outputs.released }}" >> $GITHUB_OUTPUT
-            echo "version=${{ steps.semantic_release.outputs.version }}" >> $GITHUB_OUTPUT
+            echo "released=$SEMANTIC_RELEASED" >> "$GITHUB_OUTPUT"
+            echo "version=$SEMANTIC_VERSION" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Build Package
