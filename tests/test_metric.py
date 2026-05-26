@@ -841,6 +841,31 @@ class TestCodeMetricInitialization:
         assert metric.required_metrics == ["context_adherence", "completeness"]
         assert metric.node_level == StepType.llm
 
+    def test_init_with_output_type_enum(self, reset_configuration: None) -> None:
+        """Test initializing a CodeMetric with an OutputTypeEnum output_type."""
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm, output_type=OutputTypeEnum.PERCENTAGE)
+
+        assert metric.output_type == OutputTypeEnum.PERCENTAGE
+
+    def test_init_with_output_type_string(self, reset_configuration: None) -> None:
+        """Test initializing a CodeMetric with a string output_type is mapped to the enum."""
+        cases = [
+            ("percentage", OutputTypeEnum.PERCENTAGE),
+            ("boolean", OutputTypeEnum.BOOLEAN),
+            ("categorical", OutputTypeEnum.CATEGORICAL),
+            ("count", OutputTypeEnum.COUNT),
+            ("discrete", OutputTypeEnum.DISCRETE),
+        ]
+        for string_value, expected_enum in cases:
+            metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm, output_type=string_value)
+            assert metric.output_type == expected_enum, f"Expected {expected_enum} for '{string_value}'"
+
+    def test_init_without_output_type_defaults_to_none(self, reset_configuration: None) -> None:
+        """Test that omitting output_type leaves it as None (API applies its own default)."""
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm)
+
+        assert metric.output_type is None
+
 
 class TestCodeMetricCreate:
     """Test suite for CodeMetric.create() method."""
@@ -928,6 +953,50 @@ class TestCodeMetricCreate:
         # Verify metric was updated
         assert metric.id == scorer_id
         assert metric.is_synced()
+
+    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
+    @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
+    @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.metric.create_scorers_post")
+    @patch("galileo.metric.Scorers")
+    def test_create_forwards_output_type_to_scorer_request(
+        self,
+        mock_scorers_class: MagicMock,
+        mock_create_scorers: MagicMock,
+        mock_create_version: MagicMock,
+        mock_validate_post: MagicMock,
+        mock_validate_get: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_scorer_response,
+        mock_version_response,
+        mock_scorer_full,
+        mock_validation_response,
+        mock_validation_task_result,
+    ) -> None:
+        """Regression: output_type must be forwarded to CreateScorerRequest so the API
+        stores the correct type and doesn't fall back to its generic default."""
+        mock_config.return_value.api_client = mock_api_client
+        code_file = create_temp_code_file(content="def score(trace):\n    return 1.0")
+        task_id = str(uuid4())
+        mock_validate_post.sync.return_value = mock_validation_response(task_id)
+        mock_validate_get.sync.return_value = mock_validation_task_result(TaskResultStatus.COMPLETED)
+        scorer_id = str(uuid4())
+        mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, "Test Code Metric")
+        mock_create_version.sync.return_value = mock_version_response(scorer_id)
+        mock_scorers_service = MagicMock()
+        mock_scorers_service.list.return_value = [mock_scorer_full(scorer_id, "Test Code Metric")]
+        mock_scorers_class.return_value = mock_scorers_service
+
+        CodeMetric(name="Test Code Metric", node_level=StepType.llm, output_type=OutputTypeEnum.PERCENTAGE).load_code(
+            str(code_file)
+        ).create()
+
+        create_scorer_call = mock_create_scorers.sync.call_args
+        assert create_scorer_call.kwargs["body"].output_type == OutputTypeEnum.PERCENTAGE
 
     @patch("galileo.metric.GalileoPythonConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
