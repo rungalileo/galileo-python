@@ -406,6 +406,8 @@ class GalileoLogger(TracesLogger):
         if "result" not in _ingest_service_cache:
             try:
                 api_url = str(GalileoPythonConfig.get().api_url).rstrip("/")
+                if "localhost" in api_url:
+                    api_url = api_url.replace("8088", "8081")
                 resp = httpx.get(f"{api_url}/ingest/healthz", timeout=2.0)
                 _ingest_service_cache["result"] = resp.is_success
                 if _ingest_service_cache["result"]:
@@ -434,10 +436,13 @@ class GalileoLogger(TracesLogger):
             config = GalileoPythonConfig.get()
             api_key_secret = config.api_key
             api_key = api_key_secret.get_secret_value() if api_key_secret else os.environ.get("GALILEO_API_KEY", "")
+            ingest_url = str(config.api_url)
+            if "localhost" in ingest_url:
+                ingest_url = ingest_url.replace("8088", "8081")
             if api_key:
                 return IngestTraces(
                     project_id=self.project_id,
-                    base_url=str(config.api_url).rstrip("/"),
+                    base_url=ingest_url,
                     api_key=api_key,
                     log_stream_id=self.log_stream_id,
                     experiment_id=self.experiment_id,
