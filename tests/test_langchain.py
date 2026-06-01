@@ -1297,6 +1297,80 @@ class TestParseLlmResult:
         assert result.num_output_tokens == 16
         assert result.total_tokens == 24
 
+    def test_gemini_modality_from_usage_metadata_input_token_details(self) -> None:
+        """Gemini native path: per-modality breakdown from usage_metadata.input/output_token_details."""
+        ai_message = AIMessage(content="hello")
+        ai_message.usage_metadata = {
+            "input_tokens": 110,
+            "output_tokens": 25,
+            "total_tokens": 135,
+            "input_token_details": {"audio": 100, "image": 5},
+            "output_token_details": {"audio": 20},
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        result = parse_llm_result(response)
+
+        assert result.audio_input_tokens == 100
+        assert result.image_input_tokens == 5
+        assert result.audio_output_tokens == 20
+
+    def test_gemini_modality_from_response_metadata_prompt_tokens_details(self) -> None:
+        """Gemini native path: per-modality breakdown from message.response_metadata token detail lists."""
+        ai_message = AIMessage(content="hello")
+        ai_message.usage_metadata = {"input_tokens": 110, "output_tokens": 25, "total_tokens": 135}
+        ai_message.response_metadata = {
+            "prompt_tokens_details": [
+                {"modality": "TEXT", "token_count": 10},
+                {"modality": "AUDIO", "token_count": 95},
+                {"modality": "IMAGE", "token_count": 5},
+            ],
+            "candidates_tokens_details": [
+                {"modality": "AUDIO", "token_count": 20},
+                {"modality": "TEXT", "token_count": 5},
+            ],
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        result = parse_llm_result(response)
+
+        assert result.audio_input_tokens == 95
+        assert result.image_input_tokens == 5
+        assert result.audio_output_tokens == 20
+
+    def test_no_gemini_modality_for_text_only_response(self) -> None:
+        """Text-only response returns None for all modality fields."""
+        response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="hello"))]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
+
+        result = parse_llm_result(response)
+
+        assert result.image_input_tokens is None
+        assert result.audio_input_tokens is None
+        assert result.audio_output_tokens is None
+
+    def test_gemini_modality_input_token_details_takes_precedence(self) -> None:
+        """input_token_details from usage_metadata takes precedence; response_metadata is ignored for same surface."""
+        ai_message = AIMessage(content="hi")
+        ai_message.usage_metadata = {
+            "input_tokens": 110,
+            "output_tokens": 25,
+            "total_tokens": 135,
+            "input_token_details": {"audio": 80},
+            "output_token_details": {"audio": 15},
+        }
+        # response_metadata also present (should not double-count)
+        ai_message.response_metadata = {"prompt_tokens_details": [{"modality": "AUDIO", "token_count": 99}]}
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        result = parse_llm_result(response)
+
+        # Surface 1 wins; surface 2 is skipped because audio_in is already set
+        assert result.audio_input_tokens == 80
+        assert result.audio_output_tokens == 15
+
 
 class TestGalileoCallbackIngestionHookWithoutCredentials:
     """SC-54690: GalileoCallback/GalileoAsyncCallback with ingestion_hook should work without API credentials.

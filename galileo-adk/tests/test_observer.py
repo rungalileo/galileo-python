@@ -275,3 +275,98 @@ class TestUpdateSessionIfChanged:
         # Then: the parent session is preserved
         assert logger._session_external_id == "parent-session"
         assert observer._current_adk_session == "parent-session"
+
+
+class TestExtractUsageMetadata:
+    """Tests for _extract_usage_metadata Gemini modality breakdown extraction."""
+
+    def _make_modality_entry(self, modality_value: str, token_count: int) -> MagicMock:
+        entry = MagicMock()
+        entry.modality = MagicMock()
+        entry.modality.value = modality_value
+        entry.token_count = token_count
+        return entry
+
+    def test_returns_empty_for_no_response(self, observer: GalileoObserver) -> None:
+        assert observer._extract_usage_metadata(None) == {}
+
+    def test_returns_empty_for_no_usage_metadata(self, observer: GalileoObserver) -> None:
+        response = MagicMock()
+        response.usage_metadata = None
+        assert observer._extract_usage_metadata(response) == {}
+
+    def test_flat_tokens_no_modality(self, observer: GalileoObserver) -> None:
+        usage = MagicMock()
+        usage.prompt_token_count = 10
+        usage.candidates_token_count = 5
+        usage.total_token_count = 15
+        usage.prompt_tokens_details = None
+        usage.candidates_tokens_details = None
+        response = MagicMock()
+        response.usage_metadata = usage
+
+        result = observer._extract_usage_metadata(response)
+
+        assert result["prompt_tokens"] == 10
+        assert result["completion_tokens"] == 5
+        assert result["total_tokens"] == 15
+        assert "image_input_tokens" not in result
+        assert "audio_input_tokens" not in result
+        assert "audio_output_tokens" not in result
+
+    def test_audio_and_image_modality_breakdown(self, observer: GalileoObserver) -> None:
+        usage = MagicMock()
+        usage.prompt_token_count = 200
+        usage.candidates_token_count = 30
+        usage.total_token_count = 230
+        usage.prompt_tokens_details = [
+            self._make_modality_entry("TEXT", 95),
+            self._make_modality_entry("AUDIO", 100),
+            self._make_modality_entry("IMAGE", 5),
+        ]
+        usage.candidates_tokens_details = [
+            self._make_modality_entry("TEXT", 10),
+            self._make_modality_entry("AUDIO", 20),
+        ]
+        response = MagicMock()
+        response.usage_metadata = usage
+
+        result = observer._extract_usage_metadata(response)
+
+        assert result["image_input_tokens"] == 5
+        assert result["audio_input_tokens"] == 100
+        assert result["audio_output_tokens"] == 20
+
+    def test_no_audio_in_candidates_returns_zero_audio_out(self, observer: GalileoObserver) -> None:
+        usage = MagicMock()
+        usage.prompt_token_count = 10
+        usage.candidates_token_count = 5
+        usage.total_token_count = 15
+        usage.prompt_tokens_details = [self._make_modality_entry("TEXT", 10)]
+        usage.candidates_tokens_details = [self._make_modality_entry("TEXT", 5)]
+        response = MagicMock()
+        response.usage_metadata = usage
+
+        result = observer._extract_usage_metadata(response)
+
+        assert result["image_input_tokens"] == 0
+        assert result["audio_input_tokens"] == 0
+        assert result["audio_output_tokens"] == 0
+
+    def test_modality_as_string_instead_of_enum(self, observer: GalileoObserver) -> None:
+        """Older SDK may return modality as a plain string rather than an enum."""
+        entry = MagicMock()
+        entry.modality = "AUDIO"  # string, not enum
+        entry.token_count = 50
+        usage = MagicMock()
+        usage.prompt_token_count = 50
+        usage.candidates_token_count = 0
+        usage.total_token_count = 50
+        usage.prompt_tokens_details = [entry]
+        usage.candidates_tokens_details = []
+        response = MagicMock()
+        response.usage_metadata = usage
+
+        result = observer._extract_usage_metadata(response)
+
+        assert result["audio_input_tokens"] == 50
