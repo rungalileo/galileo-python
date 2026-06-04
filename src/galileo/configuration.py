@@ -311,7 +311,7 @@ class Configuration(metaclass=ConfigurationMeta):
     ```python
     # Set explicitly (also updates environment variables)
     Configuration.galileo_api_key = "your-api-key"
-    Configuration.console_url = "https://console.splunk.com"
+    Configuration.console_url = "your-console-url"
     ```
 
     Checking and connecting:
