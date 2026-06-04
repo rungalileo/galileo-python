@@ -18,7 +18,7 @@ from agents import (
 from agents.tracing import ResponseSpanData
 
 from galileo.utils.openai_agents import (
-    GalileoCustomSpan,
+    SplunkAOCustomSpan,
     _extract_llm_data,
     _extract_tool_data,
     _extract_workflow_data,
@@ -297,9 +297,9 @@ class TestMapSpanType:
         assert _map_span_type(span_data) == expected_type
 
     def test_galileo_custom_span(self) -> None:
-        """Test mapping GalileoCustomSpan."""
+        """Test mapping SplunkAOCustomSpan."""
         galileo_span = WorkflowSpan(name="Test", input="input", output="output", status_code=200)
-        assert _map_span_type(GalileoCustomSpan(galileo_span, {})) == "galileo_custom"
+        assert _map_span_type(SplunkAOCustomSpan(galileo_span, {})) == "galileo_custom"
 
     @pytest.mark.parametrize(
         "type_attr,expected_type", [("function", "tool"), ("generation", "llm"), ("agent", "workflow")]
@@ -313,8 +313,8 @@ class TestMapSpanType:
         assert _map_span_type(Mock(spec=[])) == "workflow"
 
 
-class TestGalileoCustomSpan:
-    """Test GalileoCustomSpan utility."""
+class TestSplunkAOCustomSpan:
+    """Test SplunkAOCustomSpan utility."""
 
     @pytest.mark.parametrize(
         "span",
@@ -324,15 +324,15 @@ class TestGalileoCustomSpan:
         ],
     )
     def test_wraps_span_types(self, span: Any) -> None:
-        """Test that GalileoCustomSpan wraps different span types."""
-        assert GalileoCustomSpan(span, {}).type == "galileo_custom"
+        """Test that SplunkAOCustomSpan wraps different span types."""
+        assert SplunkAOCustomSpan(span, {}).type == "galileo_custom"
 
     def test_preserves_underlying_properties(self) -> None:
         """Test accessing underlying span properties."""
         workflow_span = WorkflowSpan(
             name="Test", input="Q", output="A", user_metadata={"v": "1.0"}, tags=["test"], status_code=200
         )
-        custom_span = GalileoCustomSpan(workflow_span, workflow_span.user_metadata or {})
+        custom_span = SplunkAOCustomSpan(workflow_span, workflow_span.user_metadata or {})
 
         assert custom_span.span.name == "Test"
         assert custom_span.span.input == "Q"
@@ -351,7 +351,7 @@ class TestGalileoCustomSpan:
             status_code=200,
         )
         # WorkflowSpan converts None to {} automatically, but we test the 'or {}' pattern
-        custom_span = GalileoCustomSpan(workflow_span, workflow_span.user_metadata or {})
+        custom_span = SplunkAOCustomSpan(workflow_span, workflow_span.user_metadata or {})
 
         assert custom_span.span.name == "Test"
         # WorkflowSpan normalizes None to {} internally

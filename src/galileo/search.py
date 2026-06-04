@@ -1,7 +1,7 @@
 import logging
 from enum import Enum
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.trace import (
     query_sessions_projects_project_id_sessions_search_post,
     query_spans_projects_project_id_spans_search_post,
@@ -25,10 +25,10 @@ class RecordType(str, Enum):
 
 
 class Search:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def query(
         self,

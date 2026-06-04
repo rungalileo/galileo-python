@@ -4,12 +4,12 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from galileo.handlers.base_handler import GalileoBaseHandler
-from galileo.logger.logger import GalileoLogger
+from galileo.handlers.base_handler import SplunkAOBaseHandler
+from galileo.logger.logger import SplunkAOLogger
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
-class TestGalileoBaseHandler:
+class TestSplunkAOBaseHandler:
     @pytest.fixture
     @patch("galileo.logger.logger.LogStreams")
     @patch("galileo.logger.logger.Projects")
@@ -19,30 +19,30 @@ class TestGalileoBaseHandler:
         setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
-        return GalileoLogger(project="my_project", log_stream="my_log_stream")
+        return SplunkAOLogger(project="my_project", log_stream="my_log_stream")
 
     @pytest.fixture
-    def handler(self, galileo_logger: GalileoLogger) -> Generator[GalileoBaseHandler, None, None]:
-        """Creates a GalileoBaseHandler with a mock logger"""
-        return GalileoBaseHandler(galileo_logger=galileo_logger, flush_on_chain_end=False)
+    def handler(self, galileo_logger: SplunkAOLogger) -> Generator[SplunkAOBaseHandler, None, None]:
+        """Creates a SplunkAOBaseHandler with a mock logger"""
+        return SplunkAOBaseHandler(galileo_logger=galileo_logger, flush_on_chain_end=False)
         # Reset the root node before each test
         # Clean up after each test
 
-    def test_initialization(self, galileo_logger: GalileoLogger) -> None:
+    def test_initialization(self, galileo_logger: SplunkAOLogger) -> None:
         """Test callback initialization with various parameters"""
         # Default initialization
-        handler = GalileoBaseHandler(galileo_logger=galileo_logger)
+        handler = SplunkAOBaseHandler(galileo_logger=galileo_logger)
         assert handler._galileo_logger == galileo_logger
         assert handler._start_new_trace is True
         assert handler._flush_on_chain_end is True
         assert handler._nodes == {}
 
         # Custom initialization
-        handler = GalileoBaseHandler(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
+        handler = SplunkAOBaseHandler(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
         assert handler._start_new_trace is False
         assert handler._flush_on_chain_end is False
 
-    def test_start_node(self, handler: GalileoBaseHandler) -> None:
+    def test_start_node(self, handler: SplunkAOBaseHandler) -> None:
         """Test creating a node and establishing parent-child relationships"""
         # Create a parent node
         parent_id = uuid.uuid4()
@@ -75,7 +75,7 @@ class TestGalileoBaseHandler:
         assert handler._root_node
         assert handler._root_node.run_id == parent_id
 
-    def test_end_node(self, handler: GalileoBaseHandler, galileo_logger: GalileoLogger) -> None:
+    def test_end_node(self, handler: SplunkAOBaseHandler, galileo_logger: SplunkAOLogger) -> None:
         """Test ending a node and updating its parameters"""
         # Create a node
         run_id = uuid.uuid4()
@@ -97,13 +97,13 @@ class TestGalileoBaseHandler:
     def test_commit_calls_flush(self) -> None:
         """Test that commit() calls flush() when flush_on_chain_end=True."""
         # Given: a mock logger
-        mock_logger = Mock(spec=GalileoLogger)
+        mock_logger = Mock(spec=SplunkAOLogger)
         mock_logger.start_trace = Mock()
         mock_logger.conclude = Mock()
         mock_logger.current_parent = Mock(return_value=None)
         mock_logger.add_workflow_span = Mock()
         mock_logger._set_current_parent = Mock()
-        handler = GalileoBaseHandler(galileo_logger=mock_logger, flush_on_chain_end=True)
+        handler = SplunkAOBaseHandler(galileo_logger=mock_logger, flush_on_chain_end=True)
 
         # Setup a simple trace to commit
         run_id = uuid.uuid4()
@@ -118,14 +118,14 @@ class TestGalileoBaseHandler:
     def test_commit_no_flush_when_disabled(self) -> None:
         """Test that commit() doesn't call flush or terminate when flush_on_chain_end=False."""
         # Given: a mock logger with flush disabled
-        mock_logger = Mock(spec=GalileoLogger)
+        mock_logger = Mock(spec=SplunkAOLogger)
         mock_logger.mode = "batch"
         mock_logger.start_trace = Mock()
         mock_logger.conclude = Mock()
         mock_logger.current_parent = Mock(return_value=None)
         mock_logger.add_workflow_span = Mock()
         mock_logger._set_current_parent = Mock()
-        handler = GalileoBaseHandler(galileo_logger=mock_logger, flush_on_chain_end=False)
+        handler = SplunkAOBaseHandler(galileo_logger=mock_logger, flush_on_chain_end=False)
 
         # Setup a simple trace to commit
         run_id = uuid.uuid4()

@@ -385,7 +385,7 @@ class TestPromptRefresh:
 class TestPromptMethods:
     """Test suite for other Prompt methods."""
 
-    @patch("galileo.prompt.GalileoPythonConfig")
+    @patch("galileo.prompt.SplunkAOConfig")
     @patch("galileo.prompt.set_selected_global_template_version_templates_template_id_versions_version_put")
     @patch("galileo.prompt.create_global_prompt_template_version_templates_template_id_versions_post")
     @patch("galileo.prompt.GlobalPromptTemplates")
@@ -441,7 +441,7 @@ class TestPromptMethods:
         assert prompt.is_synced()
         assert prompt.selected_version_number == 2
 
-    @patch("galileo.prompt.GalileoPythonConfig")
+    @patch("galileo.prompt.SplunkAOConfig")
     @patch("galileo.prompt.set_selected_global_template_version_templates_template_id_versions_version_put")
     @patch("galileo.prompt.create_global_prompt_template_version_templates_template_id_versions_post")
     @patch("galileo.prompt.GlobalPromptTemplates")
@@ -847,7 +847,7 @@ class TestJsonTemplateParsing:
 class TestVersionManagement:
     """Test suite for version management methods."""
 
-    @patch("galileo.prompt.GalileoPythonConfig")
+    @patch("galileo.prompt.SplunkAOConfig")
     @patch("galileo.prompt.query_template_versions_templates_template_id_versions_query_post")
     @patch("galileo.prompt.GlobalPromptTemplates")
     def test_list_versions_returns_version_objects(
@@ -901,7 +901,7 @@ class TestVersionManagement:
         with pytest.raises(ValueError, match="Prompt ID is not set"):
             prompt.list_versions()
 
-    @patch("galileo.prompt.GalileoPythonConfig")
+    @patch("galileo.prompt.SplunkAOConfig")
     @patch("galileo.prompt.set_selected_global_template_version_templates_template_id_versions_version_put")
     @patch("galileo.prompt.GlobalPromptTemplates")
     def test_select_version_sets_active_version(

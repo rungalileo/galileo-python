@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.constants import DEFAULT_CONSOLE_URL
 from galileo.shared.exceptions import ConfigurationError
 from galileo.utils.log_config import enable_console_logging as _enable_console_logging
@@ -394,7 +394,7 @@ class Configuration(metaclass=ConfigurationMeta):
         logger.info("Validating Galileo configuration and connectivity...")
 
         try:
-            GalileoPythonConfig.get()
+            SplunkAOConfig.get()
             logger.info("Successfully connected to Galileo")
         except Exception as e:
             error_msg = str(e)
@@ -419,10 +419,10 @@ class Configuration(metaclass=ConfigurationMeta):
         cls._env_loaded = False
 
         try:
-            if GalileoPythonConfig._instance is not None:
-                GalileoPythonConfig._instance.reset()
+            if SplunkAOConfig._instance is not None:
+                SplunkAOConfig._instance.reset()
         except Exception as e:
-            logger.debug(f"Could not reset GalileoPythonConfig instance: {e}")
+            logger.debug(f"Could not reset SplunkAOConfig instance: {e}")
 
     @classmethod
     def is_configured(cls) -> bool:

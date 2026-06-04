@@ -6,7 +6,7 @@ from typing import Any
 from uuid import UUID
 
 from galileo import galileo_context
-from galileo.logger import GalileoLogger
+from galileo.logger import SplunkAOLogger
 from galileo.schema.handlers import INTEGRATION, NODE_TYPE, Node
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.serialization import convert_to_string_dict, serialize_to_str
@@ -14,13 +14,13 @@ from galileo.utils.serialization import convert_to_string_dict, serialize_to_str
 _logger = logging.getLogger(__name__)
 
 
-class GalileoBaseHandler:
+class SplunkAOBaseHandler:
     """
     Callback handler for logging traces to the Galileo platform.
 
     Attributes
     ----------
-    _galileo_logger : GalileoLogger
+    _galileo_logger : SplunkAOLogger
         The Galileo logger instance.
     _nodes : dict[UUID, Node]
         A dictionary of nodes, where the key is the run_id and the value is the node.
@@ -39,12 +39,12 @@ class GalileoBaseHandler:
     def __init__(
         self,
         integration: INTEGRATION = "langchain",
-        galileo_logger: GalileoLogger | None = None,
+        galileo_logger: SplunkAOLogger | None = None,
         start_new_trace: bool = True,
         flush_on_chain_end: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
     ):
-        self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance(
+        self._galileo_logger: SplunkAOLogger = galileo_logger or galileo_context.get_logger_instance(
             ingestion_hook=ingestion_hook
         )
         if galileo_logger and ingestion_hook:
@@ -76,7 +76,7 @@ class GalileoBaseHandler:
         try:
             if self._start_new_trace:
                 self._galileo_logger.start_trace(
-                    input=GalileoLogger._coerce_output(root_node.span_params.get("input", "")),
+                    input=SplunkAOLogger._coerce_output(root_node.span_params.get("input", "")),
                     name=root_node.span_params.get("name"),
                     metadata=root_node.span_params.get("metadata"),
                 )
@@ -88,7 +88,7 @@ class GalileoBaseHandler:
 
             if self._start_new_trace:
                 self._galileo_logger.conclude(
-                    output=GalileoLogger._coerce_output(root_output),
+                    output=SplunkAOLogger._coerce_output(root_output),
                     status_code=root_node.span_params.get("status_code"),
                 )
 

@@ -6,7 +6,7 @@ import re
 from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.datasets import Dataset as LegacyDataset
 from galileo.exceptions import NotFoundError
 from galileo.experiment_tags import upsert_experiment_tag
@@ -42,7 +42,7 @@ from galileo.resources.types import Unset
 # TODO: DatasetRecord needed for function-based experiments
 # from galileo.schema.datasets import DatasetRecord
 from galileo.schema.filters import FilterType
-from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
+from galileo.schema.metrics import SplunkAOMetrics, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 from galileo.shared.base import StateManagementMixin, SyncState
 from galileo.shared.exceptions import ValidationError
@@ -173,7 +173,7 @@ class Experiment(StateManagementMixin):
     prompt_name: str | None
     created_at: datetime.datetime | None
     updated_at: datetime.datetime | None
-    metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str] | None
+    metrics: builtins.list[SplunkAOMetrics | Metric | LocalMetricConfig | str] | None
     # TODO: Function-based experiments temporarily disabled - need to validate implementation
     # function: Callable | None
     model_alias: str | None
@@ -207,7 +207,7 @@ class Experiment(StateManagementMixin):
         prompt: Prompt | PromptTemplate | str | None = None,
         prompt_name: str | None = None,
         model: Model | str | None = None,
-        metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str] | None = None,
+        metrics: builtins.list[SplunkAOMetrics | Metric | LocalMetricConfig | str] | None = None,
         project_id: str | None = None,
         project_name: str | None = None,
         prompt_settings: PromptRunSettings | None = None,
@@ -753,7 +753,7 @@ class Experiment(StateManagementMixin):
 
         try:
             _logger.debug(f"Experiment.refresh: id='{self.id}' - started")
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             retrieved_experiment = get_experiment_projects_project_id_experiments_experiment_id_get.sync(
                 project_id=self.project_id, experiment_id=self.id, client=config.api_client
             )
@@ -872,7 +872,7 @@ class Experiment(StateManagementMixin):
         try:
             _logger.info(f"Experiment.delete: id='{self.id}' name='{self.name}' - started")
 
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             result = delete_experiment_projects_project_id_experiments_experiment_id_delete.sync(
                 project_id=self.project_id, experiment_id=self.id, client=config.api_client
             )
@@ -1442,7 +1442,7 @@ class Experiment(StateManagementMixin):
         if self.project_id is None:
             raise ValueError("Project ID is not set. Cannot get columns without project_id.")
 
-        config = GalileoPythonConfig.get()
+        config = SplunkAOConfig.get()
         body = LogRecordsAvailableColumnsRequest(log_stream_id=self.id)
         response = api_func.sync(project_id=self.project_id, client=config.api_client, body=body)
         if isinstance(response, HTTPValidationError):
@@ -1980,7 +1980,7 @@ class Experiment(StateManagementMixin):
         if self.project_id is None:
             raise ValueError("Project ID is not set. Cannot retrieve metric columns without project_id.")
 
-        config = GalileoPythonConfig.get()
+        config = SplunkAOConfig.get()
         response = experiments_available_columns_projects_project_id_experiments_available_columns_post.sync(
             project_id=self.project_id, client=config.api_client
         )
@@ -1991,14 +1991,14 @@ class Experiment(StateManagementMixin):
         columns = [Column(col) for col in response.columns]
         return ColumnCollection(columns)
 
-    def get_metric_aggregate(self, metric: GalileoMetrics | str) -> MetricAggregates | None:
+    def get_metric_aggregate(self, metric: SplunkAOMetrics | str) -> MetricAggregates | None:
         """Return aggregate statistics for a specific metric.
 
         Looks up a metric by any of the following identifiers, tried in order:
 
-        1. :class:`~galileo.schema.metrics.GalileoMetrics` enum value — its
+        1. :class:`~galileo.schema.metrics.SplunkAOMetrics` enum value — its
            ``value`` IS the human-readable label (e.g.
-           ``GalileoMetrics.correctness`` → ``"Correctness"``).
+           ``SplunkAOMetrics.correctness`` → ``"Correctness"``).
         2. Scorer UUID string — direct lookup in :attr:`metric_aggregates`,
            no column resolution needed.
         3. Human-readable label string (e.g. ``"Correctness"``) — resolved
@@ -2012,7 +2012,7 @@ class Experiment(StateManagementMixin):
         Parameters
         ----------
         metric :
-            Any of: a :class:`GalileoMetrics` enum value, scorer UUID string,
+            Any of: a :class:`SplunkAOMetrics` enum value, scorer UUID string,
             human-readable label, or legacy metric_key_alias.
 
         Returns
@@ -2026,21 +2026,21 @@ class Experiment(StateManagementMixin):
         --------
         Poll until a specific metric is computed, then assert::
 
-            from galileo.schema.metrics import GalileoMetrics
+            from galileo.schema.metrics import SplunkAOMetrics
 
-            while experiment.get_metric_aggregate(GalileoMetrics.correctness) is None:
+            while experiment.get_metric_aggregate(SplunkAOMetrics.correctness) is None:
                 time.sleep(5)
                 experiment.refresh()
 
-            agg = experiment.get_metric_aggregate(GalileoMetrics.correctness)
+            agg = experiment.get_metric_aggregate(SplunkAOMetrics.correctness)
             assert agg.avg >= 0.95
         """
         aggregates = self.metric_aggregates
         if not aggregates:
             return None
 
-        # GalileoMetrics.value IS the human-readable label (e.g. "Correctness")
-        metric_str = metric.value if isinstance(metric, GalileoMetrics) else metric
+        # SplunkAOMetrics.value IS the human-readable label (e.g. "Correctness")
+        metric_str = metric.value if isinstance(metric, SplunkAOMetrics) else metric
 
         # Scorer UUID → direct lookup, no column resolution needed
         if _UUID_RE.fullmatch(metric_str):

@@ -8,7 +8,7 @@ from openai.types.chat import ChatCompletionChunk
 from openai.types.responses import ResponseCompletedEvent
 
 from galileo import Message, MessageRole, galileo_context, log
-from galileo.openai import OpenAIGalileo, openai
+from galileo.openai import OpenAISplunkAO, openai
 from galileo_core.schemas.logging.span import LlmSpan, WorkflowSpan
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 from tests.testutils.streaming import EventStream, ResponsesEventStream
@@ -46,7 +46,7 @@ def test_basic_openai_call(
     openai_create.return_value = create_chat_completion
 
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     chat_completion = openai.chat.completions.create(
         messages=[{"role": "user", "content": "Say this is a test"}],
@@ -109,7 +109,7 @@ def test_streamed_openai_call(
     )
 
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     stream = openai.chat.completions.create(
         messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-3.5-turbo", stream=True
@@ -159,7 +159,7 @@ def test_openai_api_calls_as_parent_span(
 
     # we want reset context and enable tracing for openai plugin
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     @log()
     def call_openai(model: str = "gpt-3.5-turbo"):
@@ -207,7 +207,7 @@ def test_openai_error_trace(
 
     # we want reset context and enable tracing for openai plugin
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     def call_openai(model: str = "gpt-3.5-turbo"):
         chat_completion = openai.chat.completions.create(
@@ -244,7 +244,7 @@ def test_openai_error_trace_(
 
     # we want reset context and enable tracing for openai plugin
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     def call_openai(model: str = "gpt-3.5-turbo"):
         chat_completion = openai.chat.completions.create(
@@ -284,7 +284,7 @@ def test_client_fails_because_openai_error_trace_no_exp(
 
     # we want reset context and enable tracing for openai plugin
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     @log
     def call_openai(model: str = "gpt-3.5-turbo"):
@@ -329,7 +329,7 @@ def test_galileo_api_client_transport_error_not_blocking_user_code(
     openai_create.return_value = create_chat_completion
     # we want reset context and enable tracing for openai plugin
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     @log()
     def call_openai(model: str = "gpt-3.5-turbo"):
@@ -364,7 +364,7 @@ def test_openai_calls_in_active_trace(
     openai_create.return_value = create_chat_completion
 
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     logger = galileo_context.get_logger_instance()
     logger.start_trace("test trace")
@@ -403,7 +403,7 @@ def test_chat_completions_multiple_messages(
     openai_create.return_value = create_chat_completion
 
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     input_messages = [
         {"role": "user", "content": "What's the weather like today?"},
@@ -463,7 +463,7 @@ def test_basic_responses_api_call(
     openai_create.return_value = create_responses_response
 
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     response = openai.responses.create(input="Say this is a test", model="gpt-4o")
 
@@ -504,7 +504,7 @@ def test_responses_api_with_tools(
     openai_create.return_value = create_responses_response_with_tools
 
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     openai.responses.create(
         input="What's the weather like?",
@@ -568,7 +568,7 @@ def test_responses_api_multiple_messages(
     openai_create.return_value = create_responses_response
 
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     input_messages = [
         {"role": "user", "content": "What's the weather like today?"},
@@ -631,7 +631,7 @@ def test_responses_api_streaming(
     )
 
     galileo_context.reset()
-    OpenAIGalileo().register_tracing()
+    OpenAISplunkAO().register_tracing()
 
     stream = openai.responses.create(input="Say hello", model="gpt-4o", stream=True)
 

@@ -2,7 +2,7 @@
 
 import logging
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.experiment_tags import (
     delete_experiment_tag_projects_project_id_experiments_experiment_id_tags_tag_id_delete,
     get_experiment_tags_projects_project_id_experiments_experiment_id_tags_get,
@@ -49,10 +49,10 @@ class ExperimentTag(RunTagDB):
 
 
 class ExperimentTags:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def get_experiment_tags(self, project_id: str, experiment_id: str) -> list[ExperimentTag]:
         """

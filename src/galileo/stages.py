@@ -2,7 +2,7 @@ from collections.abc import Sequence
 
 from pydantic import UUID4
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.projects import Projects
 from galileo.resources.api.protect import (
     create_stage_projects_project_id_stages_post,
@@ -49,10 +49,10 @@ def _get_stage_id(
 
 
 class Stages:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def create(
         self,

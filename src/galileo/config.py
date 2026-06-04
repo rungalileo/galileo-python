@@ -10,26 +10,26 @@ from galileo.shared.exceptions import ConfigurationError
 from galileo_core.schemas.base_config import GalileoConfig
 
 
-class GalileoPythonConfig(GalileoConfig):
+class SplunkAOConfig(GalileoConfig):
     # Config file for this project.
     config_filename: str = "galileo-python-config.json"
     console_url: Url = DEFAULT_CONSOLE_URL
 
-    _instance: ClassVar[Optional["GalileoPythonConfig"]] = None
+    _instance: ClassVar[Optional["SplunkAOConfig"]] = None
 
     def reset(self) -> None:
-        GalileoPythonConfig._instance = None
+        SplunkAOConfig._instance = None
         super().reset()
 
     @classmethod
-    def get(cls, **kwargs: Any) -> "GalileoPythonConfig":
+    def get(cls, **kwargs: Any) -> "SplunkAOConfig":
         if cls._instance is None:
             cls._bridge_env_vars()
             error_message = cls._check_auth_config(kwargs)
             if error_message is not None:
                 raise ConfigurationError(error_message)
         cls._instance = cls._get(cls._instance, **kwargs)
-        assert cls._instance is not None, "Failed to initialize GalileoPythonConfig"
+        assert cls._instance is not None, "Failed to initialize SplunkAOConfig"
         return cls._instance
 
     @staticmethod
@@ -130,6 +130,6 @@ class GalileoPythonConfig(GalileoConfig):
             "No Splunk AO authentication detected. Set one of: "
             "SPLUNK_AO_API_KEY; SPLUNK_AO_SSO_ID_TOKEN with SPLUNK_AO_SSO_PROVIDER; "
             "or SPLUNK_AO_USERNAME with SPLUNK_AO_PASSWORD. "
-            "Alternatively, pass the equivalent kwargs to GalileoPythonConfig.get(). "
+            "Alternatively, pass the equivalent kwargs to SplunkAOConfig.get(). "
             "See https://docs.splunk.com for setup instructions."
         )

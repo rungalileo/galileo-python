@@ -665,7 +665,7 @@ class TestMetricUpdate:
             metric.update(prompt="new prompt", model="gpt-4o")
 
     @patch("galileo.metric.update_scorers_scorer_id_patch")
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     def test_update_calls_api_and_syncs_attributes(
         self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
     ) -> None:
@@ -706,7 +706,7 @@ class TestMetricUpdate:
         assert metric.sync_state == SyncState.SYNCED
 
     @patch("galileo.metric.update_scorers_scorer_id_patch")
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     def test_update_handles_api_failure(
         self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
     ) -> None:
@@ -725,7 +725,7 @@ class TestMetricUpdate:
         assert metric.sync_state == SyncState.FAILED_SYNC
 
     @patch("galileo.metric.update_scorers_scorer_id_patch")
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     def test_update_raises_api_error_for_validation_error_response(
         self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
     ) -> None:
@@ -744,7 +744,7 @@ class TestMetricUpdate:
             metric.update(name="New Name")
 
     @patch("galileo.metric.update_scorers_scorer_id_patch")
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     def test_update_raises_api_error_for_none_response(
         self, mock_config_get: MagicMock, mock_update_patch: MagicMock, reset_configuration: None
     ) -> None:
@@ -870,7 +870,7 @@ class TestCodeMetricInitialization:
 class TestCodeMetricCreate:
     """Test suite for CodeMetric.create() method."""
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
@@ -954,7 +954,7 @@ class TestCodeMetricCreate:
         assert metric.id == scorer_id
         assert metric.is_synced()
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
@@ -998,7 +998,7 @@ class TestCodeMetricCreate:
         create_scorer_call = mock_create_scorers.sync.call_args
         assert create_scorer_call.kwargs["body"].output_type == OutputTypeEnum.PERCENTAGE
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.metric.create_scorers_post")
@@ -1035,7 +1035,7 @@ class TestCodeMetricCreate:
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
@@ -1079,7 +1079,7 @@ class TestCodeMetricCreate:
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
@@ -1140,7 +1140,7 @@ class TestCodeMetricCreate:
             # Verify the node_level is set on the metric itself
             assert metric.node_level == node_level
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
@@ -1207,7 +1207,7 @@ class TestCodeMetricCreate:
         create_scorer_call = mock_create_scorers.sync.call_args
         assert create_scorer_call.kwargs["body"].required_scorers == required_metrics
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     def test_create_reads_code_file_correctly(
         self,
         mock_config: MagicMock,
@@ -1267,7 +1267,7 @@ def score(trace):
             assert hasattr(body, "file")
             assert hasattr(body.file, "payload")
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.create_scorers_post")
     def test_load_code_with_nonexistent_file_raises_validation_error(
         self,
@@ -1287,7 +1287,7 @@ def score(trace):
         with pytest.raises(ValidationError, match="Code file not found"):
             metric.load_code("/nonexistent/file.py").create()
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.metric.create_scorers_post")
@@ -1324,7 +1324,7 @@ def score(trace):
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
@@ -1368,7 +1368,7 @@ def score(trace):
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.metric.create_scorers_post")
@@ -1405,7 +1405,7 @@ def score(trace):
         with pytest.raises(ValidationError, match="Invalid configuration"):
             metric.load_code(str(code_file)).create()
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.metric.create_scorers_post")
@@ -1445,7 +1445,7 @@ def score(trace):
         assert metric.sync_state == SyncState.FAILED_SYNC
         assert metric._last_error == runtime_error
 
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     def test_create_handles_validation_failure(
@@ -1476,7 +1476,7 @@ def score(trace):
             metric.load_code(str(code_file)).create()
 
     @patch("galileo.metric.time.sleep")
-    @patch("galileo.metric.GalileoPythonConfig.get")
+    @patch("galileo.metric.SplunkAOConfig.get")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
     @patch("galileo.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
@@ -1538,7 +1538,7 @@ def score(trace):
     @patch("galileo.metric.time.sleep")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_create_validation_timeout(
         self,
         mock_config,
@@ -1570,7 +1570,7 @@ def score(trace):
 
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_create_validation_post_returns_none(
         self, mock_config, mock_validate_post, mock_validate_get, create_temp_code_file, mock_api_client
     ) -> None:
@@ -1588,7 +1588,7 @@ def score(trace):
 
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_create_validation_get_returns_none(
         self,
         mock_config,
@@ -1613,7 +1613,7 @@ def score(trace):
 
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_create_validation_unknown_status(
         self,
         mock_config,
@@ -1641,7 +1641,7 @@ def score(trace):
 
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_create_validation_failed_status(
         self,
         mock_config,
@@ -1669,7 +1669,7 @@ def score(trace):
 
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_create_validation_failed_status_no_message(
         self,
         mock_config,
@@ -1697,7 +1697,7 @@ def score(trace):
 
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_create_validation_invalid_result(
         self,
         mock_config,
@@ -1744,7 +1744,7 @@ def score(trace):
     @patch("galileo.metric.create_scorers_post")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_create_validation_result_as_string(
         self,
         mock_config,
@@ -1796,7 +1796,7 @@ class TestCodeMetricValidationConfiguration:
     @patch("galileo.metric.time.sleep")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_custom_timeout_value_is_respected(
         self,
         mock_config,
@@ -1834,7 +1834,7 @@ class TestCodeMetricValidationConfiguration:
     @patch("galileo.metric.time.sleep")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_custom_initial_delay_is_used(
         self,
         mock_config,
@@ -1885,7 +1885,7 @@ class TestCodeMetricValidationConfiguration:
     @patch("galileo.metric.time.sleep")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_custom_max_delay_caps_backoff(
         self,
         mock_config,
@@ -1938,7 +1938,7 @@ class TestCodeMetricValidationConfiguration:
     @patch("galileo.metric.time.sleep")
     @patch("galileo.metric.get_validate_code_scorer_task_result_scorers_code_validate_task_id_get")
     @patch("galileo.metric.validate_code_scorer_scorers_code_validate_post")
-    @patch("galileo.metric.GalileoPythonConfig")
+    @patch("galileo.metric.SplunkAOConfig")
     def test_custom_backoff_multiplier_is_applied(
         self,
         mock_config,

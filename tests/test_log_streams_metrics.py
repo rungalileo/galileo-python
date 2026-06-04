@@ -8,7 +8,7 @@ from galileo.log_streams import LogStream, LogStreams, enable_metrics
 from galileo.projects import Project
 from galileo.resources.models import ProjectCreateResponse, ScorerResponse, ScorerTypes
 from galileo.resources.models.log_stream_response import LogStreamResponse
-from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
+from galileo.schema.metrics import SplunkAOMetrics, LocalMetricConfig
 from galileo.utils.metrics import create_metric_configs
 
 
@@ -90,7 +90,7 @@ class TestLogStreamMetrics:
 
         # Test with built-in metrics
         scorers, local_metrics = create_metric_configs(
-            "project-123", "logstream-456", [GalileoMetrics.correctness, "completeness"]
+            "project-123", "logstream-456", [SplunkAOMetrics.correctness, "completeness"]
         )
 
         # Verify scorers list_by_labels was called
@@ -143,7 +143,7 @@ class TestLogStreamMetrics:
 
         # Test with mixed metrics (only valid ones to avoid decorator error handling)
         scorers, local_metrics = create_metric_configs(
-            "project-123", "logstream-456", [GalileoMetrics.correctness, local_metric]
+            "project-123", "logstream-456", [SplunkAOMetrics.correctness, local_metric]
         )
 
         # Verify local metrics
@@ -431,7 +431,7 @@ class TestCreateMetricConfigsRouting:
         mock_settings_class.return_value.create.return_value = None
 
         # When: passing both a UUID and an enum
-        scorers, _ = create_metric_configs("project-123", "run-456", [scorer_id, GalileoMetrics.completeness])
+        scorers, _ = create_metric_configs("project-123", "run-456", [scorer_id, SplunkAOMetrics.completeness])
 
         # Then: both lookup methods are called
         mock_scorers_class.return_value.list_by_ids.assert_called_once()
@@ -465,7 +465,7 @@ class TestCreateMetricConfigsRouting:
         ]
 
         # When: run_id is None
-        scorers, _ = create_metric_configs("project-123", None, [GalileoMetrics.correctness])
+        scorers, _ = create_metric_configs("project-123", None, [SplunkAOMetrics.correctness])
 
         # Then: scorers are returned but registration is skipped
         mock_settings_class.return_value.create.assert_not_called()

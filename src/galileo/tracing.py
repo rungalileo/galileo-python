@@ -17,7 +17,7 @@ def get_tracing_headers() -> dict[str, str]:
 
     Raises
     ------
-    GalileoLoggerException
+    SplunkAOLoggerException
         If not in distributed mode or if no trace has been started
 
     Examples

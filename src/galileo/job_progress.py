@@ -5,7 +5,7 @@ from time import sleep
 from pydantic import UUID4
 from tqdm.auto import tqdm
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.jobs import (
     get_job_jobs_job_id_get,
     get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get,
@@ -19,7 +19,7 @@ _logger = get_logger(__name__)
 
 
 def get_job(job_id: str) -> JobDB:
-    config = GalileoPythonConfig.get()
+    config = SplunkAOConfig.get()
 
     response = get_job_jobs_job_id_get.sync(client=config.api_client, job_id=str(job_id))
 
@@ -31,7 +31,7 @@ def get_job(job_id: str) -> JobDB:
 
 
 def get_run_scorer_jobs(project_id: str, run_id: str) -> list[JobDB]:
-    config = GalileoPythonConfig.get()
+    config = SplunkAOConfig.get()
 
     response = get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync(
         client=config.api_client, project_id=str(project_id), run_id=str(run_id)

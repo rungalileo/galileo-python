@@ -1,7 +1,7 @@
 import builtins
 from uuid import UUID
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.data import (
     get_scorer_version_or_latest_scorers_scorer_id_version_get,
     list_scorers_with_filters_scorers_list_post,
@@ -32,10 +32,10 @@ from galileo.resources.types import Unset
 
 
 class Scorers:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def _list_with_filters(self, filters: list) -> list[ScorerResponse]:
         """Paginate through scorers/list with the given filters."""
@@ -156,10 +156,10 @@ class Scorers:
 
 
 class ScorerSettings:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def create(
         self, project_id: str, run_id: str, scorers: list[ScorerConfig]

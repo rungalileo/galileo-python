@@ -2,17 +2,17 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-__all__ = ["GalileoLogger"]
+__all__ = ["SplunkAOLogger"]
 
 if TYPE_CHECKING:
-    from galileo.logger.logger import GalileoLogger
+    from galileo.logger.logger import SplunkAOLogger
 
 
 def __getattr__(name: str) -> Any:
-    if name == "GalileoLogger":
-        from galileo.logger.logger import GalileoLogger
+    if name == "SplunkAOLogger":
+        from galileo.logger.logger import SplunkAOLogger
 
-        return GalileoLogger
+        return SplunkAOLogger
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 

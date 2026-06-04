@@ -1,6 +1,6 @@
 import logging
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.run_scorer_settings import (
     upsert_scorers_config_projects_project_id_runs_run_id_scorer_settings_patch,
 )
@@ -16,10 +16,10 @@ logger = logging.getLogger(__name__)
 
 
 class Runs:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def update_scorer_settings(
         self,

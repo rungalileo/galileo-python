@@ -9,7 +9,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from galileo.log_streams import LogStream
-from galileo.logger.logger import GalileoLogger
+from galileo.logger.logger import SplunkAOLogger
 from galileo.projects import Project
 from galileo.resources.models import ExperimentResponse, ProjectType
 from galileo.resources.models.log_stream_response import LogStreamResponse
@@ -146,12 +146,12 @@ class ThreadPoolRequestCapture:
         )
 
 
-def setup_thread_pool_request_capture(logger: GalileoLogger) -> ThreadPoolRequestCapture:
+def setup_thread_pool_request_capture(logger: SplunkAOLogger) -> ThreadPoolRequestCapture:
     """
     Set up request capture for a logger's thread pool.
 
     Args:
-        logger: GalileoLogger instance to mock the thread pool for
+        logger: SplunkAOLogger instance to mock the thread pool for
 
     Returns:
         ThreadPoolRequestCapture instance that can be used to inspect captured requests

@@ -51,7 +51,7 @@ from typing import Any, NoReturn
 
 from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
 from galileo.decorator import _parent_id_context, _trace_id_context
-from galileo.logger import GalileoLogger
+from galileo.logger import SplunkAOLogger
 
 _logger = logging.getLogger(__name__)
 
@@ -145,15 +145,15 @@ class TracingMiddleware(BaseHTTPMiddleware):
             _parent_id_context.reset(parent_id_token)
 
 
-def get_request_logger() -> GalileoLogger:
+def get_request_logger() -> SplunkAOLogger:
     """
-    Get a request-scoped GalileoLogger configured for distributed mode.
+    Get a request-scoped SplunkAOLogger configured for distributed mode.
 
     Note: Distributed mode enables distributed tracing across services by propagating
     trace context and sending updates immediately to the backend.
 
     This function should be called within a request handler after the TracingMiddleware has
-    been registered. It creates a new GalileoLogger instance per request that automatically
+    been registered. It creates a new SplunkAOLogger instance per request that automatically
     continues the distributed trace from the upstream service.
 
     The logger is configured using trace context extracted by the middleware:
@@ -172,7 +172,7 @@ def get_request_logger() -> GalileoLogger:
 
     Returns
     -------
-    GalileoLogger
+    SplunkAOLogger
         A logger instance configured for the current request's trace context
 
     Examples
@@ -223,5 +223,5 @@ def get_request_logger() -> GalileoLogger:
     # Project and log_stream come from env vars (SPLUNK_AO_PROJECT, SPLUNK_AO_LOG_STREAM)
     # If parent_id equals trace_id, it means the parent is the root trace itself,
     # not a span. In this case, we should pass None as span_id to avoid
-    # GalileoLoggerException when it tries to look up a span with the trace_id.
-    return GalileoLogger(mode="distributed", trace_id=trace_id, span_id=parent_id if parent_id != trace_id else None)
+    # SplunkAOLoggerException when it tries to look up a span with the trace_id.
+    return SplunkAOLogger(mode="distributed", trace_id=trace_id, span_id=parent_id if parent_id != trace_id else None)

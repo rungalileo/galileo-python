@@ -13,15 +13,15 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Any, Union
 
 if TYPE_CHECKING:
-    from galileo.handlers.agent_control import GalileoAgentControlBridge
+    from galileo.handlers.agent_control import SplunkAOAgentControlBridge
 
 import backoff
 import httpx
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.constants import LoggerModeType
 from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
-from galileo.exceptions import GalileoLoggerException
+from galileo.exceptions import SplunkAOLoggerException
 from galileo.log_streams import LogStreams
 from galileo.logger.control import ControlAppliesTo, ControlCheckStage, ControlResult
 from galileo.logger.task_handler import ThreadPoolTaskHandler
@@ -101,7 +101,7 @@ DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 90  # Timeout for waiting on background trac
 # DISTRIBUTED_FLUSH_TIMEOUT_SECONDS (which guards live flushes); kept aligned
 # at 90s so explicit terminate() calls behave like flush() by default.
 DEFAULT_TERMINATE_TIMEOUT_SECONDS = 90
-# Absolute threshold above which a slow GalileoLogger.terminate() shutdown is
+# Absolute threshold above which a slow SplunkAOLogger.terminate() shutdown is
 # logged as a warning. Fast-path shutdowns are sub-millisecond; >1s always
 # indicates a real anomaly (busy-poll, stuck task, in-flight HTTP retry) and
 # should be visible in CI logs regardless of the configured timeout.
@@ -113,13 +113,13 @@ _ingest_service_cache: dict[str, bool] = {}
 _logger = logging.getLogger("galileo.logger")
 
 
-class GalileoLogger(TracesLogger):
+class SplunkAOLogger(TracesLogger):
     """
     This class can be used to upload traces to Galileo.
-    First initialize a new GalileoLogger object with an existing project and log stream.
+    First initialize a new SplunkAOLogger object with an existing project and log stream.
 
     ```python
-    logger = GalileoLogger(project="my_project",
+    logger = SplunkAOLogger(project="my_project",
                            log_stream="my_log_stream",
                            mode="batch")
     ```
@@ -252,7 +252,7 @@ class GalileoLogger(TracesLogger):
 
         self._ingestion_hook = ingestion_hook
         if self._ingestion_hook and self.mode == "distributed":
-            raise GalileoLoggerException("ingestion_hook can only be used in batch mode")
+            raise SplunkAOLoggerException("ingestion_hook can only be used in batch mode")
 
         # Ingestion hook mode: skip project/log_stream validation and backend initialization
         # The user's hook handles all trace flushing, so no Galileo credentials are needed
@@ -274,9 +274,9 @@ class GalileoLogger(TracesLogger):
 
         if trace_id or span_id:
             if self.mode != "distributed":
-                raise GalileoLoggerException("trace_id or span_id can only be used in distributed mode")
+                raise SplunkAOLoggerException("trace_id or span_id can only be used in distributed mode")
             if span_id and not trace_id:
-                raise GalileoLoggerException(
+                raise SplunkAOLoggerException(
                     "trace_id is required when span_id is provided. "
                     "In distributed tracing, both trace_id and span_id must be propagated together."
                 )
@@ -286,13 +286,13 @@ class GalileoLogger(TracesLogger):
                 try:
                     uuid.UUID(trace_id)
                 except (ValueError, AttributeError, TypeError) as e:
-                    raise GalileoLoggerException(f"Invalid trace_id: '{trace_id}' is not a valid UUID. Error: {e}")
+                    raise SplunkAOLoggerException(f"Invalid trace_id: '{trace_id}' is not a valid UUID. Error: {e}")
 
             if span_id:
                 try:
                     uuid.UUID(span_id)
                 except (ValueError, AttributeError, TypeError) as e:
-                    raise GalileoLoggerException(f"Invalid span_id: '{span_id}' is not a valid UUID. Error: {e}")
+                    raise SplunkAOLoggerException(f"Invalid span_id: '{span_id}' is not a valid UUID. Error: {e}")
 
             self.trace_id = trace_id
             self.span_id = span_id
@@ -303,12 +303,12 @@ class GalileoLogger(TracesLogger):
         # When using ingestion_hook, API configuration is optional (hook handles ingestion)
         if not self._ingestion_hook:
             if self.project_name is None and self.project_id is None:
-                raise GalileoLoggerException(
-                    "User must provide project_name or project_id to GalileoLogger, or set it as an environment variable."
+                raise SplunkAOLoggerException(
+                    "User must provide project_name or project_id to SplunkAOLogger, or set it as an environment variable."
                 )
 
         if (log_stream or log_stream_id) and experiment_id:
-            raise GalileoLoggerException("User cannot specify both a log stream and an experiment.")
+            raise SplunkAOLoggerException("User cannot specify both a log stream and an experiment.")
 
         if experiment_id:
             self.experiment_id = experiment_id
@@ -319,7 +319,7 @@ class GalileoLogger(TracesLogger):
             # When using ingestion_hook, log_stream is optional (hook handles ingestion)
             if not self._ingestion_hook:
                 if self.log_stream_name is None and self.log_stream_id is None:
-                    raise GalileoLoggerException("log_stream or log_stream_id is required to initialize GalileoLogger.")
+                    raise SplunkAOLoggerException("log_stream or log_stream_id is required to initialize SplunkAOLogger.")
 
         if local_metrics:
             self.local_metrics = local_metrics
@@ -372,7 +372,7 @@ class GalileoLogger(TracesLogger):
             # Create project if it doesn't exist
             project = projects_client.create(name=self.project_name)
             if project is None:
-                raise GalileoLoggerException(f"Failed to create project {self.project_name}.")
+                raise SplunkAOLoggerException(f"Failed to create project {self.project_name}.")
             self.project_id = project.id
             self._logger.info(f"🚀 Creating new project... project {self.project_name} created!")
         else:
@@ -405,7 +405,7 @@ class GalileoLogger(TracesLogger):
 
         if "result" not in _ingest_service_cache:
             try:
-                api_url = str(GalileoPythonConfig.get().api_url).rstrip("/")
+                api_url = str(SplunkAOConfig.get().api_url).rstrip("/")
                 if "localhost" in api_url:
                     api_url = api_url.replace("8088", "8081")
                 resp = httpx.get(f"{api_url}/ingest/healthz", timeout=2.0)
@@ -433,7 +433,7 @@ class GalileoLogger(TracesLogger):
             self._init_log_stream()
 
         if self._is_ingest_service_available():
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             api_key_secret = config.api_key
             api_key = api_key_secret.get_secret_value() if api_key_secret else os.environ.get("SPLUNK_AO_API_KEY", "")
             ingest_url = str(config.api_url)
@@ -453,7 +453,7 @@ class GalileoLogger(TracesLogger):
             return Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)
         if self.experiment_id:
             return Traces(project_id=self.project_id, experiment_id=self.experiment_id)
-        raise GalileoLoggerException("Cannot create Traces client: no log_stream_id or experiment_id available.")
+        raise SplunkAOLoggerException("Cannot create Traces client: no log_stream_id or experiment_id available.")
 
     def _init_distributed_trace_stubs(self) -> None:
         """
@@ -608,7 +608,7 @@ class GalileoLogger(TracesLogger):
         if is_content_block_list(value):
             return value
         if isinstance(value, list) and value:
-            blocks = GalileoLogger._messages_to_content_blocks(value)
+            blocks = SplunkAOLogger._messages_to_content_blocks(value)
             if blocks is not None:
                 return blocks
         return serialize_to_str(value)
@@ -669,7 +669,7 @@ class GalileoLogger(TracesLogger):
             return node.output, node.redacted_output
 
         if isinstance(node, StepWithChildSpans) and len(node.spans):
-            return GalileoLogger._get_last_output(node.spans[-1])
+            return SplunkAOLogger._get_last_output(node.spans[-1])
 
         return None, None
 
@@ -910,13 +910,13 @@ class GalileoLogger(TracesLogger):
         # The traces check is a sanity check to ensure consistency.
         return current_parent is not None and len(self.traces) > 0
 
-    def enable_agent_control(self) -> "GalileoAgentControlBridge":
+    def enable_agent_control(self) -> "SplunkAOAgentControlBridge":
         """Register this logger as the active Agent Control bridge target."""
-        from galileo.handlers.agent_control import GalileoAgentControlBridge
+        from galileo.handlers.agent_control import SplunkAOAgentControlBridge
 
         bridge = getattr(self, "_agent_control_bridge", None)
         if bridge is None:
-            bridge = GalileoAgentControlBridge(galileo_logger=self)
+            bridge = SplunkAOAgentControlBridge(galileo_logger=self)
             self._agent_control_bridge = bridge
         bridge.register()
         return bridge
@@ -942,13 +942,13 @@ class GalileoLogger(TracesLogger):
 
         Raises
         ------
-        GalileoLoggerException
+        SplunkAOLoggerException
             If not in distributed mode or if no trace has been started.
 
         Examples
         --------
         ```python
-        logger = GalileoLogger(mode="distributed")
+        logger = SplunkAOLogger(mode="distributed")
         logger.start_trace(input="question")
         headers = logger.get_tracing_headers()
         # headers = {
@@ -971,12 +971,12 @@ class GalileoLogger(TracesLogger):
         not propagated via headers, following standard distributed tracing patterns.
         """
         if self.mode != "distributed":
-            raise GalileoLoggerException(
+            raise SplunkAOLoggerException(
                 "get_tracing_headers is only supported in distributed mode for distributed tracing."
             )
 
         if len(self.traces) == 0:
-            raise GalileoLoggerException("Start trace before getting tracing headers.")
+            raise SplunkAOLoggerException("Start trace before getting tracing headers.")
 
         headers: dict[str, str] = {}
 
@@ -986,7 +986,7 @@ class GalileoLogger(TracesLogger):
         current_parent = self.current_parent()
 
         if not current_parent:
-            raise GalileoLoggerException("No parent trace or span found.")
+            raise SplunkAOLoggerException("No parent trace or span found.")
 
         headers[PARENT_ID_HEADER] = str(current_parent.id)
 
@@ -1060,15 +1060,15 @@ class GalileoLogger(TracesLogger):
             The created trace.
         """
         # Validate and normalize input types (dict→JSON, list[dict]→JSON or content blocks)
-        input = GalileoLogger._coerce_trace_input("input", input)
-        redacted_input = GalileoLogger._coerce_trace_input("redacted_input", redacted_input)
+        input = SplunkAOLogger._coerce_trace_input("input", input)
+        redacted_input = SplunkAOLogger._coerce_trace_input("redacted_input", redacted_input)
 
         # Auto-convert non-string metadata values to strings
         # Note: Must use class name, not self, because DecorateAllMethods removes @staticmethod
         if metadata:
-            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+            metadata = {k: SplunkAOLogger._convert_metadata_value(v) for k, v in metadata.items()}
         if dataset_metadata:
-            dataset_metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in dataset_metadata.items()}
+            dataset_metadata = {k: SplunkAOLogger._convert_metadata_value(v) for k, v in dataset_metadata.items()}
 
         kwargs = {
             "input": input,
@@ -1210,9 +1210,9 @@ class GalileoLogger(TracesLogger):
         """
         # Auto-convert non-string metadata values to strings
         if metadata:
-            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+            metadata = {k: SplunkAOLogger._convert_metadata_value(v) for k, v in metadata.items()}
         if dataset_metadata:
-            dataset_metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in dataset_metadata.items()}
+            dataset_metadata = {k: SplunkAOLogger._convert_metadata_value(v) for k, v in dataset_metadata.items()}
 
         if self.current_parent() is not None:
             raise ValueError("A trace cannot be created within a parent trace or span, it must always be the root.")
@@ -1372,7 +1372,7 @@ class GalileoLogger(TracesLogger):
         """
         # Auto-convert non-string metadata values to strings
         if metadata:
-            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+            metadata = {k: SplunkAOLogger._convert_metadata_value(v) for k, v in metadata.items()}
 
         span = LoggedLlmSpan(
             input=input,
@@ -1464,7 +1464,7 @@ class GalileoLogger(TracesLogger):
 
         # Auto-convert non-string metadata values to strings
         if metadata:
-            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+            metadata = {k: SplunkAOLogger._convert_metadata_value(v) for k, v in metadata.items()}
 
         kwargs = {
             "input": input,
@@ -1552,7 +1552,7 @@ class GalileoLogger(TracesLogger):
         """
         # Auto-convert non-string metadata values to strings
         if metadata:
-            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+            metadata = {k: SplunkAOLogger._convert_metadata_value(v) for k, v in metadata.items()}
 
         kwargs = {
             "input": input,
@@ -1630,7 +1630,7 @@ class GalileoLogger(TracesLogger):
         """
         # Auto-convert non-string metadata values to strings
         if metadata:
-            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+            metadata = {k: SplunkAOLogger._convert_metadata_value(v) for k, v in metadata.items()}
 
         kwargs = {
             "input": json.dumps(payload.model_dump(mode="json")),
@@ -1728,7 +1728,7 @@ class GalileoLogger(TracesLogger):
         """
         # Auto-convert non-string metadata values to strings
         if metadata:
-            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+            metadata = {k: SplunkAOLogger._convert_metadata_value(v) for k, v in metadata.items()}
 
         span = LoggedWorkflowSpan(
             input=input,
@@ -1810,7 +1810,7 @@ class GalileoLogger(TracesLogger):
         """
         # Auto-convert non-string metadata values to strings
         if metadata:
-            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+            metadata = {k: SplunkAOLogger._convert_metadata_value(v) for k, v in metadata.items()}
 
         span = LoggedAgentSpan(
             input=input,
@@ -1867,7 +1867,7 @@ class GalileoLogger(TracesLogger):
             is skipped by resilient ingestion error handling.
         """
         if metadata:
-            metadata = {k: GalileoLogger._convert_metadata_value(v) for k, v in metadata.items()}
+            metadata = {k: SplunkAOLogger._convert_metadata_value(v) for k, v in metadata.items()}
 
         current_parent = self.current_parent()
         parent_id = getattr(current_parent, "id", None)
@@ -1929,15 +1929,15 @@ class GalileoLogger(TracesLogger):
         # If no output provided, get the last child span's output
         # This ensures parent traces/spans inherit their last child's output if not explicitly set
         if output is None and redacted_output is None:
-            output, redacted_output = GalileoLogger._get_last_output(current_parent)
+            output, redacted_output = SplunkAOLogger._get_last_output(current_parent)
 
         # Traces only accept str or List[ContentBlock]; coerce everything else.
         # Workflow/agent spans accept Message, Document, etc. natively, so skip coercion.
         if isinstance(current_parent, Trace):
             if output is not None:
-                output = GalileoLogger._coerce_output(output)
+                output = SplunkAOLogger._coerce_output(output)
             if redacted_output is not None:
-                redacted_output = GalileoLogger._coerce_output(redacted_output)
+                redacted_output = SplunkAOLogger._coerce_output(redacted_output)
 
         # Explicitly set output if provided (even if empty string), otherwise keep existing
         if output is not None:
@@ -2045,7 +2045,7 @@ class GalileoLogger(TracesLogger):
         except Exception as e:
             if on_error is not None:
                 # Guard the callback so a buggy on_error never crashes the caller.
-                # When flush() is called through GalileoDecorator, the decorator wraps
+                # When flush() is called through SplunkAODecorator, the decorator wraps
                 # the user callback in _on_flush_error before passing it here, so this
                 # try/except is effectively a no-op on that path — it exists solely for
                 # callers that invoke flush() directly and supply their own callback.
@@ -2166,7 +2166,7 @@ class GalileoLogger(TracesLogger):
         if self._parent_stack:
             self._logger.info("Concluding unconcluded spans before flush...")
             # Get output from last child span if trace has no explicit output
-            output, redacted_output = GalileoLogger._get_last_output(trace)
+            output, redacted_output = SplunkAOLogger._get_last_output(trace)
             # conclude() with conclude_all=True will conclude all unconcluded items in _parent_stack
             # This will mark the trace as complete in distributed mode
             self.conclude(output=output, redacted_output=redacted_output, conclude_all=True)
@@ -2264,7 +2264,7 @@ class GalileoLogger(TracesLogger):
         instance must NOT be reused: in distributed mode the underlying
         ``EventLoopThreadPool`` is stopped (its worker threads are joined), so
         any subsequent call that submits a new task will hang silently. Create
-        a new ``GalileoLogger`` if you need to log again.
+        a new ``SplunkAOLogger`` if you need to log again.
 
         The wait for in-flight background tasks is bounded by
         ``DEFAULT_TERMINATE_TIMEOUT_SECONDS``. After waiting (whether tasks
@@ -2295,7 +2295,7 @@ class GalileoLogger(TracesLogger):
             try:
                 self.disable_agent_control()
             except Exception as exc:
-                self._logger.warning("GalileoLogger.terminate: agent control unregister failed: %s", exc)
+                self._logger.warning("SplunkAOLogger.terminate: agent control unregister failed: %s", exc)
 
             # Always release the worker threads so the process can exit promptly,
             # even if the wait above timed out or raised. Without this, the daemon
@@ -2312,7 +2312,7 @@ class GalileoLogger(TracesLogger):
                 try:
                     task_handler.terminate()
                 except Exception as exc:
-                    self._logger.warning("GalileoLogger.terminate: pool stop failed: %s", exc)
+                    self._logger.warning("SplunkAOLogger.terminate: pool stop failed: %s", exc)
 
             # Surface slow shutdowns so we can spot busy-poll regressions in CI
             # logs. The fast path should complete in milliseconds; anything over
@@ -2323,7 +2323,7 @@ class GalileoLogger(TracesLogger):
             duration_seconds = time.time() - start_time
             if duration_seconds > _SLOW_SHUTDOWN_WARN_THRESHOLD_SECONDS:
                 self._logger.warning(
-                    "GalileoLogger.terminate: shutdown took %.2fs (mode=%s, timeout=%ss)",
+                    "SplunkAOLogger.terminate: shutdown took %.2fs (mode=%s, timeout=%ss)",
                     duration_seconds,
                     self.mode,
                     terminate_timeout_seconds,

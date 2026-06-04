@@ -15,7 +15,7 @@ from uuid import UUID
 
 from galileo.decorator import galileo_context
 from galileo.utils.env_helpers import _get_log_stream_or_default, _get_project_or_default
-from galileo.utils.singleton import GalileoLoggerSingleton
+from galileo.utils.singleton import SplunkAOLoggerSingleton
 
 LOG_STREAM_TARGET_TYPE = "log_stream"
 
@@ -137,9 +137,9 @@ def _resolve_log_stream_from_cached_context() -> AgentControlTarget | None:
 
     # Read cached logger state directly so this helper never creates or resolves
     # projects/log streams as a side effect of building an Agent Control target.
-    # Use the same default/env fallback as GalileoLogger so callers that rely on
+    # Use the same default/env fallback as SplunkAOLogger so callers that rely on
     # default project/log-stream creation can still reuse the resolved IDs.
-    for key, logger in GalileoLoggerSingleton().get_all_loggers().items():
+    for key, logger in SplunkAOLoggerSingleton().get_all_loggers().items():
         if not key or key[0] != current_thread_name:
             continue
         if logger.project_name != current_project or logger.log_stream_name != current_log_stream:

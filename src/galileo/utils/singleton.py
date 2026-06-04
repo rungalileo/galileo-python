@@ -3,19 +3,19 @@ import threading
 from collections.abc import Callable
 from typing import ClassVar
 
-from galileo.logger import GalileoLogger
+from galileo.logger import SplunkAOLogger
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.utils.env_helpers import _get_log_stream_or_default, _get_mode_or_default, _get_project_or_default
 
 _logger = logging.getLogger(__name__)
 
 
-class GalileoLoggerSingleton:
+class SplunkAOLoggerSingleton:
     """
-    A singleton class that manages a collection of GalileoLogger instances.
+    A singleton class that manages a collection of SplunkAOLogger instances.
 
     This class ensures that only one instance exists across the application and
-    provides a thread-safe way to retrieve or create GalileoLogger clients based on
+    provides a thread-safe way to retrieve or create SplunkAOLogger clients based on
     the given 'project' and 'log_stream' parameters. If the parameters are not provided,
     the class attempts to read the values from the environment variables
     SPLUNK_AO_PROJECT and SPLUNK_AO_LOG_STREAM. The loggers are stored in a dictionary
@@ -24,15 +24,15 @@ class GalileoLoggerSingleton:
 
     _instance = None  # Class-level attribute to hold the singleton instance.
     _lock = threading.Lock()  # Lock for thread-safe instantiation and operations.
-    _galileo_loggers: ClassVar[dict[tuple[str, ...], GalileoLogger]] = {}  # Cache for loggers.
+    _galileo_loggers: ClassVar[dict[tuple[str, ...], SplunkAOLogger]] = {}  # Cache for loggers.
 
-    def __new__(cls) -> "GalileoLoggerSingleton":
+    def __new__(cls) -> "SplunkAOLoggerSingleton":
         """
-        Override __new__ to ensure only one instance of GalileoLoggerSingleton is created.
+        Override __new__ to ensure only one instance of SplunkAOLoggerSingleton is created.
 
         Returns
         -------
-        GalileoLoggerSingleton
+        SplunkAOLoggerSingleton
             The singleton instance.
         """
         if not cls._instance:
@@ -83,7 +83,7 @@ class GalileoLoggerSingleton:
         """
         _logger.debug("current thread is %s", threading.current_thread().name)
 
-        # GalileoLoggerSingleton must NOT be shared across different threads
+        # SplunkAOLoggerSingleton must NOT be shared across different threads
         current_thread_name = threading.current_thread().name
         key = (current_thread_name, mode)
 
@@ -117,12 +117,12 @@ class GalileoLoggerSingleton:
         trace_id: str | None = None,
         span_id: str | None = None,
         ingestion_hook: Callable | None = None,
-    ) -> GalileoLogger:
+    ) -> SplunkAOLogger:
         """
-        Retrieve an existing GalileoLogger or create a new one if it does not exist.
+        Retrieve an existing SplunkAOLogger or create a new one if it does not exist.
 
         This method first computes the key from the project and log_stream parameters,
-        checks if a logger exists in the cache, and if not, creates a new GalileoLogger.
+        checks if a logger exists in the cache, and if not, creates a new SplunkAOLogger.
         The creation and caching are done in a thread-safe manner.
 
         Parameters
@@ -139,14 +139,14 @@ class GalileoLoggerSingleton:
 
         Returns
         -------
-        GalileoLogger
-            An instance of GalileoLogger corresponding to the key.
+        SplunkAOLogger
+            An instance of SplunkAOLogger corresponding to the key.
         """
         # Check for mode from environment variable if not provided
         mode = _get_mode_or_default(mode)
 
         # Compute the key based on provided parameters or environment variables.
-        key = GalileoLoggerSingleton._get_key(
+        key = SplunkAOLoggerSingleton._get_key(
             project,
             log_stream,
             mode,
@@ -178,7 +178,7 @@ class GalileoLoggerSingleton:
                 "ingestion_hook": ingestion_hook,
             }
             # Create the logger with filtered kwargs.
-            logger = GalileoLogger(**{k: v for k, v in galileo_client_init_args.items() if v is not None})
+            logger = SplunkAOLogger(**{k: v for k, v in galileo_client_init_args.items() if v is not None})
 
             # Cache the newly created logger.
             if logger:
@@ -193,7 +193,7 @@ class GalileoLoggerSingleton:
         mode: str | None = None,
     ) -> None:
         """
-        Reset (terminate and remove) one or all GalileoLogger instances.
+        Reset (terminate and remove) one or all SplunkAOLogger instances.
 
         Parameters
         ----------
@@ -211,14 +211,14 @@ class GalileoLoggerSingleton:
         with self._lock:
             # Terminate and remove loggers matching the base key (project, log_stream, mode, experiment_id)
             # This will clean up all loggers including those with trace_id/span_id
-            base_key = GalileoLoggerSingleton._get_key(project, log_stream, mode, experiment_id)
+            base_key = SplunkAOLoggerSingleton._get_key(project, log_stream, mode, experiment_id)
             keys_to_remove = [k for k in self._galileo_loggers if k[: len(base_key)] == base_key]
             for key in keys_to_remove:
                 self._galileo_loggers[key].terminate()
                 del self._galileo_loggers[key]
 
     def reset_all(self) -> None:
-        """Reset (terminate and remove) all GalileoLogger instances."""
+        """Reset (terminate and remove) all SplunkAOLogger instances."""
         with self._lock:
             # Terminate and clear all logger instances.
             for logger in self._galileo_loggers.values():
@@ -233,7 +233,7 @@ class GalileoLoggerSingleton:
         mode: str | None = None,
     ) -> None:
         """
-        Flush (upload and clear) a GalileoLogger instance.
+        Flush (upload and clear) a SplunkAOLogger instance.
 
         If both project and log_stream are None, then all cached loggers are flushed
         and cleared. Otherwise, only the specific logger corresponding to the provided
@@ -255,26 +255,26 @@ class GalileoLoggerSingleton:
         with self._lock:
             # Flush loggers matching the base key (project, log_stream, mode, experiment_id)
             # This will flush all loggers including those with trace_id/span_id
-            base_key = GalileoLoggerSingleton._get_key(project, log_stream, mode, experiment_id)
+            base_key = SplunkAOLoggerSingleton._get_key(project, log_stream, mode, experiment_id)
             keys_to_flush = [k for k in self._galileo_loggers if k[: len(base_key)] == base_key]
             for key in keys_to_flush:
                 self._galileo_loggers[key].flush()
 
     def flush_all(self) -> None:
-        """Flush (upload and clear) all GalileoLogger instances."""
+        """Flush (upload and clear) all SplunkAOLogger instances."""
         with self._lock:
             # Terminate and clear all logger instances.
             for logger in self._galileo_loggers.values():
                 logger.flush()
 
-    def get_all_loggers(self) -> dict[tuple[str, ...], GalileoLogger]:
+    def get_all_loggers(self) -> dict[tuple[str, ...], SplunkAOLogger]:
         """
         Retrieve a copy of the dictionary containing all active loggers.
 
         Returns
         -------
-        Dict[Tuple[str, ...], GalileoLogger]:
-            A dictionary mapping keys to their corresponding GalileoLogger instances.
+        Dict[Tuple[str, ...], SplunkAOLogger]:
+            A dictionary mapping keys to their corresponding SplunkAOLogger instances.
         """
         # Return a shallow copy of the loggers dictionary to prevent external modifications.
         return dict(self._galileo_loggers)

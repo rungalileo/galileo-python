@@ -7,8 +7,8 @@ __all__ = [
     "BadRequestError",
     "ConflictError",
     "ForbiddenError",
-    "GalileoAPIError",
-    "GalileoLoggerException",
+    "SplunkAOAPIError",
+    "SplunkAOLoggerException",
     "NotFoundError",
     "RateLimitError",
     "ServerError",
@@ -19,11 +19,11 @@ __all__ = [
 _UNSET: Any = object()
 
 
-class GalileoLoggerException(Exception):
-    """Exception raised by GalileoLogger."""
+class SplunkAOLoggerException(Exception):
+    """Exception raised by SplunkAOLogger."""
 
 
-class GalileoAPIError(Exception):
+class SplunkAOAPIError(Exception):
     """Base class for Galileo API HTTP errors with actionable messages."""
 
     def __init__(self, status_code: int, content: bytes, message: str):
@@ -34,14 +34,14 @@ class GalileoAPIError(Exception):
         super().__init__(f"{message} (HTTP {status_code})\n\nResponse: {response_text}")
 
 
-class BadRequestError(GalileoAPIError):
+class BadRequestError(SplunkAOAPIError):
     """HTTP 400 - The request was malformed or invalid."""
 
     def __init__(self, status_code: int, content: bytes):
         super().__init__(status_code, content, "Bad request. Check your request parameters and body format.")
 
 
-class AuthenticationError(GalileoAPIError):
+class AuthenticationError(SplunkAOAPIError):
     """HTTP 401 - Authentication failed."""
 
     def __init__(self, status_code: int, content: bytes):
@@ -53,7 +53,7 @@ class AuthenticationError(GalileoAPIError):
         )
 
 
-class ForbiddenError(GalileoAPIError):
+class ForbiddenError(SplunkAOAPIError):
     """HTTP 403 - Insufficient permissions."""
 
     def __init__(self, status_code: int, content: bytes):
@@ -65,7 +65,7 @@ class ForbiddenError(GalileoAPIError):
         )
 
 
-class NotFoundError(GalileoAPIError):
+class NotFoundError(SplunkAOAPIError):
     r"""HTTP 404 - Resource not found.
 
     Parameters
@@ -138,7 +138,7 @@ class NotFoundError(GalileoAPIError):
             )
 
 
-class ConflictError(GalileoAPIError):
+class ConflictError(SplunkAOAPIError):
     """HTTP 409 - Resource conflict."""
 
     def __init__(self, status_code: int, content: bytes):
@@ -150,7 +150,7 @@ class ConflictError(GalileoAPIError):
         )
 
 
-class RateLimitError(GalileoAPIError):
+class RateLimitError(SplunkAOAPIError):
     """HTTP 429 - Rate limit exceeded."""
 
     def __init__(self, status_code: int, content: bytes):
@@ -162,7 +162,7 @@ class RateLimitError(GalileoAPIError):
         )
 
 
-class ServerError(GalileoAPIError):
+class ServerError(SplunkAOAPIError):
     """HTTP 5xx - Server-side error."""
 
     def __init__(self, status_code: int, content: bytes):

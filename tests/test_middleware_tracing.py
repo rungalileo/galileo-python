@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 
 from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
 from galileo.decorator import _parent_id_context, _trace_id_context
-from galileo.logger import GalileoLogger
+from galileo.logger import SplunkAOLogger
 from galileo.middleware import TracingMiddleware, get_request_logger
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
@@ -25,7 +25,7 @@ def app():
         return {
             "trace_id": logger.trace_id,
             "span_id": logger.span_id,
-            "is_logger": isinstance(logger, GalileoLogger),  # Verify logger was created
+            "is_logger": isinstance(logger, SplunkAOLogger),  # Verify logger was created
         }
 
     @app.get("/test-context")
@@ -211,7 +211,7 @@ def test_get_request_logger_when_parent_id_equals_trace_id(
 
     When upstream services forward headers immediately after start_trace(), both
     X-Galileo-Trace-ID and X-Galileo-Parent-ID are identical (the root trace id).
-    In this case, we should pass None as span_id to avoid GalileoLoggerException.
+    In this case, we should pass None as span_id to avoid SplunkAOLoggerException.
     """
     setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
@@ -227,7 +227,7 @@ def test_get_request_logger_when_parent_id_equals_trace_id(
     data = response.json()
 
     # When parent_id equals trace_id, span_id should be None (not the trace_id)
-    # This prevents GalileoLogger from trying to look up a span with the trace_id
+    # This prevents SplunkAOLogger from trying to look up a span with the trace_id
     assert data["is_logger"] is True
     assert data["trace_id"] == trace_id
     assert data["span_id"] is None
@@ -272,17 +272,17 @@ def test_mismatched_trace_and_span_ids(
 def test_invalid_uuid_headers_raise_exception(
     mock_logstreams_client: Mock, mock_projects_client: Mock, app: FastAPI, client: TestClient
 ):
-    """Test that invalid UUID headers raise GalileoLoggerException."""
-    from galileo.exceptions import GalileoLoggerException
+    """Test that invalid UUID headers raise SplunkAOLoggerException."""
+    from galileo.exceptions import SplunkAOLoggerException
 
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
     # Test with completely invalid trace_id - should raise exception
-    with pytest.raises(GalileoLoggerException, match="Invalid trace_id"):
+    with pytest.raises(SplunkAOLoggerException, match="Invalid trace_id"):
         client.get("/test", headers={TRACE_ID_HEADER: "not-a-valid-uuid"})
 
     # Test with valid trace_id but invalid parent_id - should raise exception
     valid_trace_id = "12345678-1234-4678-9abc-123456789abc"
-    with pytest.raises(GalileoLoggerException, match="Invalid span_id"):
+    with pytest.raises(SplunkAOLoggerException, match="Invalid span_id"):
         client.get("/test", headers={TRACE_ID_HEADER: valid_trace_id, PARENT_ID_HEADER: "invalid-parent"})

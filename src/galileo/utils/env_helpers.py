@@ -3,7 +3,7 @@
 from os import getenv
 
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_MODE, DEFAULT_PROJECT_NAME, LoggerModeType
-from galileo.exceptions import GalileoLoggerException
+from galileo.exceptions import SplunkAOLoggerException
 
 
 def _get_mode_or_default(mode: str | None) -> LoggerModeType:
@@ -27,11 +27,11 @@ def _get_mode_or_default(mode: str | None) -> LoggerModeType:
         mode = getenv("SPLUNK_AO_MODE", DEFAULT_MODE)
 
     if not isinstance(mode, str):
-        raise GalileoLoggerException(f"Invalid mode: {mode}. Mode must be 'batch' or 'distributed'.")
+        raise SplunkAOLoggerException(f"Invalid mode: {mode}. Mode must be 'batch' or 'distributed'.")
 
     mode = mode.lower()
     if mode not in ("batch", "distributed"):
-        raise GalileoLoggerException(f"Invalid mode: '{mode}'. Mode must be 'batch' or 'distributed'.")
+        raise SplunkAOLoggerException(f"Invalid mode: '{mode}'. Mode must be 'batch' or 'distributed'.")
 
     return mode  # type: ignore[return-value]
 

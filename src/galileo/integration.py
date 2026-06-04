@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, cast
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.integrations import (
     list_available_integrations_integrations_available_get,
     list_integrations_integrations_get,
@@ -188,7 +188,7 @@ class Integration(StateManagementMixin):
             available = Integration.list(all=True)
             print(f"Available types: {available}")
         """
-        config = GalileoPythonConfig.get()
+        config = SplunkAOConfig.get()
 
         try:
             if all:
@@ -264,7 +264,7 @@ class Integration(StateManagementMixin):
         logger.info(f"Integration.refresh: refreshing integration {self.id}")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             all_integrations = list_integrations_integrations_get.sync(client=config.api_client)
 
             if not all_integrations:

@@ -6,7 +6,7 @@ from galileo.dataset import Dataset
 from galileo.experiment import Experiment
 from galileo.integration import Integration
 from galileo.log_stream import LogStream
-from galileo.metric import CodeMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
+from galileo.metric import CodeMetric, SplunkAOMetric, LlmMetric, LocalMetric, Metric
 from galileo.model import Model
 from galileo.project import Project
 from galileo.prompt import Prompt
@@ -15,7 +15,7 @@ from galileo.search import RecordType
 from galileo.shared.exceptions import (
     APIError,
     ConfigurationError,
-    GalileoFutureError,
+    SplunkAOFutureError,
     ResourceConflictError,
     ResourceNotFoundError,
     ValidationError,
@@ -33,8 +33,8 @@ __all__ = [
     "ConfigurationError",
     "Dataset",
     "Experiment",
-    "GalileoFutureError",
-    "GalileoMetric",
+    "SplunkAOFutureError",
+    "SplunkAOMetric",
     "Integration",
     "LlmMetric",
     "LocalMetric",

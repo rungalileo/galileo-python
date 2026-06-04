@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.configuration import _CONFIGURATION_KEYS, VALID_LOG_LEVELS, Configuration, parse_log_level
 from galileo.shared.exceptions import ConfigurationError
 
@@ -335,7 +335,7 @@ class TestConfigurationConnect:
             ("generic", "Unknown error", "Configuration validation failed"),
         ],
     )
-    @patch("galileo.configuration.GalileoPythonConfig.get")
+    @patch("galileo.configuration.SplunkAOConfig.get")
     def test_connect_handles_different_error_types(
         self,
         mock_config_get: Mock,
@@ -353,7 +353,7 @@ class TestConfigurationConnect:
         monkeypatch.setenv("SPLUNK_AO_API_KEY", "valid-key")
         monkeypatch.setenv("SPLUNK_AO_CONSOLE_URL", "https://app.galileo.ai")
 
-        # Mock GalileoPythonConfig.get to raise appropriate error
+        # Mock SplunkAOConfig.get to raise appropriate error
         mock_config_get.side_effect = Exception(error_message)
 
         with pytest.raises(ConfigurationError) as exc_info:
@@ -405,8 +405,8 @@ class TestConfigurationReset:
             assert key.env_var not in os.environ
 
     def test_reset_handles_missing_config_instance_gracefully(self, reset_configuration: None) -> None:
-        """Test reset() handles case when GalileoPythonConfig instance doesn't exist."""
-        GalileoPythonConfig._instance = None
+        """Test reset() handles case when SplunkAOConfig instance doesn't exist."""
+        SplunkAOConfig._instance = None
         Configuration.reset()
 
         # Verify all keys are reset

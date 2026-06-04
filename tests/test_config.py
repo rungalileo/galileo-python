@@ -2,7 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.shared.exceptions import ConfigurationError
 
 # Auth env vars cleared in tests that exercise the missing-auth guard.
@@ -33,8 +33,8 @@ def test_default_console_url(mock_get_jwt_token) -> None:
     # Unset the environment variable to ensure we test the default
     with patch.dict("os.environ", {}, clear=True):
         # Reset the global config object to force re-initialization
-        GalileoPythonConfig.get().reset()
-        config = GalileoPythonConfig.get(api_key="mock_api_key")
+        SplunkAOConfig.get().reset()
+        config = SplunkAOConfig.get(api_key="mock_api_key")
 
         assert str(config.console_url) == "https://app.galileo.ai/"
         assert str(config.api_url) == "https://api.galileo.ai/"
@@ -44,12 +44,12 @@ def test_no_auth_configured_raises_with_full_options_listed(monkeypatch) -> None
     """When no auth is configured anywhere, the error lists every supported method."""
     # Given: no auth env vars and no cached instance
     _clear_auth_env(monkeypatch)
-    monkeypatch.setattr(GalileoPythonConfig, "_instance", None)
+    monkeypatch.setattr(SplunkAOConfig, "_instance", None)
 
     # When/Then: calling get() without credentials raises ConfigurationError
     # listing every supported standalone or paired auth method
     with pytest.raises(ConfigurationError) as exc_info:
-        GalileoPythonConfig.get()
+        SplunkAOConfig.get()
     message = str(exc_info.value)
     assert "No Splunk AO authentication detected" in message
     assert "SPLUNK_AO_API_KEY" in message
@@ -78,11 +78,11 @@ def test_complete_auth_config_via_env_passes_guard(monkeypatch, env_setup) -> No
     _clear_auth_env(monkeypatch)
     for env_var, value in env_setup.items():
         monkeypatch.setenv(env_var, value)
-    monkeypatch.setattr(GalileoPythonConfig, "_instance", None)
-    monkeypatch.setattr(GalileoPythonConfig, "_get", lambda *a, **kw: MagicMock(spec=GalileoPythonConfig))
+    monkeypatch.setattr(SplunkAOConfig, "_instance", None)
+    monkeypatch.setattr(SplunkAOConfig, "_get", lambda *a, **kw: MagicMock(spec=SplunkAOConfig))
 
     # When/Then: the guard passes and _get is reached without raising
-    GalileoPythonConfig.get()
+    SplunkAOConfig.get()
 
 
 @pytest.mark.parametrize(
@@ -100,11 +100,11 @@ def test_complete_auth_config_via_kwargs_passes_guard(monkeypatch, kwargs) -> No
     # Given: no auth env vars (kwargs are the only auth source), no cached instance,
     # and _get stubbed out so downstream network calls never happen
     _clear_auth_env(monkeypatch)
-    monkeypatch.setattr(GalileoPythonConfig, "_instance", None)
-    monkeypatch.setattr(GalileoPythonConfig, "_get", lambda *a, **kw: MagicMock(spec=GalileoPythonConfig))
+    monkeypatch.setattr(SplunkAOConfig, "_instance", None)
+    monkeypatch.setattr(SplunkAOConfig, "_get", lambda *a, **kw: MagicMock(spec=SplunkAOConfig))
 
     # When/Then: the guard passes and _get is reached without raising
-    GalileoPythonConfig.get(**kwargs)
+    SplunkAOConfig.get(**kwargs)
 
 
 def test_kwargs_and_env_can_be_mixed(monkeypatch) -> None:
@@ -113,11 +113,11 @@ def test_kwargs_and_env_can_be_mixed(monkeypatch) -> None:
     # and _get stubbed out so downstream network calls never happen
     _clear_auth_env(monkeypatch)
     monkeypatch.setenv("SPLUNK_AO_SSO_ID_TOKEN", "test-sso-token")
-    monkeypatch.setattr(GalileoPythonConfig, "_instance", None)
-    monkeypatch.setattr(GalileoPythonConfig, "_get", lambda *a, **kw: MagicMock(spec=GalileoPythonConfig))
+    monkeypatch.setattr(SplunkAOConfig, "_instance", None)
+    monkeypatch.setattr(SplunkAOConfig, "_get", lambda *a, **kw: MagicMock(spec=SplunkAOConfig))
 
     # When/Then: the guard accepts the mixed configuration and _get is reached without raising
-    GalileoPythonConfig.get(sso_provider="okta")
+    SplunkAOConfig.get(sso_provider="okta")
 
 
 @pytest.mark.parametrize(
@@ -143,12 +143,12 @@ def test_incomplete_auth_config_rejected_with_specific_guidance(
     _clear_auth_env(monkeypatch)
     for env_var, value in env_setup.items():
         monkeypatch.setenv(env_var, value)
-    monkeypatch.setattr(GalileoPythonConfig, "_instance", None)
+    monkeypatch.setattr(SplunkAOConfig, "_instance", None)
 
     # When/Then: the guard rejects with a message identifying both the
     # variable that's set and the one that's missing
     with pytest.raises(ConfigurationError) as exc_info:
-        GalileoPythonConfig.get()
+        SplunkAOConfig.get()
     message = str(exc_info.value)
     assert expected_present in message, f"Expected error to reference {expected_present}: {message}"
     assert expected_missing in message, f"Expected error to reference {expected_missing}: {message}"

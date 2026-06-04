@@ -88,9 +88,9 @@ def mock_galileo_logger():
         setup_mock_projects_client(mock_projects)
         setup_mock_logstreams_client(mock_logstreams)
 
-        from galileo.logger.logger import GalileoLogger
+        from galileo.logger.logger import SplunkAOLogger
 
-        return GalileoLogger(project="test_project", log_stream="test_log_stream")
+        return SplunkAOLogger(project="test_project", log_stream="test_log_stream")
 
 
 @pytest.fixture

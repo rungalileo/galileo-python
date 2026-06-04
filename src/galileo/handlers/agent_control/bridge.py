@@ -10,13 +10,13 @@ from types import ModuleType
 from typing import Any
 
 from galileo.logger.control import ControlAppliesTo, ControlCheckStage, ControlResult
-from galileo.logger.logger import GalileoLogger
+from galileo.logger.logger import SplunkAOLogger
 from galileo.utils.serialization import serialize_to_str
 
 logger = logging.getLogger(__name__)
 
 _REGISTRATION_LOCK = threading.RLock()
-_REGISTERED_BRIDGES: list[GalileoAgentControlBridge] = []
+_REGISTERED_BRIDGES: list[SplunkAOAgentControlBridge] = []
 _PREVIOUS_TRACE_CONTEXT_PROVIDER: Any = None
 
 
@@ -118,7 +118,7 @@ def _dispatch_trace_context() -> dict[str, str] | None:
     """Return the active Galileo trace context without letting idle loggers mask active ones.
 
     Agent Control exposes a single process-wide trace-context provider. Multiple
-    ``GalileoLogger`` instances can coexist in the same process, so we keep one
+    ``SplunkAOLogger`` instances can coexist in the same process, so we keep one
     shared dispatcher installed and have it ask each registered bridge for an
     active context, newest registration first. This preserves the existing
     "latest active logger wins" behavior while allowing older active loggers to
@@ -142,15 +142,15 @@ def _dispatch_trace_context() -> dict[str, str] | None:
     return None
 
 
-class _GalileoControlEventSink:
-    def __init__(self, bridge: GalileoAgentControlBridge) -> None:
+class _SplunkAOControlEventSink:
+    def __init__(self, bridge: SplunkAOAgentControlBridge) -> None:
         self._bridge = bridge
 
     def write_events(self, events: Any) -> Any:
         return self._bridge.write_events(events)
 
 
-class GalileoAgentControlBridge:
+class SplunkAOAgentControlBridge:
     """Bridge Agent Control telemetry into the active Galileo logger hierarchy.
 
     Bridge rules:
@@ -161,13 +161,13 @@ class GalileoAgentControlBridge:
       safely rather than attached to the wrong logger hierarchy.
     """
 
-    def __init__(self, galileo_logger: GalileoLogger) -> None:
+    def __init__(self, galileo_logger: SplunkAOLogger) -> None:
         self._galileo_logger = galileo_logger
         self._modules = _load_agent_control_modules()
-        self._sink = _GalileoControlEventSink(self)
+        self._sink = _SplunkAOControlEventSink(self)
         self._registered = False
 
-    def register(self) -> GalileoAgentControlBridge:
+    def register(self) -> SplunkAOAgentControlBridge:
         """Register this bridge and install the shared Galileo trace-context dispatcher."""
         with _REGISTRATION_LOCK:
             global _PREVIOUS_TRACE_CONTEXT_PROVIDER
@@ -300,6 +300,6 @@ class GalileoAgentControlBridge:
         }
 
 
-def setup_agent_control_bridge(galileo_logger: GalileoLogger) -> GalileoAgentControlBridge:
+def setup_agent_control_bridge(galileo_logger: SplunkAOLogger) -> SplunkAOAgentControlBridge:
     """Create and register an Agent Control bridge for a Galileo logger."""
     return galileo_logger.enable_agent_control()
