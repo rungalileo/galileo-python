@@ -10,8 +10,8 @@ from galileo.resources.models.project_type import ProjectType
 
 @pytest.fixture(autouse=True)
 def reset_env_vars() -> None:
-    os.environ.pop("GALILEO_PROJECT", None)
-    os.environ.pop("GALILEO_PROJECT_ID", None)
+    os.environ.pop("SPLUNK_AO_PROJECT", None)
+    os.environ.pop("SPLUNK_AO_PROJECT_ID", None)
 
 
 class TestProjects:
@@ -72,8 +72,8 @@ class TestProjects:
         mock_response.parsed = None
         get_project_projects_project_id_get.return_value = mock_response
 
-        with patch.dict("os.environ", {"GALILEO_PROJECT": "  "}):
-            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": "  "}):
+        with patch.dict("os.environ", {"SPLUNK_AO_PROJECT": "  "}):
+            with patch.dict("os.environ", {"SPLUNK_AO_PROJECT_ID": "  "}):
                 result = Projects().get_with_env_fallbacks(id="123")
                 get_project_projects_project_id_get.assert_called_once_with(project_id="123", client=ANY)
                 assert result is None
@@ -87,7 +87,7 @@ class TestProjects:
         mock_response.parsed = None
         get_project_projects_project_id_get.return_value = mock_response
 
-        with patch.dict("os.environ", {"GALILEO_PROJECT_ID": "123"}):
+        with patch.dict("os.environ", {"SPLUNK_AO_PROJECT_ID": "123"}):
             result = Projects().get_with_env_fallbacks()
             get_project_projects_project_id_get.assert_called_once_with(project_id="123", client=ANY)
             assert result is None
@@ -112,21 +112,21 @@ class TestProjects:
         mock_response.parsed = []
         get_projects_projects_get.return_value = mock_response
 
-        with patch.dict("os.environ", {"GALILEO_PROJECT": "  "}):
-            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": "  "}):
+        with patch.dict("os.environ", {"SPLUNK_AO_PROJECT": "  "}):
+            with patch.dict("os.environ", {"SPLUNK_AO_PROJECT_ID": "  "}):
                 result = Projects().get_with_env_fallbacks(name="my_project")
                 get_projects_projects_get.assert_called_once_with(project_name="my_project", client=ANY, type_=ANY)
                 assert result is None
 
     @patch("galileo.projects.get_projects_projects_get.sync_detailed")
     def test_get_project_with_name_from_env_var_gets_project_by_name(self, get_projects_projects_get: Mock) -> None:
-        os.environ.pop("GALILEO_PROJECT_ID", None)
+        os.environ.pop("SPLUNK_AO_PROJECT_ID", None)
         mock_response = Mock()
         mock_response.status_code = httpx.codes.OK
         mock_response.parsed = []
         get_projects_projects_get.return_value = mock_response
 
-        with patch.dict("os.environ", {"GALILEO_PROJECT": "my_project"}):
+        with patch.dict("os.environ", {"SPLUNK_AO_PROJECT": "my_project"}):
             result = Projects().get_with_env_fallbacks()
             get_projects_projects_get.assert_called_once_with(project_name="my_project", client=ANY, type_=ANY)
             assert result is None

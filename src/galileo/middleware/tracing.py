@@ -97,7 +97,7 @@ class TracingMiddleware(BaseHTTPMiddleware):
     The middleware is compatible with FastAPI and any Starlette-based framework.
 
     Note: Project and log_stream are configured per service via environment variables
-    (GALILEO_PROJECT and GALILEO_LOG_STREAM). They are not propagated via headers,
+    (SPLUNK_AO_PROJECT and SPLUNK_AO_LOG_STREAM). They are not propagated via headers,
     following standard distributed tracing patterns.
     """
 
@@ -161,11 +161,11 @@ def get_request_logger() -> GalileoLogger:
     - X-Galileo-Parent-ID: Parent span/trace ID to attach to
 
     Project and log_stream are configured per service via environment variables
-    (GALILEO_PROJECT and GALILEO_LOG_STREAM), not propagated via headers, following
+    (SPLUNK_AO_PROJECT and SPLUNK_AO_LOG_STREAM), not propagated via headers, following
     standard distributed tracing patterns.
 
     If no tracing headers were present in the request, a regular logger is returned
-    (using GALILEO_PROJECT and GALILEO_LOG_STREAM env vars).
+    (using SPLUNK_AO_PROJECT and SPLUNK_AO_LOG_STREAM env vars).
 
     Note: This creates a new logger per request, unlike the decorator's get_logger_instance()
     which uses a singleton pattern.
@@ -220,7 +220,7 @@ def get_request_logger() -> GalileoLogger:
     parent_id = _parent_id_context.get()
 
     # Create logger with trace context
-    # Project and log_stream come from env vars (GALILEO_PROJECT, GALILEO_LOG_STREAM)
+    # Project and log_stream come from env vars (SPLUNK_AO_PROJECT, SPLUNK_AO_LOG_STREAM)
     # If parent_id equals trace_id, it means the parent is the root trace itself,
     # not a span. In this case, we should pass None as span_id to avoid
     # GalileoLoggerException when it tries to look up a span with the trace_id.

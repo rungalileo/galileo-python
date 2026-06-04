@@ -57,8 +57,8 @@ from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_proje
 @pytest.fixture
 def reset_context(auto_use=True) -> None:
     galileo_context.reset()
-    os.environ.pop("GALILEO_PROJECT", None)
-    os.environ.pop("GALILEO_PROJECT_ID", None)
+    os.environ.pop("SPLUNK_AO_PROJECT", None)
+    os.environ.pop("SPLUNK_AO_PROJECT_ID", None)
 
 
 def project():

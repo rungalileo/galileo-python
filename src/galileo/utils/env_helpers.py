@@ -24,7 +24,7 @@ def _get_mode_or_default(mode: str | None) -> LoggerModeType:
         - "distributed": Enables distributed tracing with immediate updates
     """
     if mode is None:
-        mode = getenv("GALILEO_MODE", DEFAULT_MODE)
+        mode = getenv("SPLUNK_AO_MODE", DEFAULT_MODE)
 
     if not isinstance(mode, str):
         raise GalileoLoggerException(f"Invalid mode: {mode}. Mode must be 'batch' or 'distributed'.")
@@ -38,7 +38,7 @@ def _get_mode_or_default(mode: str | None) -> LoggerModeType:
 
 def _get_project_or_default(project: str | None) -> str:
     """
-    Get the project name, falling back to GALILEO_PROJECT env var or default.
+    Get the project name, falling back to SPLUNK_AO_PROJECT env var or default.
 
     Parameters
     ----------
@@ -51,13 +51,13 @@ def _get_project_or_default(project: str | None) -> str:
         The project name to use.
     """
     if project is None:
-        return getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
+        return getenv("SPLUNK_AO_PROJECT", DEFAULT_PROJECT_NAME)
     return project
 
 
 def _get_log_stream_or_default(log_stream: str | None) -> str:
     """
-    Get the log stream name, falling back to GALILEO_LOG_STREAM env var or default.
+    Get the log stream name, falling back to SPLUNK_AO_LOG_STREAM env var or default.
 
     Parameters
     ----------
@@ -70,53 +70,53 @@ def _get_log_stream_or_default(log_stream: str | None) -> str:
         The log stream name to use.
     """
     if log_stream is None:
-        return getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
+        return getenv("SPLUNK_AO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
     return log_stream
 
 
 def _get_project_from_env() -> str | None:
     """
-    Get the project name from GALILEO_PROJECT environment variable.
+    Get the project name from SPLUNK_AO_PROJECT environment variable.
 
     Returns
     -------
     Optional[str]
         The project name from environment variable, or None if not set.
     """
-    return getenv("GALILEO_PROJECT")
+    return getenv("SPLUNK_AO_PROJECT")
 
 
 def _get_project_id_from_env() -> str | None:
     """
-    Get the project ID from GALILEO_PROJECT_ID environment variable.
+    Get the project ID from SPLUNK_AO_PROJECT_ID environment variable.
 
     Returns
     -------
     Optional[str]
         The project ID from environment variable, or None if not set.
     """
-    return getenv("GALILEO_PROJECT_ID")
+    return getenv("SPLUNK_AO_PROJECT_ID")
 
 
 def _get_log_stream_from_env() -> str | None:
     """
-    Get the log stream name from GALILEO_LOG_STREAM environment variable.
+    Get the log stream name from SPLUNK_AO_LOG_STREAM environment variable.
 
     Returns
     -------
     Optional[str]
         The log stream name from environment variable, or None if not set.
     """
-    return getenv("GALILEO_LOG_STREAM")
+    return getenv("SPLUNK_AO_LOG_STREAM")
 
 
 def _get_log_stream_id_from_env() -> str | None:
     """
-    Get the log stream ID from GALILEO_LOG_STREAM_ID environment variable.
+    Get the log stream ID from SPLUNK_AO_LOG_STREAM_ID environment variable.
 
     Returns
     -------
     Optional[str]
         The log stream ID from environment variable, or None if not set.
     """
-    return getenv("GALILEO_LOG_STREAM_ID")
+    return getenv("SPLUNK_AO_LOG_STREAM_ID")

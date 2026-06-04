@@ -60,7 +60,7 @@ def get_agent_control_target(
 
     1. Explicit ``target_id``.
     2. Explicit ``log_stream_id`` for ``log_stream`` targets.
-    3. ``GALILEO_LOG_STREAM_ID`` for ``log_stream`` targets.
+    3. ``SPLUNK_AO_LOG_STREAM_ID`` for ``log_stream`` targets.
     4. An already-initialized ``galileo_context`` logger.
 
     This helper does not resolve log stream names over the network. If only a
@@ -68,7 +68,7 @@ def get_agent_control_target(
     the resulting ID explicitly.
     """
     explicit_project_id = _strip_optional_string(project_id)
-    env_project_id = _strip_optional_string(os.getenv("GALILEO_PROJECT_ID"))
+    env_project_id = _strip_optional_string(os.getenv("SPLUNK_AO_PROJECT_ID"))
     resolved_project_id = explicit_project_id or env_project_id
 
     if target_type == LOG_STREAM_TARGET_TYPE:
@@ -94,9 +94,9 @@ def get_agent_control_target(
             "Provide target_id=<id> explicitly."
         )
 
-    env_log_stream_id = _strip_optional_string(os.getenv("GALILEO_LOG_STREAM_ID"))
+    env_log_stream_id = _strip_optional_string(os.getenv("SPLUNK_AO_LOG_STREAM_ID"))
     if env_log_stream_id:
-        _validate_uuid(env_log_stream_id, "GALILEO_LOG_STREAM_ID")
+        _validate_uuid(env_log_stream_id, "SPLUNK_AO_LOG_STREAM_ID")
         return AgentControlTarget(
             target_type=LOG_STREAM_TARGET_TYPE, target_id=env_log_stream_id, project_id=resolved_project_id
         )
@@ -112,7 +112,7 @@ def get_agent_control_target(
     raise AgentControlTargetUnresolvedError(
         "Could not resolve Galileo log stream ID for Agent Control. Provide one of:\n"
         "  1. target_id=<uuid> or log_stream_id=<uuid> argument\n"
-        "  2. GALILEO_LOG_STREAM_ID environment variable\n"
+        "  2. SPLUNK_AO_LOG_STREAM_ID environment variable\n"
         "  3. An initialized galileo_context with a resolved log stream ID"
     )
 

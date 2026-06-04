@@ -1336,11 +1336,11 @@ def test_mode_flush_different_mode_no_reset(
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
-@patch.dict("os.environ", {"GALILEO_MODE": "distributed"})
+@patch.dict("os.environ", {"SPLUNK_AO_MODE": "distributed"})
 def test_mode_from_environment_variable(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    """Test that mode is read from GALILEO_MODE environment variable."""
+    """Test that mode is read from SPLUNK_AO_MODE environment variable."""
     setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -1354,7 +1354,7 @@ def test_mode_from_environment_variable(
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
-@patch.dict("os.environ", {"GALILEO_MODE": "distributed"})
+@patch.dict("os.environ", {"SPLUNK_AO_MODE": "distributed"})
 def test_mode_explicit_overrides_environment(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:

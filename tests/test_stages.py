@@ -248,14 +248,14 @@ def test_pause_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api:
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
 def test_stage_creation_with_project_id_and_project_name_env_var(mock_api: Mock, monkeypatch) -> None:
-    monkeypatch.setenv("GALILEO_PROJECT", "proj")
+    monkeypatch.setenv("SPLUNK_AO_PROJECT", "proj")
 
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
     rulesets = [Ruleset(rules=rules)]
     stage_name = "test-central-stage-with-rules"
     mock_api.return_value = _api_stage_db_factory(name=stage_name, stage_type=StageType.central)
 
-    # The project_id passed here should override the GALILEO_PROJECT env var
+    # The project_id passed here should override the SPLUNK_AO_PROJECT env var
     stage_response = create_protect_stage(
         project_id=FIXED_PROJECT_ID, name=stage_name, prioritized_rulesets=rulesets, stage_type=StageType.central
     )
@@ -280,14 +280,14 @@ def test_stage_creation_with_project_id_and_project_name_env_var(mock_api: Mock,
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
 def test_stage_creation_with_project_id_and_project_id_env_var(mock_api: Mock, monkeypatch) -> None:
-    monkeypatch.setenv("GALILEO_PROJECT_ID", str(FIXED_PROJECT_ID))
+    monkeypatch.setenv("SPLUNK_AO_PROJECT_ID", str(FIXED_PROJECT_ID))
 
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
     rulesets = [Ruleset(rules=rules)]
     stage_name = "test-central-stage-with-rules"
     mock_api.return_value = _api_stage_db_factory(name=stage_name, stage_type=StageType.central)
 
-    # The project_id passed here should override the GALILEO_PROJECT_ID env var
+    # The project_id passed here should override the SPLUNK_AO_PROJECT_ID env var
     stage_response = create_protect_stage(
         project_id=FIXED_PROJECT_ID, name=stage_name, prioritized_rulesets=rulesets, stage_type=StageType.central
     )
@@ -312,14 +312,14 @@ def test_stage_creation_with_project_id_and_project_id_env_var(mock_api: Mock, m
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
 def test_stage_creation_with_project_name_and_project_id_env_var(mock_api: Mock, monkeypatch) -> None:
-    monkeypatch.setenv("GALILEO_PROJECT_ID", "proj")
+    monkeypatch.setenv("SPLUNK_AO_PROJECT_ID", "proj")
 
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
     rulesets = [Ruleset(rules=rules)]
     stage_name = "test-central-stage-with-rules"
     mock_api.return_value = _api_stage_db_factory(name=stage_name, stage_type=StageType.central)
 
-    # The project_name passed here should override the GALILEO_PROJECT_ID env var
+    # The project_name passed here should override the SPLUNK_AO_PROJECT_ID env var
     stage_response = create_protect_stage(
         project_name="project name", name=stage_name, prioritized_rulesets=rulesets, stage_type=StageType.central
     )

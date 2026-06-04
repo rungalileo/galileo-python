@@ -328,7 +328,7 @@ def run_experiment(
 
     When using a runner function, you can also pass a list of dictionaries to the function to act as a dataset.
 
-    The project can be specified by providing exactly one of the project name (via the 'project' parameter or the GALILEO_PROJECT environment variable) or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID environment variable).
+    The project can be specified by providing exactly one of the project name (via the 'project' parameter or the SPLUNK_AO_PROJECT environment variable) or the project ID (via the 'project_id' parameter or the SPLUNK_AO_PROJECT_ID environment variable).
 
     Parameters
     ----------
@@ -340,9 +340,9 @@ def run_experiment(
         Settings for prompt runs. Accepts a ``PromptRunSettings`` instance or a plain ``dict``
         with matching field names, which will be coerced to ``PromptRunSettings`` automatically.
     project
-        Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
+        Optional project name. Takes preference over the SPLUNK_AO_PROJECT environment variable. Leave empty if using project_id
     project_id
-        Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
+        Optional project Id. Takes preference over the SPLUNK_AO_PROJECT_ID environment variable. Leave empty if using project
     dataset
         Dataset object, list of records, or dataset name
     dataset_id
@@ -504,17 +504,17 @@ def create_experiment(
     """
     Create an experiment with the specified parameters.
 
-    The project can be specified by providing exactly one of the project name (via the 'project' parameter or the GALILEO_PROJECT environment variable)
-    or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID environment variable).
+    The project can be specified by providing exactly one of the project name (via the 'project' parameter or the SPLUNK_AO_PROJECT environment variable)
+    or the project ID (via the 'project_id' parameter or the SPLUNK_AO_PROJECT_ID environment variable).
 
     Parameters
     ----------
     project_id
-        Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
+        Optional project Id. Takes preference over the SPLUNK_AO_PROJECT_ID environment variable. Leave empty if using project
     experiment_name
         Name of the experiment. Required.
     project
-        Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
+        Optional project name. Takes preference over the SPLUNK_AO_PROJECT environment variable. Leave empty if using project_id
     experiment_group
         Optional name of an experiment group to assign this experiment to. If a group with
         this name does not exist in the project, the API auto-creates it.
@@ -565,17 +565,17 @@ def get_experiment(
     """
     Get an experiment with the specified parameters.
 
-    The project can be specified by providing exactly one of the project name (via the 'project' parameter or the GALILEO_PROJECT environment variable)
-    or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID environment variable).
+    The project can be specified by providing exactly one of the project name (via the 'project' parameter or the SPLUNK_AO_PROJECT environment variable)
+    or the project ID (via the 'project_id' parameter or the SPLUNK_AO_PROJECT_ID environment variable).
 
     Parameters
     ----------
     project_id
-        Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using ``project``
+        Optional project Id. Takes preference over the SPLUNK_AO_PROJECT_ID environment variable. Leave empty if using ``project``
     experiment_name
         Name of the experiment. Required.
     project_name
-        Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using ``project_id``
+        Optional project name. Takes preference over the SPLUNK_AO_PROJECT environment variable. Leave empty if using ``project_id``
 
     Returns
     -------
@@ -620,9 +620,9 @@ def get_experiments(
     Parameters
     ----------
     project_id
-        Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using ``project``
+        Optional project Id. Takes preference over the SPLUNK_AO_PROJECT_ID environment variable. Leave empty if using ``project``
     project_name
-        Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using ``project_id``
+        Optional project name. Takes preference over the SPLUNK_AO_PROJECT environment variable. Leave empty if using ``project_id``
     experiment_group
         Optional experiment-group name to filter by. Returns only experiments assigned to
         a group with this name. Mutually compatible with ``experiment_group_id``: if both
@@ -708,16 +708,16 @@ def list_experiment_groups(
     do not need to handle pagination tokens.
 
     The project can be specified by providing exactly one of the project name (via the
-    ``project_name`` parameter or the ``GALILEO_PROJECT`` environment variable) or the
-    project ID (via the ``project_id`` parameter or the ``GALILEO_PROJECT_ID``
+    ``project_name`` parameter or the ``SPLUNK_AO_PROJECT`` environment variable) or the
+    project ID (via the ``project_id`` parameter or the ``SPLUNK_AO_PROJECT_ID``
     environment variable).
 
     Parameters
     ----------
     project_id
-        Optional project ID. Takes preference over the ``GALILEO_PROJECT_ID`` env var.
+        Optional project ID. Takes preference over the ``SPLUNK_AO_PROJECT_ID`` env var.
     project_name
-        Optional project name. Takes preference over the ``GALILEO_PROJECT`` env var.
+        Optional project name. Takes preference over the ``SPLUNK_AO_PROJECT`` env var.
 
     Returns
     -------
