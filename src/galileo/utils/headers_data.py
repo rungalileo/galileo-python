@@ -61,7 +61,7 @@ def get_method_name() -> str:
 
 
 def get_sdk_header() -> str:
-    """Build the X-Galileo-SDK header value."""
+    """Build the Splunk-AO-SDK header value."""
     version = get_package_version()
     method_name = get_method_name()
 

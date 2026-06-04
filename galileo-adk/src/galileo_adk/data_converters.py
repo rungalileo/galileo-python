@@ -18,7 +18,7 @@ def generate_tool_call_id(name: str, index: int = 0) -> str:
     return f"call_{name}_{index}_{uuid.uuid4().hex[:8]}"
 
 
-def convert_adk_content_to_galileo_messages(content: Any) -> list[Message]:
+def convert_adk_content_to_splunk_ao_messages(content: Any) -> list[Message]:
     """Convert ADK Content to list of Galileo Messages, preserving part order.
 
     Tracks call IDs for function calls and links them to their responses.
@@ -158,7 +158,7 @@ def _map_adk_role_to_galileo(adk_role: str) -> MessageRole:
     return _ADK_ROLE_TO_GALILEO.get(adk_role.lower(), MessageRole.user)
 
 
-def convert_adk_tools_to_galileo_format(tools: Any) -> list[dict[str, Any]]:
+def convert_adk_tools_to_splunk_ao_format(tools: Any) -> list[dict[str, Any]]:
     """Convert ADK tools to OpenAI-compatible format."""
     galileo_tools: list[dict[str, Any]] = []
     for tool in tools:

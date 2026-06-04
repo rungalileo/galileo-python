@@ -10,13 +10,13 @@ from collections.abc import Callable
 from typing import Any
 from uuid import UUID
 
-from galileo import galileo_context
+from galileo import splunk_ao_context
 from galileo.handlers.base_handler import GalileoBaseHandler
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.serialization import serialize_to_str
 from galileo_adk.data_converters import (
-    convert_adk_content_to_galileo_messages,
-    convert_adk_tools_to_galileo_format,
+    convert_adk_content_to_splunk_ao_messages,
+    convert_adk_tools_to_splunk_ao_format,
     extract_text_from_adk_content,
 )
 from galileo_adk.span_manager import SpanManager
@@ -155,7 +155,7 @@ class GalileoObserver:
             )
         else:
             self._trace_builder = None
-            galileo_logger = galileo_context.get_logger_instance(project=project, log_stream=log_stream)
+            galileo_logger = splunk_ao_context.get_logger_instance(project=project, log_stream=log_stream)
             self._handler = GalileoBaseHandler(
                 galileo_logger=galileo_logger,
                 start_new_trace=True,
@@ -392,12 +392,12 @@ class GalileoObserver:
 
         Detection uses two strategies:
         1. isinstance check against google.adk.tools.retrieval.BaseRetrievalTool
-        2. Custom functions decorated with @galileo_retriever (sets _galileo_is_retriever on func)
+        2. Custom functions decorated with @splunk_ao_retriever (sets _splunk_ao_is_retriever on func)
         """
         if _BaseRetrievalTool is not None and isinstance(tool, _BaseRetrievalTool):
             return True
         func = getattr(tool, "func", None)
-        return bool(func is not None and getattr(func, "_galileo_is_retriever", False))
+        return bool(func is not None and getattr(func, "_splunk_ao_is_retriever", False))
 
     def on_tool_start(
         self,
@@ -468,13 +468,13 @@ class GalileoObserver:
             return []
         messages = []
         for content in llm_request.contents:
-            messages.extend(convert_adk_content_to_galileo_messages(content))
+            messages.extend(convert_adk_content_to_splunk_ao_messages(content))
         return messages
 
     def _extract_llm_output(self, llm_response: Any) -> list[Any]:
         """Extract LLM output as list of Messages to preserve all parts including tool_calls."""
         if llm_response and hasattr(llm_response, "content"):
-            return convert_adk_content_to_galileo_messages(llm_response.content)
+            return convert_adk_content_to_splunk_ao_messages(llm_response.content)
         return []
 
     def _extract_model_name(self, llm_request: Any) -> str | None:
@@ -494,7 +494,7 @@ class GalileoObserver:
         if hasattr(llm_request, "config") and llm_request.config:
             tools = getattr(llm_request.config, "tools", None)
             if tools:
-                return convert_adk_tools_to_galileo_format(tools)
+                return convert_adk_tools_to_splunk_ao_format(tools)
         return None
 
     def _extract_usage_metadata(self, llm_response: Any) -> dict[str, Any]:

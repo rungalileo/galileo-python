@@ -2,14 +2,14 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from galileo import galileo_context
+from galileo import splunk_ao_context
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
 @pytest.fixture
 def reset_context() -> None:
-    galileo_context.reset()
+    splunk_ao_context.reset()
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -19,7 +19,7 @@ def test_nested_context_restoration(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """
-    Test that nested galileo_context calls correctly restore the previous context.
+    Test that nested splunk_ao_context calls correctly restore the previous context.
     This tests the stack-based approach for context nesting.
     """
     setup_mock_traces_client(mock_traces_client)
@@ -32,19 +32,19 @@ def test_nested_context_restoration(
     assert _experiment_id_context.get() is None
 
     # First level context
-    with galileo_context(project="project1", log_stream="log_stream1"):
+    with splunk_ao_context(project="project1", log_stream="log_stream1"):
         assert _project_context.get() == "project1"
         assert _log_stream_context.get() == "log_stream1"
         assert _experiment_id_context.get() is None
 
         # Second level context
-        with galileo_context(project="project2", log_stream="log_stream2"):
+        with splunk_ao_context(project="project2", log_stream="log_stream2"):
             assert _project_context.get() == "project2"
             assert _log_stream_context.get() == "log_stream2"
             assert _experiment_id_context.get() is None
 
             # Third level context
-            with galileo_context(project="project3", log_stream="log_stream3"):
+            with splunk_ao_context(project="project3", log_stream="log_stream3"):
                 assert _project_context.get() == "project3"
                 assert _log_stream_context.get() == "log_stream3"
                 assert _experiment_id_context.get() is None
@@ -80,19 +80,19 @@ def test_context_update_with_defaults(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     # First level context with project and log_stream
-    with galileo_context(project="project1", log_stream="log_stream1"):
+    with splunk_ao_context(project="project1", log_stream="log_stream1"):
         assert _project_context.get() == "project1"
         assert _log_stream_context.get() == "log_stream1"
         assert _experiment_id_context.get() is None
 
         # Second level context with only project updated; log_stream should be default
-        with galileo_context(project="project2"):
+        with splunk_ao_context(project="project2"):
             assert _project_context.get() == "project2"
             assert _log_stream_context.get() is None  # use env default
             assert _experiment_id_context.get() is None
 
             # Third level context with no params: should use defaults
-            with galileo_context():
+            with splunk_ao_context():
                 assert _project_context.get() is None
                 assert _log_stream_context.get() is None
                 assert _experiment_id_context.get() is None

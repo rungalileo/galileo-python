@@ -32,11 +32,11 @@ class A2AInstrumentor(BaseInstrumentor):  # type: ignore[misc]
     Example::
 
         from opentelemetry.sdk.trace import TracerProvider
-        from galileo.otel import GalileoSpanProcessor, add_galileo_span_processor
+        from galileo.otel import GalileoSpanProcessor, add_splunk_ao_span_processor
         from galileo_a2a import A2AInstrumentor
 
         provider = TracerProvider()
-        add_galileo_span_processor(provider, GalileoSpanProcessor())
+        add_splunk_ao_span_processor(provider, GalileoSpanProcessor())
         A2AInstrumentor().instrument(tracer_provider=provider, agent_name="my-agent")
 
         # To disable message content capture (e.g. for PII compliance):

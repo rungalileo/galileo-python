@@ -13,7 +13,7 @@ import threading
 from dataclasses import dataclass
 from uuid import UUID
 
-from galileo.decorator import galileo_context
+from galileo.decorator import splunk_ao_context
 from galileo.utils.env_helpers import _get_log_stream_or_default, _get_project_or_default
 from galileo.utils.singleton import GalileoLoggerSingleton
 
@@ -61,7 +61,7 @@ def get_agent_control_target(
     1. Explicit ``target_id``.
     2. Explicit ``log_stream_id`` for ``log_stream`` targets.
     3. ``GALILEO_LOG_STREAM_ID`` for ``log_stream`` targets.
-    4. An already-initialized ``galileo_context`` logger.
+    4. An already-initialized ``splunk_ao_context`` logger.
 
     This helper does not resolve log stream names over the network. If only a
     log stream name is available, resolve it with the Galileo SDK first and pass
@@ -113,7 +113,7 @@ def get_agent_control_target(
         "Could not resolve Galileo log stream ID for Agent Control. Provide one of:\n"
         "  1. target_id=<uuid> or log_stream_id=<uuid> argument\n"
         "  2. GALILEO_LOG_STREAM_ID environment variable\n"
-        "  3. An initialized galileo_context with a resolved log stream ID"
+        "  3. An initialized splunk_ao_context with a resolved log stream ID"
     )
 
 
@@ -131,8 +131,8 @@ def _strip_optional_string(value: str | None) -> str | None:
 
 
 def _resolve_log_stream_from_cached_context() -> AgentControlTarget | None:
-    current_project = _get_project_or_default(galileo_context.get_current_project())
-    current_log_stream = _get_log_stream_or_default(galileo_context.get_current_log_stream())
+    current_project = _get_project_or_default(splunk_ao_context.get_current_project())
+    current_log_stream = _get_log_stream_or_default(splunk_ao_context.get_current_log_stream())
     current_thread_name = threading.current_thread().name
 
     # Read cached logger state directly so this helper never creates or resolves

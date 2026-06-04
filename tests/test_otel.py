@@ -14,7 +14,7 @@ from galileo.decorator import (
     _log_stream_context,
     _project_context,
     _session_id_context,
-    galileo_dataset_context,
+    splunk_ao_dataset_context,
 )
 from galileo.otel import (
     _TRACE_PROVIDER_CONTEXT_VAR,
@@ -23,12 +23,12 @@ from galileo.otel import (
     GalileoOTLPExporter,
     GalileoSpanProcessor,
     _set_tool_span_attributes,
-    start_galileo_span,
+    start_splunk_ao_span,
 )
 from galileo_core.schemas.logging.span import ToolSpan
 
 if OTEL_AVAILABLE:
-    from galileo.otel import _set_workflow_span_attributes, start_galileo_span
+    from galileo.otel import _set_workflow_span_attributes, start_splunk_ao_span
     from galileo_core.schemas.logging.llm import Message, MessageRole
     from galileo_core.schemas.logging.span import WorkflowSpan
     from galileo_core.schemas.shared.document import Document
@@ -570,7 +570,7 @@ class TestSetToolSpanAttributes:
 
 
 class TestStartGalileoSpan:
-    """Test suite for start_galileo_span context manager."""
+    """Test suite for start_splunk_ao_span context manager."""
 
     @pytest.fixture(autouse=True)
     def reset_trace_provider(self):
@@ -580,8 +580,8 @@ class TestStartGalileoSpan:
         _TRACE_PROVIDER_CONTEXT_VAR.set(None)
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    def test_start_galileo_span_dispatches_tool_span(self):
-        """Test that start_galileo_span routes a ToolSpan to _set_tool_span_attributes."""
+    def test_start_splunk_ao_span_dispatches_tool_span(self):
+        """Test that start_splunk_ao_span routes a ToolSpan to _set_tool_span_attributes."""
         # Given: a ToolSpan with all fields populated and a mock tracer provider
         tool_span = ToolSpan(
             name="my-tool",
@@ -598,8 +598,8 @@ class TestStartGalileoSpan:
         mock_provider.get_tracer.return_value = mock_tracer
         _TRACE_PROVIDER_CONTEXT_VAR.set(mock_provider)
 
-        # When: using start_galileo_span with the ToolSpan
-        with start_galileo_span(tool_span) as span:
+        # When: using start_splunk_ao_span with the ToolSpan
+        with start_splunk_ao_span(tool_span) as span:
             assert span is mock_otel_span
 
         # Then: the span has gen_ai.system set and tool-specific attributes
@@ -614,8 +614,8 @@ class TestStartGalileoSpan:
         assert calls["gen_ai.tool.call.id"] == "call-789"
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    def test_start_galileo_span_tool_span_with_none_output(self):
-        """Test that start_galileo_span handles a ToolSpan with None output and tool_call_id."""
+    def test_start_splunk_ao_span_tool_span_with_none_output(self):
+        """Test that start_splunk_ao_span handles a ToolSpan with None output and tool_call_id."""
         # Given: a ToolSpan with only input populated
         tool_span = ToolSpan(name="minimal-tool", input="just input", output=None, tool_call_id=None, status_code=200)
         mock_otel_span = Mock()
@@ -626,8 +626,8 @@ class TestStartGalileoSpan:
         mock_provider.get_tracer.return_value = mock_tracer
         _TRACE_PROVIDER_CONTEXT_VAR.set(mock_provider)
 
-        # When: using start_galileo_span with the minimal ToolSpan
-        with start_galileo_span(tool_span) as span:
+        # When: using start_splunk_ao_span with the minimal ToolSpan
+        with start_splunk_ao_span(tool_span) as span:
             assert span is mock_otel_span
 
         # Then: gen_ai.system, operation name, tool name, tool arguments, and input are set (no output or tool_call_id)
@@ -737,8 +737,8 @@ class TestWorkflowSpanAttributes:
         assert input_call[0][0] == "gen_ai.input.messages"
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    def test_workflow_span_in_start_galileo_span(self, mock_dependencies):
-        """Test that WorkflowSpan is handled in start_galileo_span context manager."""
+    def test_workflow_span_in_start_splunk_ao_span(self, mock_dependencies):
+        """Test that WorkflowSpan is handled in start_splunk_ao_span context manager."""
         # Given: a WorkflowSpan
         workflow_span = WorkflowSpan(name="test-workflow", input="input", output="output", status_code=200)
         mock_span = mock_dependencies["span"]
@@ -754,8 +754,8 @@ class TestWorkflowSpanAttributes:
 
         # Patch get_tracer_provider to return our mock
         with patch("galileo.otel.trace.get_tracer_provider", return_value=mock_trace_provider):
-            # When: using start_galileo_span with WorkflowSpan
-            with start_galileo_span(workflow_span):
+            # When: using start_splunk_ao_span with WorkflowSpan
+            with start_splunk_ao_span(workflow_span):
                 pass
 
         # Then: WorkflowSpan attributes should be set
@@ -765,7 +765,7 @@ class TestWorkflowSpanAttributes:
 
 
 class TestDatasetContext:
-    """Tests for dataset context variables and galileo_dataset_context manager."""
+    """Tests for dataset context variables and splunk_ao_dataset_context manager."""
 
     @pytest.fixture
     def reset_dataset_context(self):
@@ -790,15 +790,15 @@ class TestDatasetContext:
             yield {"exporter": mock_exp, "batch": mock_batch}
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    def test_galileo_dataset_context_sets_values(self, reset_dataset_context):
-        """Test that galileo_dataset_context sets context variables correctly."""
+    def test_splunk_ao_dataset_context_sets_values(self, reset_dataset_context):
+        """Test that splunk_ao_dataset_context sets context variables correctly."""
         # Given: dataset context is initially empty
         assert _dataset_input_context.get(None) is None
         assert _dataset_output_context.get(None) is None
         assert _dataset_metadata_context.get(None) is None
 
         # When: entering the context manager with values
-        with galileo_dataset_context(
+        with splunk_ao_dataset_context(
             dataset_input="test input", dataset_output="expected output", dataset_metadata={"key": "value"}
         ):
             # Then: context variables are set inside the context
@@ -812,15 +812,15 @@ class TestDatasetContext:
         assert _dataset_metadata_context.get(None) is None
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    def test_galileo_dataset_context_nested_contexts(self, reset_dataset_context):
-        """Test that nested galileo_dataset_context managers work correctly."""
+    def test_splunk_ao_dataset_context_nested_contexts(self, reset_dataset_context):
+        """Test that nested splunk_ao_dataset_context managers work correctly."""
         # Given: outer context with initial values
-        with galileo_dataset_context(dataset_input="outer input", dataset_output="outer output"):
+        with splunk_ao_dataset_context(dataset_input="outer input", dataset_output="outer output"):
             assert _dataset_input_context.get() == "outer input"
             assert _dataset_output_context.get() == "outer output"
 
             # When: entering inner context with different values
-            with galileo_dataset_context(dataset_input="inner input", dataset_output="inner output"):
+            with splunk_ao_dataset_context(dataset_input="inner input", dataset_output="inner output"):
                 # Then: inner context values are active
                 assert _dataset_input_context.get() == "inner input"
                 assert _dataset_output_context.get() == "inner output"
@@ -834,11 +834,11 @@ class TestDatasetContext:
         assert _dataset_output_context.get(None) is None
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    def test_galileo_dataset_context_exception_handling(self, reset_dataset_context):
+    def test_splunk_ao_dataset_context_exception_handling(self, reset_dataset_context):
         """Test that context variables are reset even when exception occurs."""
         # Given/When: an exception is raised inside the context
         with pytest.raises(ValueError, match="test error"):
-            with galileo_dataset_context(dataset_input="test", dataset_output="expected"):
+            with splunk_ao_dataset_context(dataset_input="test", dataset_output="expected"):
                 assert _dataset_input_context.get() == "test"
                 raise ValueError("test error")
 
@@ -916,10 +916,10 @@ class TestDatasetContext:
         assert mock_span._resource == mock_merged_resource
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    def test_galileo_dataset_context_partial_values(self, reset_dataset_context):
-        """Test that galileo_dataset_context works with partial values."""
+    def test_splunk_ao_dataset_context_partial_values(self, reset_dataset_context):
+        """Test that splunk_ao_dataset_context works with partial values."""
         # When: only some values are provided
-        with galileo_dataset_context(dataset_output="expected only"):
+        with splunk_ao_dataset_context(dataset_output="expected only"):
             # Then: only provided values are set
             assert _dataset_input_context.get(None) is None
             assert _dataset_output_context.get() == "expected only"

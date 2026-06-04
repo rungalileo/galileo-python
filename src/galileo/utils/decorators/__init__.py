@@ -14,15 +14,15 @@ from galileo.utils.decorators.exception_handling import (
     retry_on_transient_http_error,
     warn_catch_exception,
 )
-from galileo.utils.decorators.telemetry_toggle import galileo_logging_enabled, nop_async, nop_sync
+from galileo.utils.decorators.telemetry_toggle import nop_async, nop_sync, splunk_ao_logging_enabled
 
 __all__ = [
     "INFRASTRUCTURE_EXCEPTIONS",
     "RETRYABLE_STATUS_CODES",
     "async_warn_catch_exception",
-    "galileo_logging_enabled",
     "nop_async",
     "nop_sync",
     "retry_on_transient_http_error",
+    "splunk_ao_logging_enabled",
     "warn_catch_exception",
 ]

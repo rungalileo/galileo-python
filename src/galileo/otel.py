@@ -211,7 +211,7 @@ class GalileoSpanProcessor(SpanProcessor):
     >>> from opentelemetry.sdk.trace import TracerProvider
     >>> tracer_provider = TracerProvider()
     >>> processor = GalileoSpanProcessor(project="my-project")
-    >>> add_galileo_span_processor(tracer_provider, processor)
+    >>> add_splunk_ao_span_processor(tracer_provider, processor)
     """
 
     def __init__(
@@ -312,7 +312,7 @@ class GalileoSpanProcessor(SpanProcessor):
         return self._processor
 
 
-def add_galileo_span_processor(tracer_provider: TracerProvider, processor: GalileoSpanProcessor) -> None:
+def add_splunk_ao_span_processor(tracer_provider: TracerProvider, processor: GalileoSpanProcessor) -> None:
     """Add the Galileo span processor to the tracer provider."""
     tracer_provider.add_span_processor(processor)
     _TRACE_PROVIDER_CONTEXT_VAR.set(tracer_provider)
@@ -401,7 +401,7 @@ def _set_workflow_span_attributes(span: trace.Span, galileo_span: WorkflowSpan) 
 
 
 @contextmanager
-def start_galileo_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, None]:
+def start_splunk_ao_span(galileo_span: GalileoSpan) -> Generator[trace.Span, Any, None]:
     tracer_provider = _TRACE_PROVIDER_CONTEXT_VAR.get()
     if tracer_provider is None:
         tracer_provider = trace.get_tracer_provider()

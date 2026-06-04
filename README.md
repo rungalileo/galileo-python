@@ -40,11 +40,11 @@ Note: if you would like to point to an environment other than `app.galileo.ai`, 
 ```python
 import os
 
-from galileo import galileo_context
+from galileo import splunk_ao_context
 from galileo.openai import openai
 
 # If you've set your GALILEO_PROJECT and GALILEO_LOG_STREAM env vars, you can skip this step
-galileo_context.init(project="your-project-name", log_stream="your-log-stream-name")
+splunk_ao_context.init(project="your-project-name", log_stream="your-log-stream-name")
 
 # Initialize the Galileo wrapped OpenAI client
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -61,7 +61,7 @@ def call_openai():
 call_openai()
 
 # This will upload the trace to Galileo
-galileo_context.flush()
+splunk_ao_context.flush()
 ```
 
 You can also use the `@log` decorator to log spans. Here's how to create a workflow span with two nested LLM spans:
@@ -75,7 +75,7 @@ def make_nested_call():
     call_openai()
 
 # If you've set your GALILEO_PROJECT and GALILEO_LOG_STREAM env vars, you can skip this step
-galileo_context.init(project="your-project-name", log_stream="your-log-stream-name")
+splunk_ao_context.init(project="your-project-name", log_stream="your-log-stream-name")
 
 # This will create a trace with a workflow span and two nested LLM spans containing the OpenAI calls
 make_nested_call()
@@ -107,27 +107,27 @@ def tool_call(input: str = "tool call input"):
 tool_call(input="question")
 
 # This will upload the trace to Galileo
-galileo_context.flush()
+splunk_ao_context.flush()
 ```
 
-In some cases, you may want to wrap a block of code to start and flush a trace automatically. You can do this using the `galileo_context` context manager:
+In some cases, you may want to wrap a block of code to start and flush a trace automatically. You can do this using the `splunk_ao_context` context manager:
 
 ```python
-from galileo import galileo_context
+from galileo import splunk_ao_context
 
 # This will log a block of code to the project and log stream specified in the context manager
-with galileo_context():
+with splunk_ao_context():
     content = make_nested_call()
     print(content)
 ```
 
-`galileo_context` also allows you specify a separate project and log stream for the trace:
+`splunk_ao_context` also allows you specify a separate project and log stream for the trace:
 
 ```python
-from galileo import galileo_context
+from galileo import splunk_ao_context
 
 # This will log to the project and log stream specified in the context manager
-with galileo_context(project="gen-ai-project", log_stream="test2"):
+with splunk_ao_context(project="gen-ai-project", log_stream="test2"):
     content = make_nested_call()
     print(content)
 ```
@@ -162,9 +162,9 @@ current Galileo log stream as the runtime target:
 
 ```python
 import agent_control
-from galileo import galileo_context, get_agent_control_target
+from galileo import splunk_ao_context, get_agent_control_target
 
-galileo_context.init(project="my-project", log_stream="prod")
+splunk_ao_context.init(project="my-project", log_stream="prod")
 
 target = get_agent_control_target()
 
@@ -178,7 +178,7 @@ agent_control.init(
 ```
 
 The helper resolves an explicit log stream ID, `GALILEO_LOG_STREAM_ID`, or an
-already-initialized `galileo_context` logger. It does not import the Agent
+already-initialized `splunk_ao_context` logger. It does not import the Agent
 Control SDK or resolve log stream names over the network. If you use a direct
 Agent Control client instead of `agent_control.init(...)`, pass
 `target.target_type` and `target.target_id` on each evaluation call.
@@ -210,10 +210,10 @@ In some cases (like long-running processes), it may be necessary to explicitly f
 ```python
 import os
 
-from galileo import galileo_context
+from galileo import splunk_ao_context
 from galileo.openai import openai
 
-galileo_context.init(project="your-project-name", log_stream="your-log-stream-name")
+splunk_ao_context.init(project="your-project-name", log_stream="your-log-stream-name")
 
 # Initialize the Galileo wrapped OpenAI client
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -230,7 +230,7 @@ def call_openai():
 call_openai()
 
 # This will upload the trace to Galileo
-galileo_context.flush()
+splunk_ao_context.flush()
 ```
 
 Using the Langchain callback handler:
@@ -404,16 +404,16 @@ logger.conclude()
 logger.flush()
 ```
 
-All of this can also be done using the `galileo_context` context manager:
+All of this can also be done using the `splunk_ao_context` context manager:
 
 ```python
-from galileo import galileo_context
+from galileo import splunk_ao_context
 
-session_id = galileo_context.start_session(name="my-session-name")
+session_id = splunk_ao_context.start_session(name="my-session-name")
 
 # OR
 
-galileo_context.set_session(session_id=session_id)
+splunk_ao_context.set_session(session_id=session_id)
 
 ```
 
