@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.models.dataset_content import DatasetContent
 from galileo.resources.types import Unset
 from galileo.schema.datasets import DatasetRecord
@@ -51,7 +51,7 @@ def normalize_dataset_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def validate_dataset_in_project(
-    dataset_id: str, dataset_identifier: str, project_id: str, project_identifier: str, config: GalileoPythonConfig
+    dataset_id: str, dataset_identifier: str, project_id: str, project_identifier: str, config: SplunkAOConfig
 ) -> None:
     from galileo.resources.api.datasets import list_dataset_projects_datasets_dataset_id_projects_get
 

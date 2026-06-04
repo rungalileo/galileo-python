@@ -7,7 +7,7 @@ import pytest
 from galileo import AgentControlTarget, AgentControlTargetUnresolvedError, get_agent_control_target
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.decorator import galileo_context
-from galileo.utils.singleton import GalileoLoggerSingleton
+from galileo.utils.singleton import SplunkAOLoggerSingleton
 
 
 @pytest.fixture(autouse=True)
@@ -17,8 +17,8 @@ def reset_agent_control_helper_state(monkeypatch):
     monkeypatch.delenv("SPLUNK_AO_LOG_STREAM", raising=False)
     monkeypatch.delenv("SPLUNK_AO_LOG_STREAM_ID", raising=False)
     monkeypatch.delenv("SPLUNK_AO_PROJECT_ID", raising=False)
-    GalileoLoggerSingleton().reset_all()
-    monkeypatch.setattr(GalileoLoggerSingleton, "get_all_loggers", lambda self: {})
+    SplunkAOLoggerSingleton().reset_all()
+    monkeypatch.setattr(SplunkAOLoggerSingleton, "get_all_loggers", lambda self: {})
     monkeypatch.setattr(
         galileo_context, "get_logger_instance", lambda *args, **kwargs: SimpleNamespace(flush=lambda: None)
     )
@@ -28,16 +28,16 @@ def reset_agent_control_helper_state(monkeypatch):
 
     # Then: context and singleton state are restored for following tests
     galileo_context.reset()
-    GalileoLoggerSingleton().reset_all()
+    SplunkAOLoggerSingleton().reset_all()
 
 
 def _stub_cached_logger(monkeypatch, logger: SimpleNamespace) -> None:
     key = (threading.current_thread().name, "batch", logger.project_name, logger.log_stream_name)
-    monkeypatch.setattr(GalileoLoggerSingleton, "get_all_loggers", lambda self: {key: logger})
+    monkeypatch.setattr(SplunkAOLoggerSingleton, "get_all_loggers", lambda self: {key: logger})
 
 
 def _stub_cached_loggers(monkeypatch, loggers: dict[tuple[str, ...], SimpleNamespace]) -> None:
-    monkeypatch.setattr(GalileoLoggerSingleton, "get_all_loggers", lambda self: loggers)
+    monkeypatch.setattr(SplunkAOLoggerSingleton, "get_all_loggers", lambda self: loggers)
 
 
 def test_get_agent_control_target_uses_explicit_log_stream_id() -> None:

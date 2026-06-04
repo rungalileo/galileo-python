@@ -5,14 +5,14 @@ This module tests the four metric types:
 - LlmMetric: Custom LLM-based metrics with prompt templates
 - LocalMetric: Local function-based metrics
 - CodeMetric: Code-based metrics (limited support)
-- GalileoMetric: Built-in Galileo scorers
+- SplunkAOMetric: Built-in Galileo scorers
 """
 
 from __future__ import annotations
 
 import pytest
 
-from galileo.metric import CodeMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
+from galileo.metric import CodeMetric, SplunkAOMetric, LlmMetric, LocalMetric, Metric
 from galileo.resources.models import OutputTypeEnum, ScorerTypes
 from galileo.shared.exceptions import ValidationError
 from galileo_core.schemas.logging.step import StepType
@@ -220,17 +220,17 @@ class TestCodeMetric:
         assert callable(metric.create)
 
 
-class TestGalileoMetric:
-    """Tests for GalileoMetric class."""
+class TestSplunkAOMetric:
+    """Tests for SplunkAOMetric class."""
 
     def test_galileo_metric_initialization(self):
-        """Test basic GalileoMetric initialization."""
-        metric = GalileoMetric(name="test_galileo", description="Test Galileo metric", tags=["galileo"])
+        """Test basic SplunkAOMetric initialization."""
+        metric = SplunkAOMetric(name="test_galileo", description="Test Galileo metric", tags=["galileo"])
 
         assert metric.name == "test_galileo"
         assert metric.description == "Test Galileo metric"
         assert metric.tags == ["galileo"]
-        assert isinstance(metric, GalileoMetric)
+        assert isinstance(metric, SplunkAOMetric)
         assert isinstance(metric, Metric)
 
 
@@ -259,7 +259,7 @@ class TestMetricBase:
             LlmMetric(name="llm", prompt="Rate this"),
             LocalMetric(name="local", scorer_fn=my_scorer),
             CodeMetric(name="code"),
-            GalileoMetric(name="galileo"),
+            SplunkAOMetric(name="galileo"),
         ]
 
         for metric in metrics:
@@ -327,7 +327,7 @@ class TestMetricInheritance:
         assert isinstance(LlmMetric(name="llm", prompt="Rate"), Metric)
         assert isinstance(LocalMetric(name="local", scorer_fn=my_scorer), Metric)
         assert isinstance(CodeMetric(name="code"), Metric)
-        assert isinstance(GalileoMetric(name="galileo"), Metric)
+        assert isinstance(SplunkAOMetric(name="galileo"), Metric)
 
     def test_metric_type_checking(self, tmp_path):
         """Test isinstance checks for different metric types."""
@@ -338,12 +338,12 @@ class TestMetricInheritance:
         llm = LlmMetric(name="llm", prompt="Rate")
         local = LocalMetric(name="local", scorer_fn=my_scorer)
         code = CodeMetric(name="code")
-        galileo = GalileoMetric(name="galileo")
+        galileo = SplunkAOMetric(name="galileo")
 
         assert isinstance(llm, LlmMetric) and not isinstance(llm, LocalMetric)
         assert isinstance(local, LocalMetric) and not isinstance(local, LlmMetric)
         assert isinstance(code, CodeMetric) and not isinstance(code, LlmMetric)
-        assert isinstance(galileo, GalileoMetric) and not isinstance(galileo, LlmMetric)
+        assert isinstance(galileo, SplunkAOMetric) and not isinstance(galileo, LlmMetric)
 
 
 class TestMetricEdgeCases:

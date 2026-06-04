@@ -3,7 +3,7 @@ import mimetypes
 import time
 from typing import Any, overload
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.datasets import (
     create_dataset_datasets_post,
     delete_dataset_datasets_dataset_id_delete,
@@ -59,11 +59,11 @@ class DatasetAPIException(APIException):
 
 class Dataset:
     content: DatasetContent | None = None
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self, dataset_db: DatasetDB) -> None:
         self.dataset = dataset_db
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def get_content(self, starting_token: int = 0, limit: int = MAX_DATASET_ROWS) -> None | DatasetContent:
         """
@@ -205,10 +205,10 @@ class Dataset:
 
 
 class Datasets:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def list(
         self, limit: Unset | int = 100, *, project_id: str | None = None, project_name: str | None = None

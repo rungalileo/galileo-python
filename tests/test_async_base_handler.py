@@ -4,12 +4,12 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from galileo.handlers.base_async_handler import GalileoAsyncBaseHandler
-from galileo.logger.logger import GalileoLogger
+from galileo.handlers.base_async_handler import SplunkAOAsyncBaseHandler
+from galileo.logger.logger import SplunkAOLogger
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
-class TestGalileoAsyncBaseHandlerCallback:
+class TestSplunkAOAsyncBaseHandlerCallback:
     @pytest.fixture
     @patch("galileo.logger.logger.LogStreams")
     @patch("galileo.logger.logger.Projects")
@@ -19,12 +19,12 @@ class TestGalileoAsyncBaseHandlerCallback:
         setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
-        return GalileoLogger(project="my_project", log_stream="my_log_stream")
+        return SplunkAOLogger(project="my_project", log_stream="my_log_stream")
 
     @pytest.fixture
-    def handler(self, galileo_logger: GalileoLogger) -> Generator[GalileoAsyncBaseHandler, None, None]:
-        """Creates a GalileoCallback with a mock logger"""
-        handler = GalileoAsyncBaseHandler(galileo_logger=galileo_logger, flush_on_chain_end=False)
+    def handler(self, galileo_logger: SplunkAOLogger) -> Generator[SplunkAOAsyncBaseHandler, None, None]:
+        """Creates a SplunkAOCallback with a mock logger"""
+        handler = SplunkAOAsyncBaseHandler(galileo_logger=galileo_logger, flush_on_chain_end=False)
         # Reset the root node before each test
         handler._root_node = None
         yield handler
@@ -32,24 +32,24 @@ class TestGalileoAsyncBaseHandlerCallback:
         handler._root_node = None
 
     @pytest.mark.asyncio
-    async def test_initialization(self, galileo_logger: GalileoLogger) -> None:
+    async def test_initialization(self, galileo_logger: SplunkAOLogger) -> None:
         """Test callback initialization with various parameters"""
         # Default initialization
-        callback = GalileoAsyncBaseHandler(galileo_logger=galileo_logger)
+        callback = SplunkAOAsyncBaseHandler(galileo_logger=galileo_logger)
         assert callback._galileo_logger == galileo_logger
         assert callback._start_new_trace is True
         assert callback._flush_on_chain_end is True
         assert callback._nodes == {}
 
         # Custom initialization
-        callback = GalileoAsyncBaseHandler(
+        callback = SplunkAOAsyncBaseHandler(
             galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False
         )
         assert callback._start_new_trace is False
         assert callback._flush_on_chain_end is False
 
     @pytest.mark.asyncio
-    async def test_start_node(self, handler: GalileoAsyncBaseHandler) -> None:
+    async def test_start_node(self, handler: SplunkAOAsyncBaseHandler) -> None:
         """Test creating a node and establishing parent-child relationships"""
         # Create a parent node
         parent_id = uuid.uuid4()
@@ -83,7 +83,7 @@ class TestGalileoAsyncBaseHandlerCallback:
         assert handler._root_node.run_id == parent_id
 
     @pytest.mark.asyncio
-    async def test_end_node(self, handler: GalileoAsyncBaseHandler, galileo_logger: GalileoLogger) -> None:
+    async def test_end_node(self, handler: SplunkAOAsyncBaseHandler, galileo_logger: SplunkAOLogger) -> None:
         """Test ending a node and updating its parameters"""
         # Create a node
         run_id = uuid.uuid4()

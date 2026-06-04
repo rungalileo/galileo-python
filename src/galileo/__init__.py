@@ -4,25 +4,25 @@ from galileo.agent_control import AgentControlTarget, AgentControlTargetUnresolv
 from galileo.collaborator import Collaborator, CollaboratorRole
 from galileo.configuration import Configuration
 from galileo.dataset import Dataset
-from galileo.decorator import GalileoDecorator, galileo_context, log, start_session
+from galileo.decorator import SplunkAODecorator, galileo_context, log, start_session
 from galileo.exceptions import (
     AuthenticationError,
     BadRequestError,
     ConflictError,
     ForbiddenError,
-    GalileoAPIError,
-    GalileoLoggerException,
+    SplunkAOAPIError,
+    SplunkAOLoggerException,
     NotFoundError,
     RateLimitError,
     ServerError,
 )
 from galileo.experiment import Experiment
-from galileo.handlers.agent_control import GalileoAgentControlBridge, setup_agent_control_bridge
+from galileo.handlers.agent_control import SplunkAOAgentControlBridge, setup_agent_control_bridge
 from galileo.integration import Integration
 from galileo.log_stream import LogStream
-from galileo.logger import GalileoLogger
+from galileo.logger import SplunkAOLogger
 from galileo.logger.control import ControlAppliesTo, ControlCheckStage, ControlResult, ControlSpan
-from galileo.metric import CodeMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
+from galileo.metric import CodeMetric, SplunkAOMetric, LlmMetric, LocalMetric, Metric
 from galileo.model import Model
 from galileo.project import Project
 from galileo.prompt import Prompt
@@ -30,12 +30,12 @@ from galileo.protect import ainvoke_protect, invoke_protect
 from galileo.provider import AnthropicProvider, AzureProvider, BedrockProvider, OpenAIProvider, Provider
 from galileo.resources.models.document import Document
 from galileo.schema.message import Message
-from galileo.schema.metrics import GalileoMetrics, GalileoScorers
+from galileo.schema.metrics import SplunkAOMetrics, GalileoScorers
 from galileo.shared.base import SyncState
 from galileo.shared.exceptions import (
     APIError,
     ConfigurationError,
-    GalileoFutureError,
+    SplunkAOFutureError,
     ResourceConflictError,
     ResourceNotFoundError,
     ValidationError,
@@ -99,14 +99,14 @@ __all__ = [
     "ExecutionStatus",
     "Experiment",
     "ForbiddenError",
-    "GalileoAPIError",
-    "GalileoAgentControlBridge",
-    "GalileoDecorator",
-    "GalileoFutureError",
-    "GalileoLogger",
-    "GalileoLoggerException",
-    "GalileoMetric",
-    "GalileoMetrics",
+    "SplunkAOAPIError",
+    "SplunkAOAgentControlBridge",
+    "SplunkAODecorator",
+    "SplunkAOFutureError",
+    "SplunkAOLogger",
+    "SplunkAOLoggerException",
+    "SplunkAOMetric",
+    "SplunkAOMetrics",
     "GalileoScorers",
     "Integration",
     "LlmMetric",

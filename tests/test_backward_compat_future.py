@@ -39,7 +39,7 @@ def test_state_management_mixin_is_same_class():
 def test_exceptions_are_same_classes():
     from galileo.__future__.shared.exceptions import APIError as FutureAPIError
     from galileo.__future__.shared.exceptions import ConfigurationError as FutureConfigError
-    from galileo.__future__.shared.exceptions import GalileoFutureError as FutureBaseError
+    from galileo.__future__.shared.exceptions import SplunkAOFutureError as FutureBaseError
     from galileo.__future__.shared.exceptions import IntegrationNotConfiguredError as FutureIntError
     from galileo.__future__.shared.exceptions import ResourceConflictError as FutureConflictError
     from galileo.__future__.shared.exceptions import ResourceNotFoundError as FutureNotFoundError
@@ -48,7 +48,7 @@ def test_exceptions_are_same_classes():
     from galileo.shared.exceptions import (
         APIError,
         ConfigurationError,
-        GalileoFutureError,
+        SplunkAOFutureError,
         IntegrationNotConfiguredError,
         ResourceConflictError,
         ResourceNotFoundError,
@@ -58,7 +58,7 @@ def test_exceptions_are_same_classes():
 
     assert FutureAPIError is APIError
     assert FutureConfigError is ConfigurationError
-    assert FutureBaseError is GalileoFutureError
+    assert FutureBaseError is SplunkAOFutureError
     assert FutureIntError is IntegrationNotConfiguredError
     assert FutureConflictError is ResourceConflictError
     assert FutureNotFoundError is ResourceNotFoundError
@@ -128,15 +128,15 @@ def test_provider_classes_are_same():
 
 def test_metric_classes_are_same():
     from galileo.__future__.metric import CodeMetric as FutureCodeMetric
-    from galileo.__future__.metric import GalileoMetric as FutureGalileoMetric
+    from galileo.__future__.metric import SplunkAOMetric as FutureSplunkAOMetric
     from galileo.__future__.metric import LlmMetric as FutureLlmMetric
     from galileo.__future__.metric import LocalMetric as FutureLocalMetric
     from galileo.__future__.metric import Metric as FutureMetric
-    from galileo.metric import CodeMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
+    from galileo.metric import CodeMetric, SplunkAOMetric, LlmMetric, LocalMetric, Metric
 
     assert FutureMetric is Metric
     assert FutureCodeMetric is CodeMetric
-    assert FutureGalileoMetric is GalileoMetric
+    assert FutureSplunkAOMetric is SplunkAOMetric
     assert FutureLlmMetric is LlmMetric
     assert FutureLocalMetric is LocalMetric
 
@@ -288,7 +288,7 @@ def test_root_init_has_new_exports():
         Configuration,
         Dataset,
         Experiment,
-        GalileoMetric,
+        SplunkAOMetric,
         Integration,
         LlmMetric,
         LocalMetric,
@@ -308,7 +308,7 @@ def test_root_init_has_new_exports():
     assert LogStream is not None
     assert Metric is not None
     assert CodeMetric is not None
-    assert GalileoMetric is not None
+    assert SplunkAOMetric is not None
     assert LlmMetric is not None
     assert LocalMetric is not None
     assert MetricSpec is not None

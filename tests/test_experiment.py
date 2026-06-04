@@ -11,7 +11,7 @@ from galileo.resources.models import ExperimentResponse, PromptRunSettings
 from galileo.resources.models.column_category import ColumnCategory
 from galileo.resources.models.column_info import ColumnInfo
 from galileo.resources.models.data_type import DataType
-from galileo.schema.metrics import GalileoMetrics
+from galileo.schema.metrics import SplunkAOMetrics
 from galileo.search import RecordType
 from galileo.shared.base import SyncState
 from galileo.shared.column import ColumnCollection
@@ -107,7 +107,7 @@ class TestExperimentInitialization:
 
     def test_init_with_metrics(self, reset_configuration: None) -> None:
         """Test initializing an experiment with metrics."""
-        metrics = [GalileoMetrics.correctness, "completeness"]
+        metrics = [SplunkAOMetrics.correctness, "completeness"]
         experiment = Experiment(
             name="Test Experiment",
             dataset_name="test-dataset",
@@ -1061,7 +1061,7 @@ class TestExperimentRelationships:
 class TestExperimentLifecycle:
     """Test suite for Experiment lifecycle methods (refresh, delete)."""
 
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     @patch("galileo.experiment.get_experiment_projects_project_id_experiments_experiment_id_get")
     def test_refresh_updates_attributes(
         self,
@@ -1107,7 +1107,7 @@ class TestExperimentLifecycle:
         assert synced_experiment._experiment_response is mock_experiment_response
         assert synced_experiment.is_synced()
 
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     @patch("galileo.experiment.get_experiment_projects_project_id_experiments_experiment_id_get")
     def test_refresh_sets_failed_sync_on_not_found(
         self,
@@ -1128,7 +1128,7 @@ class TestExperimentLifecycle:
 
         assert synced_experiment.sync_state == SyncState.FAILED_SYNC
 
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     @patch("galileo.experiment.delete_experiment_projects_project_id_experiments_experiment_id_delete")
     def test_delete_removes_experiment(
         self,
@@ -1255,7 +1255,7 @@ class TestExperimentStatusMethods:
 
         assert synced_experiment.has_traces() is expected_result
 
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     @patch("galileo.experiment.get_experiment_projects_project_id_experiments_experiment_id_get")
     def test_get_status_returns_status_info(
         self,
@@ -1403,7 +1403,7 @@ class TestMetricColumns:
     """Tests for Experiment.experiment_columns."""
 
     @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     def test_experiment_columns_returns_column_collection(
         self,
         mock_config_class: MagicMock,
@@ -1492,13 +1492,13 @@ class TestGetMetricAggregate:
         synced_experiment._experiment_response = mock_response
 
         # When: getting a metric aggregate
-        result = synced_experiment.get_metric_aggregate(GalileoMetrics.correctness)
+        result = synced_experiment.get_metric_aggregate(SplunkAOMetrics.correctness)
 
         # Then: None is returned without error
         assert result is None
 
     @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     def test_lookup_by_galileo_metrics_enum(
         self,
         mock_config_class: MagicMock,
@@ -1513,15 +1513,15 @@ class TestGetMetricAggregate:
         )
         mock_config_class.get.return_value = MagicMock()
 
-        # When: looking up by GalileoMetrics enum (value == label "Correctness")
-        result = experiment.get_metric_aggregate(GalileoMetrics.correctness)
+        # When: looking up by SplunkAOMetrics enum (value == label "Correctness")
+        result = experiment.get_metric_aggregate(SplunkAOMetrics.correctness)
 
         # Then: the aggregate for the scorer UUID is returned
         assert result is not None
         assert result.avg == 0.85
 
     @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     def test_lookup_by_label_string(
         self,
         mock_config_class: MagicMock,
@@ -1544,7 +1544,7 @@ class TestGetMetricAggregate:
         assert result.avg == 0.85
 
     @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     def test_lookup_by_metric_key_alias(
         self,
         mock_config_class: MagicMock,
@@ -1578,7 +1578,7 @@ class TestGetMetricAggregate:
         assert result.avg == 0.85
 
     @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     def test_returns_none_for_unknown_metric(
         self,
         mock_config_class: MagicMock,
@@ -1600,7 +1600,7 @@ class TestGetMetricAggregate:
         assert result is None
 
     @patch("galileo.experiment.experiments_available_columns_projects_project_id_experiments_available_columns_post")
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     def test_label_takes_priority_over_alias(
         self,
         mock_config_class: MagicMock,
@@ -1651,7 +1651,7 @@ class TestGetMetricAggregate:
 class TestExperimentTagging:
     """Test suite for Experiment tagging functionality."""
 
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     @patch("galileo.experiment.get_experiment_projects_project_id_experiments_experiment_id_get")
     @patch("galileo.experiment.upsert_experiment_tag")
     def test_add_tag_upserts_tag(
@@ -1708,7 +1708,7 @@ class TestExperimentColumns:
             ("session_columns", "sessions_available_columns_projects_project_id_sessions_available_columns_post"),
         ],
     )
-    @patch("galileo.experiment.GalileoPythonConfig")
+    @patch("galileo.experiment.SplunkAOConfig")
     def test_column_properties_return_collection(
         self,
         mock_config_class: MagicMock,

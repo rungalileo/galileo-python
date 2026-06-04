@@ -2,7 +2,7 @@ from collections.abc import Sequence
 
 from pydantic import UUID4
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.constants.protect import TIMEOUT_SECS
 from galileo.resources.api.protect import invoke_protect_invoke_post
 from galileo.resources.models.http_validation_error import HTTPValidationError
@@ -16,10 +16,10 @@ from galileo_core.schemas.protect.ruleset import Ruleset
 
 
 class Protect:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     async def ainvoke(
         self,

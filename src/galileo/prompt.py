@@ -6,7 +6,7 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.projects import Projects
 from galileo.prompts import GlobalPromptTemplates
 from galileo.resources.api.prompts import (
@@ -557,7 +557,7 @@ class Prompt(StateManagementMixin):
 
             logger.info(f"Prompt.create_version: id='{self.id}' - started")
 
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             body = BasePromptTemplateVersion(template=self._messages_to_api_format(version_messages))
 
             response = create_global_prompt_template_version_templates_template_id_versions_post.sync(
@@ -670,7 +670,7 @@ class Prompt(StateManagementMixin):
         try:
             logger.debug(f"Prompt.list_versions: id='{self.id}' - started")
 
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             body = ListPromptTemplateVersionParams()
 
             response = query_template_versions_templates_template_id_versions_query_post.sync(
@@ -720,7 +720,7 @@ class Prompt(StateManagementMixin):
         try:
             logger.info(f"Prompt.select_version: id='{self.id}' version={version} - started")
 
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
 
             response = set_selected_global_template_version_templates_template_id_versions_version_put.sync(
                 template_id=self.id, version=version, client=config.api_client

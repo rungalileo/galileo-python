@@ -3,7 +3,7 @@ import datetime
 
 import httpx
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.projects import (
     create_project_projects_post,
     create_user_project_collaborators_projects_project_id_users_post,
@@ -133,10 +133,10 @@ class Project:
 
 
 class Projects:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def list(self) -> list[Project]:
         """

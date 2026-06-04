@@ -13,7 +13,7 @@ from galileo_core.schemas.shared.metric import MetricValueType
 from galileo_core.schemas.shared.scorers.scorer_name import ScorerName
 
 
-class GalileoMetrics(str, Enum):
+class SplunkAOMetrics(str, Enum):
     """Built-in Galileo metric scorers.
 
     Values are human-readable UI labels used for scorer lookup via the API.
@@ -71,7 +71,7 @@ class GalileoMetrics(str, Enum):
     user_intent_change = "User Intent Change"
 
 
-class _GalileoScorersProxyMeta(type):
+class _SplunkAOScorersProxyMeta(type):
     """Metaclass that makes GalileoScorers a deprecated proxy for ScorerName."""
 
     _DEPRECATION_MSG = (
@@ -109,15 +109,15 @@ class _GalileoScorersProxyMeta(type):
         return "<deprecated GalileoScorers proxy - use ScorerName>"
 
 
-class _GalileoScorersProxy(metaclass=_GalileoScorersProxyMeta):
+class _SplunkAOScorersProxy(metaclass=_SplunkAOScorersProxyMeta):
     """Deprecated proxy that forwards to ScorerName."""
 
     def __new__(cls, value: Any) -> ScorerName:
-        warnings.warn(_GalileoScorersProxyMeta._DEPRECATION_MSG, DeprecationWarning, stacklevel=2)
+        warnings.warn(_SplunkAOScorersProxyMeta._DEPRECATION_MSG, DeprecationWarning, stacklevel=2)
         return ScorerName(value)
 
 
-GalileoScorers = _GalileoScorersProxy
+GalileoScorers = _SplunkAOScorersProxy
 
 
 MetricType = TypeVar("MetricType", bound=MetricValueType)

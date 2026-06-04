@@ -11,7 +11,7 @@ warnings.warn(
 from galileo.shared.exceptions import (  # noqa: E402
     APIError,
     ConfigurationError,
-    GalileoFutureError,
+    SplunkAOFutureError,
     IntegrationNotConfiguredError,
     ResourceConflictError,
     ResourceNotFoundError,
@@ -22,7 +22,7 @@ from galileo.shared.exceptions import (  # noqa: E402
 __all__ = [
     "APIError",
     "ConfigurationError",
-    "GalileoFutureError",
+    "SplunkAOFutureError",
     "IntegrationNotConfiguredError",
     "ResourceConflictError",
     "ResourceNotFoundError",

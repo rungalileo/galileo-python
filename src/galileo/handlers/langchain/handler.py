@@ -5,9 +5,9 @@ from collections.abc import Callable
 from typing import Any
 from uuid import UUID
 
-from galileo.handlers.base_handler import GalileoBaseHandler
+from galileo.handlers.base_handler import SplunkAOBaseHandler
 from galileo.handlers.langchain.utils import get_agent_name, is_agent_node, parse_llm_result, update_root_to_agent
-from galileo.logger import GalileoLogger
+from galileo.logger import SplunkAOLogger
 from galileo.schema.handlers import LANGCHAIN_NODE_TYPE, NODE_TYPE
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.serialization import EventSerializer, serialize_to_str
@@ -31,24 +31,24 @@ except ImportError:
     ToolMessage = object
 
 
-class GalileoCallback(BaseCallbackHandler):
+class SplunkAOCallback(BaseCallbackHandler):
     """
     Langchain callback handler for logging traces to the Galileo platform.
 
     Attributes
     ----------
-    _handler : GalileoBaseHandler
+    _handler : SplunkAOBaseHandler
         The handler for managing the trace.
     """
 
     def __init__(
         self,
-        galileo_logger: GalileoLogger | None = None,
+        galileo_logger: SplunkAOLogger | None = None,
         start_new_trace: bool = True,
         flush_on_chain_end: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
     ):
-        self._handler = GalileoBaseHandler(
+        self._handler = SplunkAOBaseHandler(
             flush_on_chain_end=flush_on_chain_end,
             start_new_trace=start_new_trace,
             galileo_logger=galileo_logger,

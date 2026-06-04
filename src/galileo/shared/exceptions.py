@@ -4,7 +4,7 @@ from galileo.exceptions import NotFoundError
 from galileo.utils.env_helpers import _get_project_from_env, _get_project_id_from_env
 
 
-class GalileoFutureError(Exception):
+class SplunkAOFutureError(Exception):
     """
     Base exception for all Galileo Future API errors.
 
@@ -13,7 +13,7 @@ class GalileoFutureError(Exception):
     """
 
 
-class ConfigurationError(GalileoFutureError):
+class ConfigurationError(SplunkAOFutureError):
     """
     Raised when there are configuration-related errors.
 
@@ -21,7 +21,7 @@ class ConfigurationError(GalileoFutureError):
     """
 
 
-class ValidationError(GalileoFutureError):
+class ValidationError(SplunkAOFutureError):
     """
     Raised when input validation fails.
 
@@ -30,7 +30,7 @@ class ValidationError(GalileoFutureError):
     """
 
 
-class ResourceNotFoundError(NotFoundError, GalileoFutureError):
+class ResourceNotFoundError(NotFoundError, SplunkAOFutureError):
     """
     Backward-compatible alias for NotFoundError.
 
@@ -42,7 +42,7 @@ class ResourceNotFoundError(NotFoundError, GalileoFutureError):
         NotFoundError.__init__(self, message)
 
 
-class ResourceConflictError(GalileoFutureError):
+class ResourceConflictError(SplunkAOFutureError):
     """
     Raised when there's a conflict with existing resources.
 
@@ -51,7 +51,7 @@ class ResourceConflictError(GalileoFutureError):
     """
 
 
-class APIError(GalileoFutureError):
+class APIError(SplunkAOFutureError):
     """
     Raised when the underlying API returns an error.
 
@@ -63,7 +63,7 @@ class APIError(GalileoFutureError):
         self.original_error = original_error
 
 
-class SyncError(GalileoFutureError):
+class SyncError(SplunkAOFutureError):
     """
     Raised when there's a state synchronization error.
 
@@ -77,7 +77,7 @@ class SyncError(GalileoFutureError):
         self.original_error = original_error
 
 
-class IntegrationNotConfiguredError(GalileoFutureError):
+class IntegrationNotConfiguredError(SplunkAOFutureError):
     """
     Raised when attempting to use an integration that is not configured.
 

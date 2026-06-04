@@ -2,7 +2,7 @@ from collections.abc import Generator
 from datetime import datetime
 from typing import Any
 
-from galileo import GalileoLogger
+from galileo import SplunkAOLogger
 from galileo.openai.extractors import (
     convert_to_galileo_message,
     extract_streamed_openai_response,
@@ -39,7 +39,7 @@ class ResponseGeneratorSync:
         The OpenAI streaming response.
     input_data : OpenAiInputData
         The input data for the OpenAI request.
-    logger : GalileoLogger
+    logger : SplunkAOLogger
         The Galileo logger instance.
     should_complete_trace : bool
         Whether to complete the trace when the generator is exhausted.
@@ -51,7 +51,7 @@ class ResponseGeneratorSync:
         resource: OpenAiModuleDefinition,
         response: Generator | openai.Stream,
         input_data: OpenAiInputData,
-        logger: GalileoLogger,
+        logger: SplunkAOLogger,
         should_complete_trace: bool,
         status_code: int = 200,
     ):

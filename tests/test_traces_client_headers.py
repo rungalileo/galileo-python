@@ -14,8 +14,8 @@ class TestTracesHeaders:
 
     @pytest.fixture
     def mock_config(self):
-        """Mock GalileoPythonConfig."""
-        with patch("galileo.traces.GalileoPythonConfig") as mock_config_class:
+        """Mock SplunkAOConfig."""
+        with patch("galileo.traces.SplunkAOConfig") as mock_config_class:
             mock_config = Mock()
             mock_api_client = Mock()
             mock_api_client.arequest = AsyncMock(return_value={"status": "ok"})

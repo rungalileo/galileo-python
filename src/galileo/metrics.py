@@ -1,7 +1,7 @@
 import datetime
 import logging
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.data import (
     create_llm_scorer_version_scorers_scorer_id_version_llm_post,
     create_scorers_post,
@@ -27,10 +27,10 @@ _logger = logging.getLogger(__name__)
 
 
 class Metrics:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def delete_metric(self, name: str) -> None:
         scorers_to_delete = Scorers().list(name=name)

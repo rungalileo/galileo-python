@@ -5,7 +5,7 @@ from uuid import UUID
 
 import httpx
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.constants.routes import Routes
 from galileo.schema.trace import (
     LogRecordsSearchRequest,
@@ -26,7 +26,7 @@ _logger = logging.getLogger(__name__)
 class Traces:
     """
     A class for interacting with the Galileo API using the galileo_core package.
-    Currently used by the GalileoLogger to create and upload traces to Galileo.
+    Currently used by the SplunkAOLogger to create and upload traces to Galileo.
 
     Attributes
     ----------
@@ -38,12 +38,12 @@ class Traces:
 
     project_id: str | None = None
     log_stream_id: str | None = None
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(
         self, project_id: str | None = None, log_stream_id: str | None = None, experiment_id: str | None = None
     ):
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
         self.project_id = project_id
         self.log_stream_id = log_stream_id
         self.experiment_id = experiment_id

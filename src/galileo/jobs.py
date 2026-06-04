@@ -1,6 +1,6 @@
 import logging
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.jobs import create_job_jobs_post
 from galileo.resources.models import (
     CreateJobRequest,
@@ -16,10 +16,10 @@ _logger = logging.getLogger(__name__)
 
 
 class Jobs:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def create(
         self,

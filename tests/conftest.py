@@ -30,7 +30,7 @@ _os.environ["OPENAI_API_KEY"] = "sk-test"
 del _os  # Clean up temporary import
 # fmt: on
 
-# SC-60512: Bound GalileoLogger.terminate() shutdown wait for the test session.
+# SC-60512: Bound SplunkAOLogger.terminate() shutdown wait for the test session.
 # The 90s prod default turns into a busy-poll when --disable-socket leaves
 # background tasks pending, which causes pytest workers to hang at exit.
 # Override the module constant directly so tests don't depend on a user-facing
@@ -52,7 +52,7 @@ from httpx import Request  # noqa: E402
 from httpx import Response as HttpxResponse  # noqa: E402
 
 from galileo.collaborator import CollaboratorRole  # noqa: E402
-from galileo.config import GalileoPythonConfig  # noqa: E402
+from galileo.config import SplunkAOConfig  # noqa: E402
 from galileo.configuration import _CONFIGURATION_KEYS, Configuration  # noqa: E402
 from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict  # noqa: E402
 from galileo.resources.models.messages_list_item import MessagesListItem  # noqa: E402
@@ -122,11 +122,11 @@ def set_validated_config(
     """Automatically set up validated config for tests."""
     # Reset any existing config to ensure fresh initialization
     # This is needed for pytest-xdist compatibility on Python 3.14+
-    if GalileoPythonConfig._instance is not None:
-        GalileoPythonConfig._instance.reset()
+    if SplunkAOConfig._instance is not None:
+        SplunkAOConfig._instance.reset()
     # Initialize config with EXPLICIT values to avoid env var timing issues with pytest-xdist
     # This ensures correct config even if env vars weren't set before module imports
-    config = GalileoPythonConfig.get(console_url="http://localtest:8088", api_key="api-1234567890")
+    config = SplunkAOConfig.get(console_url="http://localtest:8088", api_key="api-1234567890")
     yield
     config.reset()
 
@@ -290,7 +290,7 @@ def thread_pool_capture():
 
     Usage:
         def test_distributed_method(thread_pool_capture):
-            logger = GalileoLogger(project="test", log_stream="test", mode="distributed")
+            logger = SplunkAOLogger(project="test", log_stream="test", mode="distributed")
             capture = thread_pool_capture(logger)
 
             logger._ingest_trace_streaming(trace)

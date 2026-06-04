@@ -18,7 +18,7 @@ def test_scorer_prompt_types_are_exported():
         "Session",
         "Message",
         "Document",
-        "GalileoMetrics",
+        "SplunkAOMetrics",
     ]
     missing = [name for name in types if not hasattr(galileo, name)]
     assert not missing, f"Types missing from `galileo` public API: {missing}"

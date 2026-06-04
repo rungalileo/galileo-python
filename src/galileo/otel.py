@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 
 from requests import Session
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.decorator import (
     _dataset_input_context,
     _dataset_metadata_context,
@@ -86,13 +86,13 @@ class TracerProvider(Protocol):
 _TRACE_PROVIDER_CONTEXT_VAR: ContextVar[TracerProvider | None] = ContextVar("galileo_trace_provider", default=None)
 
 
-class GalileoOTLPExporter(OTLPSpanExporter):
+class SplunkAOOTLPExporter(OTLPSpanExporter):
     """
     OpenTelemetry OTLP span exporter preconfigured for Galileo platform integration.
 
     This exporter extends the standard OTLPSpanExporter with Galileo-specific
     configuration and authentication. For most applications, consider using
-    GalileoSpanProcessor instead, which provides a complete tracing solution.
+    SplunkAOSpanProcessor instead, which provides a complete tracing solution.
     """
 
     _session: Session
@@ -115,8 +115,8 @@ class GalileoOTLPExporter(OTLPSpanExporter):
         ValueError
             When configuration is not properly initialized with required credentials.
         """
-        # Get configuration from GalileoPythonConfig
-        config = GalileoPythonConfig.get()
+        # Get configuration from SplunkAOConfig
+        config = SplunkAOConfig.get()
 
         if not config.api_url:
             # This should never happen, but we'll raise an error just in case
@@ -198,7 +198,7 @@ class GalileoOTLPExporter(OTLPSpanExporter):
         return super().export(spans)
 
 
-class GalileoSpanProcessor(SpanProcessor):
+class SplunkAOSpanProcessor(SpanProcessor):
     """
     Complete OpenTelemetry span processor with integrated Galileo export functionality.
 
@@ -210,7 +210,7 @@ class GalileoSpanProcessor(SpanProcessor):
     --------
     >>> from opentelemetry.sdk.trace import TracerProvider
     >>> tracer_provider = TracerProvider()
-    >>> processor = GalileoSpanProcessor(project="my-project")
+    >>> processor = SplunkAOSpanProcessor(project="my-project")
     >>> add_galileo_span_processor(tracer_provider, processor)
     """
 
@@ -248,7 +248,7 @@ class GalileoSpanProcessor(SpanProcessor):
         self._logstream = _get_log_stream_or_default(ctx_logstream)
 
         # Create the exporter using the config-based approach
-        self._exporter = GalileoOTLPExporter(**kwargs)
+        self._exporter = SplunkAOOTLPExporter(**kwargs)
 
         if SpanProcessor is None:
             SpanProcessor = BatchSpanProcessor
@@ -302,7 +302,7 @@ class GalileoSpanProcessor(SpanProcessor):
         return self._processor.force_flush(timeout_millis)
 
     @property
-    def exporter(self) -> GalileoOTLPExporter:
+    def exporter(self) -> SplunkAOOTLPExporter:
         """Access to the underlying Galileo OTLP exporter instance."""
         return self._exporter
 
@@ -312,7 +312,7 @@ class GalileoSpanProcessor(SpanProcessor):
         return self._processor
 
 
-def add_galileo_span_processor(tracer_provider: TracerProvider, processor: GalileoSpanProcessor) -> None:
+def add_galileo_span_processor(tracer_provider: TracerProvider, processor: SplunkAOSpanProcessor) -> None:
     """Add the Galileo span processor to the tracer provider."""
     tracer_provider.add_span_processor(processor)
     _TRACE_PROVIDER_CONTEXT_VAR.set(tracer_provider)

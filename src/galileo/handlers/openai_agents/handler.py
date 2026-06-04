@@ -6,11 +6,11 @@ from typing import Any, cast
 from agents import Span, Trace, TracingProcessor
 from agents.tracing import ResponseSpanData, get_current_span, get_trace_provider
 
-from galileo import GalileoLogger, galileo_context
+from galileo import SplunkAOLogger, galileo_context
 from galileo.schema.handlers import Node
 from galileo.utils import _get_timestamp
 from galileo.utils.openai_agents import (
-    GalileoCustomSpan,
+    SplunkAOCustomSpan,
     _extract_llm_data,
     _extract_tool_data,
     _extract_workflow_data,
@@ -24,7 +24,7 @@ from galileo_core.schemas.logging.span import Span as GalileoSpan
 _logger = logging.getLogger(__name__)
 
 
-class GalileoTracingProcessor(TracingProcessor):
+class SplunkAOTracingProcessor(TracingProcessor):
     """
     OpenAI Agents TracingProcessor for logging traces to Galileo.
 
@@ -33,7 +33,7 @@ class GalileoTracingProcessor(TracingProcessor):
 
     Attributes
     ----------
-    _galileo_logger : GalileoLogger
+    _galileo_logger : SplunkAOLogger
         The Galileo logger instance.
     _flush_on_trace_end : bool
         Whether to automatically flush the log batch to Galileo when a trace ends.
@@ -41,18 +41,18 @@ class GalileoTracingProcessor(TracingProcessor):
         Stores Node objects keyed by their OpenAI span_id or trace_id (for root).
     """
 
-    def __init__(self, galileo_logger: GalileoLogger | None = None, flush_on_trace_end: bool = True):
+    def __init__(self, galileo_logger: SplunkAOLogger | None = None, flush_on_trace_end: bool = True):
         """
         OpenAI Agents TracingProcessor for logging traces to Galileo.
 
         Parameters
         ----------
-        galileo_logger : Optional[GalileoLogger]
+        galileo_logger : Optional[SplunkAOLogger]
             The Galileo logger instance. If None, a default instance is created.
         flush_on_trace_end : bool
             Whether to automatically flush the log batch to Galileo when a trace ends.
         """
-        self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance()
+        self._galileo_logger: SplunkAOLogger = galileo_logger or galileo_context.get_logger_instance()
         self._flush_on_trace_end: bool = flush_on_trace_end
         self._nodes: dict[str, Node] = {}
         self._last_output: Any = None
@@ -278,7 +278,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 }
             )
         elif galileo_type == "galileo_custom":
-            custom_span = cast(GalileoCustomSpan, span.span_data)
+            custom_span = cast(SplunkAOCustomSpan, span.span_data)
             initial_params.update(
                 {
                     "input": custom_span.span.input,
@@ -492,9 +492,9 @@ class GalileoTracingProcessor(TracingProcessor):
         return serialize_to_str(item_dict.get("output") or item_dict.get("results"))
 
     @staticmethod
-    def add_galileo_custom_span(span: GalileoSpan) -> Span[GalileoCustomSpan]:
+    def add_galileo_custom_span(span: GalileoSpan) -> Span[SplunkAOCustomSpan]:
         """Add a Galileo custom span to the trace."""
         trace_provider = get_trace_provider()
         current_span = get_current_span()
-        custom_span = GalileoCustomSpan(span, span.user_metadata)
+        custom_span = SplunkAOCustomSpan(span, span.user_metadata)
         return trace_provider.create_span(custom_span, parent=current_span)

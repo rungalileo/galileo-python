@@ -3,20 +3,20 @@ import time
 from typing import Any
 from uuid import UUID
 
-from galileo.handlers.base_handler import GalileoBaseHandler
+from galileo.handlers.base_handler import SplunkAOBaseHandler
 from galileo.schema.handlers import NODE_TYPE, Node
 from galileo.utils.serialization import serialize_to_str
 
 _logger = logging.getLogger(__name__)
 
 
-class GalileoAsyncBaseHandler(GalileoBaseHandler):
+class SplunkAOAsyncBaseHandler(SplunkAOBaseHandler):
     """
     Async Callback handler for logging traces to the Galileo platform.
 
     Attributes
     ----------
-    _galileo_logger : GalileoLogger
+    _galileo_logger : SplunkAOLogger
         The Galileo logger instance.
     _nodes : dict[UUID, Node]
         A dictionary of nodes, where the key is the run_id and the value is the node.

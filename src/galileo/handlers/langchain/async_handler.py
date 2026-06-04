@@ -5,10 +5,10 @@ from collections.abc import Callable
 from typing import Any
 from uuid import UUID
 
-from galileo.handlers.base_async_handler import GalileoAsyncBaseHandler
-from galileo.handlers.langchain.handler import GalileoCallback
+from galileo.handlers.base_async_handler import SplunkAOAsyncBaseHandler
+from galileo.handlers.langchain.handler import SplunkAOCallback
 from galileo.handlers.langchain.utils import get_agent_name, is_agent_node, parse_llm_result, update_root_to_agent
-from galileo.logger import GalileoLogger
+from galileo.logger import SplunkAOLogger
 from galileo.schema.handlers import NODE_TYPE
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.serialization import EventSerializer, serialize_to_str
@@ -32,24 +32,24 @@ except ImportError:
     ToolMessage = object
 
 
-class GalileoAsyncCallback(AsyncCallbackHandler):
+class SplunkAOAsyncCallback(AsyncCallbackHandler):
     """
     Async Langchain callback handler for logging traces to the Galileo platform.
 
     Attributes
     ----------
-    _handler : GalileoAsyncBaseHandler
+    _handler : SplunkAOAsyncBaseHandler
         The async handler for managing the trace.
     """
 
     def __init__(
         self,
-        galileo_logger: GalileoLogger | None = None,
+        galileo_logger: SplunkAOLogger | None = None,
         start_new_trace: bool = True,
         flush_on_chain_end: bool = True,
         ingestion_hook: Callable[[TracesIngestRequest], None] | None = None,
     ):
-        self._handler = GalileoAsyncBaseHandler(
+        self._handler = SplunkAOAsyncBaseHandler(
             flush_on_chain_end=flush_on_chain_end,
             start_new_trace=start_new_trace,
             galileo_logger=galileo_logger,
@@ -77,7 +77,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         parent_run_id = convert_uuid_if_uuid7(parent_run_id) if parent_run_id else None
 
         node_type: NODE_TYPE = "chain"
-        node_name = GalileoCallback._get_node_name(node_type, serialized, kwargs)
+        node_name = SplunkAOCallback._get_node_name(node_type, serialized, kwargs)
 
         # If the `name` is `LangGraph` or `Agent`, set the node type to `agent`.
         if is_agent_node(node_name):
@@ -132,7 +132,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         parent_run_id = convert_uuid_if_uuid7(parent_run_id) if parent_run_id else None
 
         node_type: NODE_TYPE = "llm"
-        node_name = GalileoCallback._get_node_name(node_type, serialized, kwargs)
+        node_name = SplunkAOCallback._get_node_name(node_type, serialized, kwargs)
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model_name", "")
         temperature = invocation_params.get("temperature", 0.0)
@@ -182,7 +182,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         parent_run_id = convert_uuid_if_uuid7(parent_run_id) if parent_run_id else None
 
         node_type: NODE_TYPE = "chat"
-        node_name = GalileoCallback._get_node_name(node_type, serialized, kwargs)
+        node_name = SplunkAOCallback._get_node_name(node_type, serialized, kwargs)
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model", invocation_params.get("_type", "undefined-type"))
         temperature = invocation_params.get("temperature", 0.0)
@@ -244,7 +244,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         parent_run_id = convert_uuid_if_uuid7(parent_run_id) if parent_run_id else None
 
         node_type: NODE_TYPE = "tool"
-        node_name = GalileoCallback._get_node_name(node_type, serialized, kwargs)
+        node_name = SplunkAOCallback._get_node_name(node_type, serialized, kwargs)
         if "inputs" in kwargs and isinstance(kwargs["inputs"], dict):
             input_str = json.dumps(kwargs["inputs"], cls=EventSerializer)
         await self._handler.async_start_node(
@@ -263,7 +263,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         run_id = convert_uuid_if_uuid7(run_id) or run_id
 
         end_node_kwargs: dict[str, Any] = {"status_code": 200}
-        if (tool_message := GalileoCallback._find_tool_message(output)) is not None:
+        if (tool_message := SplunkAOCallback._find_tool_message(output)) is not None:
             end_node_kwargs["output"] = tool_message.content
             end_node_kwargs["tool_call_id"] = tool_message.tool_call_id
         else:
@@ -298,7 +298,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         parent_run_id = convert_uuid_if_uuid7(parent_run_id) if parent_run_id else None
 
         node_type: NODE_TYPE = "retriever"
-        node_name = GalileoCallback._get_node_name(node_type, serialized, kwargs)
+        node_name = SplunkAOCallback._get_node_name(node_type, serialized, kwargs)
         await self._handler.async_start_node(
             node_type,
             parent_run_id,

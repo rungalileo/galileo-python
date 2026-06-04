@@ -1,7 +1,7 @@
 import builtins
 from typing import overload
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.projects import Projects
 from galileo.resources.api.log_stream import (
     create_log_stream_projects_project_id_log_streams_post,
@@ -12,7 +12,7 @@ from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
 from galileo.resources.models.log_stream_response import LogStreamResponse
 from galileo.resources.types import Unset
-from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
+from galileo.schema.metrics import SplunkAOMetrics, LocalMetricConfig, Metric
 from galileo.utils.env_helpers import _get_log_stream_from_env, _get_project_from_env
 from galileo.utils.log_config import get_logger
 from galileo.utils.metrics import create_metric_configs
@@ -78,7 +78,7 @@ class LogStream(LogStreamResponse):
 
     # Enable metrics on a log stream - RECOMMENDED APPROACH
     from galileo.log_streams import enable_metrics
-    from galileo.schema.metrics import GalileoMetrics
+    from galileo.schema.metrics import SplunkAOMetrics
 
     # Set environment variables first
     # export SPLUNK_AO_LOG_STREAM="Production Logs"
@@ -86,8 +86,8 @@ class LogStream(LogStreamResponse):
 
     # Clean and simple - just pass the metrics!
     local_metrics = enable_metrics([
-        GalileoMetrics.correctness,
-        GalileoMetrics.completeness,
+        SplunkAOMetrics.correctness,
+        SplunkAOMetrics.completeness,
         "context_relevance"
     ])
 
@@ -123,7 +123,7 @@ class LogStream(LogStreamResponse):
             return
 
     def enable_metrics(
-        self, metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str]
+        self, metrics: builtins.list[SplunkAOMetrics | Metric | LocalMetricConfig | str]
     ) -> builtins.list[LocalMetricConfig]:
         """
         Enable metrics directly on this log stream instance.
@@ -139,10 +139,10 @@ class LogStream(LogStreamResponse):
 
         Parameters
         ----------
-        metrics : builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]
+        metrics : builtins.list[Union[SplunkAOMetrics, Metric, LocalMetricConfig, str]]
             List of metrics to enable on this log stream. Supports multiple input formats:
 
-            - **GalileoMetrics enum values**: Built-in metrics like `GalileoMetrics.correctness`
+            - **SplunkAOMetrics enum values**: Built-in metrics like `SplunkAOMetrics.correctness`
             - **Metric objects**: Custom metrics with optional version specifications
             - **LocalMetricConfig objects**: Client-side metrics with custom scoring functions
             - **String names**: Built-in metric names like "correctness" or "toxicity"
@@ -169,7 +169,7 @@ class LogStream(LogStreamResponse):
 
         ```python
         from galileo.log_streams import LogStreams
-        from galileo.schema.metrics import GalileoMetrics
+        from galileo.schema.metrics import SplunkAOMetrics
 
         # Get a log stream first
         log_streams = LogStreams()
@@ -177,8 +177,8 @@ class LogStream(LogStreamResponse):
 
         # Enable metrics directly - clean and intuitive!
         local_metrics = log_stream.enable_metrics([
-            GalileoMetrics.correctness,
-            GalileoMetrics.completeness,
+            SplunkAOMetrics.correctness,
+            SplunkAOMetrics.completeness,
             "context_relevance",
             "toxicity"
         ])
@@ -196,7 +196,7 @@ class LogStream(LogStreamResponse):
             return 0.75  # Your scoring logic
 
         local_metrics = log_stream.enable_metrics([
-            GalileoMetrics.correctness,
+            SplunkAOMetrics.correctness,
             "completeness",
             Metric(name="domain_relevance", version=3),
             LocalMetricConfig(name="custom_metric", scorer_fn=custom_scorer)
@@ -228,10 +228,10 @@ class LogStream(LogStreamResponse):
 
 
 class LogStreams:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     @overload
     def list(
@@ -481,7 +481,7 @@ class LogStreams:
         *,
         log_stream_name: str | None = None,
         project_name: str | None = None,
-        metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str],
+        metrics: builtins.list[SplunkAOMetrics | Metric | LocalMetricConfig | str],
     ) -> builtins.list[LocalMetricConfig]:
         """
         Enable metrics for a log stream by configuring scorers.
@@ -498,9 +498,9 @@ class LogStreams:
             The name of the log stream. Takes precedence over the SPLUNK_AO_LOG_STREAM environment variable. Defaults to None.
         project_name : Optional[str], optional
             The name of the project. Takes precedence over the SPLUNK_AO_PROJECT environment variable. Defaults to None.
-        metrics : builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]
+        metrics : builtins.list[Union[SplunkAOMetrics, Metric, LocalMetricConfig, str]]
             List of metrics to enable. Can include:
-            - GalileoMetrics enum values (e.g., GalileoMetrics.correctness)
+            - SplunkAOMetrics enum values (e.g., SplunkAOMetrics.correctness)
             - Metric objects with name and optional version
             - LocalMetricConfig objects for custom local metrics
             - String names of built-in metrics
@@ -520,15 +520,15 @@ class LogStreams:
         ```python
         # Enable built-in metrics with explicit parameters
         from galileo.log_streams import LogStreams
-        from galileo.schema.metrics import GalileoMetrics
+        from galileo.schema.metrics import SplunkAOMetrics
 
         log_streams = LogStreams()
         scorer_configs, local_metrics = log_streams.enable_metrics(
             log_stream_name="Production Logs",
             project_name="My AI Project",
             metrics=[
-                GalileoMetrics.correctness,
-                GalileoMetrics.completeness,
+                SplunkAOMetrics.correctness,
+                SplunkAOMetrics.completeness,
                 "context_relevance",
             ],
         )
@@ -684,7 +684,7 @@ def enable_metrics(
     *,
     log_stream_name: str | None = None,
     project_name: str | None = None,
-    metrics: builtins.list[GalileoMetrics | Metric | LocalMetricConfig | str],
+    metrics: builtins.list[SplunkAOMetrics | Metric | LocalMetricConfig | str],
 ) -> builtins.list[LocalMetricConfig]:
     """
     Enable metrics for a log stream with flexible parameter and environment variable support.
@@ -712,9 +712,9 @@ def enable_metrics(
     project_name : Optional[str], optional
         The name of the project. Takes precedence over SPLUNK_AO_PROJECT environment variable.
         If None, will use SPLUNK_AO_PROJECT env var. Defaults to None.
-    metrics : builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]
+    metrics : builtins.list[Union[SplunkAOMetrics, Metric, LocalMetricConfig, str]]
         List of metrics to enable on the log stream. Can include:
-        - GalileoMetrics enum values (e.g., GalileoMetrics.correctness)
+        - SplunkAOMetrics enum values (e.g., SplunkAOMetrics.correctness)
         - Metric objects with name and optional version for custom metrics
         - LocalMetricConfig objects for client-side custom scoring functions
         - String names of built-in metrics (e.g., "correctness", "toxicity")
@@ -740,14 +740,14 @@ def enable_metrics(
     ```python
     # Enable built-in metrics with explicit parameters
     from galileo.log_streams import enable_metrics
-    from galileo.schema.metrics import GalileoMetrics
+    from galileo.schema.metrics import SplunkAOMetrics
 
     local_metrics = enable_metrics(
         log_stream_name="Production Logs",
         project_name="My AI Project",
         metrics=[
-            GalileoMetrics.correctness,
-            GalileoMetrics.completeness,
+            SplunkAOMetrics.correctness,
+            SplunkAOMetrics.completeness,
             "context_relevance",
         ],
     )
@@ -770,7 +770,7 @@ def enable_metrics(
     local_metrics = enable_metrics(
         log_stream_name="Development Logs",
         metrics=[
-            GalileoMetrics.correctness,
+            SplunkAOMetrics.correctness,
             "toxicity",
             Metric(name="my_custom_metric", version=2),
             LocalMetricConfig(

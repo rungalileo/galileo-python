@@ -2,7 +2,7 @@ import builtins
 import logging
 from typing import overload
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.prompts import (
     create_global_prompt_template_templates_post,
     delete_global_template_templates_template_id_delete,
@@ -86,10 +86,10 @@ class PromptTemplateVersion(BasePromptTemplateVersionResponse):
 
 
 class GlobalPromptTemplates:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
     def list(
         self,

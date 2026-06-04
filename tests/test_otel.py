@@ -20,8 +20,8 @@ from galileo.otel import (
     _TRACE_PROVIDER_CONTEXT_VAR,
     INSTALL_ERR_MSG,
     OTEL_AVAILABLE,
-    GalileoOTLPExporter,
-    GalileoSpanProcessor,
+    SplunkAOOTLPExporter,
+    SplunkAOSpanProcessor,
     _set_tool_span_attributes,
     start_galileo_span,
 )
@@ -34,8 +34,8 @@ if OTEL_AVAILABLE:
     from galileo_core.schemas.shared.document import Document
 
 
-class TestGalileoOTLPExporter:
-    """Test suite for GalileoOTLPExporter class."""
+class TestSplunkAOOTLPExporter:
+    """Test suite for SplunkAOOTLPExporter class."""
 
     @pytest.fixture
     def clear_env_vars(self):
@@ -56,7 +56,7 @@ class TestGalileoOTLPExporter:
     @pytest.fixture
     def mock_config(self):
         """Create a mock config with default values."""
-        with patch("galileo.otel.GalileoPythonConfig.get") as mock_config_get:
+        with patch("galileo.otel.SplunkAOConfig.get") as mock_config_get:
             config = Mock()
             config.api_url = "https://api.galileo.ai"
             config.api_key = SecretStr("test-key")
@@ -68,7 +68,7 @@ class TestGalileoOTLPExporter:
     def test_init_and_parameter_priority(self, mock_otlp_init, mock_config, clear_env_vars):
         """Test initialization with params, env vars, and their priority."""
         # Test with explicit params
-        exporter = GalileoOTLPExporter(project="param-project", logstream="param-logstream", timeout=30)
+        exporter = SplunkAOOTLPExporter(project="param-project", logstream="param-logstream", timeout=30)
         assert exporter.project == "param-project"
         assert exporter.logstream == "param-logstream"
 
@@ -80,7 +80,7 @@ class TestGalileoOTLPExporter:
         # Test that params override env vars
         mock_otlp_init.reset_mock()
         with patch.dict(os.environ, {"SPLUNK_AO_PROJECT": "env-project", "SPLUNK_AO_LOG_STREAM": "env-logstream"}):
-            exporter = GalileoOTLPExporter(project="param-project", logstream="param-logstream")
+            exporter = SplunkAOOTLPExporter(project="param-project", logstream="param-logstream")
             assert exporter.project == "param-project"  # Param wins over env
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
@@ -88,7 +88,7 @@ class TestGalileoOTLPExporter:
     def test_init_with_env_variables(self, mock_otlp_init, mock_config, clear_env_vars):
         """Test initialization using environment variables."""
         with patch.dict(os.environ, {"SPLUNK_AO_PROJECT": "env-project", "SPLUNK_AO_LOG_STREAM": "env-logstream"}):
-            exporter = GalileoOTLPExporter()
+            exporter = SplunkAOOTLPExporter()
             assert exporter.project == "env-project"
             assert exporter.logstream == "env-logstream"
 
@@ -96,7 +96,7 @@ class TestGalileoOTLPExporter:
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
     def test_init_uses_default_project(self, mock_otlp_init, mock_config, clear_env_vars):
         """Test default project name is used when no project is provided."""
-        GalileoOTLPExporter()
+        SplunkAOOTLPExporter()
 
         call_kwargs = mock_otlp_init.call_args[1]
         assert call_kwargs["headers"]["project"] == "default"
@@ -115,7 +115,7 @@ class TestGalileoOTLPExporter:
     def test_url_construction(self, mock_otlp_init, api_url, expected_endpoint, mock_config, clear_env_vars):
         """Test URL construction with various formats."""
         mock_config.api_url = api_url
-        GalileoOTLPExporter()
+        SplunkAOOTLPExporter()
         assert mock_otlp_init.call_args[1]["endpoint"] == expected_endpoint
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
@@ -123,18 +123,18 @@ class TestGalileoOTLPExporter:
         """Test that missing API key raises ValueError."""
         mock_config.api_key = None
         with pytest.raises(ValueError, match="API key is required"):
-            GalileoOTLPExporter()
+            SplunkAOOTLPExporter()
 
 
-class TestGalileoSpanProcessor:
-    """Test suite for GalileoSpanProcessor class."""
+class TestSplunkAOSpanProcessor:
+    """Test suite for SplunkAOSpanProcessor class."""
 
     @pytest.fixture
     def mock_processor_setup(self):
         """Set up common mocks for span processor tests."""
         with (
             patch("galileo.otel.BatchSpanProcessor") as mock_batch_processor,
-            patch("galileo.otel.GalileoOTLPExporter") as mock_exporter_class,
+            patch("galileo.otel.SplunkAOOTLPExporter") as mock_exporter_class,
         ):
             mock_exporter_instance = Mock()
             mock_processor_instance = Mock()
@@ -153,7 +153,7 @@ class TestGalileoSpanProcessor:
         """Test initialization with default BatchSpanProcessor."""
         mocks = mock_processor_setup
 
-        processor = GalileoSpanProcessor(project="test-project", logstream="test-logstream")
+        processor = SplunkAOSpanProcessor(project="test-project", logstream="test-logstream")
 
         # Verify exporter was created with correct parameters
         # Note: exporter is now created without explicit project/logstream params (reads from context)
@@ -167,7 +167,7 @@ class TestGalileoSpanProcessor:
         assert processor.processor == mocks["mock_processor_instance"]
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    @patch("galileo.otel.GalileoOTLPExporter")
+    @patch("galileo.otel.SplunkAOOTLPExporter")
     def test_init_with_custom_processor(self, mock_exporter_class):
         """Test initialization with custom span processor class."""
         mock_exporter_instance = Mock()
@@ -178,7 +178,7 @@ class TestGalileoSpanProcessor:
         mock_custom_processor_instance = Mock()
         mock_custom_processor_class.return_value = mock_custom_processor_instance
 
-        processor = GalileoSpanProcessor(project="test-project", SpanProcessor=mock_custom_processor_class)
+        processor = SplunkAOSpanProcessor(project="test-project", SpanProcessor=mock_custom_processor_class)
 
         # Verify custom processor was used
         mock_custom_processor_class.assert_called_once_with(mock_exporter_instance)
@@ -188,7 +188,7 @@ class TestGalileoSpanProcessor:
     def test_on_start_delegates_to_processor(self, mock_processor_setup):
         """Test that on_start delegates to the underlying processor."""
         mocks = mock_processor_setup
-        processor = GalileoSpanProcessor(project="test")
+        processor = SplunkAOSpanProcessor(project="test")
 
         mock_span = Mock()
         mock_context = Mock()
@@ -200,7 +200,7 @@ class TestGalileoSpanProcessor:
     def test_on_end_delegates_to_processor(self, mock_processor_setup):
         """Test that on_end delegates to the underlying processor."""
         mocks = mock_processor_setup
-        processor = GalileoSpanProcessor(project="test")
+        processor = SplunkAOSpanProcessor(project="test")
 
         mock_span = Mock()
         processor.on_end(mock_span)
@@ -211,7 +211,7 @@ class TestGalileoSpanProcessor:
     def test_shutdown_delegates_to_processor(self, mock_processor_setup):
         """Test that shutdown delegates to the underlying processor."""
         mocks = mock_processor_setup
-        processor = GalileoSpanProcessor(project="test")
+        processor = SplunkAOSpanProcessor(project="test")
 
         processor.shutdown()
 
@@ -222,7 +222,7 @@ class TestGalileoSpanProcessor:
         """Test that force_flush delegates to the underlying processor."""
         mocks = mock_processor_setup
         mocks["mock_processor_instance"].force_flush.return_value = True
-        processor = GalileoSpanProcessor(project="test")
+        processor = SplunkAOSpanProcessor(project="test")
 
         result = processor.force_flush(30000)
 
@@ -233,7 +233,7 @@ class TestGalileoSpanProcessor:
     def test_force_flush_default_timeout(self, mock_processor_setup):
         """Test that force_flush uses default timeout when not specified."""
         mocks = mock_processor_setup
-        processor = GalileoSpanProcessor(project="test")
+        processor = SplunkAOSpanProcessor(project="test")
 
         processor.force_flush()
 
@@ -244,7 +244,7 @@ class TestGalileoSpanProcessor:
         """Test that all initialization parameters are passed to the exporter."""
         mocks = mock_processor_setup
 
-        GalileoSpanProcessor(project="test-project", logstream="test-logstream")
+        SplunkAOSpanProcessor(project="test-project", logstream="test-logstream")
 
         # Note: exporter is now created without explicit project/logstream params (reads from context)
         mocks["mock_exporter_class"].assert_called_once()
@@ -255,9 +255,9 @@ class TestOTelUnavailable:
 
     @patch("galileo.otel.OTEL_AVAILABLE", False)
     def test_galileo_span_processor_raises_import_error_when_otel_unavailable(self):
-        """Test that GalileoSpanProcessor raises ImportError when OpenTelemetry is not available."""
+        """Test that SplunkAOSpanProcessor raises ImportError when OpenTelemetry is not available."""
         with pytest.raises(ImportError, match=re.escape(INSTALL_ERR_MSG)):
-            GalileoSpanProcessor(project="test")
+            SplunkAOSpanProcessor(project="test")
 
     def test_stub_classes_raise_import_error(self):
         """Test that stub classes raise ImportError when instantiated."""
@@ -273,9 +273,9 @@ class TestOTelIntegration:
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.BatchSpanProcessor")
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
-    @patch("galileo.otel.GalileoPythonConfig.get")
+    @patch("galileo.otel.SplunkAOConfig.get")
     def test_exporter_and_processor_integration(self, mock_config_get, mock_otlp_init, mock_batch_processor):
-        """Test that GalileoSpanProcessor correctly integrates with GalileoOTLPExporter."""
+        """Test that SplunkAOSpanProcessor correctly integrates with SplunkAOOTLPExporter."""
         mock_batch_instance = Mock()
         mock_batch_processor.return_value = mock_batch_instance
 
@@ -285,7 +285,7 @@ class TestOTelIntegration:
         mock_config.api_key = SecretStr("test-key")
         mock_config_get.return_value = mock_config
 
-        processor = GalileoSpanProcessor(project="integration-test", logstream="integration-logstream")
+        processor = SplunkAOSpanProcessor(project="integration-test", logstream="integration-logstream")
 
         # Verify the exporter was created and passed to the processor
         assert mock_otlp_init.called
@@ -314,7 +314,7 @@ class TestOTelContextIntegration:
         """Mock dependencies for processor tests."""
         with (
             patch("galileo.otel.BatchSpanProcessor") as mock_batch,
-            patch("galileo.otel.GalileoOTLPExporter") as mock_exp,
+            patch("galileo.otel.SplunkAOOTLPExporter") as mock_exp,
         ):
             mock_exp.return_value = Mock()
             mock_batch.return_value = Mock()
@@ -325,17 +325,17 @@ class TestOTelContextIntegration:
         """Create a mock exporter for export tests."""
         with (
             patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None),
-            patch("galileo.otel.GalileoPythonConfig.get") as mock_config_get,
+            patch("galileo.otel.SplunkAOConfig.get") as mock_config_get,
         ):
             config = Mock()
             config.api_url = "https://api.galileo.ai"
             config.api_key = SecretStr("test-key")
             mock_config_get.return_value = config
-            yield GalileoOTLPExporter(project="test-project", logstream="test-logstream")
+            yield SplunkAOOTLPExporter(project="test-project", logstream="test-logstream")
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
-    @patch("galileo.otel.GalileoPythonConfig.get")
+    @patch("galileo.otel.SplunkAOConfig.get")
     def test_exporter_context_vars_and_override(self, mock_config_get, mock_otlp_init, reset_decorator_context):
         """Test exporter reads from context vars and params override them."""
         mock_config = Mock()
@@ -348,13 +348,13 @@ class TestOTelContextIntegration:
         _log_stream_context.set("context-logstream")
 
         # Exporter uses context values
-        exporter = GalileoOTLPExporter()
+        exporter = SplunkAOOTLPExporter()
         assert exporter.project == "context-project"
         assert exporter.logstream == "context-logstream"
 
         # Explicit params override context
         mock_otlp_init.reset_mock()
-        exporter2 = GalileoOTLPExporter(project="param-project", logstream="param-logstream")
+        exporter2 = SplunkAOOTLPExporter(project="param-project", logstream="param-logstream")
         assert exporter2.project == "param-project"
         assert exporter2.logstream == "param-logstream"
 
@@ -365,7 +365,7 @@ class TestOTelContextIntegration:
         _project_context.set("context-project")
         _log_stream_context.set("context-logstream")
 
-        processor = GalileoSpanProcessor()
+        processor = SplunkAOSpanProcessor()
         assert processor._project == "context-project"
         assert processor._logstream == "context-logstream"
 
@@ -373,7 +373,7 @@ class TestOTelContextIntegration:
         _project_context.set(None)
         _log_stream_context.set(None)
 
-        processor2 = GalileoSpanProcessor(project="init-project", logstream="init-logstream")
+        processor2 = SplunkAOSpanProcessor(project="init-project", logstream="init-logstream")
         assert processor2._project == "init-project"
         assert processor2._logstream == "init-logstream"
 
@@ -390,7 +390,7 @@ class TestOTelContextIntegration:
         _experiment_id_context.set("test-experiment")
         _session_id_context.set("test-session")
 
-        processor = GalileoSpanProcessor()
+        processor = SplunkAOSpanProcessor()
         mock_span = Mock()
 
         # When: the processor starts a span
@@ -412,7 +412,7 @@ class TestOTelContextIntegration:
         monkeypatch = pytest.MonkeyPatch()
         monkeypatch.setenv("SPLUNK_AO_LOG_STREAM", "test-log-stream")
         try:
-            processor2 = GalileoSpanProcessor()
+            processor2 = SplunkAOSpanProcessor()
             mock_span2 = Mock()
             processor2.on_start(mock_span2, None)
 
@@ -433,14 +433,14 @@ class TestOTelContextIntegration:
         # Create a real exporter with mocked dependencies
         with (
             patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None),
-            patch("galileo.otel.GalileoPythonConfig.get") as mock_config_get,
+            patch("galileo.otel.SplunkAOConfig.get") as mock_config_get,
         ):
             config = Mock()
             config.api_url = "https://api.galileo.ai"
             config.api_key = SecretStr("test-key")
             mock_config_get.return_value = config
 
-            exporter = GalileoOTLPExporter(project="test-project", logstream="test-logstream")
+            exporter = SplunkAOOTLPExporter(project="test-project", logstream="test-logstream")
             # Mock the _session attribute that export() uses
             exporter._session = Mock()
             exporter._session.headers = {}
@@ -783,7 +783,7 @@ class TestDatasetContext:
         """Mock dependencies for processor tests."""
         with (
             patch("galileo.otel.BatchSpanProcessor") as mock_batch,
-            patch("galileo.otel.GalileoOTLPExporter") as mock_exp,
+            patch("galileo.otel.SplunkAOOTLPExporter") as mock_exp,
         ):
             mock_exp.return_value = Mock()
             mock_batch.return_value = Mock()
@@ -854,7 +854,7 @@ class TestDatasetContext:
         _dataset_output_context.set("expected answer")
         _dataset_metadata_context.set({"source": "test_dataset"})
 
-        processor = GalileoSpanProcessor()
+        processor = SplunkAOSpanProcessor()
         mock_span = Mock()
 
         # When: on_start is called
@@ -876,14 +876,14 @@ class TestDatasetContext:
         # Given: an exporter with mocked dependencies
         with (
             patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None),
-            patch("galileo.otel.GalileoPythonConfig.get") as mock_config_get,
+            patch("galileo.otel.SplunkAOConfig.get") as mock_config_get,
         ):
             config = Mock()
             config.api_url = "https://api.galileo.ai"
             config.api_key = SecretStr("test-key")
             mock_config_get.return_value = config
 
-            exporter = GalileoOTLPExporter(project="test-project", logstream="test-logstream")
+            exporter = SplunkAOOTLPExporter(project="test-project", logstream="test-logstream")
             exporter._session = Mock()
             exporter._session.headers = {}
 

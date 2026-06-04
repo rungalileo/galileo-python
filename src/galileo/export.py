@@ -5,7 +5,7 @@ import sys
 from collections.abc import Iterator
 from typing import Any
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.log_streams import LogStreams
 from galileo.resources.api.trace.export_records_projects_project_id_export_records_post import (
     stream_detailed as export_records_stream,
@@ -17,10 +17,10 @@ logger = logging.getLogger(__name__)
 
 
 class ExportClient:
-    config: GalileoPythonConfig
+    config: SplunkAOConfig
 
     def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
+        self.config = SplunkAOConfig.get()
 
         # Increase the field size limit to handle large fields.
         try:

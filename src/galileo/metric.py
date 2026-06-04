@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from galileo.model import Model
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.configuration import Configuration
 from galileo.metrics import Metrics
 from galileo.resources.api.data import (
@@ -35,7 +35,7 @@ from galileo.resources.models import (
 )
 from galileo.resources.models.invalid_result import InvalidResult
 from galileo.resources.types import UNSET, File, Unset
-from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
+from galileo.schema.metrics import SplunkAOMetrics, LocalMetricConfig
 from galileo.schema.metrics import Metric as LegacyMetric
 from galileo.scorers import Scorers
 from galileo.shared.base import StateManagementMixin, SyncState
@@ -68,17 +68,17 @@ class BuiltInMetrics:
         Metric.metrics.toxicity
     """
 
-    def __getattr__(self, name: str) -> GalileoMetrics:
+    def __getattr__(self, name: str) -> SplunkAOMetrics:
         """Allow attribute-style access to built-in metrics."""
         # Try to find the metric by name (enum names match UI-visible names)
-        for scorer in GalileoMetrics:
+        for scorer in SplunkAOMetrics:
             if scorer.name == name:
                 return scorer
-        raise AttributeError(f"Built-in metric '{name}' not found. Available: {[s.name for s in GalileoMetrics]}")
+        raise AttributeError(f"Built-in metric '{name}' not found. Available: {[s.name for s in SplunkAOMetrics]}")
 
     def __dir__(self) -> list[str]:
         """Return list of available metric names for autocomplete."""
-        return [scorer.name for scorer in GalileoMetrics]
+        return [scorer.name for scorer in SplunkAOMetrics]
 
 
 # Backwards-compatible alias
@@ -92,7 +92,7 @@ class Metric(StateManagementMixin, ABC):
     This is an abstract base class that defines common attributes and methods
     for all metric types. Use one of the concrete metric classes instead:
 
-    - **GalileoMetric**: Built-in Galileo scorers (access via Metric.scorers)
+    - **SplunkAOMetric**: Built-in Galileo scorers (access via Metric.scorers)
     - **LlmMetric**: Custom LLM-based metrics with prompt templates
     - **LocalMetric**: Local function-based metrics
     - **CodeMetric**: Code-based metrics (future support)
@@ -115,7 +115,7 @@ class Metric(StateManagementMixin, ABC):
     Examples
     --------
         # 1. Use built-in Galileo scorers
-        from galileo import Metric, GalileoMetric, LlmMetric, LocalMetric, LogStream
+        from galileo import Metric, SplunkAOMetric, LlmMetric, LocalMetric, LogStream
 
         log_stream = LogStream.get(name="my-stream", project_name="my-project")
         log_stream.set_metrics([
@@ -226,7 +226,7 @@ class Metric(StateManagementMixin, ABC):
         Returns
         -------
             Metric: An uninitialized instance of the appropriate subclass
-                   (LlmMetric, CodeMetric, or GalileoMetric).
+                   (LlmMetric, CodeMetric, or SplunkAOMetric).
 
         Examples
         --------
@@ -237,8 +237,8 @@ class Metric(StateManagementMixin, ABC):
             return LlmMetric.__new__(LlmMetric)
         if scorer_type == ScorerTypes.CODE:
             return CodeMetric.__new__(CodeMetric)
-        # Default to GalileoMetric for built-in scorers (LUNA, PRESET, etc.)
-        return GalileoMetric.__new__(GalileoMetric)
+        # Default to SplunkAOMetric for built-in scorers (LUNA, PRESET, etc.)
+        return SplunkAOMetric.__new__(SplunkAOMetric)
 
     @classmethod
     def get(cls, *, id: str | None = None, name: str | None = None) -> Metric | None:
@@ -253,7 +253,7 @@ class Metric(StateManagementMixin, ABC):
 
         Returns
         -------
-            Optional[Metric]: The metric if found (GalileoMetric, LlmMetric, or CodeMetric), None otherwise.
+            Optional[Metric]: The metric if found (SplunkAOMetric, LlmMetric, or CodeMetric), None otherwise.
 
         Raises
         ------
@@ -501,7 +501,7 @@ class Metric(StateManagementMixin, ABC):
 
         logger.info(f"Metric.update: id='{self.id}' name='{self.name}' - started")
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             response = update_scorers_scorer_id_patch.sync(scorer_id=self.id, client=config.api_client, body=body)
         except Exception as e:
             self._set_state(SyncState.FAILED_SYNC, error=e)
@@ -954,7 +954,7 @@ class CodeMetric(Metric):
 
         return self
 
-    def _validate_code(self, config: GalileoPythonConfig) -> str:
+    def _validate_code(self, config: SplunkAOConfig) -> str:
         """
         Validate the code by submitting it to the validation endpoint and polling for results.
 
@@ -1094,7 +1094,7 @@ class CodeMetric(Metric):
         try:
             logger.info(f"CodeMetric.create: name='{self.name}' - started")
 
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
 
             # Ensure node_level is set (should always be set in __init__, but checking for type safety)
             assert self.node_level is not None
@@ -1161,7 +1161,7 @@ class CodeMetric(Metric):
         return f"CodeMetric(name='{self.name}', id='{self.id}'')"
 
 
-class GalileoMetric(Metric):
+class SplunkAOMetric(Metric):
     """
     Built-in Galileo scorer metric.
 
@@ -1182,7 +1182,7 @@ class GalileoMetric(Metric):
 
         # Or get by name
         metric = Metric.get(name="correctness")
-        assert isinstance(metric, GalileoMetric)
+        assert isinstance(metric, SplunkAOMetric)
     """
 
     def __init__(

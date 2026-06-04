@@ -9,8 +9,8 @@ from langgraph.runtime import Runtime
 from pydantic import BaseModel
 
 from galileo import galileo_context
-from galileo.handlers.langchain.middleware import GalileoMiddleware
-from galileo.logger.logger import GalileoLogger
+from galileo.handlers.langchain.middleware import SplunkAOMiddleware
+from galileo.logger.logger import SplunkAOLogger
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
@@ -96,13 +96,13 @@ def galileo_logger(mock_traces_client: Mock, mock_projects_client: Mock, mock_lo
     setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
-    return GalileoLogger(project="my_project", log_stream="my_log_stream")
+    return SplunkAOLogger(project="my_project", log_stream="my_log_stream")
 
 
 @pytest.fixture
-def middleware(galileo_logger: GalileoLogger) -> GalileoMiddleware:
-    """Creates a GalileoMiddleware with a mock logger."""
-    return GalileoMiddleware(galileo_logger=galileo_logger, flush_on_chain_end=False)
+def middleware(galileo_logger: SplunkAOLogger) -> SplunkAOMiddleware:
+    """Creates a SplunkAOMiddleware with a mock logger."""
+    return SplunkAOMiddleware(galileo_logger=galileo_logger, flush_on_chain_end=False)
 
 
 @pytest.fixture
@@ -123,10 +123,10 @@ def sample_state(sample_messages):
     return MockAgentState(messages=sample_messages)
 
 
-class TestGalileoMiddlewareInitialization:
-    def test_default_initialization(self, galileo_logger: GalileoLogger) -> None:
+class TestSplunkAOMiddlewareInitialization:
+    def test_default_initialization(self, galileo_logger: SplunkAOLogger) -> None:
         """Test middleware initialization with default parameters."""
-        middleware = GalileoMiddleware(galileo_logger=galileo_logger)
+        middleware = SplunkAOMiddleware(galileo_logger=galileo_logger)
 
         assert middleware._handler._galileo_logger == galileo_logger
         assert middleware._async_handler._galileo_logger == galileo_logger
@@ -134,9 +134,9 @@ class TestGalileoMiddlewareInitialization:
         assert middleware._handler._flush_on_chain_end is True
         assert middleware._root_run_id is None
 
-    def test_custom_initialization(self, galileo_logger: GalileoLogger) -> None:
+    def test_custom_initialization(self, galileo_logger: SplunkAOLogger) -> None:
         """Test middleware initialization with custom parameters."""
-        middleware = GalileoMiddleware(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
+        middleware = SplunkAOMiddleware(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
 
         assert middleware._handler._start_new_trace is False
         assert middleware._handler._flush_on_chain_end is False
@@ -145,7 +145,7 @@ class TestGalileoMiddlewareInitialization:
 class TestSerializationHelpers:
     """Tests for middleware serialization helper methods."""
 
-    def test_serialize_messages(self, middleware: GalileoMiddleware) -> None:
+    def test_serialize_messages(self, middleware: SplunkAOMiddleware) -> None:
         """Test _serialize_messages with various inputs."""
         # Valid messages
         messages = [HumanMessage(content="Hello"), AIMessage(content="Hi")]
@@ -155,7 +155,7 @@ class TestSerializationHelpers:
         # None input
         assert middleware._serialize_messages(None) is None
 
-    def test_get_state_messages(self, middleware: GalileoMiddleware) -> None:
+    def test_get_state_messages(self, middleware: SplunkAOMiddleware) -> None:
         """Test _get_state_messages extracts messages correctly."""
         messages = [HumanMessage(content="test")]
 
@@ -166,7 +166,7 @@ class TestSerializationHelpers:
         assert middleware._get_state_messages(cast(AgentState, MockAgentState(other="data"))) is None
         assert middleware._get_state_messages(None) is None
 
-    def test_serialize_state(self, middleware: GalileoMiddleware) -> None:
+    def test_serialize_state(self, middleware: SplunkAOMiddleware) -> None:
         """Test _serialize_state behavior."""
         # With messages - returns list
         state_with_msgs = AgentState(messages=[HumanMessage(content="test")])
@@ -176,7 +176,7 @@ class TestSerializationHelpers:
         assert isinstance(middleware._serialize_state(cast(AgentState, MockAgentState(other="data"))), str)
         assert middleware._serialize_state(None) is not None
 
-    def test_serialize_response(self, middleware: GalileoMiddleware) -> None:
+    def test_serialize_response(self, middleware: SplunkAOMiddleware) -> None:
         """Test _serialize_response with different response types."""
         # Response with result attribute
         messages = [AIMessage(content="response")]
@@ -189,7 +189,7 @@ class TestSerializationHelpers:
         # Dict fallback
         assert isinstance(middleware._serialize_response({"custom": "response"}), str)
 
-    def test_serialize_tools(self, middleware: GalileoMiddleware) -> None:
+    def test_serialize_tools(self, middleware: SplunkAOMiddleware) -> None:
         """Test _serialize_tools serialization with various schema types."""
         # Test with mock schema (non-BaseModel with model_json_schema method)
         tool = MockStructuredTool(name="calculator", args_schema=MockArgsSchema())
@@ -219,9 +219,9 @@ class TestSerializationHelpers:
         args_json_instance = json.loads(result_instance[0]["function"]["arguments"])
         assert "properties" in args_json_instance
 
-    def test_serialize_tool_response(self, middleware: GalileoMiddleware) -> None:
+    def test_serialize_tool_response(self, middleware: SplunkAOMiddleware) -> None:
         """Test _serialize_tool_response with different response types."""
-        # ToolMessage directly (GalileoCallback._find_tool_message returns it)
+        # ToolMessage directly (SplunkAOCallback._find_tool_message returns it)
         result = middleware._serialize_tool_response(
             cast(AgentState, ToolMessage(content="result", tool_call_id="123"))
         )
@@ -245,7 +245,7 @@ class TestModelMetadataExtraction:
         ],
     )
     def test_extract_model_metadata(
-        self, middleware: GalileoMiddleware, request_kwargs, expected_model, expected_temp
+        self, middleware: SplunkAOMiddleware, request_kwargs, expected_model, expected_temp
     ) -> None:
         """Test _extract_model_metadata from various sources."""
         request = MockRequest(**request_kwargs)
@@ -261,7 +261,7 @@ class TestModelMetadataExtraction:
             ({}, None, "ChatModel"),
         ],
     )
-    def test_get_model_display_name(self, middleware: GalileoMiddleware, request_kwargs, model_name, expected) -> None:
+    def test_get_model_display_name(self, middleware: SplunkAOMiddleware, request_kwargs, model_name, expected) -> None:
         """Test _get_model_display_name returns correct display name."""
         request = MockRequest(**request_kwargs)
         assert middleware._get_model_display_name(request, model_name) == expected
@@ -270,7 +270,7 @@ class TestModelMetadataExtraction:
 class TestParamPreparation:
     """Tests for parameter preparation methods."""
 
-    def test_prepare_model_call_params(self, middleware: GalileoMiddleware) -> None:
+    def test_prepare_model_call_params(self, middleware: SplunkAOMiddleware) -> None:
         """Test _prepare_model_call_params creates correct params."""
         request = cast(
             AgentState,
@@ -283,7 +283,7 @@ class TestParamPreparation:
         assert params["name"] == "gpt-4"
         assert "start_time" in params
 
-    def test_prepare_model_call_params_with_system_message(self, middleware: GalileoMiddleware) -> None:
+    def test_prepare_model_call_params_with_system_message(self, middleware: SplunkAOMiddleware) -> None:
         """Test system message is prepended to input."""
         request = cast(
             AgentState,
@@ -292,7 +292,7 @@ class TestParamPreparation:
         params = middleware._prepare_model_call_params(request)
         assert len(params["input"]) == 2
 
-    def test_prepare_tool_call_params(self, middleware: GalileoMiddleware) -> None:
+    def test_prepare_tool_call_params(self, middleware: SplunkAOMiddleware) -> None:
         """Test _prepare_tool_call_params extracts tool info."""
         # With tool_call
         request = cast(AgentState, MockRequest(tool_call={"name": "calc", "args": {"x": 5}}))
@@ -309,7 +309,7 @@ class TestParamPreparation:
 class TestRootNodeManagement:
     """Tests for root node creation and management."""
 
-    def test_ensure_root_node(self, middleware: GalileoMiddleware, sample_state) -> None:
+    def test_ensure_root_node(self, middleware: SplunkAOMiddleware, sample_state) -> None:
         """Test _ensure_root_node creates and reuses root."""
         assert middleware._root_run_id is None
 
@@ -321,7 +321,7 @@ class TestRootNodeManagement:
         assert middleware._ensure_root_node(sample_state) == root_id
 
     @pytest.mark.asyncio
-    async def test_ensure_async_root_node(self, middleware: GalileoMiddleware, sample_state) -> None:
+    async def test_ensure_async_root_node(self, middleware: SplunkAOMiddleware, sample_state) -> None:
         """Test _ensure_async_root_node creates and reuses root."""
         assert middleware._root_run_id is None
 
@@ -333,7 +333,7 @@ class TestRootNodeManagement:
 class TestAgentLifecycle:
     """Tests for agent lifecycle methods (sync and async)."""
 
-    def test_before_after_agent(self, middleware: GalileoMiddleware, runtime: MockRuntime) -> None:
+    def test_before_after_agent(self, middleware: SplunkAOMiddleware, runtime: MockRuntime) -> None:
         """Test before_agent and after_agent lifecycle."""
         state = cast(AgentState, MockAgentState(messages=[HumanMessage(content="test")]))
         rt = cast(Runtime, runtime)
@@ -346,13 +346,13 @@ class TestAgentLifecycle:
         assert middleware.after_agent(state, rt) is None
         assert middleware._root_run_id is None
 
-    def test_after_agent_without_root(self, middleware: GalileoMiddleware, runtime: MockRuntime) -> None:
+    def test_after_agent_without_root(self, middleware: SplunkAOMiddleware, runtime: MockRuntime) -> None:
         """Test after_agent returns None when no root exists."""
         state = cast(AgentState, MockAgentState(messages=[AIMessage(content="response")]))
         assert middleware.after_agent(state, cast(Runtime, runtime)) is None
 
     @pytest.mark.asyncio
-    async def test_abefore_aafter_agent(self, middleware: GalileoMiddleware, runtime: MockRuntime) -> None:
+    async def test_abefore_aafter_agent(self, middleware: SplunkAOMiddleware, runtime: MockRuntime) -> None:
         """Test async agent lifecycle methods."""
         state = cast(AgentState, MockAgentState(messages=[HumanMessage(content="test")]))
         rt = cast(Runtime, runtime)
@@ -364,7 +364,7 @@ class TestAgentLifecycle:
         assert middleware._root_run_id is None
 
     @pytest.mark.asyncio
-    async def test_aafter_agent_without_root(self, middleware: GalileoMiddleware, runtime: MockRuntime) -> None:
+    async def test_aafter_agent_without_root(self, middleware: SplunkAOMiddleware, runtime: MockRuntime) -> None:
         """Test aafter_agent returns None when no root exists."""
         state = cast(AgentState, MockAgentState(messages=[AIMessage(content="response")]))
         assert await middleware.aafter_agent(state, cast(Runtime, runtime)) is None
@@ -373,7 +373,7 @@ class TestAgentLifecycle:
 class TestWrapCalls:
     """Tests for wrap_model_call and wrap_tool_call methods."""
 
-    def test_wrap_model_call(self, middleware: GalileoMiddleware) -> None:
+    def test_wrap_model_call(self, middleware: SplunkAOMiddleware) -> None:
         """Test wrap_model_call wraps handler execution."""
         request = cast(
             AgentState,
@@ -391,7 +391,7 @@ class TestWrapCalls:
         assert result == expected
         handler.assert_called_once_with(request)
 
-    def test_wrap_tool_call(self, middleware: GalileoMiddleware) -> None:
+    def test_wrap_tool_call(self, middleware: SplunkAOMiddleware) -> None:
         """Test wrap_tool_call wraps handler execution."""
         request = cast(
             AgentState,
@@ -408,7 +408,7 @@ class TestWrapCalls:
         handler.assert_called_once_with(request)
 
     @pytest.mark.asyncio
-    async def test_awrap_model_call(self, middleware: GalileoMiddleware) -> None:
+    async def test_awrap_model_call(self, middleware: SplunkAOMiddleware) -> None:
         """Test awrap_model_call wraps async handler."""
         request = cast(
             AgentState,
@@ -427,7 +427,7 @@ class TestWrapCalls:
         assert result == expected
 
     @pytest.mark.asyncio
-    async def test_awrap_tool_call(self, middleware: GalileoMiddleware) -> None:
+    async def test_awrap_tool_call(self, middleware: SplunkAOMiddleware) -> None:
         """Test awrap_tool_call wraps async handler."""
         request = cast(
             AgentState,
@@ -445,14 +445,14 @@ class TestWrapCalls:
 class TestEdgeCases:
     """Tests for edge cases and error handling."""
 
-    def test_wrap_calls_with_empty_response(self, middleware: GalileoMiddleware) -> None:
+    def test_wrap_calls_with_empty_response(self, middleware: SplunkAOMiddleware) -> None:
         """Test wrap methods handle None/empty responses."""
         request = cast(AgentState, MockRequest(state={"messages": []}, messages=[]))
 
         assert middleware.wrap_model_call(request, lambda r: None) is None
 
     @pytest.mark.asyncio
-    async def test_awrap_calls_with_empty_response(self, middleware: GalileoMiddleware) -> None:
+    async def test_awrap_calls_with_empty_response(self, middleware: SplunkAOMiddleware) -> None:
         """Test async wrap methods handle None/empty responses."""
         request = cast(AgentState, MockRequest(state={"messages": []}, messages=[]))
 
@@ -462,7 +462,7 @@ class TestEdgeCases:
         result = await middleware.awrap_model_call(request, async_handler)
         assert result is None
 
-    def test_multiple_agent_runs(self, middleware: GalileoMiddleware, runtime: MockRuntime) -> None:
+    def test_multiple_agent_runs(self, middleware: SplunkAOMiddleware, runtime: MockRuntime) -> None:
         """Test middleware handles multiple sequential runs."""
         rt = cast(Runtime, runtime)
         for content in ["first", "second"]:
@@ -475,7 +475,7 @@ class TestEdgeCases:
             assert middleware._root_run_id is None
 
     @pytest.mark.asyncio
-    async def test_multiple_async_agent_runs(self, middleware: GalileoMiddleware, runtime: MockRuntime) -> None:
+    async def test_multiple_async_agent_runs(self, middleware: SplunkAOMiddleware, runtime: MockRuntime) -> None:
         """Test async middleware handles multiple sequential runs."""
         rt = cast(Runtime, runtime)
         for content in ["first", "second"]:
@@ -506,9 +506,9 @@ class TestIngestionHook:
     @pytest.mark.parametrize(
         "middleware_builder",
         [
-            lambda hook: GalileoMiddleware(ingestion_hook=hook),
-            lambda hook: GalileoMiddleware(galileo_logger=GalileoLogger(), ingestion_hook=hook),
-            lambda hook: GalileoMiddleware(galileo_logger=galileo_context.get_logger_instance(), ingestion_hook=hook),
+            lambda hook: SplunkAOMiddleware(ingestion_hook=hook),
+            lambda hook: SplunkAOMiddleware(galileo_logger=SplunkAOLogger(), ingestion_hook=hook),
+            lambda hook: SplunkAOMiddleware(galileo_logger=galileo_context.get_logger_instance(), ingestion_hook=hook),
         ],
     )
     def test_ingestion_hook_called(self, middleware_builder) -> None:

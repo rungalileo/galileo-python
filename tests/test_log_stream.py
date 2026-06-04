@@ -937,7 +937,7 @@ class TestLogStreamColumns:
         ],
     )
     @patch("galileo.shared.project_resolver.Projects")
-    @patch("galileo.log_stream.GalileoPythonConfig")
+    @patch("galileo.log_stream.SplunkAOConfig")
     @patch("galileo.log_stream.LogStreams")
     def test_column_properties_return_column_collection(
         self,
@@ -1007,7 +1007,7 @@ class TestLogStreamColumns:
         ],
     )
     @patch("galileo.shared.project_resolver.Projects")
-    @patch("galileo.log_stream.GalileoPythonConfig")
+    @patch("galileo.log_stream.SplunkAOConfig")
     @patch("galileo.log_stream.LogStreams")
     def test_column_properties_raise_error_on_empty_response(
         self,
@@ -1192,7 +1192,7 @@ class TestNotFoundErrorOverloads:
 
     def test_none_first_arg_raises_type_error(self) -> None:
         # When/Then: ``None`` is neither a status code nor a message; the previous
-        # implementation fell through to GalileoAPIError and produced "HTTP None".
+        # implementation fell through to SplunkAOAPIError and produced "HTTP None".
         with pytest.raises(TypeError, match="requires either"):
             NotFoundError(None)  # type: ignore[call-overload]
 

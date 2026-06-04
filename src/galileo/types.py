@@ -6,11 +6,11 @@ and other Galileo objects.
 """
 
 from galileo.metric import Metric
-from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig
+from galileo.schema.metrics import SplunkAOMetrics, LocalMetricConfig
 
 # Unified metric type that accepts all valid metric specifications
 MetricSpec = (
-    GalileoMetrics  # Built-in scorer enum (e.g., GalileoMetrics.correctness)
+    SplunkAOMetrics  # Built-in scorer enum (e.g., SplunkAOMetrics.correctness)
     | Metric  # Custom or local metric object
     | LocalMetricConfig  # Legacy local metric config
     | str  # String name of built-in metric (e.g., "correctness")

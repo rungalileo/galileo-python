@@ -12,14 +12,14 @@ from langchain_core.outputs import ChatGeneration, LLMResult
 from pytest import mark
 
 from galileo import Message, MessageRole
-from galileo.handlers.langchain import GalileoAsyncCallback
-from galileo.logger.logger import GalileoLogger
+from galileo.handlers.langchain import SplunkAOAsyncCallback
+from galileo.logger.logger import SplunkAOLogger
 from galileo.utils.uuid_utils import uuid7_to_uuid4
 from galileo_core.schemas.shared.document import Document as GalileoDocument
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
-class TestGalileoAsyncCallback:
+class TestSplunkAOAsyncCallback:
     @pytest.fixture
     @patch("galileo.logger.logger.LogStreams")
     @patch("galileo.logger.logger.Projects")
@@ -29,30 +29,30 @@ class TestGalileoAsyncCallback:
         setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
-        return GalileoLogger(project="my_project", log_stream="my_log_stream")
+        return SplunkAOLogger(project="my_project", log_stream="my_log_stream")
 
     @pytest.fixture
-    def callback(self, galileo_logger: GalileoLogger) -> Generator[GalileoAsyncCallback, None, None]:
-        """Creates a GalileoCallback with a mock logger"""
-        return GalileoAsyncCallback(galileo_logger=galileo_logger, flush_on_chain_end=False)
+    def callback(self, galileo_logger: SplunkAOLogger) -> Generator[SplunkAOAsyncCallback, None, None]:
+        """Creates a SplunkAOCallback with a mock logger"""
+        return SplunkAOAsyncCallback(galileo_logger=galileo_logger, flush_on_chain_end=False)
 
     @mark.asyncio
-    async def test_initialization(self, galileo_logger: GalileoLogger) -> None:
+    async def test_initialization(self, galileo_logger: SplunkAOLogger) -> None:
         """Test callback initialization with various parameters"""
         # Default initialization
-        callback = GalileoAsyncCallback(galileo_logger=galileo_logger)
+        callback = SplunkAOAsyncCallback(galileo_logger=galileo_logger)
         assert callback._handler._galileo_logger == galileo_logger
         assert callback._handler._start_new_trace is True
         assert callback._handler._flush_on_chain_end is True
         assert callback._handler._nodes == {}
 
         # Custom initialization
-        callback = GalileoAsyncCallback(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
+        callback = SplunkAOAsyncCallback(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
         assert callback._handler._start_new_trace is False
         assert callback._handler._flush_on_chain_end is False
 
     @mark.asyncio
-    async def test_on_chain_start_end(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger) -> None:
+    async def test_on_chain_start_end(self, callback: SplunkAOAsyncCallback, galileo_logger: SplunkAOLogger) -> None:
         """Test chain start and end callbacks"""
         run_id = uuid.uuid4()
 
@@ -84,7 +84,7 @@ class TestGalileoAsyncCallback:
 
     @mark.asyncio
     async def test_on_chain_start_end_with_input_update(
-        self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
+        self, callback: SplunkAOAsyncCallback, galileo_logger: SplunkAOLogger
     ) -> None:
         """Test chain start and end callbacks with input update"""
         run_id = uuid.uuid4()
@@ -112,7 +112,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
-    async def test_on_agent_chain(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger) -> None:
+    async def test_on_agent_chain(self, callback: SplunkAOAsyncCallback, galileo_logger: SplunkAOLogger) -> None:
         """Test agent chain handling"""
         run_id = uuid.uuid4()
 
@@ -138,7 +138,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
-    async def test_on_llm_start_end(self, callback: GalileoAsyncCallback) -> None:
+    async def test_on_llm_start_end(self, callback: SplunkAOAsyncCallback) -> None:
         """Test LLM start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -182,7 +182,7 @@ class TestGalileoAsyncCallback:
         assert node.span_params["duration_ns"] > 0
 
     @mark.asyncio
-    async def test_on_chat_model_start(self, callback: GalileoAsyncCallback) -> None:
+    async def test_on_chat_model_start(self, callback: SplunkAOAsyncCallback) -> None:
         """Test chat model start callback"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -223,7 +223,7 @@ class TestGalileoAsyncCallback:
 
     @mark.asyncio
     async def test_on_chat_model_start_end_with_tools(
-        self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
+        self, callback: SplunkAOAsyncCallback, galileo_logger: SplunkAOLogger
     ) -> None:
         """Test chat model start and end callbacks with tools"""
         run_id = uuid.uuid4()
@@ -300,7 +300,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
-    async def test_on_tool_start_end_with_string_output(self, callback: GalileoAsyncCallback) -> None:
+    async def test_on_tool_start_end_with_string_output(self, callback: SplunkAOAsyncCallback) -> None:
         """Test tool start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -326,7 +326,7 @@ class TestGalileoAsyncCallback:
         assert node.span_params["output"] == "4"
 
     @mark.asyncio
-    async def test_on_tool_start_end_with_object_output(self, callback: GalileoAsyncCallback) -> None:
+    async def test_on_tool_start_end_with_object_output(self, callback: SplunkAOAsyncCallback) -> None:
         """Test tool start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -391,7 +391,7 @@ class TestGalileoAsyncCallback:
         assert node.span_params["output"] == '{"tool_call_id": "1", "status": "success", "role": "tool"}'
 
     @mark.asyncio
-    async def test_on_tool_start_end_with_dict_output(self, callback: GalileoAsyncCallback) -> None:
+    async def test_on_tool_start_end_with_dict_output(self, callback: SplunkAOAsyncCallback) -> None:
         """Test tool start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -439,7 +439,7 @@ class TestGalileoAsyncCallback:
         assert node.span_params["output"] == '{"tool_call_id": "1", "status": "success", "role": "tool"}'
 
     @mark.asyncio
-    async def test_on_retriever_start_end(self, callback: GalileoAsyncCallback) -> None:
+    async def test_on_retriever_start_end(self, callback: SplunkAOAsyncCallback) -> None:
         """Test retriever start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -466,7 +466,7 @@ class TestGalileoAsyncCallback:
 
     @mark.asyncio
     async def test_extracting_chain_names_from_metadata(
-        self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
+        self, callback: SplunkAOAsyncCallback, galileo_logger: SplunkAOLogger
     ) -> None:
         """Test extracting chain names from metadata kwarg, with two nested chains"""
         chain_id = uuid.uuid4()
@@ -499,7 +499,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].spans[0].name == "Test Chain 2"
 
     @mark.asyncio
-    async def test_complex_execution_flow(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger) -> None:
+    async def test_complex_execution_flow(self, callback: SplunkAOAsyncCallback, galileo_logger: SplunkAOLogger) -> None:
         """Test a complex execution flow with multiple component types"""
         # Create UUIDs for different components
         chain_id = uuid.uuid4()
@@ -606,7 +606,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].spans[2].step_number is None
 
     @mark.asyncio
-    async def test_missing_parent_node(self, callback: GalileoAsyncCallback) -> None:
+    async def test_missing_parent_node(self, callback: SplunkAOAsyncCallback) -> None:
         """Test handling of missing parent nodes"""
         parent_id = uuid.uuid4()
         child_id = uuid.uuid4()
@@ -626,7 +626,7 @@ class TestGalileoAsyncCallback:
         assert node.parent_run_id == parent_id
 
     @mark.asyncio
-    async def test_serialization_error_handling(self, callback: GalileoAsyncCallback) -> None:
+    async def test_serialization_error_handling(self, callback: SplunkAOAsyncCallback) -> None:
         """Test handling of serialization errors"""
         run_id = uuid.uuid4()
 
@@ -653,14 +653,14 @@ class TestGalileoAsyncCallback:
         assert isinstance(node.span_params["output"], str)
 
     @mark.asyncio
-    async def test_callback_with_active_trace(self, galileo_logger: GalileoLogger) -> None:
+    async def test_callback_with_active_trace(self, galileo_logger: SplunkAOLogger) -> None:
         """Test that the callback properly handles an active trace."""
         run_id = uuid.uuid4()
 
         galileo_logger.start_trace(input="test input")
 
         # Pass the active logger to the callback
-        callback = GalileoAsyncCallback(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
+        callback = SplunkAOAsyncCallback(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
 
         # Start a chain (creates a workflow span)
         await callback._handler.async_start_node("chain", None, run_id, name="Test Chain", input='{"query": "test"}')
@@ -691,7 +691,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
-    async def test_node_created_at(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger) -> None:
+    async def test_node_created_at(self, callback: SplunkAOAsyncCallback, galileo_logger: SplunkAOLogger) -> None:
         parent_id = uuid.uuid4()
         llm_run_id = uuid.uuid4()
         retriever_run_id = uuid.uuid4()
@@ -793,8 +793,8 @@ class TestGalileoAsyncCallback:
     @mark.asyncio
     async def test_step_number_propagation(
         self,
-        callback: GalileoAsyncCallback,
-        galileo_logger: GalileoLogger,
+        callback: SplunkAOAsyncCallback,
+        galileo_logger: SplunkAOLogger,
         node_type,
         start_fn,
         end_fn,
@@ -841,7 +841,7 @@ class TestGalileoAsyncCallback:
             assert root_span.step_number == step_number
 
     @mark.asyncio
-    async def test_on_nested_agent_chains(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger) -> None:
+    async def test_on_nested_agent_chains(self, callback: SplunkAOAsyncCallback, galileo_logger: SplunkAOLogger) -> None:
         """Test nested agent chain handling and name change"""
         outer_run_id = uuid.uuid4()
         inner_run_id = uuid.uuid4()
@@ -875,7 +875,7 @@ class TestGalileoAsyncCallback:
 
     @mark.asyncio
     async def test_ai_message_with_list_content(
-        self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
+        self, callback: SplunkAOAsyncCallback, galileo_logger: SplunkAOLogger
     ) -> None:
         """Test AIMessage serialization with content as list of dicts (Responses API format)"""
         run_id = uuid.uuid4()
@@ -909,7 +909,7 @@ class TestGalileoAsyncCallback:
 
     @mark.asyncio
     async def test_ai_message_with_reasoning(
-        self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
+        self, callback: SplunkAOAsyncCallback, galileo_logger: SplunkAOLogger
     ) -> None:
         """Test AIMessage serialization with reasoning in additional_kwargs"""
         run_id = uuid.uuid4()
@@ -952,11 +952,11 @@ class TestGalileoAsyncCallback:
         assert input_data[0]["tool_calls"] == [{"id": "call_1", "function": {"name": "search", "arguments": "{}"}}]
 
     @mark.asyncio
-    async def test_on_chain_end_with_ingestion_hook(self, galileo_logger: GalileoLogger) -> None:
+    async def test_on_chain_end_with_ingestion_hook(self, galileo_logger: SplunkAOLogger) -> None:
         """Test that the ingestion hook is called on chain end."""
         run_id = uuid.uuid4()
         mock_hook = Mock()
-        callback = GalileoAsyncCallback(
+        callback = SplunkAOAsyncCallback(
             galileo_logger=galileo_logger, flush_on_chain_end=True, ingestion_hook=mock_hook
         )
         # Mock the underlying traces client to ensure it's not called directly

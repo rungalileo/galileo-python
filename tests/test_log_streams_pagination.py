@@ -41,7 +41,7 @@ class TestListAllPagination:
     """Tests for LogStreams._list_all (internal helper)."""
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_all_paginates_across_multiple_pages(
         self, mock_config_class: MagicMock, mock_endpoint: MagicMock
     ) -> None:
@@ -61,7 +61,7 @@ class TestListAllPagination:
         assert mock_endpoint.sync.call_args_list[1].kwargs["starting_token"] == 5
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_all_stops_when_paginated_false(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
         # Given: a single page with paginated=False
         page = _make_response(names=["only-stream"], next_token=42, paginated=False)
@@ -75,7 +75,7 @@ class TestListAllPagination:
         assert mock_endpoint.sync.call_count == 1
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_all_stops_when_next_token_is_unset(
         self, mock_config_class: MagicMock, mock_endpoint: MagicMock
     ) -> None:
@@ -91,7 +91,7 @@ class TestListAllPagination:
         assert mock_endpoint.sync.call_count == 1
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_all_uses_larger_page_size(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
         # Given: a single page
         mock_endpoint.sync.return_value = _make_response(names=["a"], next_token=None, paginated=True)
@@ -105,7 +105,7 @@ class TestListAllPagination:
         assert kwargs["limit"] == 500
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_all_raises_on_http_validation_error(
         self, mock_config_class: MagicMock, mock_endpoint: MagicMock
     ) -> None:
@@ -118,7 +118,7 @@ class TestListAllPagination:
             LogStreams()._list_all(project_id="proj-1")
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_all_raises_on_none_response(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
         # Given: the endpoint returns None (unexpected protocol error)
         mock_endpoint.sync.return_value = None
@@ -128,7 +128,7 @@ class TestListAllPagination:
             LogStreams()._list_all(project_id="proj-1")
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_all_breaks_on_non_advancing_token(
         self, mock_config_class: MagicMock, mock_endpoint: MagicMock
     ) -> None:
@@ -144,7 +144,7 @@ class TestListAllPagination:
         assert mock_endpoint.sync.call_count == 1
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_all_breaks_on_repeated_seen_token(
         self, mock_config_class: MagicMock, mock_endpoint: MagicMock
     ) -> None:
@@ -168,7 +168,7 @@ class TestGetByNamePaginates:
     """Tests for LogStreams.get(name=...) finding matches across pages."""
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_get_by_name_finds_match_on_second_page(
         self, mock_config_class: MagicMock, mock_endpoint: MagicMock
     ) -> None:
@@ -186,7 +186,7 @@ class TestGetByNamePaginates:
         assert mock_endpoint.sync.call_count == 2
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_get_by_name_returns_none_when_missing(
         self, mock_config_class: MagicMock, mock_endpoint: MagicMock
     ) -> None:
@@ -205,7 +205,7 @@ class TestListForwardsStartingToken:
     """Tests that LogStreams.list forwards starting_token to the paginated endpoint."""
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_forwards_starting_token(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
         # Given: a single page response
         mock_endpoint.sync.return_value = _make_response(names=["s1"], next_token=None, paginated=True)
@@ -220,7 +220,7 @@ class TestListForwardsStartingToken:
         assert kwargs["project_id"] == "proj-1"
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_default_starting_token_is_zero(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
         # Given: a single page response
         mock_endpoint.sync.return_value = _make_response(names=[], next_token=None, paginated=True)
@@ -252,7 +252,7 @@ class TestListPropagatesErrors:
     """Tests that LogStreams.list raises instead of silently returning [] on server errors."""
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_raises_on_http_validation_error(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
         # Given: the endpoint returns an HTTPValidationError (e.g. bad starting_token type)
         mock_endpoint.sync.return_value = HTTPValidationError()
@@ -262,7 +262,7 @@ class TestListPropagatesErrors:
             LogStreams().list(project_id="proj-1")
 
     @patch("galileo.log_streams.list_log_streams_paginated_projects_project_id_log_streams_paginated_get")
-    @patch("galileo.log_streams.GalileoPythonConfig")
+    @patch("galileo.log_streams.SplunkAOConfig")
     def test_list_raises_on_none_response(self, mock_config_class: MagicMock, mock_endpoint: MagicMock) -> None:
         # Given: the endpoint returns None (unexpected protocol error)
         mock_endpoint.sync.return_value = None

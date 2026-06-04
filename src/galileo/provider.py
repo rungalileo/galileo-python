@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any
 
-from galileo.config import GalileoPythonConfig
+from galileo.config import SplunkAOConfig
 from galileo.resources.api.integrations import (
     create_or_update_integration_integrations_anthropic_put,
     create_or_update_integration_integrations_aws_bedrock_put,
@@ -104,7 +104,7 @@ class Provider(StateManagementMixin, ABC):
         logger.info(f"{self.__class__.__name__}.refresh: id='{self.id}' - started")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             integration_name = self._get_integration_name()
 
             # Get the specific integration data
@@ -164,7 +164,7 @@ class Provider(StateManagementMixin, ABC):
         logger.info(f"{self.__class__.__name__}.delete: id='{self.id}' - started")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             integration_name = self._get_integration_name()
 
             result = delete_integration_integrations_name_delete.sync(name=integration_name, client=config.api_client)
@@ -203,7 +203,7 @@ class Provider(StateManagementMixin, ABC):
         logger.info(f"{self.__class__.__name__}.models: Fetching models for '{self.name}'")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             integration_name = self._get_integration_name()
 
             # Get models from API
@@ -334,7 +334,7 @@ class OpenAIProvider(Provider):
         logger.info(f"OpenAIProvider.create: name='{self.name}' - started")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             body = OpenAIIntegrationCreate(token=self._temp_token, organization_id=self._temp_organization_id)
 
             response = create_or_update_integration_integrations_openai_put.sync(client=config.api_client, body=body)
@@ -386,7 +386,7 @@ class OpenAIProvider(Provider):
         logger.info(f"OpenAIProvider.update: id='{self.id}' - started")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             body = OpenAIIntegrationCreate(token=token, organization_id=organization_id)
 
             response = create_or_update_integration_integrations_openai_put.sync(client=config.api_client, body=body)
@@ -463,7 +463,7 @@ class AzureProvider(Provider):
         logger.info(f"AzureProvider.create: name='{self.name}' - started")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             body = AzureIntegrationCreate(token=self._temp_token, endpoint=self._temp_endpoint)
 
             response = create_or_update_integration_integrations_azure_put.sync(client=config.api_client, body=body)
@@ -514,7 +514,7 @@ class AzureProvider(Provider):
         logger.info(f"AzureProvider.update: id='{self.id}' - started")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             body = AzureIntegrationCreate(token=token, endpoint=endpoint)
 
             response = create_or_update_integration_integrations_azure_put.sync(client=config.api_client, body=body)
@@ -600,7 +600,7 @@ class BedrockProvider(Provider):
         logger.info(f"BedrockProvider.create: name='{self.name}' - started")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             body = BaseAwsIntegrationCreate(
                 credential_type=self._temp_credential_type or "key_secret",
                 token=self._temp_token_dict,
@@ -667,7 +667,7 @@ class BedrockProvider(Provider):
         logger.info(f"BedrockProvider.update: id='{self.id}' - started")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             token_dict = {"aws_access_key_id": aws_access_key_id, "aws_secret_access_key": aws_secret_access_key}
             body = BaseAwsIntegrationCreate(credential_type=credential_type, token=token_dict, region=region)
 
@@ -742,7 +742,7 @@ class AnthropicProvider(Provider):
         logger.info(f"AnthropicProvider.create: name='{self.name}' - started")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             body = AnthropicIntegrationCreate(token=self._temp_token)
 
             response = create_or_update_integration_integrations_anthropic_put.sync(client=config.api_client, body=body)
@@ -791,7 +791,7 @@ class AnthropicProvider(Provider):
         logger.info(f"AnthropicProvider.update: id='{self.id}' - started")
 
         try:
-            config = GalileoPythonConfig.get()
+            config = SplunkAOConfig.get()
             body = AnthropicIntegrationCreate(token=token)
 
             response = create_or_update_integration_integrations_anthropic_put.sync(client=config.api_client, body=body)

@@ -20,7 +20,7 @@ from galileo_core.schemas.logging.span import Span as GalileoSpan
 _logger = logging.getLogger(__name__)
 
 
-class GalileoCustomSpan(CustomSpanData):
+class SplunkAOCustomSpan(CustomSpanData):
     def __init__(self, span: GalileoSpan, data: dict[str, Any]):
         self.span = span
         super().__init__(span.name, data)
@@ -36,7 +36,7 @@ def _map_span_type(span_data: SpanData, span: Span[Any] | None = None) -> SPAN_T
         return "llm"
     if isinstance(span_data, FunctionSpanData | GuardrailSpanData):
         return "tool"
-    if isinstance(span_data, GalileoCustomSpan):
+    if isinstance(span_data, SplunkAOCustomSpan):
         return span_data.type
     if isinstance(span_data, AgentSpanData | HandoffSpanData | CustomSpanData):
         return "workflow"
