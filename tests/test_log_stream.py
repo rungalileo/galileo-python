@@ -176,7 +176,7 @@ class TestLogStreamCreate:
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
         """Test create() raises NotFoundError naming the project that wasn't found."""
-        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
+        # Given: env fallback returns None (project from SPLUNK_AO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
@@ -287,7 +287,7 @@ class TestLogStreamGet:
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
         """Test get() raises NotFoundError naming the project that wasn't found."""
-        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
+        # Given: env fallback returns None (project from SPLUNK_AO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
@@ -335,8 +335,8 @@ class TestLogStreamGet:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test get() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
-        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
+        # Given: SPLUNK_AO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("SPLUNK_AO_PROJECT", "Env Project")
         mock_project = MagicMock()
         mock_project.id = "env-project-id"
         mock_project.name = "Env Project"
@@ -439,7 +439,7 @@ class TestLogStreamList:
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
         """Test list() raises NotFoundError naming the project that wasn't found."""
-        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
+        # Given: env fallback returns None (project from SPLUNK_AO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
@@ -534,8 +534,8 @@ class TestLogStreamList:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test list() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
-        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
+        # Given: SPLUNK_AO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("SPLUNK_AO_PROJECT", "Env Project")
         mock_project = MagicMock()
         mock_project.id = "env-project-id"
         mock_project.name = "Env Project"
@@ -1114,8 +1114,8 @@ class TestProjectNotFoundErrorBackwardCompat:
         call and raise ``NotFoundError`` directly.
         """
         # Given: env vars are unset and Projects() shouldn't be touched
-        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
-        monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_PROJECT", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_PROJECT_ID", raising=False)
 
         log_stream = LogStream._create_empty()
         log_stream.name = "Test Stream"

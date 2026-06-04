@@ -1302,7 +1302,7 @@ class TestGalileoCallbackIngestionHookWithoutCredentials:
     """SC-54690: GalileoCallback/GalileoAsyncCallback with ingestion_hook should work without API credentials.
 
     When a user provides an ingestion_hook, the handler should not require Galileo API configuration
-    (GALILEO_API_KEY, etc.) because the hook bypasses the API entirely. This test verifies the fix
+    (SPLUNK_AO_API_KEY, etc.) because the hook bypasses the API entirely. This test verifies the fix
     without mocking Projects/LogStreams/Traces, so the real code path is exercised.
     """
 
@@ -1310,10 +1310,10 @@ class TestGalileoCallbackIngestionHookWithoutCredentials:
     def clear_galileo_config(self, monkeypatch):
         """Remove Galileo credentials and reset config to simulate no-API-key scenario."""
         # Given: no Galileo API credentials are configured
-        monkeypatch.delenv("GALILEO_API_KEY", raising=False)
-        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
-        monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
-        monkeypatch.setenv("GALILEO_CONSOLE_URL", "https://console.galileo.ai/")
+        monkeypatch.delenv("SPLUNK_AO_API_KEY", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_PROJECT", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_LOG_STREAM", raising=False)
+        monkeypatch.setenv("SPLUNK_AO_CONSOLE_URL", "https://console.galileo.ai/")
 
         if GalileoPythonConfig._instance is not None:
             GalileoPythonConfig._instance.reset()

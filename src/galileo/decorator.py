@@ -37,8 +37,8 @@ How to use decorators:
    ```
 
 Setup requirements:
-- Galileo API key must be set (via environment variable GALILEO_API_KEY or programmatically)
-- Project and Log Stream names should be defined if using the `log` decorator (either via environment variables GALILEO_PROJECT and GALILEO_LOG_STREAM, or via `galileo_context.init()`)
+- Galileo API key must be set (via environment variable SPLUNK_AO_API_KEY or programmatically)
+- Project and Log Stream names should be defined if using the `log` decorator (either via environment variables SPLUNK_AO_PROJECT and SPLUNK_AO_LOG_STREAM, or via `galileo_context.init()`)
 
 For more examples and detailed usage, see the Galileo SDK documentation.
 """

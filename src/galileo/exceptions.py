@@ -49,7 +49,7 @@ class AuthenticationError(GalileoAPIError):
             status_code,
             content,
             "Authentication failed. Check your API key is valid and not expired. "
-            "Set via GALILEO_API_KEY environment variable or pass api_key= when initializing the client.",
+            "Set via SPLUNK_AO_API_KEY environment variable or pass api_key= when initializing the client.",
         )
 
 

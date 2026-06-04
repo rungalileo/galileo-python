@@ -2016,10 +2016,10 @@ class TestCodeMetricValidationConfiguration:
         """Test that Configuration values can be set via environment variables."""
         from galileo.configuration import Configuration
 
-        monkeypatch.setenv("GALILEO_CODE_VALIDATION_TIMEOUT", "90.0")
-        monkeypatch.setenv("GALILEO_CODE_VALIDATION_INITIAL_DELAY", "3.0")
-        monkeypatch.setenv("GALILEO_CODE_VALIDATION_MAX_DELAY", "45.0")
-        monkeypatch.setenv("GALILEO_CODE_VALIDATION_BACKOFF_MULTIPLIER", "1.8")
+        monkeypatch.setenv("SPLUNK_AO_CODE_VALIDATION_TIMEOUT", "90.0")
+        monkeypatch.setenv("SPLUNK_AO_CODE_VALIDATION_INITIAL_DELAY", "3.0")
+        monkeypatch.setenv("SPLUNK_AO_CODE_VALIDATION_MAX_DELAY", "45.0")
+        monkeypatch.setenv("SPLUNK_AO_CODE_VALIDATION_BACKOFF_MULTIPLIER", "1.8")
 
         assert Configuration.code_validation_timeout == 90.0
         assert Configuration.code_validation_initial_delay == 3.0

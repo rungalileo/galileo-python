@@ -104,7 +104,7 @@ class GalileoOTLPExporter(OTLPSpanExporter):
         Parameters
         ----------
         project : str, optional
-            Target Galileo project name. Falls back to GALILEO_PROJECT environment variable.
+            Target Galileo project name. Falls back to SPLUNK_AO_PROJECT environment variable.
         logstream : str, optional
             Target logstream for trace organization. Uses default logstream if not specified.
         **kwargs
@@ -223,7 +223,7 @@ class GalileoSpanProcessor(SpanProcessor):
         Parameters
         ----------
         project : str, optional
-            Target Galileo project for trace data. Falls back to GALILEO_PROJECT environment variable.
+            Target Galileo project for trace data. Falls back to SPLUNK_AO_PROJECT environment variable.
         logstream : str, optional
             Target logstream for trace organization. Uses default logstream if not specified.
         SpanProcessor : type, optional

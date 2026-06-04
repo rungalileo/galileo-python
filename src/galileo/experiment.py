@@ -231,9 +231,9 @@ class Experiment(StateManagementMixin):
                   This will be used to configure the prompt_settings when running the experiment.
             metrics: List of metrics to evaluate.
             project_id: The project ID. If neither project_id nor project_name is provided,
-                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+                       falls back to SPLUNK_AO_PROJECT_ID or SPLUNK_AO_PROJECT environment variables.
             project_name: The project name. If neither project_id nor project_name is provided,
-                         falls back to GALILEO_PROJECT environment variable.
+                         falls back to SPLUNK_AO_PROJECT environment variable.
             prompt_settings: Settings for prompt runs. If provided along with model parameter,
                            the model parameter takes precedence.
 
@@ -269,12 +269,12 @@ class Experiment(StateManagementMixin):
                 project_name="My AI Project"
             )
 
-            # Create using GALILEO_PROJECT environment variable
+            # Create using SPLUNK_AO_PROJECT environment variable
             experiment = Experiment(
                 name="ml-evaluation",
                 dataset_name="ml-dataset",
                 prompt_name="ml-prompt"
-                # project resolved from GALILEO_PROJECT env var
+                # project resolved from SPLUNK_AO_PROJECT env var
             )
         """
         super().__init__()
@@ -399,7 +399,7 @@ class Experiment(StateManagementMixin):
             raise ValueError("Experiment name is not set. Cannot create experiment without a name.")
 
         # Note: project_id and project_name can both be None here — resolution happens below
-        # via _resolve_project, which reads GALILEO_PROJECT_ID / GALILEO_PROJECT env vars.
+        # via _resolve_project, which reads SPLUNK_AO_PROJECT_ID / SPLUNK_AO_PROJECT env vars.
 
         try:
             _logger.info(f"Experiment.create: name='{self.name}' project_id='{self.project_id}' - started")
@@ -640,9 +640,9 @@ class Experiment(StateManagementMixin):
         Args:
             name (str): The experiment name.
             project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
-                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+                       falls back to SPLUNK_AO_PROJECT_ID or SPLUNK_AO_PROJECT environment variables.
             project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
-                         falls back to GALILEO_PROJECT environment variable.
+                         falls back to SPLUNK_AO_PROJECT environment variable.
 
         Returns
         -------
@@ -666,7 +666,7 @@ class Experiment(StateManagementMixin):
                 project_id="project-123"
             )
 
-            # Get using GALILEO_PROJECT environment variable
+            # Get using SPLUNK_AO_PROJECT environment variable
             experiment = Experiment.get(name="ml-evaluation")
         """
         project_obj = _resolve_project(project_id, project_name)
@@ -689,9 +689,9 @@ class Experiment(StateManagementMixin):
 
         Args:
             project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
-                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+                       falls back to SPLUNK_AO_PROJECT_ID or SPLUNK_AO_PROJECT environment variables.
             project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
-                         falls back to GALILEO_PROJECT environment variable.
+                         falls back to SPLUNK_AO_PROJECT environment variable.
 
         Returns
         -------
@@ -709,7 +709,7 @@ class Experiment(StateManagementMixin):
             # List by project ID
             experiments = Experiment.list(project_id="project-123")
 
-            # List using GALILEO_PROJECT environment variable
+            # List using SPLUNK_AO_PROJECT environment variable
             experiments = Experiment.list()
         """
         project_obj = _resolve_project(project_id, project_name)

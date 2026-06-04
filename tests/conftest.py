@@ -22,10 +22,10 @@ from openai.types.responses import (
 )
 from openai.types.responses.response_usage import InputTokensDetails, OutputTokensDetails
 
-_os.environ["GALILEO_CONSOLE_URL"] = "http://localtest:8088"
-_os.environ["GALILEO_API_KEY"] = "api-1234567890"
-_os.environ["GALILEO_PROJECT"] = "test-project"
-_os.environ["GALILEO_LOG_STREAM"] = "test-log-stream"
+_os.environ["SPLUNK_AO_CONSOLE_URL"] = "http://localtest:8088"
+_os.environ["SPLUNK_AO_API_KEY"] = "api-1234567890"
+_os.environ["SPLUNK_AO_PROJECT"] = "test-project"
+_os.environ["SPLUNK_AO_LOG_STREAM"] = "test-log-stream"
 _os.environ["OPENAI_API_KEY"] = "sk-test"
 del _os  # Clean up temporary import
 # fmt: on
