@@ -1,14 +1,14 @@
 # Spec: Rename `GALILEO_*` Environment Variables to `SPLUNK_AO_*`
 
-**Jira Tickets:** [HYBIM-713](https://splunk.atlassian.net/browse/HYBIM-713) · [HYBIM-716](https://splunk.atlassian.net/browse/HYBIM-716) · [HYBIM-727](https://splunk.atlassian.net/browse/HYBIM-727)  
-**Status:** Draft / In Review  
-**Author:** Aditya Mehra  
+**Jira Tickets:** [HYBIM-713](https://splunk.atlassian.net/browse/HYBIM-713) · [HYBIM-716](https://splunk.atlassian.net/browse/HYBIM-716) · [HYBIM-727](https://splunk.atlassian.net/browse/HYBIM-727)
+**Status:** Draft / In Review
+**Author:** Aditya Mehra
 **Date:** 2026-06-04
 
 ---
 
-> **Repository migration notice**  
-> The changes in this PR are authored against the current `rungalileo/galileo-python` repository.  
+> **Repository migration notice**
+> The changes in this PR are authored against the current `rungalileo/galileo-python` repository.
 > Once the Splunk Agent Observability (Splunk AO) project is formally open-sourced, this code will
 > be re-homed to **[signalfx/splunk-ao-python](https://github.com/signalfx/splunk-ao-python)** on
 > GitHub. A corresponding notice applies to the companion PRs:
@@ -64,7 +64,7 @@ Tickets in scope for this change:
 This is a **hard cut-over** — only `SPLUNK_AO_*` environment variables are supported after this
 change. There is no backward-compatibility shim for external consumers.
 
-**Exception — `galileo-core` bridge:**  
+**Exception — `galileo-core` bridge:**
 The `galileo-core` package (a private dependency) continues to read `GALILEO_*` variables
 internally. Until `galileo-core` is updated (tracked separately), the SDK automatically bridges
 `SPLUNK_AO_*` → `GALILEO_*` at startup via `GalileoPythonConfig._bridge_env_vars()`. This is a
