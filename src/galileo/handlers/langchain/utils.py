@@ -50,6 +50,118 @@ class LLMEndResult:
     num_input_tokens: int | None
     num_output_tokens: int | None
     total_tokens: int | None
+    image_input_tokens: int | None = None
+    audio_input_tokens: int | None = None
+    audio_output_tokens: int | None = None
+
+
+def _apply_dict_modality_entries(
+    entries: list[Any], *, image_ref: list[int | None], audio_ref: list[int | None]
+) -> None:
+    """Update image/audio accumulators from a list of ``{"modality": str, "token_count": int}`` dicts.
+
+    Uses first-wins semantics: a slot already set to an int is not overwritten.
+    ``image_ref`` and ``audio_ref`` are single-element lists used as mutable int|None refs.
+    """
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        modality = str(entry.get("modality", "")).upper()
+        count = entry.get("token_count") or 0
+        if modality == "AUDIO" and audio_ref[0] is None:
+            audio_ref[0] = count
+        elif modality == "IMAGE" and image_ref[0] is None:
+            image_ref[0] = count
+
+
+def _extract_gemini_modality_breakdown(message: Any) -> tuple[int | None, int | None, int | None]:
+    """Extract per-modality token counts from a LangChain AIMessage for Gemini native path.
+
+    Returns (image_input_tokens, audio_input_tokens, audio_output_tokens).
+    Returns (None, None, None) when no modality breakdown is available.
+    Returns (0, 0, 0) (or partial zeros) when detail lists are present but contain no
+    audio/image entries — distinguishing "no data" from "data says zero".
+
+    Checks three surfaces, in priority order — first non-None wins per modality:
+    1. ``message.usage_metadata`` → ``input_token_details`` / ``output_token_details``
+       (langchain-google-genai >= 2.x with LangChain Core UsageMetadata).
+    2. ``message.response_metadata`` → ``prompt_tokens_details`` / ``candidates_tokens_details``
+       (raw Gemini API token detail lists forwarded by the provider adapter).
+    3. ``message.response_metadata['usage_metadata']`` → nested ``input_token_details`` /
+       ``output_token_details`` (some LangChain providers nest usage under response_metadata;
+       included for forward-compatibility with providers that surface modality info there).
+
+    Accepts either a ChatGeneration (in which case it reads ``.message``) or a raw AIMessage.
+    """
+    image_in: int | None = None
+    audio_in: int | None = None
+    audio_out: int | None = None
+    has_detail_data = False
+
+    msg = getattr(message, "message", None) or message
+    if msg is None:
+        return None, None, None
+
+    # Surface 1: usage_metadata.input_token_details / output_token_details
+    usage_meta = getattr(msg, "usage_metadata", None)
+    if isinstance(usage_meta, dict):
+        input_details = usage_meta.get("input_token_details") or {}
+        output_details = usage_meta.get("output_token_details") or {}
+        if isinstance(input_details, dict) and input_details:
+            has_detail_data = True
+            if "audio" in input_details:
+                audio_in = input_details["audio"]
+            if "image" in input_details:
+                image_in = input_details["image"]
+        if isinstance(output_details, dict) and output_details:
+            has_detail_data = True
+            if "audio" in output_details:
+                audio_out = output_details["audio"]
+
+    # Surface 2: response_metadata prompt_tokens_details / candidates_tokens_details
+    # (list of dicts like {"modality": "AUDIO", "token_count": N})
+    response_meta = getattr(msg, "response_metadata", None)
+    if isinstance(response_meta, dict):
+        prompt_details = response_meta.get("prompt_tokens_details") or []
+        candidates_details = response_meta.get("candidates_tokens_details") or []
+        if prompt_details:
+            has_detail_data = True
+            image_ref = [image_in]
+            audio_ref = [audio_in]
+            _apply_dict_modality_entries(prompt_details, image_ref=image_ref, audio_ref=audio_ref)
+            image_in, audio_in = image_ref[0], audio_ref[0]
+        if candidates_details:
+            has_detail_data = True
+            audio_ref = [audio_out]
+            _apply_dict_modality_entries(candidates_details, image_ref=[None], audio_ref=audio_ref)
+            audio_out = audio_ref[0]
+
+        # Surface 3: response_metadata['usage_metadata'] — some providers nest usage here
+        # instead of (or in addition to) message.usage_metadata. Same keys as Surface 1.
+        nested_usage = response_meta.get("usage_metadata")
+        if isinstance(nested_usage, dict):
+            nested_input = nested_usage.get("input_token_details") or {}
+            nested_output = nested_usage.get("output_token_details") or {}
+            if isinstance(nested_input, dict) and nested_input:
+                has_detail_data = True
+                if audio_in is None and "audio" in nested_input:
+                    audio_in = nested_input["audio"]
+                if image_in is None and "image" in nested_input:
+                    image_in = nested_input["image"]
+            if isinstance(nested_output, dict) and nested_output:
+                has_detail_data = True
+                if audio_out is None and "audio" in nested_output:
+                    audio_out = nested_output["audio"]
+
+    if not has_detail_data:
+        return None, None, None
+    # Detail lists were present: return 0 for any modality not found (not None),
+    # so callers can distinguish "no breakdown available" from "breakdown says zero".
+    return (
+        image_in if image_in is not None else 0,
+        audio_in if audio_in is not None else 0,
+        audio_out if audio_out is not None else 0,
+    )
 
 
 def parse_llm_result(response: Any) -> LLMEndResult:
@@ -60,6 +172,9 @@ def parse_llm_result(response: Any) -> LLMEndResult:
     2. Same dict with GCP Vertex AI keys (``input_tokens`` / ``output_tokens``).
     3. ``ChatGeneration.message.usage_metadata`` when ``llm_output`` carries no usage.
 
+    For Gemini native path (ChatGoogleGenerativeAI), also extracts per-modality token counts
+    from ``message.usage_metadata.input_token_details`` and ``message.response_metadata``.
+
     Parameters
     ----------
     response
@@ -67,6 +182,7 @@ def parse_llm_result(response: Any) -> LLMEndResult:
     """
     token_usage: dict[str, Any] = response.llm_output.get("token_usage", {}) if response.llm_output else {}
 
+    first_message = None
     try:
         flattened_messages = [message for batch in response.generations for message in batch]
         first_message = flattened_messages[0] if flattened_messages else None
@@ -83,9 +199,19 @@ def parse_llm_result(response: Any) -> LLMEndResult:
         _logger.warning(f"Failed to serialize LLM output: {e}")
         output = str(response.generations)
 
+    image_in, audio_in, audio_out = (None, None, None)
+    if first_message is not None:
+        try:
+            image_in, audio_in, audio_out = _extract_gemini_modality_breakdown(first_message)
+        except Exception as e:
+            _logger.debug(f"Failed to extract Gemini modality breakdown: {e}")
+
     return LLMEndResult(
         output=output,
         num_input_tokens=token_usage.get("prompt_tokens") or token_usage.get("input_tokens"),
         num_output_tokens=token_usage.get("completion_tokens") or token_usage.get("output_tokens"),
         total_tokens=token_usage.get("total_tokens"),
+        image_input_tokens=image_in,
+        audio_input_tokens=audio_in,
+        audio_output_tokens=audio_out,
     )

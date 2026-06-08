@@ -27,6 +27,11 @@ class LlmMetrics:
     num_output_tokens: None | Unset | int = UNSET
     num_total_tokens: None | Unset | int = UNSET
     time_to_first_token_ns: None | Unset | int = UNSET
+    # Per-modality breakdown — None means "counted as text in the flat totals".
+    # Only populated for providers that return modality-level token counts (e.g. Gemini native).
+    num_image_input_tokens: None | Unset | int = UNSET
+    num_audio_input_tokens: None | Unset | int = UNSET
+    num_audio_output_tokens: None | Unset | int = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -48,6 +53,15 @@ class LlmMetrics:
         else:
             time_to_first_token_ns = self.time_to_first_token_ns
 
+        num_image_input_tokens: None | Unset | int
+        num_image_input_tokens = UNSET if isinstance(self.num_image_input_tokens, Unset) else self.num_image_input_tokens
+
+        num_audio_input_tokens: None | Unset | int
+        num_audio_input_tokens = UNSET if isinstance(self.num_audio_input_tokens, Unset) else self.num_audio_input_tokens
+
+        num_audio_output_tokens: None | Unset | int
+        num_audio_output_tokens = UNSET if isinstance(self.num_audio_output_tokens, Unset) else self.num_audio_output_tokens
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -61,6 +75,12 @@ class LlmMetrics:
             field_dict["num_total_tokens"] = num_total_tokens
         if time_to_first_token_ns is not UNSET:
             field_dict["time_to_first_token_ns"] = time_to_first_token_ns
+        if num_image_input_tokens is not UNSET:
+            field_dict["num_image_input_tokens"] = num_image_input_tokens
+        if num_audio_input_tokens is not UNSET:
+            field_dict["num_audio_input_tokens"] = num_audio_input_tokens
+        if num_audio_output_tokens is not UNSET:
+            field_dict["num_audio_output_tokens"] = num_audio_output_tokens
 
         return field_dict
 
@@ -113,12 +133,26 @@ class LlmMetrics:
 
         time_to_first_token_ns = _parse_time_to_first_token_ns(d.pop("time_to_first_token_ns", UNSET))
 
+        def _parse_optional_int(data: object) -> None | Unset | int:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | int, data)
+
+        num_image_input_tokens = _parse_optional_int(d.pop("num_image_input_tokens", UNSET))
+        num_audio_input_tokens = _parse_optional_int(d.pop("num_audio_input_tokens", UNSET))
+        num_audio_output_tokens = _parse_optional_int(d.pop("num_audio_output_tokens", UNSET))
+
         llm_metrics = cls(
             duration_ns=duration_ns,
             num_input_tokens=num_input_tokens,
             num_output_tokens=num_output_tokens,
             num_total_tokens=num_total_tokens,
             time_to_first_token_ns=time_to_first_token_ns,
+            num_image_input_tokens=num_image_input_tokens,
+            num_audio_input_tokens=num_audio_input_tokens,
+            num_audio_output_tokens=num_audio_output_tokens,
         )
 
         llm_metrics.additional_properties = d
