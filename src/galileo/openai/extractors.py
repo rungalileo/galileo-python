@@ -13,7 +13,10 @@ from pydantic import BaseModel
 
 from galileo.logger import GalileoLogger
 from galileo.openai.models import OpenAiInputData, OpenAiModuleDefinition
+from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
+from galileo.schema.message import LoggedMessage
 from galileo_core.schemas.logging.llm import Event, Message, MessageRole, ReasoningEvent, ToolCall, ToolCallFunction
+from galileo_core.schemas.shared.multimodal import ContentModality
 
 try:
     import openai
@@ -215,7 +218,56 @@ class OpenAiArgsExtractor:
         return self.kwargs
 
 
-def convert_to_galileo_message(data: Any, default_role: str = "user") -> Message:
+def _openai_content_parts_to_blocks(parts: list) -> list[TextContentBlock | DataContentBlock] | None:
+    """Convert a list of OpenAI content parts to Galileo ingest content blocks.
+
+    Returns None if any part is unrecognised (caller falls back to str serialisation).
+    """
+    blocks: list[TextContentBlock | DataContentBlock] = []
+    for idx, part in enumerate(parts):
+        part_type = part.get("type") if isinstance(part, dict) else getattr(part, "type", None)
+        if part_type == "text":
+            text = part.get("text") if isinstance(part, dict) else getattr(part, "text", "")
+            blocks.append(TextContentBlock(text=text or "", index=idx))
+        elif part_type == "image_url":
+            image_url = part.get("image_url") if isinstance(part, dict) else getattr(part, "image_url", {})
+            if isinstance(image_url, dict):
+                url: str = image_url.get("url", "")
+            else:
+                url = getattr(image_url, "url", "")
+            if url.startswith("data:"):
+                # data URI: data:<mime>;base64,<data>
+                try:
+                    header, b64data = url.split(",", 1)
+                    mime_type = header.split(":")[1].split(";")[0]
+                except (ValueError, IndexError):
+                    mime_type, b64data = "image/png", url
+                blocks.append(
+                    DataContentBlock(modality=ContentModality.image, mime_type=mime_type, base64=b64data, index=idx)
+                )
+            else:
+                blocks.append(
+                    DataContentBlock(modality=ContentModality.image, mime_type="image/png", url=url, index=idx)
+                )
+        elif part_type == "input_audio":
+            # Realtime / audio input parts
+            audio_data = part.get("input_audio") if isinstance(part, dict) else getattr(part, "input_audio", {})
+            if isinstance(audio_data, dict):
+                b64data = audio_data.get("data", "")
+                fmt = audio_data.get("format", "wav")
+            else:
+                b64data = getattr(audio_data, "data", "")
+                fmt = getattr(audio_data, "format", "wav")
+            mime_type = f"audio/{fmt}"
+            blocks.append(
+                DataContentBlock(modality=ContentModality.audio, mime_type=mime_type, base64=b64data, index=idx)
+            )
+        else:
+            return None
+    return blocks
+
+
+def convert_to_galileo_message(data: Any, default_role: str = "user") -> Message | LoggedMessage:
     """Convert OpenAI response data to a Galileo Message object."""
     if hasattr(data, "type") and data.type == "function_call":
         tool_call = ToolCall(
@@ -271,6 +323,13 @@ def convert_to_galileo_message(data: Any, default_role: str = "user") -> Message
                             ),
                         )
                     )
+
+        # When content is a list of OpenAI content parts (multimodal), convert to
+        # DataContentBlock/TextContentBlock so the UI renders the actual media.
+        if isinstance(content, list):
+            blocks = _openai_content_parts_to_blocks(content)
+            if blocks is not None:
+                return LoggedMessage(content=blocks, role=MessageRole(role))
 
         return Message(
             content=str(content) if content is not None else "",

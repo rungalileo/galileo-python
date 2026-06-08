@@ -288,14 +288,22 @@ class TestExtractUsageMetadata:
         return entry
 
     def test_returns_empty_for_no_response(self, observer: GalileoObserver) -> None:
+        # Given: no response object
+        # When: extracting usage metadata from None
+        # Then: an empty dict is returned
         assert observer._extract_usage_metadata(None) == {}
 
     def test_returns_empty_for_no_usage_metadata(self, observer: GalileoObserver) -> None:
+        # Given: a response object with usage_metadata set to None
         response = MagicMock()
         response.usage_metadata = None
+
+        # When: extracting usage metadata
+        # Then: an empty dict is returned
         assert observer._extract_usage_metadata(response) == {}
 
     def test_flat_tokens_no_modality(self, observer: GalileoObserver) -> None:
+        # Given: a response with flat token counts and no modality detail lists
         usage = MagicMock()
         usage.prompt_token_count = 10
         usage.candidates_token_count = 5
@@ -305,8 +313,10 @@ class TestExtractUsageMetadata:
         response = MagicMock()
         response.usage_metadata = usage
 
+        # When: extracting usage metadata
         result = observer._extract_usage_metadata(response)
 
+        # Then: flat token counts are present and no per-modality keys are added
         assert result["prompt_tokens"] == 10
         assert result["completion_tokens"] == 5
         assert result["total_tokens"] == 15
@@ -315,6 +325,7 @@ class TestExtractUsageMetadata:
         assert "audio_output_tokens" not in result
 
     def test_audio_and_image_modality_breakdown(self, observer: GalileoObserver) -> None:
+        # Given: a response with prompt and candidates token detail lists containing audio and image entries
         usage = MagicMock()
         usage.prompt_token_count = 200
         usage.candidates_token_count = 30
@@ -331,13 +342,16 @@ class TestExtractUsageMetadata:
         response = MagicMock()
         response.usage_metadata = usage
 
+        # When: extracting usage metadata
         result = observer._extract_usage_metadata(response)
 
+        # Then: per-modality token counts are extracted correctly
         assert result["image_input_tokens"] == 5
         assert result["audio_input_tokens"] == 100
         assert result["audio_output_tokens"] == 20
 
     def test_no_audio_in_candidates_returns_zero_audio_out(self, observer: GalileoObserver) -> None:
+        # Given: a response with modality detail lists that contain only TEXT entries
         usage = MagicMock()
         usage.prompt_token_count = 10
         usage.candidates_token_count = 5
@@ -347,14 +361,17 @@ class TestExtractUsageMetadata:
         response = MagicMock()
         response.usage_metadata = usage
 
+        # When: extracting usage metadata
         result = observer._extract_usage_metadata(response)
 
+        # Then: modality keys are present and set to 0, not omitted, because the detail lists were present
         assert result["image_input_tokens"] == 0
         assert result["audio_input_tokens"] == 0
         assert result["audio_output_tokens"] == 0
 
     def test_modality_as_string_instead_of_enum(self, observer: GalileoObserver) -> None:
         """Older SDK may return modality as a plain string rather than an enum."""
+        # Given: a response where modality is a plain string instead of an enum object
         entry = MagicMock()
         entry.modality = "AUDIO"  # string, not enum
         entry.token_count = 50
@@ -367,6 +384,8 @@ class TestExtractUsageMetadata:
         response = MagicMock()
         response.usage_metadata = usage
 
+        # When: extracting usage metadata
         result = observer._extract_usage_metadata(response)
 
+        # Then: the string modality is handled correctly and the count is extracted
         assert result["audio_input_tokens"] == 50
