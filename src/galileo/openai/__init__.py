@@ -25,10 +25,10 @@ response = openai.chat.completions.create(
 # All prompts and responses are automatically logged to Galileo
 print(response.choices[0].message.content)
 
-# You can also use it with the galileo_context for more control
-from galileo import galileo_context
+# You can also use it with the splunk_ao_context for more control
+from galileo import splunk_ao_context
 
-with galileo_context(project="my-project", log_stream="my-log-stream"):
+with splunk_ao_context(project="my-project", log_stream="my-log-stream"):
     response = openai.chat.completions.create(
         model="gpt-4o",
         messages=[
@@ -46,11 +46,11 @@ from typing import Any
 import httpx
 from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
 
-from galileo.decorator import galileo_context
+from galileo.decorator import splunk_ao_context
 from galileo.logger import GalileoLogger
 from galileo.openai.extractors import (
     OpenAiArgsExtractor,
-    convert_to_galileo_message,
+    convert_to_splunk_ao_message,
     extract_data_from_default_response,
     extract_input_data_from_kwargs,
     has_pending_function_calls,
@@ -114,24 +114,24 @@ OPENAI_CLIENT_METHODS = [
 ]
 
 
-def _galileo_wrapper(func: Callable) -> Callable:
-    def _with_galileo(open_ai_definitions: OpenAiModuleDefinition, initialize: Callable) -> Callable:
+def _splunk_ao_wrapper(func: Callable) -> Callable:
+    def _with_splunk_ao(open_ai_definitions: OpenAiModuleDefinition, initialize: Callable) -> Callable:
         def wrapper(wrapped: Callable, instance: Any, args: dict, kwargs: dict) -> Any:
             return func(open_ai_definitions, initialize, wrapped, args, kwargs)
 
         return wrapper
 
-    return _with_galileo
+    return _with_splunk_ao
 
 
-@_galileo_wrapper
+@_splunk_ao_wrapper
 def _wrap(
     open_ai_resource: OpenAiModuleDefinition, initialize: Callable, wrapped: Callable, args: dict, kwargs: dict
 ) -> Any:
     start_time = _get_timestamp()
     arg_extractor = OpenAiArgsExtractor(*args, **kwargs)
 
-    input_data = extract_input_data_from_kwargs(open_ai_resource, start_time, arg_extractor.get_galileo_args())
+    input_data = extract_input_data_from_kwargs(open_ai_resource, start_time, arg_extractor.get_splunk_ao_args())
 
     galileo_logger = _safe_initialize_logger(initialize)
     if galileo_logger is None:
@@ -145,9 +145,9 @@ def _wrap(
         # We will conclude it at the end
         # convert to list of galileo messages since we can't send list of messages to span and want consistency
         if isinstance(input_data.input, list):
-            trace_input_messages = [convert_to_galileo_message(msg) for msg in input_data.input]
+            trace_input_messages = [convert_to_splunk_ao_message(msg) for msg in input_data.input]
         else:
-            trace_input_messages = [convert_to_galileo_message(input_data.input)]
+            trace_input_messages = [convert_to_splunk_ao_message(input_data.input)]
 
         # Serialize with "messages" wrapper for UI compatibility
         trace_input = {"messages": [msg.model_dump(exclude_none=True) for msg in trace_input_messages]}
@@ -187,9 +187,9 @@ def _wrap(
 
         # convert to list of galileo messages since we can't send a regular list to span input
         if isinstance(input_data.input, list):
-            span_input = [convert_to_galileo_message(msg) for msg in input_data.input]
+            span_input = [convert_to_splunk_ao_message(msg) for msg in input_data.input]
         else:
-            span_input = [convert_to_galileo_message(input_data.input)]
+            span_input = [convert_to_splunk_ao_message(input_data.input)]
 
         # Process Responses API output items sequentially if present
         final_conversation_context = span_input.copy()
@@ -226,7 +226,7 @@ def _wrap(
             )
         else:
             # For non-Responses API (chat or completion), create the main span as before
-            span_output = convert_to_galileo_message(completion, "assistant")
+            span_output = convert_to_splunk_ao_message(completion, "assistant")
 
             # Add a span to the current trace or span (if this is a nested trace)
             span = galileo_logger.add_llm_span(
@@ -262,9 +262,9 @@ def _wrap(
                 # For other APIs, add the final span output
                 full_conversation = []
                 if isinstance(input_data.input, list):
-                    full_conversation.extend([convert_to_galileo_message(msg) for msg in input_data.input])
+                    full_conversation.extend([convert_to_splunk_ao_message(msg) for msg in input_data.input])
                 else:
-                    full_conversation.append(convert_to_galileo_message(input_data.input))
+                    full_conversation.append(convert_to_splunk_ao_message(input_data.input))
                 full_conversation.append(span_output)
 
             # Serialize with "messages" wrapper for UI compatibility
@@ -312,7 +312,7 @@ class OpenAIGalileo:
         Optional[GalileoLogger]
             The initialized Galileo logger instance.
         """
-        self._galileo_logger = galileo_context.get_logger_instance()
+        self._galileo_logger = splunk_ao_context.get_logger_instance()
 
         return self._galileo_logger
 

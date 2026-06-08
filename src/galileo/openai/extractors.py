@@ -199,7 +199,7 @@ class OpenAiArgsExtractor:
         }
         self.kwargs = kwargs
 
-    def get_galileo_args(self) -> dict[str, Any]:
+    def get_splunk_ao_args(self) -> dict[str, Any]:
         return {**self.args, **self.kwargs}
 
     def get_openai_args(self) -> dict[str, Any]:
@@ -215,7 +215,7 @@ class OpenAiArgsExtractor:
         return self.kwargs
 
 
-def convert_to_galileo_message(data: Any, default_role: str = "user") -> Message:
+def convert_to_splunk_ao_message(data: Any, default_role: str = "user") -> Message:
     """Convert OpenAI response data to a Galileo Message object."""
     if hasattr(data, "type") and data.type == "function_call":
         tool_call = ToolCall(
@@ -585,7 +585,7 @@ def process_output_items(
 
     # Add the final response message
     if final_message_content:
-        response_message = convert_to_galileo_message(final_message_content, "assistant")
+        response_message = convert_to_splunk_ao_message(final_message_content, "assistant")
         consolidated_output_messages.append(response_message)
 
     # Create the final consolidated output for the LLM span with content and reasoning
@@ -594,7 +594,7 @@ def process_output_items(
         # Otherwise, serialize the array of Messages and reasoning objects into a string
         if final_message_content:
             # Simple case: just a message with no reasoning
-            consolidated_output = convert_to_galileo_message(final_message_content, "assistant")
+            consolidated_output = convert_to_splunk_ao_message(final_message_content, "assistant")
         else:
             # Complex case: serialize the array of Messages and reasoning objects
             # WORKAROUND: Serialize into a string since LLM span output
@@ -613,7 +613,7 @@ def process_output_items(
             messages_serialized = json.dumps(serialized_items, indent=2)
 
             # Create a single Message with the serialized array as content
-            consolidated_output = convert_to_galileo_message(messages_serialized, "assistant")
+            consolidated_output = convert_to_splunk_ao_message(messages_serialized, "assistant")
 
         # Add tool calls if present
         if final_tool_calls:

@@ -5,7 +5,7 @@ from uuid import UUID
 import pytest
 from pydantic import BaseModel
 
-from galileo import Message, MessageRole, galileo_context, log, start_session
+from galileo import Message, MessageRole, splunk_ao_context, log, start_session
 from galileo.decorator import _session_id_context
 from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
 from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
@@ -16,9 +16,9 @@ from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_proje
 
 @pytest.fixture
 def reset_context():
-    galileo_context.reset()
+    splunk_ao_context.reset()
     yield
-    galileo_context.reset()
+    splunk_ao_context.reset()
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -31,27 +31,27 @@ def test_decorator_context_reset(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
 
     @log(span_type="llm")
     def llm_call(query: str) -> str:
         return "response"
 
-    assert galileo_context.get_current_trace() is None
+    assert splunk_ao_context.get_current_trace() is None
 
     llm_call(query="input")
 
-    assert len(galileo_context.get_logger_instance().traces) == 1
-    assert galileo_context.get_current_trace() is not None
-    assert galileo_context.get_current_project() == "project-X"
-    assert galileo_context.get_current_log_stream() == "log-stream-X"
+    assert len(splunk_ao_context.get_logger_instance().traces) == 1
+    assert splunk_ao_context.get_current_trace() is not None
+    assert splunk_ao_context.get_current_project() == "project-X"
+    assert splunk_ao_context.get_current_log_stream() == "log-stream-X"
 
-    galileo_context.reset()
+    splunk_ao_context.reset()
 
-    assert len(galileo_context.get_logger_instance().traces) == 0
-    assert galileo_context.get_current_trace() is None
-    assert galileo_context.get_current_project() is None
-    assert galileo_context.get_current_log_stream() is None
+    assert len(splunk_ao_context.get_logger_instance().traces) == 0
+    assert splunk_ao_context.get_current_trace() is None
+    assert splunk_ao_context.get_current_project() is None
+    assert splunk_ao_context.get_current_log_stream() is None
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -64,15 +64,15 @@ def test_decorator_context_init(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
 
-    assert galileo_context.get_current_project() == "project-X"
-    assert galileo_context.get_current_log_stream() == "log-stream-X"
+    assert splunk_ao_context.get_current_project() == "project-X"
+    assert splunk_ao_context.get_current_log_stream() == "log-stream-X"
 
-    galileo_context.reset()
+    splunk_ao_context.reset()
 
-    assert galileo_context.get_current_project() is None
-    assert galileo_context.get_current_log_stream() is None
+    assert splunk_ao_context.get_current_project() is None
+    assert splunk_ao_context.get_current_log_stream() is None
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -89,13 +89,13 @@ def test_decorator_context_flush(
     def llm_call(query: str) -> str:
         return "response"
 
-    assert galileo_context.get_current_trace() is None
+    assert splunk_ao_context.get_current_trace() is None
 
     llm_call(query="input")
 
-    assert galileo_context.get_current_trace() is not None
+    assert splunk_ao_context.get_current_trace() is not None
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     # Check if ingest_traces (async) was called instead of ingest_traces
     if mock_traces_client_instance.ingest_traces.call_args is not None:
@@ -105,8 +105,8 @@ def test_decorator_context_flush(
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
-    assert galileo_context.get_current_trace() is None
-    assert galileo_context.get_current_span_stack() == []
+    assert splunk_ao_context.get_current_trace() is None
+    assert splunk_ao_context.get_current_span_stack() == []
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -119,43 +119,43 @@ def test_decorator_context_flush_specific_project_and_log_stream(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
 
     @log(span_type="llm")
     def llm_call(query: str) -> str:
         return "response"
 
-    assert galileo_context.get_current_trace() is None
+    assert splunk_ao_context.get_current_trace() is None
 
     llm_call(query="input")
 
-    assert galileo_context.get_current_trace() is not None
+    assert splunk_ao_context.get_current_trace() is not None
 
-    galileo_context.init(project="project-Y", log_stream="log-stream-Y")
+    splunk_ao_context.init(project="project-Y", log_stream="log-stream-Y")
 
-    assert galileo_context.get_current_trace() is None
+    assert splunk_ao_context.get_current_trace() is None
 
     llm_call(query="input")
 
-    assert galileo_context.get_current_trace() is not None
+    assert splunk_ao_context.get_current_trace() is not None
 
-    galileo_context.flush(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.flush(project="project-X", log_stream="log-stream-X")
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
 
-    assert galileo_context.get_current_trace() is not None
+    assert splunk_ao_context.get_current_trace() is not None
 
-    galileo_context.flush(project="project-Y", log_stream="log-stream-Y")
+    splunk_ao_context.flush(project="project-Y", log_stream="log-stream-Y")
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
 
-    assert galileo_context.get_current_trace() is None
+    assert splunk_ao_context.get_current_trace() is None
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -172,37 +172,37 @@ def test_decorator_context_flush_all(
     def llm_call(query: str) -> str:
         return "response"
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
 
     llm_call(query="input_X")
 
-    trace_X = galileo_context.get_current_trace()
+    trace_X = splunk_ao_context.get_current_trace()
     assert trace_X.input == '{"query": "input_X"}'
 
-    logger_X = galileo_context.get_logger_instance(project="project-X", log_stream="log-stream-X")
+    logger_X = splunk_ao_context.get_logger_instance(project="project-X", log_stream="log-stream-X")
     assert len(logger_X.traces) == 1
 
-    galileo_context.init(project="project-Y", log_stream="log-stream-Y")
+    splunk_ao_context.init(project="project-Y", log_stream="log-stream-Y")
 
     llm_call(query="input_Y")
 
-    trace_Y = galileo_context.get_current_trace()
+    trace_Y = splunk_ao_context.get_current_trace()
     assert trace_Y.input == '{"query": "input_Y"}'
 
-    logger_Y = galileo_context.get_logger_instance(project="project-Y", log_stream="log-stream-Y")
+    logger_Y = splunk_ao_context.get_logger_instance(project="project-Y", log_stream="log-stream-Y")
     assert len(logger_Y.traces) == 1
 
     # Flush both loggers
-    galileo_context.flush_all()
+    splunk_ao_context.flush_all()
 
-    logger_X = galileo_context.get_logger_instance(project="project-X", log_stream="log-stream-X")
+    logger_X = splunk_ao_context.get_logger_instance(project="project-X", log_stream="log-stream-X")
     assert len(logger_X.traces) == 0
 
-    logger_Y = galileo_context.get_logger_instance(project="project-Y", log_stream="log-stream-Y")
+    logger_Y = splunk_ao_context.get_logger_instance(project="project-Y", log_stream="log-stream-Y")
     assert len(logger_Y.traces) == 0
 
-    assert galileo_context.get_current_trace() is None
-    assert galileo_context.get_current_span_stack() == []
+    assert splunk_ao_context.get_current_trace() is None
+    assert splunk_ao_context.get_current_span_stack() == []
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -220,7 +220,7 @@ def test_decorator_llm_span(
         return "response"
 
     llm_call(query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -247,7 +247,7 @@ def test_decorator_workflow_span_output_int(
         return arg1 + arg2
 
     my_function(1, 2)
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -276,7 +276,7 @@ def test_decorator_workflow_span_io_object(
     my_function(
         Message(content="system prompt", role=MessageRole.system), Message(content="query", role=MessageRole.user)
     )
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -311,7 +311,7 @@ def test_decorator_tool_span_io_object(
     my_function(
         Message(content="system prompt", role=MessageRole.system), Message(content="query", role=MessageRole.user)
     )
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -344,7 +344,7 @@ def test_decorator_agent_span(
         return f"{arg1} {arg2}"
 
     my_function("arg1", "arg2")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -371,7 +371,7 @@ def test_decorator_agent_span_with_agent_type(
         return f"{arg1} {arg2}"
 
     my_function("arg1", "arg2")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -403,7 +403,7 @@ def test_decorator_agent_span_with_nested_span(
         return my_tool_function(arg1)
 
     my_function("arg1", "arg2")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -440,7 +440,7 @@ def test_decorator_nested_span(
         return llm_call(query=nested_query)
 
     output = nested_call(nested_query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -477,7 +477,7 @@ def test_decorator_multiple_nested_spans(
         return "new response"
 
     output = nested_call(nested_query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -509,7 +509,7 @@ def test_decorator_retriever_span_str(
         return "response1"
 
     retriever_call(query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -533,7 +533,7 @@ def test_decorator_retriever_span_list_str(
         return ["response1", "response2"]
 
     retriever_call(query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -560,7 +560,7 @@ def test_decorator_retriever_span_list_dict(
         return [{"content": "response1", "metadata": {"key": "value"}}, {"content": "response2", "metadata": None}]
 
     retriever_call(query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -587,7 +587,7 @@ def test_decorator_retriever_span_list_document(
         return [Document(content="response1", metadata={"key": "value"}), Document(content="response2", metadata=None)]
 
     retriever_call(query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -616,7 +616,7 @@ def test_decorator_we_should_create_trace_but_reraise_exception(
     with pytest.raises(Exception):
         foo()
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -639,14 +639,14 @@ def test_decorator_start_session(
         return "response"
 
     foo()
-    galileo_context.start_session(
+    splunk_ao_context.start_session(
         name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
     )
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -673,11 +673,11 @@ def test_standalone_start_session(
         name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
     )
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
     assert session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -699,12 +699,12 @@ def test_decorator_start_session_empty_values(
         return "response"
 
     foo()
-    galileo_context.start_session()
+    splunk_ao_context.start_session()
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -726,16 +726,16 @@ def test_decorator_clear_session(
         return "response"
 
     foo()
-    galileo_context.start_session(name="test-session")
+    splunk_ao_context.start_session(name="test-session")
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
 
-    galileo_context.clear_session()
+    splunk_ao_context.clear_session()
 
     assert logger.session_id is None
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -757,12 +757,12 @@ def test_decorator_set_session(
         return "response"
 
     foo()
-    galileo_context.set_session(session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
+    splunk_ao_context.set_session(session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -804,7 +804,7 @@ def test_decorator_input_serialization_deserialization(
     complex_input = {"nested": {"key": "value", "number": 42}, "list": [1, 2, 3], "string": "test"}
 
     my_function(complex_input=complex_input)
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
@@ -832,7 +832,7 @@ def test_decorator_llm_span_list_output_serialization(
         return ["response1", "response2", "response3"]
 
     llm_call_returning_list(query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
@@ -858,7 +858,7 @@ def test_decorator_llm_span_tuple_output_serialization(
         return ("response1", "response2")
 
     llm_call_returning_tuple(query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
@@ -885,7 +885,7 @@ def test_decorator_llm_span_dict_output_preserved(
         return {"response": "value", "number": 42}
 
     llm_call_returning_dict(query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
@@ -917,7 +917,7 @@ def test_decorator_workflow_span_complex_output_serialization(
         }
 
     workflow_with_complex_output(query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
@@ -945,7 +945,7 @@ def test_decorator_pydantic_model_input_serialization(
 
     test_model = TestPydanticModel(name="test", value=42)
     process_model(model=test_model)
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
@@ -973,7 +973,7 @@ def test_decorator_pydantic_model_output_serialization(
         return TestPydanticModel(name=name, value=value)
 
     create_model(name="output_test", value=123)
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
@@ -1000,7 +1000,7 @@ def test_decorator_null_output_handling(
         return None
 
     function_returning_none(query="input")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
@@ -1026,7 +1026,7 @@ def test_decorator_tool_span_output_serialization(
         return {"tool_result": input_data, "status": "success", "items": [1, 2, 3]}
 
     tool_with_complex_output(input_data="test")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
@@ -1054,7 +1054,7 @@ def test_decorator_agent_span_output_serialization(
         return {"agent_response": query, "confidence": 0.95, "actions": ["analyze", "respond"]}
 
     agent_with_complex_output(query="test query")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
@@ -1088,7 +1088,7 @@ def test_decorator_workflow_content_blocks_output_preserved(
 
     # When: the workflow is executed and flushed
     workflow_returning_content_blocks(query="analyze this")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     # Then: content blocks are preserved as a list on the trace (not stringified)
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
@@ -1123,7 +1123,7 @@ def test_decorator_workflow_message_list_output_serialized(
 
     # When: the workflow is executed and flushed
     workflow_returning_messages(query="chat")
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     # Then: messages are serialized to string on the trace (not preserved as list)
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
@@ -1149,9 +1149,9 @@ def test_mode_context_init_default(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
 
-    assert galileo_context.get_current_mode() == "batch"
+    assert splunk_ao_context.get_current_mode() == "batch"
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1165,9 +1165,9 @@ def test_mode_context_init_explicit(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X", mode="distributed")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X", mode="distributed")
 
-    assert galileo_context.get_current_mode() == "distributed"
+    assert splunk_ao_context.get_current_mode() == "distributed"
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1181,8 +1181,8 @@ def test_mode_context_call_default(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    with galileo_context(project="project-X", log_stream="log-stream-X"):
-        assert galileo_context.get_current_mode() == "batch"
+    with splunk_ao_context(project="project-X", log_stream="log-stream-X"):
+        assert splunk_ao_context.get_current_mode() == "batch"
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1196,8 +1196,8 @@ def test_mode_context_call_explicit(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    with galileo_context(project="project-X", log_stream="log-stream-X", mode="distributed"):
-        assert galileo_context.get_current_mode() == "distributed"
+    with splunk_ao_context(project="project-X", log_stream="log-stream-X", mode="distributed"):
+        assert splunk_ao_context.get_current_mode() == "distributed"
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1212,15 +1212,15 @@ def test_mode_context_nested_push_pop(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     # Set initial mode
-    galileo_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
-    assert galileo_context.get_current_mode() == "batch"
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
+    assert splunk_ao_context.get_current_mode() == "batch"
 
     # Enter nested context with different mode
-    with galileo_context(project="project-Y", log_stream="log-stream-Y", mode="distributed"):
-        assert galileo_context.get_current_mode() == "distributed"
+    with splunk_ao_context(project="project-Y", log_stream="log-stream-Y", mode="distributed"):
+        assert splunk_ao_context.get_current_mode() == "distributed"
 
     # After exiting, mode should be restored
-    assert galileo_context.get_current_mode() == "batch"
+    assert splunk_ao_context.get_current_mode() == "batch"
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1235,22 +1235,22 @@ def test_mode_context_multiple_nested_levels(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     # Set initial mode
-    galileo_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
-    assert galileo_context.get_current_mode() == "batch"
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
+    assert splunk_ao_context.get_current_mode() == "batch"
 
     # First nested level
-    with galileo_context(project="project-Y", log_stream="log-stream-Y", mode="distributed"):
-        assert galileo_context.get_current_mode() == "distributed"
+    with splunk_ao_context(project="project-Y", log_stream="log-stream-Y", mode="distributed"):
+        assert splunk_ao_context.get_current_mode() == "distributed"
 
         # Second nested level - defaults back to batch
-        with galileo_context(project="project-Z", log_stream="log-stream-Z"):
-            assert galileo_context.get_current_mode() == "batch"
+        with splunk_ao_context(project="project-Z", log_stream="log-stream-Z"):
+            assert splunk_ao_context.get_current_mode() == "batch"
 
         # Back to first nested level
-        assert galileo_context.get_current_mode() == "distributed"
+        assert splunk_ao_context.get_current_mode() == "distributed"
 
     # Back to original
-    assert galileo_context.get_current_mode() == "batch"
+    assert splunk_ao_context.get_current_mode() == "batch"
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1264,11 +1264,11 @@ def test_mode_context_reset(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X", mode="distributed")
-    assert galileo_context.get_current_mode() == "distributed"
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X", mode="distributed")
+    assert splunk_ao_context.get_current_mode() == "distributed"
 
-    galileo_context.reset()
-    assert galileo_context.get_current_mode() == "batch"
+    splunk_ao_context.reset()
+    assert splunk_ao_context.get_current_mode() == "batch"
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1283,23 +1283,23 @@ def test_mode_flush_with_explicit_mode(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     # Initialize with batch mode
-    galileo_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
 
     @log(span_type="llm")
     def llm_call(query: str) -> str:
         return "response"
 
     llm_call(query="input")
-    assert galileo_context.get_current_trace() is not None
+    assert splunk_ao_context.get_current_trace() is not None
 
     # Flush with explicit mode
-    galileo_context.flush(project="project-X", log_stream="log-stream-X", mode="batch")
+    splunk_ao_context.flush(project="project-X", log_stream="log-stream-X", mode="batch")
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     assert len(payload.traces) == 1
 
     # Trace context should be reset since we flushed the current context
-    assert galileo_context.get_current_trace() is None
+    assert splunk_ao_context.get_current_trace() is None
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1314,23 +1314,23 @@ def test_mode_flush_different_mode_no_reset(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     # Initialize with batch mode
-    galileo_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
 
     @log(span_type="llm")
     def llm_call(query: str) -> str:
         return "response"
 
     llm_call(query="input")
-    current_trace = galileo_context.get_current_trace()
+    current_trace = splunk_ao_context.get_current_trace()
     assert current_trace is not None
 
     # Flush with a different mode shouldn't reset the current trace context
     # Since the logger instances are different
-    galileo_context.flush(project="project-X", log_stream="log-stream-X", mode="distributed")
+    splunk_ao_context.flush(project="project-X", log_stream="log-stream-X", mode="distributed")
 
     # Current trace should still exist since we didn't flush the batch mode instance
-    assert galileo_context.get_current_trace() is not None
-    assert galileo_context.get_current_trace() == current_trace
+    assert splunk_ao_context.get_current_trace() is not None
+    assert splunk_ao_context.get_current_trace() == current_trace
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1346,9 +1346,9 @@ def test_mode_from_environment_variable(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     # When mode is not specified, it should use the environment variable
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
 
-    assert galileo_context.get_current_mode() == "distributed"
+    assert splunk_ao_context.get_current_mode() == "distributed"
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1364,9 +1364,9 @@ def test_mode_explicit_overrides_environment(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     # Explicit mode should override environment variable
-    galileo_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
 
-    assert galileo_context.get_current_mode() == "batch"
+    assert splunk_ao_context.get_current_mode() == "batch"
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1381,11 +1381,11 @@ def test_get_logger_instance_with_explicit_mode(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     # Initialize with batch mode
-    galileo_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
 
     # Get logger instance with different mode
-    logger_batch = galileo_context.get_logger_instance(project="project-X", log_stream="log-stream-X", mode="batch")
-    logger_distributed = galileo_context.get_logger_instance(
+    logger_batch = splunk_ao_context.get_logger_instance(project="project-X", log_stream="log-stream-X", mode="batch")
+    logger_distributed = splunk_ao_context.get_logger_instance(
         project="project-X", log_stream="log-stream-X", mode="distributed"
     )
 
@@ -1408,7 +1408,7 @@ def test_multiple_workflow_calls_create_one_trace_with_multiple_spans(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X", mode="batch")
 
     @log(span_type="workflow")
     def process_query(query: str) -> str:
@@ -1425,7 +1425,7 @@ def test_multiple_workflow_calls_create_one_trace_with_multiple_spans(
     assert result3 == "Processed: query 3"
 
     # Before flush, verify only 1 trace was created with 3 workflow spans
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     assert len(logger.traces) == 1, f"Expected 1 trace, got {len(logger.traces)}"
 
     # Verify the single trace has 3 workflow spans
@@ -1438,7 +1438,7 @@ def test_multiple_workflow_calls_create_one_trace_with_multiple_spans(
     assert trace.spans[2].input == '{"query": "query 3"}'
 
     # Flush the trace
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     # Verify ingest_traces was called with 1 trace containing 3 spans
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
@@ -1446,7 +1446,7 @@ def test_multiple_workflow_calls_create_one_trace_with_multiple_spans(
     assert len(payload.traces[0].spans) == 3
 
     # After flush, trace context should be cleared
-    assert galileo_context.get_current_trace() is None
+    assert splunk_ao_context.get_current_trace() is None
     assert len(logger.traces) == 0
 
 
@@ -1467,9 +1467,9 @@ def test_session_id_context_manager(
     def foo() -> str:
         return "response"
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
-    with galileo_context(session_id=test_session_id):
-        assert galileo_context.get_logger_instance().session_id == test_session_id
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
+    with splunk_ao_context(session_id=test_session_id):
+        assert splunk_ao_context.get_logger_instance().session_id == test_session_id
         foo()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
@@ -1491,19 +1491,19 @@ def test_session_id_nested_context_stacking(
     session_2 = "3c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"
 
     # No session initially
-    assert galileo_context.get_logger_instance().session_id is None
+    assert splunk_ao_context.get_logger_instance().session_id is None
 
-    with galileo_context(project="p1", log_stream="s1", session_id=session_1):
-        assert galileo_context.get_logger_instance().session_id == session_1
+    with splunk_ao_context(project="p1", log_stream="s1", session_id=session_1):
+        assert splunk_ao_context.get_logger_instance().session_id == session_1
 
-        with galileo_context(project="p2", log_stream="s2", session_id=session_2):
-            assert galileo_context.get_logger_instance().session_id == session_2
+        with splunk_ao_context(project="p2", log_stream="s2", session_id=session_2):
+            assert splunk_ao_context.get_logger_instance().session_id == session_2
 
         # Restored after nested context exits
-        assert galileo_context.get_logger_instance().session_id == session_1
+        assert splunk_ao_context.get_logger_instance().session_id == session_1
 
     # Cleared after all contexts exit
-    assert galileo_context.get_logger_instance().session_id is None
+    assert splunk_ao_context.get_logger_instance().session_id is None
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1517,19 +1517,19 @@ def test_session_id_cleared_on_reset_and_init(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
-    galileo_context.start_session(name="test-session")
-    assert galileo_context.get_logger_instance().session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.start_session(name="test-session")
+    assert splunk_ao_context.get_logger_instance().session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
 
     # Reset clears session
-    galileo_context.reset()
-    assert galileo_context.get_logger_instance().session_id is None
+    splunk_ao_context.reset()
+    assert splunk_ao_context.get_logger_instance().session_id is None
 
     # Re-init also clears session
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
-    galileo_context.start_session(name="test-session")
-    galileo_context.init(project="project-Y", log_stream="log-stream-Y")
-    assert galileo_context.get_logger_instance().session_id is None
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.start_session(name="test-session")
+    splunk_ao_context.init(project="project-Y", log_stream="log-stream-Y")
+    assert splunk_ao_context.get_logger_instance().session_id is None
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1545,12 +1545,12 @@ def test_start_session_overrides_context_session(
 
     context_session = "6d4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"
 
-    with galileo_context(project="test-project", log_stream="test-stream", session_id=context_session):
-        assert galileo_context.get_logger_instance().session_id == context_session
+    with splunk_ao_context(project="test-project", log_stream="test-stream", session_id=context_session):
+        assert splunk_ao_context.get_logger_instance().session_id == context_session
 
         # start_session overrides context session
-        new_session_id = galileo_context.start_session(name="new-session")
-        assert galileo_context.get_logger_instance().session_id == new_session_id
+        new_session_id = splunk_ao_context.start_session(name="new-session")
+        assert splunk_ao_context.get_logger_instance().session_id == new_session_id
         assert _session_id_context.get() == new_session_id
 
 
@@ -1569,7 +1569,7 @@ def test_flush_on_error_called_when_flush_raises(
 
     on_error = Mock()
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
 
     @log(span_type="llm")
     def llm_call(query: str) -> str:
@@ -1578,7 +1578,7 @@ def test_flush_on_error_called_when_flush_raises(
     llm_call(query="input")
 
     # When: flush is called with on_error
-    galileo_context.flush(on_error=on_error)
+    splunk_ao_context.flush(on_error=on_error)
 
     # Then: on_error is invoked with the exception; no warning is raised
     on_error.assert_called_once()
@@ -1597,7 +1597,7 @@ def test_flush_warns_when_flush_raises_without_on_error(
     setup_mock_logstreams_client(mock_logstreams_client)
     mock_traces_client_instance.ingest_traces.side_effect = RuntimeError("network error")
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
 
     @log(span_type="llm")
     def llm_call(query: str) -> str:
@@ -1608,7 +1608,7 @@ def test_flush_warns_when_flush_raises_without_on_error(
     # When/Then: flush does not raise; a warning is logged instead
 
     with patch("galileo.decorator._logger") as mock_logger:
-        galileo_context.flush()
+        splunk_ao_context.flush()
         mock_logger.warning.assert_called_once()
         assert "flush failed" in mock_logger.warning.call_args[0][0]
 
@@ -1628,7 +1628,7 @@ def test_flush_on_error_callback_raises_is_swallowed(
     def bad_callback(exc: Exception) -> None:
         raise ValueError("callback failed")
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
 
     @log(span_type="llm")
     def llm_call(query: str) -> str:
@@ -1638,7 +1638,7 @@ def test_flush_on_error_callback_raises_is_swallowed(
 
     # When/Then: flush does not raise even though the callback raises
     with patch("galileo.decorator._logger") as mock_logger:
-        galileo_context.flush(on_error=bad_callback)  # must not raise
+        splunk_ao_context.flush(on_error=bad_callback)  # must not raise
         mock_logger.warning.assert_called_once()
         assert "on_error callback raised" in mock_logger.warning.call_args[0][0]
 
@@ -1655,7 +1655,7 @@ def test_flush_on_error_logs_at_debug_not_warning(
     setup_mock_logstreams_client(mock_logstreams_client)
     mock_traces_client_instance.ingest_traces.side_effect = RuntimeError("network error")
 
-    galileo_context.init(project="project-X", log_stream="log-stream-X")
+    splunk_ao_context.init(project="project-X", log_stream="log-stream-X")
 
     @log(span_type="llm")
     def llm_call(query: str) -> str:
@@ -1665,7 +1665,7 @@ def test_flush_on_error_logs_at_debug_not_warning(
 
     # When: flush is called with on_error
     with patch("galileo.decorator._logger") as mock_logger:
-        galileo_context.flush(on_error=Mock())
+        splunk_ao_context.flush(on_error=Mock())
 
         # Then: debug is called, not warning
         mock_logger.debug.assert_called_once()

@@ -7,7 +7,7 @@ from openai import Stream
 from openai.types.chat import ChatCompletionChunk
 from openai.types.responses import ResponseCompletedEvent
 
-from galileo import Message, MessageRole, galileo_context, log
+from galileo import Message, MessageRole, splunk_ao_context, log
 from galileo.openai import OpenAIGalileo, openai
 from galileo_core.schemas.logging.span import LlmSpan, WorkflowSpan
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
@@ -45,7 +45,7 @@ def test_basic_openai_call(
     setup_mock_logstreams_client(mock_logstreams_client)
     openai_create.return_value = create_chat_completion
 
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     chat_completion = openai.chat.completions.create(
@@ -66,7 +66,7 @@ def test_basic_openai_call(
     response = chat_completion.choices[0].message.content
     assert response == "The mock is working! ;)"
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
@@ -108,7 +108,7 @@ def test_streamed_openai_call(
         cast_to=ChatCompletionChunk, client=openai.OpenAI(), response=Response(status_code=200, content=EventStream())
     )
 
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     stream = openai.chat.completions.create(
@@ -123,7 +123,7 @@ def test_streamed_openai_call(
     assert response == "Hello"
     assert chunk_count == 3
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
@@ -158,7 +158,7 @@ def test_openai_api_calls_as_parent_span(
     openai_create.return_value = create_chat_completion
 
     # we want reset context and enable tracing for openai plugin
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     @log()
@@ -171,7 +171,7 @@ def test_openai_api_calls_as_parent_span(
     output = call_openai()
     assert output == "The mock is working! ;)"
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
@@ -206,7 +206,7 @@ def test_openai_error_trace(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     # we want reset context and enable tracing for openai plugin
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     def call_openai(model: str = "gpt-3.5-turbo"):
@@ -218,7 +218,7 @@ def test_openai_error_trace(
     with pytest.raises(RuntimeError):
         call_openai()
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     openai_create.assert_called_once()
     mock_traces_client_instance.ingest_traces.assert_called()
@@ -243,7 +243,7 @@ def test_openai_error_trace_(
     )
 
     # we want reset context and enable tracing for openai plugin
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     def call_openai(model: str = "gpt-3.5-turbo"):
@@ -255,7 +255,7 @@ def test_openai_error_trace_(
     with pytest.raises(RuntimeError):
         call_openai()
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     openai_create.assert_called_once()
     mock_traces_client_instance.ingest_traces.assert_called()
@@ -283,7 +283,7 @@ def test_client_fails_because_openai_error_trace_no_exp(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     # we want reset context and enable tracing for openai plugin
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     @log
@@ -296,7 +296,7 @@ def test_client_fails_because_openai_error_trace_no_exp(
     with pytest.raises(RuntimeError):
         call_openai()
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     mock_projects_client.assert_called_once()
     openai_create.assert_called_once()
@@ -328,7 +328,7 @@ def test_galileo_api_client_transport_error_not_blocking_user_code(
     setup_mock_logstreams_client(mock_logstreams_client)
     openai_create.return_value = create_chat_completion
     # we want reset context and enable tracing for openai plugin
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     @log()
@@ -339,7 +339,7 @@ def test_galileo_api_client_transport_error_not_blocking_user_code(
         return chat_completion.choices[0].message.content
 
     assert call_openai() == "The mock is working! ;)"
-    galileo_context.flush()
+    splunk_ao_context.flush()
 
     # Projects may be called multiple times as different components try to initialize
     # The key assertion is that user code (openai_create) runs successfully despite SDK errors
@@ -363,10 +363,10 @@ def test_openai_calls_in_active_trace(
     setup_mock_logstreams_client(mock_logstreams_client)
     openai_create.return_value = create_chat_completion
 
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     logger.start_trace("test trace")
 
     openai.chat.completions.create(messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-4o-mini")
@@ -402,7 +402,7 @@ def test_chat_completions_multiple_messages(
     setup_mock_logstreams_client(mock_logstreams_client)
     openai_create.return_value = create_chat_completion
 
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     input_messages = [
@@ -419,7 +419,7 @@ def test_chat_completions_multiple_messages(
     response_text = response.choices[0].message.content
     assert response_text == "The mock is working! ;)"
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
@@ -462,7 +462,7 @@ def test_basic_responses_api_call(
     setup_mock_logstreams_client(mock_logstreams_client)
     openai_create.return_value = create_responses_response
 
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     response = openai.responses.create(input="Say this is a test", model="gpt-4o")
@@ -470,7 +470,7 @@ def test_basic_responses_api_call(
     response_text = response.output_text
     assert response_text == "This is a test response"
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
@@ -503,7 +503,7 @@ def test_responses_api_with_tools(
     setup_mock_logstreams_client(mock_logstreams_client)
     openai_create.return_value = create_responses_response_with_tools
 
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     openai.responses.create(
@@ -523,7 +523,7 @@ def test_responses_api_with_tools(
         ],
     )
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
@@ -567,7 +567,7 @@ def test_responses_api_multiple_messages(
     setup_mock_logstreams_client(mock_logstreams_client)
     openai_create.return_value = create_responses_response
 
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     input_messages = [
@@ -585,7 +585,7 @@ def test_responses_api_multiple_messages(
     assert len(response.output) == 1
     assert response.output[0].role == "assistant"
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
@@ -630,7 +630,7 @@ def test_responses_api_streaming(
         response=Response(status_code=200, content=ResponsesEventStream()),
     )
 
-    galileo_context.reset()
+    splunk_ao_context.reset()
     OpenAIGalileo().register_tracing()
 
     stream = openai.responses.create(input="Say hello", model="gpt-4o", stream=True)
@@ -646,7 +646,7 @@ def test_responses_api_streaming(
     assert completed_event is not None
     assert completed_event.response.status == "completed"
 
-    galileo_context.flush()
+    splunk_ao_context.flush()
     payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1

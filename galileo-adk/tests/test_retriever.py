@@ -7,7 +7,7 @@ from uuid import UUID
 
 import pytest
 
-from galileo_adk.decorator import galileo_retriever
+from galileo_adk.decorator import splunk_ao_retriever
 from galileo_adk.observer import GalileoObserver
 
 from .mocks import MockTool, MockToolContext
@@ -42,26 +42,26 @@ def observer() -> GalileoObserver:
 
 
 class TestGalileoRetrieverDecorator:
-    """Tests for the @galileo_retriever decorator."""
+    """Tests for the @splunk_ao_retriever decorator."""
 
     def test_decorator_sets_attribute(self) -> None:
         # Given: a plain function
         def my_search(query: str) -> str:
             return "results"
 
-        # When: decorating with @galileo_retriever
-        decorated = galileo_retriever(my_search)
+        # When: decorating with @splunk_ao_retriever
+        decorated = splunk_ao_retriever(my_search)
 
-        # Then: the function has _galileo_is_retriever = True
-        assert getattr(decorated, "_galileo_is_retriever", False) is True
+        # Then: the function has _splunk_ao_is_retriever = True
+        assert getattr(decorated, "_splunk_ao_is_retriever", False) is True
 
     def test_decorator_preserves_function(self) -> None:
         # Given: a function with specific behavior
         def my_search(query: str) -> str:
             return f"results for {query}"
 
-        # When: decorating with @galileo_retriever
-        decorated = galileo_retriever(my_search)
+        # When: decorating with @splunk_ao_retriever
+        decorated = splunk_ao_retriever(my_search)
 
         # Then: the function still works as expected
         assert decorated("test") == "results for test"
@@ -69,12 +69,12 @@ class TestGalileoRetrieverDecorator:
 
     def test_decorator_syntax(self) -> None:
         # Given/When: using decorator syntax
-        @galileo_retriever
+        @splunk_ao_retriever
         def my_search(query: str) -> str:
             return "results"
 
         # Then: the function is marked as a retriever
-        assert getattr(my_search, "_galileo_is_retriever", False) is True
+        assert getattr(my_search, "_splunk_ao_is_retriever", False) is True
 
 
 class TestIsRetrieverTool:
@@ -113,8 +113,8 @@ class TestIsRetrieverTool:
         assert result is True
 
     def test_decorated_function_tool_is_detected(self, observer: GalileoObserver) -> None:
-        # Given: a function decorated with @galileo_retriever wrapped in FunctionTool
-        @galileo_retriever
+        # Given: a function decorated with @splunk_ao_retriever wrapped in FunctionTool
+        @splunk_ao_retriever
         def my_search(query: str) -> str:
             return "results"
 
@@ -127,7 +127,7 @@ class TestIsRetrieverTool:
         assert result is True
 
     def test_undecorated_function_tool_is_not_retriever(self, observer: GalileoObserver) -> None:
-        # Given: a function NOT decorated with @galileo_retriever wrapped in FunctionTool
+        # Given: a function NOT decorated with @splunk_ao_retriever wrapped in FunctionTool
         def my_calculator(expression: str) -> str:
             return "42"
 
@@ -165,8 +165,8 @@ class TestOnToolStartRetriever:
     """Tests for on_tool_start retriever span creation."""
 
     def test_decorated_retriever_creates_retriever_span(self, observer: GalileoObserver) -> None:
-        # Given: a function decorated with @galileo_retriever wrapped in FunctionTool
-        @galileo_retriever
+        # Given: a function decorated with @splunk_ao_retriever wrapped in FunctionTool
+        @splunk_ao_retriever
         def my_search(query: str) -> str:
             return "results"
 
@@ -190,7 +190,7 @@ class TestOnToolStartRetriever:
 
     def test_retriever_tool_extracts_query_from_tool_args(self, observer: GalileoObserver) -> None:
         # Given: a retriever tool with a "query" key in tool_args
-        @galileo_retriever
+        @splunk_ao_retriever
         def my_search(query: str) -> str:
             return "results"
 
@@ -212,7 +212,7 @@ class TestOnToolStartRetriever:
 
     def test_retriever_tool_falls_back_when_no_query_key(self, observer: GalileoObserver) -> None:
         # Given: a retriever tool without a "query" key in tool_args
-        @galileo_retriever
+        @splunk_ao_retriever
         def my_search(search_text: str) -> str:
             return "results"
 

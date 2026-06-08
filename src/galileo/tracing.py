@@ -1,6 +1,6 @@
 """Utilities for distributed tracing with Galileo."""
 
-from galileo.decorator import galileo_context
+from galileo.decorator import splunk_ao_context
 
 
 def get_tracing_headers() -> dict[str, str]:
@@ -42,4 +42,4 @@ def get_tracing_headers() -> dict[str, str]:
             )
     ```
     """
-    return galileo_context.get_logger_instance().get_tracing_headers()
+    return splunk_ao_context.get_logger_instance().get_tracing_headers()
