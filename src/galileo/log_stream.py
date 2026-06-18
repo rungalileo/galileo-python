@@ -113,9 +113,9 @@ class LogStream(StateManagementMixin):
         Args:
             name (str): The name of the log stream to create.
             project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
-                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+                       falls back to SPLUNK_AO_PROJECT_ID or SPLUNK_AO_PROJECT environment variables.
             project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
-                         falls back to GALILEO_PROJECT environment variable.
+                         falls back to SPLUNK_AO_PROJECT environment variable.
 
         Raises
         ------
@@ -130,7 +130,7 @@ class LogStream(StateManagementMixin):
             # Create by project name
             log_stream = LogStream(name="Production Logs", project_name="My AI Project")
 
-            # Create using GALILEO_PROJECT environment variable
+            # Create using SPLUNK_AO_PROJECT environment variable
             log_stream = LogStream(name="Production Logs")
         """
         super().__init__()
@@ -173,7 +173,7 @@ class LogStream(StateManagementMixin):
             raise ValueError("Log stream name is not set. Cannot create log stream without a name.")
 
         # Note: project_id and project_name can both be None here — resolution happens below
-        # via _resolve_project, which reads GALILEO_PROJECT_ID / GALILEO_PROJECT env vars.
+        # via _resolve_project, which reads SPLUNK_AO_PROJECT_ID / SPLUNK_AO_PROJECT env vars.
 
         try:
             logger.info(f"LogStream.create: name='{self.name}' project_id='{self.project_id}' - started")
@@ -253,9 +253,9 @@ class LogStream(StateManagementMixin):
         Args:
             name (str): The log stream name.
             project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
-                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+                       falls back to SPLUNK_AO_PROJECT_ID or SPLUNK_AO_PROJECT environment variables.
             project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
-                         falls back to GALILEO_PROJECT environment variable.
+                         falls back to SPLUNK_AO_PROJECT environment variable.
 
         Returns
         -------
@@ -279,7 +279,7 @@ class LogStream(StateManagementMixin):
                 project_id="project-123"
             )
 
-            # Get using GALILEO_PROJECT environment variable
+            # Get using SPLUNK_AO_PROJECT environment variable
             log_stream = LogStream.get(name="Production Logs")
         """
         project_obj = _resolve_project(project_id, project_name)
@@ -311,9 +311,9 @@ class LogStream(StateManagementMixin):
 
         Args:
             project_id (Optional[str]): The project ID. If neither project_id nor project_name is provided,
-                       falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT environment variables.
+                       falls back to SPLUNK_AO_PROJECT_ID or SPLUNK_AO_PROJECT environment variables.
             project_name (Optional[str]): The project name. If neither project_id nor project_name is provided,
-                         falls back to GALILEO_PROJECT environment variable.
+                         falls back to SPLUNK_AO_PROJECT environment variable.
             limit (Union[Unset, int]): Maximum number of log streams to return per page. Defaults to 100.
             starting_token (Union[Unset, int]): Pagination token to start from. Defaults to 0 (first page).
 
@@ -333,7 +333,7 @@ class LogStream(StateManagementMixin):
             # List by project ID
             log_streams = LogStream.list(project_id="project-123")
 
-            # List using GALILEO_PROJECT environment variable
+            # List using SPLUNK_AO_PROJECT environment variable
             log_streams = LogStream.list()
 
             # Cap the number of returned log streams

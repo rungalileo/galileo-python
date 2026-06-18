@@ -17,7 +17,7 @@ def reset_env_vars():
     """Reset environment variables before each test and restore after."""
     saved = {
         k: os.environ.pop(k, None)
-        for k in ("GALILEO_PROJECT", "GALILEO_PROJECT_ID", "GALILEO_LOG_STREAM", "GALILEO_LOG_STREAM_ID")
+        for k in ("SPLUNK_AO_PROJECT", "SPLUNK_AO_PROJECT_ID", "SPLUNK_AO_LOG_STREAM", "SPLUNK_AO_LOG_STREAM_ID")
     }
     yield
     for k, v in saved.items():
@@ -240,8 +240,8 @@ class TestLogStreamMetrics:
     ) -> None:
         """Test LogStreams.enable_metrics with environment variables."""
         # Set environment variables
-        os.environ["GALILEO_PROJECT"] = "Test Project"
-        os.environ["GALILEO_LOG_STREAM"] = "Test Log Stream"
+        os.environ["SPLUNK_AO_PROJECT"] = "Test Project"
+        os.environ["SPLUNK_AO_LOG_STREAM"] = "Test Log Stream"
 
         # Setup mocks
         mock_projects_instance = mock_projects_class.return_value
@@ -336,8 +336,8 @@ class TestLogStreamMetrics:
     ) -> None:
         """Test enable_metrics function with environment variables (integration test)."""
         # Set environment variables
-        os.environ["GALILEO_PROJECT"] = "Integration Project"
-        os.environ["GALILEO_LOG_STREAM"] = "Integration Stream"
+        os.environ["SPLUNK_AO_PROJECT"] = "Integration Project"
+        os.environ["SPLUNK_AO_LOG_STREAM"] = "Integration Stream"
 
         # Setup mocks
         mock_projects_instance = mock_projects_class.return_value

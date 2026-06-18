@@ -32,14 +32,14 @@ def reset_context():
 
 @pytest.fixture
 def set_distributed_mode():
-    """Set GALILEO_MODE to distributed for tests."""
-    original = os.getenv("GALILEO_MODE")
-    os.environ["GALILEO_MODE"] = "distributed"
+    """Set SPLUNK_AO_MODE to distributed for tests."""
+    original = os.getenv("SPLUNK_AO_MODE")
+    os.environ["SPLUNK_AO_MODE"] = "distributed"
     yield
     if original is None:
-        os.environ.pop("GALILEO_MODE", None)
+        os.environ.pop("SPLUNK_AO_MODE", None)
     else:
-        os.environ["GALILEO_MODE"] = original
+        os.environ["SPLUNK_AO_MODE"] = original
 
 
 @patch("galileo.logger.logger.LogStreams")

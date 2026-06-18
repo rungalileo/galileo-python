@@ -224,7 +224,7 @@ class Prompt(StateManagementMixin):
             messages (Optional[list[Message]]): The messages for the prompt.
             project_id (Optional[str]): The project ID to associate with this prompt.
             project_name (Optional[str]): The project name to associate with this prompt.
-                If not provided, falls back to GALILEO_PROJECT environment variable.
+                If not provided, falls back to SPLUNK_AO_PROJECT environment variable.
 
         Raises
         ------
@@ -319,7 +319,7 @@ class Prompt(StateManagementMixin):
         Persist this prompt to the API.
 
         If project_id or project_name is set, associates the prompt with that project.
-        If neither is set, falls back to GALILEO_PROJECT_ID or GALILEO_PROJECT env vars.
+        If neither is set, falls back to SPLUNK_AO_PROJECT_ID or SPLUNK_AO_PROJECT env vars.
 
         Returns
         -------
@@ -338,7 +338,7 @@ class Prompt(StateManagementMixin):
         try:
             logger.info(f"Prompt.create: name='{self.name}' - started")
 
-            # Resolve project using explicit params or env fallbacks (GALILEO_PROJECT_ID, GALILEO_PROJECT)
+            # Resolve project using explicit params or env fallbacks (SPLUNK_AO_PROJECT_ID, SPLUNK_AO_PROJECT)
             resolved_project_id: str | None = None
             has_explicit_project = self.project_id is not None or self.project_name is not None
             has_project_context = (

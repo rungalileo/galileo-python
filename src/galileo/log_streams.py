@@ -81,8 +81,8 @@ class LogStream(LogStreamResponse):
     from galileo.schema.metrics import GalileoMetrics
 
     # Set environment variables first
-    # export GALILEO_LOG_STREAM="Production Logs"
-    # export GALILEO_PROJECT="My AI Project"
+    # export SPLUNK_AO_LOG_STREAM="Production Logs"
+    # export SPLUNK_AO_PROJECT="My AI Project"
 
     # Clean and simple - just pass the metrics!
     local_metrics = enable_metrics([
@@ -487,17 +487,17 @@ class LogStreams:
         Enable metrics for a log stream by configuring scorers.
 
         The project name can be provided via the 'project_name' parameter or the
-        GALILEO_PROJECT environment variable.
+        SPLUNK_AO_PROJECT environment variable.
 
         The log stream name can be provided via the 'log_stream_name' parameter or the
-        GALILEO_LOG_STREAM environment variable.
+        SPLUNK_AO_LOG_STREAM environment variable.
 
         Parameters
         ----------
         log_stream_name : Optional[str], optional
-            The name of the log stream. Takes precedence over the GALILEO_LOG_STREAM environment variable. Defaults to None.
+            The name of the log stream. Takes precedence over the SPLUNK_AO_LOG_STREAM environment variable. Defaults to None.
         project_name : Optional[str], optional
-            The name of the project. Takes precedence over the GALILEO_PROJECT environment variable. Defaults to None.
+            The name of the project. Takes precedence over the SPLUNK_AO_PROJECT environment variable. Defaults to None.
         metrics : builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]
             List of metrics to enable. Can include:
             - GalileoMetrics enum values (e.g., GalileoMetrics.correctness)
@@ -534,8 +534,8 @@ class LogStreams:
         )
 
         # Enable metrics using environment variables
-        # export GALILEO_LOG_STREAM="Production Logs"
-        # export GALILEO_PROJECT="My AI Project"
+        # export SPLUNK_AO_LOG_STREAM="Production Logs"
+        # export SPLUNK_AO_PROJECT="My AI Project"
         scorer_configs, local_metrics = log_streams.enable_metrics(
             metrics=["correctness", "completeness"]
         )
@@ -546,7 +546,7 @@ class LogStreams:
         def custom_scorer(trace_or_span):
             return 0.85  # Custom scoring logic
 
-        # export GALILEO_PROJECT="My AI Project"
+        # export SPLUNK_AO_PROJECT="My AI Project"
         scorer_configs, local_metrics = log_streams.enable_metrics(
             log_stream_name="Production Logs",  # Explicit log stream
             # project_name from env var
@@ -699,19 +699,19 @@ def enable_metrics(
 
     Environment Variables (Optional Fallbacks)
     ------------------------------------------
-    GALILEO_PROJECT : str
+    SPLUNK_AO_PROJECT : str
         The name of the Galileo project (used when project_name not provided)
-    GALILEO_LOG_STREAM : str
+    SPLUNK_AO_LOG_STREAM : str
         The name of the log stream (used when log_stream_name not provided)
 
     Parameters
     ----------
     log_stream_name : Optional[str], optional
-        The name of the log stream. Takes precedence over GALILEO_LOG_STREAM environment variable.
-        If None, will use GALILEO_LOG_STREAM env var. Defaults to None.
+        The name of the log stream. Takes precedence over SPLUNK_AO_LOG_STREAM environment variable.
+        If None, will use SPLUNK_AO_LOG_STREAM env var. Defaults to None.
     project_name : Optional[str], optional
-        The name of the project. Takes precedence over GALILEO_PROJECT environment variable.
-        If None, will use GALILEO_PROJECT env var. Defaults to None.
+        The name of the project. Takes precedence over SPLUNK_AO_PROJECT environment variable.
+        If None, will use SPLUNK_AO_PROJECT env var. Defaults to None.
     metrics : builtins.list[Union[GalileoMetrics, Metric, LocalMetricConfig, str]]
         List of metrics to enable on the log stream. Can include:
         - GalileoMetrics enum values (e.g., GalileoMetrics.correctness)
@@ -753,8 +753,8 @@ def enable_metrics(
     )
 
     # Enable metrics using environment variables only
-    # export GALILEO_LOG_STREAM="Production Logs"
-    # export GALILEO_PROJECT="My AI Project"
+    # export SPLUNK_AO_LOG_STREAM="Production Logs"
+    # export SPLUNK_AO_PROJECT="My AI Project"
     local_metrics = enable_metrics(metrics=["correctness", "completeness"])
 
     # Enable custom and local metrics with environment variable fallbacks

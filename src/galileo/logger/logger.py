@@ -211,11 +211,11 @@ class GalileoLogger(TracesLogger):
         Parameters
         ----------
         project: Optional[str]
-            Project name. If not provided, will use the project_id param or the project name from the environment variable GALILEO_PROJECT.
+            Project name. If not provided, will use the project_id param or the project name from the environment variable SPLUNK_AO_PROJECT.
         project_id: Optional[str]
             Project ID.
         log_stream: Optional[str]
-            Log stream name. If not provided, will use the log_stream_id param or the log stream name from the environment variable GALILEO_LOG_STREAM.
+            Log stream name. If not provided, will use the log_stream_id param or the log stream name from the environment variable SPLUNK_AO_LOG_STREAM.
         log_stream_id: Optional[str]
             Log stream ID.
         experiment_id: Optional[str]
@@ -235,7 +235,7 @@ class GalileoLogger(TracesLogger):
         local_metrics: Optional[list[LocalMetricConfig]]
             Local metrics
         mode: Optional[str]
-            Logger mode: "batch" or "distributed". Defaults to GALILEO_MODE env var, or "batch" if not set.
+            Logger mode: "batch" or "distributed". Defaults to SPLUNK_AO_MODE env var, or "batch" if not set.
             - "batch": Batches traces and sends on flush() (default)
             - "distributed": Enables distributed tracing with immediate updates to backend
         ingestion_hook: Optional[Callable[[TracesIngestRequest], None]]
@@ -396,10 +396,10 @@ class GalileoLogger(TracesLogger):
     def _is_ingest_service_available(cls) -> bool:
         """Check whether the ingest service is reachable, caching the result for the process lifetime.
 
-        The cache is bypassed (and cleared) whenever GALILEO_INGEST_BETA_DISABLED is set so that
+        The cache is bypassed (and cleared) whenever SPLUNK_AO_INGEST_BETA_DISABLED is set so that
         toggling the flag within the same process takes effect immediately.
         """
-        if os.environ.get("GALILEO_INGEST_BETA_DISABLED", "").lower() in ("1", "true", "yes"):
+        if os.environ.get("SPLUNK_AO_INGEST_BETA_DISABLED", "").lower() in ("1", "true", "yes"):
             _ingest_service_cache.clear()
             return False
 
@@ -425,7 +425,7 @@ class GalileoLogger(TracesLogger):
 
         Uses the dedicated Go ingest service (IngestTraces) when available,
         detected by probing {api_url}/ingest/healthz. Falls back to the standard
-        API client if the healthz check fails or if GALILEO_INGEST_BETA_DISABLED is set.
+        API client if the healthz check fails or if SPLUNK_AO_INGEST_BETA_DISABLED is set.
         """
         if not self.project_id:
             self._init_project()
@@ -435,7 +435,7 @@ class GalileoLogger(TracesLogger):
         if self._is_ingest_service_available():
             config = GalileoPythonConfig.get()
             api_key_secret = config.api_key
-            api_key = api_key_secret.get_secret_value() if api_key_secret else os.environ.get("GALILEO_API_KEY", "")
+            api_key = api_key_secret.get_secret_value() if api_key_secret else os.environ.get("SPLUNK_AO_API_KEY", "")
             ingest_url = str(config.api_url)
             if "localhost" in ingest_url:
                 ingest_url = ingest_url.replace("8088", "8081")

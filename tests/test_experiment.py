@@ -219,8 +219,8 @@ class TestExperimentEnvFallback:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test create() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
-        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
+        # Given: SPLUNK_AO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("SPLUNK_AO_PROJECT", "Env Project")
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -269,7 +269,7 @@ class TestExperimentEnvFallback:
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
         """Test create() raises ResourceNotFoundError naming the project that wasn't found."""
-        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
+        # Given: env fallback returns None (project from SPLUNK_AO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
@@ -332,8 +332,8 @@ class TestExperimentEnvFallback:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test get() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
-        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
+        # Given: SPLUNK_AO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("SPLUNK_AO_PROJECT", "Env Project")
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -354,7 +354,7 @@ class TestExperimentEnvFallback:
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
         """Test get() raises ResourceNotFoundError naming the project that wasn't found."""
-        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
+        # Given: env fallback returns None (project from SPLUNK_AO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
@@ -374,8 +374,8 @@ class TestExperimentEnvFallback:
         monkeypatch: pytest.MonkeyPatch,
     ) -> None:
         """Test list() uses Projects().get_with_env_fallbacks() when no project is specified."""
-        # Given: GALILEO_PROJECT is set so the resolver delegates to the API
-        monkeypatch.setenv("GALILEO_PROJECT", "Env Project")
+        # Given: SPLUNK_AO_PROJECT is set so the resolver delegates to the API
+        monkeypatch.setenv("SPLUNK_AO_PROJECT", "Env Project")
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = mock_project
@@ -396,7 +396,7 @@ class TestExperimentEnvFallback:
         self, mock_projects_class: MagicMock, reset_configuration: None
     ) -> None:
         """Test list() raises ResourceNotFoundError naming the project that wasn't found."""
-        # Given: env fallback returns None (project from GALILEO_PROJECT env var not found on server)
+        # Given: env fallback returns None (project from SPLUNK_AO_PROJECT env var not found on server)
         mock_projects_service = MagicMock()
         mock_projects_class.return_value = mock_projects_service
         mock_projects_service.get_with_env_fallbacks.return_value = None
@@ -418,8 +418,8 @@ class TestExperimentEnvFallback:
         documented ``NotFoundError``. The shared ``_resolve_project`` fixes this.
         """
         # Given: env vars are unset
-        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
-        monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_PROJECT", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_PROJECT_ID", raising=False)
 
         # When/Then: NotFoundError is raised without instantiating Projects or leaking ValueError
         with pytest.raises(ResourceNotFoundError, match="No project specified"):

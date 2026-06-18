@@ -48,10 +48,10 @@ from galileo_core.schemas.shared.metric import MetricValueType
 logger = logging.getLogger(__name__)
 
 # Code validation polling parameters are configurable via Configuration:
-#   - Configuration.code_validation_timeout (env: GALILEO_CODE_VALIDATION_TIMEOUT) - default: 60.0s
-#   - Configuration.code_validation_initial_delay (env: GALILEO_CODE_VALIDATION_INITIAL_DELAY) - default: 5.0s
-#   - Configuration.code_validation_max_delay (env: GALILEO_CODE_VALIDATION_MAX_DELAY) - default: 30.0s
-#   - Configuration.code_validation_backoff_multiplier (env: GALILEO_CODE_VALIDATION_BACKOFF_MULTIPLIER) - default: 1.5
+#   - Configuration.code_validation_timeout (env: SPLUNK_AO_CODE_VALIDATION_TIMEOUT) - default: 60.0s
+#   - Configuration.code_validation_initial_delay (env: SPLUNK_AO_CODE_VALIDATION_INITIAL_DELAY) - default: 5.0s
+#   - Configuration.code_validation_max_delay (env: SPLUNK_AO_CODE_VALIDATION_MAX_DELAY) - default: 30.0s
+#   - Configuration.code_validation_backoff_multiplier (env: SPLUNK_AO_CODE_VALIDATION_BACKOFF_MULTIPLIER) - default: 1.5
 
 
 class BuiltInMetrics:
@@ -646,8 +646,8 @@ class LlmMetric(Metric):
     Configuration
     -------------
         Default values for `model` and `judges` can be configured via:
-        - Configuration.default_scorer_model (env: GALILEO_DEFAULT_SCORER_MODEL)
-        - Configuration.default_scorer_judges (env: GALILEO_DEFAULT_SCORER_JUDGES)
+        - Configuration.default_scorer_model (env: SPLUNK_AO_DEFAULT_SCORER_MODEL)
+        - Configuration.default_scorer_judges (env: SPLUNK_AO_DEFAULT_SCORER_JUDGES)
 
     Examples
     --------
