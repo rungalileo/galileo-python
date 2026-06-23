@@ -329,7 +329,9 @@ def convert_to_galileo_message(data: Any, default_role: str = "user") -> Message
         if isinstance(content, list):
             blocks = _openai_content_parts_to_blocks(content)
             if blocks is not None:
-                return LoggedMessage(content=blocks, role=MessageRole(role))
+                return LoggedMessage(
+                    content=blocks, role=MessageRole(role), tool_calls=galileo_tool_calls, tool_call_id=tool_call_id
+                )
 
         return Message(
             content=str(content) if content is not None else "",

@@ -103,20 +103,23 @@ def _extract_gemini_modality_breakdown(message: Any) -> tuple[int | None, int | 
         return None, None, None
 
     # Surface 1: usage_metadata.input_token_details / output_token_details
+    # Only treat as modality data if audio/image keys are actually present — other
+    # providers (Anthropic, OpenAI) also populate input_token_details with non-modality
+    # keys (e.g. cache_read) which must not be misread as "modality breakdown available".
     usage_meta = getattr(msg, "usage_metadata", None)
     if isinstance(usage_meta, dict):
         input_details = usage_meta.get("input_token_details") or {}
         output_details = usage_meta.get("output_token_details") or {}
-        if isinstance(input_details, dict) and input_details:
-            has_detail_data = True
+        if isinstance(input_details, dict):
             if "audio" in input_details:
                 audio_in = input_details["audio"]
+                has_detail_data = True
             if "image" in input_details:
                 image_in = input_details["image"]
-        if isinstance(output_details, dict) and output_details:
+                has_detail_data = True
+        if isinstance(output_details, dict) and "audio" in output_details:
+            audio_out = output_details["audio"]
             has_detail_data = True
-            if "audio" in output_details:
-                audio_out = output_details["audio"]
 
     # Surface 2: response_metadata prompt_tokens_details / candidates_tokens_details
     # (list of dicts like {"modality": "AUDIO", "token_count": N})
