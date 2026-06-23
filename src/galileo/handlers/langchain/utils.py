@@ -53,6 +53,7 @@ class LLMEndResult:
     image_input_tokens: int | None = None
     audio_input_tokens: int | None = None
     audio_output_tokens: int | None = None
+    image_output_tokens: int | None = None
 
 
 def _apply_dict_modality_entries(
@@ -74,12 +75,12 @@ def _apply_dict_modality_entries(
             image_ref[0] = count
 
 
-def _extract_gemini_modality_breakdown(message: Any) -> tuple[int | None, int | None, int | None]:
+def _extract_gemini_modality_breakdown(message: Any) -> tuple[int | None, int | None, int | None, int | None]:
     """Extract per-modality token counts from a LangChain AIMessage for Gemini native path.
 
-    Returns (image_input_tokens, audio_input_tokens, audio_output_tokens).
-    Returns (None, None, None) when no modality breakdown is available.
-    Returns (0, 0, 0) (or partial zeros) when detail lists are present but contain no
+    Returns (image_input_tokens, audio_input_tokens, audio_output_tokens, image_output_tokens).
+    Returns (None, None, None, None) when no modality breakdown is available.
+    Returns (0, 0, 0, 0) (or partial zeros) when detail lists are present but contain no
     audio/image entries — distinguishing "no data" from "data says zero".
 
     Checks three surfaces, in priority order — first non-None wins per modality:
@@ -96,11 +97,12 @@ def _extract_gemini_modality_breakdown(message: Any) -> tuple[int | None, int | 
     image_in: int | None = None
     audio_in: int | None = None
     audio_out: int | None = None
+    image_out: int | None = None
     has_detail_data = False
 
     msg = getattr(message, "message", None) or message
     if msg is None:
-        return None, None, None
+        return None, None, None, None
 
     # Surface 1: usage_metadata.input_token_details / output_token_details
     # Only treat as modality data if audio/image keys are actually present — other
@@ -117,9 +119,13 @@ def _extract_gemini_modality_breakdown(message: Any) -> tuple[int | None, int | 
             if "image" in input_details:
                 image_in = input_details["image"]
                 has_detail_data = True
-        if isinstance(output_details, dict) and "audio" in output_details:
-            audio_out = output_details["audio"]
-            has_detail_data = True
+        if isinstance(output_details, dict):
+            if "audio" in output_details:
+                audio_out = output_details["audio"]
+                has_detail_data = True
+            if "image" in output_details:
+                image_out = output_details["image"]
+                has_detail_data = True
 
     # Surface 2: response_metadata prompt_tokens_details / candidates_tokens_details
     # (list of dicts like {"modality": "AUDIO", "token_count": N})
@@ -135,9 +141,10 @@ def _extract_gemini_modality_breakdown(message: Any) -> tuple[int | None, int | 
             image_in, audio_in = image_ref[0], audio_ref[0]
         if candidates_details:
             has_detail_data = True
+            image_ref_out = [image_out]
             audio_ref = [audio_out]
-            _apply_dict_modality_entries(candidates_details, image_ref=[None], audio_ref=audio_ref)
-            audio_out = audio_ref[0]
+            _apply_dict_modality_entries(candidates_details, image_ref=image_ref_out, audio_ref=audio_ref)
+            image_out, audio_out = image_ref_out[0], audio_ref[0]
 
         # Surface 3: response_metadata['usage_metadata'] — some providers nest usage here
         # instead of (or in addition to) message.usage_metadata. Same keys as Surface 1.
@@ -155,15 +162,18 @@ def _extract_gemini_modality_breakdown(message: Any) -> tuple[int | None, int | 
                 has_detail_data = True
                 if audio_out is None and "audio" in nested_output:
                     audio_out = nested_output["audio"]
+                if image_out is None and "image" in nested_output:
+                    image_out = nested_output["image"]
 
     if not has_detail_data:
-        return None, None, None
+        return None, None, None, None
     # Detail lists were present: return 0 for any modality not found (not None),
     # so callers can distinguish "no breakdown available" from "breakdown says zero".
     return (
         image_in if image_in is not None else 0,
         audio_in if audio_in is not None else 0,
         audio_out if audio_out is not None else 0,
+        image_out if image_out is not None else 0,
     )
 
 
@@ -202,10 +212,10 @@ def parse_llm_result(response: Any) -> LLMEndResult:
         _logger.warning(f"Failed to serialize LLM output: {e}")
         output = str(response.generations)
 
-    image_in, audio_in, audio_out = (None, None, None)
+    image_in, audio_in, audio_out, image_out = (None, None, None, None)
     if first_message is not None:
         try:
-            image_in, audio_in, audio_out = _extract_gemini_modality_breakdown(first_message)
+            image_in, audio_in, audio_out, image_out = _extract_gemini_modality_breakdown(first_message)
         except Exception as e:
             _logger.debug(f"Failed to extract Gemini modality breakdown: {e}")
 
@@ -217,4 +227,5 @@ def parse_llm_result(response: Any) -> LLMEndResult:
         image_input_tokens=image_in,
         audio_input_tokens=audio_in,
         audio_output_tokens=audio_out,
+        image_output_tokens=image_out,
     )

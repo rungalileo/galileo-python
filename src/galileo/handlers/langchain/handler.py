@@ -253,6 +253,7 @@ class GalileoCallback(BaseCallbackHandler):
             image_input_tokens=result.image_input_tokens,
             audio_input_tokens=result.audio_input_tokens,
             audio_output_tokens=result.audio_output_tokens,
+            image_output_tokens=result.image_output_tokens,
             status_code=200,
         )
 

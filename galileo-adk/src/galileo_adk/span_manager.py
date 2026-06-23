@@ -116,6 +116,7 @@ class SpanManager:
         image_input_tokens: int | None = None,
         audio_input_tokens: int | None = None,
         audio_output_tokens: int | None = None,
+        image_output_tokens: int | None = None,
     ) -> None:
         """End an LLM span.
 
@@ -133,6 +134,7 @@ class SpanManager:
             image_input_tokens: Image input tokens (Gemini native path only)
             audio_input_tokens: Audio input tokens (Gemini native path only)
             audio_output_tokens: Audio output tokens (Gemini native path only)
+            image_output_tokens: Image output tokens (Gemini native path only)
         """
         if isinstance(output, list):
             if not output:
@@ -158,6 +160,7 @@ class SpanManager:
             image_input_tokens=image_input_tokens,
             audio_input_tokens=audio_input_tokens,
             audio_output_tokens=audio_output_tokens,
+            image_output_tokens=image_output_tokens,
         )
 
     def start_tool(

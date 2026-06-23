@@ -316,6 +316,7 @@ class TraceBuilder(TracesLogger):
         image_input_tokens: int | None = None,
         audio_input_tokens: int | None = None,
         audio_output_tokens: int | None = None,
+        image_output_tokens: int | None = None,
         step_number: int | None = None,
         events: list[Any] | None = None,
     ) -> LoggedLlmSpan:
@@ -344,6 +345,7 @@ class TraceBuilder(TracesLogger):
                 num_image_input_tokens=image_input_tokens,
                 num_audio_input_tokens=audio_input_tokens,
                 num_audio_output_tokens=audio_output_tokens,
+                num_image_output_tokens=image_output_tokens,
             ),
             events=events,
             temperature=temperature,

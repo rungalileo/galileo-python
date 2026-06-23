@@ -32,6 +32,7 @@ class LlmMetrics:
     num_image_input_tokens: None | Unset | int = UNSET
     num_audio_input_tokens: None | Unset | int = UNSET
     num_audio_output_tokens: None | Unset | int = UNSET
+    num_image_output_tokens: None | Unset | int = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -62,6 +63,9 @@ class LlmMetrics:
         num_audio_output_tokens: None | Unset | int
         num_audio_output_tokens = UNSET if isinstance(self.num_audio_output_tokens, Unset) else self.num_audio_output_tokens
 
+        num_image_output_tokens: None | Unset | int
+        num_image_output_tokens = UNSET if isinstance(self.num_image_output_tokens, Unset) else self.num_image_output_tokens
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -81,6 +85,8 @@ class LlmMetrics:
             field_dict["num_audio_input_tokens"] = num_audio_input_tokens
         if num_audio_output_tokens is not UNSET:
             field_dict["num_audio_output_tokens"] = num_audio_output_tokens
+        if num_image_output_tokens is not UNSET:
+            field_dict["num_image_output_tokens"] = num_image_output_tokens
 
         return field_dict
 
@@ -143,6 +149,7 @@ class LlmMetrics:
         num_image_input_tokens = _parse_optional_int(d.pop("num_image_input_tokens", UNSET))
         num_audio_input_tokens = _parse_optional_int(d.pop("num_audio_input_tokens", UNSET))
         num_audio_output_tokens = _parse_optional_int(d.pop("num_audio_output_tokens", UNSET))
+        num_image_output_tokens = _parse_optional_int(d.pop("num_image_output_tokens", UNSET))
 
         llm_metrics = cls(
             duration_ns=duration_ns,
@@ -153,6 +160,7 @@ class LlmMetrics:
             num_image_input_tokens=num_image_input_tokens,
             num_audio_input_tokens=num_audio_input_tokens,
             num_audio_output_tokens=num_audio_output_tokens,
+            num_image_output_tokens=num_image_output_tokens,
         )
 
         llm_metrics.additional_properties = d

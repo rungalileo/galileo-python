@@ -172,6 +172,7 @@ class GalileoBaseHandler:
                 image_input_tokens=node.span_params.get("image_input_tokens"),
                 audio_input_tokens=node.span_params.get("audio_input_tokens"),
                 audio_output_tokens=node.span_params.get("audio_output_tokens"),
+                image_output_tokens=node.span_params.get("image_output_tokens"),
                 created_at=created_at,
                 step_number=step_number,
                 status_code=node.span_params.get("status_code"),

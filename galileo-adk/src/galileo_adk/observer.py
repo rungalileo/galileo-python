@@ -388,6 +388,7 @@ class GalileoObserver:
             image_input_tokens=usage.get("image_input_tokens"),
             audio_input_tokens=usage.get("audio_input_tokens"),
             audio_output_tokens=usage.get("audio_output_tokens"),
+            image_output_tokens=usage.get("image_output_tokens"),
         )
 
     def _is_retriever_tool(self, tool: Any) -> bool:
@@ -527,6 +528,7 @@ class GalileoObserver:
             image_in = 0
             audio_in = 0
             audio_out = 0
+            image_out = 0
             has_prompt = bool(prompt_details)
             has_candidates = bool(candidates_details)
             for entry in prompt_details or []:
@@ -546,13 +548,17 @@ class GalileoObserver:
                 if not isinstance(modality, str):
                     continue
                 count = getattr(entry, "token_count", None) or 0
-                if modality.upper() == "AUDIO":
+                upper = modality.upper()
+                if upper == "AUDIO":
                     audio_out += count
+                elif upper == "IMAGE":
+                    image_out += count
             if has_prompt:
                 result["image_input_tokens"] = image_in
                 result["audio_input_tokens"] = audio_in
             if has_candidates:
                 result["audio_output_tokens"] = audio_out
+                result["image_output_tokens"] = image_out
 
         return result
 
