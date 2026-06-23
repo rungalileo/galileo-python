@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,30 +19,29 @@ T = TypeVar("T", bound="MetricComputation")
 @_attrs_define
 class MetricComputation:
     """
-    Attributes
-    ----------
-        value (Union['MetricComputationValueType4', None, Unset, float, int, list[Union[None, float, int, str]], str]):
-        execution_time (Union[None, Unset, float]):
-        status (Union[MetricComputationStatus, None, Unset]):
-        error_message (Union[None, Unset, str]):
+    Attributes:
+        value (float | int | list[float | int | None | str] | MetricComputationValueType4 | None | str | Unset):
+        execution_time (float | None | Unset):
+        status (MetricComputationStatus | None | Unset):
+        error_message (None | str | Unset):
     """
 
-    value: Union["MetricComputationValueType4", None, Unset, float, int, list[None | float | int | str], str] = UNSET
-    execution_time: None | Unset | float = UNSET
+    value: float | int | list[float | int | None | str] | MetricComputationValueType4 | None | str | Unset = UNSET
+    execution_time: float | None | Unset = UNSET
     status: MetricComputationStatus | None | Unset = UNSET
-    error_message: None | Unset | str = UNSET
+    error_message: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.metric_computation_value_type_4 import MetricComputationValueType4
 
-        value: None | Unset | dict[str, Any] | float | int | list[None | float | int | str] | str
+        value: dict[str, Any] | float | int | list[float | int | None | str] | None | str | Unset
         if isinstance(self.value, Unset):
             value = UNSET
         elif isinstance(self.value, list):
             value = []
             for value_type_3_item_data in self.value:
-                value_type_3_item: None | float | int | str
+                value_type_3_item: float | int | None | str
                 value_type_3_item = value_type_3_item_data
                 value.append(value_type_3_item)
 
@@ -49,10 +50,13 @@ class MetricComputation:
         else:
             value = self.value
 
-        execution_time: None | Unset | float
-        execution_time = UNSET if isinstance(self.execution_time, Unset) else self.execution_time
+        execution_time: float | None | Unset
+        if isinstance(self.execution_time, Unset):
+            execution_time = UNSET
+        else:
+            execution_time = self.execution_time
 
-        status: None | Unset | str
+        status: None | str | Unset
         if isinstance(self.status, Unset):
             status = UNSET
         elif isinstance(self.status, MetricComputationStatus):
@@ -60,8 +64,11 @@ class MetricComputation:
         else:
             status = self.status
 
-        error_message: None | Unset | str
-        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
+        error_message: None | str | Unset
+        if isinstance(self.error_message, Unset):
+            error_message = UNSET
+        else:
+            error_message = self.error_message
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -85,7 +92,7 @@ class MetricComputation:
 
         def _parse_value(
             data: object,
-        ) -> Union["MetricComputationValueType4", None, Unset, float, int, list[None | float | int | str], str]:
+        ) -> float | int | list[float | int | None | str] | MetricComputationValueType4 | None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -97,10 +104,10 @@ class MetricComputation:
                 _value_type_3 = data
                 for value_type_3_item_data in _value_type_3:
 
-                    def _parse_value_type_3_item(data: object) -> None | float | int | str:
+                    def _parse_value_type_3_item(data: object) -> float | int | None | str:
                         if data is None:
                             return data
-                        return cast(None | float | int | str, data)
+                        return cast(float | int | None | str, data)
 
                     value_type_3_item = _parse_value_type_3_item(value_type_3_item_data)
 
@@ -112,22 +119,23 @@ class MetricComputation:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MetricComputationValueType4.from_dict(data)
+                value_type_4 = MetricComputationValueType4.from_dict(data)
 
+                return value_type_4
             except:  # noqa: E722
                 pass
             return cast(
-                Union["MetricComputationValueType4", None, Unset, float, int, list[None | float | int | str], str], data
+                float | int | list[float | int | None | str] | MetricComputationValueType4 | None | str | Unset, data
             )
 
         value = _parse_value(d.pop("value", UNSET))
 
-        def _parse_execution_time(data: object) -> None | Unset | float:
+        def _parse_execution_time(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | float, data)
+            return cast(float | None | Unset, data)
 
         execution_time = _parse_execution_time(d.pop("execution_time", UNSET))
 
@@ -139,20 +147,21 @@ class MetricComputation:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return MetricComputationStatus(data)
+                status_type_0 = MetricComputationStatus(data)
 
+                return status_type_0
             except:  # noqa: E722
                 pass
             return cast(MetricComputationStatus | None | Unset, data)
 
         status = _parse_status(d.pop("status", UNSET))
 
-        def _parse_error_message(data: object) -> None | Unset | str:
+        def _parse_error_message(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         error_message = _parse_error_message(d.pop("error_message", UNSET))
 

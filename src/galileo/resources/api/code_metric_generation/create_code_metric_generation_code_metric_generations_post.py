@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -46,10 +46,14 @@ def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> CreateCodeMetricGenerationResponse | HTTPValidationError:
     if response.status_code == 202:
-        return CreateCodeMetricGenerationResponse.from_dict(response.json())
+        response_202 = CreateCodeMetricGenerationResponse.from_dict(response.json())
+
+        return response_202
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -83,7 +87,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: CreateCodeMetricGenerationRequest
 ) -> Response[CreateCodeMetricGenerationResponse | HTTPValidationError]:
-    """Create Code Metric Generation.
+    """Create Code Metric Generation
 
      Generate scorer code from a user message (natural language, existing code, or combination).
 
@@ -96,15 +100,14 @@ def sync_detailed(
         body (CreateCodeMetricGenerationRequest): Request to generate scorer code from a user
             message.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[CreateCodeMetricGenerationResponse, HTTPValidationError]]
+    Returns:
+        Response[CreateCodeMetricGenerationResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -114,8 +117,8 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: CreateCodeMetricGenerationRequest
-) -> CreateCodeMetricGenerationResponse | HTTPValidationError | None:
-    """Create Code Metric Generation.
+) -> Optional[CreateCodeMetricGenerationResponse | HTTPValidationError]:
+    """Create Code Metric Generation
 
      Generate scorer code from a user message (natural language, existing code, or combination).
 
@@ -128,22 +131,21 @@ def sync(
         body (CreateCodeMetricGenerationRequest): Request to generate scorer code from a user
             message.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[CreateCodeMetricGenerationResponse, HTTPValidationError]
+    Returns:
+        CreateCodeMetricGenerationResponse | HTTPValidationError
     """
+
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: CreateCodeMetricGenerationRequest
 ) -> Response[CreateCodeMetricGenerationResponse | HTTPValidationError]:
-    """Create Code Metric Generation.
+    """Create Code Metric Generation
 
      Generate scorer code from a user message (natural language, existing code, or combination).
 
@@ -156,15 +158,14 @@ async def asyncio_detailed(
         body (CreateCodeMetricGenerationRequest): Request to generate scorer code from a user
             message.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[CreateCodeMetricGenerationResponse, HTTPValidationError]]
+    Returns:
+        Response[CreateCodeMetricGenerationResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -174,8 +175,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: CreateCodeMetricGenerationRequest
-) -> CreateCodeMetricGenerationResponse | HTTPValidationError | None:
-    """Create Code Metric Generation.
+) -> Optional[CreateCodeMetricGenerationResponse | HTTPValidationError]:
+    """Create Code Metric Generation
 
      Generate scorer code from a user message (natural language, existing code, or combination).
 
@@ -188,13 +189,12 @@ async def asyncio(
         body (CreateCodeMetricGenerationRequest): Request to generate scorer code from a user
             message.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[CreateCodeMetricGenerationResponse, HTTPValidationError]
+    Returns:
+        CreateCodeMetricGenerationResponse | HTTPValidationError
     """
+
     return (await asyncio_detailed(client=client, body=body)).parsed

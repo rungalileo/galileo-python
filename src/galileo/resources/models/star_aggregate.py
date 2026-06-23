@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
@@ -16,16 +18,15 @@ T = TypeVar("T", bound="StarAggregate")
 @_attrs_define
 class StarAggregate:
     """
-    Attributes
-    ----------
+    Attributes:
         average (float):
         counts (StarAggregateCounts):
         unrated_count (int):
-        feedback_type (Union[Literal['star'], Unset]):  Default: 'star'.
+        feedback_type (Literal['star'] | Unset):  Default: 'star'.
     """
 
     average: float
-    counts: "StarAggregateCounts"
+    counts: StarAggregateCounts
     unrated_count: int
     feedback_type: Literal["star"] | Unset = "star"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -14,18 +16,17 @@ T = TypeVar("T", bound="ModelProperties")
 @_attrs_define
 class ModelProperties:
     """
-    Attributes
-    ----------
+    Attributes:
         alias (str):
         name (str):
         input_modalities (list[ContentModality]):
-        multimodal_capabilities (Union[Unset, list[MultimodalCapability]]):
+        multimodal_capabilities (list[MultimodalCapability] | Unset):
     """
 
     alias: str
     name: str
     input_modalities: list[ContentModality]
-    multimodal_capabilities: Unset | list[MultimodalCapability] = UNSET
+    multimodal_capabilities: list[MultimodalCapability] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,7 +39,7 @@ class ModelProperties:
             input_modalities_item = input_modalities_item_data.value
             input_modalities.append(input_modalities_item)
 
-        multimodal_capabilities: Unset | list[str] = UNSET
+        multimodal_capabilities: list[str] | Unset = UNSET
         if not isinstance(self.multimodal_capabilities, Unset):
             multimodal_capabilities = []
             for multimodal_capabilities_item_data in self.multimodal_capabilities:
@@ -67,12 +68,14 @@ class ModelProperties:
 
             input_modalities.append(input_modalities_item)
 
-        multimodal_capabilities = []
         _multimodal_capabilities = d.pop("multimodal_capabilities", UNSET)
-        for multimodal_capabilities_item_data in _multimodal_capabilities or []:
-            multimodal_capabilities_item = MultimodalCapability(multimodal_capabilities_item_data)
+        multimodal_capabilities: list[MultimodalCapability] | Unset = UNSET
+        if _multimodal_capabilities is not UNSET:
+            multimodal_capabilities = []
+            for multimodal_capabilities_item_data in _multimodal_capabilities:
+                multimodal_capabilities_item = MultimodalCapability(multimodal_capabilities_item_data)
 
-            multimodal_capabilities.append(multimodal_capabilities_item)
+                multimodal_capabilities.append(multimodal_capabilities_item)
 
         model_properties = cls(
             alias=alias, name=name, input_modalities=input_modalities, multimodal_capabilities=multimodal_capabilities

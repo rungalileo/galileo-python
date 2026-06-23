@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -17,22 +19,21 @@ T = TypeVar("T", bound="RunScorerSettingsPatchRequest")
 @_attrs_define
 class RunScorerSettingsPatchRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         run_id (str): ID of the run.
-        scorers (Union[None, Unset, list['ScorerConfig']]): List of Galileo scorers to enable.
-        segment_filters (Union[None, Unset, list['SegmentFilter']]): List of segment filters to apply to the run.
+        scorers (list[ScorerConfig] | None | Unset): List of Galileo scorers to enable.
+        segment_filters (list[SegmentFilter] | None | Unset): List of segment filters to apply to the run.
     """
 
     run_id: str
-    scorers: None | Unset | list["ScorerConfig"] = UNSET
-    segment_filters: None | Unset | list["SegmentFilter"] = UNSET
+    scorers: list[ScorerConfig] | None | Unset = UNSET
+    segment_filters: list[SegmentFilter] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         run_id = self.run_id
 
-        scorers: None | Unset | list[dict[str, Any]]
+        scorers: list[dict[str, Any]] | None | Unset
         if isinstance(self.scorers, Unset):
             scorers = UNSET
         elif isinstance(self.scorers, list):
@@ -44,7 +45,7 @@ class RunScorerSettingsPatchRequest:
         else:
             scorers = self.scorers
 
-        segment_filters: None | Unset | list[dict[str, Any]]
+        segment_filters: list[dict[str, Any]] | None | Unset
         if isinstance(self.segment_filters, Unset):
             segment_filters = UNSET
         elif isinstance(self.segment_filters, list):
@@ -74,7 +75,7 @@ class RunScorerSettingsPatchRequest:
         d = dict(src_dict)
         run_id = d.pop("run_id")
 
-        def _parse_scorers(data: object) -> None | Unset | list["ScorerConfig"]:
+        def _parse_scorers(data: object) -> list[ScorerConfig] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -92,11 +93,11 @@ class RunScorerSettingsPatchRequest:
                 return scorers_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list["ScorerConfig"], data)
+            return cast(list[ScorerConfig] | None | Unset, data)
 
         scorers = _parse_scorers(d.pop("scorers", UNSET))
 
-        def _parse_segment_filters(data: object) -> None | Unset | list["SegmentFilter"]:
+        def _parse_segment_filters(data: object) -> list[SegmentFilter] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -114,7 +115,7 @@ class RunScorerSettingsPatchRequest:
                 return segment_filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list["SegmentFilter"], data)
+            return cast(list[SegmentFilter] | None | Unset, data)
 
         segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
 

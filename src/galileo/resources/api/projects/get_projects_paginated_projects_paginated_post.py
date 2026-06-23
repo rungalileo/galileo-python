@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -26,16 +26,16 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
-    body: ProjectCollectionParams,
-    actions: Unset | list[ProjectAction] = UNSET,
-    starting_token: Unset | int = 0,
-    limit: Unset | int = 100,
+    body: ProjectCollectionParams | Unset,
+    actions: list[ProjectAction] | Unset = UNSET,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_actions: Unset | list[str] = UNSET
+    json_actions: list[str] | Unset = UNSET
     if not isinstance(actions, Unset):
         json_actions = []
         for actions_item_data in actions:
@@ -57,7 +57,9 @@ def _get_kwargs(
         "params": params,
     }
 
-    _kwargs["json"] = body.to_dict()
+    _kwargs["json"]: dict[str, Any] | Unset = UNSET
+    if not isinstance(body, Unset):
+        _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
@@ -71,10 +73,14 @@ def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> GetProjectsPaginatedResponse | HTTPValidationError:
     if response.status_code == 200:
-        return GetProjectsPaginatedResponse.from_dict(response.json())
+        response_200 = GetProjectsPaginatedResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -108,33 +114,31 @@ def _build_response(
 def sync_detailed(
     *,
     client: ApiClient,
-    body: ProjectCollectionParams,
-    actions: Unset | list[ProjectAction] = UNSET,
-    starting_token: Unset | int = 0,
-    limit: Unset | int = 100,
+    body: ProjectCollectionParams | Unset,
+    actions: list[ProjectAction] | Unset = UNSET,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
 ) -> Response[GetProjectsPaginatedResponse | HTTPValidationError]:
-    """Get Projects Paginated.
+    """Get Projects Paginated
 
      Gets projects for a user with pagination.
 
     If provided, filters on project_name and project_type.
 
     Args:
-        actions (Union[Unset, list[ProjectAction]]): Actions to include in the 'permissions'
-            field.
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ProjectCollectionParams):
+        actions (list[ProjectAction] | Unset): Actions to include in the 'permissions' field.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        body (ProjectCollectionParams | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[GetProjectsPaginatedResponse, HTTPValidationError]]
+    Returns:
+        Response[GetProjectsPaginatedResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(body=body, actions=actions, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -145,66 +149,62 @@ def sync_detailed(
 def sync(
     *,
     client: ApiClient,
-    body: ProjectCollectionParams,
-    actions: Unset | list[ProjectAction] = UNSET,
-    starting_token: Unset | int = 0,
-    limit: Unset | int = 100,
-) -> GetProjectsPaginatedResponse | HTTPValidationError | None:
-    """Get Projects Paginated.
+    body: ProjectCollectionParams | Unset,
+    actions: list[ProjectAction] | Unset = UNSET,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> Optional[GetProjectsPaginatedResponse | HTTPValidationError]:
+    """Get Projects Paginated
 
      Gets projects for a user with pagination.
 
     If provided, filters on project_name and project_type.
 
     Args:
-        actions (Union[Unset, list[ProjectAction]]): Actions to include in the 'permissions'
-            field.
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ProjectCollectionParams):
+        actions (list[ProjectAction] | Unset): Actions to include in the 'permissions' field.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        body (ProjectCollectionParams | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[GetProjectsPaginatedResponse, HTTPValidationError]
+    Returns:
+        GetProjectsPaginatedResponse | HTTPValidationError
     """
+
     return sync_detailed(client=client, body=body, actions=actions, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
     *,
     client: ApiClient,
-    body: ProjectCollectionParams,
-    actions: Unset | list[ProjectAction] = UNSET,
-    starting_token: Unset | int = 0,
-    limit: Unset | int = 100,
+    body: ProjectCollectionParams | Unset,
+    actions: list[ProjectAction] | Unset = UNSET,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
 ) -> Response[GetProjectsPaginatedResponse | HTTPValidationError]:
-    """Get Projects Paginated.
+    """Get Projects Paginated
 
      Gets projects for a user with pagination.
 
     If provided, filters on project_name and project_type.
 
     Args:
-        actions (Union[Unset, list[ProjectAction]]): Actions to include in the 'permissions'
-            field.
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ProjectCollectionParams):
+        actions (list[ProjectAction] | Unset): Actions to include in the 'permissions' field.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        body (ProjectCollectionParams | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[GetProjectsPaginatedResponse, HTTPValidationError]]
+    Returns:
+        Response[GetProjectsPaginatedResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(body=body, actions=actions, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -215,33 +215,31 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: ApiClient,
-    body: ProjectCollectionParams,
-    actions: Unset | list[ProjectAction] = UNSET,
-    starting_token: Unset | int = 0,
-    limit: Unset | int = 100,
-) -> GetProjectsPaginatedResponse | HTTPValidationError | None:
-    """Get Projects Paginated.
+    body: ProjectCollectionParams | Unset,
+    actions: list[ProjectAction] | Unset = UNSET,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> Optional[GetProjectsPaginatedResponse | HTTPValidationError]:
+    """Get Projects Paginated
 
      Gets projects for a user with pagination.
 
     If provided, filters on project_name and project_type.
 
     Args:
-        actions (Union[Unset, list[ProjectAction]]): Actions to include in the 'permissions'
-            field.
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ProjectCollectionParams):
+        actions (list[ProjectAction] | Unset): Actions to include in the 'permissions' field.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        body (ProjectCollectionParams | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[GetProjectsPaginatedResponse, HTTPValidationError]
+    Returns:
+        GetProjectsPaginatedResponse | HTTPValidationError
     """
+
     return (
         await asyncio_detailed(client=client, body=body, actions=actions, starting_token=starting_token, limit=limit)
     ).parsed

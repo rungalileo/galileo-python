@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -16,16 +18,15 @@ T = TypeVar("T", bound="HTTPValidationError")
 @_attrs_define
 class HTTPValidationError:
     """
-    Attributes
-    ----------
-        detail (Union[Unset, list['ValidationError']]):
+    Attributes:
+        detail (list[ValidationError] | Unset):
     """
 
-    detail: Unset | list["ValidationError"] = UNSET
+    detail: list[ValidationError] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        detail: Unset | list[dict[str, Any]] = UNSET
+        detail: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.detail, Unset):
             detail = []
             for detail_item_data in self.detail:
@@ -45,16 +46,14 @@ class HTTPValidationError:
         from ..models.validation_error import ValidationError
 
         d = dict(src_dict)
-        detail: Union[Unset, list[ValidationError]] = UNSET
         _detail = d.pop("detail", UNSET)
-        if isinstance(_detail, list):
-            detail = [ValidationError.from_dict(item) for item in _detail]
-        elif isinstance(_detail, str) and _detail:
-            # Some backend 422s return a bare string instead of the standard
-            # list-of-ValidationError shape (e.g. invalid model alias lookups
-            # returning {"detail": "Model alias '...' not found"}).
-            # Wrap it so callers always receive a consistent ValidationError list.
-            detail = [ValidationError(loc=[], msg=_detail, type_="server_error")]
+        detail: list[ValidationError] | Unset = UNSET
+        if _detail is not UNSET:
+            detail = []
+            for detail_item_data in _detail:
+                detail_item = ValidationError.from_dict(detail_item_data)
+
+                detail.append(detail_item)
 
         http_validation_error = cls(detail=detail)
 

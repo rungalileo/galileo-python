@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,11 +15,10 @@ T = TypeVar("T", bound="ScorerTypeFilter")
 @_attrs_define
 class ScorerTypeFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         operator (ScorerTypeFilterOperator):
-        value (Union[list[str], str]):
-        name (Union[Literal['scorer_type'], Unset]):  Default: 'scorer_type'.
+        value (list[str] | str):
+        name (Literal['scorer_type'] | Unset):  Default: 'scorer_type'.
     """
 
     operator: ScorerTypeFilterOperator
@@ -29,7 +30,11 @@ class ScorerTypeFilter:
         operator = self.operator.value
 
         value: list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         name = self.name
 
@@ -50,8 +55,9 @@ class ScorerTypeFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

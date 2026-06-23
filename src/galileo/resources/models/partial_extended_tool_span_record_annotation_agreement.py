@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -9,7 +11,7 @@ T = TypeVar("T", bound="PartialExtendedToolSpanRecordAnnotationAgreement")
 
 @_attrs_define
 class PartialExtendedToolSpanRecordAnnotationAgreement:
-    """Annotation agreement scores keyed by template ID."""
+    """Annotation agreement scores keyed by template ID"""
 
     additional_properties: dict[str, float] = _attrs_field(init=False, factory=dict)
 

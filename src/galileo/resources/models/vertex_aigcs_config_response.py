@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -11,8 +13,7 @@ T = TypeVar("T", bound="VertexAIGCSConfigResponse")
 class VertexAIGCSConfigResponse:
     """GCS config response model — credentials are never exposed in GET responses.
 
-    Attributes
-    ----------
+    Attributes:
         bucket_name (str):
         object_path_prefix (str):
     """

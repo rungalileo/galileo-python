@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,15 +14,14 @@ T = TypeVar("T", bound="LogRecordsSortClause")
 @_attrs_define
 class LogRecordsSortClause:
     """
-    Attributes
-    ----------
+    Attributes:
         column_id (str): ID of the column to sort.
-        ascending (Union[Unset, bool]):  Default: True.
-        sort_type (Union[Literal['column'], Unset]):  Default: 'column'.
+        ascending (bool | Unset):  Default: True.
+        sort_type (Literal['column'] | Unset):  Default: 'column'.
     """
 
     column_id: str
-    ascending: Unset | bool = True
+    ascending: bool | Unset = True
     sort_type: Literal["column"] | Unset = "column"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

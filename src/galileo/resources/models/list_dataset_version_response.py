@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -16,20 +18,19 @@ T = TypeVar("T", bound="ListDatasetVersionResponse")
 @_attrs_define
 class ListDatasetVersionResponse:
     """
-    Attributes
-    ----------
-        versions (list['DatasetVersionDB']):
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        paginated (Union[Unset, bool]):  Default: False.
-        next_starting_token (Union[None, Unset, int]):
+    Attributes:
+        versions (list[DatasetVersionDB]):
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
+        paginated (bool | Unset):  Default: False.
+        next_starting_token (int | None | Unset):
     """
 
-    versions: list["DatasetVersionDB"]
-    starting_token: Unset | int = 0
-    limit: Unset | int = 100
-    paginated: Unset | bool = False
-    next_starting_token: None | Unset | int = UNSET
+    versions: list[DatasetVersionDB]
+    starting_token: int | Unset = 0
+    limit: int | Unset = 100
+    paginated: bool | Unset = False
+    next_starting_token: int | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,8 +45,11 @@ class ListDatasetVersionResponse:
 
         paginated = self.paginated
 
-        next_starting_token: None | Unset | int
-        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
+        next_starting_token: int | None | Unset
+        if isinstance(self.next_starting_token, Unset):
+            next_starting_token = UNSET
+        else:
+            next_starting_token = self.next_starting_token
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -79,12 +83,12 @@ class ListDatasetVersionResponse:
 
         paginated = d.pop("paginated", UNSET)
 
-        def _parse_next_starting_token(data: object) -> None | Unset | int:
+        def _parse_next_starting_token(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(int | None | Unset, data)
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -14,25 +16,24 @@ T = TypeVar("T", bound="GeneratedScorerConfiguration")
 @_attrs_define
 class GeneratedScorerConfiguration:
     """
-    Attributes
-    ----------
-        model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.
-        num_judges (Union[Unset, int]):  Default: 3.
-        output_type (Union[Unset, OutputTypeEnum]): Enumeration of output types.
-        scoreable_node_types (Union[Unset, list[str]]): Types of nodes that can be scored by this scorer.
-        cot_enabled (Union[Unset, bool]): Whether chain of thought is enabled for this scorer. Default: False.
-        ground_truth (Union[Unset, bool]): Whether ground truth is enabled for this scorer. Default: False.
-        multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]): Multimodal capabilities required by
-            this scorer.
+    Attributes:
+        model_alias (str | Unset):  Default: 'gpt-4.1-mini'.
+        num_judges (int | Unset):  Default: 3.
+        output_type (OutputTypeEnum | Unset): Enumeration of output types.
+        scoreable_node_types (list[str] | Unset): Types of nodes that can be scored by this scorer.
+        cot_enabled (bool | Unset): Whether chain of thought is enabled for this scorer. Default: False.
+        ground_truth (bool | Unset): Whether ground truth is enabled for this scorer. Default: False.
+        multimodal_capabilities (list[MultimodalCapability] | None | Unset): Multimodal capabilities required by this
+            scorer.
     """
 
-    model_alias: Unset | str = "gpt-4.1-mini"
-    num_judges: Unset | int = 3
-    output_type: Unset | OutputTypeEnum = UNSET
-    scoreable_node_types: Unset | list[str] = UNSET
-    cot_enabled: Unset | bool = False
-    ground_truth: Unset | bool = False
-    multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET
+    model_alias: str | Unset = "gpt-4.1-mini"
+    num_judges: int | Unset = 3
+    output_type: OutputTypeEnum | Unset = UNSET
+    scoreable_node_types: list[str] | Unset = UNSET
+    cot_enabled: bool | Unset = False
+    ground_truth: bool | Unset = False
+    multimodal_capabilities: list[MultimodalCapability] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,11 +41,11 @@ class GeneratedScorerConfiguration:
 
         num_judges = self.num_judges
 
-        output_type: Unset | str = UNSET
+        output_type: str | Unset = UNSET
         if not isinstance(self.output_type, Unset):
             output_type = self.output_type.value
 
-        scoreable_node_types: Unset | list[str] = UNSET
+        scoreable_node_types: list[str] | Unset = UNSET
         if not isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = self.scoreable_node_types
 
@@ -52,7 +53,7 @@ class GeneratedScorerConfiguration:
 
         ground_truth = self.ground_truth
 
-        multimodal_capabilities: None | Unset | list[str]
+        multimodal_capabilities: list[str] | None | Unset
         if isinstance(self.multimodal_capabilities, Unset):
             multimodal_capabilities = UNSET
         elif isinstance(self.multimodal_capabilities, list):
@@ -92,8 +93,11 @@ class GeneratedScorerConfiguration:
         num_judges = d.pop("num_judges", UNSET)
 
         _output_type = d.pop("output_type", UNSET)
-        output_type: Unset | OutputTypeEnum
-        output_type = UNSET if isinstance(_output_type, Unset) else OutputTypeEnum(_output_type)
+        output_type: OutputTypeEnum | Unset
+        if isinstance(_output_type, Unset):
+            output_type = UNSET
+        else:
+            output_type = OutputTypeEnum(_output_type)
 
         scoreable_node_types = cast(list[str], d.pop("scoreable_node_types", UNSET))
 
@@ -101,7 +105,7 @@ class GeneratedScorerConfiguration:
 
         ground_truth = d.pop("ground_truth", UNSET)
 
-        def _parse_multimodal_capabilities(data: object) -> None | Unset | list[MultimodalCapability]:
+        def _parse_multimodal_capabilities(data: object) -> list[MultimodalCapability] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -119,7 +123,7 @@ class GeneratedScorerConfiguration:
                 return multimodal_capabilities_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[MultimodalCapability], data)
+            return cast(list[MultimodalCapability] | None | Unset, data)
 
         multimodal_capabilities = _parse_multimodal_capabilities(d.pop("multimodal_capabilities", UNSET))
 

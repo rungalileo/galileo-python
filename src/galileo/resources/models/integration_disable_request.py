@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -12,8 +14,7 @@ T = TypeVar("T", bound="IntegrationDisableRequest")
 @_attrs_define
 class IntegrationDisableRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         integration_name (IntegrationName):
     """
 

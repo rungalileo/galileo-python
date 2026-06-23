@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -10,8 +12,7 @@ T = TypeVar("T", bound="ExperimentDatasetRequest")
 @_attrs_define
 class ExperimentDatasetRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         dataset_id (str):
         version_index (int):
     """

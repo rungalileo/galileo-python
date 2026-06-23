@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
 from typing import Any, TypeVar
@@ -12,8 +14,7 @@ T = TypeVar("T", bound="BucketedMetrics")
 @_attrs_define
 class BucketedMetrics:
     """
-    Attributes
-    ----------
+    Attributes:
         start_bucket_time (datetime.datetime):
         end_bucket_time (datetime.datetime):
     """

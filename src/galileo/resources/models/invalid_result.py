@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,10 +14,9 @@ T = TypeVar("T", bound="InvalidResult")
 @_attrs_define
 class InvalidResult:
     """
-    Attributes
-    ----------
+    Attributes:
         error_message (str):
-        result_type (Union[Literal['invalid'], Unset]):  Default: 'invalid'.
+        result_type (Literal['invalid'] | Unset):  Default: 'invalid'.
     """
 
     error_message: str

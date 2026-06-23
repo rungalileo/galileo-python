@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, cast
+from typing import Any, Optional, cast
 
 import httpx
 
@@ -21,13 +21,16 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(*, catalog: None | Unset | str = UNSET) -> dict[str, Any]:
+def _get_kwargs(*, catalog: None | str | Unset = UNSET) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_catalog: None | Unset | str
-    json_catalog = UNSET if isinstance(catalog, Unset) else catalog
+    json_catalog: None | str | Unset
+    if isinstance(catalog, Unset):
+        json_catalog = UNSET
+    else:
+        json_catalog = catalog
     params["catalog"] = json_catalog
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
@@ -47,10 +50,14 @@ def _get_kwargs(*, catalog: None | Unset | str = UNSET) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | list[str]:
     if response.status_code == 200:
-        return cast(list[str], response.json())
+        response_200 = cast(list[str], response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -80,22 +87,21 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(
-    *, client: ApiClient, catalog: None | Unset | str = UNSET
+    *, client: ApiClient, catalog: None | str | Unset = UNSET
 ) -> Response[HTTPValidationError | list[str]]:
-    """Get Databases For Cluster.
+    """Get Databases For Cluster
 
     Args:
-        catalog (Union[None, Unset, str]):
+        catalog (None | str | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, list[str]]]
+    Returns:
+        Response[HTTPValidationError | list[str]]
     """
+
     kwargs = _get_kwargs(catalog=catalog)
 
     response = client.request(**kwargs)
@@ -103,41 +109,39 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, catalog: None | Unset | str = UNSET) -> HTTPValidationError | list[str] | None:
-    """Get Databases For Cluster.
+def sync(*, client: ApiClient, catalog: None | str | Unset = UNSET) -> Optional[HTTPValidationError | list[str]]:
+    """Get Databases For Cluster
 
     Args:
-        catalog (Union[None, Unset, str]):
+        catalog (None | str | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, list[str]]
+    Returns:
+        HTTPValidationError | list[str]
     """
+
     return sync_detailed(client=client, catalog=catalog).parsed
 
 
 async def asyncio_detailed(
-    *, client: ApiClient, catalog: None | Unset | str = UNSET
+    *, client: ApiClient, catalog: None | str | Unset = UNSET
 ) -> Response[HTTPValidationError | list[str]]:
-    """Get Databases For Cluster.
+    """Get Databases For Cluster
 
     Args:
-        catalog (Union[None, Unset, str]):
+        catalog (None | str | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, list[str]]]
+    Returns:
+        Response[HTTPValidationError | list[str]]
     """
+
     kwargs = _get_kwargs(catalog=catalog)
 
     response = await client.arequest(**kwargs)
@@ -145,19 +149,20 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, catalog: None | Unset | str = UNSET) -> HTTPValidationError | list[str] | None:
-    """Get Databases For Cluster.
+async def asyncio(
+    *, client: ApiClient, catalog: None | str | Unset = UNSET
+) -> Optional[HTTPValidationError | list[str]]:
+    """Get Databases For Cluster
 
     Args:
-        catalog (Union[None, Unset, str]):
+        catalog (None | str | Unset):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, list[str]]
+    Returns:
+        HTTPValidationError | list[str]
     """
+
     return (await asyncio_detailed(client=client, catalog=catalog)).parsed
