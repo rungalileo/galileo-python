@@ -1426,6 +1426,64 @@ class TestParseLlmResult:
         # Then: surface 1 value is used; surface 3 is ignored because the slot is already set
         assert result.audio_input_tokens == 50
 
+    def test_gemini_image_output_tokens_from_surface_1(self) -> None:
+        """Surface 1: image_output_tokens extracted from output_token_details['image']."""
+        # Given: an AIMessage with image tokens in output_token_details
+        ai_message = AIMessage(content="[generated image]")
+        ai_message.usage_metadata = {
+            "input_tokens": 10,
+            "output_tokens": 50,
+            "output_token_details": {"image": 40, "audio": 5},
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: image_output_tokens and audio_output_tokens are extracted from surface 1
+        assert result.image_output_tokens == 40
+        assert result.audio_output_tokens == 5
+
+    def test_gemini_image_output_tokens_from_surface_2_candidates(self) -> None:
+        """Surface 2: image_output_tokens extracted from candidates_tokens_details IMAGE entry."""
+        # Given: an AIMessage with candidates_tokens_details containing an IMAGE entry
+        ai_message = AIMessage(content="[generated image]")
+        ai_message.response_metadata = {
+            "candidates_tokens_details": [
+                {"modality": "TEXT", "token_count": 5},
+                {"modality": "IMAGE", "token_count": 30},
+                {"modality": "AUDIO", "token_count": 10},
+            ]
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: image_output_tokens comes from the IMAGE entry in candidates_tokens_details
+        assert result.image_output_tokens == 30
+        assert result.audio_output_tokens == 10
+
+    def test_non_gemini_provider_cache_read_only_returns_none_modality(self) -> None:
+        """Non-Gemini providers (e.g. Anthropic) that have cache_read but no audio/image keys must not produce zeros."""
+        # Given: an AIMessage from a non-Gemini provider with only cache_read in input_token_details
+        ai_message = AIMessage(content="response")
+        ai_message.usage_metadata = {
+            "input_tokens": 100,
+            "output_tokens": 20,
+            "input_token_details": {"cache_read": 80},
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: all modality fields are None — cache_read must not be misread as modality breakdown
+        assert result.image_input_tokens is None
+        assert result.audio_input_tokens is None
+        assert result.audio_output_tokens is None
+        assert result.image_output_tokens is None
+
 
 class TestGalileoCallbackIngestionHookWithoutCredentials:
     """SC-54690: GalileoCallback/GalileoAsyncCallback with ingestion_hook should work without API credentials.

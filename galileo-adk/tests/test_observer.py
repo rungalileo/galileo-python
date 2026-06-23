@@ -389,3 +389,25 @@ class TestExtractUsageMetadata:
 
         # Then: the string modality is handled correctly and the count is extracted
         assert result["audio_input_tokens"] == 50
+
+    def test_image_output_tokens_from_candidates(self, observer: GalileoObserver) -> None:
+        # Given: a response with an IMAGE entry in candidates_tokens_details
+        usage = MagicMock()
+        usage.prompt_token_count = 10
+        usage.candidates_token_count = 45
+        usage.total_token_count = 55
+        usage.prompt_tokens_details = [self._make_modality_entry("TEXT", 10)]
+        usage.candidates_tokens_details = [
+            self._make_modality_entry("TEXT", 5),
+            self._make_modality_entry("IMAGE", 30),
+            self._make_modality_entry("AUDIO", 10),
+        ]
+        response = MagicMock()
+        response.usage_metadata = usage
+
+        # When: extracting usage metadata
+        result = observer._extract_usage_metadata(response)
+
+        # Then: image_output_tokens and audio_output_tokens are both extracted from candidates
+        assert result["image_output_tokens"] == 30
+        assert result["audio_output_tokens"] == 10
