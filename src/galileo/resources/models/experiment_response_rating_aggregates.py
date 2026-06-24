@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -15,9 +17,9 @@ T = TypeVar("T", bound="ExperimentResponseRatingAggregates")
 
 @_attrs_define
 class ExperimentResponseRatingAggregates:
-    """Annotation aggregates keyed by template ID and root type."""
+    """Annotation aggregates keyed by template ID and root type"""
 
-    additional_properties: dict[str, "ExperimentResponseRatingAggregatesAdditionalProperty"] = _attrs_field(
+    additional_properties: dict[str, ExperimentResponseRatingAggregatesAdditionalProperty] = _attrs_field(
         init=False, factory=dict
     )
 
@@ -50,10 +52,10 @@ class ExperimentResponseRatingAggregates:
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> "ExperimentResponseRatingAggregatesAdditionalProperty":
+    def __getitem__(self, key: str) -> ExperimentResponseRatingAggregatesAdditionalProperty:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: "ExperimentResponseRatingAggregatesAdditionalProperty") -> None:
+    def __setitem__(self, key: str, value: ExperimentResponseRatingAggregatesAdditionalProperty) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

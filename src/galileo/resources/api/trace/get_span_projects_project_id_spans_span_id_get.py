@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -27,7 +27,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(project_id: str, span_id: str, *, include_presigned_urls: Unset | bool = False) -> dict[str, Any]:
+def _get_kwargs(project_id: str, span_id: str, *, include_presigned_urls: bool | Unset = False) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -39,7 +39,7 @@ def _get_kwargs(project_id: str, span_id: str, *, include_presigned_urls: Unset 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/spans/{span_id}",
+        "path": "/projects/{project_id}/spans/{span_id}".format(project_id=project_id, span_id=span_id),
         "params": params,
     }
 
@@ -52,28 +52,26 @@ def _get_kwargs(project_id: str, span_id: str, *, include_presigned_urls: Unset 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> (
-    HTTPValidationError
-    | Union[
-        "ExtendedAgentSpanRecordWithChildren",
-        "ExtendedControlSpanRecord",
-        "ExtendedLlmSpanRecord",
-        "ExtendedRetrieverSpanRecordWithChildren",
-        "ExtendedToolSpanRecordWithChildren",
-        "ExtendedWorkflowSpanRecordWithChildren",
-    ]
+    ExtendedAgentSpanRecordWithChildren
+    | ExtendedControlSpanRecord
+    | ExtendedLlmSpanRecord
+    | ExtendedRetrieverSpanRecordWithChildren
+    | ExtendedToolSpanRecordWithChildren
+    | ExtendedWorkflowSpanRecordWithChildren
+    | HTTPValidationError
 ):
     if response.status_code == 200:
 
         def _parse_response_200(
             data: object,
-        ) -> Union[
-            "ExtendedAgentSpanRecordWithChildren",
-            "ExtendedControlSpanRecord",
-            "ExtendedLlmSpanRecord",
-            "ExtendedRetrieverSpanRecordWithChildren",
-            "ExtendedToolSpanRecordWithChildren",
-            "ExtendedWorkflowSpanRecordWithChildren",
-        ]:
+        ) -> (
+            ExtendedAgentSpanRecordWithChildren
+            | ExtendedControlSpanRecord
+            | ExtendedLlmSpanRecord
+            | ExtendedRetrieverSpanRecordWithChildren
+            | ExtendedToolSpanRecordWithChildren
+            | ExtendedWorkflowSpanRecordWithChildren
+        ):
             # Discriminator-aware parsing for Extended*Record types
             if isinstance(data, dict) and "type" in data:
                 type_value = data.get("type")
@@ -133,53 +131,63 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedAgentSpanRecordWithChildren.from_dict(data)
+                response_200_type_0 = ExtendedAgentSpanRecordWithChildren.from_dict(data)
 
+                return response_200_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedWorkflowSpanRecordWithChildren.from_dict(data)
+                response_200_type_1 = ExtendedWorkflowSpanRecordWithChildren.from_dict(data)
 
+                return response_200_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedLlmSpanRecord.from_dict(data)
+                response_200_type_2 = ExtendedLlmSpanRecord.from_dict(data)
 
+                return response_200_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedToolSpanRecordWithChildren.from_dict(data)
+                response_200_type_3 = ExtendedToolSpanRecordWithChildren.from_dict(data)
 
+                return response_200_type_3
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedRetrieverSpanRecordWithChildren.from_dict(data)
+                response_200_type_4 = ExtendedRetrieverSpanRecordWithChildren.from_dict(data)
 
+                return response_200_type_4
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedControlSpanRecord.from_dict(data)
+                response_200_type_5 = ExtendedControlSpanRecord.from_dict(data)
 
+                return response_200_type_5
             except:  # noqa: E722
                 pass
             # If we reach here, none of the parsers succeeded
             discriminator_info = f" (type={data.get('type')})" if isinstance(data, dict) and "type" in data else ""
             raise ValueError(f"Could not parse union type for response_200{discriminator_info}")
 
-        return _parse_response_200(response.json())
+        response_200 = _parse_response_200(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -202,15 +210,13 @@ def _parse_response(
 def _build_response(
     *, client: ApiClient, response: httpx.Response
 ) -> Response[
-    HTTPValidationError
-    | Union[
-        "ExtendedAgentSpanRecordWithChildren",
-        "ExtendedControlSpanRecord",
-        "ExtendedLlmSpanRecord",
-        "ExtendedRetrieverSpanRecordWithChildren",
-        "ExtendedToolSpanRecordWithChildren",
-        "ExtendedWorkflowSpanRecordWithChildren",
-    ]
+    ExtendedAgentSpanRecordWithChildren
+    | ExtendedControlSpanRecord
+    | ExtendedLlmSpanRecord
+    | ExtendedRetrieverSpanRecordWithChildren
+    | ExtendedToolSpanRecordWithChildren
+    | ExtendedWorkflowSpanRecordWithChildren
+    | HTTPValidationError
 ]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -221,34 +227,31 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
 ) -> Response[
-    HTTPValidationError
-    | Union[
-        "ExtendedAgentSpanRecordWithChildren",
-        "ExtendedControlSpanRecord",
-        "ExtendedLlmSpanRecord",
-        "ExtendedRetrieverSpanRecordWithChildren",
-        "ExtendedToolSpanRecordWithChildren",
-        "ExtendedWorkflowSpanRecordWithChildren",
-    ]
+    ExtendedAgentSpanRecordWithChildren
+    | ExtendedControlSpanRecord
+    | ExtendedLlmSpanRecord
+    | ExtendedRetrieverSpanRecordWithChildren
+    | ExtendedToolSpanRecordWithChildren
+    | ExtendedWorkflowSpanRecordWithChildren
+    | HTTPValidationError
 ]:
-    """Get Span.
+    """Get Span
 
     Args:
         project_id (str):
         span_id (str):
-        include_presigned_urls (Union[Unset, bool]):  Default: False.
+        include_presigned_urls (bool | Unset):  Default: False.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedControlSpanRecord', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
+    Returns:
+        Response[ExtendedAgentSpanRecordWithChildren | ExtendedControlSpanRecord | ExtendedLlmSpanRecord | ExtendedRetrieverSpanRecordWithChildren | ExtendedToolSpanRecordWithChildren | ExtendedWorkflowSpanRecordWithChildren | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id, include_presigned_urls=include_presigned_urls)
 
     response = client.request(**kwargs)
@@ -257,69 +260,62 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
-) -> (
-    HTTPValidationError
-    | Union[
-        "ExtendedAgentSpanRecordWithChildren",
-        "ExtendedControlSpanRecord",
-        "ExtendedLlmSpanRecord",
-        "ExtendedRetrieverSpanRecordWithChildren",
-        "ExtendedToolSpanRecordWithChildren",
-        "ExtendedWorkflowSpanRecordWithChildren",
-    ]
-    | None
-):
-    """Get Span.
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
+) -> Optional[
+    ExtendedAgentSpanRecordWithChildren
+    | ExtendedControlSpanRecord
+    | ExtendedLlmSpanRecord
+    | ExtendedRetrieverSpanRecordWithChildren
+    | ExtendedToolSpanRecordWithChildren
+    | ExtendedWorkflowSpanRecordWithChildren
+    | HTTPValidationError
+]:
+    """Get Span
 
     Args:
         project_id (str):
         span_id (str):
-        include_presigned_urls (Union[Unset, bool]):  Default: False.
+        include_presigned_urls (bool | Unset):  Default: False.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedControlSpanRecord', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
+    Returns:
+        ExtendedAgentSpanRecordWithChildren | ExtendedControlSpanRecord | ExtendedLlmSpanRecord | ExtendedRetrieverSpanRecordWithChildren | ExtendedToolSpanRecordWithChildren | ExtendedWorkflowSpanRecordWithChildren | HTTPValidationError
     """
+
     return sync_detailed(
         project_id=project_id, span_id=span_id, client=client, include_presigned_urls=include_presigned_urls
     ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
 ) -> Response[
-    HTTPValidationError
-    | Union[
-        "ExtendedAgentSpanRecordWithChildren",
-        "ExtendedControlSpanRecord",
-        "ExtendedLlmSpanRecord",
-        "ExtendedRetrieverSpanRecordWithChildren",
-        "ExtendedToolSpanRecordWithChildren",
-        "ExtendedWorkflowSpanRecordWithChildren",
-    ]
+    ExtendedAgentSpanRecordWithChildren
+    | ExtendedControlSpanRecord
+    | ExtendedLlmSpanRecord
+    | ExtendedRetrieverSpanRecordWithChildren
+    | ExtendedToolSpanRecordWithChildren
+    | ExtendedWorkflowSpanRecordWithChildren
+    | HTTPValidationError
 ]:
-    """Get Span.
+    """Get Span
 
     Args:
         project_id (str):
         span_id (str):
-        include_presigned_urls (Union[Unset, bool]):  Default: False.
+        include_presigned_urls (bool | Unset):  Default: False.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedControlSpanRecord', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
+    Returns:
+        Response[ExtendedAgentSpanRecordWithChildren | ExtendedControlSpanRecord | ExtendedLlmSpanRecord | ExtendedRetrieverSpanRecordWithChildren | ExtendedToolSpanRecordWithChildren | ExtendedWorkflowSpanRecordWithChildren | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id, include_presigned_urls=include_presigned_urls)
 
     response = await client.arequest(**kwargs)
@@ -328,35 +324,31 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: Unset | bool = False
-) -> (
-    HTTPValidationError
-    | Union[
-        "ExtendedAgentSpanRecordWithChildren",
-        "ExtendedControlSpanRecord",
-        "ExtendedLlmSpanRecord",
-        "ExtendedRetrieverSpanRecordWithChildren",
-        "ExtendedToolSpanRecordWithChildren",
-        "ExtendedWorkflowSpanRecordWithChildren",
-    ]
-    | None
-):
-    """Get Span.
+    project_id: str, span_id: str, *, client: ApiClient, include_presigned_urls: bool | Unset = False
+) -> Optional[
+    ExtendedAgentSpanRecordWithChildren
+    | ExtendedControlSpanRecord
+    | ExtendedLlmSpanRecord
+    | ExtendedRetrieverSpanRecordWithChildren
+    | ExtendedToolSpanRecordWithChildren
+    | ExtendedWorkflowSpanRecordWithChildren
+    | HTTPValidationError
+]:
+    """Get Span
 
     Args:
         project_id (str):
         span_id (str):
-        include_presigned_urls (Union[Unset, bool]):  Default: False.
+        include_presigned_urls (bool | Unset):  Default: False.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedControlSpanRecord', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
+    Returns:
+        ExtendedAgentSpanRecordWithChildren | ExtendedControlSpanRecord | ExtendedLlmSpanRecord | ExtendedRetrieverSpanRecordWithChildren | ExtendedToolSpanRecordWithChildren | ExtendedWorkflowSpanRecordWithChildren | HTTPValidationError
     """
+
     return (
         await asyncio_detailed(
             project_id=project_id, span_id=span_id, client=client, include_presigned_urls=include_presigned_urls

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -10,8 +12,7 @@ T = TypeVar("T", bound="AggregatedTraceViewEdge")
 @_attrs_define
 class AggregatedTraceViewEdge:
     """
-    Attributes
-    ----------
+    Attributes:
         source (str):
         target (str):
         weight (float):

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,10 +14,9 @@ T = TypeVar("T", bound="RecomputeSettingsRuns")
 @_attrs_define
 class RecomputeSettingsRuns:
     """
-    Attributes
-    ----------
+    Attributes:
         run_ids (list[str]):
-        mode (Union[Literal['runs'], Unset]):  Default: 'runs'.
+        mode (Literal['runs'] | Unset):  Default: 'runs'.
     """
 
     run_ids: list[str]

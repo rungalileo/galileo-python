@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -10,11 +12,10 @@ T = TypeVar("T", bound="HistogramBucket")
 @_attrs_define
 class HistogramBucket:
     """
-    Attributes
-    ----------
+    Attributes:
         lower (float): Lower bound of the histogram bucket (inclusive)
         upper (float): Upper bound of the histogram bucket (exclusive, but inclusive for the last bucket)
-        count (int): Number of data points that fall within this bucket.
+        count (int): Number of data points that fall within this bucket
     """
 
     lower: float

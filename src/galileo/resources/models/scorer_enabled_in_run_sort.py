@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,17 +14,16 @@ T = TypeVar("T", bound="ScorerEnabledInRunSort")
 @_attrs_define
 class ScorerEnabledInRunSort:
     """
-    Attributes
-    ----------
+    Attributes:
         value (str):
-        name (Union[Literal['enabled_in_run'], Unset]):  Default: 'enabled_in_run'.
-        ascending (Union[Unset, bool]):  Default: True.
-        sort_type (Union[Literal['custom_uuid'], Unset]):  Default: 'custom_uuid'.
+        name (Literal['enabled_in_run'] | Unset):  Default: 'enabled_in_run'.
+        ascending (bool | Unset):  Default: True.
+        sort_type (Literal['custom_uuid'] | Unset):  Default: 'custom_uuid'.
     """
 
     value: str
     name: Literal["enabled_in_run"] | Unset = "enabled_in_run"
-    ascending: Unset | bool = True
+    ascending: bool | Unset = True
     sort_type: Literal["custom_uuid"] | Unset = "custom_uuid"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

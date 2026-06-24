@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -15,19 +17,21 @@ T = TypeVar("T", bound="ValidateRegisteredScorerResult")
 @_attrs_define
 class ValidateRegisteredScorerResult:
     """
-    Attributes
-    ----------
-        result (Union['InvalidResult', 'ValidResult']):
+    Attributes:
+        result (InvalidResult | ValidResult):
     """
 
-    result: Union["InvalidResult", "ValidResult"]
+    result: InvalidResult | ValidResult
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.valid_result import ValidResult
 
         result: dict[str, Any]
-        result = self.result.to_dict() if isinstance(self.result, ValidResult) else self.result.to_dict()
+        if isinstance(self.result, ValidResult):
+            result = self.result.to_dict()
+        else:
+            result = self.result.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -42,17 +46,20 @@ class ValidateRegisteredScorerResult:
 
         d = dict(src_dict)
 
-        def _parse_result(data: object) -> Union["InvalidResult", "ValidResult"]:
+        def _parse_result(data: object) -> InvalidResult | ValidResult:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ValidResult.from_dict(data)
+                result_type_0 = ValidResult.from_dict(data)
 
+                return result_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return InvalidResult.from_dict(data)
+            result_type_1 = InvalidResult.from_dict(data)
+
+            return result_type_1
 
         result = _parse_result(d.pop("result"))
 

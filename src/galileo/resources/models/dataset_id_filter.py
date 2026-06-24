@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,16 +15,15 @@ T = TypeVar("T", bound="DatasetIDFilter")
 @_attrs_define
 class DatasetIDFilter:
     """
-    Attributes
-    ----------
-        value (Union[list[str], str]):
-        name (Union[Literal['id'], Unset]):  Default: 'id'.
-        operator (Union[Unset, DatasetIDFilterOperator]):  Default: DatasetIDFilterOperator.EQ.
+    Attributes:
+        value (list[str] | str):
+        name (Literal['id'] | Unset):  Default: 'id'.
+        operator (DatasetIDFilterOperator | Unset):  Default: DatasetIDFilterOperator.EQ.
     """
 
     value: list[str] | str
     name: Literal["id"] | Unset = "id"
-    operator: Unset | DatasetIDFilterOperator = DatasetIDFilterOperator.EQ
+    operator: DatasetIDFilterOperator | Unset = DatasetIDFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,7 +40,7 @@ class DatasetIDFilter:
 
         name = self.name
 
-        operator: Unset | str = UNSET
+        operator: str | Unset = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -84,8 +85,11 @@ class DatasetIDFilter:
             raise ValueError(f"name must match const 'id', got '{name}'")
 
         _operator = d.pop("operator", UNSET)
-        operator: Unset | DatasetIDFilterOperator
-        operator = UNSET if isinstance(_operator, Unset) else DatasetIDFilterOperator(_operator)
+        operator: DatasetIDFilterOperator | Unset
+        if isinstance(_operator, Unset):
+            operator = UNSET
+        else:
+            operator = DatasetIDFilterOperator(_operator)
 
         dataset_id_filter = cls(value=value, name=name, operator=operator)
 

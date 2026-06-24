@@ -385,6 +385,10 @@ class GalileoObserver:
             num_output_tokens=usage.get("completion_tokens"),
             total_tokens=usage.get("total_tokens"),
             status_code=status_code,
+            image_input_tokens=usage.get("image_input_tokens"),
+            audio_input_tokens=usage.get("audio_input_tokens"),
+            audio_output_tokens=usage.get("audio_output_tokens"),
+            image_output_tokens=usage.get("image_output_tokens"),
         )
 
     def _is_retriever_tool(self, tool: Any) -> bool:
@@ -498,18 +502,65 @@ class GalileoObserver:
         return None
 
     def _extract_usage_metadata(self, llm_response: Any) -> dict[str, Any]:
-        """Extract token usage metrics from LLM response."""
+        """Extract token usage metrics from LLM response.
+
+        Also extracts per-modality breakdown (image/audio) from
+        ``usage_metadata.prompt_tokens_details`` and ``candidates_tokens_details``
+        when the native Gemini SDK returns them (list of ModalityTokenCount objects).
+        """
         if not llm_response:
             return {}
         usage = getattr(llm_response, "usage_metadata", None)
         if not usage:
             return {}
-        return {
+
+        result: dict[str, Any] = {
             "prompt_tokens": getattr(usage, "prompt_token_count", None) or getattr(usage, "input_token_count", None),
             "completion_tokens": getattr(usage, "candidates_token_count", None)
             or getattr(usage, "output_token_count", None),
             "total_tokens": getattr(usage, "total_token_count", None),
         }
+
+        # Per-modality breakdown — only present on native Gemini SDK responses.
+        prompt_details = getattr(usage, "prompt_tokens_details", None)
+        candidates_details = getattr(usage, "candidates_tokens_details", None)
+        if prompt_details or candidates_details:
+            image_in = 0
+            audio_in = 0
+            audio_out = 0
+            image_out = 0
+            has_prompt = bool(prompt_details)
+            has_candidates = bool(candidates_details)
+            for entry in prompt_details or []:
+                modality_attr = getattr(entry, "modality", None)
+                modality = getattr(modality_attr, "value", modality_attr)
+                if not isinstance(modality, str):
+                    continue
+                count = getattr(entry, "token_count", None) or 0
+                upper = modality.upper()
+                if upper == "IMAGE":
+                    image_in += count
+                elif upper == "AUDIO":
+                    audio_in += count
+            for entry in candidates_details or []:
+                modality_attr = getattr(entry, "modality", None)
+                modality = getattr(modality_attr, "value", modality_attr)
+                if not isinstance(modality, str):
+                    continue
+                count = getattr(entry, "token_count", None) or 0
+                upper = modality.upper()
+                if upper == "AUDIO":
+                    audio_out += count
+                elif upper == "IMAGE":
+                    image_out += count
+            if has_prompt:
+                result["image_input_tokens"] = image_in
+                result["audio_input_tokens"] = audio_in
+            if has_candidates:
+                result["audio_output_tokens"] = audio_out
+                result["image_output_tokens"] = image_out
+
+        return result
 
     def _extract_final_output(self, invocation_context: Any) -> str:
         if hasattr(invocation_context, "session"):

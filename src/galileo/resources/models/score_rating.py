@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,10 +14,9 @@ T = TypeVar("T", bound="ScoreRating")
 @_attrs_define
 class ScoreRating:
     """
-    Attributes
-    ----------
+    Attributes:
         value (int):
-        feedback_type (Union[Literal['score'], Unset]):  Default: 'score'.
+        feedback_type (Literal['score'] | Unset):  Default: 'score'.
     """
 
     value: int

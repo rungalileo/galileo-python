@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -10,8 +12,7 @@ T = TypeVar("T", bound="HealthcheckResponse")
 @_attrs_define
 class HealthcheckResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         api_version (str):
         message (str):
         version (str):

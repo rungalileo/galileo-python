@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,10 +15,9 @@ T = TypeVar("T", bound="DatasetFilterRows")
 class DatasetFilterRows:
     """This global operation filters a set of rows and discard the rest.
 
-    Attributes
-    ----------
+    Attributes:
         row_ids (list[str]):
-        edit_type (Union[Literal['filter_rows'], Unset]):  Default: 'filter_rows'.
+        edit_type (Literal['filter_rows'] | Unset):  Default: 'filter_rows'.
     """
 
     row_ids: list[str]

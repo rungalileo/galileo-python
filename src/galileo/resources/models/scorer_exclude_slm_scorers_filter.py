@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -14,9 +16,8 @@ class ScorerExcludeSlmScorersFilter:
     """Internal filter: excludes scorers with model_type == slm while including
     scorers where model_type IS NULL. Auto-appended by the service layer.
 
-    Attributes
-    ----------
-            name (Union[Literal['exclude_slm_scorers'], Unset]):  Default: 'exclude_slm_scorers'.
+        Attributes:
+            name (Literal['exclude_slm_scorers'] | Unset):  Default: 'exclude_slm_scorers'.
     """
 
     name: Literal["exclude_slm_scorers"] | Unset = "exclude_slm_scorers"

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -10,8 +12,7 @@ T = TypeVar("T", bound="MetricCritiqueContent")
 @_attrs_define
 class MetricCritiqueContent:
     """
-    Attributes
-    ----------
+    Attributes:
         critique (str):
         intended_value (bool):
         original_explanation (str):

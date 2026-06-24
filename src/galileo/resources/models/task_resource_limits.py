@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -12,14 +14,13 @@ T = TypeVar("T", bound="TaskResourceLimits")
 @_attrs_define
 class TaskResourceLimits:
     """
-    Attributes
-    ----------
-        cpu_time (Union[Unset, int]):  Default: 216.
-        memory_mb (Union[Unset, int]):  Default: 160.
+    Attributes:
+        cpu_time (int | Unset):  Default: 216.
+        memory_mb (int | Unset):  Default: 160.
     """
 
-    cpu_time: Unset | int = 216
-    memory_mb: Unset | int = 160
+    cpu_time: int | Unset = 216
+    memory_mb: int | Unset = 160
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

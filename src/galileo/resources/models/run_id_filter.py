@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,16 +15,15 @@ T = TypeVar("T", bound="RunIDFilter")
 @_attrs_define
 class RunIDFilter:
     """
-    Attributes
-    ----------
-        value (Union[list[str], str]):
-        name (Union[Literal['id'], Unset]):  Default: 'id'.
-        operator (Union[Unset, RunIDFilterOperator]):  Default: RunIDFilterOperator.EQ.
+    Attributes:
+        value (list[str] | str):
+        name (Literal['id'] | Unset):  Default: 'id'.
+        operator (RunIDFilterOperator | Unset):  Default: RunIDFilterOperator.EQ.
     """
 
     value: list[str] | str
     name: Literal["id"] | Unset = "id"
-    operator: Unset | RunIDFilterOperator = RunIDFilterOperator.EQ
+    operator: RunIDFilterOperator | Unset = RunIDFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,7 +40,7 @@ class RunIDFilter:
 
         name = self.name
 
-        operator: Unset | str = UNSET
+        operator: str | Unset = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -84,8 +85,11 @@ class RunIDFilter:
             raise ValueError(f"name must match const 'id', got '{name}'")
 
         _operator = d.pop("operator", UNSET)
-        operator: Unset | RunIDFilterOperator
-        operator = UNSET if isinstance(_operator, Unset) else RunIDFilterOperator(_operator)
+        operator: RunIDFilterOperator | Unset
+        if isinstance(_operator, Unset):
+            operator = UNSET
+        else:
+            operator = RunIDFilterOperator(_operator)
 
         run_id_filter = cls(value=value, name=name, operator=operator)
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
@@ -29,13 +31,12 @@ class MetricColorPickerMultiLabel:
             ]
         }
 
-    Attributes
-    ----------
-            constraints (list['CategoricalColorConstraint']):
-            type_ (Union[Literal['multi_label'], Unset]):  Default: 'multi_label'.
+        Attributes:
+            constraints (list[CategoricalColorConstraint]):
+            type_ (Literal['multi_label'] | Unset):  Default: 'multi_label'.
     """
 
-    constraints: list["CategoricalColorConstraint"]
+    constraints: list[CategoricalColorConstraint]
     type_: Literal["multi_label"] | Unset = "multi_label"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

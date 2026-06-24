@@ -224,6 +224,10 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             num_input_tokens=result.num_input_tokens,
             num_output_tokens=result.num_output_tokens,
             total_tokens=result.total_tokens,
+            image_input_tokens=result.image_input_tokens,
+            audio_input_tokens=result.audio_input_tokens,
+            audio_output_tokens=result.audio_output_tokens,
+            image_output_tokens=result.image_output_tokens,
             status_code=200,
         )
 

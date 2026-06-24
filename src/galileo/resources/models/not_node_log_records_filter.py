@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,15 +18,11 @@ T = TypeVar("T", bound="NotNodeLogRecordsFilter")
 @_attrs_define
 class NotNodeLogRecordsFilter:
     """
-    Attributes
-    ----------
-        not_ (Union['AndNodeLogRecordsFilter', 'FilterLeafLogRecordsFilter', 'NotNodeLogRecordsFilter',
-            'OrNodeLogRecordsFilter']):
+    Attributes:
+        not_ (AndNodeLogRecordsFilter | FilterLeafLogRecordsFilter | NotNodeLogRecordsFilter | OrNodeLogRecordsFilter):
     """
 
-    not_: Union[
-        "AndNodeLogRecordsFilter", "FilterLeafLogRecordsFilter", "NotNodeLogRecordsFilter", "OrNodeLogRecordsFilter"
-    ]
+    not_: AndNodeLogRecordsFilter | FilterLeafLogRecordsFilter | NotNodeLogRecordsFilter | OrNodeLogRecordsFilter
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -33,7 +31,11 @@ class NotNodeLogRecordsFilter:
         from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
         not_: dict[str, Any]
-        if isinstance(self.not_, FilterLeafLogRecordsFilter | AndNodeLogRecordsFilter | OrNodeLogRecordsFilter):
+        if isinstance(self.not_, FilterLeafLogRecordsFilter):
+            not_ = self.not_.to_dict()
+        elif isinstance(self.not_, AndNodeLogRecordsFilter):
+            not_ = self.not_.to_dict()
+        elif isinstance(self.not_, OrNodeLogRecordsFilter):
             not_ = self.not_.to_dict()
         else:
             not_ = self.not_.to_dict()
@@ -54,33 +56,36 @@ class NotNodeLogRecordsFilter:
 
         def _parse_not_(
             data: object,
-        ) -> Union[
-            "AndNodeLogRecordsFilter", "FilterLeafLogRecordsFilter", "NotNodeLogRecordsFilter", "OrNodeLogRecordsFilter"
-        ]:
+        ) -> AndNodeLogRecordsFilter | FilterLeafLogRecordsFilter | NotNodeLogRecordsFilter | OrNodeLogRecordsFilter:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return FilterLeafLogRecordsFilter.from_dict(data)
+                not_type_0 = FilterLeafLogRecordsFilter.from_dict(data)
 
+                return not_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AndNodeLogRecordsFilter.from_dict(data)
+                not_type_1 = AndNodeLogRecordsFilter.from_dict(data)
 
+                return not_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return OrNodeLogRecordsFilter.from_dict(data)
+                not_type_2 = OrNodeLogRecordsFilter.from_dict(data)
 
+                return not_type_2
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return NotNodeLogRecordsFilter.from_dict(data)
+            not_type_3 = NotNodeLogRecordsFilter.from_dict(data)
+
+            return not_type_3
 
         not_ = _parse_not_(d.pop("not"))
 

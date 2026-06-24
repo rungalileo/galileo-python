@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,11 +15,10 @@ T = TypeVar("T", bound="ProjectTypeFilter")
 @_attrs_define
 class ProjectTypeFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         operator (ProjectTypeFilterOperator):
-        value (Union[list[str], str]):
-        name (Union[Literal['type'], Unset]):  Default: 'type'.
+        value (list[str] | str):
+        name (Literal['type'] | Unset):  Default: 'type'.
     """
 
     operator: ProjectTypeFilterOperator
@@ -29,7 +30,11 @@ class ProjectTypeFilter:
         operator = self.operator.value
 
         value: list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         name = self.name
 
@@ -50,8 +55,9 @@ class ProjectTypeFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

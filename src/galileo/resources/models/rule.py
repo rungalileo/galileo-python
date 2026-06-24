@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -12,16 +14,15 @@ T = TypeVar("T", bound="Rule")
 @_attrs_define
 class Rule:
     """
-    Attributes
-    ----------
+    Attributes:
         metric (str): Name of the metric.
         operator (RuleOperator):
-        target_value (Union[None, float, int, list[Any], str]): Value to compare with for this metric (right hand side).
+        target_value (float | int | list[Any] | None | str): Value to compare with for this metric (right hand side).
     """
 
     metric: str
     operator: RuleOperator
-    target_value: None | float | int | list[Any] | str
+    target_value: float | int | list[Any] | None | str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -29,8 +30,12 @@ class Rule:
 
         operator = self.operator.value
 
-        target_value: None | float | int | list[Any] | str
-        target_value = self.target_value if isinstance(self.target_value, list) else self.target_value
+        target_value: float | int | list[Any] | None | str
+        if isinstance(self.target_value, list):
+            target_value = self.target_value
+
+        else:
+            target_value = self.target_value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -45,17 +50,18 @@ class Rule:
 
         operator = RuleOperator(d.pop("operator"))
 
-        def _parse_target_value(data: object) -> None | float | int | list[Any] | str:
+        def _parse_target_value(data: object) -> float | int | list[Any] | None | str:
             if data is None:
                 return data
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[Any], data)
+                target_value_type_3 = cast(list[Any], data)
 
+                return target_value_type_3
             except:  # noqa: E722
                 pass
-            return cast(None | float | int | list[Any] | str, data)
+            return cast(float | int | list[Any] | None | str, data)
 
         target_value = _parse_target_value(d.pop("target_value"))
 

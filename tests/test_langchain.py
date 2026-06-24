@@ -1297,6 +1297,193 @@ class TestParseLlmResult:
         assert result.num_output_tokens == 16
         assert result.total_tokens == 24
 
+    def test_gemini_modality_from_usage_metadata_input_token_details(self) -> None:
+        """Gemini native path: per-modality breakdown from usage_metadata.input/output_token_details."""
+        # Given: an AIMessage with Gemini usage_metadata containing per-modality token details
+        ai_message = AIMessage(content="hello")
+        ai_message.usage_metadata = {
+            "input_tokens": 110,
+            "output_tokens": 25,
+            "total_tokens": 135,
+            "input_token_details": {"audio": 100, "image": 5},
+            "output_token_details": {"audio": 20},
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: per-modality counts are extracted from usage_metadata token details
+        assert result.audio_input_tokens == 100
+        assert result.image_input_tokens == 5
+        assert result.audio_output_tokens == 20
+
+    def test_gemini_modality_from_response_metadata_prompt_tokens_details(self) -> None:
+        """Gemini native path: per-modality breakdown from message.response_metadata token detail lists."""
+        # Given: an AIMessage with Gemini response_metadata containing prompt/candidates token detail lists
+        ai_message = AIMessage(content="hello")
+        ai_message.usage_metadata = {"input_tokens": 110, "output_tokens": 25, "total_tokens": 135}
+        ai_message.response_metadata = {
+            "prompt_tokens_details": [
+                {"modality": "TEXT", "token_count": 10},
+                {"modality": "AUDIO", "token_count": 95},
+                {"modality": "IMAGE", "token_count": 5},
+            ],
+            "candidates_tokens_details": [
+                {"modality": "AUDIO", "token_count": 20},
+                {"modality": "TEXT", "token_count": 5},
+            ],
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: per-modality counts are extracted from response_metadata detail lists
+        assert result.audio_input_tokens == 95
+        assert result.image_input_tokens == 5
+        assert result.audio_output_tokens == 20
+
+    def test_no_gemini_modality_for_text_only_response(self) -> None:
+        """Text-only response returns None for all modality fields."""
+        # Given: an LLMResult with no modality detail surfaces on the message
+        response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="hello"))]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: all modality fields are None because no breakdown data was present
+        assert result.image_input_tokens is None
+        assert result.audio_input_tokens is None
+        assert result.audio_output_tokens is None
+
+    def test_gemini_modality_input_token_details_takes_precedence(self) -> None:
+        """input_token_details from usage_metadata takes precedence; response_metadata is ignored for same surface."""
+        # Given: an AIMessage with modality details on both usage_metadata (surface 1) and response_metadata (surface 2)
+        ai_message = AIMessage(content="hi")
+        ai_message.usage_metadata = {
+            "input_tokens": 110,
+            "output_tokens": 25,
+            "total_tokens": 135,
+            "input_token_details": {"audio": 80},
+            "output_token_details": {"audio": 15},
+        }
+        # response_metadata also present (should not double-count)
+        ai_message.response_metadata = {"prompt_tokens_details": [{"modality": "AUDIO", "token_count": 99}]}
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: surface 1 wins; surface 2 values are not used because the slot is already set
+        assert result.audio_input_tokens == 80
+        assert result.audio_output_tokens == 15
+
+    def test_gemini_modality_from_response_metadata_nested_usage_metadata(self) -> None:
+        """Surface 3: response_metadata['usage_metadata'] nested dict with input/output_token_details.
+
+        Some LangChain providers nest the LangChain Core UsageMetadata under response_metadata
+        instead of (or alongside) message.usage_metadata. Modality fields there should be picked
+        up as a final fallback when the other surfaces are empty.
+        """
+        # Given: an AIMessage with modality details only in the nested response_metadata['usage_metadata'] form
+        ai_message = AIMessage(content="hi")
+        # No top-level usage_metadata, no token_details lists — only the nested form.
+        ai_message.response_metadata = {
+            "usage_metadata": {
+                "input_tokens": 110,
+                "output_tokens": 25,
+                "input_token_details": {"audio": 90, "image": 5},
+                "output_token_details": {"audio": 12},
+            }
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: per-modality counts are extracted from the nested surface 3 fallback
+        assert result.audio_input_tokens == 90
+        assert result.image_input_tokens == 5
+        assert result.audio_output_tokens == 12
+
+    def test_gemini_modality_surface_1_beats_surface_3(self) -> None:
+        """Surface 1 (top-level usage_metadata) wins over Surface 3 (nested under response_metadata)."""
+        # Given: an AIMessage with conflicting modality data on surface 1 and surface 3
+        ai_message = AIMessage(content="hi")
+        ai_message.usage_metadata = {"input_tokens": 100, "output_tokens": 10, "input_token_details": {"audio": 50}}
+        ai_message.response_metadata = {
+            "usage_metadata": {"input_token_details": {"audio": 99}}  # should not be read
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: surface 1 value is used; surface 3 is ignored because the slot is already set
+        assert result.audio_input_tokens == 50
+
+    def test_gemini_image_output_tokens_from_surface_1(self) -> None:
+        """Surface 1: image_output_tokens extracted from output_token_details['image']."""
+        # Given: an AIMessage with image tokens in output_token_details
+        ai_message = AIMessage(content="[generated image]")
+        ai_message.usage_metadata = {
+            "input_tokens": 10,
+            "output_tokens": 50,
+            "output_token_details": {"image": 40, "audio": 5},
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: image_output_tokens and audio_output_tokens are extracted from surface 1
+        assert result.image_output_tokens == 40
+        assert result.audio_output_tokens == 5
+
+    def test_gemini_image_output_tokens_from_surface_2_candidates(self) -> None:
+        """Surface 2: image_output_tokens extracted from candidates_tokens_details IMAGE entry."""
+        # Given: an AIMessage with candidates_tokens_details containing an IMAGE entry
+        ai_message = AIMessage(content="[generated image]")
+        ai_message.response_metadata = {
+            "candidates_tokens_details": [
+                {"modality": "TEXT", "token_count": 5},
+                {"modality": "IMAGE", "token_count": 30},
+                {"modality": "AUDIO", "token_count": 10},
+            ]
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: image_output_tokens comes from the IMAGE entry in candidates_tokens_details
+        assert result.image_output_tokens == 30
+        assert result.audio_output_tokens == 10
+
+    def test_non_gemini_provider_cache_read_only_returns_none_modality(self) -> None:
+        """Non-Gemini providers (e.g. Anthropic) that have cache_read but no audio/image keys must not produce zeros."""
+        # Given: an AIMessage from a non-Gemini provider with only cache_read in input_token_details
+        ai_message = AIMessage(content="response")
+        ai_message.usage_metadata = {
+            "input_tokens": 100,
+            "output_tokens": 20,
+            "input_token_details": {"cache_read": 80},
+        }
+        response = LLMResult(generations=[[ChatGeneration(message=ai_message)]], llm_output=None)
+
+        # When: parsing the LLMResult
+        result = parse_llm_result(response)
+
+        # Then: all modality fields are None — cache_read must not be misread as modality breakdown
+        assert result.image_input_tokens is None
+        assert result.audio_input_tokens is None
+        assert result.audio_output_tokens is None
+        assert result.image_output_tokens is None
+
 
 class TestGalileoCallbackIngestionHookWithoutCredentials:
     """SC-54690: GalileoCallback/GalileoAsyncCallback with ingestion_hook should work without API credentials.

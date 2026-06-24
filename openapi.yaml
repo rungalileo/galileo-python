@@ -27174,6 +27174,30 @@ components:
             - type: 'null'
           title: Time To First Token Ns
           description: Time until the first token was generated in nanoseconds.
+        num_image_input_tokens:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Num Image Input Tokens
+          description: Number of image input tokens (modality breakdown, Gemini native path only).
+        num_audio_input_tokens:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Num Audio Input Tokens
+          description: Number of audio input tokens (modality breakdown, Gemini native path only).
+        num_audio_output_tokens:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Num Audio Output Tokens
+          description: Number of audio output tokens (modality breakdown, Gemini native path only).
+        num_image_output_tokens:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Num Image Output Tokens
+          description: Number of image output tokens (modality breakdown, Gemini native path only).
       additionalProperties: true
       type: object
       title: LlmMetrics

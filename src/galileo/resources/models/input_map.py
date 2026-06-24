@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -12,16 +14,15 @@ T = TypeVar("T", bound="InputMap")
 @_attrs_define
 class InputMap:
     """
-    Attributes
-    ----------
+    Attributes:
         prompt (str):
-        prefix (Union[Unset, str]):  Default: ''.
-        suffix (Union[Unset, str]):  Default: ''.
+        prefix (str | Unset):  Default: ''.
+        suffix (str | Unset):  Default: ''.
     """
 
     prompt: str
-    prefix: Unset | str = ""
-    suffix: Unset | str = ""
+    prefix: str | Unset = ""
+    suffix: str | Unset = ""
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

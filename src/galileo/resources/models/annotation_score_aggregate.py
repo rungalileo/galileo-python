@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
@@ -16,15 +18,14 @@ T = TypeVar("T", bound="AnnotationScoreAggregate")
 @_attrs_define
 class AnnotationScoreAggregate:
     """
-    Attributes
-    ----------
-        buckets (list['ScoreBucket']):
+    Attributes:
+        buckets (list[ScoreBucket]):
         average (float):
         unrated_count (int):
-        annotation_type (Union[Literal['score'], Unset]):  Default: 'score'.
+        annotation_type (Literal['score'] | Unset):  Default: 'score'.
     """
 
-    buckets: list["ScoreBucket"]
+    buckets: list[ScoreBucket]
     average: float
     unrated_count: int
     annotation_type: Literal["score"] | Unset = "score"

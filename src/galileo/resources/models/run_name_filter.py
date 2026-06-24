@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,25 +15,28 @@ T = TypeVar("T", bound="RunNameFilter")
 @_attrs_define
 class RunNameFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         operator (RunNameFilterOperator):
-        value (Union[list[str], str]):
-        name (Union[Literal['name'], Unset]):  Default: 'name'.
-        case_sensitive (Union[Unset, bool]):  Default: True.
+        value (list[str] | str):
+        name (Literal['name'] | Unset):  Default: 'name'.
+        case_sensitive (bool | Unset):  Default: True.
     """
 
     operator: RunNameFilterOperator
     value: list[str] | str
     name: Literal["name"] | Unset = "name"
-    case_sensitive: Unset | bool = True
+    case_sensitive: bool | Unset = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         operator = self.operator.value
 
         value: list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         name = self.name
 
@@ -56,8 +61,9 @@ class RunNameFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

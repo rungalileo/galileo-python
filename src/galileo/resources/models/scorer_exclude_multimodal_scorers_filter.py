@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -15,9 +17,8 @@ class ScorerExcludeMultimodalScorersFilter:
 
     Auto-appended by the service layer when the `multimodal` feature flag is disabled.
 
-    Attributes
-    ----------
-            name (Union[Literal['exclude_multimodal_scorers'], Unset]):  Default: 'exclude_multimodal_scorers'.
+        Attributes:
+            name (Literal['exclude_multimodal_scorers'] | Unset):  Default: 'exclude_multimodal_scorers'.
     """
 
     name: Literal["exclude_multimodal_scorers"] | Unset = "exclude_multimodal_scorers"

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -17,10 +19,9 @@ class FileContentPart:
     trace/span detail responses, which contains metadata such as
     modality, MIME type, and a presigned download URL.
 
-    Attributes
-    ----------
+        Attributes:
             file_id (str):
-            type_ (Union[Literal['file'], Unset]):  Default: 'file'.
+            type_ (Literal['file'] | Unset):  Default: 'file'.
     """
 
     file_id: str

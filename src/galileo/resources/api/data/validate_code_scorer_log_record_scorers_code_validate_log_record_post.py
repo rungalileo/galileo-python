@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -46,10 +46,14 @@ def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> HTTPValidationError | ValidateScorerLogRecordResponse:
     if response.status_code == 200:
-        return ValidateScorerLogRecordResponse.from_dict(response.json())
+        response_200 = ValidateScorerLogRecordResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -83,22 +87,21 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
 ) -> Response[HTTPValidationError | ValidateScorerLogRecordResponse]:
-    """Validate Code Scorer Log Record.
+    """Validate Code Scorer Log Record
 
      Validate a code scorer using actual log records.
 
     Args:
         body (BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]
+    Returns:
+        Response[HTTPValidationError | ValidateScorerLogRecordResponse]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -108,45 +111,43 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
-) -> HTTPValidationError | ValidateScorerLogRecordResponse | None:
-    """Validate Code Scorer Log Record.
+) -> Optional[HTTPValidationError | ValidateScorerLogRecordResponse]:
+    """Validate Code Scorer Log Record
 
      Validate a code scorer using actual log records.
 
     Args:
         body (BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, ValidateScorerLogRecordResponse]
+    Returns:
+        HTTPValidationError | ValidateScorerLogRecordResponse
     """
+
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
 ) -> Response[HTTPValidationError | ValidateScorerLogRecordResponse]:
-    """Validate Code Scorer Log Record.
+    """Validate Code Scorer Log Record
 
      Validate a code scorer using actual log records.
 
     Args:
         body (BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, ValidateScorerLogRecordResponse]]
+    Returns:
+        Response[HTTPValidationError | ValidateScorerLogRecordResponse]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -156,21 +157,20 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost
-) -> HTTPValidationError | ValidateScorerLogRecordResponse | None:
-    """Validate Code Scorer Log Record.
+) -> Optional[HTTPValidationError | ValidateScorerLogRecordResponse]:
+    """Validate Code Scorer Log Record
 
      Validate a code scorer using actual log records.
 
     Args:
         body (BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, ValidateScorerLogRecordResponse]
+    Returns:
+        HTTPValidationError | ValidateScorerLogRecordResponse
     """
+
     return (await asyncio_detailed(client=client, body=body)).parsed

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -11,8 +13,7 @@ T = TypeVar("T", bound="BulkDeleteDatasetsRequest")
 class BulkDeleteDatasetsRequest:
     """Request to delete multiple datasets.
 
-    Attributes
-    ----------
+    Attributes:
         dataset_ids (list[str]):
     """
 

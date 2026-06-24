@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,8 +21,7 @@ T = TypeVar("T", bound="ValidateLLMScorerDatasetRequest")
 class ValidateLLMScorerDatasetRequest:
     """Request to validate a new LLM scorer against a dataset.
 
-    Attributes
-    ----------
+    Attributes:
         query (str):
         response (str):
         chain_poll_template (ChainPollTemplate): Template for a chainpoll metric prompt,
@@ -28,23 +29,22 @@ class ValidateLLMScorerDatasetRequest:
         scorer_configuration (GeneratedScorerConfiguration):
         user_prompt (str):
         dataset_id (str):
-        dataset_version_index (Union[None, Unset, int]):
-        limit (Union[Unset, int]): Maximum number of dataset rows to process. Default: 100.
-        starting_token (Union[None, Unset, int]): Pagination offset into dataset rows.
-        sort (Union['ValidateLLMScorerDatasetRequestSortType0', None, Unset]): Optional sort configuration for dataset
-            rows.
+        dataset_version_index (int | None | Unset):
+        limit (int | Unset): Maximum number of dataset rows to process. Default: 100.
+        starting_token (int | None | Unset): Pagination offset into dataset rows.
+        sort (None | Unset | ValidateLLMScorerDatasetRequestSortType0): Optional sort configuration for dataset rows.
     """
 
     query: str
     response: str
-    chain_poll_template: "ChainPollTemplate"
-    scorer_configuration: "GeneratedScorerConfiguration"
+    chain_poll_template: ChainPollTemplate
+    scorer_configuration: GeneratedScorerConfiguration
     user_prompt: str
     dataset_id: str
-    dataset_version_index: None | Unset | int = UNSET
-    limit: Unset | int = 100
-    starting_token: None | Unset | int = UNSET
-    sort: Union["ValidateLLMScorerDatasetRequestSortType0", None, Unset] = UNSET
+    dataset_version_index: int | None | Unset = UNSET
+    limit: int | Unset = 100
+    starting_token: int | None | Unset = UNSET
+    sort: None | Unset | ValidateLLMScorerDatasetRequestSortType0 = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -62,15 +62,21 @@ class ValidateLLMScorerDatasetRequest:
 
         dataset_id = self.dataset_id
 
-        dataset_version_index: None | Unset | int
-        dataset_version_index = UNSET if isinstance(self.dataset_version_index, Unset) else self.dataset_version_index
+        dataset_version_index: int | None | Unset
+        if isinstance(self.dataset_version_index, Unset):
+            dataset_version_index = UNSET
+        else:
+            dataset_version_index = self.dataset_version_index
 
         limit = self.limit
 
-        starting_token: None | Unset | int
-        starting_token = UNSET if isinstance(self.starting_token, Unset) else self.starting_token
+        starting_token: int | None | Unset
+        if isinstance(self.starting_token, Unset):
+            starting_token = UNSET
+        else:
+            starting_token = self.starting_token
 
-        sort: None | Unset | dict[str, Any]
+        sort: dict[str, Any] | None | Unset
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(self.sort, ValidateLLMScorerDatasetRequestSortType0):
@@ -120,27 +126,27 @@ class ValidateLLMScorerDatasetRequest:
 
         dataset_id = d.pop("dataset_id")
 
-        def _parse_dataset_version_index(data: object) -> None | Unset | int:
+        def _parse_dataset_version_index(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(int | None | Unset, data)
 
         dataset_version_index = _parse_dataset_version_index(d.pop("dataset_version_index", UNSET))
 
         limit = d.pop("limit", UNSET)
 
-        def _parse_starting_token(data: object) -> None | Unset | int:
+        def _parse_starting_token(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(int | None | Unset, data)
 
         starting_token = _parse_starting_token(d.pop("starting_token", UNSET))
 
-        def _parse_sort(data: object) -> Union["ValidateLLMScorerDatasetRequestSortType0", None, Unset]:
+        def _parse_sort(data: object) -> None | Unset | ValidateLLMScorerDatasetRequestSortType0:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -148,11 +154,12 @@ class ValidateLLMScorerDatasetRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ValidateLLMScorerDatasetRequestSortType0.from_dict(data)
+                sort_type_0 = ValidateLLMScorerDatasetRequestSortType0.from_dict(data)
 
+                return sort_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["ValidateLLMScorerDatasetRequestSortType0", None, Unset], data)
+            return cast(None | Unset | ValidateLLMScorerDatasetRequestSortType0, data)
 
         sort = _parse_sort(d.pop("sort", UNSET))
 

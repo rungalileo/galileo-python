@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,10 +14,9 @@ T = TypeVar("T", bound="DatasetDeleteRow")
 @_attrs_define
 class DatasetDeleteRow:
     """
-    Attributes
-    ----------
+    Attributes:
         row_id (str):
-        edit_type (Union[Literal['delete_row'], Unset]):  Default: 'delete_row'.
+        edit_type (Literal['delete_row'] | Unset):  Default: 'delete_row'.
     """
 
     row_id: str

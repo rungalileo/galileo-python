@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -11,8 +13,7 @@ T = TypeVar("T", bound="BulkDeletePromptTemplatesRequest")
 class BulkDeletePromptTemplatesRequest:
     """Request to delete multiple prompt templates.
 
-    Attributes
-    ----------
+    Attributes:
         template_ids (list[str]):
     """
 
