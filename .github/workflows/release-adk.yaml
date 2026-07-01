@@ -129,7 +129,7 @@ jobs:
 
       - name: Create GitHub Release
         if: steps.release.outputs.released == 'true' && inputs.version != ''
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: galileo-adk-v${{ steps.release.outputs.version }}
           name: galileo-adk v${{ steps.release.outputs.version }}
