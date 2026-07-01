@@ -252,6 +252,33 @@ def test_export_records_csv(mock_export_records_stream):
     assert request_body.export_format == LLMExportFormat.CSV
 
 
+@patch("galileo.export.export_records_stream")
+def test_export_records_jsonl_flat(mock_export_records_stream):
+    # Given: flat JSONL lines (one JSON object per line, no nesting)
+    project_id = str(uuid4())
+    records = [{"id": "1", "type": "llm"}, {"id": "2", "type": "trace"}]
+    mock_export_records_stream.return_value = iter(json.dumps(r) for r in records)
+
+    # When: export_records is called with JSONL_FLAT
+    result = list(
+        export_records(
+            project_id=project_id,
+            root_type=RootType.SESSION,
+            export_format=LLMExportFormat.JSONL_FLAT,
+            filters=[],
+            sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+            log_stream_id=str(uuid4()),
+        )
+    )
+
+    # Then: each line is parsed into a flat dict with no wrapping
+    assert len(result) == 2
+    assert result[0] == {"id": "1", "type": "llm"}
+    assert result[1] == {"id": "2", "type": "trace"}
+    request_body = mock_export_records_stream.call_args.kwargs["body"]
+    assert request_body.export_format == LLMExportFormat.JSONL_FLAT
+
+
 @pytest.mark.parametrize("redact_param", [True, False])
 @patch("galileo.export.export_records_stream")
 def test_export_records_redact(mock_export_records_stream, redact_param):

@@ -61,7 +61,7 @@ class ExportClient:
             ),
         )
 
-        if export_format == LLMExportFormat.JSONL:
+        if export_format in (LLMExportFormat.JSONL, LLMExportFormat.JSONL_FLAT):
             for line in response_iterator:
                 if line:
                     yield json.loads(line)
