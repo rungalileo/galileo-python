@@ -1,4 +1,4 @@
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from unittest.mock import ANY, Mock, patch
 
 import pytest
@@ -46,8 +46,8 @@ def make_annotation_queue_response() -> AnnotationQueueResponse:
         id="queue-123",
         name="review queue",
         description="Needs human review",
-        created_at=datetime(2026, 1, 1, tzinfo=UTC),
-        updated_at=datetime(2026, 1, 2, tzinfo=UTC),
+        created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        updated_at=datetime(2026, 1, 2, tzinfo=timezone.utc),
         created_by_user=None,
     )
 
@@ -58,7 +58,7 @@ def make_annotation_template_response() -> AnnotationTemplateDB:
         name="quality",
         include_explanation=True,
         constraints=LikeDislikeConstraints(annotation_type="like_dislike"),
-        created_at=datetime(2026, 1, 1, tzinfo=UTC),
+        created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
         created_by=None,
         position=1,
         usage_count=0,
@@ -70,7 +70,7 @@ def make_annotation_queue_user_response() -> UserAnnotationQueueCollaborator:
     return UserAnnotationQueueCollaborator(
         id="collab-123",
         role=CollaboratorRole.ANNOTATOR,
-        created_at=datetime(2026, 1, 1, tzinfo=UTC),
+        created_at=datetime(2026, 1, 1, tzinfo=timezone.utc),
         user_id="user-123",
         first_name="Ada",
         last_name="Lovelace",
