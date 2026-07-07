@@ -21,8 +21,7 @@ class CreatePromptTemplateWithVersionRequestBody:
 
     This is only used for parsing the body from the request.
 
-    Attributes
-    ----------
+        Attributes:
             template (Union[list['MessagesListItem'], str]):
             name (Union['Name', str]):
             raw (Union[Unset, bool]):  Default: False.
@@ -32,19 +31,19 @@ class CreatePromptTemplateWithVersionRequestBody:
             hidden (Union[Unset, bool]):  Default: False.
     """
 
-    template: list["MessagesListItem"] | str
+    template: Union[list["MessagesListItem"], str]
     name: Union["Name", str]
-    raw: Unset | bool = False
-    version: None | Unset | int = UNSET
+    raw: Union[Unset, bool] = False
+    version: Union[None, Unset, int] = UNSET
     settings: Union[Unset, "PromptRunSettings"] = UNSET
-    output_type: None | Unset | str = UNSET
-    hidden: Unset | bool = False
+    output_type: Union[None, Unset, str] = UNSET
+    hidden: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.name import Name
 
-        template: list[dict[str, Any]] | str
+        template: Union[list[dict[str, Any]], str]
         if isinstance(self.template, list):
             template = []
             for componentsschemas_messages_item_data in self.template:
@@ -54,20 +53,29 @@ class CreatePromptTemplateWithVersionRequestBody:
         else:
             template = self.template
 
-        name: dict[str, Any] | str
-        name = self.name.to_dict() if isinstance(self.name, Name) else self.name
+        name: Union[dict[str, Any], str]
+        if isinstance(self.name, Name):
+            name = self.name.to_dict()
+        else:
+            name = self.name
 
         raw = self.raw
 
-        version: None | Unset | int
-        version = UNSET if isinstance(self.version, Unset) else self.version
+        version: Union[None, Unset, int]
+        if isinstance(self.version, Unset):
+            version = UNSET
+        else:
+            version = self.version
 
-        settings: Unset | dict[str, Any] = UNSET
+        settings: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.settings, Unset):
             settings = self.settings.to_dict()
 
-        output_type: None | Unset | str
-        output_type = UNSET if isinstance(self.output_type, Unset) else self.output_type
+        output_type: Union[None, Unset, str]
+        if isinstance(self.output_type, Unset):
+            output_type = UNSET
+        else:
+            output_type = self.output_type
 
         hidden = self.hidden
 
@@ -95,7 +103,7 @@ class CreatePromptTemplateWithVersionRequestBody:
 
         d = dict(src_dict)
 
-        def _parse_template(data: object) -> list["MessagesListItem"] | str:
+        def _parse_template(data: object) -> Union[list["MessagesListItem"], str]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
@@ -109,7 +117,7 @@ class CreatePromptTemplateWithVersionRequestBody:
                 return template_type_1
             except:  # noqa: E722
                 pass
-            return cast(list["MessagesListItem"] | str, data)
+            return cast(Union[list["MessagesListItem"], str], data)
 
         template = _parse_template(d.pop("template"))
 
@@ -117,8 +125,9 @@ class CreatePromptTemplateWithVersionRequestBody:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return Name.from_dict(data)
+                name_type_1 = Name.from_dict(data)
 
+                return name_type_1
             except:  # noqa: E722
                 pass
             return cast(Union["Name", str], data)
@@ -127,25 +136,28 @@ class CreatePromptTemplateWithVersionRequestBody:
 
         raw = d.pop("raw", UNSET)
 
-        def _parse_version(data: object) -> None | Unset | int:
+        def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         version = _parse_version(d.pop("version", UNSET))
 
         _settings = d.pop("settings", UNSET)
-        settings: Unset | PromptRunSettings
-        settings = UNSET if isinstance(_settings, Unset) else PromptRunSettings.from_dict(_settings)
+        settings: Union[Unset, PromptRunSettings]
+        if isinstance(_settings, Unset):
+            settings = UNSET
+        else:
+            settings = PromptRunSettings.from_dict(_settings)
 
-        def _parse_output_type(data: object) -> None | Unset | str:
+        def _parse_output_type(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 

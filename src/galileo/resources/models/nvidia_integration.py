@@ -16,27 +16,33 @@ T = TypeVar("T", bound="NvidiaIntegration")
 @_attrs_define
 class NvidiaIntegration:
     """
-    Attributes
-    ----------
+    Attributes:
         id (Union[None, Unset, str]):
         name (Union[Literal['nvidia'], Unset]):  Default: 'nvidia'.
+        provider (Union[Literal['nvidia'], Unset]):  Default: 'nvidia'.
         extra (Union['NvidiaIntegrationExtraType0', None, Unset]):
     """
 
-    id: None | Unset | str = UNSET
-    name: Literal["nvidia"] | Unset = "nvidia"
+    id: Union[None, Unset, str] = UNSET
+    name: Union[Literal["nvidia"], Unset] = "nvidia"
+    provider: Union[Literal["nvidia"], Unset] = "nvidia"
     extra: Union["NvidiaIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.nvidia_integration_extra_type_0 import NvidiaIntegrationExtraType0
 
-        id: None | Unset | str
-        id = UNSET if isinstance(self.id, Unset) else self.id
+        id: Union[None, Unset, str]
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
         name = self.name
 
-        extra: None | Unset | dict[str, Any]
+        provider = self.provider
+
+        extra: Union[None, Unset, dict[str, Any]]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, NvidiaIntegrationExtraType0):
@@ -51,6 +57,8 @@ class NvidiaIntegration:
             field_dict["id"] = id
         if name is not UNSET:
             field_dict["name"] = name
+        if provider is not UNSET:
+            field_dict["provider"] = provider
         if extra is not UNSET:
             field_dict["extra"] = extra
 
@@ -62,18 +70,22 @@ class NvidiaIntegration:
 
         d = dict(src_dict)
 
-        def _parse_id(data: object) -> None | Unset | str:
+        def _parse_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        name = cast(Literal["nvidia"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["nvidia"], Unset], d.pop("name", UNSET))
         if name != "nvidia" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'nvidia', got '{name}'")
+
+        provider = cast(Union[Literal["nvidia"], Unset], d.pop("provider", UNSET))
+        if provider != "nvidia" and not isinstance(provider, Unset):
+            raise ValueError(f"provider must match const 'nvidia', got '{provider}'")
 
         def _parse_extra(data: object) -> Union["NvidiaIntegrationExtraType0", None, Unset]:
             if data is None:
@@ -83,15 +95,16 @@ class NvidiaIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return NvidiaIntegrationExtraType0.from_dict(data)
+                extra_type_0 = NvidiaIntegrationExtraType0.from_dict(data)
 
+                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["NvidiaIntegrationExtraType0", None, Unset], data)
 
         extra = _parse_extra(d.pop("extra", UNSET))
 
-        nvidia_integration = cls(id=id, name=name, extra=extra)
+        nvidia_integration = cls(id=id, name=name, provider=provider, extra=extra)
 
         nvidia_integration.additional_properties = d
         return nvidia_integration

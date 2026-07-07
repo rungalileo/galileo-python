@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -18,8 +18,7 @@ T = TypeVar("T", bound="BucketedMetric")
 @_attrs_define
 class BucketedMetric:
     """
-    Attributes
-    ----------
+    Attributes:
         name (str):
         buckets (BucketedMetricBuckets):
         average (Union[None, Unset, float]):
@@ -29,9 +28,9 @@ class BucketedMetric:
 
     name: str
     buckets: "BucketedMetricBuckets"
-    average: None | Unset | float = UNSET
-    roll_up_method: None | RollUpMethodDisplayOptions | Unset = UNSET
-    data_type: None | OutputTypeEnum | Unset = UNSET
+    average: Union[None, Unset, float] = UNSET
+    roll_up_method: Union[None, RollUpMethodDisplayOptions, Unset] = UNSET
+    data_type: Union[None, OutputTypeEnum, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,10 +38,13 @@ class BucketedMetric:
 
         buckets = self.buckets.to_dict()
 
-        average: None | Unset | float
-        average = UNSET if isinstance(self.average, Unset) else self.average
+        average: Union[None, Unset, float]
+        if isinstance(self.average, Unset):
+            average = UNSET
+        else:
+            average = self.average
 
-        roll_up_method: None | Unset | str
+        roll_up_method: Union[None, Unset, str]
         if isinstance(self.roll_up_method, Unset):
             roll_up_method = UNSET
         elif isinstance(self.roll_up_method, RollUpMethodDisplayOptions):
@@ -50,7 +52,7 @@ class BucketedMetric:
         else:
             roll_up_method = self.roll_up_method
 
-        data_type: None | Unset | str
+        data_type: Union[None, Unset, str]
         if isinstance(self.data_type, Unset):
             data_type = UNSET
         elif isinstance(self.data_type, OutputTypeEnum):
@@ -79,16 +81,16 @@ class BucketedMetric:
 
         buckets = BucketedMetricBuckets.from_dict(d.pop("buckets"))
 
-        def _parse_average(data: object) -> None | Unset | float:
+        def _parse_average(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | float, data)
+            return cast(Union[None, Unset, float], data)
 
         average = _parse_average(d.pop("average", UNSET))
 
-        def _parse_roll_up_method(data: object) -> None | RollUpMethodDisplayOptions | Unset:
+        def _parse_roll_up_method(data: object) -> Union[None, RollUpMethodDisplayOptions, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -96,15 +98,16 @@ class BucketedMetric:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return RollUpMethodDisplayOptions(data)
+                roll_up_method_type_0 = RollUpMethodDisplayOptions(data)
 
+                return roll_up_method_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | RollUpMethodDisplayOptions | Unset, data)
+            return cast(Union[None, RollUpMethodDisplayOptions, Unset], data)
 
         roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
 
-        def _parse_data_type(data: object) -> None | OutputTypeEnum | Unset:
+        def _parse_data_type(data: object) -> Union[None, OutputTypeEnum, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -112,11 +115,12 @@ class BucketedMetric:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return OutputTypeEnum(data)
+                data_type_type_0 = OutputTypeEnum(data)
 
+                return data_type_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | OutputTypeEnum | Unset, data)
+            return cast(Union[None, OutputTypeEnum, Unset], data)
 
         data_type = _parse_data_type(d.pop("data_type", UNSET))
 

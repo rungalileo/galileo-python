@@ -22,8 +22,7 @@ T = TypeVar("T", bound="BasePromptTemplateResponse")
 class BasePromptTemplateResponse:
     """Response from API to get a prompt template version.
 
-    Attributes
-    ----------
+    Attributes:
         id (str):
         name (Union['Name', str]):
         template (str):
@@ -50,8 +49,8 @@ class BasePromptTemplateResponse:
     created_at: datetime.datetime
     updated_at: datetime.datetime
     created_by_user: Union["UserInfo", None]
-    permissions: Unset | list["Permission"] = UNSET
-    all_versions: Unset | list["BasePromptTemplateVersionResponse"] = UNSET
+    permissions: Union[Unset, list["Permission"]] = UNSET
+    all_versions: Union[Unset, list["BasePromptTemplateVersionResponse"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,8 +59,11 @@ class BasePromptTemplateResponse:
 
         id = self.id
 
-        name: dict[str, Any] | str
-        name = self.name.to_dict() if isinstance(self.name, Name) else self.name
+        name: Union[dict[str, Any], str]
+        if isinstance(self.name, Name):
+            name = self.name.to_dict()
+        else:
+            name = self.name
 
         template = self.template
 
@@ -79,20 +81,20 @@ class BasePromptTemplateResponse:
 
         updated_at = self.updated_at.isoformat()
 
-        created_by_user: None | dict[str, Any]
+        created_by_user: Union[None, dict[str, Any]]
         if isinstance(self.created_by_user, UserInfo):
             created_by_user = self.created_by_user.to_dict()
         else:
             created_by_user = self.created_by_user
 
-        permissions: Unset | list[dict[str, Any]] = UNSET
+        permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
                 permissions_item = permissions_item_data.to_dict()
                 permissions.append(permissions_item)
 
-        all_versions: Unset | list[dict[str, Any]] = UNSET
+        all_versions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.all_versions, Unset):
             all_versions = []
             for all_versions_item_data in self.all_versions:
@@ -137,8 +139,9 @@ class BasePromptTemplateResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return Name.from_dict(data)
+                name_type_1 = Name.from_dict(data)
 
+                return name_type_1
             except:  # noqa: E722
                 pass
             return cast(Union["Name", str], data)
@@ -167,8 +170,9 @@ class BasePromptTemplateResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return UserInfo.from_dict(data)
+                created_by_user_type_0 = UserInfo.from_dict(data)
 
+                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["UserInfo", None], data)

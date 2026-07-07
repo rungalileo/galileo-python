@@ -15,8 +15,7 @@ T = TypeVar("T", bound="ValidateRegisteredScorerResult")
 @_attrs_define
 class ValidateRegisteredScorerResult:
     """
-    Attributes
-    ----------
+    Attributes:
         result (Union['InvalidResult', 'ValidResult']):
     """
 
@@ -27,7 +26,10 @@ class ValidateRegisteredScorerResult:
         from ..models.valid_result import ValidResult
 
         result: dict[str, Any]
-        result = self.result.to_dict() if isinstance(self.result, ValidResult) else self.result.to_dict()
+        if isinstance(self.result, ValidResult):
+            result = self.result.to_dict()
+        else:
+            result = self.result.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -46,13 +48,16 @@ class ValidateRegisteredScorerResult:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ValidResult.from_dict(data)
+                result_type_0 = ValidResult.from_dict(data)
 
+                return result_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return InvalidResult.from_dict(data)
+            result_type_1 = InvalidResult.from_dict(data)
+
+            return result_type_1
 
         result = _parse_result(d.pop("result"))
 

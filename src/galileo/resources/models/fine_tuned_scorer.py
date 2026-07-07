@@ -18,36 +18,43 @@ T = TypeVar("T", bound="FineTunedScorer")
 @_attrs_define
 class FineTunedScorer:
     """
-    Attributes
-    ----------
+    Attributes:
         id (Union[None, Unset, str]):
         name (Union[None, Unset, str]):
         filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]):
     """
 
-    id: None | Unset | str = UNSET
-    name: None | Unset | str = UNSET
-    filters: None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]] = UNSET
+    id: Union[None, Unset, str] = UNSET
+    name: Union[None, Unset, str] = UNSET
+    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
-        id: None | Unset | str
-        id = UNSET if isinstance(self.id, Unset) else self.id
+        id: Union[None, Unset, str]
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
-        name: None | Unset | str
-        name = UNSET if isinstance(self.name, Unset) else self.name
+        name: Union[None, Unset, str]
+        if isinstance(self.name, Unset):
+            name = UNSET
+        else:
+            name = self.name
 
-        filters: None | Unset | list[dict[str, Any]]
+        filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
+                if isinstance(filters_type_0_item_data, NodeNameFilter):
+                    filters_type_0_item = filters_type_0_item_data.to_dict()
+                elif isinstance(filters_type_0_item_data, MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -77,27 +84,27 @@ class FineTunedScorer:
 
         d = dict(src_dict)
 
-        def _parse_id(data: object) -> None | Unset | str:
+        def _parse_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_name(data: object) -> None | Unset | str:
+        def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         name = _parse_name(d.pop("name", UNSET))
 
         def _parse_filters(
             data: object,
-        ) -> None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]:
+        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -115,20 +122,24 @@ class FineTunedScorer:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return NodeNameFilter.from_dict(data)
+                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
 
+                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return MetadataFilter.from_dict(data)
+                            filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
 
+                            return filters_type_0_item_type_1
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return ModalityFilter.from_dict(data)
+                        filters_type_0_item_type_2 = ModalityFilter.from_dict(data)
+
+                        return filters_type_0_item_type_2
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -137,7 +148,7 @@ class FineTunedScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]], data)
+            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 

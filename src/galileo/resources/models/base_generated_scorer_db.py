@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,8 +16,7 @@ T = TypeVar("T", bound="BaseGeneratedScorerDB")
 @_attrs_define
 class BaseGeneratedScorerDB:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         name (str):
         chain_poll_template (ChainPollTemplate): Template for a chainpoll metric prompt,
@@ -29,8 +28,8 @@ class BaseGeneratedScorerDB:
     id: str
     name: str
     chain_poll_template: "ChainPollTemplate"
-    instructions: None | Unset | str = UNSET
-    user_prompt: None | Unset | str = UNSET
+    instructions: Union[None, Unset, str] = UNSET
+    user_prompt: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,11 +39,17 @@ class BaseGeneratedScorerDB:
 
         chain_poll_template = self.chain_poll_template.to_dict()
 
-        instructions: None | Unset | str
-        instructions = UNSET if isinstance(self.instructions, Unset) else self.instructions
+        instructions: Union[None, Unset, str]
+        if isinstance(self.instructions, Unset):
+            instructions = UNSET
+        else:
+            instructions = self.instructions
 
-        user_prompt: None | Unset | str
-        user_prompt = UNSET if isinstance(self.user_prompt, Unset) else self.user_prompt
+        user_prompt: Union[None, Unset, str]
+        if isinstance(self.user_prompt, Unset):
+            user_prompt = UNSET
+        else:
+            user_prompt = self.user_prompt
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -67,21 +72,21 @@ class BaseGeneratedScorerDB:
 
         chain_poll_template = ChainPollTemplate.from_dict(d.pop("chain_poll_template"))
 
-        def _parse_instructions(data: object) -> None | Unset | str:
+        def _parse_instructions(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         instructions = _parse_instructions(d.pop("instructions", UNSET))
 
-        def _parse_user_prompt(data: object) -> None | Unset | str:
+        def _parse_user_prompt(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         user_prompt = _parse_user_prompt(d.pop("user_prompt", UNSET))
 

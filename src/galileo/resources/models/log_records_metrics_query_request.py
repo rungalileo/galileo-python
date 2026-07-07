@@ -24,8 +24,7 @@ T = TypeVar("T", bound="LogRecordsMetricsQueryRequest")
 @_attrs_define
 class LogRecordsMetricsQueryRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         start_time (datetime.datetime): Include traces from this time onward.
         end_time (datetime.datetime): Include traces up to this time.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
@@ -40,12 +39,12 @@ class LogRecordsMetricsQueryRequest:
 
     start_time: datetime.datetime
     end_time: datetime.datetime
-    log_stream_id: None | Unset | str = UNSET
-    experiment_id: None | Unset | str = UNSET
-    metrics_testing_id: None | Unset | str = UNSET
-    filters: (
-        Unset
-        | list[
+    log_stream_id: Union[None, Unset, str] = UNSET
+    experiment_id: Union[None, Unset, str] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
+    filters: Union[
+        Unset,
+        list[
             Union[
                 "LogRecordsBooleanFilter",
                 "LogRecordsCollectionFilter",
@@ -55,10 +54,10 @@ class LogRecordsMetricsQueryRequest:
                 "LogRecordsNumberFilter",
                 "LogRecordsTextFilter",
             ]
-        ]
-    ) = UNSET
-    interval: Unset | int = 5
-    group_by: None | Unset | str = UNSET
+        ],
+    ] = UNSET
+    interval: Union[Unset, int] = 5
+    group_by: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -73,28 +72,40 @@ class LogRecordsMetricsQueryRequest:
 
         end_time = self.end_time.isoformat()
 
-        log_stream_id: None | Unset | str
-        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
+        log_stream_id: Union[None, Unset, str]
+        if isinstance(self.log_stream_id, Unset):
+            log_stream_id = UNSET
+        else:
+            log_stream_id = self.log_stream_id
 
-        experiment_id: None | Unset | str
-        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
+        experiment_id: Union[None, Unset, str]
+        if isinstance(self.experiment_id, Unset):
+            experiment_id = UNSET
+        else:
+            experiment_id = self.experiment_id
 
-        metrics_testing_id: None | Unset | str
-        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
+        metrics_testing_id: Union[None, Unset, str]
+        if isinstance(self.metrics_testing_id, Unset):
+            metrics_testing_id = UNSET
+        else:
+            metrics_testing_id = self.metrics_testing_id
 
-        filters: Unset | list[dict[str, Any]] = UNSET
+        filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
-                if isinstance(
-                    filters_item_data,
-                    LogRecordsIDFilter
-                    | LogRecordsDateFilter
-                    | LogRecordsNumberFilter
-                    | LogRecordsBooleanFilter
-                    | (LogRecordsCollectionFilter | LogRecordsTextFilter),
-                ):
+                if isinstance(filters_item_data, LogRecordsIDFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsDateFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsNumberFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsBooleanFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsCollectionFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsTextFilter):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
@@ -103,8 +114,11 @@ class LogRecordsMetricsQueryRequest:
 
         interval = self.interval
 
-        group_by: None | Unset | str
-        group_by = UNSET if isinstance(self.group_by, Unset) else self.group_by
+        group_by: Union[None, Unset, str]
+        if isinstance(self.group_by, Unset):
+            group_by = UNSET
+        else:
+            group_by = self.group_by
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -139,30 +153,30 @@ class LogRecordsMetricsQueryRequest:
 
         end_time = isoparse(d.pop("end_time"))
 
-        def _parse_log_stream_id(data: object) -> None | Unset | str:
+        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        def _parse_experiment_id(data: object) -> None | Unset | str:
+        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_metrics_testing_id(data: object) -> None | Unset | str:
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
@@ -184,48 +198,56 @@ class LogRecordsMetricsQueryRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsIDFilter.from_dict(data)
+                    filters_item_type_0 = LogRecordsIDFilter.from_dict(data)
 
+                    return filters_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsDateFilter.from_dict(data)
+                    filters_item_type_1 = LogRecordsDateFilter.from_dict(data)
 
+                    return filters_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsNumberFilter.from_dict(data)
+                    filters_item_type_2 = LogRecordsNumberFilter.from_dict(data)
 
+                    return filters_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsBooleanFilter.from_dict(data)
+                    filters_item_type_3 = LogRecordsBooleanFilter.from_dict(data)
 
+                    return filters_item_type_3
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsCollectionFilter.from_dict(data)
+                    filters_item_type_4 = LogRecordsCollectionFilter.from_dict(data)
 
+                    return filters_item_type_4
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsTextFilter.from_dict(data)
+                    filters_item_type_5 = LogRecordsTextFilter.from_dict(data)
 
+                    return filters_item_type_5
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsFullyAnnotatedFilter.from_dict(data)
+                filters_item_type_6 = LogRecordsFullyAnnotatedFilter.from_dict(data)
+
+                return filters_item_type_6
 
             filters_item = _parse_filters_item(filters_item_data)
 
@@ -233,12 +255,12 @@ class LogRecordsMetricsQueryRequest:
 
         interval = d.pop("interval", UNSET)
 
-        def _parse_group_by(data: object) -> None | Unset | str:
+        def _parse_group_by(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         group_by = _parse_group_by(d.pop("group_by", UNSET))
 

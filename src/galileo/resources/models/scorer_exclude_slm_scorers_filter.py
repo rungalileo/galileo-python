@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -14,12 +14,11 @@ class ScorerExcludeSlmScorersFilter:
     """Internal filter: excludes scorers with model_type == slm while including
     scorers where model_type IS NULL. Auto-appended by the service layer.
 
-    Attributes
-    ----------
+        Attributes:
             name (Union[Literal['exclude_slm_scorers'], Unset]):  Default: 'exclude_slm_scorers'.
     """
 
-    name: Literal["exclude_slm_scorers"] | Unset = "exclude_slm_scorers"
+    name: Union[Literal["exclude_slm_scorers"], Unset] = "exclude_slm_scorers"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,7 +35,7 @@ class ScorerExcludeSlmScorersFilter:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        name = cast(Literal["exclude_slm_scorers"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["exclude_slm_scorers"], Unset], d.pop("name", UNSET))
         if name != "exclude_slm_scorers" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'exclude_slm_scorers', got '{name}'")
 

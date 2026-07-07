@@ -13,7 +13,7 @@ T = TypeVar("T", bound="ExtendedRetrieverSpanRecordWithChildrenAnnotationAggrega
 
 @_attrs_define
 class ExtendedRetrieverSpanRecordWithChildrenAnnotationAggregates:
-    """Annotation aggregate information keyed by template ID."""
+    """Annotation aggregate information keyed by template ID"""
 
     additional_properties: dict[str, "AnnotationAggregate"] = _attrs_field(init=False, factory=dict)
 

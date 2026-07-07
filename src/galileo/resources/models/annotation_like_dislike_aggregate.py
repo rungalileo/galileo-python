@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,8 +12,7 @@ T = TypeVar("T", bound="AnnotationLikeDislikeAggregate")
 @_attrs_define
 class AnnotationLikeDislikeAggregate:
     """
-    Attributes
-    ----------
+    Attributes:
         like_count (int):
         dislike_count (int):
         unrated_count (int):
@@ -24,8 +23,8 @@ class AnnotationLikeDislikeAggregate:
     like_count: int
     dislike_count: int
     unrated_count: int
-    annotation_type: Literal["like_dislike"] | Unset = "like_dislike"
-    tie_count: None | Unset | int = UNSET
+    annotation_type: Union[Literal["like_dislike"], Unset] = "like_dislike"
+    tie_count: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -37,8 +36,11 @@ class AnnotationLikeDislikeAggregate:
 
         annotation_type = self.annotation_type
 
-        tie_count: None | Unset | int
-        tie_count = UNSET if isinstance(self.tie_count, Unset) else self.tie_count
+        tie_count: Union[None, Unset, int]
+        if isinstance(self.tie_count, Unset):
+            tie_count = UNSET
+        else:
+            tie_count = self.tie_count
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -59,16 +61,16 @@ class AnnotationLikeDislikeAggregate:
 
         unrated_count = d.pop("unrated_count")
 
-        annotation_type = cast(Literal["like_dislike"] | Unset, d.pop("annotation_type", UNSET))
+        annotation_type = cast(Union[Literal["like_dislike"], Unset], d.pop("annotation_type", UNSET))
         if annotation_type != "like_dislike" and not isinstance(annotation_type, Unset):
             raise ValueError(f"annotation_type must match const 'like_dislike', got '{annotation_type}'")
 
-        def _parse_tie_count(data: object) -> None | Unset | int:
+        def _parse_tie_count(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         tie_count = _parse_tie_count(d.pop("tie_count", UNSET))
 

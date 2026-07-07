@@ -10,9 +10,8 @@ T = TypeVar("T", bound="LogRecordsDeleteResponse")
 @_attrs_define
 class LogRecordsDeleteResponse:
     """
-    Attributes
-    ----------
-        message (str): Message.
+    Attributes:
+        message (str): Message
     """
 
     message: str

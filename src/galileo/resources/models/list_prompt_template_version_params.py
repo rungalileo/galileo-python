@@ -18,8 +18,7 @@ T = TypeVar("T", bound="ListPromptTemplateVersionParams")
 @_attrs_define
 class ListPromptTemplateVersionParams:
     """
-    Attributes
-    ----------
+    Attributes:
         sort (Union['PromptTemplateVersionCreatedAtSort', 'PromptTemplateVersionNumberSort',
             'PromptTemplateVersionUpdatedAtSort', None, Unset]):
     """
@@ -38,13 +37,14 @@ class ListPromptTemplateVersionParams:
         from ..models.prompt_template_version_number_sort import PromptTemplateVersionNumberSort
         from ..models.prompt_template_version_updated_at_sort import PromptTemplateVersionUpdatedAtSort
 
-        sort: None | Unset | dict[str, Any]
+        sort: Union[None, Unset, dict[str, Any]]
         if isinstance(self.sort, Unset):
             sort = UNSET
-        elif isinstance(
-            self.sort,
-            PromptTemplateVersionNumberSort | PromptTemplateVersionCreatedAtSort | PromptTemplateVersionUpdatedAtSort,
-        ):
+        elif isinstance(self.sort, PromptTemplateVersionNumberSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, PromptTemplateVersionCreatedAtSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, PromptTemplateVersionUpdatedAtSort):
             sort = self.sort.to_dict()
         else:
             sort = self.sort
@@ -81,22 +81,25 @@ class ListPromptTemplateVersionParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return PromptTemplateVersionNumberSort.from_dict(data)
+                sort_type_0_type_0 = PromptTemplateVersionNumberSort.from_dict(data)
 
+                return sort_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return PromptTemplateVersionCreatedAtSort.from_dict(data)
+                sort_type_0_type_1 = PromptTemplateVersionCreatedAtSort.from_dict(data)
 
+                return sort_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return PromptTemplateVersionUpdatedAtSort.from_dict(data)
+                sort_type_0_type_2 = PromptTemplateVersionUpdatedAtSort.from_dict(data)
 
+                return sort_type_0_type_2
             except:  # noqa: E722
                 pass
             return cast(

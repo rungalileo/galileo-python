@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -28,7 +28,7 @@ def _get_kwargs(template_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.DELETE,
         "return_raw_response": True,
-        "path": f"/templates/{template_id}",
+        "path": "/templates/{template_id}".format(template_id=template_id),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -37,12 +37,16 @@ def _get_kwargs(template_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> DeletePromptResponse | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[DeletePromptResponse, HTTPValidationError]:
     if response.status_code == 200:
-        return DeletePromptResponse.from_dict(response.json())
+        response_200 = DeletePromptResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -64,7 +68,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> DeletePro
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[DeletePromptResponse | HTTPValidationError]:
+) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -73,8 +77,8 @@ def _build_response(
     )
 
 
-def sync_detailed(template_id: str, *, client: ApiClient) -> Response[DeletePromptResponse | HTTPValidationError]:
-    """Delete Global Template.
+def sync_detailed(template_id: str, *, client: ApiClient) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
+    """Delete Global Template
 
      Delete a global prompt template given a template ID.
 
@@ -82,8 +86,6 @@ def sync_detailed(template_id: str, *, client: ApiClient) -> Response[DeleteProm
     ----------
     template_id : UUID4
         Prompt template id.
-    ctx : Context
-        Request context including authentication information
 
     Returns
     -------
@@ -93,15 +95,14 @@ def sync_detailed(template_id: str, *, client: ApiClient) -> Response[DeleteProm
     Args:
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[DeletePromptResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(template_id=template_id)
 
     response = client.request(**kwargs)
@@ -109,8 +110,8 @@ def sync_detailed(template_id: str, *, client: ApiClient) -> Response[DeleteProm
     return _build_response(client=client, response=response)
 
 
-def sync(template_id: str, *, client: ApiClient) -> DeletePromptResponse | HTTPValidationError | None:
-    """Delete Global Template.
+def sync(template_id: str, *, client: ApiClient) -> Optional[Union[DeletePromptResponse, HTTPValidationError]]:
+    """Delete Global Template
 
      Delete a global prompt template given a template ID.
 
@@ -118,8 +119,6 @@ def sync(template_id: str, *, client: ApiClient) -> DeletePromptResponse | HTTPV
     ----------
     template_id : UUID4
         Prompt template id.
-    ctx : Context
-        Request context including authentication information
 
     Returns
     -------
@@ -129,22 +128,21 @@ def sync(template_id: str, *, client: ApiClient) -> DeletePromptResponse | HTTPV
     Args:
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[DeletePromptResponse, HTTPValidationError]
     """
+
     return sync_detailed(template_id=template_id, client=client).parsed
 
 
 async def asyncio_detailed(
     template_id: str, *, client: ApiClient
-) -> Response[DeletePromptResponse | HTTPValidationError]:
-    """Delete Global Template.
+) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
+    """Delete Global Template
 
      Delete a global prompt template given a template ID.
 
@@ -152,8 +150,6 @@ async def asyncio_detailed(
     ----------
     template_id : UUID4
         Prompt template id.
-    ctx : Context
-        Request context including authentication information
 
     Returns
     -------
@@ -163,15 +159,14 @@ async def asyncio_detailed(
     Args:
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[DeletePromptResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(template_id=template_id)
 
     response = await client.arequest(**kwargs)
@@ -179,8 +174,8 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(template_id: str, *, client: ApiClient) -> DeletePromptResponse | HTTPValidationError | None:
-    """Delete Global Template.
+async def asyncio(template_id: str, *, client: ApiClient) -> Optional[Union[DeletePromptResponse, HTTPValidationError]]:
+    """Delete Global Template
 
      Delete a global prompt template given a template ID.
 
@@ -188,8 +183,6 @@ async def asyncio(template_id: str, *, client: ApiClient) -> DeletePromptRespons
     ----------
     template_id : UUID4
         Prompt template id.
-    ctx : Context
-        Request context including authentication information
 
     Returns
     -------
@@ -199,13 +192,12 @@ async def asyncio(template_id: str, *, client: ApiClient) -> DeletePromptRespons
     Args:
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[DeletePromptResponse, HTTPValidationError]
     """
+
     return (await asyncio_detailed(template_id=template_id, client=client)).parsed

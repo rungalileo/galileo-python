@@ -12,8 +12,7 @@ T = TypeVar("T", bound="ActionResult")
 @_attrs_define
 class ActionResult:
     """
-    Attributes
-    ----------
+    Attributes:
         type_ (ActionType):
         value (str): Value of the action that was taken.
     """

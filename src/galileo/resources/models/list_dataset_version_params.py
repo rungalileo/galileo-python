@@ -16,8 +16,7 @@ T = TypeVar("T", bound="ListDatasetVersionParams")
 @_attrs_define
 class ListDatasetVersionParams:
     """
-    Attributes
-    ----------
+    Attributes:
         sort (Union['DatasetVersionIndexSort', None, Unset]):
     """
 
@@ -27,7 +26,7 @@ class ListDatasetVersionParams:
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_version_index_sort import DatasetVersionIndexSort
 
-        sort: None | Unset | dict[str, Any]
+        sort: Union[None, Unset, dict[str, Any]]
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(self.sort, DatasetVersionIndexSort):
@@ -57,8 +56,9 @@ class ListDatasetVersionParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetVersionIndexSort.from_dict(data)
+                sort_type_0 = DatasetVersionIndexSort.from_dict(data)
 
+                return sort_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["DatasetVersionIndexSort", None, Unset], data)

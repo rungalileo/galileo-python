@@ -4,11 +4,12 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.integration_provider import IntegrationProvider
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.integration_models_response_recommended_models import IntegrationModelsResponseRecommendedModels
-    from ..models.model_properties import ModelProperties
+    from ..models.llm_integration_model_properties import LLMIntegrationModelProperties
 
 
 T = TypeVar("T", bound="IntegrationModelsResponse")
@@ -17,34 +18,41 @@ T = TypeVar("T", bound="IntegrationModelsResponse")
 @_attrs_define
 class IntegrationModelsResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         integration_name (str):
+        integration_id (str):
+        provider (IntegrationProvider):
         models (list[str]):
         scorer_models (list[str]):
         recommended_models (Union[Unset, IntegrationModelsResponseRecommendedModels]):
         supports_num_judges (Union[Unset, bool]):  Default: True.
         supports_file_uploads (Union[Unset, bool]):  Default: False.
-        model_properties (Union[Unset, list['ModelProperties']]):
+        model_properties (Union[Unset, list['LLMIntegrationModelProperties']]):
     """
 
     integration_name: str
+    integration_id: str
+    provider: IntegrationProvider
     models: list[str]
     scorer_models: list[str]
     recommended_models: Union[Unset, "IntegrationModelsResponseRecommendedModels"] = UNSET
-    supports_num_judges: Unset | bool = True
-    supports_file_uploads: Unset | bool = False
-    model_properties: Unset | list["ModelProperties"] = UNSET
+    supports_num_judges: Union[Unset, bool] = True
+    supports_file_uploads: Union[Unset, bool] = False
+    model_properties: Union[Unset, list["LLMIntegrationModelProperties"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         integration_name = self.integration_name
 
+        integration_id = self.integration_id
+
+        provider = self.provider.value
+
         models = self.models
 
         scorer_models = self.scorer_models
 
-        recommended_models: Unset | dict[str, Any] = UNSET
+        recommended_models: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.recommended_models, Unset):
             recommended_models = self.recommended_models.to_dict()
 
@@ -52,7 +60,7 @@ class IntegrationModelsResponse:
 
         supports_file_uploads = self.supports_file_uploads
 
-        model_properties: Unset | list[dict[str, Any]] = UNSET
+        model_properties: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.model_properties, Unset):
             model_properties = []
             for model_properties_item_data in self.model_properties:
@@ -61,7 +69,15 @@ class IntegrationModelsResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"integration_name": integration_name, "models": models, "scorer_models": scorer_models})
+        field_dict.update(
+            {
+                "integration_name": integration_name,
+                "integration_id": integration_id,
+                "provider": provider,
+                "models": models,
+                "scorer_models": scorer_models,
+            }
+        )
         if recommended_models is not UNSET:
             field_dict["recommended_models"] = recommended_models
         if supports_num_judges is not UNSET:
@@ -76,17 +92,21 @@ class IntegrationModelsResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.integration_models_response_recommended_models import IntegrationModelsResponseRecommendedModels
-        from ..models.model_properties import ModelProperties
+        from ..models.llm_integration_model_properties import LLMIntegrationModelProperties
 
         d = dict(src_dict)
         integration_name = d.pop("integration_name")
+
+        integration_id = d.pop("integration_id")
+
+        provider = IntegrationProvider(d.pop("provider"))
 
         models = cast(list[str], d.pop("models"))
 
         scorer_models = cast(list[str], d.pop("scorer_models"))
 
         _recommended_models = d.pop("recommended_models", UNSET)
-        recommended_models: Unset | IntegrationModelsResponseRecommendedModels
+        recommended_models: Union[Unset, IntegrationModelsResponseRecommendedModels]
         if isinstance(_recommended_models, Unset):
             recommended_models = UNSET
         else:
@@ -99,12 +119,14 @@ class IntegrationModelsResponse:
         model_properties = []
         _model_properties = d.pop("model_properties", UNSET)
         for model_properties_item_data in _model_properties or []:
-            model_properties_item = ModelProperties.from_dict(model_properties_item_data)
+            model_properties_item = LLMIntegrationModelProperties.from_dict(model_properties_item_data)
 
             model_properties.append(model_properties_item)
 
         integration_models_response = cls(
             integration_name=integration_name,
+            integration_id=integration_id,
+            provider=provider,
             models=models,
             scorer_models=scorer_models,
             recommended_models=recommended_models,

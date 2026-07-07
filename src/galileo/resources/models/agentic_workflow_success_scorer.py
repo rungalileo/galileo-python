@@ -19,8 +19,7 @@ T = TypeVar("T", bound="AgenticWorkflowSuccessScorer")
 @_attrs_define
 class AgenticWorkflowSuccessScorer:
     """
-    Attributes
-    ----------
+    Attributes:
         name (Union[Literal['agentic_workflow_success'], Unset]):  Default: 'agentic_workflow_success'.
         filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]): List of filters
             to apply to the scorer.
@@ -29,11 +28,11 @@ class AgenticWorkflowSuccessScorer:
         num_judges (Union[None, Unset, int]): Number of judges for the scorer.
     """
 
-    name: Literal["agentic_workflow_success"] | Unset = "agentic_workflow_success"
-    filters: None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]] = UNSET
-    type_: Unset | AgenticWorkflowSuccessScorerType = AgenticWorkflowSuccessScorerType.PLUS
-    model_name: None | Unset | str = UNSET
-    num_judges: None | Unset | int = UNSET
+    name: Union[Literal["agentic_workflow_success"], Unset] = "agentic_workflow_success"
+    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
+    type_: Union[Unset, AgenticWorkflowSuccessScorerType] = AgenticWorkflowSuccessScorerType.PLUS
+    model_name: Union[None, Unset, str] = UNSET
+    num_judges: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,14 +41,16 @@ class AgenticWorkflowSuccessScorer:
 
         name = self.name
 
-        filters: None | Unset | list[dict[str, Any]]
+        filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
+                if isinstance(filters_type_0_item_data, NodeNameFilter):
+                    filters_type_0_item = filters_type_0_item_data.to_dict()
+                elif isinstance(filters_type_0_item_data, MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -59,15 +60,21 @@ class AgenticWorkflowSuccessScorer:
         else:
             filters = self.filters
 
-        type_: Unset | str = UNSET
+        type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
 
-        model_name: None | Unset | str
-        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
+        model_name: Union[None, Unset, str]
+        if isinstance(self.model_name, Unset):
+            model_name = UNSET
+        else:
+            model_name = self.model_name
 
-        num_judges: None | Unset | int
-        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
+        num_judges: Union[None, Unset, int]
+        if isinstance(self.num_judges, Unset):
+            num_judges = UNSET
+        else:
+            num_judges = self.num_judges
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -92,13 +99,13 @@ class AgenticWorkflowSuccessScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
-        name = cast(Literal["agentic_workflow_success"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["agentic_workflow_success"], Unset], d.pop("name", UNSET))
         if name != "agentic_workflow_success" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'agentic_workflow_success', got '{name}'")
 
         def _parse_filters(
             data: object,
-        ) -> None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]:
+        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -116,20 +123,24 @@ class AgenticWorkflowSuccessScorer:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return NodeNameFilter.from_dict(data)
+                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
 
+                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return MetadataFilter.from_dict(data)
+                            filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
 
+                            return filters_type_0_item_type_1
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return ModalityFilter.from_dict(data)
+                        filters_type_0_item_type_2 = ModalityFilter.from_dict(data)
+
+                        return filters_type_0_item_type_2
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -138,29 +149,32 @@ class AgenticWorkflowSuccessScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]], data)
+            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
         _type_ = d.pop("type", UNSET)
-        type_: Unset | AgenticWorkflowSuccessScorerType
-        type_ = UNSET if isinstance(_type_, Unset) else AgenticWorkflowSuccessScorerType(_type_)
+        type_: Union[Unset, AgenticWorkflowSuccessScorerType]
+        if isinstance(_type_, Unset):
+            type_ = UNSET
+        else:
+            type_ = AgenticWorkflowSuccessScorerType(_type_)
 
-        def _parse_model_name(data: object) -> None | Unset | str:
+        def _parse_model_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         model_name = _parse_model_name(d.pop("model_name", UNSET))
 
-        def _parse_num_judges(data: object) -> None | Unset | int:
+        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 

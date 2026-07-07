@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -38,12 +38,16 @@ def _get_kwargs(*, body: ApiKeyLoginRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | Token:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, Token]:
     if response.status_code == 200:
-        return Token.from_dict(response.json())
+        response_200 = Token.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -63,7 +67,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | Token]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, Token]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -72,21 +76,20 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(*, client: ApiClient, body: ApiKeyLoginRequest) -> Response[HTTPValidationError | Token]:
-    """Login Api Key.
+def sync_detailed(*, client: ApiClient, body: ApiKeyLoginRequest) -> Response[Union[HTTPValidationError, Token]]:
+    """Login Api Key
 
     Args:
         body (ApiKeyLoginRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[HTTPValidationError, Token]]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -94,39 +97,39 @@ def sync_detailed(*, client: ApiClient, body: ApiKeyLoginRequest) -> Response[HT
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: ApiKeyLoginRequest) -> HTTPValidationError | Token | None:
-    """Login Api Key.
+def sync(*, client: ApiClient, body: ApiKeyLoginRequest) -> Optional[Union[HTTPValidationError, Token]]:
+    """Login Api Key
 
     Args:
         body (ApiKeyLoginRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[HTTPValidationError, Token]
     """
+
     return sync_detailed(client=client, body=body).parsed
 
 
-async def asyncio_detailed(*, client: ApiClient, body: ApiKeyLoginRequest) -> Response[HTTPValidationError | Token]:
-    """Login Api Key.
+async def asyncio_detailed(
+    *, client: ApiClient, body: ApiKeyLoginRequest
+) -> Response[Union[HTTPValidationError, Token]]:
+    """Login Api Key
 
     Args:
         body (ApiKeyLoginRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[HTTPValidationError, Token]]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -134,19 +137,18 @@ async def asyncio_detailed(*, client: ApiClient, body: ApiKeyLoginRequest) -> Re
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: ApiKeyLoginRequest) -> HTTPValidationError | Token | None:
-    """Login Api Key.
+async def asyncio(*, client: ApiClient, body: ApiKeyLoginRequest) -> Optional[Union[HTTPValidationError, Token]]:
+    """Login Api Key
 
     Args:
         body (ApiKeyLoginRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[HTTPValidationError, Token]
     """
+
     return (await asyncio_detailed(client=client, body=body)).parsed

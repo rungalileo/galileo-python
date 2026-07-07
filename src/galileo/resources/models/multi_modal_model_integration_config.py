@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,22 +13,27 @@ T = TypeVar("T", bound="MultiModalModelIntegrationConfig")
 class MultiModalModelIntegrationConfig:
     """Configuration for multi-modal capabilities (file uploads).
 
-    Attributes
-    ----------
+    Attributes:
         max_files (Union[None, Unset, int]): Maximum number of files allowed per request. None means no limit.
         max_file_size_bytes (Union[None, Unset, int]): Maximum file size in bytes per file. None means no limit.
     """
 
-    max_files: None | Unset | int = UNSET
-    max_file_size_bytes: None | Unset | int = UNSET
+    max_files: Union[None, Unset, int] = UNSET
+    max_file_size_bytes: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        max_files: None | Unset | int
-        max_files = UNSET if isinstance(self.max_files, Unset) else self.max_files
+        max_files: Union[None, Unset, int]
+        if isinstance(self.max_files, Unset):
+            max_files = UNSET
+        else:
+            max_files = self.max_files
 
-        max_file_size_bytes: None | Unset | int
-        max_file_size_bytes = UNSET if isinstance(self.max_file_size_bytes, Unset) else self.max_file_size_bytes
+        max_file_size_bytes: Union[None, Unset, int]
+        if isinstance(self.max_file_size_bytes, Unset):
+            max_file_size_bytes = UNSET
+        else:
+            max_file_size_bytes = self.max_file_size_bytes
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -44,21 +49,21 @@ class MultiModalModelIntegrationConfig:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_max_files(data: object) -> None | Unset | int:
+        def _parse_max_files(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         max_files = _parse_max_files(d.pop("max_files", UNSET))
 
-        def _parse_max_file_size_bytes(data: object) -> None | Unset | int:
+        def _parse_max_file_size_bytes(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         max_file_size_bytes = _parse_max_file_size_bytes(d.pop("max_file_size_bytes", UNSET))
 

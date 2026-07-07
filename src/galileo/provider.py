@@ -20,7 +20,8 @@ from galileo.resources.models import (
     AzureIntegrationCreate,
     BaseAwsIntegrationCreate,
     HTTPValidationError,
-    IntegrationName,
+    IntegrationProvider,
+    LLMIntegration,
     OpenAIIntegrationCreate,
 )
 from galileo.resources.types import Unset
@@ -83,8 +84,8 @@ class Provider(StateManagementMixin, ABC):
         return f"{self.__class__.__name__}(name='{self.name}', id='{self.id}', is_selected={self.is_selected})"
 
     @abstractmethod
-    def _get_integration_name(self) -> IntegrationName:
-        """Get the IntegrationName enum for this provider."""
+    def _get_integration_provider(self) -> IntegrationProvider:
+        """Get the IntegrationProvider enum for this provider."""
         raise NotImplementedError
 
     def refresh(self) -> None:
@@ -105,10 +106,10 @@ class Provider(StateManagementMixin, ABC):
 
         try:
             config = GalileoPythonConfig.get()
-            integration_name = self._get_integration_name()
+            integration_provider = self._get_integration_provider()
 
             # Get the specific integration data
-            response = get_integration_integrations_name_get.sync(name=integration_name, client=config.api_client)
+            response = get_integration_integrations_name_get.sync(name=integration_provider, client=config.api_client)
 
             if response is None or isinstance(response, HTTPValidationError):
                 api_error = APIError(f"Provider with ID {self.id} not found")
@@ -165,9 +166,11 @@ class Provider(StateManagementMixin, ABC):
 
         try:
             config = GalileoPythonConfig.get()
-            integration_name = self._get_integration_name()
+            integration_provider = self._get_integration_provider()
 
-            result = delete_integration_integrations_name_delete.sync(name=integration_name, client=config.api_client)
+            result = delete_integration_integrations_name_delete.sync(
+                name=integration_provider, client=config.api_client
+            )
 
             if isinstance(result, HTTPValidationError):
                 raise APIError(f"Failed to delete provider: {result.detail}")
@@ -204,11 +207,11 @@ class Provider(StateManagementMixin, ABC):
 
         try:
             config = GalileoPythonConfig.get()
-            integration_name = self._get_integration_name()
+            integration_provider = self._get_integration_provider()
 
             # Get models from API
             response = get_available_models_llm_integrations_llm_integration_models_get.sync(
-                llm_integration=integration_name, client=config.api_client
+                llm_integration=LLMIntegration(integration_provider.value), client=config.api_client
             )
 
             if response is None or isinstance(response, HTTPValidationError):
@@ -312,8 +315,8 @@ class OpenAIProvider(Provider):
         self._temp_token = token
         self._temp_organization_id = organization_id
 
-    def _get_integration_name(self) -> IntegrationName:
-        return IntegrationName.OPENAI
+    def _get_integration_provider(self) -> IntegrationProvider:
+        return IntegrationProvider.OPENAI
 
     def create(self) -> OpenAIProvider:
         """
@@ -439,8 +442,8 @@ class AzureProvider(Provider):
         self._temp_token = token
         self._temp_endpoint = endpoint
 
-    def _get_integration_name(self) -> IntegrationName:
-        return IntegrationName.AZURE
+    def _get_integration_provider(self) -> IntegrationProvider:
+        return IntegrationProvider.AZURE
 
     def create(self) -> AzureProvider:
         """
@@ -578,8 +581,8 @@ class BedrockProvider(Provider):
         self._temp_region = region
         self._temp_token_dict = {"aws_access_key_id": aws_access_key_id, "aws_secret_access_key": aws_secret_access_key}
 
-    def _get_integration_name(self) -> IntegrationName:
-        return IntegrationName.AWS_BEDROCK
+    def _get_integration_provider(self) -> IntegrationProvider:
+        return IntegrationProvider.AWS_BEDROCK
 
     def create(self) -> BedrockProvider:
         """
@@ -720,8 +723,8 @@ class AnthropicProvider(Provider):
         # Store temporarily for create() call only
         self._temp_token = token
 
-    def _get_integration_name(self) -> IntegrationName:
-        return IntegrationName.ANTHROPIC
+    def _get_integration_provider(self) -> IntegrationProvider:
+        return IntegrationProvider.ANTHROPIC
 
     def create(self) -> AnthropicProvider:
         """
@@ -831,10 +834,10 @@ class GenericProvider(Provider):
     It does not support creation or updates through the SDK.
     """
 
-    _integration_name: IntegrationName
+    _integration_provider: IntegrationProvider
 
-    def _get_integration_name(self) -> IntegrationName:
-        return self._integration_name
+    def _get_integration_provider(self) -> IntegrationProvider:
+        return self._integration_provider
 
 
 class UnconfiguredProvider:

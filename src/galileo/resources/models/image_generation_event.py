@@ -19,8 +19,7 @@ T = TypeVar("T", bound="ImageGenerationEvent")
 class ImageGenerationEvent:
     """An image generation event from the model.
 
-    Attributes
-    ----------
+    Attributes:
         type_ (Union[Literal['image_generation'], Unset]):  Default: 'image_generation'.
         id (Union[None, Unset, str]): Unique identifier for the event
         status (Union[EventStatus, None, Unset]): Status of the event
@@ -33,14 +32,14 @@ class ImageGenerationEvent:
         model (Union[None, Unset, str]): Image generation model used
     """
 
-    type_: Literal["image_generation"] | Unset = "image_generation"
-    id: None | Unset | str = UNSET
-    status: EventStatus | None | Unset = UNSET
+    type_: Union[Literal["image_generation"], Unset] = "image_generation"
+    id: Union[None, Unset, str] = UNSET
+    status: Union[EventStatus, None, Unset] = UNSET
     metadata: Union["ImageGenerationEventMetadataType0", None, Unset] = UNSET
-    error_message: None | Unset | str = UNSET
-    prompt: None | Unset | str = UNSET
-    images: None | Unset | list["ImageGenerationEventImagesType0Item"] = UNSET
-    model: None | Unset | str = UNSET
+    error_message: Union[None, Unset, str] = UNSET
+    prompt: Union[None, Unset, str] = UNSET
+    images: Union[None, Unset, list["ImageGenerationEventImagesType0Item"]] = UNSET
+    model: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -48,10 +47,13 @@ class ImageGenerationEvent:
 
         type_ = self.type_
 
-        id: None | Unset | str
-        id = UNSET if isinstance(self.id, Unset) else self.id
+        id: Union[None, Unset, str]
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
-        status: None | Unset | str
+        status: Union[None, Unset, str]
         if isinstance(self.status, Unset):
             status = UNSET
         elif isinstance(self.status, EventStatus):
@@ -59,7 +61,7 @@ class ImageGenerationEvent:
         else:
             status = self.status
 
-        metadata: None | Unset | dict[str, Any]
+        metadata: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metadata, Unset):
             metadata = UNSET
         elif isinstance(self.metadata, ImageGenerationEventMetadataType0):
@@ -67,13 +69,19 @@ class ImageGenerationEvent:
         else:
             metadata = self.metadata
 
-        error_message: None | Unset | str
-        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
+        error_message: Union[None, Unset, str]
+        if isinstance(self.error_message, Unset):
+            error_message = UNSET
+        else:
+            error_message = self.error_message
 
-        prompt: None | Unset | str
-        prompt = UNSET if isinstance(self.prompt, Unset) else self.prompt
+        prompt: Union[None, Unset, str]
+        if isinstance(self.prompt, Unset):
+            prompt = UNSET
+        else:
+            prompt = self.prompt
 
-        images: None | Unset | list[dict[str, Any]]
+        images: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.images, Unset):
             images = UNSET
         elif isinstance(self.images, list):
@@ -85,8 +93,11 @@ class ImageGenerationEvent:
         else:
             images = self.images
 
-        model: None | Unset | str
-        model = UNSET if isinstance(self.model, Unset) else self.model
+        model: Union[None, Unset, str]
+        if isinstance(self.model, Unset):
+            model = UNSET
+        else:
+            model = self.model
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -116,20 +127,20 @@ class ImageGenerationEvent:
         from ..models.image_generation_event_metadata_type_0 import ImageGenerationEventMetadataType0
 
         d = dict(src_dict)
-        type_ = cast(Literal["image_generation"] | Unset, d.pop("type", UNSET))
+        type_ = cast(Union[Literal["image_generation"], Unset], d.pop("type", UNSET))
         if type_ != "image_generation" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'image_generation', got '{type_}'")
 
-        def _parse_id(data: object) -> None | Unset | str:
+        def _parse_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_status(data: object) -> EventStatus | None | Unset:
+        def _parse_status(data: object) -> Union[EventStatus, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -137,11 +148,12 @@ class ImageGenerationEvent:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return EventStatus(data)
+                status_type_0 = EventStatus(data)
 
+                return status_type_0
             except:  # noqa: E722
                 pass
-            return cast(EventStatus | None | Unset, data)
+            return cast(Union[EventStatus, None, Unset], data)
 
         status = _parse_status(d.pop("status", UNSET))
 
@@ -153,33 +165,34 @@ class ImageGenerationEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ImageGenerationEventMetadataType0.from_dict(data)
+                metadata_type_0 = ImageGenerationEventMetadataType0.from_dict(data)
 
+                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ImageGenerationEventMetadataType0", None, Unset], data)
 
         metadata = _parse_metadata(d.pop("metadata", UNSET))
 
-        def _parse_error_message(data: object) -> None | Unset | str:
+        def _parse_error_message(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         error_message = _parse_error_message(d.pop("error_message", UNSET))
 
-        def _parse_prompt(data: object) -> None | Unset | str:
+        def _parse_prompt(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         prompt = _parse_prompt(d.pop("prompt", UNSET))
 
-        def _parse_images(data: object) -> None | Unset | list["ImageGenerationEventImagesType0Item"]:
+        def _parse_images(data: object) -> Union[None, Unset, list["ImageGenerationEventImagesType0Item"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -197,16 +210,16 @@ class ImageGenerationEvent:
                 return images_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list["ImageGenerationEventImagesType0Item"], data)
+            return cast(Union[None, Unset, list["ImageGenerationEventImagesType0Item"]], data)
 
         images = _parse_images(d.pop("images", UNSET))
 
-        def _parse_model(data: object) -> None | Unset | str:
+        def _parse_model(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         model = _parse_model(d.pop("model", UNSET))
 

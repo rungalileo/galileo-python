@@ -4,7 +4,7 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.integration_name import IntegrationName
+from ..models.integration_provider import IntegrationProvider
 
 T = TypeVar("T", bound="AvailableIntegrations")
 
@@ -12,12 +12,11 @@ T = TypeVar("T", bound="AvailableIntegrations")
 @_attrs_define
 class AvailableIntegrations:
     """
-    Attributes
-    ----------
-        integrations (list[IntegrationName]):
+    Attributes:
+        integrations (list[IntegrationProvider]):
     """
 
-    integrations: list[IntegrationName]
+    integrations: list[IntegrationProvider]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,7 +37,7 @@ class AvailableIntegrations:
         integrations = []
         _integrations = d.pop("integrations")
         for integrations_item_data in _integrations:
-            integrations_item = IntegrationName(integrations_item_data)
+            integrations_item = IntegrationProvider(integrations_item_data)
 
             integrations.append(integrations_item)
 

@@ -16,8 +16,7 @@ T = TypeVar("T", bound="VegasGatewayIntegrationCreate")
 @_attrs_define
 class VegasGatewayIntegrationCreate:
     """
-    Attributes
-    ----------
+    Attributes:
         endpoint (str):
         use_case (str):
         token (str):
@@ -40,7 +39,7 @@ class VegasGatewayIntegrationCreate:
 
         token = self.token
 
-        multi_modal_config: None | Unset | dict[str, Any]
+        multi_modal_config: Union[None, Unset, dict[str, Any]]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -75,8 +74,9 @@ class VegasGatewayIntegrationCreate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MultiModalModelIntegrationConfig.from_dict(data)
+                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
 
+                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)

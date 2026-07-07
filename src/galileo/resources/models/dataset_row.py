@@ -16,8 +16,7 @@ T = TypeVar("T", bound="DatasetRow")
 @_attrs_define
 class DatasetRow:
     """
-    Attributes
-    ----------
+    Attributes:
         row_id (str):
         index (int):
         values (list[Union['DatasetRowValuesItemType3', None, float, int, str]]):
@@ -42,7 +41,7 @@ class DatasetRow:
 
         values = []
         for values_item_data in self.values:
-            values_item: None | dict[str, Any] | float | int | str
+            values_item: Union[None, dict[str, Any], float, int, str]
             if isinstance(values_item_data, DatasetRowValuesItemType3):
                 values_item = values_item_data.to_dict()
             else:
@@ -51,8 +50,11 @@ class DatasetRow:
 
         values_dict = self.values_dict.to_dict()
 
-        metadata: None | dict[str, Any]
-        metadata = self.metadata.to_dict() if isinstance(self.metadata, DatasetRowMetadata) else self.metadata
+        metadata: Union[None, dict[str, Any]]
+        if isinstance(self.metadata, DatasetRowMetadata):
+            metadata = self.metadata.to_dict()
+        else:
+            metadata = self.metadata
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -83,8 +85,9 @@ class DatasetRow:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return DatasetRowValuesItemType3.from_dict(data)
+                    values_item_type_3 = DatasetRowValuesItemType3.from_dict(data)
 
+                    return values_item_type_3
                 except:  # noqa: E722
                     pass
                 return cast(Union["DatasetRowValuesItemType3", None, float, int, str], data)
@@ -101,8 +104,9 @@ class DatasetRow:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetRowMetadata.from_dict(data)
+                metadata_type_0 = DatasetRowMetadata.from_dict(data)
 
+                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["DatasetRowMetadata", None], data)

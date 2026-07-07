@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -71,17 +71,16 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(*, client: ApiClient) -> Response[list["CollaboratorRoleInfo"]]:
-    """Get Collaborator Roles.
+    """Get Collaborator Roles
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[list['CollaboratorRoleInfo']]
     """
+
     kwargs = _get_kwargs()
 
     response = client.request(**kwargs)
@@ -89,33 +88,31 @@ def sync_detailed(*, client: ApiClient) -> Response[list["CollaboratorRoleInfo"]
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient) -> list["CollaboratorRoleInfo"] | None:
-    """Get Collaborator Roles.
+def sync(*, client: ApiClient) -> Optional[list["CollaboratorRoleInfo"]]:
+    """Get Collaborator Roles
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         list['CollaboratorRoleInfo']
     """
+
     return sync_detailed(client=client).parsed
 
 
 async def asyncio_detailed(*, client: ApiClient) -> Response[list["CollaboratorRoleInfo"]]:
-    """Get Collaborator Roles.
+    """Get Collaborator Roles
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[list['CollaboratorRoleInfo']]
     """
+
     kwargs = _get_kwargs()
 
     response = await client.arequest(**kwargs)
@@ -123,16 +120,15 @@ async def asyncio_detailed(*, client: ApiClient) -> Response[list["CollaboratorR
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient) -> list["CollaboratorRoleInfo"] | None:
-    """Get Collaborator Roles.
+async def asyncio(*, client: ApiClient) -> Optional[list["CollaboratorRoleInfo"]]:
+    """Get Collaborator Roles
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         list['CollaboratorRoleInfo']
     """
+
     return (await asyncio_detailed(client=client)).parsed

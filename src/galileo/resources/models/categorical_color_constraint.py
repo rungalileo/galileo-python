@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,8 +24,7 @@ class CategoricalColorConstraint:
         {"color": "green", "operator": "eq", "value": "pass"}
         {"color": "red", "operator": "one_of", "value": ["fail", "error"]}
 
-    Attributes
-    ----------
+        Attributes:
             color (MetricColor): Allowed colors for metric threshold visualization in the UI.
             operator (CategoricalColorConstraintOperator):
             value (Union[list[str], str]):
@@ -33,7 +32,7 @@ class CategoricalColorConstraint:
 
     color: MetricColor
     operator: CategoricalColorConstraintOperator
-    value: list[str] | str
+    value: Union[list[str], str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,8 +40,12 @@ class CategoricalColorConstraint:
 
         operator = self.operator.value
 
-        value: list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
+        value: Union[list[str], str]
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -57,15 +60,16 @@ class CategoricalColorConstraint:
 
         operator = CategoricalColorConstraintOperator(d.pop("operator"))
 
-        def _parse_value(data: object) -> list[str] | str:
+        def _parse_value(data: object) -> Union[list[str], str]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
-            return cast(list[str] | str, data)
+            return cast(Union[list[str], str], data)
 
         value = _parse_value(d.pop("value"))
 

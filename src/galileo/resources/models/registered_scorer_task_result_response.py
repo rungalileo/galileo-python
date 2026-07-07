@@ -19,8 +19,7 @@ T = TypeVar("T", bound="RegisteredScorerTaskResultResponse")
 @_attrs_define
 class RegisteredScorerTaskResultResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
@@ -46,7 +45,7 @@ class RegisteredScorerTaskResultResponse:
 
         status = self.status.value
 
-        result: None | Unset | dict[str, Any] | str
+        result: Union[None, Unset, dict[str, Any], str]
         if isinstance(self.result, Unset):
             result = UNSET
         elif isinstance(self.result, ValidateRegisteredScorerResult):
@@ -83,8 +82,9 @@ class RegisteredScorerTaskResultResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ValidateRegisteredScorerResult.from_dict(data)
+                result_type_0 = ValidateRegisteredScorerResult.from_dict(data)
 
+                return result_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ValidateRegisteredScorerResult", None, Unset, str], data)

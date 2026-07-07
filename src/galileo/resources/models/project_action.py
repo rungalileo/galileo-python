@@ -25,6 +25,8 @@ class ProjectAction(str, Enum):
     SHARE = "share"
     TOGGLE_METRIC = "toggle_metric"
     UPDATE = "update"
+    UPDATE_CONTROL_BINDINGS = "update_control_bindings"
+    USE_CONTROL_RUNTIME = "use_control_runtime"
 
     def __str__(self) -> str:
         return str(self.value)

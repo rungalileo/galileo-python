@@ -10,8 +10,7 @@ T = TypeVar("T", bound="DeletePromptResponse")
 @_attrs_define
 class DeletePromptResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         message (str):
     """
 

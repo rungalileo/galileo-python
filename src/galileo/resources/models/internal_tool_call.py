@@ -23,8 +23,7 @@ class InternalToolCall:
     This represents internal tools like web search, code execution, file search, etc.
     that the model invokes (not user-defined functions or MCP tools).
 
-    Attributes
-    ----------
+        Attributes:
             name (str): Name of the internal tool (e.g., 'web_search', 'code_interpreter', 'file_search')
             type_ (Union[Literal['internal_tool_call'], Unset]):  Default: 'internal_tool_call'.
             id (Union[None, Unset, str]): Unique identifier for the event
@@ -36,11 +35,11 @@ class InternalToolCall:
     """
 
     name: str
-    type_: Literal["internal_tool_call"] | Unset = "internal_tool_call"
-    id: None | Unset | str = UNSET
-    status: EventStatus | None | Unset = UNSET
+    type_: Union[Literal["internal_tool_call"], Unset] = "internal_tool_call"
+    id: Union[None, Unset, str] = UNSET
+    status: Union[EventStatus, None, Unset] = UNSET
     metadata: Union["InternalToolCallMetadataType0", None, Unset] = UNSET
-    error_message: None | Unset | str = UNSET
+    error_message: Union[None, Unset, str] = UNSET
     input_: Union["InternalToolCallInputType0", None, Unset] = UNSET
     output: Union["InternalToolCallOutputType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -54,10 +53,13 @@ class InternalToolCall:
 
         type_ = self.type_
 
-        id: None | Unset | str
-        id = UNSET if isinstance(self.id, Unset) else self.id
+        id: Union[None, Unset, str]
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
-        status: None | Unset | str
+        status: Union[None, Unset, str]
         if isinstance(self.status, Unset):
             status = UNSET
         elif isinstance(self.status, EventStatus):
@@ -65,7 +67,7 @@ class InternalToolCall:
         else:
             status = self.status
 
-        metadata: None | Unset | dict[str, Any]
+        metadata: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metadata, Unset):
             metadata = UNSET
         elif isinstance(self.metadata, InternalToolCallMetadataType0):
@@ -73,10 +75,13 @@ class InternalToolCall:
         else:
             metadata = self.metadata
 
-        error_message: None | Unset | str
-        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
+        error_message: Union[None, Unset, str]
+        if isinstance(self.error_message, Unset):
+            error_message = UNSET
+        else:
+            error_message = self.error_message
 
-        input_: None | Unset | dict[str, Any]
+        input_: Union[None, Unset, dict[str, Any]]
         if isinstance(self.input_, Unset):
             input_ = UNSET
         elif isinstance(self.input_, InternalToolCallInputType0):
@@ -84,7 +89,7 @@ class InternalToolCall:
         else:
             input_ = self.input_
 
-        output: None | Unset | dict[str, Any]
+        output: Union[None, Unset, dict[str, Any]]
         if isinstance(self.output, Unset):
             output = UNSET
         elif isinstance(self.output, InternalToolCallOutputType0):
@@ -121,20 +126,20 @@ class InternalToolCall:
         d = dict(src_dict)
         name = d.pop("name")
 
-        type_ = cast(Literal["internal_tool_call"] | Unset, d.pop("type", UNSET))
+        type_ = cast(Union[Literal["internal_tool_call"], Unset], d.pop("type", UNSET))
         if type_ != "internal_tool_call" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'internal_tool_call', got '{type_}'")
 
-        def _parse_id(data: object) -> None | Unset | str:
+        def _parse_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_status(data: object) -> EventStatus | None | Unset:
+        def _parse_status(data: object) -> Union[EventStatus, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -142,11 +147,12 @@ class InternalToolCall:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return EventStatus(data)
+                status_type_0 = EventStatus(data)
 
+                return status_type_0
             except:  # noqa: E722
                 pass
-            return cast(EventStatus | None | Unset, data)
+            return cast(Union[EventStatus, None, Unset], data)
 
         status = _parse_status(d.pop("status", UNSET))
 
@@ -158,20 +164,21 @@ class InternalToolCall:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return InternalToolCallMetadataType0.from_dict(data)
+                metadata_type_0 = InternalToolCallMetadataType0.from_dict(data)
 
+                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["InternalToolCallMetadataType0", None, Unset], data)
 
         metadata = _parse_metadata(d.pop("metadata", UNSET))
 
-        def _parse_error_message(data: object) -> None | Unset | str:
+        def _parse_error_message(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         error_message = _parse_error_message(d.pop("error_message", UNSET))
 
@@ -183,8 +190,9 @@ class InternalToolCall:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return InternalToolCallInputType0.from_dict(data)
+                input_type_0 = InternalToolCallInputType0.from_dict(data)
 
+                return input_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["InternalToolCallInputType0", None, Unset], data)
@@ -199,8 +207,9 @@ class InternalToolCall:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return InternalToolCallOutputType0.from_dict(data)
+                output_type_0 = InternalToolCallOutputType0.from_dict(data)
 
+                return output_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["InternalToolCallOutputType0", None, Unset], data)

@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,22 +12,27 @@ T = TypeVar("T", bound="ExperimentPlayground")
 @_attrs_define
 class ExperimentPlayground:
     """
-    Attributes
-    ----------
+    Attributes:
         playground_id (Union[None, Unset, str]):
         name (Union[None, Unset, str]):
     """
 
-    playground_id: None | Unset | str = UNSET
-    name: None | Unset | str = UNSET
+    playground_id: Union[None, Unset, str] = UNSET
+    name: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        playground_id: None | Unset | str
-        playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
+        playground_id: Union[None, Unset, str]
+        if isinstance(self.playground_id, Unset):
+            playground_id = UNSET
+        else:
+            playground_id = self.playground_id
 
-        name: None | Unset | str
-        name = UNSET if isinstance(self.name, Unset) else self.name
+        name: Union[None, Unset, str]
+        if isinstance(self.name, Unset):
+            name = UNSET
+        else:
+            name = self.name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -43,21 +48,21 @@ class ExperimentPlayground:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
 
-        def _parse_playground_id(data: object) -> None | Unset | str:
+        def _parse_playground_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         playground_id = _parse_playground_id(d.pop("playground_id", UNSET))
 
-        def _parse_name(data: object) -> None | Unset | str:
+        def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         name = _parse_name(d.pop("name", UNSET))
 

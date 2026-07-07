@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -29,7 +29,9 @@ def _get_kwargs(project_id: str, template_id: str, *, body: BasePromptTemplateVe
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/templates/{template_id}/versions",
+        "path": "/projects/{project_id}/templates/{template_id}/versions".format(
+            project_id=project_id, template_id=template_id
+        ),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -44,12 +46,16 @@ def _get_kwargs(project_id: str, template_id: str, *, body: BasePromptTemplateVe
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> BasePromptTemplateVersionResponse | HTTPValidationError:
+) -> Union[BasePromptTemplateVersionResponse, HTTPValidationError]:
     if response.status_code == 200:
-        return BasePromptTemplateVersionResponse.from_dict(response.json())
+        response_200 = BasePromptTemplateVersionResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -71,7 +77,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
+) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,8 +88,8 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, template_id: str, *, client: ApiClient, body: BasePromptTemplateVersion
-) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
-    """Create Prompt Template Version.
+) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
+    """Create Prompt Template Version
 
      Create a prompt template version for a given prompt template.
 
@@ -93,12 +99,8 @@ def sync_detailed(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    body : dict, optional
-        Body of the request, by default Body( ...,
-            examples=[CreatePromptTemplateVersionRequest.test_data()],
-        )
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    base_prompt_template_version : BasePromptTemplateVersion
+        Version details to create.
 
     Returns
     -------
@@ -110,15 +112,14 @@ def sync_detailed(
         template_id (str):
         body (BasePromptTemplateVersion):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, body=body)
 
     response = client.request(**kwargs)
@@ -128,8 +129,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, template_id: str, *, client: ApiClient, body: BasePromptTemplateVersion
-) -> BasePromptTemplateVersionResponse | HTTPValidationError | None:
-    """Create Prompt Template Version.
+) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
+    """Create Prompt Template Version
 
      Create a prompt template version for a given prompt template.
 
@@ -139,12 +140,8 @@ def sync(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    body : dict, optional
-        Body of the request, by default Body( ...,
-            examples=[CreatePromptTemplateVersionRequest.test_data()],
-        )
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    base_prompt_template_version : BasePromptTemplateVersion
+        Version details to create.
 
     Returns
     -------
@@ -156,22 +153,21 @@ def sync(
         template_id (str):
         body (BasePromptTemplateVersion):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[BasePromptTemplateVersionResponse, HTTPValidationError]
     """
+
     return sync_detailed(project_id=project_id, template_id=template_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, template_id: str, *, client: ApiClient, body: BasePromptTemplateVersion
-) -> Response[BasePromptTemplateVersionResponse | HTTPValidationError]:
-    """Create Prompt Template Version.
+) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
+    """Create Prompt Template Version
 
      Create a prompt template version for a given prompt template.
 
@@ -181,12 +177,8 @@ async def asyncio_detailed(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    body : dict, optional
-        Body of the request, by default Body( ...,
-            examples=[CreatePromptTemplateVersionRequest.test_data()],
-        )
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    base_prompt_template_version : BasePromptTemplateVersion
+        Version details to create.
 
     Returns
     -------
@@ -198,15 +190,14 @@ async def asyncio_detailed(
         template_id (str):
         body (BasePromptTemplateVersion):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -216,8 +207,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, template_id: str, *, client: ApiClient, body: BasePromptTemplateVersion
-) -> BasePromptTemplateVersionResponse | HTTPValidationError | None:
-    """Create Prompt Template Version.
+) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
+    """Create Prompt Template Version
 
      Create a prompt template version for a given prompt template.
 
@@ -227,12 +218,8 @@ async def asyncio(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    body : dict, optional
-        Body of the request, by default Body( ...,
-            examples=[CreatePromptTemplateVersionRequest.test_data()],
-        )
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    base_prompt_template_version : BasePromptTemplateVersion
+        Version details to create.
 
     Returns
     -------
@@ -244,13 +231,12 @@ async def asyncio(
         template_id (str):
         body (BasePromptTemplateVersion):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[BasePromptTemplateVersionResponse, HTTPValidationError]
     """
+
     return (await asyncio_detailed(project_id=project_id, template_id=template_id, client=client, body=body)).parsed

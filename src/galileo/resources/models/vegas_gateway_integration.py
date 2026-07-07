@@ -16,27 +16,33 @@ T = TypeVar("T", bound="VegasGatewayIntegration")
 @_attrs_define
 class VegasGatewayIntegration:
     """
-    Attributes
-    ----------
+    Attributes:
         id (Union[None, Unset, str]):
         name (Union[Literal['vegas_gateway'], Unset]):  Default: 'vegas_gateway'.
+        provider (Union[Literal['vegas_gateway'], Unset]):  Default: 'vegas_gateway'.
         extra (Union['VegasGatewayIntegrationExtraType0', None, Unset]):
     """
 
-    id: None | Unset | str = UNSET
-    name: Literal["vegas_gateway"] | Unset = "vegas_gateway"
+    id: Union[None, Unset, str] = UNSET
+    name: Union[Literal["vegas_gateway"], Unset] = "vegas_gateway"
+    provider: Union[Literal["vegas_gateway"], Unset] = "vegas_gateway"
     extra: Union["VegasGatewayIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.vegas_gateway_integration_extra_type_0 import VegasGatewayIntegrationExtraType0
 
-        id: None | Unset | str
-        id = UNSET if isinstance(self.id, Unset) else self.id
+        id: Union[None, Unset, str]
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
         name = self.name
 
-        extra: None | Unset | dict[str, Any]
+        provider = self.provider
+
+        extra: Union[None, Unset, dict[str, Any]]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, VegasGatewayIntegrationExtraType0):
@@ -51,6 +57,8 @@ class VegasGatewayIntegration:
             field_dict["id"] = id
         if name is not UNSET:
             field_dict["name"] = name
+        if provider is not UNSET:
+            field_dict["provider"] = provider
         if extra is not UNSET:
             field_dict["extra"] = extra
 
@@ -62,18 +70,22 @@ class VegasGatewayIntegration:
 
         d = dict(src_dict)
 
-        def _parse_id(data: object) -> None | Unset | str:
+        def _parse_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        name = cast(Literal["vegas_gateway"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["vegas_gateway"], Unset], d.pop("name", UNSET))
         if name != "vegas_gateway" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'vegas_gateway', got '{name}'")
+
+        provider = cast(Union[Literal["vegas_gateway"], Unset], d.pop("provider", UNSET))
+        if provider != "vegas_gateway" and not isinstance(provider, Unset):
+            raise ValueError(f"provider must match const 'vegas_gateway', got '{provider}'")
 
         def _parse_extra(data: object) -> Union["VegasGatewayIntegrationExtraType0", None, Unset]:
             if data is None:
@@ -83,15 +95,16 @@ class VegasGatewayIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return VegasGatewayIntegrationExtraType0.from_dict(data)
+                extra_type_0 = VegasGatewayIntegrationExtraType0.from_dict(data)
 
+                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["VegasGatewayIntegrationExtraType0", None, Unset], data)
 
         extra = _parse_extra(d.pop("extra", UNSET))
 
-        vegas_gateway_integration = cls(id=id, name=name, extra=extra)
+        vegas_gateway_integration = cls(id=id, name=name, provider=provider, extra=extra)
 
         vegas_gateway_integration.additional_properties = d
         return vegas_gateway_integration

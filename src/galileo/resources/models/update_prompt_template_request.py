@@ -16,8 +16,7 @@ T = TypeVar("T", bound="UpdatePromptTemplateRequest")
 @_attrs_define
 class UpdatePromptTemplateRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         name (Union['Name', None, Unset, str]):
     """
 
@@ -27,7 +26,7 @@ class UpdatePromptTemplateRequest:
     def to_dict(self) -> dict[str, Any]:
         from ..models.name import Name
 
-        name: None | Unset | dict[str, Any] | str
+        name: Union[None, Unset, dict[str, Any], str]
         if isinstance(self.name, Unset):
             name = UNSET
         elif isinstance(self.name, Name):
@@ -57,8 +56,9 @@ class UpdatePromptTemplateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return Name.from_dict(data)
+                name_type_1 = Name.from_dict(data)
 
+                return name_type_1
             except:  # noqa: E722
                 pass
             return cast(Union["Name", None, Unset, str], data)

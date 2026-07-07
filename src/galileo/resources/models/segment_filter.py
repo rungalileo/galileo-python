@@ -18,17 +18,18 @@ T = TypeVar("T", bound="SegmentFilter")
 @_attrs_define
 class SegmentFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         sample_rate (float): The fraction of the data to sample. Must be between 0 and 1, inclusive.
         filter_ (Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter', None, Unset]): Filter to apply to the
             segment. By default sample on all data.
         llm_scorers (Union[Unset, bool]): Whether to sample only on LLM scorers. Default: False.
+        multimodal_scorers (Union[Unset, bool]): Whether to sample only on multimodal scorers. Default: False.
     """
 
     sample_rate: float
     filter_: Union["MetadataFilter", "ModalityFilter", "NodeNameFilter", None, Unset] = UNSET
-    llm_scorers: Unset | bool = False
+    llm_scorers: Union[Unset, bool] = False
+    multimodal_scorers: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -38,15 +39,21 @@ class SegmentFilter:
 
         sample_rate = self.sample_rate
 
-        filter_: None | Unset | dict[str, Any]
+        filter_: Union[None, Unset, dict[str, Any]]
         if isinstance(self.filter_, Unset):
             filter_ = UNSET
-        elif isinstance(self.filter_, NodeNameFilter | MetadataFilter | ModalityFilter):
+        elif isinstance(self.filter_, NodeNameFilter):
+            filter_ = self.filter_.to_dict()
+        elif isinstance(self.filter_, MetadataFilter):
+            filter_ = self.filter_.to_dict()
+        elif isinstance(self.filter_, ModalityFilter):
             filter_ = self.filter_.to_dict()
         else:
             filter_ = self.filter_
 
         llm_scorers = self.llm_scorers
+
+        multimodal_scorers = self.multimodal_scorers
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -55,6 +62,8 @@ class SegmentFilter:
             field_dict["filter"] = filter_
         if llm_scorers is not UNSET:
             field_dict["llm_scorers"] = llm_scorers
+        if multimodal_scorers is not UNSET:
+            field_dict["multimodal_scorers"] = multimodal_scorers
 
         return field_dict
 
@@ -75,22 +84,25 @@ class SegmentFilter:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return NodeNameFilter.from_dict(data)
+                filter_type_0_type_0 = NodeNameFilter.from_dict(data)
 
+                return filter_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MetadataFilter.from_dict(data)
+                filter_type_0_type_1 = MetadataFilter.from_dict(data)
 
+                return filter_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ModalityFilter.from_dict(data)
+                filter_type_0_type_2 = ModalityFilter.from_dict(data)
 
+                return filter_type_0_type_2
             except:  # noqa: E722
                 pass
             return cast(Union["MetadataFilter", "ModalityFilter", "NodeNameFilter", None, Unset], data)
@@ -99,7 +111,11 @@ class SegmentFilter:
 
         llm_scorers = d.pop("llm_scorers", UNSET)
 
-        segment_filter = cls(sample_rate=sample_rate, filter_=filter_, llm_scorers=llm_scorers)
+        multimodal_scorers = d.pop("multimodal_scorers", UNSET)
+
+        segment_filter = cls(
+            sample_rate=sample_rate, filter_=filter_, llm_scorers=llm_scorers, multimodal_scorers=multimodal_scorers
+        )
 
         segment_filter.additional_properties = d
         return segment_filter

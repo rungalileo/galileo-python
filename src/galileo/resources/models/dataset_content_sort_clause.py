@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,14 +12,13 @@ T = TypeVar("T", bound="DatasetContentSortClause")
 @_attrs_define
 class DatasetContentSortClause:
     """
-    Attributes
-    ----------
+    Attributes:
         column_name (str):
         ascending (Union[Unset, bool]):  Default: True.
     """
 
     column_name: str
-    ascending: Unset | bool = True
+    ascending: Union[Unset, bool] = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

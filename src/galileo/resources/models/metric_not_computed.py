@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,24 +13,23 @@ T = TypeVar("T", bound="MetricNotComputed")
 @_attrs_define
 class MetricNotComputed:
     """
-    Attributes
-    ----------
+    Attributes:
         status_type (Union[Literal['not_computed'], Unset]):  Default: 'not_computed'.
         scorer_type (Union[None, ScorerType, Unset]):
         metric_key_alias (Union[None, Unset, str]):
         message (Union[Unset, str]):  Default: 'Metric not computed.'.
     """
 
-    status_type: Literal["not_computed"] | Unset = "not_computed"
-    scorer_type: None | ScorerType | Unset = UNSET
-    metric_key_alias: None | Unset | str = UNSET
-    message: Unset | str = "Metric not computed."
+    status_type: Union[Literal["not_computed"], Unset] = "not_computed"
+    scorer_type: Union[None, ScorerType, Unset] = UNSET
+    metric_key_alias: Union[None, Unset, str] = UNSET
+    message: Union[Unset, str] = "Metric not computed."
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         status_type = self.status_type
 
-        scorer_type: None | Unset | str
+        scorer_type: Union[None, Unset, str]
         if isinstance(self.scorer_type, Unset):
             scorer_type = UNSET
         elif isinstance(self.scorer_type, ScorerType):
@@ -38,8 +37,11 @@ class MetricNotComputed:
         else:
             scorer_type = self.scorer_type
 
-        metric_key_alias: None | Unset | str
-        metric_key_alias = UNSET if isinstance(self.metric_key_alias, Unset) else self.metric_key_alias
+        metric_key_alias: Union[None, Unset, str]
+        if isinstance(self.metric_key_alias, Unset):
+            metric_key_alias = UNSET
+        else:
+            metric_key_alias = self.metric_key_alias
 
         message = self.message
 
@@ -60,11 +62,11 @@ class MetricNotComputed:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        status_type = cast(Literal["not_computed"] | Unset, d.pop("status_type", UNSET))
+        status_type = cast(Union[Literal["not_computed"], Unset], d.pop("status_type", UNSET))
         if status_type != "not_computed" and not isinstance(status_type, Unset):
             raise ValueError(f"status_type must match const 'not_computed', got '{status_type}'")
 
-        def _parse_scorer_type(data: object) -> None | ScorerType | Unset:
+        def _parse_scorer_type(data: object) -> Union[None, ScorerType, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -72,20 +74,21 @@ class MetricNotComputed:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return ScorerType(data)
+                scorer_type_type_0 = ScorerType(data)
 
+                return scorer_type_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | ScorerType | Unset, data)
+            return cast(Union[None, ScorerType, Unset], data)
 
         scorer_type = _parse_scorer_type(d.pop("scorer_type", UNSET))
 
-        def _parse_metric_key_alias(data: object) -> None | Unset | str:
+        def _parse_metric_key_alias(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         metric_key_alias = _parse_metric_key_alias(d.pop("metric_key_alias", UNSET))
 

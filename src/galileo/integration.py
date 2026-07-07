@@ -10,7 +10,7 @@ from galileo.resources.api.integrations import (
     list_integrations_integrations_get,
 )
 from galileo.resources.models.integration_db import IntegrationDB
-from galileo.resources.models.integration_name import IntegrationName
+from galileo.resources.models.integration_provider import IntegrationProvider
 from galileo.resources.types import Unset
 from galileo.shared.base import StateManagementMixin, SyncState
 from galileo.shared.exceptions import APIError, ValidationError
@@ -195,7 +195,7 @@ class Integration(StateManagementMixin):
                 logger.info("Integration.list: listing all available integration types")
                 response = list_available_integrations_integrations_available_get.sync(client=config.api_client)
                 if response and response.integrations:
-                    # Convert IntegrationName enums to strings
+                    # Convert IntegrationProvider enums to strings
                     available_integrations = [str(integration) for integration in response.integrations]
                     logger.info(f"Integration.list: found {len(available_integrations)} available types")
                     return available_integrations
@@ -321,21 +321,23 @@ class Integration(StateManagementMixin):
         """
         name = str(integration_db.name)
 
-        # Create appropriate provider instance based on name using __new__ to bypass __init__
+        provider_name = integration_db.provider
+
+        # Create appropriate provider instance based on provider using __new__ to bypass __init__
         provider: Provider
-        if name == IntegrationName.OPENAI:
+        if provider_name == IntegrationProvider.OPENAI:
             provider = OpenAIProvider.__new__(OpenAIProvider)
-        elif name == IntegrationName.AZURE:
+        elif provider_name == IntegrationProvider.AZURE:
             provider = AzureProvider.__new__(AzureProvider)
-        elif name == IntegrationName.AWS_BEDROCK:
+        elif provider_name == IntegrationProvider.AWS_BEDROCK:
             provider = BedrockProvider.__new__(BedrockProvider)
-        elif name == IntegrationName.ANTHROPIC:
+        elif provider_name == IntegrationProvider.ANTHROPIC:
             provider = AnthropicProvider.__new__(AnthropicProvider)
         else:
             # For unsupported providers, use GenericProvider
             provider = GenericProvider.__new__(GenericProvider)
-            # Store the integration name enum for _get_integration_name()
-            provider._integration_name = integration_db.name
+            # Store the integration provider enum for _get_integration_provider()
+            provider._integration_provider = provider_name
 
         # Initialize the StateManagementMixin parent class
         StateManagementMixin.__init__(provider)

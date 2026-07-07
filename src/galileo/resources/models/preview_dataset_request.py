@@ -16,8 +16,7 @@ T = TypeVar("T", bound="PreviewDatasetRequest")
 @_attrs_define
 class PreviewDatasetRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         column_mapping (Union['ColumnMapping', None, Unset]):
     """
 
@@ -27,7 +26,7 @@ class PreviewDatasetRequest:
     def to_dict(self) -> dict[str, Any]:
         from ..models.column_mapping import ColumnMapping
 
-        column_mapping: None | Unset | dict[str, Any]
+        column_mapping: Union[None, Unset, dict[str, Any]]
         if isinstance(self.column_mapping, Unset):
             column_mapping = UNSET
         elif isinstance(self.column_mapping, ColumnMapping):
@@ -57,8 +56,9 @@ class PreviewDatasetRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ColumnMapping.from_dict(data)
+                column_mapping_type_0 = ColumnMapping.from_dict(data)
 
+                return column_mapping_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ColumnMapping", None, Unset], data)

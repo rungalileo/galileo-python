@@ -13,7 +13,7 @@ T = TypeVar("T", bound="ExtendedSessionRecordAnnotationAggregates")
 
 @_attrs_define
 class ExtendedSessionRecordAnnotationAggregates:
-    """Annotation aggregate information keyed by template ID."""
+    """Annotation aggregate information keyed by template ID"""
 
     additional_properties: dict[str, "AnnotationAggregate"] = _attrs_field(init=False, factory=dict)
 

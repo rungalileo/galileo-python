@@ -10,8 +10,7 @@ T = TypeVar("T", bound="ValidateLLMScorerDatasetResponse")
 @_attrs_define
 class ValidateLLMScorerDatasetResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         metrics_experiment_id (str):
         project_id (str):
     """

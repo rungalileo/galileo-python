@@ -10,8 +10,7 @@ T = TypeVar("T", bound="RunTagCreateRequest")
 @_attrs_define
 class RunTagCreateRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         key (str):
         value (str):
         tag_type (str):

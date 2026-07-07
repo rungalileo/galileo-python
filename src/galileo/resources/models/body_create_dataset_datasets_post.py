@@ -1,12 +1,11 @@
 from collections.abc import Mapping
-from io import BytesIO
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from .. import types
-from ..types import UNSET, File, FileTypes, Unset
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="BodyCreateDatasetDatasetsPost")
 
@@ -14,26 +13,27 @@ T = TypeVar("T", bound="BodyCreateDatasetDatasetsPost")
 @_attrs_define
 class BodyCreateDatasetDatasetsPost:
     """
-    Attributes
-    ----------
+    Attributes:
         draft (Union[Unset, bool]):  Default: False.
         hidden (Union[Unset, bool]):  Default: False.
         name (Union[None, Unset, str]):
         append_suffix_if_duplicate (Union[Unset, bool]):  Default: False.
-        file (Union[File, None, Unset]):
+        file (Union[None, Unset, str]):
         copy_from_dataset_id (Union[None, Unset, str]):
         copy_from_dataset_version_index (Union[None, Unset, int]):
         project_id (Union[None, Unset, str]):
+        column_mapping (Union[None, Unset, str]):
     """
 
-    draft: Unset | bool = False
-    hidden: Unset | bool = False
-    name: None | Unset | str = UNSET
-    append_suffix_if_duplicate: Unset | bool = False
-    file: File | None | Unset = UNSET
-    copy_from_dataset_id: None | Unset | str = UNSET
-    copy_from_dataset_version_index: None | Unset | int = UNSET
-    project_id: None | Unset | str = UNSET
+    draft: Union[Unset, bool] = False
+    hidden: Union[Unset, bool] = False
+    name: Union[None, Unset, str] = UNSET
+    append_suffix_if_duplicate: Union[Unset, bool] = False
+    file: Union[None, Unset, str] = UNSET
+    copy_from_dataset_id: Union[None, Unset, str] = UNSET
+    copy_from_dataset_version_index: Union[None, Unset, int] = UNSET
+    project_id: Union[None, Unset, str] = UNSET
+    column_mapping: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,31 +41,43 @@ class BodyCreateDatasetDatasetsPost:
 
         hidden = self.hidden
 
-        name: None | Unset | str
-        name = UNSET if isinstance(self.name, Unset) else self.name
+        name: Union[None, Unset, str]
+        if isinstance(self.name, Unset):
+            name = UNSET
+        else:
+            name = self.name
 
         append_suffix_if_duplicate = self.append_suffix_if_duplicate
 
-        file: FileTypes | None | Unset
+        file: Union[None, Unset, str]
         if isinstance(self.file, Unset):
             file = UNSET
-        elif isinstance(self.file, File):
-            file = self.file.to_tuple()
-
         else:
             file = self.file
 
-        copy_from_dataset_id: None | Unset | str
-        copy_from_dataset_id = UNSET if isinstance(self.copy_from_dataset_id, Unset) else self.copy_from_dataset_id
+        copy_from_dataset_id: Union[None, Unset, str]
+        if isinstance(self.copy_from_dataset_id, Unset):
+            copy_from_dataset_id = UNSET
+        else:
+            copy_from_dataset_id = self.copy_from_dataset_id
 
-        copy_from_dataset_version_index: None | Unset | int
+        copy_from_dataset_version_index: Union[None, Unset, int]
         if isinstance(self.copy_from_dataset_version_index, Unset):
             copy_from_dataset_version_index = UNSET
         else:
             copy_from_dataset_version_index = self.copy_from_dataset_version_index
 
-        project_id: None | Unset | str
-        project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
+        project_id: Union[None, Unset, str]
+        if isinstance(self.project_id, Unset):
+            project_id = UNSET
+        else:
+            project_id = self.project_id
+
+        column_mapping: Union[None, Unset, str]
+        if isinstance(self.column_mapping, Unset):
+            column_mapping = UNSET
+        else:
+            column_mapping = self.column_mapping
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -86,6 +98,8 @@ class BodyCreateDatasetDatasetsPost:
             field_dict["copy_from_dataset_version_index"] = copy_from_dataset_version_index
         if project_id is not UNSET:
             field_dict["project_id"] = project_id
+        if column_mapping is not UNSET:
+            field_dict["column_mapping"] = column_mapping
 
         return field_dict
 
@@ -110,8 +124,8 @@ class BodyCreateDatasetDatasetsPost:
             )
 
         if not isinstance(self.file, Unset):
-            if isinstance(self.file, File):
-                files.append(("file", self.file.to_tuple()))
+            if isinstance(self.file, str):
+                files.append(("file", (None, str(self.file).encode(), "text/plain")))
             else:
                 files.append(("file", (None, str(self.file).encode(), "text/plain")))
 
@@ -143,6 +157,12 @@ class BodyCreateDatasetDatasetsPost:
             else:
                 files.append(("project_id", (None, str(self.project_id).encode(), "text/plain")))
 
+        if not isinstance(self.column_mapping, Unset):
+            if isinstance(self.column_mapping, str):
+                files.append(("column_mapping", (None, str(self.column_mapping).encode(), "text/plain")))
+            else:
+                files.append(("column_mapping", (None, str(self.column_mapping).encode(), "text/plain")))
+
         for prop_name, prop in self.additional_properties.items():
             files.append((prop_name, (None, str(prop).encode(), "text/plain")))
 
@@ -155,61 +175,63 @@ class BodyCreateDatasetDatasetsPost:
 
         hidden = d.pop("hidden", UNSET)
 
-        def _parse_name(data: object) -> None | Unset | str:
+        def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         name = _parse_name(d.pop("name", UNSET))
 
         append_suffix_if_duplicate = d.pop("append_suffix_if_duplicate", UNSET)
 
-        def _parse_file(data: object) -> File | None | Unset:
+        def _parse_file(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, bytes):
-                    raise TypeError()
-                return File(payload=BytesIO(data))
-
-            except:  # noqa: E722
-                pass
-            return cast(File | None | Unset, data)
+            return cast(Union[None, Unset, str], data)
 
         file = _parse_file(d.pop("file", UNSET))
 
-        def _parse_copy_from_dataset_id(data: object) -> None | Unset | str:
+        def _parse_copy_from_dataset_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         copy_from_dataset_id = _parse_copy_from_dataset_id(d.pop("copy_from_dataset_id", UNSET))
 
-        def _parse_copy_from_dataset_version_index(data: object) -> None | Unset | int:
+        def _parse_copy_from_dataset_version_index(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         copy_from_dataset_version_index = _parse_copy_from_dataset_version_index(
             d.pop("copy_from_dataset_version_index", UNSET)
         )
 
-        def _parse_project_id(data: object) -> None | Unset | str:
+        def _parse_project_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         project_id = _parse_project_id(d.pop("project_id", UNSET))
+
+        def _parse_column_mapping(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        column_mapping = _parse_column_mapping(d.pop("column_mapping", UNSET))
 
         body_create_dataset_datasets_post = cls(
             draft=draft,
@@ -220,6 +242,7 @@ class BodyCreateDatasetDatasetsPost:
             copy_from_dataset_id=copy_from_dataset_id,
             copy_from_dataset_version_index=copy_from_dataset_version_index,
             project_id=project_id,
+            column_mapping=column_mapping,
         )
 
         body_create_dataset_datasets_post.additional_properties = d

@@ -15,7 +15,7 @@ T = TypeVar("T", bound="ExtendedAgentSpanRecordWithChildrenAnnotations")
 
 @_attrs_define
 class ExtendedAgentSpanRecordWithChildrenAnnotations:
-    """Annotations keyed by template ID and annotator ID."""
+    """Annotations keyed by template ID and annotator ID"""
 
     additional_properties: dict[str, "ExtendedAgentSpanRecordWithChildrenAnnotationsAdditionalProperty"] = _attrs_field(
         init=False, factory=dict

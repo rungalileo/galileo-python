@@ -13,7 +13,7 @@ T = TypeVar("T", bound="PartialExtendedSessionRecordFeedbackRatingInfo")
 
 @_attrs_define
 class PartialExtendedSessionRecordFeedbackRatingInfo:
-    """Feedback information related to the record."""
+    """Feedback information related to the record"""
 
     additional_properties: dict[str, "FeedbackRatingInfo"] = _attrs_field(init=False, factory=dict)
 

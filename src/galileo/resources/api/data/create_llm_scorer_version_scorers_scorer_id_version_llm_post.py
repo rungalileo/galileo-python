@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(scorer_id: str, *, body: CreateLLMScorerVersionRequest) -> dict[
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": f"/scorers/{scorer_id}/version/llm",
+        "path": "/scorers/{scorer_id}/version/llm".format(scorer_id=scorer_id),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -42,12 +42,18 @@ def _get_kwargs(scorer_id: str, *, body: CreateLLMScorerVersionRequest) -> dict[
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> BaseScorerVersionResponse | HTTPValidationError:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[BaseScorerVersionResponse, HTTPValidationError]:
     if response.status_code == 200:
-        return BaseScorerVersionResponse.from_dict(response.json())
+        response_200 = BaseScorerVersionResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -69,7 +75,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> BaseScore
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[BaseScorerVersionResponse | HTTPValidationError]:
+) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,22 +86,21 @@ def _build_response(
 
 def sync_detailed(
     scorer_id: str, *, client: ApiClient, body: CreateLLMScorerVersionRequest
-) -> Response[BaseScorerVersionResponse | HTTPValidationError]:
-    """Create Llm Scorer Version.
+) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
+    """Create Llm Scorer Version
 
     Args:
         scorer_id (str):
         body (CreateLLMScorerVersionRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[BaseScorerVersionResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(scorer_id=scorer_id, body=body)
 
     response = client.request(**kwargs)
@@ -105,43 +110,41 @@ def sync_detailed(
 
 def sync(
     scorer_id: str, *, client: ApiClient, body: CreateLLMScorerVersionRequest
-) -> BaseScorerVersionResponse | HTTPValidationError | None:
-    """Create Llm Scorer Version.
+) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
+    """Create Llm Scorer Version
 
     Args:
         scorer_id (str):
         body (CreateLLMScorerVersionRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[BaseScorerVersionResponse, HTTPValidationError]
     """
+
     return sync_detailed(scorer_id=scorer_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     scorer_id: str, *, client: ApiClient, body: CreateLLMScorerVersionRequest
-) -> Response[BaseScorerVersionResponse | HTTPValidationError]:
-    """Create Llm Scorer Version.
+) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
+    """Create Llm Scorer Version
 
     Args:
         scorer_id (str):
         body (CreateLLMScorerVersionRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[BaseScorerVersionResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(scorer_id=scorer_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -151,20 +154,19 @@ async def asyncio_detailed(
 
 async def asyncio(
     scorer_id: str, *, client: ApiClient, body: CreateLLMScorerVersionRequest
-) -> BaseScorerVersionResponse | HTTPValidationError | None:
-    """Create Llm Scorer Version.
+) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
+    """Create Llm Scorer Version
 
     Args:
         scorer_id (str):
         body (CreateLLMScorerVersionRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[BaseScorerVersionResponse, HTTPValidationError]
     """
+
     return (await asyncio_detailed(scorer_id=scorer_id, client=client, body=body)).parsed

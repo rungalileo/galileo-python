@@ -16,8 +16,7 @@ T = TypeVar("T", bound="DatasetProject")
 @_attrs_define
 class DatasetProject:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
@@ -43,7 +42,7 @@ class DatasetProject:
 
         name = self.name
 
-        created_by_user: None | dict[str, Any]
+        created_by_user: Union[None, dict[str, Any]]
         if isinstance(self.created_by_user, UserInfo):
             created_by_user = self.created_by_user.to_dict()
         else:
@@ -82,8 +81,9 @@ class DatasetProject:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return UserInfo.from_dict(data)
+                created_by_user_type_0 = UserInfo.from_dict(data)
 
+                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["UserInfo", None], data)

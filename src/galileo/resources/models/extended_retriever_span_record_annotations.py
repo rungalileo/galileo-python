@@ -15,7 +15,7 @@ T = TypeVar("T", bound="ExtendedRetrieverSpanRecordAnnotations")
 
 @_attrs_define
 class ExtendedRetrieverSpanRecordAnnotations:
-    """Annotations keyed by template ID and annotator ID."""
+    """Annotations keyed by template ID and annotator ID"""
 
     additional_properties: dict[str, "ExtendedRetrieverSpanRecordAnnotationsAdditionalProperty"] = _attrs_field(
         init=False, factory=dict

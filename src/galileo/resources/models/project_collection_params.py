@@ -29,17 +29,16 @@ T = TypeVar("T", bound="ProjectCollectionParams")
 @_attrs_define
 class ProjectCollectionParams:
     """
-    Attributes
-    ----------
+    Attributes:
         filters (Union[Unset, list[Union['ProjectBookmarkFilter', 'ProjectCreatedAtFilter', 'ProjectCreatorFilter',
             'ProjectIDFilter', 'ProjectNameFilter', 'ProjectRunsFilter', 'ProjectTypeFilter', 'ProjectUpdatedAtFilter']]]):
         sort (Union['ProjectBookmarkSort', 'ProjectCreatedAtSortV1', 'ProjectNameSortV1', 'ProjectRunsSort',
             'ProjectTypeSort', 'ProjectUpdatedAtSortV1', None, Unset]):  Default: None.
     """
 
-    filters: (
-        Unset
-        | list[
+    filters: Union[
+        Unset,
+        list[
             Union[
                 "ProjectBookmarkFilter",
                 "ProjectCreatedAtFilter",
@@ -50,8 +49,8 @@ class ProjectCollectionParams:
                 "ProjectTypeFilter",
                 "ProjectUpdatedAtFilter",
             ]
-        ]
-    ) = UNSET
+        ],
+    ] = UNSET
     sort: Union[
         "ProjectBookmarkSort",
         "ProjectCreatedAtSortV1",
@@ -79,37 +78,44 @@ class ProjectCollectionParams:
         from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
         from ..models.project_updated_at_sort_v1 import ProjectUpdatedAtSortV1
 
-        filters: Unset | list[dict[str, Any]] = UNSET
+        filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
-                if isinstance(
-                    filters_item_data,
-                    ProjectIDFilter
-                    | ProjectNameFilter
-                    | ProjectTypeFilter
-                    | ProjectCreatorFilter
-                    | (ProjectCreatedAtFilter | ProjectUpdatedAtFilter)
-                    | ProjectRunsFilter,
-                ):
+                if isinstance(filters_item_data, ProjectIDFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, ProjectNameFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, ProjectTypeFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, ProjectCreatorFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, ProjectCreatedAtFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, ProjectUpdatedAtFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, ProjectRunsFilter):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
 
                 filters.append(filters_item)
 
-        sort: None | Unset | dict[str, Any]
+        sort: Union[None, Unset, dict[str, Any]]
         if isinstance(self.sort, Unset):
             sort = UNSET
-        elif isinstance(
-            self.sort,
-            ProjectNameSortV1
-            | ProjectTypeSort
-            | ProjectCreatedAtSortV1
-            | ProjectUpdatedAtSortV1
-            | (ProjectRunsSort | ProjectBookmarkSort),
-        ):
+        elif isinstance(self.sort, ProjectNameSortV1):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, ProjectTypeSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, ProjectCreatedAtSortV1):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, ProjectUpdatedAtSortV1):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, ProjectRunsSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, ProjectBookmarkSort):
             sort = self.sort.to_dict()
         else:
             sort = self.sort
@@ -161,55 +167,64 @@ class ProjectCollectionParams:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ProjectIDFilter.from_dict(data)
+                    filters_item_type_0 = ProjectIDFilter.from_dict(data)
 
+                    return filters_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ProjectNameFilter.from_dict(data)
+                    filters_item_type_1 = ProjectNameFilter.from_dict(data)
 
+                    return filters_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ProjectTypeFilter.from_dict(data)
+                    filters_item_type_2 = ProjectTypeFilter.from_dict(data)
 
+                    return filters_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ProjectCreatorFilter.from_dict(data)
+                    filters_item_type_3 = ProjectCreatorFilter.from_dict(data)
 
+                    return filters_item_type_3
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ProjectCreatedAtFilter.from_dict(data)
+                    filters_item_type_4 = ProjectCreatedAtFilter.from_dict(data)
 
+                    return filters_item_type_4
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ProjectUpdatedAtFilter.from_dict(data)
+                    filters_item_type_5 = ProjectUpdatedAtFilter.from_dict(data)
 
+                    return filters_item_type_5
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ProjectRunsFilter.from_dict(data)
+                    filters_item_type_6 = ProjectRunsFilter.from_dict(data)
 
+                    return filters_item_type_6
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ProjectBookmarkFilter.from_dict(data)
+                filters_item_type_7 = ProjectBookmarkFilter.from_dict(data)
+
+                return filters_item_type_7
 
             filters_item = _parse_filters_item(filters_item_data)
 
@@ -234,43 +249,49 @@ class ProjectCollectionParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ProjectNameSortV1.from_dict(data)
+                sort_type_0_type_0 = ProjectNameSortV1.from_dict(data)
 
+                return sort_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ProjectTypeSort.from_dict(data)
+                sort_type_0_type_1 = ProjectTypeSort.from_dict(data)
 
+                return sort_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ProjectCreatedAtSortV1.from_dict(data)
+                sort_type_0_type_2 = ProjectCreatedAtSortV1.from_dict(data)
 
+                return sort_type_0_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ProjectUpdatedAtSortV1.from_dict(data)
+                sort_type_0_type_3 = ProjectUpdatedAtSortV1.from_dict(data)
 
+                return sort_type_0_type_3
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ProjectRunsSort.from_dict(data)
+                sort_type_0_type_4 = ProjectRunsSort.from_dict(data)
 
+                return sort_type_0_type_4
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ProjectBookmarkSort.from_dict(data)
+                sort_type_0_type_5 = ProjectBookmarkSort.from_dict(data)
 
+                return sort_type_0_type_5
             except:  # noqa: E722
                 pass
             return cast(

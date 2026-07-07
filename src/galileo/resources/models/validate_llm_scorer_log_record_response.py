@@ -10,8 +10,7 @@ T = TypeVar("T", bound="ValidateLLMScorerLogRecordResponse")
 @_attrs_define
 class ValidateLLMScorerLogRecordResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         metrics_experiment_id (str):
         project_id (str):
     """

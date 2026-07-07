@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,8 +17,7 @@ T = TypeVar("T", bound="StageWithRulesets")
 @_attrs_define
 class StageWithRulesets:
     """
-    Attributes
-    ----------
+    Attributes:
         name (str): Name of the stage. Must be unique within the project.
         project_id (str): ID of the project to which this stage belongs.
         prioritized_rulesets (Union[Unset, list['Ruleset']]): Rulesets to be applied to the payload.
@@ -30,10 +29,10 @@ class StageWithRulesets:
 
     name: str
     project_id: str
-    prioritized_rulesets: Unset | list["Ruleset"] = UNSET
-    description: None | Unset | str = UNSET
-    type_: Unset | StageType = UNSET
-    paused: Unset | bool = False
+    prioritized_rulesets: Union[Unset, list["Ruleset"]] = UNSET
+    description: Union[None, Unset, str] = UNSET
+    type_: Union[Unset, StageType] = UNSET
+    paused: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,17 +40,20 @@ class StageWithRulesets:
 
         project_id = self.project_id
 
-        prioritized_rulesets: Unset | list[dict[str, Any]] = UNSET
+        prioritized_rulesets: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.prioritized_rulesets, Unset):
             prioritized_rulesets = []
             for prioritized_rulesets_item_data in self.prioritized_rulesets:
                 prioritized_rulesets_item = prioritized_rulesets_item_data.to_dict()
                 prioritized_rulesets.append(prioritized_rulesets_item)
 
-        description: None | Unset | str
-        description = UNSET if isinstance(self.description, Unset) else self.description
+        description: Union[None, Unset, str]
+        if isinstance(self.description, Unset):
+            description = UNSET
+        else:
+            description = self.description
 
-        type_: Unset | str = UNSET
+        type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
 
@@ -87,18 +89,21 @@ class StageWithRulesets:
 
             prioritized_rulesets.append(prioritized_rulesets_item)
 
-        def _parse_description(data: object) -> None | Unset | str:
+        def _parse_description(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         description = _parse_description(d.pop("description", UNSET))
 
         _type_ = d.pop("type", UNSET)
-        type_: Unset | StageType
-        type_ = UNSET if isinstance(_type_, Unset) else StageType(_type_)
+        type_: Union[Unset, StageType]
+        if isinstance(_type_, Unset):
+            type_ = UNSET
+        else:
+            type_ = StageType(_type_)
 
         paused = d.pop("paused", UNSET)
 

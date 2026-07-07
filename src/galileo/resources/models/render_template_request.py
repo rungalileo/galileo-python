@@ -15,8 +15,7 @@ T = TypeVar("T", bound="RenderTemplateRequest")
 @_attrs_define
 class RenderTemplateRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         template (str):
         data (Union['DatasetData', 'StringData']):
     """
@@ -31,7 +30,10 @@ class RenderTemplateRequest:
         template = self.template
 
         data: dict[str, Any]
-        data = self.data.to_dict() if isinstance(self.data, DatasetData) else self.data.to_dict()
+        if isinstance(self.data, DatasetData):
+            data = self.data.to_dict()
+        else:
+            data = self.data.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -51,13 +53,16 @@ class RenderTemplateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetData.from_dict(data)
+                data_type_0 = DatasetData.from_dict(data)
 
+                return data_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return StringData.from_dict(data)
+            data_type_1 = StringData.from_dict(data)
+
+            return data_type_1
 
         data = _parse_data(d.pop("data"))
 

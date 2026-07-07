@@ -26,10 +26,11 @@ T = TypeVar("T", bound="CreateScorerRequest")
 @_attrs_define
 class CreateScorerRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         name (str):
         scorer_type (ScorerTypes):
+        id (Union[None, Unset, str]):
+        label (Union[None, Unset, str]):
         description (Union[Unset, str]):  Default: ''.
         tags (Union[Unset, list[str]]):
         defaults (Union['ScorerDefaults', None, Unset]):
@@ -43,27 +44,33 @@ class CreateScorerRequest:
         input_type (Union[InputTypeEnum, None, Unset]):
         multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
         required_scorers (Union[None, Unset, list[str]]):
+        required_metric_ids (Union[None, Unset, list[str]]):
         roll_up_method (Union[None, RollUpMethodDisplayOptions, Unset]):
         metric_color_picker_config (Union['MetricColorPickerBoolean', 'MetricColorPickerCategorical',
             'MetricColorPickerMultiLabel', 'MetricColorPickerNumeric', None, Unset]):
+        is_global (Union[None, Unset, bool]):
+        project_ids (Union[Unset, list[str]]):
     """
 
     name: str
     scorer_type: ScorerTypes
-    description: Unset | str = ""
-    tags: Unset | list[str] = UNSET
+    id: Union[None, Unset, str] = UNSET
+    label: Union[None, Unset, str] = UNSET
+    description: Union[Unset, str] = ""
+    tags: Union[Unset, list[str]] = UNSET
     defaults: Union["ScorerDefaults", None, Unset] = UNSET
-    deprecated: None | Unset | bool = UNSET
-    model_type: ModelType | None | Unset = UNSET
-    ground_truth: None | Unset | bool = UNSET
-    default_version_id: None | Unset | str = UNSET
-    user_prompt: None | Unset | str = UNSET
-    scoreable_node_types: None | Unset | list[str] = UNSET
-    output_type: None | OutputTypeEnum | Unset = UNSET
-    input_type: InputTypeEnum | None | Unset = UNSET
-    multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET
-    required_scorers: None | Unset | list[str] = UNSET
-    roll_up_method: None | RollUpMethodDisplayOptions | Unset = UNSET
+    deprecated: Union[None, Unset, bool] = UNSET
+    model_type: Union[ModelType, None, Unset] = UNSET
+    ground_truth: Union[None, Unset, bool] = UNSET
+    default_version_id: Union[None, Unset, str] = UNSET
+    user_prompt: Union[None, Unset, str] = UNSET
+    scoreable_node_types: Union[None, Unset, list[str]] = UNSET
+    output_type: Union[None, OutputTypeEnum, Unset] = UNSET
+    input_type: Union[InputTypeEnum, None, Unset] = UNSET
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
+    required_scorers: Union[None, Unset, list[str]] = UNSET
+    required_metric_ids: Union[None, Unset, list[str]] = UNSET
+    roll_up_method: Union[None, RollUpMethodDisplayOptions, Unset] = UNSET
     metric_color_picker_config: Union[
         "MetricColorPickerBoolean",
         "MetricColorPickerCategorical",
@@ -72,6 +79,8 @@ class CreateScorerRequest:
         None,
         Unset,
     ] = UNSET
+    is_global: Union[None, Unset, bool] = UNSET
+    project_ids: Union[Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -85,13 +94,25 @@ class CreateScorerRequest:
 
         scorer_type = self.scorer_type.value
 
+        id: Union[None, Unset, str]
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
+
+        label: Union[None, Unset, str]
+        if isinstance(self.label, Unset):
+            label = UNSET
+        else:
+            label = self.label
+
         description = self.description
 
-        tags: Unset | list[str] = UNSET
+        tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
-        defaults: None | Unset | dict[str, Any]
+        defaults: Union[None, Unset, dict[str, Any]]
         if isinstance(self.defaults, Unset):
             defaults = UNSET
         elif isinstance(self.defaults, ScorerDefaults):
@@ -99,10 +120,13 @@ class CreateScorerRequest:
         else:
             defaults = self.defaults
 
-        deprecated: None | Unset | bool
-        deprecated = UNSET if isinstance(self.deprecated, Unset) else self.deprecated
+        deprecated: Union[None, Unset, bool]
+        if isinstance(self.deprecated, Unset):
+            deprecated = UNSET
+        else:
+            deprecated = self.deprecated
 
-        model_type: None | Unset | str
+        model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
             model_type = UNSET
         elif isinstance(self.model_type, ModelType):
@@ -110,16 +134,25 @@ class CreateScorerRequest:
         else:
             model_type = self.model_type
 
-        ground_truth: None | Unset | bool
-        ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
+        ground_truth: Union[None, Unset, bool]
+        if isinstance(self.ground_truth, Unset):
+            ground_truth = UNSET
+        else:
+            ground_truth = self.ground_truth
 
-        default_version_id: None | Unset | str
-        default_version_id = UNSET if isinstance(self.default_version_id, Unset) else self.default_version_id
+        default_version_id: Union[None, Unset, str]
+        if isinstance(self.default_version_id, Unset):
+            default_version_id = UNSET
+        else:
+            default_version_id = self.default_version_id
 
-        user_prompt: None | Unset | str
-        user_prompt = UNSET if isinstance(self.user_prompt, Unset) else self.user_prompt
+        user_prompt: Union[None, Unset, str]
+        if isinstance(self.user_prompt, Unset):
+            user_prompt = UNSET
+        else:
+            user_prompt = self.user_prompt
 
-        scoreable_node_types: None | Unset | list[str]
+        scoreable_node_types: Union[None, Unset, list[str]]
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
         elif isinstance(self.scoreable_node_types, list):
@@ -128,7 +161,7 @@ class CreateScorerRequest:
         else:
             scoreable_node_types = self.scoreable_node_types
 
-        output_type: None | Unset | str
+        output_type: Union[None, Unset, str]
         if isinstance(self.output_type, Unset):
             output_type = UNSET
         elif isinstance(self.output_type, OutputTypeEnum):
@@ -136,7 +169,7 @@ class CreateScorerRequest:
         else:
             output_type = self.output_type
 
-        input_type: None | Unset | str
+        input_type: Union[None, Unset, str]
         if isinstance(self.input_type, Unset):
             input_type = UNSET
         elif isinstance(self.input_type, InputTypeEnum):
@@ -144,7 +177,7 @@ class CreateScorerRequest:
         else:
             input_type = self.input_type
 
-        multimodal_capabilities: None | Unset | list[str]
+        multimodal_capabilities: Union[None, Unset, list[str]]
         if isinstance(self.multimodal_capabilities, Unset):
             multimodal_capabilities = UNSET
         elif isinstance(self.multimodal_capabilities, list):
@@ -156,7 +189,7 @@ class CreateScorerRequest:
         else:
             multimodal_capabilities = self.multimodal_capabilities
 
-        required_scorers: None | Unset | list[str]
+        required_scorers: Union[None, Unset, list[str]]
         if isinstance(self.required_scorers, Unset):
             required_scorers = UNSET
         elif isinstance(self.required_scorers, list):
@@ -165,7 +198,16 @@ class CreateScorerRequest:
         else:
             required_scorers = self.required_scorers
 
-        roll_up_method: None | Unset | str
+        required_metric_ids: Union[None, Unset, list[str]]
+        if isinstance(self.required_metric_ids, Unset):
+            required_metric_ids = UNSET
+        elif isinstance(self.required_metric_ids, list):
+            required_metric_ids = self.required_metric_ids
+
+        else:
+            required_metric_ids = self.required_metric_ids
+
+        roll_up_method: Union[None, Unset, str]
         if isinstance(self.roll_up_method, Unset):
             roll_up_method = UNSET
         elif isinstance(self.roll_up_method, RollUpMethodDisplayOptions):
@@ -173,23 +215,37 @@ class CreateScorerRequest:
         else:
             roll_up_method = self.roll_up_method
 
-        metric_color_picker_config: None | Unset | dict[str, Any]
+        metric_color_picker_config: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_color_picker_config, Unset):
             metric_color_picker_config = UNSET
-        elif isinstance(
-            self.metric_color_picker_config,
-            MetricColorPickerNumeric
-            | MetricColorPickerBoolean
-            | MetricColorPickerCategorical
-            | MetricColorPickerMultiLabel,
-        ):
+        elif isinstance(self.metric_color_picker_config, MetricColorPickerNumeric):
+            metric_color_picker_config = self.metric_color_picker_config.to_dict()
+        elif isinstance(self.metric_color_picker_config, MetricColorPickerBoolean):
+            metric_color_picker_config = self.metric_color_picker_config.to_dict()
+        elif isinstance(self.metric_color_picker_config, MetricColorPickerCategorical):
+            metric_color_picker_config = self.metric_color_picker_config.to_dict()
+        elif isinstance(self.metric_color_picker_config, MetricColorPickerMultiLabel):
             metric_color_picker_config = self.metric_color_picker_config.to_dict()
         else:
             metric_color_picker_config = self.metric_color_picker_config
 
+        is_global: Union[None, Unset, bool]
+        if isinstance(self.is_global, Unset):
+            is_global = UNSET
+        else:
+            is_global = self.is_global
+
+        project_ids: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.project_ids, Unset):
+            project_ids = self.project_ids
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"name": name, "scorer_type": scorer_type})
+        if id is not UNSET:
+            field_dict["id"] = id
+        if label is not UNSET:
+            field_dict["label"] = label
         if description is not UNSET:
             field_dict["description"] = description
         if tags is not UNSET:
@@ -216,10 +272,16 @@ class CreateScorerRequest:
             field_dict["multimodal_capabilities"] = multimodal_capabilities
         if required_scorers is not UNSET:
             field_dict["required_scorers"] = required_scorers
+        if required_metric_ids is not UNSET:
+            field_dict["required_metric_ids"] = required_metric_ids
         if roll_up_method is not UNSET:
             field_dict["roll_up_method"] = roll_up_method
         if metric_color_picker_config is not UNSET:
             field_dict["metric_color_picker_config"] = metric_color_picker_config
+        if is_global is not UNSET:
+            field_dict["is_global"] = is_global
+        if project_ids is not UNSET:
+            field_dict["project_ids"] = project_ids
 
         return field_dict
 
@@ -236,6 +298,24 @@ class CreateScorerRequest:
 
         scorer_type = ScorerTypes(d.pop("scorer_type"))
 
+        def _parse_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        id = _parse_id(d.pop("id", UNSET))
+
+        def _parse_label(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        label = _parse_label(d.pop("label", UNSET))
+
         description = d.pop("description", UNSET)
 
         tags = cast(list[str], d.pop("tags", UNSET))
@@ -248,24 +328,25 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ScorerDefaults.from_dict(data)
+                defaults_type_0 = ScorerDefaults.from_dict(data)
 
+                return defaults_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ScorerDefaults", None, Unset], data)
 
         defaults = _parse_defaults(d.pop("defaults", UNSET))
 
-        def _parse_deprecated(data: object) -> None | Unset | bool:
+        def _parse_deprecated(data: object) -> Union[None, Unset, bool]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | bool, data)
+            return cast(Union[None, Unset, bool], data)
 
         deprecated = _parse_deprecated(d.pop("deprecated", UNSET))
 
-        def _parse_model_type(data: object) -> ModelType | None | Unset:
+        def _parse_model_type(data: object) -> Union[ModelType, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -273,42 +354,43 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return ModelType(data)
+                model_type_type_0 = ModelType(data)
 
+                return model_type_type_0
             except:  # noqa: E722
                 pass
-            return cast(ModelType | None | Unset, data)
+            return cast(Union[ModelType, None, Unset], data)
 
         model_type = _parse_model_type(d.pop("model_type", UNSET))
 
-        def _parse_ground_truth(data: object) -> None | Unset | bool:
+        def _parse_ground_truth(data: object) -> Union[None, Unset, bool]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | bool, data)
+            return cast(Union[None, Unset, bool], data)
 
         ground_truth = _parse_ground_truth(d.pop("ground_truth", UNSET))
 
-        def _parse_default_version_id(data: object) -> None | Unset | str:
+        def _parse_default_version_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         default_version_id = _parse_default_version_id(d.pop("default_version_id", UNSET))
 
-        def _parse_user_prompt(data: object) -> None | Unset | str:
+        def _parse_user_prompt(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         user_prompt = _parse_user_prompt(d.pop("user_prompt", UNSET))
 
-        def _parse_scoreable_node_types(data: object) -> None | Unset | list[str]:
+        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -316,15 +398,16 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                scoreable_node_types_type_0 = cast(list[str], data)
 
+                return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[str], data)
+            return cast(Union[None, Unset, list[str]], data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
-        def _parse_output_type(data: object) -> None | OutputTypeEnum | Unset:
+        def _parse_output_type(data: object) -> Union[None, OutputTypeEnum, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -332,15 +415,16 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return OutputTypeEnum(data)
+                output_type_type_0 = OutputTypeEnum(data)
 
+                return output_type_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | OutputTypeEnum | Unset, data)
+            return cast(Union[None, OutputTypeEnum, Unset], data)
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 
-        def _parse_input_type(data: object) -> InputTypeEnum | None | Unset:
+        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -348,15 +432,16 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return InputTypeEnum(data)
+                input_type_type_0 = InputTypeEnum(data)
 
+                return input_type_type_0
             except:  # noqa: E722
                 pass
-            return cast(InputTypeEnum | None | Unset, data)
+            return cast(Union[InputTypeEnum, None, Unset], data)
 
         input_type = _parse_input_type(d.pop("input_type", UNSET))
 
-        def _parse_multimodal_capabilities(data: object) -> None | Unset | list[MultimodalCapability]:
+        def _parse_multimodal_capabilities(data: object) -> Union[None, Unset, list[MultimodalCapability]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -374,11 +459,11 @@ class CreateScorerRequest:
                 return multimodal_capabilities_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[MultimodalCapability], data)
+            return cast(Union[None, Unset, list[MultimodalCapability]], data)
 
         multimodal_capabilities = _parse_multimodal_capabilities(d.pop("multimodal_capabilities", UNSET))
 
-        def _parse_required_scorers(data: object) -> None | Unset | list[str]:
+        def _parse_required_scorers(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -386,15 +471,33 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                required_scorers_type_0 = cast(list[str], data)
 
+                return required_scorers_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[str], data)
+            return cast(Union[None, Unset, list[str]], data)
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
-        def _parse_roll_up_method(data: object) -> None | RollUpMethodDisplayOptions | Unset:
+        def _parse_required_metric_ids(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                required_metric_ids_type_0 = cast(list[str], data)
+
+                return required_metric_ids_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        required_metric_ids = _parse_required_metric_ids(d.pop("required_metric_ids", UNSET))
+
+        def _parse_roll_up_method(data: object) -> Union[None, RollUpMethodDisplayOptions, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -402,11 +505,12 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return RollUpMethodDisplayOptions(data)
+                roll_up_method_type_0 = RollUpMethodDisplayOptions(data)
 
+                return roll_up_method_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | RollUpMethodDisplayOptions | Unset, data)
+            return cast(Union[None, RollUpMethodDisplayOptions, Unset], data)
 
         roll_up_method = _parse_roll_up_method(d.pop("roll_up_method", UNSET))
 
@@ -427,29 +531,33 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MetricColorPickerNumeric.from_dict(data)
+                metric_color_picker_config_type_0_type_0 = MetricColorPickerNumeric.from_dict(data)
 
+                return metric_color_picker_config_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MetricColorPickerBoolean.from_dict(data)
+                metric_color_picker_config_type_0_type_1 = MetricColorPickerBoolean.from_dict(data)
 
+                return metric_color_picker_config_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MetricColorPickerCategorical.from_dict(data)
+                metric_color_picker_config_type_0_type_2 = MetricColorPickerCategorical.from_dict(data)
 
+                return metric_color_picker_config_type_0_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MetricColorPickerMultiLabel.from_dict(data)
+                metric_color_picker_config_type_0_type_3 = MetricColorPickerMultiLabel.from_dict(data)
 
+                return metric_color_picker_config_type_0_type_3
             except:  # noqa: E722
                 pass
             return cast(
@@ -466,9 +574,22 @@ class CreateScorerRequest:
 
         metric_color_picker_config = _parse_metric_color_picker_config(d.pop("metric_color_picker_config", UNSET))
 
+        def _parse_is_global(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        is_global = _parse_is_global(d.pop("is_global", UNSET))
+
+        project_ids = cast(list[str], d.pop("project_ids", UNSET))
+
         create_scorer_request = cls(
             name=name,
             scorer_type=scorer_type,
+            id=id,
+            label=label,
             description=description,
             tags=tags,
             defaults=defaults,
@@ -482,8 +603,11 @@ class CreateScorerRequest:
             input_type=input_type,
             multimodal_capabilities=multimodal_capabilities,
             required_scorers=required_scorers,
+            required_metric_ids=required_metric_ids,
             roll_up_method=roll_up_method,
             metric_color_picker_config=metric_color_picker_config,
+            is_global=is_global,
+            project_ids=project_ids,
         )
 
         create_scorer_request.additional_properties = d

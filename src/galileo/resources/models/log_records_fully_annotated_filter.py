@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,8 +13,7 @@ T = TypeVar("T", bound="LogRecordsFullyAnnotatedFilter")
 class LogRecordsFullyAnnotatedFilter:
     """Queue-scoped filter for records rated across all queue templates.
 
-    Attributes
-    ----------
+    Attributes:
         column_id (Union[Literal['fully_annotated'], Unset]): Queue-scoped filter identifier. This filter only works for
             annotation-queue searches that provide queue context. Default: 'fully_annotated'.
         type_ (Union[Literal['fully_annotated'], Unset]):  Default: 'fully_annotated'.
@@ -22,9 +21,9 @@ class LogRecordsFullyAnnotatedFilter:
             scoped search. If omitted, all tracked queue members visible to the requester are used.
     """
 
-    column_id: Literal["fully_annotated"] | Unset = "fully_annotated"
-    type_: Literal["fully_annotated"] | Unset = "fully_annotated"
-    user_ids: None | Unset | list[str] = UNSET
+    column_id: Union[Literal["fully_annotated"], Unset] = "fully_annotated"
+    type_: Union[Literal["fully_annotated"], Unset] = "fully_annotated"
+    user_ids: Union[None, Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,7 +31,7 @@ class LogRecordsFullyAnnotatedFilter:
 
         type_ = self.type_
 
-        user_ids: None | Unset | list[str]
+        user_ids: Union[None, Unset, list[str]]
         if isinstance(self.user_ids, Unset):
             user_ids = UNSET
         elif isinstance(self.user_ids, list):
@@ -56,15 +55,15 @@ class LogRecordsFullyAnnotatedFilter:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        column_id = cast(Literal["fully_annotated"] | Unset, d.pop("column_id", UNSET))
+        column_id = cast(Union[Literal["fully_annotated"], Unset], d.pop("column_id", UNSET))
         if column_id != "fully_annotated" and not isinstance(column_id, Unset):
             raise ValueError(f"column_id must match const 'fully_annotated', got '{column_id}'")
 
-        type_ = cast(Literal["fully_annotated"] | Unset, d.pop("type", UNSET))
+        type_ = cast(Union[Literal["fully_annotated"], Unset], d.pop("type", UNSET))
         if type_ != "fully_annotated" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'fully_annotated', got '{type_}'")
 
-        def _parse_user_ids(data: object) -> None | Unset | list[str]:
+        def _parse_user_ids(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -72,11 +71,12 @@ class LogRecordsFullyAnnotatedFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                user_ids_type_0 = cast(list[str], data)
 
+                return user_ids_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[str], data)
+            return cast(Union[None, Unset, list[str]], data)
 
         user_ids = _parse_user_ids(d.pop("user_ids", UNSET))
 

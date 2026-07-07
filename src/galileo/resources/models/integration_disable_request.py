@@ -4,24 +4,21 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.integration_name import IntegrationName
-
 T = TypeVar("T", bound="IntegrationDisableRequest")
 
 
 @_attrs_define
 class IntegrationDisableRequest:
     """
-    Attributes
-    ----------
-        integration_name (IntegrationName):
+    Attributes:
+        integration_name (str):
     """
 
-    integration_name: IntegrationName
+    integration_name: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        integration_name = self.integration_name.value
+        integration_name = self.integration_name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -32,7 +29,7 @@ class IntegrationDisableRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        integration_name = IntegrationName(d.pop("integration_name"))
+        integration_name = d.pop("integration_name")
 
         integration_disable_request = cls(integration_name=integration_name)
 

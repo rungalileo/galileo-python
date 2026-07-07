@@ -18,8 +18,7 @@ T = TypeVar("T", bound="ExperimentCreateRequest")
 @_attrs_define
 class ExperimentCreateRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         name (str):
         task_type (Union[Literal[16], Literal[17], Unset]):  Default: 16.
         playground_id (Union[None, Unset, str]):
@@ -29,17 +28,21 @@ class ExperimentCreateRequest:
         prompt_settings (Union['PromptRunSettings', None, Unset]):
         scorers (Union[Unset, list['ScorerConfig']]):
         trigger (Union[Unset, bool]):  Default: False.
+        experiment_group_id (Union[None, Unset, str]):
+        experiment_group_name (Union[None, Unset, str]):
     """
 
     name: str
-    task_type: Literal[16] | Literal[17] | Unset = 16
-    playground_id: None | Unset | str = UNSET
-    prompt_template_version_id: None | Unset | str = UNSET
+    task_type: Union[Literal[16], Literal[17], Unset] = 16
+    playground_id: Union[None, Unset, str] = UNSET
+    prompt_template_version_id: Union[None, Unset, str] = UNSET
     dataset: Union["ExperimentDatasetRequest", None, Unset] = UNSET
-    playground_prompt_id: None | Unset | str = UNSET
+    playground_prompt_id: Union[None, Unset, str] = UNSET
     prompt_settings: Union["PromptRunSettings", None, Unset] = UNSET
-    scorers: Unset | list["ScorerConfig"] = UNSET
-    trigger: Unset | bool = False
+    scorers: Union[Unset, list["ScorerConfig"]] = UNSET
+    trigger: Union[Unset, bool] = False
+    experiment_group_id: Union[None, Unset, str] = UNSET
+    experiment_group_name: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -48,19 +51,25 @@ class ExperimentCreateRequest:
 
         name = self.name
 
-        task_type: Literal[16] | Literal[17] | Unset
-        task_type = UNSET if isinstance(self.task_type, Unset) else self.task_type
+        task_type: Union[Literal[16], Literal[17], Unset]
+        if isinstance(self.task_type, Unset):
+            task_type = UNSET
+        else:
+            task_type = self.task_type
 
-        playground_id: None | Unset | str
-        playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
+        playground_id: Union[None, Unset, str]
+        if isinstance(self.playground_id, Unset):
+            playground_id = UNSET
+        else:
+            playground_id = self.playground_id
 
-        prompt_template_version_id: None | Unset | str
+        prompt_template_version_id: Union[None, Unset, str]
         if isinstance(self.prompt_template_version_id, Unset):
             prompt_template_version_id = UNSET
         else:
             prompt_template_version_id = self.prompt_template_version_id
 
-        dataset: None | Unset | dict[str, Any]
+        dataset: Union[None, Unset, dict[str, Any]]
         if isinstance(self.dataset, Unset):
             dataset = UNSET
         elif isinstance(self.dataset, ExperimentDatasetRequest):
@@ -68,10 +77,13 @@ class ExperimentCreateRequest:
         else:
             dataset = self.dataset
 
-        playground_prompt_id: None | Unset | str
-        playground_prompt_id = UNSET if isinstance(self.playground_prompt_id, Unset) else self.playground_prompt_id
+        playground_prompt_id: Union[None, Unset, str]
+        if isinstance(self.playground_prompt_id, Unset):
+            playground_prompt_id = UNSET
+        else:
+            playground_prompt_id = self.playground_prompt_id
 
-        prompt_settings: None | Unset | dict[str, Any]
+        prompt_settings: Union[None, Unset, dict[str, Any]]
         if isinstance(self.prompt_settings, Unset):
             prompt_settings = UNSET
         elif isinstance(self.prompt_settings, PromptRunSettings):
@@ -79,7 +91,7 @@ class ExperimentCreateRequest:
         else:
             prompt_settings = self.prompt_settings
 
-        scorers: Unset | list[dict[str, Any]] = UNSET
+        scorers: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.scorers, Unset):
             scorers = []
             for scorers_item_data in self.scorers:
@@ -87,6 +99,18 @@ class ExperimentCreateRequest:
                 scorers.append(scorers_item)
 
         trigger = self.trigger
+
+        experiment_group_id: Union[None, Unset, str]
+        if isinstance(self.experiment_group_id, Unset):
+            experiment_group_id = UNSET
+        else:
+            experiment_group_id = self.experiment_group_id
+
+        experiment_group_name: Union[None, Unset, str]
+        if isinstance(self.experiment_group_name, Unset):
+            experiment_group_name = UNSET
+        else:
+            experiment_group_name = self.experiment_group_name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -107,6 +131,10 @@ class ExperimentCreateRequest:
             field_dict["scorers"] = scorers
         if trigger is not UNSET:
             field_dict["trigger"] = trigger
+        if experiment_group_id is not UNSET:
+            field_dict["experiment_group_id"] = experiment_group_id
+        if experiment_group_name is not UNSET:
+            field_dict["experiment_group_name"] = experiment_group_name
 
         return field_dict
 
@@ -119,7 +147,7 @@ class ExperimentCreateRequest:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_task_type(data: object) -> Literal[16] | Literal[17] | Unset:
+        def _parse_task_type(data: object) -> Union[Literal[16], Literal[17], Unset]:
             if isinstance(data, Unset):
                 return data
             task_type_type_0 = cast(Literal[16], data)
@@ -133,21 +161,21 @@ class ExperimentCreateRequest:
 
         task_type = _parse_task_type(d.pop("task_type", UNSET))
 
-        def _parse_playground_id(data: object) -> None | Unset | str:
+        def _parse_playground_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         playground_id = _parse_playground_id(d.pop("playground_id", UNSET))
 
-        def _parse_prompt_template_version_id(data: object) -> None | Unset | str:
+        def _parse_prompt_template_version_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         prompt_template_version_id = _parse_prompt_template_version_id(d.pop("prompt_template_version_id", UNSET))
 
@@ -159,20 +187,21 @@ class ExperimentCreateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExperimentDatasetRequest.from_dict(data)
+                dataset_type_0 = ExperimentDatasetRequest.from_dict(data)
 
+                return dataset_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ExperimentDatasetRequest", None, Unset], data)
 
         dataset = _parse_dataset(d.pop("dataset", UNSET))
 
-        def _parse_playground_prompt_id(data: object) -> None | Unset | str:
+        def _parse_playground_prompt_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         playground_prompt_id = _parse_playground_prompt_id(d.pop("playground_prompt_id", UNSET))
 
@@ -184,8 +213,9 @@ class ExperimentCreateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return PromptRunSettings.from_dict(data)
+                prompt_settings_type_0 = PromptRunSettings.from_dict(data)
 
+                return prompt_settings_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["PromptRunSettings", None, Unset], data)
@@ -201,6 +231,24 @@ class ExperimentCreateRequest:
 
         trigger = d.pop("trigger", UNSET)
 
+        def _parse_experiment_group_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        experiment_group_id = _parse_experiment_group_id(d.pop("experiment_group_id", UNSET))
+
+        def _parse_experiment_group_name(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        experiment_group_name = _parse_experiment_group_name(d.pop("experiment_group_name", UNSET))
+
         experiment_create_request = cls(
             name=name,
             task_type=task_type,
@@ -211,6 +259,8 @@ class ExperimentCreateRequest:
             prompt_settings=prompt_settings,
             scorers=scorers,
             trigger=trigger,
+            experiment_group_id=experiment_group_id,
+            experiment_group_name=experiment_group_name,
         )
 
         experiment_create_request.additional_properties = d

@@ -13,7 +13,7 @@ T = TypeVar("T", bound="ExtendedAgentSpanRecordFeedbackRatingInfo")
 
 @_attrs_define
 class ExtendedAgentSpanRecordFeedbackRatingInfo:
-    """Feedback information related to the record."""
+    """Feedback information related to the record"""
 
     additional_properties: dict[str, "FeedbackRatingInfo"] = _attrs_field(init=False, factory=dict)
 

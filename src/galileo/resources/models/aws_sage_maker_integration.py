@@ -19,8 +19,7 @@ T = TypeVar("T", bound="AwsSageMakerIntegration")
 @_attrs_define
 class AwsSageMakerIntegration:
     """
-    Attributes
-    ----------
+    Attributes:
         credential_type (Union[Unset, AwsCredentialType]):
         region (Union[Unset, str]):  Default: 'us-west-2'.
         multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
@@ -28,15 +27,17 @@ class AwsSageMakerIntegration:
         models (Union[Unset, list['Model']]):
         id (Union[None, Unset, str]):
         name (Union[Literal['aws_sagemaker'], Unset]):  Default: 'aws_sagemaker'.
+        provider (Union[Literal['aws_sagemaker'], Unset]):  Default: 'aws_sagemaker'.
         extra (Union['AwsSageMakerIntegrationExtraType0', None, Unset]):
     """
 
-    credential_type: Unset | AwsCredentialType = UNSET
-    region: Unset | str = "us-west-2"
+    credential_type: Union[Unset, AwsCredentialType] = UNSET
+    region: Union[Unset, str] = "us-west-2"
     multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
-    models: Unset | list["Model"] = UNSET
-    id: None | Unset | str = UNSET
-    name: Literal["aws_sagemaker"] | Unset = "aws_sagemaker"
+    models: Union[Unset, list["Model"]] = UNSET
+    id: Union[None, Unset, str] = UNSET
+    name: Union[Literal["aws_sagemaker"], Unset] = "aws_sagemaker"
+    provider: Union[Literal["aws_sagemaker"], Unset] = "aws_sagemaker"
     extra: Union["AwsSageMakerIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -44,13 +45,13 @@ class AwsSageMakerIntegration:
         from ..models.aws_sage_maker_integration_extra_type_0 import AwsSageMakerIntegrationExtraType0
         from ..models.multi_modal_model_integration_config import MultiModalModelIntegrationConfig
 
-        credential_type: Unset | str = UNSET
+        credential_type: Union[Unset, str] = UNSET
         if not isinstance(self.credential_type, Unset):
             credential_type = self.credential_type.value
 
         region = self.region
 
-        multi_modal_config: None | Unset | dict[str, Any]
+        multi_modal_config: Union[None, Unset, dict[str, Any]]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -58,19 +59,24 @@ class AwsSageMakerIntegration:
         else:
             multi_modal_config = self.multi_modal_config
 
-        models: Unset | list[dict[str, Any]] = UNSET
+        models: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.models, Unset):
             models = []
             for models_item_data in self.models:
                 models_item = models_item_data.to_dict()
                 models.append(models_item)
 
-        id: None | Unset | str
-        id = UNSET if isinstance(self.id, Unset) else self.id
+        id: Union[None, Unset, str]
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
         name = self.name
 
-        extra: None | Unset | dict[str, Any]
+        provider = self.provider
+
+        extra: Union[None, Unset, dict[str, Any]]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, AwsSageMakerIntegrationExtraType0):
@@ -93,6 +99,8 @@ class AwsSageMakerIntegration:
             field_dict["id"] = id
         if name is not UNSET:
             field_dict["name"] = name
+        if provider is not UNSET:
+            field_dict["provider"] = provider
         if extra is not UNSET:
             field_dict["extra"] = extra
 
@@ -106,8 +114,11 @@ class AwsSageMakerIntegration:
 
         d = dict(src_dict)
         _credential_type = d.pop("credential_type", UNSET)
-        credential_type: Unset | AwsCredentialType
-        credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
+        credential_type: Union[Unset, AwsCredentialType]
+        if isinstance(_credential_type, Unset):
+            credential_type = UNSET
+        else:
+            credential_type = AwsCredentialType(_credential_type)
 
         region = d.pop("region", UNSET)
 
@@ -119,8 +130,9 @@ class AwsSageMakerIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MultiModalModelIntegrationConfig.from_dict(data)
+                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
 
+                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
@@ -134,18 +146,22 @@ class AwsSageMakerIntegration:
 
             models.append(models_item)
 
-        def _parse_id(data: object) -> None | Unset | str:
+        def _parse_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        name = cast(Literal["aws_sagemaker"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["aws_sagemaker"], Unset], d.pop("name", UNSET))
         if name != "aws_sagemaker" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'aws_sagemaker', got '{name}'")
+
+        provider = cast(Union[Literal["aws_sagemaker"], Unset], d.pop("provider", UNSET))
+        if provider != "aws_sagemaker" and not isinstance(provider, Unset):
+            raise ValueError(f"provider must match const 'aws_sagemaker', got '{provider}'")
 
         def _parse_extra(data: object) -> Union["AwsSageMakerIntegrationExtraType0", None, Unset]:
             if data is None:
@@ -155,8 +171,9 @@ class AwsSageMakerIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AwsSageMakerIntegrationExtraType0.from_dict(data)
+                extra_type_0 = AwsSageMakerIntegrationExtraType0.from_dict(data)
 
+                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["AwsSageMakerIntegrationExtraType0", None, Unset], data)
@@ -170,6 +187,7 @@ class AwsSageMakerIntegration:
             models=models,
             id=id,
             name=name,
+            provider=provider,
             extra=extra,
         )
 

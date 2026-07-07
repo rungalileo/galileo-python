@@ -3,6 +3,7 @@ from enum import Enum
 
 class IntegrationAction(str, Enum):
     DELETE = "delete"
+    READ_SECRETS = "read_secrets"
     SHARE = "share"
     UPDATE = "update"
 

@@ -20,8 +20,7 @@ T = TypeVar("T", bound="RulesetResult")
 @_attrs_define
 class RulesetResult:
     """
-    Attributes
-    ----------
+    Attributes:
         status (Union[Unset, ExecutionStatus]): Status of the execution.
         rules (Union[Unset, list['Rule']]): List of rules to evaluate. Atleast 1 rule is required.
         action (Union['OverrideAction', 'PassthroughAction', Unset]): Action to take if all the rules are met.
@@ -29,28 +28,28 @@ class RulesetResult:
         rule_results (Union[Unset, list['RuleResult']]): Results of the rule execution.
     """
 
-    status: Unset | ExecutionStatus = UNSET
-    rules: Unset | list["Rule"] = UNSET
+    status: Union[Unset, ExecutionStatus] = UNSET
+    rules: Union[Unset, list["Rule"]] = UNSET
     action: Union["OverrideAction", "PassthroughAction", Unset] = UNSET
-    description: None | Unset | str = UNSET
-    rule_results: Unset | list["RuleResult"] = UNSET
+    description: Union[None, Unset, str] = UNSET
+    rule_results: Union[Unset, list["RuleResult"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.override_action import OverrideAction
 
-        status: Unset | str = UNSET
+        status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
             status = self.status.value
 
-        rules: Unset | list[dict[str, Any]] = UNSET
+        rules: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.rules, Unset):
             rules = []
             for rules_item_data in self.rules:
                 rules_item = rules_item_data.to_dict()
                 rules.append(rules_item)
 
-        action: Unset | dict[str, Any]
+        action: Union[Unset, dict[str, Any]]
         if isinstance(self.action, Unset):
             action = UNSET
         elif isinstance(self.action, OverrideAction):
@@ -58,10 +57,13 @@ class RulesetResult:
         else:
             action = self.action.to_dict()
 
-        description: None | Unset | str
-        description = UNSET if isinstance(self.description, Unset) else self.description
+        description: Union[None, Unset, str]
+        if isinstance(self.description, Unset):
+            description = UNSET
+        else:
+            description = self.description
 
-        rule_results: Unset | list[dict[str, Any]] = UNSET
+        rule_results: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.rule_results, Unset):
             rule_results = []
             for rule_results_item_data in self.rule_results:
@@ -93,8 +95,11 @@ class RulesetResult:
 
         d = dict(src_dict)
         _status = d.pop("status", UNSET)
-        status: Unset | ExecutionStatus
-        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
+        status: Union[Unset, ExecutionStatus]
+        if isinstance(_status, Unset):
+            status = UNSET
+        else:
+            status = ExecutionStatus(_status)
 
         rules = []
         _rules = d.pop("rules", UNSET)
@@ -109,22 +114,25 @@ class RulesetResult:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return OverrideAction.from_dict(data)
+                action_type_0 = OverrideAction.from_dict(data)
 
+                return action_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return PassthroughAction.from_dict(data)
+            action_type_1 = PassthroughAction.from_dict(data)
+
+            return action_type_1
 
         action = _parse_action(d.pop("action", UNSET))
 
-        def _parse_description(data: object) -> None | Unset | str:
+        def _parse_description(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         description = _parse_description(d.pop("description", UNSET))
 

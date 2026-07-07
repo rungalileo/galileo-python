@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,8 +13,7 @@ T = TypeVar("T", bound="SubscriptionConfig")
 @_attrs_define
 class SubscriptionConfig:
     """
-    Attributes
-    ----------
+    Attributes:
         url (str): URL to send the event to. This can be a webhook URL, a message queue URL, an event bus or a custom
             endpoint that can receive an HTTP POST request.
         statuses (Union[Unset, list[ExecutionStatus]]): List of statuses that will cause a notification to be sent to
@@ -22,13 +21,13 @@ class SubscriptionConfig:
     """
 
     url: str
-    statuses: Unset | list[ExecutionStatus] = UNSET
+    statuses: Union[Unset, list[ExecutionStatus]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         url = self.url
 
-        statuses: Unset | list[str] = UNSET
+        statuses: Union[Unset, list[str]] = UNSET
         if not isinstance(self.statuses, Unset):
             statuses = []
             for statuses_item_data in self.statuses:

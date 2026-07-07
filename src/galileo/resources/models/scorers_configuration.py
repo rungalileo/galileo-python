@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,8 +16,7 @@ class ScorersConfiguration:
     The keys here are sorted by their approximate execution time to execute the scorers that we anticipate will be the
     fastest first, and the slowest last.
 
-    Attributes
-    ----------
+        Attributes:
             latency (Union[Unset, bool]):  Default: True.
             cost (Union[Unset, bool]):  Default: True.
             pii (Union[Unset, bool]):  Default: False.
@@ -38,6 +37,7 @@ class ScorersConfiguration:
             context_adherence_luna (Union[Unset, bool]):  Default: False.
             context_relevance_luna (Union[Unset, bool]):  Default: False.
             chunk_relevance_luna (Union[Unset, bool]):  Default: False.
+            completeness_luna (Union[Unset, bool]):  Default: False.
             completeness_nli (Union[Unset, bool]):  Default: False.
             tool_error_rate_luna (Union[Unset, bool]):  Default: False.
             tool_selection_quality_luna (Union[Unset, bool]):  Default: False.
@@ -62,48 +62,49 @@ class ScorersConfiguration:
             input_toxicity_gpt (Union[Unset, bool]):  Default: False.
     """
 
-    latency: Unset | bool = True
-    cost: Unset | bool = True
-    pii: Unset | bool = False
-    input_pii: Unset | bool = False
-    bleu: Unset | bool = True
-    rouge: Unset | bool = True
-    protect_status: Unset | bool = True
-    context_relevance: Unset | bool = False
-    toxicity: Unset | bool = False
-    input_toxicity: Unset | bool = False
-    tone: Unset | bool = False
-    input_tone: Unset | bool = False
-    sexist: Unset | bool = False
-    input_sexist: Unset | bool = False
-    prompt_injection: Unset | bool = False
-    adherence_nli: Unset | bool = False
-    chunk_attribution_utilization_nli: Unset | bool = False
-    context_adherence_luna: Unset | bool = False
-    context_relevance_luna: Unset | bool = False
-    chunk_relevance_luna: Unset | bool = False
-    completeness_nli: Unset | bool = False
-    tool_error_rate_luna: Unset | bool = False
-    tool_selection_quality_luna: Unset | bool = False
-    action_completion_luna: Unset | bool = False
-    action_advancement_luna: Unset | bool = False
-    uncertainty: Unset | bool = False
-    factuality: Unset | bool = False
-    groundedness: Unset | bool = False
-    prompt_perplexity: Unset | bool = False
-    chunk_attribution_utilization_gpt: Unset | bool = False
-    completeness_gpt: Unset | bool = False
-    instruction_adherence: Unset | bool = False
-    ground_truth_adherence: Unset | bool = False
-    tool_selection_quality: Unset | bool = False
-    tool_error_rate: Unset | bool = False
-    agentic_session_success: Unset | bool = False
-    agentic_workflow_success: Unset | bool = False
-    prompt_injection_gpt: Unset | bool = False
-    sexist_gpt: Unset | bool = False
-    input_sexist_gpt: Unset | bool = False
-    toxicity_gpt: Unset | bool = False
-    input_toxicity_gpt: Unset | bool = False
+    latency: Union[Unset, bool] = True
+    cost: Union[Unset, bool] = True
+    pii: Union[Unset, bool] = False
+    input_pii: Union[Unset, bool] = False
+    bleu: Union[Unset, bool] = True
+    rouge: Union[Unset, bool] = True
+    protect_status: Union[Unset, bool] = True
+    context_relevance: Union[Unset, bool] = False
+    toxicity: Union[Unset, bool] = False
+    input_toxicity: Union[Unset, bool] = False
+    tone: Union[Unset, bool] = False
+    input_tone: Union[Unset, bool] = False
+    sexist: Union[Unset, bool] = False
+    input_sexist: Union[Unset, bool] = False
+    prompt_injection: Union[Unset, bool] = False
+    adherence_nli: Union[Unset, bool] = False
+    chunk_attribution_utilization_nli: Union[Unset, bool] = False
+    context_adherence_luna: Union[Unset, bool] = False
+    context_relevance_luna: Union[Unset, bool] = False
+    chunk_relevance_luna: Union[Unset, bool] = False
+    completeness_luna: Union[Unset, bool] = False
+    completeness_nli: Union[Unset, bool] = False
+    tool_error_rate_luna: Union[Unset, bool] = False
+    tool_selection_quality_luna: Union[Unset, bool] = False
+    action_completion_luna: Union[Unset, bool] = False
+    action_advancement_luna: Union[Unset, bool] = False
+    uncertainty: Union[Unset, bool] = False
+    factuality: Union[Unset, bool] = False
+    groundedness: Union[Unset, bool] = False
+    prompt_perplexity: Union[Unset, bool] = False
+    chunk_attribution_utilization_gpt: Union[Unset, bool] = False
+    completeness_gpt: Union[Unset, bool] = False
+    instruction_adherence: Union[Unset, bool] = False
+    ground_truth_adherence: Union[Unset, bool] = False
+    tool_selection_quality: Union[Unset, bool] = False
+    tool_error_rate: Union[Unset, bool] = False
+    agentic_session_success: Union[Unset, bool] = False
+    agentic_workflow_success: Union[Unset, bool] = False
+    prompt_injection_gpt: Union[Unset, bool] = False
+    sexist_gpt: Union[Unset, bool] = False
+    input_sexist_gpt: Union[Unset, bool] = False
+    toxicity_gpt: Union[Unset, bool] = False
+    input_toxicity_gpt: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -146,6 +147,8 @@ class ScorersConfiguration:
         context_relevance_luna = self.context_relevance_luna
 
         chunk_relevance_luna = self.chunk_relevance_luna
+
+        completeness_luna = self.completeness_luna
 
         completeness_nli = self.completeness_nli
 
@@ -234,6 +237,8 @@ class ScorersConfiguration:
             field_dict["context_relevance_luna"] = context_relevance_luna
         if chunk_relevance_luna is not UNSET:
             field_dict["chunk_relevance_luna"] = chunk_relevance_luna
+        if completeness_luna is not UNSET:
+            field_dict["completeness_luna"] = completeness_luna
         if completeness_nli is not UNSET:
             field_dict["completeness_nli"] = completeness_nli
         if tool_error_rate_luna is not UNSET:
@@ -324,6 +329,8 @@ class ScorersConfiguration:
 
         chunk_relevance_luna = d.pop("chunk_relevance_luna", UNSET)
 
+        completeness_luna = d.pop("completeness_luna", UNSET)
+
         completeness_nli = d.pop("completeness_nli", UNSET)
 
         tool_error_rate_luna = d.pop("tool_error_rate_luna", UNSET)
@@ -389,6 +396,7 @@ class ScorersConfiguration:
             context_adherence_luna=context_adherence_luna,
             context_relevance_luna=context_relevance_luna,
             chunk_relevance_luna=chunk_relevance_luna,
+            completeness_luna=completeness_luna,
             completeness_nli=completeness_nli,
             tool_error_rate_luna=tool_error_rate_luna,
             tool_selection_quality_luna=tool_selection_quality_luna,

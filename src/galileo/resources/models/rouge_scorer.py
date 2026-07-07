@@ -18,15 +18,14 @@ T = TypeVar("T", bound="RougeScorer")
 @_attrs_define
 class RougeScorer:
     """
-    Attributes
-    ----------
+    Attributes:
         name (Union[Literal['rouge'], Unset]):  Default: 'rouge'.
         filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]): List of filters
             to apply to the scorer.
     """
 
-    name: Literal["rouge"] | Unset = "rouge"
-    filters: None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]] = UNSET
+    name: Union[Literal["rouge"], Unset] = "rouge"
+    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,14 +34,16 @@ class RougeScorer:
 
         name = self.name
 
-        filters: None | Unset | list[dict[str, Any]]
+        filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
+                if isinstance(filters_type_0_item_data, NodeNameFilter):
+                    filters_type_0_item = filters_type_0_item_data.to_dict()
+                elif isinstance(filters_type_0_item_data, MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -69,13 +70,13 @@ class RougeScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
-        name = cast(Literal["rouge"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["rouge"], Unset], d.pop("name", UNSET))
         if name != "rouge" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'rouge', got '{name}'")
 
         def _parse_filters(
             data: object,
-        ) -> None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]:
+        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -93,20 +94,24 @@ class RougeScorer:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return NodeNameFilter.from_dict(data)
+                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
 
+                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return MetadataFilter.from_dict(data)
+                            filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
 
+                            return filters_type_0_item_type_1
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return ModalityFilter.from_dict(data)
+                        filters_type_0_item_type_2 = ModalityFilter.from_dict(data)
+
+                        return filters_type_0_item_type_2
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -115,7 +120,7 @@ class RougeScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]], data)
+            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 

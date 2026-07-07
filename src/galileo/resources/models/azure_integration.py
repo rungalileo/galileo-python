@@ -22,8 +22,7 @@ T = TypeVar("T", bound="AzureIntegration")
 @_attrs_define
 class AzureIntegration:
     """
-    Attributes
-    ----------
+    Attributes:
         endpoint (str):
         multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
             upload) capabilities.
@@ -41,23 +40,25 @@ class AzureIntegration:
             integration. If provided, we will not try to get this list from Azure.
         id (Union[None, Unset, str]):
         name (Union[Literal['azure'], Unset]):  Default: 'azure'.
+        provider (Union[Literal['azure'], Unset]):  Default: 'azure'.
         extra (Union['AzureIntegrationExtraType0', None, Unset]):
     """
 
     endpoint: str
     multi_modal_config: Union["MultiModalModelIntegrationConfig", None, Unset] = UNSET
-    proxy: Unset | bool = False
-    api_version: Unset | str = "2025-03-01-preview"
-    azure_deployment: None | Unset | str = UNSET
-    authentication_type: Unset | AzureAuthenticationType = UNSET
-    authentication_scope: None | Unset | str = UNSET
+    proxy: Union[Unset, bool] = False
+    api_version: Union[Unset, str] = "2025-03-01-preview"
+    azure_deployment: Union[None, Unset, str] = UNSET
+    authentication_type: Union[Unset, AzureAuthenticationType] = UNSET
+    authentication_scope: Union[None, Unset, str] = UNSET
     default_headers: Union["AzureIntegrationDefaultHeadersType0", None, Unset] = UNSET
     deployments: Union[Unset, "AzureIntegrationDeployments"] = UNSET
-    oauth2_token_url: None | Unset | str = UNSET
+    oauth2_token_url: Union[None, Unset, str] = UNSET
     custom_header_mapping: Union["AzureIntegrationCustomHeaderMappingType0", None, Unset] = UNSET
-    available_deployments: None | Unset | list["AzureModelDeployment"] = UNSET
-    id: None | Unset | str = UNSET
-    name: Literal["azure"] | Unset = "azure"
+    available_deployments: Union[None, Unset, list["AzureModelDeployment"]] = UNSET
+    id: Union[None, Unset, str] = UNSET
+    name: Union[Literal["azure"], Unset] = "azure"
+    provider: Union[Literal["azure"], Unset] = "azure"
     extra: Union["AzureIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -69,7 +70,7 @@ class AzureIntegration:
 
         endpoint = self.endpoint
 
-        multi_modal_config: None | Unset | dict[str, Any]
+        multi_modal_config: Union[None, Unset, dict[str, Any]]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -81,17 +82,23 @@ class AzureIntegration:
 
         api_version = self.api_version
 
-        azure_deployment: None | Unset | str
-        azure_deployment = UNSET if isinstance(self.azure_deployment, Unset) else self.azure_deployment
+        azure_deployment: Union[None, Unset, str]
+        if isinstance(self.azure_deployment, Unset):
+            azure_deployment = UNSET
+        else:
+            azure_deployment = self.azure_deployment
 
-        authentication_type: Unset | str = UNSET
+        authentication_type: Union[Unset, str] = UNSET
         if not isinstance(self.authentication_type, Unset):
             authentication_type = self.authentication_type.value
 
-        authentication_scope: None | Unset | str
-        authentication_scope = UNSET if isinstance(self.authentication_scope, Unset) else self.authentication_scope
+        authentication_scope: Union[None, Unset, str]
+        if isinstance(self.authentication_scope, Unset):
+            authentication_scope = UNSET
+        else:
+            authentication_scope = self.authentication_scope
 
-        default_headers: None | Unset | dict[str, Any]
+        default_headers: Union[None, Unset, dict[str, Any]]
         if isinstance(self.default_headers, Unset):
             default_headers = UNSET
         elif isinstance(self.default_headers, AzureIntegrationDefaultHeadersType0):
@@ -99,14 +106,17 @@ class AzureIntegration:
         else:
             default_headers = self.default_headers
 
-        deployments: Unset | dict[str, Any] = UNSET
+        deployments: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.deployments, Unset):
             deployments = self.deployments.to_dict()
 
-        oauth2_token_url: None | Unset | str
-        oauth2_token_url = UNSET if isinstance(self.oauth2_token_url, Unset) else self.oauth2_token_url
+        oauth2_token_url: Union[None, Unset, str]
+        if isinstance(self.oauth2_token_url, Unset):
+            oauth2_token_url = UNSET
+        else:
+            oauth2_token_url = self.oauth2_token_url
 
-        custom_header_mapping: None | Unset | dict[str, Any]
+        custom_header_mapping: Union[None, Unset, dict[str, Any]]
         if isinstance(self.custom_header_mapping, Unset):
             custom_header_mapping = UNSET
         elif isinstance(self.custom_header_mapping, AzureIntegrationCustomHeaderMappingType0):
@@ -114,7 +124,7 @@ class AzureIntegration:
         else:
             custom_header_mapping = self.custom_header_mapping
 
-        available_deployments: None | Unset | list[dict[str, Any]]
+        available_deployments: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.available_deployments, Unset):
             available_deployments = UNSET
         elif isinstance(self.available_deployments, list):
@@ -126,12 +136,17 @@ class AzureIntegration:
         else:
             available_deployments = self.available_deployments
 
-        id: None | Unset | str
-        id = UNSET if isinstance(self.id, Unset) else self.id
+        id: Union[None, Unset, str]
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
         name = self.name
 
-        extra: None | Unset | dict[str, Any]
+        provider = self.provider
+
+        extra: Union[None, Unset, dict[str, Any]]
         if isinstance(self.extra, Unset):
             extra = UNSET
         elif isinstance(self.extra, AzureIntegrationExtraType0):
@@ -168,6 +183,8 @@ class AzureIntegration:
             field_dict["id"] = id
         if name is not UNSET:
             field_dict["name"] = name
+        if provider is not UNSET:
+            field_dict["provider"] = provider
         if extra is not UNSET:
             field_dict["extra"] = extra
 
@@ -193,8 +210,9 @@ class AzureIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MultiModalModelIntegrationConfig.from_dict(data)
+                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
 
+                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
@@ -205,28 +223,28 @@ class AzureIntegration:
 
         api_version = d.pop("api_version", UNSET)
 
-        def _parse_azure_deployment(data: object) -> None | Unset | str:
+        def _parse_azure_deployment(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         azure_deployment = _parse_azure_deployment(d.pop("azure_deployment", UNSET))
 
         _authentication_type = d.pop("authentication_type", UNSET)
-        authentication_type: Unset | AzureAuthenticationType
+        authentication_type: Union[Unset, AzureAuthenticationType]
         if isinstance(_authentication_type, Unset):
             authentication_type = UNSET
         else:
             authentication_type = AzureAuthenticationType(_authentication_type)
 
-        def _parse_authentication_scope(data: object) -> None | Unset | str:
+        def _parse_authentication_scope(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         authentication_scope = _parse_authentication_scope(d.pop("authentication_scope", UNSET))
 
@@ -238,8 +256,9 @@ class AzureIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AzureIntegrationDefaultHeadersType0.from_dict(data)
+                default_headers_type_0 = AzureIntegrationDefaultHeadersType0.from_dict(data)
 
+                return default_headers_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["AzureIntegrationDefaultHeadersType0", None, Unset], data)
@@ -247,15 +266,18 @@ class AzureIntegration:
         default_headers = _parse_default_headers(d.pop("default_headers", UNSET))
 
         _deployments = d.pop("deployments", UNSET)
-        deployments: Unset | AzureIntegrationDeployments
-        deployments = UNSET if isinstance(_deployments, Unset) else AzureIntegrationDeployments.from_dict(_deployments)
+        deployments: Union[Unset, AzureIntegrationDeployments]
+        if isinstance(_deployments, Unset):
+            deployments = UNSET
+        else:
+            deployments = AzureIntegrationDeployments.from_dict(_deployments)
 
-        def _parse_oauth2_token_url(data: object) -> None | Unset | str:
+        def _parse_oauth2_token_url(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         oauth2_token_url = _parse_oauth2_token_url(d.pop("oauth2_token_url", UNSET))
 
@@ -269,15 +291,16 @@ class AzureIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AzureIntegrationCustomHeaderMappingType0.from_dict(data)
+                custom_header_mapping_type_0 = AzureIntegrationCustomHeaderMappingType0.from_dict(data)
 
+                return custom_header_mapping_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["AzureIntegrationCustomHeaderMappingType0", None, Unset], data)
 
         custom_header_mapping = _parse_custom_header_mapping(d.pop("custom_header_mapping", UNSET))
 
-        def _parse_available_deployments(data: object) -> None | Unset | list["AzureModelDeployment"]:
+        def _parse_available_deployments(data: object) -> Union[None, Unset, list["AzureModelDeployment"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -297,22 +320,26 @@ class AzureIntegration:
                 return available_deployments_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list["AzureModelDeployment"], data)
+            return cast(Union[None, Unset, list["AzureModelDeployment"]], data)
 
         available_deployments = _parse_available_deployments(d.pop("available_deployments", UNSET))
 
-        def _parse_id(data: object) -> None | Unset | str:
+        def _parse_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        name = cast(Literal["azure"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["azure"], Unset], d.pop("name", UNSET))
         if name != "azure" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'azure', got '{name}'")
+
+        provider = cast(Union[Literal["azure"], Unset], d.pop("provider", UNSET))
+        if provider != "azure" and not isinstance(provider, Unset):
+            raise ValueError(f"provider must match const 'azure', got '{provider}'")
 
         def _parse_extra(data: object) -> Union["AzureIntegrationExtraType0", None, Unset]:
             if data is None:
@@ -322,8 +349,9 @@ class AzureIntegration:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AzureIntegrationExtraType0.from_dict(data)
+                extra_type_0 = AzureIntegrationExtraType0.from_dict(data)
 
+                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["AzureIntegrationExtraType0", None, Unset], data)
@@ -345,6 +373,7 @@ class AzureIntegration:
             available_deployments=available_deployments,
             id=id,
             name=name,
+            provider=provider,
             extra=extra,
         )
 

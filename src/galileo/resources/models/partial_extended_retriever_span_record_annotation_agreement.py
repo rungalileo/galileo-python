@@ -9,7 +9,7 @@ T = TypeVar("T", bound="PartialExtendedRetrieverSpanRecordAnnotationAgreement")
 
 @_attrs_define
 class PartialExtendedRetrieverSpanRecordAnnotationAgreement:
-    """Annotation agreement scores keyed by template ID."""
+    """Annotation agreement scores keyed by template ID"""
 
     additional_properties: dict[str, float] = _attrs_field(init=False, factory=dict)
 

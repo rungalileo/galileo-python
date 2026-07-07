@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,27 +12,49 @@ T = TypeVar("T", bound="ExperimentUpdateRequest")
 @_attrs_define
 class ExperimentUpdateRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         name (str):
         task_type (Union[Literal[16], Literal[17], Unset]):  Default: 16.
+        experiment_group_id (Union[None, Unset, str]):
+        experiment_group_name (Union[None, Unset, str]):
     """
 
     name: str
-    task_type: Literal[16] | Literal[17] | Unset = 16
+    task_type: Union[Literal[16], Literal[17], Unset] = 16
+    experiment_group_id: Union[None, Unset, str] = UNSET
+    experiment_group_name: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
 
-        task_type: Literal[16] | Literal[17] | Unset
-        task_type = UNSET if isinstance(self.task_type, Unset) else self.task_type
+        task_type: Union[Literal[16], Literal[17], Unset]
+        if isinstance(self.task_type, Unset):
+            task_type = UNSET
+        else:
+            task_type = self.task_type
+
+        experiment_group_id: Union[None, Unset, str]
+        if isinstance(self.experiment_group_id, Unset):
+            experiment_group_id = UNSET
+        else:
+            experiment_group_id = self.experiment_group_id
+
+        experiment_group_name: Union[None, Unset, str]
+        if isinstance(self.experiment_group_name, Unset):
+            experiment_group_name = UNSET
+        else:
+            experiment_group_name = self.experiment_group_name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"name": name})
         if task_type is not UNSET:
             field_dict["task_type"] = task_type
+        if experiment_group_id is not UNSET:
+            field_dict["experiment_group_id"] = experiment_group_id
+        if experiment_group_name is not UNSET:
+            field_dict["experiment_group_name"] = experiment_group_name
 
         return field_dict
 
@@ -41,7 +63,7 @@ class ExperimentUpdateRequest:
         d = dict(src_dict)
         name = d.pop("name")
 
-        def _parse_task_type(data: object) -> Literal[16] | Literal[17] | Unset:
+        def _parse_task_type(data: object) -> Union[Literal[16], Literal[17], Unset]:
             if isinstance(data, Unset):
                 return data
             task_type_type_0 = cast(Literal[16], data)
@@ -55,7 +77,30 @@ class ExperimentUpdateRequest:
 
         task_type = _parse_task_type(d.pop("task_type", UNSET))
 
-        experiment_update_request = cls(name=name, task_type=task_type)
+        def _parse_experiment_group_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        experiment_group_id = _parse_experiment_group_id(d.pop("experiment_group_id", UNSET))
+
+        def _parse_experiment_group_name(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        experiment_group_name = _parse_experiment_group_name(d.pop("experiment_group_name", UNSET))
+
+        experiment_update_request = cls(
+            name=name,
+            task_type=task_type,
+            experiment_group_id=experiment_group_id,
+            experiment_group_name=experiment_group_name,
+        )
 
         experiment_update_request.additional_properties = d
         return experiment_update_request

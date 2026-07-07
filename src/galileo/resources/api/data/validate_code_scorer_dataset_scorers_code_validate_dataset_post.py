@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -44,12 +44,16 @@ def _get_kwargs(*, body: BodyValidateCodeScorerDatasetScorersCodeValidateDataset
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> HTTPValidationError | ValidateCodeScorerDatasetResponse:
+) -> Union[HTTPValidationError, ValidateCodeScorerDatasetResponse]:
     if response.status_code == 200:
-        return ValidateCodeScorerDatasetResponse.from_dict(response.json())
+        response_200 = ValidateCodeScorerDatasetResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -71,7 +75,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | ValidateCodeScorerDatasetResponse]:
+) -> Response[Union[HTTPValidationError, ValidateCodeScorerDatasetResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,23 +86,22 @@ def _build_response(
 
 def sync_detailed(
     *, client: ApiClient, body: BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost
-) -> Response[HTTPValidationError | ValidateCodeScorerDatasetResponse]:
-    """Validate Code Scorer Dataset.
+) -> Response[Union[HTTPValidationError, ValidateCodeScorerDatasetResponse]]:
+    """Validate Code Scorer Dataset
 
      Validate a code scorer against dataset rows.
 
     Args:
         body (BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[HTTPValidationError, ValidateCodeScorerDatasetResponse]]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -108,45 +111,43 @@ def sync_detailed(
 
 def sync(
     *, client: ApiClient, body: BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost
-) -> HTTPValidationError | ValidateCodeScorerDatasetResponse | None:
-    """Validate Code Scorer Dataset.
+) -> Optional[Union[HTTPValidationError, ValidateCodeScorerDatasetResponse]]:
+    """Validate Code Scorer Dataset
 
      Validate a code scorer against dataset rows.
 
     Args:
         body (BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[HTTPValidationError, ValidateCodeScorerDatasetResponse]
     """
+
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost
-) -> Response[HTTPValidationError | ValidateCodeScorerDatasetResponse]:
-    """Validate Code Scorer Dataset.
+) -> Response[Union[HTTPValidationError, ValidateCodeScorerDatasetResponse]]:
+    """Validate Code Scorer Dataset
 
      Validate a code scorer against dataset rows.
 
     Args:
         body (BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[HTTPValidationError, ValidateCodeScorerDatasetResponse]]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -156,21 +157,20 @@ async def asyncio_detailed(
 
 async def asyncio(
     *, client: ApiClient, body: BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost
-) -> HTTPValidationError | ValidateCodeScorerDatasetResponse | None:
-    """Validate Code Scorer Dataset.
+) -> Optional[Union[HTTPValidationError, ValidateCodeScorerDatasetResponse]]:
+    """Validate Code Scorer Dataset
 
      Validate a code scorer against dataset rows.
 
     Args:
         body (BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[HTTPValidationError, ValidateCodeScorerDatasetResponse]
     """
+
     return (await asyncio_detailed(client=client, body=body)).parsed

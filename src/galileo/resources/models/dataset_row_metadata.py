@@ -16,8 +16,7 @@ T = TypeVar("T", bound="DatasetRowMetadata")
 @_attrs_define
 class DatasetRowMetadata:
     """
-    Attributes
-    ----------
+    Attributes:
         created_in_version (int):
         created_at (datetime.datetime):
         created_by_user (Union['UserInfo', None]):
@@ -41,7 +40,7 @@ class DatasetRowMetadata:
 
         created_at = self.created_at.isoformat()
 
-        created_by_user: None | dict[str, Any]
+        created_by_user: Union[None, dict[str, Any]]
         if isinstance(self.created_by_user, UserInfo):
             created_by_user = self.created_by_user.to_dict()
         else:
@@ -51,7 +50,7 @@ class DatasetRowMetadata:
 
         updated_at = self.updated_at.isoformat()
 
-        updated_by_user: None | dict[str, Any]
+        updated_by_user: Union[None, dict[str, Any]]
         if isinstance(self.updated_by_user, UserInfo):
             updated_by_user = self.updated_by_user.to_dict()
         else:
@@ -87,8 +86,9 @@ class DatasetRowMetadata:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return UserInfo.from_dict(data)
+                created_by_user_type_0 = UserInfo.from_dict(data)
 
+                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["UserInfo", None], data)
@@ -105,8 +105,9 @@ class DatasetRowMetadata:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return UserInfo.from_dict(data)
+                updated_by_user_type_0 = UserInfo.from_dict(data)
 
+                return updated_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["UserInfo", None], data)

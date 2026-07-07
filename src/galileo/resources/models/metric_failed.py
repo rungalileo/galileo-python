@@ -17,22 +17,21 @@ T = TypeVar("T", bound="MetricFailed")
 @_attrs_define
 class MetricFailed:
     """
-    Attributes
-    ----------
+    Attributes:
         status_type (Union[Literal['failed'], Unset]):  Default: 'failed'.
         scorer_type (Union[None, ScorerType, Unset]):
         metric_key_alias (Union[None, Unset, str]):
         message (Union[None, Unset, str]):  Default: 'Metric failed to compute.'.
         ems_error_code (Union[None, Unset, int]): EMS error code from errors.yaml catalog for this metric failure
         standard_error (Union['StandardError', None, Unset]): Structured EMS error resolved on-the-fly from errors.yaml
-            catalog.
+            catalog
     """
 
-    status_type: Literal["failed"] | Unset = "failed"
-    scorer_type: None | ScorerType | Unset = UNSET
-    metric_key_alias: None | Unset | str = UNSET
-    message: None | Unset | str = "Metric failed to compute."
-    ems_error_code: None | Unset | int = UNSET
+    status_type: Union[Literal["failed"], Unset] = "failed"
+    scorer_type: Union[None, ScorerType, Unset] = UNSET
+    metric_key_alias: Union[None, Unset, str] = UNSET
+    message: Union[None, Unset, str] = "Metric failed to compute."
+    ems_error_code: Union[None, Unset, int] = UNSET
     standard_error: Union["StandardError", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -41,7 +40,7 @@ class MetricFailed:
 
         status_type = self.status_type
 
-        scorer_type: None | Unset | str
+        scorer_type: Union[None, Unset, str]
         if isinstance(self.scorer_type, Unset):
             scorer_type = UNSET
         elif isinstance(self.scorer_type, ScorerType):
@@ -49,16 +48,25 @@ class MetricFailed:
         else:
             scorer_type = self.scorer_type
 
-        metric_key_alias: None | Unset | str
-        metric_key_alias = UNSET if isinstance(self.metric_key_alias, Unset) else self.metric_key_alias
+        metric_key_alias: Union[None, Unset, str]
+        if isinstance(self.metric_key_alias, Unset):
+            metric_key_alias = UNSET
+        else:
+            metric_key_alias = self.metric_key_alias
 
-        message: None | Unset | str
-        message = UNSET if isinstance(self.message, Unset) else self.message
+        message: Union[None, Unset, str]
+        if isinstance(self.message, Unset):
+            message = UNSET
+        else:
+            message = self.message
 
-        ems_error_code: None | Unset | int
-        ems_error_code = UNSET if isinstance(self.ems_error_code, Unset) else self.ems_error_code
+        ems_error_code: Union[None, Unset, int]
+        if isinstance(self.ems_error_code, Unset):
+            ems_error_code = UNSET
+        else:
+            ems_error_code = self.ems_error_code
 
-        standard_error: None | Unset | dict[str, Any]
+        standard_error: Union[None, Unset, dict[str, Any]]
         if isinstance(self.standard_error, Unset):
             standard_error = UNSET
         elif isinstance(self.standard_error, StandardError):
@@ -89,11 +97,11 @@ class MetricFailed:
         from ..models.standard_error import StandardError
 
         d = dict(src_dict)
-        status_type = cast(Literal["failed"] | Unset, d.pop("status_type", UNSET))
+        status_type = cast(Union[Literal["failed"], Unset], d.pop("status_type", UNSET))
         if status_type != "failed" and not isinstance(status_type, Unset):
             raise ValueError(f"status_type must match const 'failed', got '{status_type}'")
 
-        def _parse_scorer_type(data: object) -> None | ScorerType | Unset:
+        def _parse_scorer_type(data: object) -> Union[None, ScorerType, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -101,38 +109,39 @@ class MetricFailed:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return ScorerType(data)
+                scorer_type_type_0 = ScorerType(data)
 
+                return scorer_type_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | ScorerType | Unset, data)
+            return cast(Union[None, ScorerType, Unset], data)
 
         scorer_type = _parse_scorer_type(d.pop("scorer_type", UNSET))
 
-        def _parse_metric_key_alias(data: object) -> None | Unset | str:
+        def _parse_metric_key_alias(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         metric_key_alias = _parse_metric_key_alias(d.pop("metric_key_alias", UNSET))
 
-        def _parse_message(data: object) -> None | Unset | str:
+        def _parse_message(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         message = _parse_message(d.pop("message", UNSET))
 
-        def _parse_ems_error_code(data: object) -> None | Unset | int:
+        def _parse_ems_error_code(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         ems_error_code = _parse_ems_error_code(d.pop("ems_error_code", UNSET))
 
@@ -144,8 +153,9 @@ class MetricFailed:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return StandardError.from_dict(data)
+                standard_error_type_0 = StandardError.from_dict(data)
 
+                return standard_error_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["StandardError", None, Unset], data)

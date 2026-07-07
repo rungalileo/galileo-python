@@ -10,8 +10,7 @@ T = TypeVar("T", bound="OpenAIFunction")
 @_attrs_define
 class OpenAIFunction:
     """
-    Attributes
-    ----------
+    Attributes:
         name (str):
     """
 

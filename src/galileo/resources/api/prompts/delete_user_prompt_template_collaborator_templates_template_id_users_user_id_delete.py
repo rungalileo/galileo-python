@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -27,7 +27,7 @@ def _get_kwargs(template_id: str, user_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.DELETE,
         "return_raw_response": True,
-        "path": f"/templates/{template_id}/users/{user_id}",
+        "path": "/templates/{template_id}/users/{user_id}".format(template_id=template_id, user_id=user_id),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -36,12 +36,15 @@ def _get_kwargs(template_id: str, user_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
     if response.status_code == 200:
-        return response.json()
+        response_200 = response.json()
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -61,7 +64,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,8 +73,8 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(template_id: str, user_id: str, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
-    """Delete User Prompt Template Collaborator.
+def sync_detailed(template_id: str, user_id: str, *, client: ApiClient) -> Response[Union[Any, HTTPValidationError]]:
+    """Delete User Prompt Template Collaborator
 
      Remove a user's access to a prompt template.
 
@@ -79,15 +82,14 @@ def sync_detailed(template_id: str, user_id: str, *, client: ApiClient) -> Respo
         template_id (str):
         user_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[Any, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(template_id=template_id, user_id=user_id)
 
     response = client.request(**kwargs)
@@ -95,8 +97,8 @@ def sync_detailed(template_id: str, user_id: str, *, client: ApiClient) -> Respo
     return _build_response(client=client, response=response)
 
 
-def sync(template_id: str, user_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
-    """Delete User Prompt Template Collaborator.
+def sync(template_id: str, user_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
+    """Delete User Prompt Template Collaborator
 
      Remove a user's access to a prompt template.
 
@@ -104,20 +106,21 @@ def sync(template_id: str, user_id: str, *, client: ApiClient) -> Any | HTTPVali
         template_id (str):
         user_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[Any, HTTPValidationError]
     """
+
     return sync_detailed(template_id=template_id, user_id=user_id, client=client).parsed
 
 
-async def asyncio_detailed(template_id: str, user_id: str, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
-    """Delete User Prompt Template Collaborator.
+async def asyncio_detailed(
+    template_id: str, user_id: str, *, client: ApiClient
+) -> Response[Union[Any, HTTPValidationError]]:
+    """Delete User Prompt Template Collaborator
 
      Remove a user's access to a prompt template.
 
@@ -125,15 +128,14 @@ async def asyncio_detailed(template_id: str, user_id: str, *, client: ApiClient)
         template_id (str):
         user_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[Any, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(template_id=template_id, user_id=user_id)
 
     response = await client.arequest(**kwargs)
@@ -141,8 +143,8 @@ async def asyncio_detailed(template_id: str, user_id: str, *, client: ApiClient)
     return _build_response(client=client, response=response)
 
 
-async def asyncio(template_id: str, user_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
-    """Delete User Prompt Template Collaborator.
+async def asyncio(template_id: str, user_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
+    """Delete User Prompt Template Collaborator
 
      Remove a user's access to a prompt template.
 
@@ -150,13 +152,12 @@ async def asyncio(template_id: str, user_id: str, *, client: ApiClient) -> Any |
         template_id (str):
         user_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[Any, HTTPValidationError]
     """
+
     return (await asyncio_detailed(template_id=template_id, user_id=user_id, client=client)).parsed

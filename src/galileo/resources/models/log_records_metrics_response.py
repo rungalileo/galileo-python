@@ -20,21 +20,20 @@ T = TypeVar("T", bound="LogRecordsMetricsResponse")
 @_attrs_define
 class LogRecordsMetricsResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         group_by_columns (list[str]):
         aggregate_metrics (LogRecordsMetricsResponseAggregateMetrics):
         bucketed_metrics (LogRecordsMetricsResponseBucketedMetrics):
         ems_captured_error (Union[Unset, bool]): Whether any EMS error codes were encountered in the queried metrics
             Default: False.
         standard_errors (Union['LogRecordsMetricsResponseStandardErrorsType0', None, Unset]): Structured EMS errors for
-            each error code encountered, keyed by code.
+            each error code encountered, keyed by code
     """
 
     group_by_columns: list[str]
     aggregate_metrics: "LogRecordsMetricsResponseAggregateMetrics"
     bucketed_metrics: "LogRecordsMetricsResponseBucketedMetrics"
-    ems_captured_error: Unset | bool = False
+    ems_captured_error: Union[Unset, bool] = False
     standard_errors: Union["LogRecordsMetricsResponseStandardErrorsType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -51,7 +50,7 @@ class LogRecordsMetricsResponse:
 
         ems_captured_error = self.ems_captured_error
 
-        standard_errors: None | Unset | dict[str, Any]
+        standard_errors: Union[None, Unset, dict[str, Any]]
         if isinstance(self.standard_errors, Unset):
             standard_errors = UNSET
         elif isinstance(self.standard_errors, LogRecordsMetricsResponseStandardErrorsType0):
@@ -100,8 +99,9 @@ class LogRecordsMetricsResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsMetricsResponseStandardErrorsType0.from_dict(data)
+                standard_errors_type_0 = LogRecordsMetricsResponseStandardErrorsType0.from_dict(data)
 
+                return standard_errors_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["LogRecordsMetricsResponseStandardErrorsType0", None, Unset], data)

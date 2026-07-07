@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(project_id: str, user_id: str, *, body: CollaboratorUpdate) -> d
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PATCH,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/users/{user_id}",
+        "path": "/projects/{project_id}/users/{user_id}".format(project_id=project_id, user_id=user_id),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -42,12 +42,16 @@ def _get_kwargs(project_id: str, user_id: str, *, body: CollaboratorUpdate) -> d
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | UserCollaborator:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[HTTPValidationError, UserCollaborator]:
     if response.status_code == 200:
-        return UserCollaborator.from_dict(response.json())
+        response_200 = UserCollaborator.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -67,7 +71,9 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError | UserCollaborator]:
+def _build_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Response[Union[HTTPValidationError, UserCollaborator]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -78,8 +84,8 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 def sync_detailed(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Response[HTTPValidationError | UserCollaborator]:
-    """Update User Project Collaborator.
+) -> Response[Union[HTTPValidationError, UserCollaborator]]:
+    """Update User Project Collaborator
 
      Update the sharing permissions of a user on a project.
 
@@ -88,15 +94,14 @@ def sync_detailed(
         user_id (str):
         body (CollaboratorUpdate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[HTTPValidationError, UserCollaborator]]
     """
+
     kwargs = _get_kwargs(project_id=project_id, user_id=user_id, body=body)
 
     response = client.request(**kwargs)
@@ -106,8 +111,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> HTTPValidationError | UserCollaborator | None:
-    """Update User Project Collaborator.
+) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
+    """Update User Project Collaborator
 
      Update the sharing permissions of a user on a project.
 
@@ -116,22 +121,21 @@ def sync(
         user_id (str):
         body (CollaboratorUpdate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[HTTPValidationError, UserCollaborator]
     """
+
     return sync_detailed(project_id=project_id, user_id=user_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> Response[HTTPValidationError | UserCollaborator]:
-    """Update User Project Collaborator.
+) -> Response[Union[HTTPValidationError, UserCollaborator]]:
+    """Update User Project Collaborator
 
      Update the sharing permissions of a user on a project.
 
@@ -140,15 +144,14 @@ async def asyncio_detailed(
         user_id (str):
         body (CollaboratorUpdate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[HTTPValidationError, UserCollaborator]]
     """
+
     kwargs = _get_kwargs(project_id=project_id, user_id=user_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -158,8 +161,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
-) -> HTTPValidationError | UserCollaborator | None:
-    """Update User Project Collaborator.
+) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
+    """Update User Project Collaborator
 
      Update the sharing permissions of a user on a project.
 
@@ -168,13 +171,12 @@ async def asyncio(
         user_id (str):
         body (CollaboratorUpdate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[HTTPValidationError, UserCollaborator]
     """
+
     return (await asyncio_detailed(project_id=project_id, user_id=user_id, client=client, body=body)).parsed

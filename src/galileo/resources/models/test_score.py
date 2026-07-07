@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,21 +13,23 @@ T = TypeVar("T", bound="TestScore")
 @_attrs_define
 class TestScore:
     """
-    Attributes
-    ----------
+    Attributes:
         node_type (NodeType):
         score (Union[None, Unset, bool, float, int, str]):
     """
 
     node_type: NodeType
-    score: None | Unset | bool | float | int | str = UNSET
+    score: Union[None, Unset, bool, float, int, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         node_type = self.node_type.value
 
-        score: None | Unset | bool | float | int | str
-        score = UNSET if isinstance(self.score, Unset) else self.score
+        score: Union[None, Unset, bool, float, int, str]
+        if isinstance(self.score, Unset):
+            score = UNSET
+        else:
+            score = self.score
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -42,12 +44,12 @@ class TestScore:
         d = dict(src_dict)
         node_type = NodeType(d.pop("node_type"))
 
-        def _parse_score(data: object) -> None | Unset | bool | float | int | str:
+        def _parse_score(data: object) -> Union[None, Unset, bool, float, int, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | bool | float | int | str, data)
+            return cast(Union[None, Unset, bool, float, int, str], data)
 
         score = _parse_score(d.pop("score", UNSET))
 

@@ -16,8 +16,7 @@ T = TypeVar("T", bound="NotNodeLogRecordsFilter")
 @_attrs_define
 class NotNodeLogRecordsFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         not_ (Union['AndNodeLogRecordsFilter', 'FilterLeafLogRecordsFilter', 'NotNodeLogRecordsFilter',
             'OrNodeLogRecordsFilter']):
     """
@@ -33,7 +32,11 @@ class NotNodeLogRecordsFilter:
         from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
 
         not_: dict[str, Any]
-        if isinstance(self.not_, FilterLeafLogRecordsFilter | AndNodeLogRecordsFilter | OrNodeLogRecordsFilter):
+        if isinstance(self.not_, FilterLeafLogRecordsFilter):
+            not_ = self.not_.to_dict()
+        elif isinstance(self.not_, AndNodeLogRecordsFilter):
+            not_ = self.not_.to_dict()
+        elif isinstance(self.not_, OrNodeLogRecordsFilter):
             not_ = self.not_.to_dict()
         else:
             not_ = self.not_.to_dict()
@@ -60,27 +63,32 @@ class NotNodeLogRecordsFilter:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return FilterLeafLogRecordsFilter.from_dict(data)
+                not_type_0 = FilterLeafLogRecordsFilter.from_dict(data)
 
+                return not_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AndNodeLogRecordsFilter.from_dict(data)
+                not_type_1 = AndNodeLogRecordsFilter.from_dict(data)
 
+                return not_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return OrNodeLogRecordsFilter.from_dict(data)
+                not_type_2 = OrNodeLogRecordsFilter.from_dict(data)
 
+                return not_type_2
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            return NotNodeLogRecordsFilter.from_dict(data)
+            not_type_3 = NotNodeLogRecordsFilter.from_dict(data)
+
+            return not_type_3
 
         not_ = _parse_not_(d.pop("not"))
 

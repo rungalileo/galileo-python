@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, cast
+from typing import Any, Optional, Union, cast
 
 import httpx
 
@@ -23,7 +23,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    dataset_id: str, *, body: UpdateDatasetContentRequest, if_match: None | Unset | str = UNSET
+    dataset_id: str, *, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(if_match, Unset):
@@ -32,7 +32,7 @@ def _get_kwargs(
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PATCH,
         "return_raw_response": True,
-        "path": f"/datasets/{dataset_id}/content",
+        "path": "/datasets/{dataset_id}/content".format(dataset_id=dataset_id),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -45,12 +45,15 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[Any, HTTPValidationError]:
     if response.status_code == 204:
-        return cast(Any, None)
+        response_204 = cast(Any, None)
+        return response_204
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -70,7 +73,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTT
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Any | HTTPValidationError]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,17 +83,18 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(
-    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: None | Unset | str = UNSET
-) -> Response[Any | HTTPValidationError]:
-    """Update Dataset Content.
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
+) -> Response[Union[Any, HTTPValidationError]]:
+    """Update Dataset Content
 
      Update the content of a dataset.
 
     The `index` and `column_name` fields are treated as keys tied to a specific version of the dataset.
     As such, these values are considered immutable identifiers for the dataset's structure.
 
-    For example, if an edit operation changes the name of a column, subsequent edit operations in
-    the same request should reference the column using its original name.
+    Edits are applied sequentially in list order, and each edit sees the table state left by the
+    previous one. For example, after a `rename_column` edit renames `col_a` to `col_b`, any
+    subsequent `update_row` in the same request must reference the column as `col_b`, not `col_a`.
 
     The `If-Match` header is used to ensure that updates are only applied if the client's version of the
     dataset
@@ -111,15 +115,14 @@ def sync_detailed(
             with row edits.
                 - EditMode.global_edit
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[Any, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, if_match=if_match)
 
     response = client.request(**kwargs)
@@ -128,17 +131,18 @@ def sync_detailed(
 
 
 def sync(
-    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: None | Unset | str = UNSET
-) -> Any | HTTPValidationError | None:
-    """Update Dataset Content.
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
+) -> Optional[Union[Any, HTTPValidationError]]:
+    """Update Dataset Content
 
      Update the content of a dataset.
 
     The `index` and `column_name` fields are treated as keys tied to a specific version of the dataset.
     As such, these values are considered immutable identifiers for the dataset's structure.
 
-    For example, if an edit operation changes the name of a column, subsequent edit operations in
-    the same request should reference the column using its original name.
+    Edits are applied sequentially in list order, and each edit sees the table state left by the
+    previous one. For example, after a `rename_column` edit renames `col_a` to `col_b`, any
+    subsequent `update_row` in the same request must reference the column as `col_b`, not `col_a`.
 
     The `If-Match` header is used to ensure that updates are only applied if the client's version of the
     dataset
@@ -159,30 +163,30 @@ def sync(
             with row edits.
                 - EditMode.global_edit
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[Any, HTTPValidationError]
     """
+
     return sync_detailed(dataset_id=dataset_id, client=client, body=body, if_match=if_match).parsed
 
 
 async def asyncio_detailed(
-    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: None | Unset | str = UNSET
-) -> Response[Any | HTTPValidationError]:
-    """Update Dataset Content.
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
+) -> Response[Union[Any, HTTPValidationError]]:
+    """Update Dataset Content
 
      Update the content of a dataset.
 
     The `index` and `column_name` fields are treated as keys tied to a specific version of the dataset.
     As such, these values are considered immutable identifiers for the dataset's structure.
 
-    For example, if an edit operation changes the name of a column, subsequent edit operations in
-    the same request should reference the column using its original name.
+    Edits are applied sequentially in list order, and each edit sees the table state left by the
+    previous one. For example, after a `rename_column` edit renames `col_a` to `col_b`, any
+    subsequent `update_row` in the same request must reference the column as `col_b`, not `col_a`.
 
     The `If-Match` header is used to ensure that updates are only applied if the client's version of the
     dataset
@@ -203,15 +207,14 @@ async def asyncio_detailed(
             with row edits.
                 - EditMode.global_edit
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[Any, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, if_match=if_match)
 
     response = await client.arequest(**kwargs)
@@ -220,17 +223,18 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: None | Unset | str = UNSET
-) -> Any | HTTPValidationError | None:
-    """Update Dataset Content.
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
+) -> Optional[Union[Any, HTTPValidationError]]:
+    """Update Dataset Content
 
      Update the content of a dataset.
 
     The `index` and `column_name` fields are treated as keys tied to a specific version of the dataset.
     As such, these values are considered immutable identifiers for the dataset's structure.
 
-    For example, if an edit operation changes the name of a column, subsequent edit operations in
-    the same request should reference the column using its original name.
+    Edits are applied sequentially in list order, and each edit sees the table state left by the
+    previous one. For example, after a `rename_column` edit renames `col_a` to `col_b`, any
+    subsequent `update_row` in the same request must reference the column as `col_b`, not `col_a`.
 
     The `If-Match` header is used to ensure that updates are only applied if the client's version of the
     dataset
@@ -251,13 +255,12 @@ async def asyncio(
             with row edits.
                 - EditMode.global_edit
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[Any, HTTPValidationError]
     """
+
     return (await asyncio_detailed(dataset_id=dataset_id, client=client, body=body, if_match=if_match)).parsed

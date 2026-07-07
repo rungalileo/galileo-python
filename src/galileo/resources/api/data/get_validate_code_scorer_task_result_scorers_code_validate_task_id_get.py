@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -28,7 +28,7 @@ def _get_kwargs(task_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": f"/scorers/code/validate/{task_id}",
+        "path": "/scorers/code/validate/{task_id}".format(task_id=task_id),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -39,12 +39,16 @@ def _get_kwargs(task_id: str) -> dict[str, Any]:
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> HTTPValidationError | RegisteredScorerTaskResultResponse:
+) -> Union[HTTPValidationError, RegisteredScorerTaskResultResponse]:
     if response.status_code == 200:
-        return RegisteredScorerTaskResultResponse.from_dict(response.json())
+        response_200 = RegisteredScorerTaskResultResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -66,7 +70,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[HTTPValidationError | RegisteredScorerTaskResultResponse]:
+) -> Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -77,8 +81,8 @@ def _build_response(
 
 def sync_detailed(
     task_id: str, *, client: ApiClient
-) -> Response[HTTPValidationError | RegisteredScorerTaskResultResponse]:
-    """Get Validate Code Scorer Task Result.
+) -> Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]:
+    """Get Validate Code Scorer Task Result
 
      Poll for a code-scorer validation task result (returns status/result).
 
@@ -89,15 +93,14 @@ def sync_detailed(
     Args:
         task_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]
     """
+
     kwargs = _get_kwargs(task_id=task_id)
 
     response = client.request(**kwargs)
@@ -105,8 +108,10 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(task_id: str, *, client: ApiClient) -> HTTPValidationError | RegisteredScorerTaskResultResponse | None:
-    """Get Validate Code Scorer Task Result.
+def sync(
+    task_id: str, *, client: ApiClient
+) -> Optional[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]:
+    """Get Validate Code Scorer Task Result
 
      Poll for a code-scorer validation task result (returns status/result).
 
@@ -117,22 +122,21 @@ def sync(task_id: str, *, client: ApiClient) -> HTTPValidationError | Registered
     Args:
         task_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[HTTPValidationError, RegisteredScorerTaskResultResponse]
     """
+
     return sync_detailed(task_id=task_id, client=client).parsed
 
 
 async def asyncio_detailed(
     task_id: str, *, client: ApiClient
-) -> Response[HTTPValidationError | RegisteredScorerTaskResultResponse]:
-    """Get Validate Code Scorer Task Result.
+) -> Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]:
+    """Get Validate Code Scorer Task Result
 
      Poll for a code-scorer validation task result (returns status/result).
 
@@ -143,15 +147,14 @@ async def asyncio_detailed(
     Args:
         task_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]
     """
+
     kwargs = _get_kwargs(task_id=task_id)
 
     response = await client.arequest(**kwargs)
@@ -161,8 +164,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     task_id: str, *, client: ApiClient
-) -> HTTPValidationError | RegisteredScorerTaskResultResponse | None:
-    """Get Validate Code Scorer Task Result.
+) -> Optional[Union[HTTPValidationError, RegisteredScorerTaskResultResponse]]:
+    """Get Validate Code Scorer Task Result
 
      Poll for a code-scorer validation task result (returns status/result).
 
@@ -173,13 +176,12 @@ async def asyncio(
     Args:
         task_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[HTTPValidationError, RegisteredScorerTaskResultResponse]
     """
+
     return (await asyncio_detailed(task_id=task_id, client=client)).parsed

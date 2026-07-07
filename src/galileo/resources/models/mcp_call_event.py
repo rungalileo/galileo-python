@@ -23,8 +23,7 @@ class MCPCallEvent:
     MCP is a protocol for connecting LLMs to external tools/data sources.
     This is distinct from internal tools because it involves external integrations.
 
-    Attributes
-    ----------
+        Attributes:
             type_ (Union[Literal['mcp_call'], Unset]):  Default: 'mcp_call'.
             id (Union[None, Unset, str]): Unique identifier for the event
             status (Union[EventStatus, None, Unset]): Status of the event
@@ -36,13 +35,13 @@ class MCPCallEvent:
             result (Union['MCPCallEventResultType0', None, Unset]): Result from the MCP tool call
     """
 
-    type_: Literal["mcp_call"] | Unset = "mcp_call"
-    id: None | Unset | str = UNSET
-    status: EventStatus | None | Unset = UNSET
+    type_: Union[Literal["mcp_call"], Unset] = "mcp_call"
+    id: Union[None, Unset, str] = UNSET
+    status: Union[EventStatus, None, Unset] = UNSET
     metadata: Union["MCPCallEventMetadataType0", None, Unset] = UNSET
-    error_message: None | Unset | str = UNSET
-    tool_name: None | Unset | str = UNSET
-    server_name: None | Unset | str = UNSET
+    error_message: Union[None, Unset, str] = UNSET
+    tool_name: Union[None, Unset, str] = UNSET
+    server_name: Union[None, Unset, str] = UNSET
     arguments: Union["MCPCallEventArgumentsType0", None, Unset] = UNSET
     result: Union["MCPCallEventResultType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -54,10 +53,13 @@ class MCPCallEvent:
 
         type_ = self.type_
 
-        id: None | Unset | str
-        id = UNSET if isinstance(self.id, Unset) else self.id
+        id: Union[None, Unset, str]
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
-        status: None | Unset | str
+        status: Union[None, Unset, str]
         if isinstance(self.status, Unset):
             status = UNSET
         elif isinstance(self.status, EventStatus):
@@ -65,7 +67,7 @@ class MCPCallEvent:
         else:
             status = self.status
 
-        metadata: None | Unset | dict[str, Any]
+        metadata: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metadata, Unset):
             metadata = UNSET
         elif isinstance(self.metadata, MCPCallEventMetadataType0):
@@ -73,16 +75,25 @@ class MCPCallEvent:
         else:
             metadata = self.metadata
 
-        error_message: None | Unset | str
-        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
+        error_message: Union[None, Unset, str]
+        if isinstance(self.error_message, Unset):
+            error_message = UNSET
+        else:
+            error_message = self.error_message
 
-        tool_name: None | Unset | str
-        tool_name = UNSET if isinstance(self.tool_name, Unset) else self.tool_name
+        tool_name: Union[None, Unset, str]
+        if isinstance(self.tool_name, Unset):
+            tool_name = UNSET
+        else:
+            tool_name = self.tool_name
 
-        server_name: None | Unset | str
-        server_name = UNSET if isinstance(self.server_name, Unset) else self.server_name
+        server_name: Union[None, Unset, str]
+        if isinstance(self.server_name, Unset):
+            server_name = UNSET
+        else:
+            server_name = self.server_name
 
-        arguments: None | Unset | dict[str, Any]
+        arguments: Union[None, Unset, dict[str, Any]]
         if isinstance(self.arguments, Unset):
             arguments = UNSET
         elif isinstance(self.arguments, MCPCallEventArgumentsType0):
@@ -90,7 +101,7 @@ class MCPCallEvent:
         else:
             arguments = self.arguments
 
-        result: None | Unset | dict[str, Any]
+        result: Union[None, Unset, dict[str, Any]]
         if isinstance(self.result, Unset):
             result = UNSET
         elif isinstance(self.result, MCPCallEventResultType0):
@@ -129,20 +140,20 @@ class MCPCallEvent:
         from ..models.mcp_call_event_result_type_0 import MCPCallEventResultType0
 
         d = dict(src_dict)
-        type_ = cast(Literal["mcp_call"] | Unset, d.pop("type", UNSET))
+        type_ = cast(Union[Literal["mcp_call"], Unset], d.pop("type", UNSET))
         if type_ != "mcp_call" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'mcp_call', got '{type_}'")
 
-        def _parse_id(data: object) -> None | Unset | str:
+        def _parse_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_status(data: object) -> EventStatus | None | Unset:
+        def _parse_status(data: object) -> Union[EventStatus, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -150,11 +161,12 @@ class MCPCallEvent:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return EventStatus(data)
+                status_type_0 = EventStatus(data)
 
+                return status_type_0
             except:  # noqa: E722
                 pass
-            return cast(EventStatus | None | Unset, data)
+            return cast(Union[EventStatus, None, Unset], data)
 
         status = _parse_status(d.pop("status", UNSET))
 
@@ -166,38 +178,39 @@ class MCPCallEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MCPCallEventMetadataType0.from_dict(data)
+                metadata_type_0 = MCPCallEventMetadataType0.from_dict(data)
 
+                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["MCPCallEventMetadataType0", None, Unset], data)
 
         metadata = _parse_metadata(d.pop("metadata", UNSET))
 
-        def _parse_error_message(data: object) -> None | Unset | str:
+        def _parse_error_message(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         error_message = _parse_error_message(d.pop("error_message", UNSET))
 
-        def _parse_tool_name(data: object) -> None | Unset | str:
+        def _parse_tool_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         tool_name = _parse_tool_name(d.pop("tool_name", UNSET))
 
-        def _parse_server_name(data: object) -> None | Unset | str:
+        def _parse_server_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         server_name = _parse_server_name(d.pop("server_name", UNSET))
 
@@ -209,8 +222,9 @@ class MCPCallEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MCPCallEventArgumentsType0.from_dict(data)
+                arguments_type_0 = MCPCallEventArgumentsType0.from_dict(data)
 
+                return arguments_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["MCPCallEventArgumentsType0", None, Unset], data)
@@ -225,8 +239,9 @@ class MCPCallEvent:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MCPCallEventResultType0.from_dict(data)
+                result_type_0 = MCPCallEventResultType0.from_dict(data)
 
+                return result_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["MCPCallEventResultType0", None, Unset], data)

@@ -22,8 +22,7 @@ T = TypeVar("T", bound="ProjectItem")
 class ProjectItem:
     """Represents a single project item for the UI list.
 
-    Attributes
-    ----------
+    Attributes:
         id (str):
         name (str):
         created_at (datetime.datetime):
@@ -43,14 +42,14 @@ class ProjectItem:
     name: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    permissions: Unset | list["Permission"] = UNSET
-    bookmark: Unset | bool = False
-    num_logstreams: None | Unset | int = UNSET
-    num_experiments: None | Unset | int = UNSET
+    permissions: Union[Unset, list["Permission"]] = UNSET
+    bookmark: Union[Unset, bool] = False
+    num_logstreams: Union[None, Unset, int] = UNSET
+    num_experiments: Union[None, Unset, int] = UNSET
     created_by_user: Union["UserInfo", None, Unset] = UNSET
-    description: None | Unset | str = UNSET
-    labels: Unset | list[ProjectLabels] = UNSET
-    log_streams: None | Unset | list["LogStreamInfo"] = UNSET
+    description: Union[None, Unset, str] = UNSET
+    labels: Union[Unset, list[ProjectLabels]] = UNSET
+    log_streams: Union[None, Unset, list["LogStreamInfo"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -64,7 +63,7 @@ class ProjectItem:
 
         updated_at = self.updated_at.isoformat()
 
-        permissions: Unset | list[dict[str, Any]] = UNSET
+        permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
@@ -73,13 +72,19 @@ class ProjectItem:
 
         bookmark = self.bookmark
 
-        num_logstreams: None | Unset | int
-        num_logstreams = UNSET if isinstance(self.num_logstreams, Unset) else self.num_logstreams
+        num_logstreams: Union[None, Unset, int]
+        if isinstance(self.num_logstreams, Unset):
+            num_logstreams = UNSET
+        else:
+            num_logstreams = self.num_logstreams
 
-        num_experiments: None | Unset | int
-        num_experiments = UNSET if isinstance(self.num_experiments, Unset) else self.num_experiments
+        num_experiments: Union[None, Unset, int]
+        if isinstance(self.num_experiments, Unset):
+            num_experiments = UNSET
+        else:
+            num_experiments = self.num_experiments
 
-        created_by_user: None | Unset | dict[str, Any]
+        created_by_user: Union[None, Unset, dict[str, Any]]
         if isinstance(self.created_by_user, Unset):
             created_by_user = UNSET
         elif isinstance(self.created_by_user, UserInfo):
@@ -87,17 +92,20 @@ class ProjectItem:
         else:
             created_by_user = self.created_by_user
 
-        description: None | Unset | str
-        description = UNSET if isinstance(self.description, Unset) else self.description
+        description: Union[None, Unset, str]
+        if isinstance(self.description, Unset):
+            description = UNSET
+        else:
+            description = self.description
 
-        labels: Unset | list[str] = UNSET
+        labels: Union[Unset, list[str]] = UNSET
         if not isinstance(self.labels, Unset):
             labels = []
             for labels_item_data in self.labels:
                 labels_item = labels_item_data.value
                 labels.append(labels_item)
 
-        log_streams: None | Unset | list[dict[str, Any]]
+        log_streams: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.log_streams, Unset):
             log_streams = UNSET
         elif isinstance(self.log_streams, list):
@@ -155,21 +163,21 @@ class ProjectItem:
 
         bookmark = d.pop("bookmark", UNSET)
 
-        def _parse_num_logstreams(data: object) -> None | Unset | int:
+        def _parse_num_logstreams(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         num_logstreams = _parse_num_logstreams(d.pop("num_logstreams", UNSET))
 
-        def _parse_num_experiments(data: object) -> None | Unset | int:
+        def _parse_num_experiments(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         num_experiments = _parse_num_experiments(d.pop("num_experiments", UNSET))
 
@@ -181,20 +189,21 @@ class ProjectItem:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return UserInfo.from_dict(data)
+                created_by_user_type_0 = UserInfo.from_dict(data)
 
+                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["UserInfo", None, Unset], data)
 
         created_by_user = _parse_created_by_user(d.pop("created_by_user", UNSET))
 
-        def _parse_description(data: object) -> None | Unset | str:
+        def _parse_description(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         description = _parse_description(d.pop("description", UNSET))
 
@@ -205,7 +214,7 @@ class ProjectItem:
 
             labels.append(labels_item)
 
-        def _parse_log_streams(data: object) -> None | Unset | list["LogStreamInfo"]:
+        def _parse_log_streams(data: object) -> Union[None, Unset, list["LogStreamInfo"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -223,7 +232,7 @@ class ProjectItem:
                 return log_streams_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list["LogStreamInfo"], data)
+            return cast(Union[None, Unset, list["LogStreamInfo"]], data)
 
         log_streams = _parse_log_streams(d.pop("log_streams", UNSET))
 

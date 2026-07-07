@@ -13,7 +13,7 @@ T = TypeVar("T", bound="ExtendedWorkflowSpanRecordWithChildrenAnnotationAggregat
 
 @_attrs_define
 class ExtendedWorkflowSpanRecordWithChildrenAnnotationAggregates:
-    """Annotation aggregate information keyed by template ID."""
+    """Annotation aggregate information keyed by template ID"""
 
     additional_properties: dict[str, "AnnotationAggregate"] = _attrs_field(init=False, factory=dict)
 

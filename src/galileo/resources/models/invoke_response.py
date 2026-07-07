@@ -23,8 +23,7 @@ T = TypeVar("T", bound="InvokeResponse")
 @_attrs_define
 class InvokeResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         text (str): Text from the request after processing the rules.
         trace_metadata (TraceMetadata):
         stage_metadata (StageMetadata):
@@ -43,9 +42,9 @@ class InvokeResponse:
     trace_metadata: "TraceMetadata"
     stage_metadata: "StageMetadata"
     action_result: "ActionResult"
-    status: Unset | ExecutionStatus = UNSET
-    api_version: Unset | str = "1.0.0"
-    ruleset_results: Unset | list["RulesetResult"] = UNSET
+    status: Union[Unset, ExecutionStatus] = UNSET
+    api_version: Union[Unset, str] = "1.0.0"
+    ruleset_results: Union[Unset, list["RulesetResult"]] = UNSET
     metric_results: Union[Unset, "InvokeResponseMetricResults"] = UNSET
     metadata: Union["InvokeResponseMetadataType0", None, Unset] = UNSET
     headers: Union["InvokeResponseHeadersType0", None, Unset] = UNSET
@@ -63,24 +62,24 @@ class InvokeResponse:
 
         action_result = self.action_result.to_dict()
 
-        status: Unset | str = UNSET
+        status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
             status = self.status.value
 
         api_version = self.api_version
 
-        ruleset_results: Unset | list[dict[str, Any]] = UNSET
+        ruleset_results: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.ruleset_results, Unset):
             ruleset_results = []
             for ruleset_results_item_data in self.ruleset_results:
                 ruleset_results_item = ruleset_results_item_data.to_dict()
                 ruleset_results.append(ruleset_results_item)
 
-        metric_results: Unset | dict[str, Any] = UNSET
+        metric_results: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metric_results, Unset):
             metric_results = self.metric_results.to_dict()
 
-        metadata: None | Unset | dict[str, Any]
+        metadata: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metadata, Unset):
             metadata = UNSET
         elif isinstance(self.metadata, InvokeResponseMetadataType0):
@@ -88,7 +87,7 @@ class InvokeResponse:
         else:
             metadata = self.metadata
 
-        headers: None | Unset | dict[str, Any]
+        headers: Union[None, Unset, dict[str, Any]]
         if isinstance(self.headers, Unset):
             headers = UNSET
         elif isinstance(self.headers, InvokeResponseHeadersType0):
@@ -141,8 +140,11 @@ class InvokeResponse:
         action_result = ActionResult.from_dict(d.pop("action_result"))
 
         _status = d.pop("status", UNSET)
-        status: Unset | ExecutionStatus
-        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
+        status: Union[Unset, ExecutionStatus]
+        if isinstance(_status, Unset):
+            status = UNSET
+        else:
+            status = ExecutionStatus(_status)
 
         api_version = d.pop("api_version", UNSET)
 
@@ -154,7 +156,7 @@ class InvokeResponse:
             ruleset_results.append(ruleset_results_item)
 
         _metric_results = d.pop("metric_results", UNSET)
-        metric_results: Unset | InvokeResponseMetricResults
+        metric_results: Union[Unset, InvokeResponseMetricResults]
         if isinstance(_metric_results, Unset):
             metric_results = UNSET
         else:
@@ -168,8 +170,9 @@ class InvokeResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return InvokeResponseMetadataType0.from_dict(data)
+                metadata_type_0 = InvokeResponseMetadataType0.from_dict(data)
 
+                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["InvokeResponseMetadataType0", None, Unset], data)
@@ -184,8 +187,9 @@ class InvokeResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return InvokeResponseHeadersType0.from_dict(data)
+                headers_type_0 = InvokeResponseHeadersType0.from_dict(data)
 
+                return headers_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["InvokeResponseHeadersType0", None, Unset], data)

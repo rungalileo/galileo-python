@@ -12,8 +12,7 @@ T = TypeVar("T", bound="RunTagDB")
 @_attrs_define
 class RunTagDB:
     """
-    Attributes
-    ----------
+    Attributes:
         key (str):
         value (str):
         tag_type (str):

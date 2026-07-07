@@ -20,8 +20,7 @@ class CustomLLMConfig:
     Allows users to specify a custom implementation of litellm.CustomLLM
     that handles acompletion() calls with custom request/response transformation.
 
-    Attributes
-    ----------
+        Attributes:
             file_name (str): Python file name containing the CustomLLM class (e.g., 'my_handler.py')
             class_name (str): Class name within the module (must be a litellm.CustomLLM subclass)
             init_kwargs (Union['CustomLLMConfigInitKwargsType0', None, Unset]): Optional keyword arguments to pass to the
@@ -40,7 +39,7 @@ class CustomLLMConfig:
 
         class_name = self.class_name
 
-        init_kwargs: None | Unset | dict[str, Any]
+        init_kwargs: Union[None, Unset, dict[str, Any]]
         if isinstance(self.init_kwargs, Unset):
             init_kwargs = UNSET
         elif isinstance(self.init_kwargs, CustomLLMConfigInitKwargsType0):
@@ -73,8 +72,9 @@ class CustomLLMConfig:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return CustomLLMConfigInitKwargsType0.from_dict(data)
+                init_kwargs_type_0 = CustomLLMConfigInitKwargsType0.from_dict(data)
 
+                return init_kwargs_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["CustomLLMConfigInitKwargsType0", None, Unset], data)

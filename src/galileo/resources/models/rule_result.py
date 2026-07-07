@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -14,8 +14,7 @@ T = TypeVar("T", bound="RuleResult")
 @_attrs_define
 class RuleResult:
     """
-    Attributes
-    ----------
+    Attributes:
         metric (str): Name of the metric.
         operator (RuleOperator):
         target_value (Union[None, float, int, list[Any], str]): Value to compare with for this metric (right hand side).
@@ -26,10 +25,10 @@ class RuleResult:
 
     metric: str
     operator: RuleOperator
-    target_value: None | float | int | list[Any] | str
-    status: Unset | ExecutionStatus = UNSET
-    value: Any | None | Unset = UNSET
-    execution_time: None | Unset | float = UNSET
+    target_value: Union[None, float, int, list[Any], str]
+    status: Union[Unset, ExecutionStatus] = UNSET
+    value: Union[Any, None, Unset] = UNSET
+    execution_time: Union[None, Unset, float] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -37,18 +36,28 @@ class RuleResult:
 
         operator = self.operator.value
 
-        target_value: None | float | int | list[Any] | str
-        target_value = self.target_value if isinstance(self.target_value, list) else self.target_value
+        target_value: Union[None, float, int, list[Any], str]
+        if isinstance(self.target_value, list):
+            target_value = self.target_value
 
-        status: Unset | str = UNSET
+        else:
+            target_value = self.target_value
+
+        status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
             status = self.status.value
 
-        value: Any | None | Unset
-        value = UNSET if isinstance(self.value, Unset) else self.value
+        value: Union[Any, None, Unset]
+        if isinstance(self.value, Unset):
+            value = UNSET
+        else:
+            value = self.value
 
-        execution_time: None | Unset | float
-        execution_time = UNSET if isinstance(self.execution_time, Unset) else self.execution_time
+        execution_time: Union[None, Unset, float]
+        if isinstance(self.execution_time, Unset):
+            execution_time = UNSET
+        else:
+            execution_time = self.execution_time
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -69,39 +78,43 @@ class RuleResult:
 
         operator = RuleOperator(d.pop("operator"))
 
-        def _parse_target_value(data: object) -> None | float | int | list[Any] | str:
+        def _parse_target_value(data: object) -> Union[None, float, int, list[Any], str]:
             if data is None:
                 return data
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[Any], data)
+                target_value_type_3 = cast(list[Any], data)
 
+                return target_value_type_3
             except:  # noqa: E722
                 pass
-            return cast(None | float | int | list[Any] | str, data)
+            return cast(Union[None, float, int, list[Any], str], data)
 
         target_value = _parse_target_value(d.pop("target_value"))
 
         _status = d.pop("status", UNSET)
-        status: Unset | ExecutionStatus
-        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
+        status: Union[Unset, ExecutionStatus]
+        if isinstance(_status, Unset):
+            status = UNSET
+        else:
+            status = ExecutionStatus(_status)
 
-        def _parse_value(data: object) -> Any | None | Unset:
+        def _parse_value(data: object) -> Union[Any, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Any | None | Unset, data)
+            return cast(Union[Any, None, Unset], data)
 
         value = _parse_value(d.pop("value", UNSET))
 
-        def _parse_execution_time(data: object) -> None | Unset | float:
+        def _parse_execution_time(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | float, data)
+            return cast(Union[None, Unset, float], data)
 
         execution_time = _parse_execution_time(d.pop("execution_time", UNSET))
 

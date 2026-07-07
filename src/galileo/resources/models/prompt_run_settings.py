@@ -20,8 +20,7 @@ T = TypeVar("T", bound="PromptRunSettings")
 class PromptRunSettings:
     """Prompt run settings.
 
-    Attributes
-    ----------
+    Attributes:
         logprobs (Union[Unset, bool]):  Default: True.
         top_logprobs (Union[Unset, int]):  Default: 5.
         echo (Union[Unset, bool]):  Default: False.
@@ -43,25 +42,25 @@ class PromptRunSettings:
         known_models (Union[Unset, list['Model']]):
     """
 
-    logprobs: Unset | bool = True
-    top_logprobs: Unset | int = 5
-    echo: Unset | bool = False
-    n: Unset | int = 1
-    reasoning_effort: Unset | str = "medium"
-    verbosity: Unset | str = "medium"
-    deployment_name: None | Unset | str = UNSET
-    model_alias: Unset | str = "gpt-5.1"
-    temperature: None | Unset | float = UNSET
-    max_tokens: Unset | int = 4096
-    stop_sequences: None | Unset | list[str] = UNSET
-    top_p: Unset | float = 1.0
-    top_k: Unset | int = 40
-    frequency_penalty: Unset | float = 0.0
-    presence_penalty: Unset | float = 0.0
-    tools: None | Unset | list["PromptRunSettingsToolsType0Item"] = UNSET
+    logprobs: Union[Unset, bool] = True
+    top_logprobs: Union[Unset, int] = 5
+    echo: Union[Unset, bool] = False
+    n: Union[Unset, int] = 1
+    reasoning_effort: Union[Unset, str] = "medium"
+    verbosity: Union[Unset, str] = "medium"
+    deployment_name: Union[None, Unset, str] = UNSET
+    model_alias: Union[Unset, str] = "gpt-5.1"
+    temperature: Union[None, Unset, float] = UNSET
+    max_tokens: Union[Unset, int] = 4096
+    stop_sequences: Union[None, Unset, list[str]] = UNSET
+    top_p: Union[Unset, float] = 1.0
+    top_k: Union[Unset, int] = 40
+    frequency_penalty: Union[Unset, float] = 0.0
+    presence_penalty: Union[Unset, float] = 0.0
+    tools: Union[None, Unset, list["PromptRunSettingsToolsType0Item"]] = UNSET
     tool_choice: Union["OpenAIToolChoice", None, Unset, str] = UNSET
     response_format: Union["PromptRunSettingsResponseFormatType0", None, Unset] = UNSET
-    known_models: Unset | list["Model"] = UNSET
+    known_models: Union[Unset, list["Model"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -80,17 +79,23 @@ class PromptRunSettings:
 
         verbosity = self.verbosity
 
-        deployment_name: None | Unset | str
-        deployment_name = UNSET if isinstance(self.deployment_name, Unset) else self.deployment_name
+        deployment_name: Union[None, Unset, str]
+        if isinstance(self.deployment_name, Unset):
+            deployment_name = UNSET
+        else:
+            deployment_name = self.deployment_name
 
         model_alias = self.model_alias
 
-        temperature: None | Unset | float
-        temperature = UNSET if isinstance(self.temperature, Unset) else self.temperature
+        temperature: Union[None, Unset, float]
+        if isinstance(self.temperature, Unset):
+            temperature = UNSET
+        else:
+            temperature = self.temperature
 
         max_tokens = self.max_tokens
 
-        stop_sequences: None | Unset | list[str]
+        stop_sequences: Union[None, Unset, list[str]]
         if isinstance(self.stop_sequences, Unset):
             stop_sequences = UNSET
         elif isinstance(self.stop_sequences, list):
@@ -107,7 +112,7 @@ class PromptRunSettings:
 
         presence_penalty = self.presence_penalty
 
-        tools: None | Unset | list[dict[str, Any]]
+        tools: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.tools, Unset):
             tools = UNSET
         elif isinstance(self.tools, list):
@@ -119,7 +124,7 @@ class PromptRunSettings:
         else:
             tools = self.tools
 
-        tool_choice: None | Unset | dict[str, Any] | str
+        tool_choice: Union[None, Unset, dict[str, Any], str]
         if isinstance(self.tool_choice, Unset):
             tool_choice = UNSET
         elif isinstance(self.tool_choice, OpenAIToolChoice):
@@ -127,7 +132,7 @@ class PromptRunSettings:
         else:
             tool_choice = self.tool_choice
 
-        response_format: None | Unset | dict[str, Any]
+        response_format: Union[None, Unset, dict[str, Any]]
         if isinstance(self.response_format, Unset):
             response_format = UNSET
         elif isinstance(self.response_format, PromptRunSettingsResponseFormatType0):
@@ -135,7 +140,7 @@ class PromptRunSettings:
         else:
             response_format = self.response_format
 
-        known_models: Unset | list[dict[str, Any]] = UNSET
+        known_models: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.known_models, Unset):
             known_models = []
             for known_models_item_data in self.known_models:
@@ -206,29 +211,29 @@ class PromptRunSettings:
 
         verbosity = d.pop("verbosity", UNSET)
 
-        def _parse_deployment_name(data: object) -> None | Unset | str:
+        def _parse_deployment_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         deployment_name = _parse_deployment_name(d.pop("deployment_name", UNSET))
 
         model_alias = d.pop("model_alias", UNSET)
 
-        def _parse_temperature(data: object) -> None | Unset | float:
+        def _parse_temperature(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | float, data)
+            return cast(Union[None, Unset, float], data)
 
         temperature = _parse_temperature(d.pop("temperature", UNSET))
 
         max_tokens = d.pop("max_tokens", UNSET)
 
-        def _parse_stop_sequences(data: object) -> None | Unset | list[str]:
+        def _parse_stop_sequences(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -236,11 +241,12 @@ class PromptRunSettings:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                stop_sequences_type_0 = cast(list[str], data)
 
+                return stop_sequences_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[str], data)
+            return cast(Union[None, Unset, list[str]], data)
 
         stop_sequences = _parse_stop_sequences(d.pop("stop_sequences", UNSET))
 
@@ -252,7 +258,7 @@ class PromptRunSettings:
 
         presence_penalty = d.pop("presence_penalty", UNSET)
 
-        def _parse_tools(data: object) -> None | Unset | list["PromptRunSettingsToolsType0Item"]:
+        def _parse_tools(data: object) -> Union[None, Unset, list["PromptRunSettingsToolsType0Item"]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -270,7 +276,7 @@ class PromptRunSettings:
                 return tools_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list["PromptRunSettingsToolsType0Item"], data)
+            return cast(Union[None, Unset, list["PromptRunSettingsToolsType0Item"]], data)
 
         tools = _parse_tools(d.pop("tools", UNSET))
 
@@ -282,8 +288,9 @@ class PromptRunSettings:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return OpenAIToolChoice.from_dict(data)
+                tool_choice_type_1 = OpenAIToolChoice.from_dict(data)
 
+                return tool_choice_type_1
             except:  # noqa: E722
                 pass
             return cast(Union["OpenAIToolChoice", None, Unset, str], data)
@@ -298,8 +305,9 @@ class PromptRunSettings:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return PromptRunSettingsResponseFormatType0.from_dict(data)
+                response_format_type_0 = PromptRunSettingsResponseFormatType0.from_dict(data)
 
+                return response_format_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["PromptRunSettingsResponseFormatType0", None, Unset], data)

@@ -13,8 +13,7 @@ T = TypeVar("T", bound="CreateCodeMetricGenerationResponse")
 class CreateCodeMetricGenerationResponse:
     """Response with generation ID for polling.
 
-    Attributes
-    ----------
+    Attributes:
         id (str):
         status (CodeMetricGenerationStatus):
     """

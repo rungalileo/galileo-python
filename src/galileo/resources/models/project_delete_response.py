@@ -10,8 +10,7 @@ T = TypeVar("T", bound="ProjectDeleteResponse")
 @_attrs_define
 class ProjectDeleteResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         message (str):
     """
 

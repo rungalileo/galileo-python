@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -12,14 +12,13 @@ T = TypeVar("T", bound="ProjectBookmarkFilter")
 @_attrs_define
 class ProjectBookmarkFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         value (bool):
         name (Union[Literal['bookmark'], Unset]):  Default: 'bookmark'.
     """
 
     value: bool
-    name: Literal["bookmark"] | Unset = "bookmark"
+    name: Union[Literal["bookmark"], Unset] = "bookmark"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,7 +39,7 @@ class ProjectBookmarkFilter:
         d = dict(src_dict)
         value = d.pop("value")
 
-        name = cast(Literal["bookmark"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["bookmark"], Unset], d.pop("name", UNSET))
         if name != "bookmark" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'bookmark', got '{name}'")
 

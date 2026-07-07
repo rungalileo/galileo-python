@@ -53,8 +53,9 @@ class MetricRollUpRollUpMetrics:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return MetricRollUpRollUpMetricsAdditionalPropertyType1.from_dict(data)
+                    additional_property_type_1 = MetricRollUpRollUpMetricsAdditionalPropertyType1.from_dict(data)
 
+                    return additional_property_type_1
                 except:  # noqa: E722
                     pass
                 return cast(Union["MetricRollUpRollUpMetricsAdditionalPropertyType1", float], data)

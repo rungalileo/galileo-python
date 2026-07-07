@@ -14,8 +14,7 @@ T = TypeVar("T", bound="ToolCall")
 @_attrs_define
 class ToolCall:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         function (ToolCallFunction):
     """

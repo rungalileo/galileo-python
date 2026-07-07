@@ -17,9 +17,6 @@ if TYPE_CHECKING:
     from ..models.extended_trace_record_feedback_rating_info import ExtendedTraceRecordFeedbackRatingInfo
     from ..models.extended_trace_record_files_type_0 import ExtendedTraceRecordFilesType0
     from ..models.extended_trace_record_metric_info_type_0 import ExtendedTraceRecordMetricInfoType0
-    from ..models.extended_trace_record_overall_annotation_agreement import (
-        ExtendedTraceRecordOverallAnnotationAgreement,
-    )
     from ..models.extended_trace_record_user_metadata import ExtendedTraceRecordUserMetadata
     from ..models.file_content_part import FileContentPart
     from ..models.metrics import Metrics
@@ -32,8 +29,7 @@ T = TypeVar("T", bound="ExtendedTraceRecord")
 @_attrs_define
 class ExtendedTraceRecord:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str): Galileo ID of the trace
         session_id (str): Galileo ID of the session containing the trace (or the same value as id for a trace)
         trace_id (str): Galileo ID of the trace containing the span (or the same value as id for a trace)
@@ -73,9 +69,12 @@ class ExtendedTraceRecord:
             keyed by template ID
         annotation_agreement (Union[Unset, ExtendedTraceRecordAnnotationAgreement]): Annotation agreement scores keyed
             by template ID
-        overall_annotation_agreement (Union[Unset, ExtendedTraceRecordOverallAnnotationAgreement]): Average annotation
-            agreement per queue (keyed by queue ID)
+        overall_annotation_agreement (Union[None, Unset, float]): Average annotation agreement across all templates in
+            the queue
         annotation_queue_ids (Union[Unset, list[str]]): IDs of annotation queues this record is in
+        fully_annotated (Union[None, Unset, bool]): Whether every field is annotated by every annotator in the queue
+        progress_message (Union[Unset, str]): Runner progress text written directly to CH span Default: ''.
+        error_message (Union[Unset, str]): Runner error text written directly to CH span Default: ''.
         metric_info (Union['ExtendedTraceRecordMetricInfoType0', None, Unset]): Detailed information about the metrics
             associated with this trace or span
         files (Union['ExtendedTraceRecordFilesType0', None, Unset]): File metadata keyed by file ID for files associated
@@ -89,37 +88,40 @@ class ExtendedTraceRecord:
     trace_id: str
     project_id: str
     run_id: str
-    type_: Literal["trace"] | Unset = "trace"
-    input_: Unset | list[Union["FileContentPart", "TextContentPart"]] | str = ""
-    redacted_input: None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str = UNSET
-    output: None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str = UNSET
-    redacted_output: None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str = UNSET
-    name: Unset | str = ""
-    created_at: Unset | datetime.datetime = UNSET
+    type_: Union[Literal["trace"], Unset] = "trace"
+    input_: Union[Unset, list[Union["FileContentPart", "TextContentPart"]], str] = ""
+    redacted_input: Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
+    output: Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
+    redacted_output: Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
+    name: Union[Unset, str] = ""
+    created_at: Union[Unset, datetime.datetime] = UNSET
     user_metadata: Union[Unset, "ExtendedTraceRecordUserMetadata"] = UNSET
-    tags: Unset | list[str] = UNSET
-    status_code: None | Unset | int = UNSET
+    tags: Union[Unset, list[str]] = UNSET
+    status_code: Union[None, Unset, int] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
-    external_id: None | Unset | str = UNSET
-    dataset_input: None | Unset | str = UNSET
-    dataset_output: None | Unset | str = UNSET
+    external_id: Union[None, Unset, str] = UNSET
+    dataset_input: Union[None, Unset, str] = UNSET
+    dataset_output: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "ExtendedTraceRecordDatasetMetadata"] = UNSET
-    updated_at: None | Unset | datetime.datetime = UNSET
-    has_children: None | Unset | bool = UNSET
-    metrics_batch_id: None | Unset | str = UNSET
-    session_batch_id: None | Unset | str = UNSET
+    updated_at: Union[None, Unset, datetime.datetime] = UNSET
+    has_children: Union[None, Unset, bool] = UNSET
+    metrics_batch_id: Union[None, Unset, str] = UNSET
+    session_batch_id: Union[None, Unset, str] = UNSET
     feedback_rating_info: Union[Unset, "ExtendedTraceRecordFeedbackRatingInfo"] = UNSET
     annotations: Union[Unset, "ExtendedTraceRecordAnnotations"] = UNSET
-    file_ids: Unset | list[str] = UNSET
-    file_modalities: Unset | list[ContentModality] = UNSET
+    file_ids: Union[Unset, list[str]] = UNSET
+    file_modalities: Union[Unset, list[ContentModality]] = UNSET
     annotation_aggregates: Union[Unset, "ExtendedTraceRecordAnnotationAggregates"] = UNSET
     annotation_agreement: Union[Unset, "ExtendedTraceRecordAnnotationAgreement"] = UNSET
-    overall_annotation_agreement: Union[Unset, "ExtendedTraceRecordOverallAnnotationAgreement"] = UNSET
-    annotation_queue_ids: Unset | list[str] = UNSET
+    overall_annotation_agreement: Union[None, Unset, float] = UNSET
+    annotation_queue_ids: Union[Unset, list[str]] = UNSET
+    fully_annotated: Union[None, Unset, bool] = UNSET
+    progress_message: Union[Unset, str] = ""
+    error_message: Union[Unset, str] = ""
     metric_info: Union["ExtendedTraceRecordMetricInfoType0", None, Unset] = UNSET
     files: Union["ExtendedTraceRecordFilesType0", None, Unset] = UNSET
-    is_complete: Unset | bool = True
-    num_spans: None | Unset | int = UNSET
+    is_complete: Union[Unset, bool] = True
+    num_spans: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -139,7 +141,7 @@ class ExtendedTraceRecord:
 
         type_ = self.type_
 
-        input_: Unset | list[dict[str, Any]] | str
+        input_: Union[Unset, list[dict[str, Any]], str]
         if isinstance(self.input_, Unset):
             input_ = UNSET
         elif isinstance(self.input_, list):
@@ -156,7 +158,7 @@ class ExtendedTraceRecord:
         else:
             input_ = self.input_
 
-        redacted_input: None | Unset | list[dict[str, Any]] | str
+        redacted_input: Union[None, Unset, list[dict[str, Any]], str]
         if isinstance(self.redacted_input, Unset):
             redacted_input = UNSET
         elif isinstance(self.redacted_input, list):
@@ -173,7 +175,7 @@ class ExtendedTraceRecord:
         else:
             redacted_input = self.redacted_input
 
-        output: None | Unset | list[dict[str, Any]] | str
+        output: Union[None, Unset, list[dict[str, Any]], str]
         if isinstance(self.output, Unset):
             output = UNSET
         elif isinstance(self.output, list):
@@ -190,7 +192,7 @@ class ExtendedTraceRecord:
         else:
             output = self.output
 
-        redacted_output: None | Unset | list[dict[str, Any]] | str
+        redacted_output: Union[None, Unset, list[dict[str, Any]], str]
         if isinstance(self.redacted_output, Unset):
             redacted_output = UNSET
         elif isinstance(self.redacted_output, list):
@@ -209,39 +211,51 @@ class ExtendedTraceRecord:
 
         name = self.name
 
-        created_at: Unset | str = UNSET
+        created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
             created_at = self.created_at.isoformat()
 
-        user_metadata: Unset | dict[str, Any] = UNSET
+        user_metadata: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.user_metadata, Unset):
             user_metadata = self.user_metadata.to_dict()
 
-        tags: Unset | list[str] = UNSET
+        tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
-        status_code: None | Unset | int
-        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
+        status_code: Union[None, Unset, int]
+        if isinstance(self.status_code, Unset):
+            status_code = UNSET
+        else:
+            status_code = self.status_code
 
-        metrics: Unset | dict[str, Any] = UNSET
+        metrics: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
-        external_id: None | Unset | str
-        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
+        external_id: Union[None, Unset, str]
+        if isinstance(self.external_id, Unset):
+            external_id = UNSET
+        else:
+            external_id = self.external_id
 
-        dataset_input: None | Unset | str
-        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
+        dataset_input: Union[None, Unset, str]
+        if isinstance(self.dataset_input, Unset):
+            dataset_input = UNSET
+        else:
+            dataset_input = self.dataset_input
 
-        dataset_output: None | Unset | str
-        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
+        dataset_output: Union[None, Unset, str]
+        if isinstance(self.dataset_output, Unset):
+            dataset_output = UNSET
+        else:
+            dataset_output = self.dataset_output
 
-        dataset_metadata: Unset | dict[str, Any] = UNSET
+        dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
-        updated_at: None | Unset | str
+        updated_at: Union[None, Unset, str]
         if isinstance(self.updated_at, Unset):
             updated_at = UNSET
         elif isinstance(self.updated_at, datetime.datetime):
@@ -249,51 +263,72 @@ class ExtendedTraceRecord:
         else:
             updated_at = self.updated_at
 
-        has_children: None | Unset | bool
-        has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
+        has_children: Union[None, Unset, bool]
+        if isinstance(self.has_children, Unset):
+            has_children = UNSET
+        else:
+            has_children = self.has_children
 
-        metrics_batch_id: None | Unset | str
-        metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
+        metrics_batch_id: Union[None, Unset, str]
+        if isinstance(self.metrics_batch_id, Unset):
+            metrics_batch_id = UNSET
+        else:
+            metrics_batch_id = self.metrics_batch_id
 
-        session_batch_id: None | Unset | str
-        session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
+        session_batch_id: Union[None, Unset, str]
+        if isinstance(self.session_batch_id, Unset):
+            session_batch_id = UNSET
+        else:
+            session_batch_id = self.session_batch_id
 
-        feedback_rating_info: Unset | dict[str, Any] = UNSET
+        feedback_rating_info: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.feedback_rating_info, Unset):
             feedback_rating_info = self.feedback_rating_info.to_dict()
 
-        annotations: Unset | dict[str, Any] = UNSET
+        annotations: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.annotations, Unset):
             annotations = self.annotations.to_dict()
 
-        file_ids: Unset | list[str] = UNSET
+        file_ids: Union[Unset, list[str]] = UNSET
         if not isinstance(self.file_ids, Unset):
             file_ids = self.file_ids
 
-        file_modalities: Unset | list[str] = UNSET
+        file_modalities: Union[Unset, list[str]] = UNSET
         if not isinstance(self.file_modalities, Unset):
             file_modalities = []
             for file_modalities_item_data in self.file_modalities:
                 file_modalities_item = file_modalities_item_data.value
                 file_modalities.append(file_modalities_item)
 
-        annotation_aggregates: Unset | dict[str, Any] = UNSET
+        annotation_aggregates: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.annotation_aggregates, Unset):
             annotation_aggregates = self.annotation_aggregates.to_dict()
 
-        annotation_agreement: Unset | dict[str, Any] = UNSET
+        annotation_agreement: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.annotation_agreement, Unset):
             annotation_agreement = self.annotation_agreement.to_dict()
 
-        overall_annotation_agreement: Unset | dict[str, Any] = UNSET
-        if not isinstance(self.overall_annotation_agreement, Unset):
-            overall_annotation_agreement = self.overall_annotation_agreement.to_dict()
+        overall_annotation_agreement: Union[None, Unset, float]
+        if isinstance(self.overall_annotation_agreement, Unset):
+            overall_annotation_agreement = UNSET
+        else:
+            overall_annotation_agreement = self.overall_annotation_agreement
 
-        annotation_queue_ids: Unset | list[str] = UNSET
+        annotation_queue_ids: Union[Unset, list[str]] = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
             annotation_queue_ids = self.annotation_queue_ids
 
-        metric_info: None | Unset | dict[str, Any]
+        fully_annotated: Union[None, Unset, bool]
+        if isinstance(self.fully_annotated, Unset):
+            fully_annotated = UNSET
+        else:
+            fully_annotated = self.fully_annotated
+
+        progress_message = self.progress_message
+
+        error_message = self.error_message
+
+        metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
         elif isinstance(self.metric_info, ExtendedTraceRecordMetricInfoType0):
@@ -301,7 +336,7 @@ class ExtendedTraceRecord:
         else:
             metric_info = self.metric_info
 
-        files: None | Unset | dict[str, Any]
+        files: Union[None, Unset, dict[str, Any]]
         if isinstance(self.files, Unset):
             files = UNSET
         elif isinstance(self.files, ExtendedTraceRecordFilesType0):
@@ -311,8 +346,11 @@ class ExtendedTraceRecord:
 
         is_complete = self.is_complete
 
-        num_spans: None | Unset | int
-        num_spans = UNSET if isinstance(self.num_spans, Unset) else self.num_spans
+        num_spans: Union[None, Unset, int]
+        if isinstance(self.num_spans, Unset):
+            num_spans = UNSET
+        else:
+            num_spans = self.num_spans
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -373,6 +411,12 @@ class ExtendedTraceRecord:
             field_dict["overall_annotation_agreement"] = overall_annotation_agreement
         if annotation_queue_ids is not UNSET:
             field_dict["annotation_queue_ids"] = annotation_queue_ids
+        if fully_annotated is not UNSET:
+            field_dict["fully_annotated"] = fully_annotated
+        if progress_message is not UNSET:
+            field_dict["progress_message"] = progress_message
+        if error_message is not UNSET:
+            field_dict["error_message"] = error_message
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
         if files is not UNSET:
@@ -393,9 +437,6 @@ class ExtendedTraceRecord:
         from ..models.extended_trace_record_feedback_rating_info import ExtendedTraceRecordFeedbackRatingInfo
         from ..models.extended_trace_record_files_type_0 import ExtendedTraceRecordFilesType0
         from ..models.extended_trace_record_metric_info_type_0 import ExtendedTraceRecordMetricInfoType0
-        from ..models.extended_trace_record_overall_annotation_agreement import (
-            ExtendedTraceRecordOverallAnnotationAgreement,
-        )
         from ..models.extended_trace_record_user_metadata import ExtendedTraceRecordUserMetadata
         from ..models.file_content_part import FileContentPart
         from ..models.metrics import Metrics
@@ -412,11 +453,11 @@ class ExtendedTraceRecord:
 
         run_id = d.pop("run_id")
 
-        type_ = cast(Literal["trace"] | Unset, d.pop("type", UNSET))
+        type_ = cast(Union[Literal["trace"], Unset], d.pop("type", UNSET))
         if type_ != "trace" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'trace', got '{type_}'")
 
-        def _parse_input_(data: object) -> Unset | list[Union["FileContentPart", "TextContentPart"]] | str:
+        def _parse_input_(data: object) -> Union[Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
             if isinstance(data, Unset):
                 return data
             try:
@@ -430,13 +471,16 @@ class ExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            input_type_1_item_type_0 = TextContentPart.from_dict(data)
 
+                            return input_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        input_type_1_item_type_1 = FileContentPart.from_dict(data)
+
+                        return input_type_1_item_type_1
 
                     input_type_1_item = _parse_input_type_1_item(input_type_1_item_data)
 
@@ -445,13 +489,13 @@ class ExtendedTraceRecord:
                 return input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Unset | list[Union["FileContentPart", "TextContentPart"]] | str, data)
+            return cast(Union[Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
         def _parse_redacted_input(
             data: object,
-        ) -> None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str:
+        ) -> Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -467,13 +511,16 @@ class ExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            redacted_input_type_1_item_type_0 = TextContentPart.from_dict(data)
 
+                            return redacted_input_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        redacted_input_type_1_item_type_1 = FileContentPart.from_dict(data)
+
+                        return redacted_input_type_1_item_type_1
 
                     redacted_input_type_1_item = _parse_redacted_input_type_1_item(redacted_input_type_1_item_data)
 
@@ -482,11 +529,11 @@ class ExtendedTraceRecord:
                 return redacted_input_type_1
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str, data)
+            return cast(Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
-        def _parse_output(data: object) -> None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str:
+        def _parse_output(data: object) -> Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -502,13 +549,16 @@ class ExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            output_type_1_item_type_0 = TextContentPart.from_dict(data)
 
+                            return output_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        output_type_1_item_type_1 = FileContentPart.from_dict(data)
+
+                        return output_type_1_item_type_1
 
                     output_type_1_item = _parse_output_type_1_item(output_type_1_item_data)
 
@@ -517,13 +567,13 @@ class ExtendedTraceRecord:
                 return output_type_1
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str, data)
+            return cast(Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         output = _parse_output(d.pop("output", UNSET))
 
         def _parse_redacted_output(
             data: object,
-        ) -> None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str:
+        ) -> Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -539,13 +589,16 @@ class ExtendedTraceRecord:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            redacted_output_type_1_item_type_0 = TextContentPart.from_dict(data)
 
+                            return redacted_output_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        redacted_output_type_1_item_type_1 = FileContentPart.from_dict(data)
+
+                        return redacted_output_type_1_item_type_1
 
                     redacted_output_type_1_item = _parse_redacted_output_type_1_item(redacted_output_type_1_item_data)
 
@@ -554,18 +607,21 @@ class ExtendedTraceRecord:
                 return redacted_output_type_1
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str, data)
+            return cast(Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
 
         name = d.pop("name", UNSET)
 
         _created_at = d.pop("created_at", UNSET)
-        created_at: Unset | datetime.datetime
-        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
+        created_at: Union[Unset, datetime.datetime]
+        if isinstance(_created_at, Unset):
+            created_at = UNSET
+        else:
+            created_at = isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
-        user_metadata: Unset | ExtendedTraceRecordUserMetadata
+        user_metadata: Union[Unset, ExtendedTraceRecordUserMetadata]
         if isinstance(_user_metadata, Unset):
             user_metadata = UNSET
         else:
@@ -573,54 +629,57 @@ class ExtendedTraceRecord:
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
-        def _parse_status_code(data: object) -> None | Unset | int:
+        def _parse_status_code(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
         _metrics = d.pop("metrics", UNSET)
-        metrics: Unset | Metrics
-        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
+        metrics: Union[Unset, Metrics]
+        if isinstance(_metrics, Unset):
+            metrics = UNSET
+        else:
+            metrics = Metrics.from_dict(_metrics)
 
-        def _parse_external_id(data: object) -> None | Unset | str:
+        def _parse_external_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         external_id = _parse_external_id(d.pop("external_id", UNSET))
 
-        def _parse_dataset_input(data: object) -> None | Unset | str:
+        def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
 
-        def _parse_dataset_output(data: object) -> None | Unset | str:
+        def _parse_dataset_output(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
 
         _dataset_metadata = d.pop("dataset_metadata", UNSET)
-        dataset_metadata: Unset | ExtendedTraceRecordDatasetMetadata
+        dataset_metadata: Union[Unset, ExtendedTraceRecordDatasetMetadata]
         if isinstance(_dataset_metadata, Unset):
             dataset_metadata = UNSET
         else:
             dataset_metadata = ExtendedTraceRecordDatasetMetadata.from_dict(_dataset_metadata)
 
-        def _parse_updated_at(data: object) -> None | Unset | datetime.datetime:
+        def _parse_updated_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -628,50 +687,51 @@ class ExtendedTraceRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return isoparse(data)
+                updated_at_type_0 = isoparse(data)
 
+                return updated_at_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | datetime.datetime, data)
+            return cast(Union[None, Unset, datetime.datetime], data)
 
         updated_at = _parse_updated_at(d.pop("updated_at", UNSET))
 
-        def _parse_has_children(data: object) -> None | Unset | bool:
+        def _parse_has_children(data: object) -> Union[None, Unset, bool]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | bool, data)
+            return cast(Union[None, Unset, bool], data)
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
 
-        def _parse_metrics_batch_id(data: object) -> None | Unset | str:
+        def _parse_metrics_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         metrics_batch_id = _parse_metrics_batch_id(d.pop("metrics_batch_id", UNSET))
 
-        def _parse_session_batch_id(data: object) -> None | Unset | str:
+        def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
         _feedback_rating_info = d.pop("feedback_rating_info", UNSET)
-        feedback_rating_info: Unset | ExtendedTraceRecordFeedbackRatingInfo
+        feedback_rating_info: Union[Unset, ExtendedTraceRecordFeedbackRatingInfo]
         if isinstance(_feedback_rating_info, Unset):
             feedback_rating_info = UNSET
         else:
             feedback_rating_info = ExtendedTraceRecordFeedbackRatingInfo.from_dict(_feedback_rating_info)
 
         _annotations = d.pop("annotations", UNSET)
-        annotations: Unset | ExtendedTraceRecordAnnotations
+        annotations: Union[Unset, ExtendedTraceRecordAnnotations]
         if isinstance(_annotations, Unset):
             annotations = UNSET
         else:
@@ -687,29 +747,42 @@ class ExtendedTraceRecord:
             file_modalities.append(file_modalities_item)
 
         _annotation_aggregates = d.pop("annotation_aggregates", UNSET)
-        annotation_aggregates: Unset | ExtendedTraceRecordAnnotationAggregates
+        annotation_aggregates: Union[Unset, ExtendedTraceRecordAnnotationAggregates]
         if isinstance(_annotation_aggregates, Unset):
             annotation_aggregates = UNSET
         else:
             annotation_aggregates = ExtendedTraceRecordAnnotationAggregates.from_dict(_annotation_aggregates)
 
         _annotation_agreement = d.pop("annotation_agreement", UNSET)
-        annotation_agreement: Unset | ExtendedTraceRecordAnnotationAgreement
+        annotation_agreement: Union[Unset, ExtendedTraceRecordAnnotationAgreement]
         if isinstance(_annotation_agreement, Unset):
             annotation_agreement = UNSET
         else:
             annotation_agreement = ExtendedTraceRecordAnnotationAgreement.from_dict(_annotation_agreement)
 
-        _overall_annotation_agreement = d.pop("overall_annotation_agreement", UNSET)
-        overall_annotation_agreement: Unset | ExtendedTraceRecordOverallAnnotationAgreement
-        if isinstance(_overall_annotation_agreement, Unset):
-            overall_annotation_agreement = UNSET
-        else:
-            overall_annotation_agreement = ExtendedTraceRecordOverallAnnotationAgreement.from_dict(
-                _overall_annotation_agreement
-            )
+        def _parse_overall_annotation_agreement(data: object) -> Union[None, Unset, float]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, float], data)
+
+        overall_annotation_agreement = _parse_overall_annotation_agreement(d.pop("overall_annotation_agreement", UNSET))
 
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
+
+        def _parse_fully_annotated(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        fully_annotated = _parse_fully_annotated(d.pop("fully_annotated", UNSET))
+
+        progress_message = d.pop("progress_message", UNSET)
+
+        error_message = d.pop("error_message", UNSET)
 
         def _parse_metric_info(data: object) -> Union["ExtendedTraceRecordMetricInfoType0", None, Unset]:
             if data is None:
@@ -775,8 +848,9 @@ class ExtendedTraceRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedTraceRecordMetricInfoType0.from_dict(data)
+                metric_info_type_0 = ExtendedTraceRecordMetricInfoType0.from_dict(data)
 
+                return metric_info_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ExtendedTraceRecordMetricInfoType0", None, Unset], data)
@@ -847,8 +921,9 @@ class ExtendedTraceRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedTraceRecordFilesType0.from_dict(data)
+                files_type_0 = ExtendedTraceRecordFilesType0.from_dict(data)
 
+                return files_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ExtendedTraceRecordFilesType0", None, Unset], data)
@@ -857,12 +932,12 @@ class ExtendedTraceRecord:
 
         is_complete = d.pop("is_complete", UNSET)
 
-        def _parse_num_spans(data: object) -> None | Unset | int:
+        def _parse_num_spans(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         num_spans = _parse_num_spans(d.pop("num_spans", UNSET))
 
@@ -899,6 +974,9 @@ class ExtendedTraceRecord:
             annotation_agreement=annotation_agreement,
             overall_annotation_agreement=overall_annotation_agreement,
             annotation_queue_ids=annotation_queue_ids,
+            fully_annotated=fully_annotated,
+            progress_message=progress_message,
+            error_message=error_message,
             metric_info=metric_info,
             files=files,
             is_complete=is_complete,

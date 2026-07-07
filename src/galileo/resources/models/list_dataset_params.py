@@ -27,8 +27,7 @@ T = TypeVar("T", bound="ListDatasetParams")
 @_attrs_define
 class ListDatasetParams:
     """
-    Attributes
-    ----------
+    Attributes:
         filters (Union[Unset, list[Union['DatasetDraftFilter', 'DatasetIDFilter', 'DatasetNameFilter',
             'DatasetNotInProjectFilter', 'DatasetUsedInProjectFilter']]]):
         sort (Union['DatasetCreatedAtSort', 'DatasetLastEditedByUserAtSort', 'DatasetNameSort',
@@ -36,9 +35,9 @@ class ListDatasetParams:
             Default: None.
     """
 
-    filters: (
-        Unset
-        | list[
+    filters: Union[
+        Unset,
+        list[
             Union[
                 "DatasetDraftFilter",
                 "DatasetIDFilter",
@@ -46,8 +45,8 @@ class ListDatasetParams:
                 "DatasetNotInProjectFilter",
                 "DatasetUsedInProjectFilter",
             ]
-        ]
-    ) = UNSET
+        ],
+    ] = UNSET
     sort: Union[
         "DatasetCreatedAtSort",
         "DatasetLastEditedByUserAtSort",
@@ -74,33 +73,40 @@ class ListDatasetParams:
         from ..models.dataset_updated_at_sort import DatasetUpdatedAtSort
         from ..models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
 
-        filters: Unset | list[dict[str, Any]] = UNSET
+        filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
-                if isinstance(
-                    filters_item_data,
-                    DatasetNameFilter | DatasetDraftFilter | DatasetUsedInProjectFilter | DatasetIDFilter,
-                ):
+                if isinstance(filters_item_data, DatasetNameFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, DatasetDraftFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, DatasetUsedInProjectFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, DatasetIDFilter):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
 
                 filters.append(filters_item)
 
-        sort: None | Unset | dict[str, Any]
+        sort: Union[None, Unset, dict[str, Any]]
         if isinstance(self.sort, Unset):
             sort = UNSET
-        elif isinstance(
-            self.sort,
-            DatasetNameSort
-            | DatasetCreatedAtSort
-            | DatasetUpdatedAtSort
-            | DatasetProjectLastUsedAtSort
-            | (DatasetProjectsSort | DatasetRowsSort)
-            | DatasetLastEditedByUserAtSort,
-        ):
+        elif isinstance(self.sort, DatasetNameSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, DatasetCreatedAtSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, DatasetUpdatedAtSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, DatasetProjectLastUsedAtSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, DatasetProjectsSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, DatasetRowsSort):
+            sort = self.sort.to_dict()
+        elif isinstance(self.sort, DatasetLastEditedByUserAtSort):
             sort = self.sort.to_dict()
         else:
             sort = self.sort
@@ -147,34 +153,40 @@ class ListDatasetParams:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return DatasetNameFilter.from_dict(data)
+                    filters_item_type_0 = DatasetNameFilter.from_dict(data)
 
+                    return filters_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return DatasetDraftFilter.from_dict(data)
+                    filters_item_type_1 = DatasetDraftFilter.from_dict(data)
 
+                    return filters_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return DatasetUsedInProjectFilter.from_dict(data)
+                    filters_item_type_2 = DatasetUsedInProjectFilter.from_dict(data)
 
+                    return filters_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return DatasetIDFilter.from_dict(data)
+                    filters_item_type_3 = DatasetIDFilter.from_dict(data)
 
+                    return filters_item_type_3
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetNotInProjectFilter.from_dict(data)
+                filters_item_type_4 = DatasetNotInProjectFilter.from_dict(data)
+
+                return filters_item_type_4
 
             filters_item = _parse_filters_item(filters_item_data)
 
@@ -200,50 +212,57 @@ class ListDatasetParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetNameSort.from_dict(data)
+                sort_type_0_type_0 = DatasetNameSort.from_dict(data)
 
+                return sort_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetCreatedAtSort.from_dict(data)
+                sort_type_0_type_1 = DatasetCreatedAtSort.from_dict(data)
 
+                return sort_type_0_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetUpdatedAtSort.from_dict(data)
+                sort_type_0_type_2 = DatasetUpdatedAtSort.from_dict(data)
 
+                return sort_type_0_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetProjectLastUsedAtSort.from_dict(data)
+                sort_type_0_type_3 = DatasetProjectLastUsedAtSort.from_dict(data)
 
+                return sort_type_0_type_3
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetProjectsSort.from_dict(data)
+                sort_type_0_type_4 = DatasetProjectsSort.from_dict(data)
 
+                return sort_type_0_type_4
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetRowsSort.from_dict(data)
+                sort_type_0_type_5 = DatasetRowsSort.from_dict(data)
 
+                return sort_type_0_type_5
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetLastEditedByUserAtSort.from_dict(data)
+                sort_type_0_type_6 = DatasetLastEditedByUserAtSort.from_dict(data)
 
+                return sort_type_0_type_6
             except:  # noqa: E722
                 pass
             return cast(

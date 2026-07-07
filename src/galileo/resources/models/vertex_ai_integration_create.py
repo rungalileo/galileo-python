@@ -17,8 +17,7 @@ T = TypeVar("T", bound="VertexAIIntegrationCreate")
 @_attrs_define
 class VertexAIIntegrationCreate:
     """
-    Attributes
-    ----------
+    Attributes:
         token (str):
         multi_modal_config (Union['MultiModalModelIntegrationConfig', None, Unset]): Configuration for multi-modal (file
             upload) capabilities.
@@ -36,7 +35,7 @@ class VertexAIIntegrationCreate:
 
         token = self.token
 
-        multi_modal_config: None | Unset | dict[str, Any]
+        multi_modal_config: Union[None, Unset, dict[str, Any]]
         if isinstance(self.multi_modal_config, Unset):
             multi_modal_config = UNSET
         elif isinstance(self.multi_modal_config, MultiModalModelIntegrationConfig):
@@ -44,7 +43,7 @@ class VertexAIIntegrationCreate:
         else:
             multi_modal_config = self.multi_modal_config
 
-        gcs_config: None | Unset | dict[str, Any]
+        gcs_config: Union[None, Unset, dict[str, Any]]
         if isinstance(self.gcs_config, Unset):
             gcs_config = UNSET
         elif isinstance(self.gcs_config, VertexAIGCSConfig):
@@ -78,8 +77,9 @@ class VertexAIIntegrationCreate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return MultiModalModelIntegrationConfig.from_dict(data)
+                multi_modal_config_type_0 = MultiModalModelIntegrationConfig.from_dict(data)
 
+                return multi_modal_config_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["MultiModalModelIntegrationConfig", None, Unset], data)
@@ -94,8 +94,9 @@ class VertexAIIntegrationCreate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return VertexAIGCSConfig.from_dict(data)
+                gcs_config_type_0 = VertexAIGCSConfig.from_dict(data)
 
+                return gcs_config_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["VertexAIGCSConfig", None, Unset], data)

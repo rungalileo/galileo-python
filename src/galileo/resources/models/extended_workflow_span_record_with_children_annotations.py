@@ -15,7 +15,7 @@ T = TypeVar("T", bound="ExtendedWorkflowSpanRecordWithChildrenAnnotations")
 
 @_attrs_define
 class ExtendedWorkflowSpanRecordWithChildrenAnnotations:
-    """Annotations keyed by template ID and annotator ID."""
+    """Annotations keyed by template ID and annotator ID"""
 
     additional_properties: dict[str, "ExtendedWorkflowSpanRecordWithChildrenAnnotationsAdditionalProperty"] = (
         _attrs_field(init=False, factory=dict)

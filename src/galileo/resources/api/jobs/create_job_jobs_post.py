@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -38,12 +38,16 @@ def _get_kwargs(*, body: CreateJobRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> CreateJobResponse | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Union[CreateJobResponse, HTTPValidationError]:
     if response.status_code == 200:
-        return CreateJobResponse.from_dict(response.json())
+        response_200 = CreateJobResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -65,7 +69,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> CreateJob
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[CreateJobResponse | HTTPValidationError]:
+) -> Response[Union[CreateJobResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -74,21 +78,24 @@ def _build_response(
     )
 
 
-def sync_detailed(*, client: ApiClient, body: CreateJobRequest) -> Response[CreateJobResponse | HTTPValidationError]:
-    """Create Job.
+def sync_detailed(
+    *, client: ApiClient, body: CreateJobRequest
+) -> Response[Union[CreateJobResponse, HTTPValidationError]]:
+    """Create Job
+
+     Create a job for a project run and enqueue it for processing.
 
     Args:
         body (CreateJobRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[CreateJobResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -96,41 +103,43 @@ def sync_detailed(*, client: ApiClient, body: CreateJobRequest) -> Response[Crea
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: CreateJobRequest) -> CreateJobResponse | HTTPValidationError | None:
-    """Create Job.
+def sync(*, client: ApiClient, body: CreateJobRequest) -> Optional[Union[CreateJobResponse, HTTPValidationError]]:
+    """Create Job
+
+     Create a job for a project run and enqueue it for processing.
 
     Args:
         body (CreateJobRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[CreateJobResponse, HTTPValidationError]
     """
+
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: CreateJobRequest
-) -> Response[CreateJobResponse | HTTPValidationError]:
-    """Create Job.
+) -> Response[Union[CreateJobResponse, HTTPValidationError]]:
+    """Create Job
+
+     Create a job for a project run and enqueue it for processing.
 
     Args:
         body (CreateJobRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[CreateJobResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -138,19 +147,22 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: CreateJobRequest) -> CreateJobResponse | HTTPValidationError | None:
-    """Create Job.
+async def asyncio(
+    *, client: ApiClient, body: CreateJobRequest
+) -> Optional[Union[CreateJobResponse, HTTPValidationError]]:
+    """Create Job
+
+     Create a job for a project run and enqueue it for processing.
 
     Args:
         body (CreateJobRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[CreateJobResponse, HTTPValidationError]
     """
+
     return (await asyncio_detailed(client=client, body=body)).parsed

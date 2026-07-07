@@ -23,8 +23,7 @@ T = TypeVar("T", bound="LogSpansIngestRequest")
 class LogSpansIngestRequest:
     """Request model for ingesting spans.
 
-    Attributes
-    ----------
+    Attributes:
         spans (list[Union['AgentSpan', 'ControlSpan', 'LlmSpan', 'RetrieverSpan', 'ToolSpan', 'WorkflowSpan']]): List of
             spans to log.
         trace_id (str): Trace id associated with the spans.
@@ -43,12 +42,12 @@ class LogSpansIngestRequest:
     spans: list[Union["AgentSpan", "ControlSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]]
     trace_id: str
     parent_id: str
-    log_stream_id: None | Unset | str = UNSET
-    experiment_id: None | Unset | str = UNSET
-    metrics_testing_id: None | Unset | str = UNSET
-    logging_method: Unset | LoggingMethod = UNSET
-    client_version: None | Unset | str = UNSET
-    reliable: Unset | bool = True
+    log_stream_id: Union[None, Unset, str] = UNSET
+    experiment_id: Union[None, Unset, str] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
+    logging_method: Union[Unset, LoggingMethod] = UNSET
+    client_version: Union[None, Unset, str] = UNSET
+    reliable: Union[Unset, bool] = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -61,7 +60,15 @@ class LogSpansIngestRequest:
         spans = []
         for spans_item_data in self.spans:
             spans_item: dict[str, Any]
-            if isinstance(spans_item_data, AgentSpan | WorkflowSpan | LlmSpan | RetrieverSpan | ToolSpan):
+            if isinstance(spans_item_data, AgentSpan):
+                spans_item = spans_item_data.to_dict()
+            elif isinstance(spans_item_data, WorkflowSpan):
+                spans_item = spans_item_data.to_dict()
+            elif isinstance(spans_item_data, LlmSpan):
+                spans_item = spans_item_data.to_dict()
+            elif isinstance(spans_item_data, RetrieverSpan):
+                spans_item = spans_item_data.to_dict()
+            elif isinstance(spans_item_data, ToolSpan):
                 spans_item = spans_item_data.to_dict()
             else:
                 spans_item = spans_item_data.to_dict()
@@ -72,21 +79,33 @@ class LogSpansIngestRequest:
 
         parent_id = self.parent_id
 
-        log_stream_id: None | Unset | str
-        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
+        log_stream_id: Union[None, Unset, str]
+        if isinstance(self.log_stream_id, Unset):
+            log_stream_id = UNSET
+        else:
+            log_stream_id = self.log_stream_id
 
-        experiment_id: None | Unset | str
-        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
+        experiment_id: Union[None, Unset, str]
+        if isinstance(self.experiment_id, Unset):
+            experiment_id = UNSET
+        else:
+            experiment_id = self.experiment_id
 
-        metrics_testing_id: None | Unset | str
-        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
+        metrics_testing_id: Union[None, Unset, str]
+        if isinstance(self.metrics_testing_id, Unset):
+            metrics_testing_id = UNSET
+        else:
+            metrics_testing_id = self.metrics_testing_id
 
-        logging_method: Unset | str = UNSET
+        logging_method: Union[Unset, str] = UNSET
         if not isinstance(self.logging_method, Unset):
             logging_method = self.logging_method.value
 
-        client_version: None | Unset | str
-        client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
+        client_version: Union[None, Unset, str]
+        if isinstance(self.client_version, Unset):
+            client_version = UNSET
+        else:
+            client_version = self.client_version
 
         reliable = self.reliable
 
@@ -128,41 +147,48 @@ class LogSpansIngestRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return AgentSpan.from_dict(data)
+                    spans_item_type_0 = AgentSpan.from_dict(data)
 
+                    return spans_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return WorkflowSpan.from_dict(data)
+                    spans_item_type_1 = WorkflowSpan.from_dict(data)
 
+                    return spans_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LlmSpan.from_dict(data)
+                    spans_item_type_2 = LlmSpan.from_dict(data)
 
+                    return spans_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return RetrieverSpan.from_dict(data)
+                    spans_item_type_3 = RetrieverSpan.from_dict(data)
 
+                    return spans_item_type_3
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ToolSpan.from_dict(data)
+                    spans_item_type_4 = ToolSpan.from_dict(data)
 
+                    return spans_item_type_4
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ControlSpan.from_dict(data)
+                spans_item_type_5 = ControlSpan.from_dict(data)
+
+                return spans_item_type_5
 
             spans_item = _parse_spans_item(spans_item_data)
 
@@ -172,43 +198,46 @@ class LogSpansIngestRequest:
 
         parent_id = d.pop("parent_id")
 
-        def _parse_log_stream_id(data: object) -> None | Unset | str:
+        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        def _parse_experiment_id(data: object) -> None | Unset | str:
+        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_metrics_testing_id(data: object) -> None | Unset | str:
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
         _logging_method = d.pop("logging_method", UNSET)
-        logging_method: Unset | LoggingMethod
-        logging_method = UNSET if isinstance(_logging_method, Unset) else LoggingMethod(_logging_method)
+        logging_method: Union[Unset, LoggingMethod]
+        if isinstance(_logging_method, Unset):
+            logging_method = UNSET
+        else:
+            logging_method = LoggingMethod(_logging_method)
 
-        def _parse_client_version(data: object) -> None | Unset | str:
+        def _parse_client_version(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         client_version = _parse_client_version(d.pop("client_version", UNSET))
 

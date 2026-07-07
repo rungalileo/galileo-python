@@ -19,8 +19,7 @@ T = TypeVar("T", bound="DatasetDB")
 @_attrs_define
 class DatasetDB:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         name (str):
         created_at (datetime.datetime):
@@ -39,12 +38,12 @@ class DatasetDB:
     created_at: datetime.datetime
     updated_at: datetime.datetime
     project_count: int
-    num_rows: None | int
-    column_names: None | list[str]
+    num_rows: Union[None, int]
+    column_names: Union[None, list[str]]
     created_by_user: Union["UserInfo", None]
     current_version_index: int
     draft: bool
-    permissions: Unset | list["Permission"] = UNSET
+    permissions: Union[Unset, list["Permission"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,13 +59,17 @@ class DatasetDB:
 
         project_count = self.project_count
 
-        num_rows: None | int
+        num_rows: Union[None, int]
         num_rows = self.num_rows
 
-        column_names: None | list[str]
-        column_names = self.column_names if isinstance(self.column_names, list) else self.column_names
+        column_names: Union[None, list[str]]
+        if isinstance(self.column_names, list):
+            column_names = self.column_names
 
-        created_by_user: None | dict[str, Any]
+        else:
+            column_names = self.column_names
+
+        created_by_user: Union[None, dict[str, Any]]
         if isinstance(self.created_by_user, UserInfo):
             created_by_user = self.created_by_user.to_dict()
         else:
@@ -76,7 +79,7 @@ class DatasetDB:
 
         draft = self.draft
 
-        permissions: Unset | list[dict[str, Any]] = UNSET
+        permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
@@ -120,24 +123,25 @@ class DatasetDB:
 
         project_count = d.pop("project_count")
 
-        def _parse_num_rows(data: object) -> None | int:
+        def _parse_num_rows(data: object) -> Union[None, int]:
             if data is None:
                 return data
-            return cast(None | int, data)
+            return cast(Union[None, int], data)
 
         num_rows = _parse_num_rows(d.pop("num_rows"))
 
-        def _parse_column_names(data: object) -> None | list[str]:
+        def _parse_column_names(data: object) -> Union[None, list[str]]:
             if data is None:
                 return data
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                column_names_type_0 = cast(list[str], data)
 
+                return column_names_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | list[str], data)
+            return cast(Union[None, list[str]], data)
 
         column_names = _parse_column_names(d.pop("column_names"))
 
@@ -147,8 +151,9 @@ class DatasetDB:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return UserInfo.from_dict(data)
+                created_by_user_type_0 = UserInfo.from_dict(data)
 
+                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["UserInfo", None], data)

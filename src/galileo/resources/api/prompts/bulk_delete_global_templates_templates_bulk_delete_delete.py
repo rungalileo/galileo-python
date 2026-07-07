@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -18,6 +18,7 @@ from galileo_core.helpers.api_client import ApiClient
 
 from ... import errors
 from ...models.bulk_delete_prompt_templates_request import BulkDeletePromptTemplatesRequest
+from ...models.bulk_delete_prompt_templates_response import BulkDeletePromptTemplatesResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
@@ -41,9 +42,18 @@ def _get_kwargs(*, body: BulkDeletePromptTemplatesRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError:
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]:
+    if response.status_code == 200:
+        response_200 = BulkDeletePromptTemplatesResponse.from_dict(response.json())
+
+        return response_200
+
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -63,7 +73,9 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValid
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError]:
+def _build_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Response[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -72,42 +84,38 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> Response[HTTPValidationError]:
-    """Bulk Delete Global Templates.
+def sync_detailed(
+    *, client: ApiClient, body: BulkDeletePromptTemplatesRequest
+) -> Response[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]:
+    """Bulk Delete Global Templates
 
      Delete multiple global prompt templates in bulk.
 
     This endpoint allows efficient deletion of multiple global prompt templates at once.
-    It validates permissions for each template in the service and provides detailed feedback about
-    successful and failed deletions for each template.
+    It validates permissions for each template in the service and provides detailed
+    feedback about successful and failed deletions for each template.
 
     Parameters
     ----------
     delete_request : BulkDeletePromptTemplatesRequest
-        Request containing list of template IDs to delete (max 100)
-    ctx : Context
-        Request context including authentication information
+        Request containing list of template IDs to delete (max 100).
 
     Returns
     -------
     BulkDeletePromptTemplatesResponse
-        Details about the bulk deletion operation including:
-        - Number of successfully deleted templates
-        - List of failed deletions with reasons
-        - Summary message
+        Details about the bulk deletion operation including deleted count and failures.
 
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[HTTPValidationError]
+    Returns:
+        Response[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -115,83 +123,73 @@ def sync_detailed(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) 
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> HTTPValidationError | None:
-    """Bulk Delete Global Templates.
+def sync(
+    *, client: ApiClient, body: BulkDeletePromptTemplatesRequest
+) -> Optional[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]:
+    """Bulk Delete Global Templates
 
      Delete multiple global prompt templates in bulk.
 
     This endpoint allows efficient deletion of multiple global prompt templates at once.
-    It validates permissions for each template in the service and provides detailed feedback about
-    successful and failed deletions for each template.
+    It validates permissions for each template in the service and provides detailed
+    feedback about successful and failed deletions for each template.
 
     Parameters
     ----------
     delete_request : BulkDeletePromptTemplatesRequest
-        Request containing list of template IDs to delete (max 100)
-    ctx : Context
-        Request context including authentication information
+        Request containing list of template IDs to delete (max 100).
 
     Returns
     -------
     BulkDeletePromptTemplatesResponse
-        Details about the bulk deletion operation including:
-        - Number of successfully deleted templates
-        - List of failed deletions with reasons
-        - Summary message
+        Details about the bulk deletion operation including deleted count and failures.
 
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        HTTPValidationError
+    Returns:
+        Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]
     """
+
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BulkDeletePromptTemplatesRequest
-) -> Response[HTTPValidationError]:
-    """Bulk Delete Global Templates.
+) -> Response[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]:
+    """Bulk Delete Global Templates
 
      Delete multiple global prompt templates in bulk.
 
     This endpoint allows efficient deletion of multiple global prompt templates at once.
-    It validates permissions for each template in the service and provides detailed feedback about
-    successful and failed deletions for each template.
+    It validates permissions for each template in the service and provides detailed
+    feedback about successful and failed deletions for each template.
 
     Parameters
     ----------
     delete_request : BulkDeletePromptTemplatesRequest
-        Request containing list of template IDs to delete (max 100)
-    ctx : Context
-        Request context including authentication information
+        Request containing list of template IDs to delete (max 100).
 
     Returns
     -------
     BulkDeletePromptTemplatesResponse
-        Details about the bulk deletion operation including:
-        - Number of successfully deleted templates
-        - List of failed deletions with reasons
-        - Summary message
+        Details about the bulk deletion operation including deleted count and failures.
 
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[HTTPValidationError]
+    Returns:
+        Response[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -199,40 +197,36 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> HTTPValidationError | None:
-    """Bulk Delete Global Templates.
+async def asyncio(
+    *, client: ApiClient, body: BulkDeletePromptTemplatesRequest
+) -> Optional[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]:
+    """Bulk Delete Global Templates
 
      Delete multiple global prompt templates in bulk.
 
     This endpoint allows efficient deletion of multiple global prompt templates at once.
-    It validates permissions for each template in the service and provides detailed feedback about
-    successful and failed deletions for each template.
+    It validates permissions for each template in the service and provides detailed
+    feedback about successful and failed deletions for each template.
 
     Parameters
     ----------
     delete_request : BulkDeletePromptTemplatesRequest
-        Request containing list of template IDs to delete (max 100)
-    ctx : Context
-        Request context including authentication information
+        Request containing list of template IDs to delete (max 100).
 
     Returns
     -------
     BulkDeletePromptTemplatesResponse
-        Details about the bulk deletion operation including:
-        - Number of successfully deleted templates
-        - List of failed deletions with reasons
-        - Summary message
+        Details about the bulk deletion operation including deleted count and failures.
 
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        HTTPValidationError
+    Returns:
+        Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]
     """
+
     return (await asyncio_detailed(client=client, body=body)).parsed

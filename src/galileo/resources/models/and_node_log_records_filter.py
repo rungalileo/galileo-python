@@ -16,8 +16,7 @@ T = TypeVar("T", bound="AndNodeLogRecordsFilter")
 @_attrs_define
 class AndNodeLogRecordsFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         and_ (list[Union['AndNodeLogRecordsFilter', 'FilterLeafLogRecordsFilter', 'NotNodeLogRecordsFilter',
             'OrNodeLogRecordsFilter']]):
     """
@@ -36,7 +35,11 @@ class AndNodeLogRecordsFilter:
         and_ = []
         for and_item_data in self.and_:
             and_item: dict[str, Any]
-            if isinstance(and_item_data, FilterLeafLogRecordsFilter | AndNodeLogRecordsFilter | OrNodeLogRecordsFilter):
+            if isinstance(and_item_data, FilterLeafLogRecordsFilter):
+                and_item = and_item_data.to_dict()
+            elif isinstance(and_item_data, AndNodeLogRecordsFilter):
+                and_item = and_item_data.to_dict()
+            elif isinstance(and_item_data, OrNodeLogRecordsFilter):
                 and_item = and_item_data.to_dict()
             else:
                 and_item = and_item_data.to_dict()
@@ -71,27 +74,32 @@ class AndNodeLogRecordsFilter:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return FilterLeafLogRecordsFilter.from_dict(data)
+                    and_item_type_0 = FilterLeafLogRecordsFilter.from_dict(data)
 
+                    return and_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return AndNodeLogRecordsFilter.from_dict(data)
+                    and_item_type_1 = AndNodeLogRecordsFilter.from_dict(data)
 
+                    return and_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return OrNodeLogRecordsFilter.from_dict(data)
+                    and_item_type_2 = OrNodeLogRecordsFilter.from_dict(data)
 
+                    return and_item_type_2
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return NotNodeLogRecordsFilter.from_dict(data)
+                and_item_type_3 = NotNodeLogRecordsFilter.from_dict(data)
+
+                return and_item_type_3
 
             and_item = _parse_and_item(and_item_data)
 

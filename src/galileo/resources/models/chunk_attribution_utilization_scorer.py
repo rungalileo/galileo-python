@@ -19,8 +19,7 @@ T = TypeVar("T", bound="ChunkAttributionUtilizationScorer")
 @_attrs_define
 class ChunkAttributionUtilizationScorer:
     """
-    Attributes
-    ----------
+    Attributes:
         name (Union[Literal['chunk_attribution_utilization'], Unset]):  Default: 'chunk_attribution_utilization'.
         filters (Union[None, Unset, list[Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter']]]): List of filters
             to apply to the scorer.
@@ -29,10 +28,10 @@ class ChunkAttributionUtilizationScorer:
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
     """
 
-    name: Literal["chunk_attribution_utilization"] | Unset = "chunk_attribution_utilization"
-    filters: None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]] = UNSET
-    type_: Unset | ChunkAttributionUtilizationScorerType = ChunkAttributionUtilizationScorerType.LUNA
-    model_name: None | Unset | str = UNSET
+    name: Union[Literal["chunk_attribution_utilization"], Unset] = "chunk_attribution_utilization"
+    filters: Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]] = UNSET
+    type_: Union[Unset, ChunkAttributionUtilizationScorerType] = ChunkAttributionUtilizationScorerType.LUNA
+    model_name: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -41,14 +40,16 @@ class ChunkAttributionUtilizationScorer:
 
         name = self.name
 
-        filters: None | Unset | list[dict[str, Any]]
+        filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
             filters = UNSET
         elif isinstance(self.filters, list):
             filters = []
             for filters_type_0_item_data in self.filters:
                 filters_type_0_item: dict[str, Any]
-                if isinstance(filters_type_0_item_data, NodeNameFilter | MetadataFilter):
+                if isinstance(filters_type_0_item_data, NodeNameFilter):
+                    filters_type_0_item = filters_type_0_item_data.to_dict()
+                elif isinstance(filters_type_0_item_data, MetadataFilter):
                     filters_type_0_item = filters_type_0_item_data.to_dict()
                 else:
                     filters_type_0_item = filters_type_0_item_data.to_dict()
@@ -58,12 +59,15 @@ class ChunkAttributionUtilizationScorer:
         else:
             filters = self.filters
 
-        type_: Unset | str = UNSET
+        type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
 
-        model_name: None | Unset | str
-        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
+        model_name: Union[None, Unset, str]
+        if isinstance(self.model_name, Unset):
+            model_name = UNSET
+        else:
+            model_name = self.model_name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -86,13 +90,13 @@ class ChunkAttributionUtilizationScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
-        name = cast(Literal["chunk_attribution_utilization"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["chunk_attribution_utilization"], Unset], d.pop("name", UNSET))
         if name != "chunk_attribution_utilization" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'chunk_attribution_utilization', got '{name}'")
 
         def _parse_filters(
             data: object,
-        ) -> None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]:
+        ) -> Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -110,20 +114,24 @@ class ChunkAttributionUtilizationScorer:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return NodeNameFilter.from_dict(data)
+                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
 
+                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return MetadataFilter.from_dict(data)
+                            filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
 
+                            return filters_type_0_item_type_1
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return ModalityFilter.from_dict(data)
+                        filters_type_0_item_type_2 = ModalityFilter.from_dict(data)
+
+                        return filters_type_0_item_type_2
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -132,20 +140,23 @@ class ChunkAttributionUtilizationScorer:
                 return filters_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]], data)
+            return cast(Union[None, Unset, list[Union["MetadataFilter", "ModalityFilter", "NodeNameFilter"]]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
         _type_ = d.pop("type", UNSET)
-        type_: Unset | ChunkAttributionUtilizationScorerType
-        type_ = UNSET if isinstance(_type_, Unset) else ChunkAttributionUtilizationScorerType(_type_)
+        type_: Union[Unset, ChunkAttributionUtilizationScorerType]
+        if isinstance(_type_, Unset):
+            type_ = UNSET
+        else:
+            type_ = ChunkAttributionUtilizationScorerType(_type_)
 
-        def _parse_model_name(data: object) -> None | Unset | str:
+        def _parse_model_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         model_name = _parse_model_name(d.pop("model_name", UNSET))
 

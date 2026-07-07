@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -25,8 +25,7 @@ class NumericColorConstraint:
         {"color": "green", "operator": "gte", "value": 0.8}
         {"color": "yellow", "operator": "between", "value": [0.3, 0.7]}
 
-    Attributes
-    ----------
+        Attributes:
             color (MetricColor): Allowed colors for metric threshold visualization in the UI.
             operator (NumericColorConstraintOperator):
             value (Union[float, list[float]]):
@@ -34,7 +33,7 @@ class NumericColorConstraint:
 
     color: MetricColor
     operator: NumericColorConstraintOperator
-    value: float | list[float]
+    value: Union[float, list[float]]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -42,8 +41,12 @@ class NumericColorConstraint:
 
         operator = self.operator.value
 
-        value: float | list[float]
-        value = self.value if isinstance(self.value, list) else self.value
+        value: Union[float, list[float]]
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -58,15 +61,16 @@ class NumericColorConstraint:
 
         operator = NumericColorConstraintOperator(d.pop("operator"))
 
-        def _parse_value(data: object) -> float | list[float]:
+        def _parse_value(data: object) -> Union[float, list[float]]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[float], data)
+                value_type_1 = cast(list[float], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
-            return cast(float | list[float], data)
+            return cast(Union[float, list[float]], data)
 
         value = _parse_value(d.pop("value"))
 

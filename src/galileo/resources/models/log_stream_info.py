@@ -11,8 +11,7 @@ T = TypeVar("T", bound="LogStreamInfo")
 class LogStreamInfo:
     """Minimal log stream representation (id and name only).
 
-    Attributes
-    ----------
+    Attributes:
         id (str):
         name (str):
     """

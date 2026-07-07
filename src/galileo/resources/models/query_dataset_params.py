@@ -17,27 +17,26 @@ T = TypeVar("T", bound="QueryDatasetParams")
 @_attrs_define
 class QueryDatasetParams:
     """
-    Attributes
-    ----------
+    Attributes:
         filters (Union[Unset, list['DatasetContentFilter']]):
         sort (Union['DatasetContentSortClause', None, Unset]):
     """
 
-    filters: Unset | list["DatasetContentFilter"] = UNSET
+    filters: Union[Unset, list["DatasetContentFilter"]] = UNSET
     sort: Union["DatasetContentSortClause", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_content_sort_clause import DatasetContentSortClause
 
-        filters: Unset | list[dict[str, Any]] = UNSET
+        filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item = filters_item_data.to_dict()
                 filters.append(filters_item)
 
-        sort: None | Unset | dict[str, Any]
+        sort: Union[None, Unset, dict[str, Any]]
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(self.sort, DatasetContentSortClause):
@@ -76,8 +75,9 @@ class QueryDatasetParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetContentSortClause.from_dict(data)
+                sort_type_0 = DatasetContentSortClause.from_dict(data)
 
+                return sort_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["DatasetContentSortClause", None, Unset], data)

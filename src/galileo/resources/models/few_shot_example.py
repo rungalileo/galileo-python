@@ -11,8 +11,7 @@ T = TypeVar("T", bound="FewShotExample")
 class FewShotExample:
     """Few-shot example for a chainpoll metric prompt.
 
-    Attributes
-    ----------
+    Attributes:
         generation_prompt_and_response (str):
         evaluating_response (str):
     """

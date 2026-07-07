@@ -10,8 +10,7 @@ T = TypeVar("T", bound="StringData")
 @_attrs_define
 class StringData:
     """
-    Attributes
-    ----------
+    Attributes:
         input_strings (list[str]):
     """
 

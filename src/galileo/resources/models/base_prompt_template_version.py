@@ -17,8 +17,7 @@ T = TypeVar("T", bound="BasePromptTemplateVersion")
 @_attrs_define
 class BasePromptTemplateVersion:
     """
-    Attributes
-    ----------
+    Attributes:
         template (Union[list['MessagesListItem'], str]):
         raw (Union[Unset, bool]):  Default: False.
         version (Union[None, Unset, int]):
@@ -26,15 +25,15 @@ class BasePromptTemplateVersion:
         output_type (Union[None, Unset, str]):
     """
 
-    template: list["MessagesListItem"] | str
-    raw: Unset | bool = False
-    version: None | Unset | int = UNSET
+    template: Union[list["MessagesListItem"], str]
+    raw: Union[Unset, bool] = False
+    version: Union[None, Unset, int] = UNSET
     settings: Union[Unset, "PromptRunSettings"] = UNSET
-    output_type: None | Unset | str = UNSET
+    output_type: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        template: list[dict[str, Any]] | str
+        template: Union[list[dict[str, Any]], str]
         if isinstance(self.template, list):
             template = []
             for componentsschemas_messages_item_data in self.template:
@@ -46,15 +45,21 @@ class BasePromptTemplateVersion:
 
         raw = self.raw
 
-        version: None | Unset | int
-        version = UNSET if isinstance(self.version, Unset) else self.version
+        version: Union[None, Unset, int]
+        if isinstance(self.version, Unset):
+            version = UNSET
+        else:
+            version = self.version
 
-        settings: Unset | dict[str, Any] = UNSET
+        settings: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.settings, Unset):
             settings = self.settings.to_dict()
 
-        output_type: None | Unset | str
-        output_type = UNSET if isinstance(self.output_type, Unset) else self.output_type
+        output_type: Union[None, Unset, str]
+        if isinstance(self.output_type, Unset):
+            output_type = UNSET
+        else:
+            output_type = self.output_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -77,7 +82,7 @@ class BasePromptTemplateVersion:
 
         d = dict(src_dict)
 
-        def _parse_template(data: object) -> list["MessagesListItem"] | str:
+        def _parse_template(data: object) -> Union[list["MessagesListItem"], str]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
@@ -91,31 +96,34 @@ class BasePromptTemplateVersion:
                 return template_type_1
             except:  # noqa: E722
                 pass
-            return cast(list["MessagesListItem"] | str, data)
+            return cast(Union[list["MessagesListItem"], str], data)
 
         template = _parse_template(d.pop("template"))
 
         raw = d.pop("raw", UNSET)
 
-        def _parse_version(data: object) -> None | Unset | int:
+        def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         version = _parse_version(d.pop("version", UNSET))
 
         _settings = d.pop("settings", UNSET)
-        settings: Unset | PromptRunSettings
-        settings = UNSET if isinstance(_settings, Unset) else PromptRunSettings.from_dict(_settings)
+        settings: Union[Unset, PromptRunSettings]
+        if isinstance(_settings, Unset):
+            settings = UNSET
+        else:
+            settings = PromptRunSettings.from_dict(_settings)
 
-        def _parse_output_type(data: object) -> None | Unset | str:
+        def _parse_output_type(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 

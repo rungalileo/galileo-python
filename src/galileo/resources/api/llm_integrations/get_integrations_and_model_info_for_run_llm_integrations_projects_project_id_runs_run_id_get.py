@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -26,13 +26,13 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    project_id: str, run_id: str, *, multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET
+    project_id: str, run_id: str, *, multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_multimodal_capabilities: None | Unset | list[str]
+    json_multimodal_capabilities: Union[None, Unset, list[str]]
     if isinstance(multimodal_capabilities, Unset):
         json_multimodal_capabilities = UNSET
     elif isinstance(multimodal_capabilities, list):
@@ -50,7 +50,7 @@ def _get_kwargs(
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": f"/llm_integrations/projects/{project_id}/runs/{run_id}",
+        "path": "/llm_integrations/projects/{project_id}/runs/{run_id}".format(project_id=project_id, run_id=run_id),
         "params": params,
     }
 
@@ -62,17 +62,21 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> (
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
-):
+) -> Union[
+    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+    HTTPValidationError,
+]:
     if response.status_code == 200:
-        return GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse.from_dict(
+        response_200 = GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse.from_dict(
             response.json()
         )
 
+        return response_200
+
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -95,8 +99,10 @@ def _parse_response(
 def _build_response(
     *, client: ApiClient, response: httpx.Response
 ) -> Response[
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
+    Union[
+        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+        HTTPValidationError,
+    ]
 ]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -111,12 +117,14 @@ def sync_detailed(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET,
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
 ) -> Response[
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
+    Union[
+        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+        HTTPValidationError,
+    ]
 ]:
-    """Get Integrations And Model Info For Run.
+    """Get Integrations And Model Info For Run
 
      Get the list of supported scorer models for the run owner's llm integrations.
 
@@ -125,15 +133,14 @@ def sync_detailed(
         run_id (str):
         multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, multimodal_capabilities=multimodal_capabilities)
 
     response = client.request(**kwargs)
@@ -146,13 +153,14 @@ def sync(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET,
-) -> (
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
-    | None
-):
-    """Get Integrations And Model Info For Run.
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
+) -> Optional[
+    Union[
+        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+        HTTPValidationError,
+    ]
+]:
+    """Get Integrations And Model Info For Run
 
      Get the list of supported scorer models for the run owner's llm integrations.
 
@@ -161,15 +169,14 @@ def sync(
         run_id (str):
         multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]
     """
+
     return sync_detailed(
         project_id=project_id, run_id=run_id, client=client, multimodal_capabilities=multimodal_capabilities
     ).parsed
@@ -180,12 +187,14 @@ async def asyncio_detailed(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET,
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
 ) -> Response[
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
+    Union[
+        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+        HTTPValidationError,
+    ]
 ]:
-    """Get Integrations And Model Info For Run.
+    """Get Integrations And Model Info For Run
 
      Get the list of supported scorer models for the run owner's llm integrations.
 
@@ -194,15 +203,14 @@ async def asyncio_detailed(
         run_id (str):
         multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]]
     """
+
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, multimodal_capabilities=multimodal_capabilities)
 
     response = await client.arequest(**kwargs)
@@ -215,13 +223,14 @@ async def asyncio(
     run_id: str,
     *,
     client: ApiClient,
-    multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET,
-) -> (
-    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse
-    | HTTPValidationError
-    | None
-):
-    """Get Integrations And Model Info For Run.
+    multimodal_capabilities: Union[None, Unset, list[MultimodalCapability]] = UNSET,
+) -> Optional[
+    Union[
+        GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+        HTTPValidationError,
+    ]
+]:
+    """Get Integrations And Model Info For Run
 
      Get the list of supported scorer models for the run owner's llm integrations.
 
@@ -230,15 +239,14 @@ async def asyncio(
         run_id (str):
         multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Union[GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse, HTTPValidationError]
     """
+
     return (
         await asyncio_detailed(
             project_id=project_id, run_id=run_id, client=client, multimodal_capabilities=multimodal_capabilities

@@ -12,8 +12,7 @@ T = TypeVar("T", bound="CollaboratorUpdate")
 @_attrs_define
 class CollaboratorUpdate:
     """
-    Attributes
-    ----------
+    Attributes:
         role (CollaboratorRole):
     """
 

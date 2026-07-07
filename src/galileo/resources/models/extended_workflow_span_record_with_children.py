@@ -38,9 +38,6 @@ if TYPE_CHECKING:
     from ..models.extended_workflow_span_record_with_children_metric_info_type_0 import (
         ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0,
     )
-    from ..models.extended_workflow_span_record_with_children_overall_annotation_agreement import (
-        ExtendedWorkflowSpanRecordWithChildrenOverallAnnotationAgreement,
-    )
     from ..models.extended_workflow_span_record_with_children_user_metadata import (
         ExtendedWorkflowSpanRecordWithChildrenUserMetadata,
     )
@@ -56,8 +53,7 @@ T = TypeVar("T", bound="ExtendedWorkflowSpanRecordWithChildren")
 @_attrs_define
 class ExtendedWorkflowSpanRecordWithChildren:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str): Galileo ID of the session, trace or span
         session_id (str): Galileo ID of the session containing the trace (or the same value as id for a trace)
         project_id (str): Galileo ID of the project associated with this trace or span
@@ -104,9 +100,12 @@ class ExtendedWorkflowSpanRecordWithChildren:
             aggregate information keyed by template ID
         annotation_agreement (Union[Unset, ExtendedWorkflowSpanRecordWithChildrenAnnotationAgreement]): Annotation
             agreement scores keyed by template ID
-        overall_annotation_agreement (Union[Unset, ExtendedWorkflowSpanRecordWithChildrenOverallAnnotationAgreement]):
-            Average annotation agreement per queue (keyed by queue ID)
+        overall_annotation_agreement (Union[None, Unset, float]): Average annotation agreement across all templates in
+            the queue
         annotation_queue_ids (Union[Unset, list[str]]): IDs of annotation queues this record is in
+        fully_annotated (Union[None, Unset, bool]): Whether every field is annotated by every annotator in the queue
+        progress_message (Union[Unset, str]): Runner progress text written directly to CH span Default: ''.
+        error_message (Union[Unset, str]): Runner error text written directly to CH span Default: ''.
         metric_info (Union['ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0', None, Unset]): Detailed information
             about the metrics associated with this trace or span
         files (Union['ExtendedWorkflowSpanRecordWithChildrenFilesType0', None, Unset]): File metadata keyed by file ID
@@ -120,9 +119,9 @@ class ExtendedWorkflowSpanRecordWithChildren:
     project_id: str
     run_id: str
     parent_id: str
-    spans: (
-        Unset
-        | list[
+    spans: Union[
+        Unset,
+        list[
             Union[
                 "ExtendedAgentSpanRecordWithChildren",
                 "ExtendedControlSpanRecord",
@@ -131,11 +130,11 @@ class ExtendedWorkflowSpanRecordWithChildren:
                 "ExtendedToolSpanRecordWithChildren",
                 "ExtendedWorkflowSpanRecordWithChildren",
             ]
-        ]
-    ) = UNSET
-    type_: Literal["workflow"] | Unset = "workflow"
-    input_: Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str = ""
-    redacted_input: None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str = UNSET
+        ],
+    ] = UNSET
+    type_: Union[Literal["workflow"], Unset] = "workflow"
+    input_: Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = ""
+    redacted_input: Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str] = UNSET
     output: Union[
         "ControlResult",
         "Message",
@@ -154,35 +153,36 @@ class ExtendedWorkflowSpanRecordWithChildren:
         list[Union["FileContentPart", "TextContentPart"]],
         str,
     ] = UNSET
-    name: Unset | str = ""
-    created_at: Unset | datetime.datetime = UNSET
+    name: Union[Unset, str] = ""
+    created_at: Union[Unset, datetime.datetime] = UNSET
     user_metadata: Union[Unset, "ExtendedWorkflowSpanRecordWithChildrenUserMetadata"] = UNSET
-    tags: Unset | list[str] = UNSET
-    status_code: None | Unset | int = UNSET
+    tags: Union[Unset, list[str]] = UNSET
+    status_code: Union[None, Unset, int] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
-    external_id: None | Unset | str = UNSET
-    dataset_input: None | Unset | str = UNSET
-    dataset_output: None | Unset | str = UNSET
+    external_id: Union[None, Unset, str] = UNSET
+    dataset_input: Union[None, Unset, str] = UNSET
+    dataset_output: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata"] = UNSET
-    trace_id: None | Unset | str = UNSET
-    updated_at: None | Unset | datetime.datetime = UNSET
-    has_children: None | Unset | bool = UNSET
-    metrics_batch_id: None | Unset | str = UNSET
-    session_batch_id: None | Unset | str = UNSET
+    trace_id: Union[None, Unset, str] = UNSET
+    updated_at: Union[None, Unset, datetime.datetime] = UNSET
+    has_children: Union[None, Unset, bool] = UNSET
+    metrics_batch_id: Union[None, Unset, str] = UNSET
+    session_batch_id: Union[None, Unset, str] = UNSET
     feedback_rating_info: Union[Unset, "ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo"] = UNSET
     annotations: Union[Unset, "ExtendedWorkflowSpanRecordWithChildrenAnnotations"] = UNSET
-    file_ids: Unset | list[str] = UNSET
-    file_modalities: Unset | list[ContentModality] = UNSET
+    file_ids: Union[Unset, list[str]] = UNSET
+    file_modalities: Union[Unset, list[ContentModality]] = UNSET
     annotation_aggregates: Union[Unset, "ExtendedWorkflowSpanRecordWithChildrenAnnotationAggregates"] = UNSET
     annotation_agreement: Union[Unset, "ExtendedWorkflowSpanRecordWithChildrenAnnotationAgreement"] = UNSET
-    overall_annotation_agreement: Union[Unset, "ExtendedWorkflowSpanRecordWithChildrenOverallAnnotationAgreement"] = (
-        UNSET
-    )
-    annotation_queue_ids: Unset | list[str] = UNSET
+    overall_annotation_agreement: Union[None, Unset, float] = UNSET
+    annotation_queue_ids: Union[Unset, list[str]] = UNSET
+    fully_annotated: Union[None, Unset, bool] = UNSET
+    progress_message: Union[Unset, str] = ""
+    error_message: Union[Unset, str] = ""
     metric_info: Union["ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0", None, Unset] = UNSET
     files: Union["ExtendedWorkflowSpanRecordWithChildrenFilesType0", None, Unset] = UNSET
-    is_complete: Unset | bool = True
-    step_number: None | Unset | int = UNSET
+    is_complete: Union[Unset, bool] = True
+    step_number: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -210,19 +210,20 @@ class ExtendedWorkflowSpanRecordWithChildren:
 
         parent_id = self.parent_id
 
-        spans: Unset | list[dict[str, Any]] = UNSET
+        spans: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.spans, Unset):
             spans = []
             for spans_item_data in self.spans:
                 spans_item: dict[str, Any]
-                if isinstance(
-                    spans_item_data,
-                    ExtendedAgentSpanRecordWithChildren
-                    | ExtendedWorkflowSpanRecordWithChildren
-                    | ExtendedLlmSpanRecord
-                    | ExtendedToolSpanRecordWithChildren
-                    | ExtendedRetrieverSpanRecordWithChildren,
-                ):
+                if isinstance(spans_item_data, ExtendedAgentSpanRecordWithChildren):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, ExtendedWorkflowSpanRecordWithChildren):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, ExtendedLlmSpanRecord):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, ExtendedToolSpanRecordWithChildren):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, ExtendedRetrieverSpanRecordWithChildren):
                     spans_item = spans_item_data.to_dict()
                 else:
                     spans_item = spans_item_data.to_dict()
@@ -231,7 +232,7 @@ class ExtendedWorkflowSpanRecordWithChildren:
 
         type_ = self.type_
 
-        input_: Unset | list[dict[str, Any]] | str
+        input_: Union[Unset, list[dict[str, Any]], str]
         if isinstance(self.input_, Unset):
             input_ = UNSET
         elif isinstance(self.input_, list):
@@ -254,7 +255,7 @@ class ExtendedWorkflowSpanRecordWithChildren:
         else:
             input_ = self.input_
 
-        redacted_input: None | Unset | list[dict[str, Any]] | str
+        redacted_input: Union[None, Unset, list[dict[str, Any]], str]
         if isinstance(self.redacted_input, Unset):
             redacted_input = UNSET
         elif isinstance(self.redacted_input, list):
@@ -277,7 +278,7 @@ class ExtendedWorkflowSpanRecordWithChildren:
         else:
             redacted_input = self.redacted_input
 
-        output: None | Unset | dict[str, Any] | list[dict[str, Any]] | str
+        output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
         if isinstance(self.output, Unset):
             output = UNSET
         elif isinstance(self.output, Message):
@@ -304,7 +305,7 @@ class ExtendedWorkflowSpanRecordWithChildren:
         else:
             output = self.output
 
-        redacted_output: None | Unset | dict[str, Any] | list[dict[str, Any]] | str
+        redacted_output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
         if isinstance(self.redacted_output, Unset):
             redacted_output = UNSET
         elif isinstance(self.redacted_output, Message):
@@ -333,42 +334,57 @@ class ExtendedWorkflowSpanRecordWithChildren:
 
         name = self.name
 
-        created_at: Unset | str = UNSET
+        created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
             created_at = self.created_at.isoformat()
 
-        user_metadata: Unset | dict[str, Any] = UNSET
+        user_metadata: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.user_metadata, Unset):
             user_metadata = self.user_metadata.to_dict()
 
-        tags: Unset | list[str] = UNSET
+        tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
-        status_code: None | Unset | int
-        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
+        status_code: Union[None, Unset, int]
+        if isinstance(self.status_code, Unset):
+            status_code = UNSET
+        else:
+            status_code = self.status_code
 
-        metrics: Unset | dict[str, Any] = UNSET
+        metrics: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
-        external_id: None | Unset | str
-        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
+        external_id: Union[None, Unset, str]
+        if isinstance(self.external_id, Unset):
+            external_id = UNSET
+        else:
+            external_id = self.external_id
 
-        dataset_input: None | Unset | str
-        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
+        dataset_input: Union[None, Unset, str]
+        if isinstance(self.dataset_input, Unset):
+            dataset_input = UNSET
+        else:
+            dataset_input = self.dataset_input
 
-        dataset_output: None | Unset | str
-        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
+        dataset_output: Union[None, Unset, str]
+        if isinstance(self.dataset_output, Unset):
+            dataset_output = UNSET
+        else:
+            dataset_output = self.dataset_output
 
-        dataset_metadata: Unset | dict[str, Any] = UNSET
+        dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
-        trace_id: None | Unset | str
-        trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
+        trace_id: Union[None, Unset, str]
+        if isinstance(self.trace_id, Unset):
+            trace_id = UNSET
+        else:
+            trace_id = self.trace_id
 
-        updated_at: None | Unset | str
+        updated_at: Union[None, Unset, str]
         if isinstance(self.updated_at, Unset):
             updated_at = UNSET
         elif isinstance(self.updated_at, datetime.datetime):
@@ -376,51 +392,72 @@ class ExtendedWorkflowSpanRecordWithChildren:
         else:
             updated_at = self.updated_at
 
-        has_children: None | Unset | bool
-        has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
+        has_children: Union[None, Unset, bool]
+        if isinstance(self.has_children, Unset):
+            has_children = UNSET
+        else:
+            has_children = self.has_children
 
-        metrics_batch_id: None | Unset | str
-        metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
+        metrics_batch_id: Union[None, Unset, str]
+        if isinstance(self.metrics_batch_id, Unset):
+            metrics_batch_id = UNSET
+        else:
+            metrics_batch_id = self.metrics_batch_id
 
-        session_batch_id: None | Unset | str
-        session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
+        session_batch_id: Union[None, Unset, str]
+        if isinstance(self.session_batch_id, Unset):
+            session_batch_id = UNSET
+        else:
+            session_batch_id = self.session_batch_id
 
-        feedback_rating_info: Unset | dict[str, Any] = UNSET
+        feedback_rating_info: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.feedback_rating_info, Unset):
             feedback_rating_info = self.feedback_rating_info.to_dict()
 
-        annotations: Unset | dict[str, Any] = UNSET
+        annotations: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.annotations, Unset):
             annotations = self.annotations.to_dict()
 
-        file_ids: Unset | list[str] = UNSET
+        file_ids: Union[Unset, list[str]] = UNSET
         if not isinstance(self.file_ids, Unset):
             file_ids = self.file_ids
 
-        file_modalities: Unset | list[str] = UNSET
+        file_modalities: Union[Unset, list[str]] = UNSET
         if not isinstance(self.file_modalities, Unset):
             file_modalities = []
             for file_modalities_item_data in self.file_modalities:
                 file_modalities_item = file_modalities_item_data.value
                 file_modalities.append(file_modalities_item)
 
-        annotation_aggregates: Unset | dict[str, Any] = UNSET
+        annotation_aggregates: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.annotation_aggregates, Unset):
             annotation_aggregates = self.annotation_aggregates.to_dict()
 
-        annotation_agreement: Unset | dict[str, Any] = UNSET
+        annotation_agreement: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.annotation_agreement, Unset):
             annotation_agreement = self.annotation_agreement.to_dict()
 
-        overall_annotation_agreement: Unset | dict[str, Any] = UNSET
-        if not isinstance(self.overall_annotation_agreement, Unset):
-            overall_annotation_agreement = self.overall_annotation_agreement.to_dict()
+        overall_annotation_agreement: Union[None, Unset, float]
+        if isinstance(self.overall_annotation_agreement, Unset):
+            overall_annotation_agreement = UNSET
+        else:
+            overall_annotation_agreement = self.overall_annotation_agreement
 
-        annotation_queue_ids: Unset | list[str] = UNSET
+        annotation_queue_ids: Union[Unset, list[str]] = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
             annotation_queue_ids = self.annotation_queue_ids
 
-        metric_info: None | Unset | dict[str, Any]
+        fully_annotated: Union[None, Unset, bool]
+        if isinstance(self.fully_annotated, Unset):
+            fully_annotated = UNSET
+        else:
+            fully_annotated = self.fully_annotated
+
+        progress_message = self.progress_message
+
+        error_message = self.error_message
+
+        metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
         elif isinstance(self.metric_info, ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0):
@@ -428,7 +465,7 @@ class ExtendedWorkflowSpanRecordWithChildren:
         else:
             metric_info = self.metric_info
 
-        files: None | Unset | dict[str, Any]
+        files: Union[None, Unset, dict[str, Any]]
         if isinstance(self.files, Unset):
             files = UNSET
         elif isinstance(self.files, ExtendedWorkflowSpanRecordWithChildrenFilesType0):
@@ -438,8 +475,11 @@ class ExtendedWorkflowSpanRecordWithChildren:
 
         is_complete = self.is_complete
 
-        step_number: None | Unset | int
-        step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
+        step_number: Union[None, Unset, int]
+        if isinstance(self.step_number, Unset):
+            step_number = UNSET
+        else:
+            step_number = self.step_number
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -504,6 +544,12 @@ class ExtendedWorkflowSpanRecordWithChildren:
             field_dict["overall_annotation_agreement"] = overall_annotation_agreement
         if annotation_queue_ids is not UNSET:
             field_dict["annotation_queue_ids"] = annotation_queue_ids
+        if fully_annotated is not UNSET:
+            field_dict["fully_annotated"] = fully_annotated
+        if progress_message is not UNSET:
+            field_dict["progress_message"] = progress_message
+        if error_message is not UNSET:
+            field_dict["error_message"] = error_message
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
         if files is not UNSET:
@@ -543,9 +589,6 @@ class ExtendedWorkflowSpanRecordWithChildren:
         )
         from ..models.extended_workflow_span_record_with_children_metric_info_type_0 import (
             ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0,
-        )
-        from ..models.extended_workflow_span_record_with_children_overall_annotation_agreement import (
-            ExtendedWorkflowSpanRecordWithChildrenOverallAnnotationAgreement,
         )
         from ..models.extended_workflow_span_record_with_children_user_metadata import (
             ExtendedWorkflowSpanRecordWithChildrenUserMetadata,
@@ -639,43 +682,49 @@ class ExtendedWorkflowSpanRecordWithChildren:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ExtendedAgentSpanRecordWithChildren.from_dict(data)
+                    spans_item_type_0 = ExtendedAgentSpanRecordWithChildren.from_dict(data)
 
+                    return spans_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ExtendedWorkflowSpanRecordWithChildren.from_dict(data)
+                    spans_item_type_1 = ExtendedWorkflowSpanRecordWithChildren.from_dict(data)
 
+                    return spans_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ExtendedLlmSpanRecord.from_dict(data)
+                    spans_item_type_2 = ExtendedLlmSpanRecord.from_dict(data)
 
+                    return spans_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ExtendedToolSpanRecordWithChildren.from_dict(data)
+                    spans_item_type_3 = ExtendedToolSpanRecordWithChildren.from_dict(data)
 
+                    return spans_item_type_3
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ExtendedRetrieverSpanRecordWithChildren.from_dict(data)
+                    spans_item_type_4 = ExtendedRetrieverSpanRecordWithChildren.from_dict(data)
 
+                    return spans_item_type_4
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return ExtendedControlSpanRecord.from_dict(data)
+                    spans_item_type_5 = ExtendedControlSpanRecord.from_dict(data)
 
+                    return spans_item_type_5
                 except:  # noqa: E722
                     pass
                 # If we reach here, none of the parsers succeeded
@@ -686,13 +735,13 @@ class ExtendedWorkflowSpanRecordWithChildren:
 
             spans.append(spans_item)
 
-        type_ = cast(Literal["workflow"] | Unset, d.pop("type", UNSET))
+        type_ = cast(Union[Literal["workflow"], Unset], d.pop("type", UNSET))
         if type_ != "workflow" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'workflow', got '{type_}'")
 
         def _parse_input_(
             data: object,
-        ) -> Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str:
+        ) -> Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if isinstance(data, Unset):
                 return data
             try:
@@ -719,13 +768,16 @@ class ExtendedWorkflowSpanRecordWithChildren:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            input_type_2_item_type_0 = TextContentPart.from_dict(data)
 
+                            return input_type_2_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        input_type_2_item_type_1 = FileContentPart.from_dict(data)
+
+                        return input_type_2_item_type_1
 
                     input_type_2_item = _parse_input_type_2_item(input_type_2_item_data)
 
@@ -734,13 +786,13 @@ class ExtendedWorkflowSpanRecordWithChildren:
                 return input_type_2
             except:  # noqa: E722
                 pass
-            return cast(Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str, data)
+            return cast(Union[Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data)
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
         def _parse_redacted_input(
             data: object,
-        ) -> None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str:
+        ) -> Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -769,13 +821,16 @@ class ExtendedWorkflowSpanRecordWithChildren:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            redacted_input_type_2_item_type_0 = TextContentPart.from_dict(data)
 
+                            return redacted_input_type_2_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        redacted_input_type_2_item_type_1 = FileContentPart.from_dict(data)
+
+                        return redacted_input_type_2_item_type_1
 
                     redacted_input_type_2_item = _parse_redacted_input_type_2_item(redacted_input_type_2_item_data)
 
@@ -784,7 +839,9 @@ class ExtendedWorkflowSpanRecordWithChildren:
                 return redacted_input_type_2
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list["Message"] | list[Union["FileContentPart", "TextContentPart"]] | str, data)
+            return cast(
+                Union[None, Unset, list["Message"], list[Union["FileContentPart", "TextContentPart"]], str], data
+            )
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
@@ -806,8 +863,9 @@ class ExtendedWorkflowSpanRecordWithChildren:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return Message.from_dict(data)
+                output_type_1 = Message.from_dict(data)
 
+                return output_type_1
             except:  # noqa: E722
                 pass
             try:
@@ -834,13 +892,16 @@ class ExtendedWorkflowSpanRecordWithChildren:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            output_type_3_item_type_0 = TextContentPart.from_dict(data)
 
+                            return output_type_3_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        output_type_3_item_type_1 = FileContentPart.from_dict(data)
+
+                        return output_type_3_item_type_1
 
                     output_type_3_item = _parse_output_type_3_item(output_type_3_item_data)
 
@@ -852,8 +913,9 @@ class ExtendedWorkflowSpanRecordWithChildren:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ControlResult.from_dict(data)
+                output_type_4 = ControlResult.from_dict(data)
 
+                return output_type_4
             except:  # noqa: E722
                 pass
             return cast(
@@ -889,8 +951,9 @@ class ExtendedWorkflowSpanRecordWithChildren:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return Message.from_dict(data)
+                redacted_output_type_1 = Message.from_dict(data)
 
+                return redacted_output_type_1
             except:  # noqa: E722
                 pass
             try:
@@ -917,13 +980,16 @@ class ExtendedWorkflowSpanRecordWithChildren:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            redacted_output_type_3_item_type_0 = TextContentPart.from_dict(data)
 
+                            return redacted_output_type_3_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        redacted_output_type_3_item_type_1 = FileContentPart.from_dict(data)
+
+                        return redacted_output_type_3_item_type_1
 
                     redacted_output_type_3_item = _parse_redacted_output_type_3_item(redacted_output_type_3_item_data)
 
@@ -935,8 +1001,9 @@ class ExtendedWorkflowSpanRecordWithChildren:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ControlResult.from_dict(data)
+                redacted_output_type_4 = ControlResult.from_dict(data)
 
+                return redacted_output_type_4
             except:  # noqa: E722
                 pass
             return cast(
@@ -957,11 +1024,14 @@ class ExtendedWorkflowSpanRecordWithChildren:
         name = d.pop("name", UNSET)
 
         _created_at = d.pop("created_at", UNSET)
-        created_at: Unset | datetime.datetime
-        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
+        created_at: Union[Unset, datetime.datetime]
+        if isinstance(_created_at, Unset):
+            created_at = UNSET
+        else:
+            created_at = isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
-        user_metadata: Unset | ExtendedWorkflowSpanRecordWithChildrenUserMetadata
+        user_metadata: Union[Unset, ExtendedWorkflowSpanRecordWithChildrenUserMetadata]
         if isinstance(_user_metadata, Unset):
             user_metadata = UNSET
         else:
@@ -969,63 +1039,66 @@ class ExtendedWorkflowSpanRecordWithChildren:
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
-        def _parse_status_code(data: object) -> None | Unset | int:
+        def _parse_status_code(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
         _metrics = d.pop("metrics", UNSET)
-        metrics: Unset | Metrics
-        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
+        metrics: Union[Unset, Metrics]
+        if isinstance(_metrics, Unset):
+            metrics = UNSET
+        else:
+            metrics = Metrics.from_dict(_metrics)
 
-        def _parse_external_id(data: object) -> None | Unset | str:
+        def _parse_external_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         external_id = _parse_external_id(d.pop("external_id", UNSET))
 
-        def _parse_dataset_input(data: object) -> None | Unset | str:
+        def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
 
-        def _parse_dataset_output(data: object) -> None | Unset | str:
+        def _parse_dataset_output(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
 
         _dataset_metadata = d.pop("dataset_metadata", UNSET)
-        dataset_metadata: Unset | ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata
+        dataset_metadata: Union[Unset, ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata]
         if isinstance(_dataset_metadata, Unset):
             dataset_metadata = UNSET
         else:
             dataset_metadata = ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata.from_dict(_dataset_metadata)
 
-        def _parse_trace_id(data: object) -> None | Unset | str:
+        def _parse_trace_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
 
-        def _parse_updated_at(data: object) -> None | Unset | datetime.datetime:
+        def _parse_updated_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -1033,43 +1106,44 @@ class ExtendedWorkflowSpanRecordWithChildren:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return isoparse(data)
+                updated_at_type_0 = isoparse(data)
 
+                return updated_at_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | datetime.datetime, data)
+            return cast(Union[None, Unset, datetime.datetime], data)
 
         updated_at = _parse_updated_at(d.pop("updated_at", UNSET))
 
-        def _parse_has_children(data: object) -> None | Unset | bool:
+        def _parse_has_children(data: object) -> Union[None, Unset, bool]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | bool, data)
+            return cast(Union[None, Unset, bool], data)
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
 
-        def _parse_metrics_batch_id(data: object) -> None | Unset | str:
+        def _parse_metrics_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         metrics_batch_id = _parse_metrics_batch_id(d.pop("metrics_batch_id", UNSET))
 
-        def _parse_session_batch_id(data: object) -> None | Unset | str:
+        def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
         _feedback_rating_info = d.pop("feedback_rating_info", UNSET)
-        feedback_rating_info: Unset | ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo
+        feedback_rating_info: Union[Unset, ExtendedWorkflowSpanRecordWithChildrenFeedbackRatingInfo]
         if isinstance(_feedback_rating_info, Unset):
             feedback_rating_info = UNSET
         else:
@@ -1078,7 +1152,7 @@ class ExtendedWorkflowSpanRecordWithChildren:
             )
 
         _annotations = d.pop("annotations", UNSET)
-        annotations: Unset | ExtendedWorkflowSpanRecordWithChildrenAnnotations
+        annotations: Union[Unset, ExtendedWorkflowSpanRecordWithChildrenAnnotations]
         if isinstance(_annotations, Unset):
             annotations = UNSET
         else:
@@ -1094,7 +1168,7 @@ class ExtendedWorkflowSpanRecordWithChildren:
             file_modalities.append(file_modalities_item)
 
         _annotation_aggregates = d.pop("annotation_aggregates", UNSET)
-        annotation_aggregates: Unset | ExtendedWorkflowSpanRecordWithChildrenAnnotationAggregates
+        annotation_aggregates: Union[Unset, ExtendedWorkflowSpanRecordWithChildrenAnnotationAggregates]
         if isinstance(_annotation_aggregates, Unset):
             annotation_aggregates = UNSET
         else:
@@ -1103,7 +1177,7 @@ class ExtendedWorkflowSpanRecordWithChildren:
             )
 
         _annotation_agreement = d.pop("annotation_agreement", UNSET)
-        annotation_agreement: Unset | ExtendedWorkflowSpanRecordWithChildrenAnnotationAgreement
+        annotation_agreement: Union[Unset, ExtendedWorkflowSpanRecordWithChildrenAnnotationAgreement]
         if isinstance(_annotation_agreement, Unset):
             annotation_agreement = UNSET
         else:
@@ -1111,16 +1185,29 @@ class ExtendedWorkflowSpanRecordWithChildren:
                 _annotation_agreement
             )
 
-        _overall_annotation_agreement = d.pop("overall_annotation_agreement", UNSET)
-        overall_annotation_agreement: Unset | ExtendedWorkflowSpanRecordWithChildrenOverallAnnotationAgreement
-        if isinstance(_overall_annotation_agreement, Unset):
-            overall_annotation_agreement = UNSET
-        else:
-            overall_annotation_agreement = ExtendedWorkflowSpanRecordWithChildrenOverallAnnotationAgreement.from_dict(
-                _overall_annotation_agreement
-            )
+        def _parse_overall_annotation_agreement(data: object) -> Union[None, Unset, float]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, float], data)
+
+        overall_annotation_agreement = _parse_overall_annotation_agreement(d.pop("overall_annotation_agreement", UNSET))
 
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
+
+        def _parse_fully_annotated(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        fully_annotated = _parse_fully_annotated(d.pop("fully_annotated", UNSET))
+
+        progress_message = d.pop("progress_message", UNSET)
+
+        error_message = d.pop("error_message", UNSET)
 
         def _parse_metric_info(
             data: object,
@@ -1132,8 +1219,9 @@ class ExtendedWorkflowSpanRecordWithChildren:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0.from_dict(data)
+                metric_info_type_0 = ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0.from_dict(data)
 
+                return metric_info_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0", None, Unset], data)
@@ -1148,8 +1236,9 @@ class ExtendedWorkflowSpanRecordWithChildren:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ExtendedWorkflowSpanRecordWithChildrenFilesType0.from_dict(data)
+                files_type_0 = ExtendedWorkflowSpanRecordWithChildrenFilesType0.from_dict(data)
 
+                return files_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ExtendedWorkflowSpanRecordWithChildrenFilesType0", None, Unset], data)
@@ -1158,12 +1247,12 @@ class ExtendedWorkflowSpanRecordWithChildren:
 
         is_complete = d.pop("is_complete", UNSET)
 
-        def _parse_step_number(data: object) -> None | Unset | int:
+        def _parse_step_number(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(Union[None, Unset, int], data)
 
         step_number = _parse_step_number(d.pop("step_number", UNSET))
 
@@ -1202,6 +1291,9 @@ class ExtendedWorkflowSpanRecordWithChildren:
             annotation_agreement=annotation_agreement,
             overall_annotation_agreement=overall_annotation_agreement,
             annotation_queue_ids=annotation_queue_ids,
+            fully_annotated=fully_annotated,
+            progress_message=progress_message,
+            error_message=error_message,
             metric_info=metric_info,
             files=files,
             is_complete=is_complete,

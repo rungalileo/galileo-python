@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,16 +16,15 @@ T = TypeVar("T", bound="LogRecordsAvailableColumnsResponse")
 @_attrs_define
 class LogRecordsAvailableColumnsResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         columns (Union[Unset, list['LogRecordsColumnInfo']]):
     """
 
-    columns: Unset | list["LogRecordsColumnInfo"] = UNSET
+    columns: Union[Unset, list["LogRecordsColumnInfo"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        columns: Unset | list[dict[str, Any]] = UNSET
+        columns: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.columns, Unset):
             columns = []
             for columns_item_data in self.columns:

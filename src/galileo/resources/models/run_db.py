@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -20,8 +20,7 @@ T = TypeVar("T", bound="RunDB")
 @_attrs_define
 class RunDB:
     """
-    Attributes
-    ----------
+    Attributes:
         created_by (str):
         num_samples (int):
         winner (bool):
@@ -30,8 +29,6 @@ class RunDB:
         updated_at (datetime.datetime):
         last_updated_by (str):
         creator (UserDB):
-        logged_splits (list[str]):
-        logged_inference_names (list[str]):
         name (Union[None, Unset, str]):
         project_id (Union[None, Unset, str]):
         dataset_hash (Union[None, Unset, str]):
@@ -39,6 +36,8 @@ class RunDB:
         task_type (Union[None, TaskType, Unset]):
         run_tags (Union[Unset, list['RunTagDB']]):
         example_content_id (Union[None, Unset, str]):
+        logged_splits (Union[Unset, list[str]]):
+        logged_inference_names (Union[Unset, list[str]]):
     """
 
     created_by: str
@@ -49,15 +48,15 @@ class RunDB:
     updated_at: datetime.datetime
     last_updated_by: str
     creator: "UserDB"
-    logged_splits: list[str]
-    logged_inference_names: list[str]
-    name: None | Unset | str = UNSET
-    project_id: None | Unset | str = UNSET
-    dataset_hash: None | Unset | str = UNSET
-    dataset_version_id: None | Unset | str = UNSET
-    task_type: None | TaskType | Unset = UNSET
-    run_tags: Unset | list["RunTagDB"] = UNSET
-    example_content_id: None | Unset | str = UNSET
+    name: Union[None, Unset, str] = UNSET
+    project_id: Union[None, Unset, str] = UNSET
+    dataset_hash: Union[None, Unset, str] = UNSET
+    dataset_version_id: Union[None, Unset, str] = UNSET
+    task_type: Union[None, TaskType, Unset] = UNSET
+    run_tags: Union[Unset, list["RunTagDB"]] = UNSET
+    example_content_id: Union[None, Unset, str] = UNSET
+    logged_splits: Union[Unset, list[str]] = UNSET
+    logged_inference_names: Union[Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -77,23 +76,31 @@ class RunDB:
 
         creator = self.creator.to_dict()
 
-        logged_splits = self.logged_splits
+        name: Union[None, Unset, str]
+        if isinstance(self.name, Unset):
+            name = UNSET
+        else:
+            name = self.name
 
-        logged_inference_names = self.logged_inference_names
+        project_id: Union[None, Unset, str]
+        if isinstance(self.project_id, Unset):
+            project_id = UNSET
+        else:
+            project_id = self.project_id
 
-        name: None | Unset | str
-        name = UNSET if isinstance(self.name, Unset) else self.name
+        dataset_hash: Union[None, Unset, str]
+        if isinstance(self.dataset_hash, Unset):
+            dataset_hash = UNSET
+        else:
+            dataset_hash = self.dataset_hash
 
-        project_id: None | Unset | str
-        project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
+        dataset_version_id: Union[None, Unset, str]
+        if isinstance(self.dataset_version_id, Unset):
+            dataset_version_id = UNSET
+        else:
+            dataset_version_id = self.dataset_version_id
 
-        dataset_hash: None | Unset | str
-        dataset_hash = UNSET if isinstance(self.dataset_hash, Unset) else self.dataset_hash
-
-        dataset_version_id: None | Unset | str
-        dataset_version_id = UNSET if isinstance(self.dataset_version_id, Unset) else self.dataset_version_id
-
-        task_type: None | Unset | int
+        task_type: Union[None, Unset, int]
         if isinstance(self.task_type, Unset):
             task_type = UNSET
         elif isinstance(self.task_type, TaskType):
@@ -101,15 +108,26 @@ class RunDB:
         else:
             task_type = self.task_type
 
-        run_tags: Unset | list[dict[str, Any]] = UNSET
+        run_tags: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.run_tags, Unset):
             run_tags = []
             for run_tags_item_data in self.run_tags:
                 run_tags_item = run_tags_item_data.to_dict()
                 run_tags.append(run_tags_item)
 
-        example_content_id: None | Unset | str
-        example_content_id = UNSET if isinstance(self.example_content_id, Unset) else self.example_content_id
+        example_content_id: Union[None, Unset, str]
+        if isinstance(self.example_content_id, Unset):
+            example_content_id = UNSET
+        else:
+            example_content_id = self.example_content_id
+
+        logged_splits: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.logged_splits, Unset):
+            logged_splits = self.logged_splits
+
+        logged_inference_names: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.logged_inference_names, Unset):
+            logged_inference_names = self.logged_inference_names
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -123,8 +141,6 @@ class RunDB:
                 "updated_at": updated_at,
                 "last_updated_by": last_updated_by,
                 "creator": creator,
-                "logged_splits": logged_splits,
-                "logged_inference_names": logged_inference_names,
             }
         )
         if name is not UNSET:
@@ -141,6 +157,10 @@ class RunDB:
             field_dict["run_tags"] = run_tags
         if example_content_id is not UNSET:
             field_dict["example_content_id"] = example_content_id
+        if logged_splits is not UNSET:
+            field_dict["logged_splits"] = logged_splits
+        if logged_inference_names is not UNSET:
+            field_dict["logged_inference_names"] = logged_inference_names
 
         return field_dict
 
@@ -166,47 +186,43 @@ class RunDB:
 
         creator = UserDB.from_dict(d.pop("creator"))
 
-        logged_splits = cast(list[str], d.pop("logged_splits"))
-
-        logged_inference_names = cast(list[str], d.pop("logged_inference_names"))
-
-        def _parse_name(data: object) -> None | Unset | str:
+        def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_project_id(data: object) -> None | Unset | str:
+        def _parse_project_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         project_id = _parse_project_id(d.pop("project_id", UNSET))
 
-        def _parse_dataset_hash(data: object) -> None | Unset | str:
+        def _parse_dataset_hash(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         dataset_hash = _parse_dataset_hash(d.pop("dataset_hash", UNSET))
 
-        def _parse_dataset_version_id(data: object) -> None | Unset | str:
+        def _parse_dataset_version_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         dataset_version_id = _parse_dataset_version_id(d.pop("dataset_version_id", UNSET))
 
-        def _parse_task_type(data: object) -> None | TaskType | Unset:
+        def _parse_task_type(data: object) -> Union[None, TaskType, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -214,11 +230,12 @@ class RunDB:
             try:
                 if not isinstance(data, int):
                     raise TypeError()
-                return TaskType(data)
+                task_type_type_0 = TaskType(data)
 
+                return task_type_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | TaskType | Unset, data)
+            return cast(Union[None, TaskType, Unset], data)
 
         task_type = _parse_task_type(d.pop("task_type", UNSET))
 
@@ -229,14 +246,18 @@ class RunDB:
 
             run_tags.append(run_tags_item)
 
-        def _parse_example_content_id(data: object) -> None | Unset | str:
+        def _parse_example_content_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         example_content_id = _parse_example_content_id(d.pop("example_content_id", UNSET))
+
+        logged_splits = cast(list[str], d.pop("logged_splits", UNSET))
+
+        logged_inference_names = cast(list[str], d.pop("logged_inference_names", UNSET))
 
         run_db = cls(
             created_by=created_by,
@@ -247,8 +268,6 @@ class RunDB:
             updated_at=updated_at,
             last_updated_by=last_updated_by,
             creator=creator,
-            logged_splits=logged_splits,
-            logged_inference_names=logged_inference_names,
             name=name,
             project_id=project_id,
             dataset_hash=dataset_hash,
@@ -256,6 +275,8 @@ class RunDB:
             task_type=task_type,
             run_tags=run_tags,
             example_content_id=example_content_id,
+            logged_splits=logged_splits,
+            logged_inference_names=logged_inference_names,
         )
 
         run_db.additional_properties = d

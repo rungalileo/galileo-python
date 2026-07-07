@@ -9,6 +9,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.and_node_log_records_filter import AndNodeLogRecordsFilter
     from ..models.chain_poll_template import ChainPollTemplate
+    from ..models.file_content_part import FileContentPart
     from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
     from ..models.generated_scorer_configuration import GeneratedScorerConfiguration
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
     from ..models.log_records_text_filter import LogRecordsTextFilter
     from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
     from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
+    from ..models.text_content_part import TextContentPart
 
 
 T = TypeVar("T", bound="ValidateLLMScorerLogRecordRequest")
@@ -31,8 +33,7 @@ class ValidateLLMScorerLogRecordRequest:
     """Request to validate a new LLM scorer based on a log record.
     This is used to create a new experiment with the copied log records to store the metric testing results.
 
-    Attributes
-    ----------
+        Attributes:
             query (str):
             response (str):
             chain_poll_template (ChainPollTemplate): Template for a chainpoll metric prompt,
@@ -55,6 +56,12 @@ class ValidateLLMScorerLogRecordRequest:
             truncate_fields (Union[Unset, bool]):  Default: False.
             include_counts (Union[Unset, bool]): If True, include computed child counts (e.g., num_traces for sessions,
                 num_spans for traces). Default: False.
+            include_code_metric_metadata (Union[Unset, bool]): If True, include per-row scorer metadata (the dict returned
+                alongside the score by code-based scorers via the (score, metadata) tuple-return contract) on each MetricSuccess
+                in the response. Off by default to keep payloads small for callers that don't need it. Default: False.
+            normalized_input (Union[None, Unset, list[Union['FileContentPart', 'TextContentPart']]]): Optional multimodal
+                content parts. When set, replaces the text-only query/response formatting in the validation job so that file
+                content is passed through to the LLM.
     """
 
     query: str
@@ -62,15 +69,15 @@ class ValidateLLMScorerLogRecordRequest:
     chain_poll_template: "ChainPollTemplate"
     scorer_configuration: "GeneratedScorerConfiguration"
     user_prompt: str
-    starting_token: Unset | int = 0
-    limit: Unset | int = 100
-    previous_last_row_id: None | Unset | str = UNSET
-    log_stream_id: None | Unset | str = UNSET
-    experiment_id: None | Unset | str = UNSET
-    metrics_testing_id: None | Unset | str = UNSET
-    filters: (
-        Unset
-        | list[
+    starting_token: Union[Unset, int] = 0
+    limit: Union[Unset, int] = 100
+    previous_last_row_id: Union[None, Unset, str] = UNSET
+    log_stream_id: Union[None, Unset, str] = UNSET
+    experiment_id: Union[None, Unset, str] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
+    filters: Union[
+        Unset,
+        list[
             Union[
                 "LogRecordsBooleanFilter",
                 "LogRecordsCollectionFilter",
@@ -80,8 +87,8 @@ class ValidateLLMScorerLogRecordRequest:
                 "LogRecordsNumberFilter",
                 "LogRecordsTextFilter",
             ]
-        ]
-    ) = UNSET
+        ],
+    ] = UNSET
     filter_tree: Union[
         "AndNodeLogRecordsFilter",
         "FilterLeafLogRecordsFilter",
@@ -91,8 +98,10 @@ class ValidateLLMScorerLogRecordRequest:
         Unset,
     ] = UNSET
     sort: Union["LogRecordsSortClause", None, Unset] = UNSET
-    truncate_fields: Unset | bool = False
-    include_counts: Unset | bool = False
+    truncate_fields: Union[Unset, bool] = False
+    include_counts: Union[Unset, bool] = False
+    include_code_metric_metadata: Union[Unset, bool] = False
+    normalized_input: Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -107,6 +116,7 @@ class ValidateLLMScorerLogRecordRequest:
         from ..models.log_records_text_filter import LogRecordsTextFilter
         from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
         from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
+        from ..models.text_content_part import TextContentPart
 
         query = self.query
 
@@ -122,49 +132,67 @@ class ValidateLLMScorerLogRecordRequest:
 
         limit = self.limit
 
-        previous_last_row_id: None | Unset | str
-        previous_last_row_id = UNSET if isinstance(self.previous_last_row_id, Unset) else self.previous_last_row_id
+        previous_last_row_id: Union[None, Unset, str]
+        if isinstance(self.previous_last_row_id, Unset):
+            previous_last_row_id = UNSET
+        else:
+            previous_last_row_id = self.previous_last_row_id
 
-        log_stream_id: None | Unset | str
-        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
+        log_stream_id: Union[None, Unset, str]
+        if isinstance(self.log_stream_id, Unset):
+            log_stream_id = UNSET
+        else:
+            log_stream_id = self.log_stream_id
 
-        experiment_id: None | Unset | str
-        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
+        experiment_id: Union[None, Unset, str]
+        if isinstance(self.experiment_id, Unset):
+            experiment_id = UNSET
+        else:
+            experiment_id = self.experiment_id
 
-        metrics_testing_id: None | Unset | str
-        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
+        metrics_testing_id: Union[None, Unset, str]
+        if isinstance(self.metrics_testing_id, Unset):
+            metrics_testing_id = UNSET
+        else:
+            metrics_testing_id = self.metrics_testing_id
 
-        filters: Unset | list[dict[str, Any]] = UNSET
+        filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
-                if isinstance(
-                    filters_item_data,
-                    LogRecordsIDFilter
-                    | LogRecordsDateFilter
-                    | LogRecordsNumberFilter
-                    | LogRecordsBooleanFilter
-                    | (LogRecordsCollectionFilter | LogRecordsTextFilter),
-                ):
+                if isinstance(filters_item_data, LogRecordsIDFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsDateFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsNumberFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsBooleanFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsCollectionFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, LogRecordsTextFilter):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
 
                 filters.append(filters_item)
 
-        filter_tree: None | Unset | dict[str, Any]
+        filter_tree: Union[None, Unset, dict[str, Any]]
         if isinstance(self.filter_tree, Unset):
             filter_tree = UNSET
-        elif isinstance(
-            self.filter_tree,
-            FilterLeafLogRecordsFilter | AndNodeLogRecordsFilter | OrNodeLogRecordsFilter | NotNodeLogRecordsFilter,
-        ):
+        elif isinstance(self.filter_tree, FilterLeafLogRecordsFilter):
+            filter_tree = self.filter_tree.to_dict()
+        elif isinstance(self.filter_tree, AndNodeLogRecordsFilter):
+            filter_tree = self.filter_tree.to_dict()
+        elif isinstance(self.filter_tree, OrNodeLogRecordsFilter):
+            filter_tree = self.filter_tree.to_dict()
+        elif isinstance(self.filter_tree, NotNodeLogRecordsFilter):
             filter_tree = self.filter_tree.to_dict()
         else:
             filter_tree = self.filter_tree
 
-        sort: None | Unset | dict[str, Any]
+        sort: Union[None, Unset, dict[str, Any]]
         if isinstance(self.sort, Unset):
             sort = UNSET
         elif isinstance(self.sort, LogRecordsSortClause):
@@ -175,6 +203,25 @@ class ValidateLLMScorerLogRecordRequest:
         truncate_fields = self.truncate_fields
 
         include_counts = self.include_counts
+
+        include_code_metric_metadata = self.include_code_metric_metadata
+
+        normalized_input: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.normalized_input, Unset):
+            normalized_input = UNSET
+        elif isinstance(self.normalized_input, list):
+            normalized_input = []
+            for normalized_input_type_0_item_data in self.normalized_input:
+                normalized_input_type_0_item: dict[str, Any]
+                if isinstance(normalized_input_type_0_item_data, TextContentPart):
+                    normalized_input_type_0_item = normalized_input_type_0_item_data.to_dict()
+                else:
+                    normalized_input_type_0_item = normalized_input_type_0_item_data.to_dict()
+
+                normalized_input.append(normalized_input_type_0_item)
+
+        else:
+            normalized_input = self.normalized_input
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -209,6 +256,10 @@ class ValidateLLMScorerLogRecordRequest:
             field_dict["truncate_fields"] = truncate_fields
         if include_counts is not UNSET:
             field_dict["include_counts"] = include_counts
+        if include_code_metric_metadata is not UNSET:
+            field_dict["include_code_metric_metadata"] = include_code_metric_metadata
+        if normalized_input is not UNSET:
+            field_dict["normalized_input"] = normalized_input
 
         return field_dict
 
@@ -216,6 +267,7 @@ class ValidateLLMScorerLogRecordRequest:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.and_node_log_records_filter import AndNodeLogRecordsFilter
         from ..models.chain_poll_template import ChainPollTemplate
+        from ..models.file_content_part import FileContentPart
         from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
         from ..models.generated_scorer_configuration import GeneratedScorerConfiguration
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
@@ -228,6 +280,7 @@ class ValidateLLMScorerLogRecordRequest:
         from ..models.log_records_text_filter import LogRecordsTextFilter
         from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
         from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
+        from ..models.text_content_part import TextContentPart
 
         d = dict(src_dict)
         query = d.pop("query")
@@ -244,39 +297,39 @@ class ValidateLLMScorerLogRecordRequest:
 
         limit = d.pop("limit", UNSET)
 
-        def _parse_previous_last_row_id(data: object) -> None | Unset | str:
+        def _parse_previous_last_row_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         previous_last_row_id = _parse_previous_last_row_id(d.pop("previous_last_row_id", UNSET))
 
-        def _parse_log_stream_id(data: object) -> None | Unset | str:
+        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        def _parse_experiment_id(data: object) -> None | Unset | str:
+        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_metrics_testing_id(data: object) -> None | Unset | str:
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(Union[None, Unset, str], data)
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
@@ -298,48 +351,56 @@ class ValidateLLMScorerLogRecordRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsIDFilter.from_dict(data)
+                    filters_item_type_0 = LogRecordsIDFilter.from_dict(data)
 
+                    return filters_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsDateFilter.from_dict(data)
+                    filters_item_type_1 = LogRecordsDateFilter.from_dict(data)
 
+                    return filters_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsNumberFilter.from_dict(data)
+                    filters_item_type_2 = LogRecordsNumberFilter.from_dict(data)
 
+                    return filters_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsBooleanFilter.from_dict(data)
+                    filters_item_type_3 = LogRecordsBooleanFilter.from_dict(data)
 
+                    return filters_item_type_3
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsCollectionFilter.from_dict(data)
+                    filters_item_type_4 = LogRecordsCollectionFilter.from_dict(data)
 
+                    return filters_item_type_4
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsTextFilter.from_dict(data)
+                    filters_item_type_5 = LogRecordsTextFilter.from_dict(data)
 
+                    return filters_item_type_5
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsFullyAnnotatedFilter.from_dict(data)
+                filters_item_type_6 = LogRecordsFullyAnnotatedFilter.from_dict(data)
+
+                return filters_item_type_6
 
             filters_item = _parse_filters_item(filters_item_data)
 
@@ -362,29 +423,41 @@ class ValidateLLMScorerLogRecordRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return FilterLeafLogRecordsFilter.from_dict(data)
+                componentsschemas_filter_expression_annotated_union_log_records_id_filter_log_records_date_filter_log_records_number_filter_log_records_boolean_filter_log_records_collection_filter_log_records_text_filter_log_records_fully_annotated_filter_field_info_annotation_none_type_required_true_discriminator_type_type_0 = FilterLeafLogRecordsFilter.from_dict(
+                    data
+                )
 
+                return componentsschemas_filter_expression_annotated_union_log_records_id_filter_log_records_date_filter_log_records_number_filter_log_records_boolean_filter_log_records_collection_filter_log_records_text_filter_log_records_fully_annotated_filter_field_info_annotation_none_type_required_true_discriminator_type_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return AndNodeLogRecordsFilter.from_dict(data)
+                componentsschemas_filter_expression_annotated_union_log_records_id_filter_log_records_date_filter_log_records_number_filter_log_records_boolean_filter_log_records_collection_filter_log_records_text_filter_log_records_fully_annotated_filter_field_info_annotation_none_type_required_true_discriminator_type_type_1 = AndNodeLogRecordsFilter.from_dict(
+                    data
+                )
 
+                return componentsschemas_filter_expression_annotated_union_log_records_id_filter_log_records_date_filter_log_records_number_filter_log_records_boolean_filter_log_records_collection_filter_log_records_text_filter_log_records_fully_annotated_filter_field_info_annotation_none_type_required_true_discriminator_type_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return OrNodeLogRecordsFilter.from_dict(data)
+                componentsschemas_filter_expression_annotated_union_log_records_id_filter_log_records_date_filter_log_records_number_filter_log_records_boolean_filter_log_records_collection_filter_log_records_text_filter_log_records_fully_annotated_filter_field_info_annotation_none_type_required_true_discriminator_type_type_2 = OrNodeLogRecordsFilter.from_dict(
+                    data
+                )
 
+                return componentsschemas_filter_expression_annotated_union_log_records_id_filter_log_records_date_filter_log_records_number_filter_log_records_boolean_filter_log_records_collection_filter_log_records_text_filter_log_records_fully_annotated_filter_field_info_annotation_none_type_required_true_discriminator_type_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return NotNodeLogRecordsFilter.from_dict(data)
+                componentsschemas_filter_expression_annotated_union_log_records_id_filter_log_records_date_filter_log_records_number_filter_log_records_boolean_filter_log_records_collection_filter_log_records_text_filter_log_records_fully_annotated_filter_field_info_annotation_none_type_required_true_discriminator_type_type_3 = NotNodeLogRecordsFilter.from_dict(
+                    data
+                )
 
+                return componentsschemas_filter_expression_annotated_union_log_records_id_filter_log_records_date_filter_log_records_number_filter_log_records_boolean_filter_log_records_collection_filter_log_records_text_filter_log_records_fully_annotated_filter_field_info_annotation_none_type_required_true_discriminator_type_type_3
             except:  # noqa: E722
                 pass
             return cast(
@@ -409,8 +482,9 @@ class ValidateLLMScorerLogRecordRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsSortClause.from_dict(data)
+                sort_type_0 = LogRecordsSortClause.from_dict(data)
 
+                return sort_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["LogRecordsSortClause", None, Unset], data)
@@ -420,6 +494,52 @@ class ValidateLLMScorerLogRecordRequest:
         truncate_fields = d.pop("truncate_fields", UNSET)
 
         include_counts = d.pop("include_counts", UNSET)
+
+        include_code_metric_metadata = d.pop("include_code_metric_metadata", UNSET)
+
+        def _parse_normalized_input(
+            data: object,
+        ) -> Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                normalized_input_type_0 = []
+                _normalized_input_type_0 = data
+                for normalized_input_type_0_item_data in _normalized_input_type_0:
+
+                    def _parse_normalized_input_type_0_item(
+                        data: object,
+                    ) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            normalized_input_type_0_item_type_0 = TextContentPart.from_dict(data)
+
+                            return normalized_input_type_0_item_type_0
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        normalized_input_type_0_item_type_1 = FileContentPart.from_dict(data)
+
+                        return normalized_input_type_0_item_type_1
+
+                    normalized_input_type_0_item = _parse_normalized_input_type_0_item(
+                        normalized_input_type_0_item_data
+                    )
+
+                    normalized_input_type_0.append(normalized_input_type_0_item)
+
+                return normalized_input_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[Union["FileContentPart", "TextContentPart"]]], data)
+
+        normalized_input = _parse_normalized_input(d.pop("normalized_input", UNSET))
 
         validate_llm_scorer_log_record_request = cls(
             query=query,
@@ -438,6 +558,8 @@ class ValidateLLMScorerLogRecordRequest:
             sort=sort,
             truncate_fields=truncate_fields,
             include_counts=include_counts,
+            include_code_metric_metadata=include_code_metric_metadata,
+            normalized_input=normalized_input,
         )
 
         validate_llm_scorer_log_record_request.additional_properties = d

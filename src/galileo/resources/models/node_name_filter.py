@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -14,8 +14,7 @@ T = TypeVar("T", bound="NodeNameFilter")
 class NodeNameFilter:
     """Filters on node names in scorer jobs.
 
-    Attributes
-    ----------
+    Attributes:
         operator (NodeNameFilterOperator):
         value (Union[list[str], str]):
         name (Union[Literal['node_name'], Unset]):  Default: 'node_name'.
@@ -23,16 +22,20 @@ class NodeNameFilter:
     """
 
     operator: NodeNameFilterOperator
-    value: list[str] | str
-    name: Literal["node_name"] | Unset = "node_name"
-    case_sensitive: Unset | bool = True
+    value: Union[list[str], str]
+    name: Union[Literal["node_name"], Unset] = "node_name"
+    case_sensitive: Union[Unset, bool] = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         operator = self.operator.value
 
-        value: list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
+        value: Union[list[str], str]
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         name = self.name
 
@@ -53,19 +56,20 @@ class NodeNameFilter:
         d = dict(src_dict)
         operator = NodeNameFilterOperator(d.pop("operator"))
 
-        def _parse_value(data: object) -> list[str] | str:
+        def _parse_value(data: object) -> Union[list[str], str]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
-            return cast(list[str] | str, data)
+            return cast(Union[list[str], str], data)
 
         value = _parse_value(d.pop("value"))
 
-        name = cast(Literal["node_name"] | Unset, d.pop("name", UNSET))
+        name = cast(Union[Literal["node_name"], Unset], d.pop("name", UNSET))
         if name != "node_name" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'node_name', got '{name}'")
 

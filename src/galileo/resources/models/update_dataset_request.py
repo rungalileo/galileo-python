@@ -17,8 +17,7 @@ T = TypeVar("T", bound="UpdateDatasetRequest")
 @_attrs_define
 class UpdateDatasetRequest:
     """
-    Attributes
-    ----------
+    Attributes:
         name (Union['Name', None, Unset, str]):
         column_mapping (Union['ColumnMapping', None, Unset]):
         draft (Union[None, Unset, bool]):
@@ -26,14 +25,14 @@ class UpdateDatasetRequest:
 
     name: Union["Name", None, Unset, str] = UNSET
     column_mapping: Union["ColumnMapping", None, Unset] = UNSET
-    draft: None | Unset | bool = UNSET
+    draft: Union[None, Unset, bool] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.column_mapping import ColumnMapping
         from ..models.name import Name
 
-        name: None | Unset | dict[str, Any] | str
+        name: Union[None, Unset, dict[str, Any], str]
         if isinstance(self.name, Unset):
             name = UNSET
         elif isinstance(self.name, Name):
@@ -41,7 +40,7 @@ class UpdateDatasetRequest:
         else:
             name = self.name
 
-        column_mapping: None | Unset | dict[str, Any]
+        column_mapping: Union[None, Unset, dict[str, Any]]
         if isinstance(self.column_mapping, Unset):
             column_mapping = UNSET
         elif isinstance(self.column_mapping, ColumnMapping):
@@ -49,8 +48,11 @@ class UpdateDatasetRequest:
         else:
             column_mapping = self.column_mapping
 
-        draft: None | Unset | bool
-        draft = UNSET if isinstance(self.draft, Unset) else self.draft
+        draft: Union[None, Unset, bool]
+        if isinstance(self.draft, Unset):
+            draft = UNSET
+        else:
+            draft = self.draft
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -79,8 +81,9 @@ class UpdateDatasetRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return Name.from_dict(data)
+                name_type_1 = Name.from_dict(data)
 
+                return name_type_1
             except:  # noqa: E722
                 pass
             return cast(Union["Name", None, Unset, str], data)
@@ -95,20 +98,21 @@ class UpdateDatasetRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ColumnMapping.from_dict(data)
+                column_mapping_type_0 = ColumnMapping.from_dict(data)
 
+                return column_mapping_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ColumnMapping", None, Unset], data)
 
         column_mapping = _parse_column_mapping(d.pop("column_mapping", UNSET))
 
-        def _parse_draft(data: object) -> None | Unset | bool:
+        def _parse_draft(data: object) -> Union[None, Unset, bool]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | bool, data)
+            return cast(Union[None, Unset, bool], data)
 
         draft = _parse_draft(d.pop("draft", UNSET))
 

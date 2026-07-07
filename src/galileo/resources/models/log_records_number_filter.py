@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -13,8 +13,7 @@ T = TypeVar("T", bound="LogRecordsNumberFilter")
 @_attrs_define
 class LogRecordsNumberFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         column_id (str): ID of the column to filter.
         operator (LogRecordsNumberFilterOperator):
         value (Union[float, int, list[float], list[int]]):
@@ -23,8 +22,8 @@ class LogRecordsNumberFilter:
 
     column_id: str
     operator: LogRecordsNumberFilterOperator
-    value: float | int | list[float] | list[int]
-    type_: Literal["number"] | Unset = "number"
+    value: Union[float, int, list[float], list[int]]
+    type_: Union[Literal["number"], Unset] = "number"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,8 +31,15 @@ class LogRecordsNumberFilter:
 
         operator = self.operator.value
 
-        value: float | int | list[float] | list[int]
-        value = self.value if isinstance(self.value, list | list) else self.value
+        value: Union[float, int, list[float], list[int]]
+        if isinstance(self.value, list):
+            value = self.value
+
+        elif isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         type_ = self.type_
 
@@ -52,26 +58,28 @@ class LogRecordsNumberFilter:
 
         operator = LogRecordsNumberFilterOperator(d.pop("operator"))
 
-        def _parse_value(data: object) -> float | int | list[float] | list[int]:
+        def _parse_value(data: object) -> Union[float, int, list[float], list[int]]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[int], data)
+                value_type_2 = cast(list[int], data)
 
+                return value_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[float], data)
+                value_type_3 = cast(list[float], data)
 
+                return value_type_3
             except:  # noqa: E722
                 pass
-            return cast(float | int | list[float] | list[int], data)
+            return cast(Union[float, int, list[float], list[int]], data)
 
         value = _parse_value(d.pop("value"))
 
-        type_ = cast(Literal["number"] | Unset, d.pop("type", UNSET))
+        type_ = cast(Union[Literal["number"], Unset], d.pop("type", UNSET))
         if type_ != "number" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'number', got '{type_}'")
 

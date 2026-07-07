@@ -16,8 +16,7 @@ T = TypeVar("T", bound="ExperimentStatus")
 @_attrs_define
 class ExperimentStatus:
     """
-    Attributes
-    ----------
+    Attributes:
         log_generation (Union[Unset, ExperimentPhaseStatus]):
     """
 
@@ -25,7 +24,7 @@ class ExperimentStatus:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        log_generation: Unset | dict[str, Any] = UNSET
+        log_generation: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.log_generation, Unset):
             log_generation = self.log_generation.to_dict()
 
@@ -43,7 +42,7 @@ class ExperimentStatus:
 
         d = dict(src_dict)
         _log_generation = d.pop("log_generation", UNSET)
-        log_generation: Unset | ExperimentPhaseStatus
+        log_generation: Union[Unset, ExperimentPhaseStatus]
         if isinstance(_log_generation, Unset):
             log_generation = UNSET
         else:

@@ -19,8 +19,7 @@ class GroundednessTemplate:
     r"""Template for the groundedness metric,
     containing all the info necessary to send the groundedness prompt.
 
-    Attributes
-    ----------
+        Attributes:
             metric_system_prompt (Union[Unset, str]):  Default: 'The user will provide you with a prompt that was sent to an
                 automatic question-answering system, and that system\'s response. Both will be provided as JSON strings.\n\nThe
                 prompt will contain one or more documents intended as context which the question-answering system was given as
@@ -44,16 +43,18 @@ class GroundednessTemplate:
             response_schema (Union['GroundednessTemplateResponseSchemaType0', None, Unset]): Response schema for the output
     """
 
-    metric_system_prompt: Unset | str = (
+    metric_system_prompt: Union[Unset, str] = (
         'The user will provide you with a prompt that was sent to an automatic question-answering system, and that system\'s response. Both will be provided as JSON strings.\n\nThe prompt will contain one or more documents intended as context which the question-answering system was given as reference material.\n\nYour task is to determine whether the answer was supported by the documents.\n\nThink step by step, and explain your reasoning carefully.\nState your observations first, before drawing any conclusions.\n\nRespond in the following JSON format:\n\n```\n{\n    \\"explanation\\": string,\n    \\"was_supported\\": boolean\n}\n```\n\n\\"explanation\\": Your step-by-step reasoning process. List out the claims made in the response, and for each claim, provide a detailed explanation of why that claim is or is not supported by the documents.\n\n\\"was_supported\\": `true` if the response was supported by the documents, `false` otherwise.\n\nYou must respond with valid JSON.'
     )
-    metric_description: Unset | str = (
+    metric_description: Union[Unset, str] = (
         "I have a RAG (retrieval-augmented generation) system that generates text based on one or more documents that I always include in my prompts. I want a metric that checks whether the generated text was supported by information in the documents. The metric should exhaustively check each claim in the response against the documents, one by one, listing them out explicitly."
     )
-    value_field_name: Unset | str = "was_supported"
-    explanation_field_name: Unset | str = "explanation"
-    template: Unset | str = "Prompt JSON:\n\n```\n{query_json}\n```\n\nResponse JSON:\n\n```\n{response_json}\n```"
-    metric_few_shot_examples: Unset | list["FewShotExample"] = UNSET
+    value_field_name: Union[Unset, str] = "was_supported"
+    explanation_field_name: Union[Unset, str] = "explanation"
+    template: Union[Unset, str] = (
+        "Prompt JSON:\n\n```\n{query_json}\n```\n\nResponse JSON:\n\n```\n{response_json}\n```"
+    )
+    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
     response_schema: Union["GroundednessTemplateResponseSchemaType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -70,14 +71,14 @@ class GroundednessTemplate:
 
         template = self.template
 
-        metric_few_shot_examples: Unset | list[dict[str, Any]] = UNSET
+        metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
             metric_few_shot_examples = []
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
-        response_schema: None | Unset | dict[str, Any]
+        response_schema: Union[None, Unset, dict[str, Any]]
         if isinstance(self.response_schema, Unset):
             response_schema = UNSET
         elif isinstance(self.response_schema, GroundednessTemplateResponseSchemaType0):
@@ -136,8 +137,9 @@ class GroundednessTemplate:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return GroundednessTemplateResponseSchemaType0.from_dict(data)
+                response_schema_type_0 = GroundednessTemplateResponseSchemaType0.from_dict(data)
 
+                return response_schema_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["GroundednessTemplateResponseSchemaType0", None, Unset], data)
