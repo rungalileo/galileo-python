@@ -23,6 +23,7 @@ from galileo.annotation_queues import (
     update_annotation_queue_template,
     update_annotation_queue_user,
 )
+from galileo.exceptions import NotFoundError
 from galileo.resources.models.annotation_queue_response import AnnotationQueueResponse
 from galileo.resources.models.annotation_template_db import AnnotationTemplateDB
 from galileo.resources.models.collaborator_role import CollaboratorRole
@@ -338,6 +339,23 @@ def test_delete_annotation_queue_by_id_returns_none(
 
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
+@patch("galileo.annotation_queues.delete_annotation_queue_annotation_queues_queue_id_delete.sync")
+@patch("galileo.annotation_queues.get_annotation_queue_annotation_queues_queue_id_get.sync")
+def test_delete_annotation_queue_by_id_raises_value_error_when_missing(
+    mock_get_queue: Mock, mock_delete: Mock, mock_get_config: Mock, mock_config: Mock
+):
+    # Given: the generated get endpoint raises 404 for a missing queue
+    mock_get_config.return_value = mock_config
+    mock_get_queue.side_effect = NotFoundError(404, b"not found")
+
+    # When/Then: deleting a missing queue raises the SDK-level not found error
+    with pytest.raises(ValueError, match="Annotation queue queue-123 not found"):
+        delete_annotation_queue(id=" queue-123 ")
+
+    mock_delete.assert_not_called()
+
+
+@patch("galileo.annotation_queues.GalileoPythonConfig.get")
 @patch("galileo.annotation_queues.remove_annotation_queue_user_annotation_queues_queue_id_users_user_id_delete.sync")
 def test_remove_annotation_queue_user_returns_none(mock_remove: Mock, mock_get_config: Mock, mock_config: Mock):
     # Given: a successful remove user response
@@ -381,6 +399,22 @@ def test_get_annotation_queue_by_id_returns_queue(mock_get_queue: Mock, mock_get
     assert queue is not None
     assert queue.id == "queue-123"
     mock_get_queue.assert_called_once_with(queue_id="queue-123", client=ANY)
+
+
+@patch("galileo.annotation_queues.GalileoPythonConfig.get")
+@patch("galileo.annotation_queues.get_annotation_queue_annotation_queues_queue_id_get.sync")
+def test_get_annotation_queue_by_id_returns_none_when_missing(
+    mock_get_queue: Mock, mock_get_config: Mock, mock_config: Mock
+):
+    # Given: the generated get endpoint raises 404 for a missing queue
+    mock_get_config.return_value = mock_config
+    mock_get_queue.side_effect = NotFoundError(404, b"not found")
+
+    # When: retrieving a missing annotation queue by ID
+    queue = get_annotation_queue(id=" queue-123 ")
+
+    # Then: the SDK returns None like the name lookup path
+    assert queue is None
 
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")

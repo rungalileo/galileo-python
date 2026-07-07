@@ -5,6 +5,7 @@ import datetime
 from typing import TypeAlias, cast, overload
 
 from galileo.config import GalileoPythonConfig
+from galileo.exceptions import NotFoundError
 from galileo.resources.api.annotation_queue import (
     create_annotation_queue_annotation_queues_post,
     create_queue_template_annotation_queues_queue_id_templates_post,
@@ -283,9 +284,12 @@ class AnnotationQueues:
             if not id:
                 raise ValueError("'id' must be provided.")
 
-            response = get_annotation_queue_annotation_queues_queue_id_get.sync(
-                queue_id=id, client=self.config.api_client
-            )
+            try:
+                response = get_annotation_queue_annotation_queues_queue_id_get.sync(
+                    queue_id=id, client=self.config.api_client
+                )
+            except NotFoundError:
+                return None
             if response is None:
                 return None
             return _to_annotation_queue(response, "get")
@@ -593,7 +597,8 @@ class AnnotationQueues:
         """
         queue = self.get(id=id, name=name)  # type: ignore[call-overload]
         if not queue:
-            raise ValueError(f"Annotation queue {name or id} not found")
+            queue_identifier = (name or id or "").strip()
+            raise ValueError(f"Annotation queue {queue_identifier} not found")
 
         response = delete_annotation_queue_annotation_queues_queue_id_delete.sync(
             queue_id=queue.id, client=self.config.api_client
