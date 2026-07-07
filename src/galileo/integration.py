@@ -386,7 +386,7 @@ class Integration(StateManagementMixin):
 
             # Cast is safe because we checked for strings above
             providers = cast(list[Provider], providers_list)
-            matching = [p for p in providers if p.name == integration_name]
+            matching = [p for p in providers if p._get_integration_provider().value == integration_name]
 
             if not matching:
                 logger.debug(f"Integration.{integration_name}: No '{integration_name}' integration configured.")

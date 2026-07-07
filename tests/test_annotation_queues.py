@@ -32,6 +32,9 @@ from galileo.resources.models.list_annotation_queue_collaborators_response impor
     ListAnnotationQueueCollaboratorsResponse,
 )
 from galileo.resources.models.list_annotation_queue_response import ListAnnotationQueueResponse
+from galileo.resources.models.tree_choice_constraints import TreeChoiceConstraints
+from galileo.resources.models.tree_choice_db_constraints import TreeChoiceDBConstraints
+from galileo.resources.models.tree_choice_node import TreeChoiceNode
 from galileo.resources.models.user_annotation_queue_collaborator import UserAnnotationQueueCollaborator
 from galileo.resources.models.validation_error import ValidationError
 from galileo.resources.types import UNSET
@@ -120,6 +123,23 @@ def test_annotation_queue_wraps_templates():
     # Then: templates are exposed as SDK annotation template objects
     assert isinstance(queue.templates[0], AnnotationTemplate)
     assert queue.templates[0].id == "template-123"
+
+
+def test_annotation_template_converts_tree_choice_db_constraints():
+    # Given: a generated template response with response-only tree choice constraints
+    response = make_annotation_template_response()
+    response.constraints = TreeChoiceDBConstraints(
+        annotation_type="tree_choice",
+        choices_tree=[TreeChoiceNode(label="Helpful", id="helpful")],
+        choices_tree_yaml="- id: helpful\n  label: Helpful",
+    )
+
+    # When: wrapping the response in an SDK annotation template
+    template = AnnotationTemplate(response)
+
+    # Then: constraints are exposed with the public tree choice type
+    assert isinstance(template.constraints, TreeChoiceConstraints)
+    assert template.constraints.choices_tree_yaml == "- id: helpful\n  label: Helpful"
 
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import builtins
 import datetime
-from typing import cast, overload
+from typing import TypeAlias, cast, overload
 
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.annotation_queue import (
@@ -46,6 +47,7 @@ from galileo.resources.models.star_constraints import StarConstraints
 from galileo.resources.models.tags_constraints import TagsConstraints
 from galileo.resources.models.text_constraints import TextConstraints
 from galileo.resources.models.tree_choice_constraints import TreeChoiceConstraints
+from galileo.resources.models.tree_choice_db_constraints import TreeChoiceDBConstraints
 from galileo.resources.models.update_annotation_queue_request import UpdateAnnotationQueueRequest
 from galileo.resources.models.user_annotation_queue_collaborator import UserAnnotationQueueCollaborator
 from galileo.resources.models.user_info import UserInfo
@@ -57,7 +59,7 @@ class AnnotationQueuesAPIException(APIException):
     pass
 
 
-AnnotationTemplateConstraints = (
+AnnotationTemplateConstraints: TypeAlias = (
     ChoiceConstraints
     | LikeDislikeConstraints
     | ScoreConstraints
@@ -66,6 +68,7 @@ AnnotationTemplateConstraints = (
     | TextConstraints
     | TreeChoiceConstraints
 )
+_AnnotationTemplateResponseConstraints: TypeAlias = AnnotationTemplateConstraints | TreeChoiceDBConstraints
 
 
 class AnnotationTemplate:
@@ -74,7 +77,7 @@ class AnnotationTemplate:
     id: str
     name: str
     include_explanation: bool
-    constraints: object
+    constraints: AnnotationTemplateConstraints
     created_at: datetime.datetime
     created_by: str | None
     position: int
@@ -85,7 +88,7 @@ class AnnotationTemplate:
         self.id = template.id
         self.name = template.name
         self.include_explanation = template.include_explanation
-        self.constraints = template.constraints
+        self.constraints = _to_annotation_template_constraints(template.constraints)
         self.created_at = template.created_at
         self.created_by = template.created_by
         self.position = template.position
@@ -190,7 +193,7 @@ class AnnotationQueues:
         list_response = _to_annotation_queue_list(response)
         return [AnnotationQueue(queue=queue) for queue in list_response.annotation_queues]
 
-    def list_users(self, queue_id: str) -> list[AnnotationQueueUser]:
+    def list_users(self, queue_id: str) -> builtins.list[AnnotationQueueUser]:
         """
         List users who have access to an annotation queue.
 
@@ -208,7 +211,7 @@ class AnnotationQueues:
         if not queue_id:
             raise ValueError("'queue_id' must be provided.")
 
-        users: list[AnnotationQueueUser] = []
+        users: builtins.list[AnnotationQueueUser] = []
         starting_token: int | None = 0
 
         while starting_token is not None:
@@ -225,7 +228,7 @@ class AnnotationQueues:
 
         return users
 
-    def list_templates(self, queue_id: str) -> list[AnnotationTemplate]:
+    def list_templates(self, queue_id: str) -> builtins.list[AnnotationTemplate]:
         """
         List templates for an annotation queue.
 
@@ -307,7 +310,7 @@ class AnnotationQueues:
         self,
         name: str,
         description: str | None = None,
-        annotator_emails: list[str] | None = None,
+        annotator_emails: builtins.list[str] | None = None,
         copy_templates_from_queue_id: str | None = None,
     ) -> AnnotationQueue:
         """
@@ -886,6 +889,18 @@ def _to_annotation_template(
     if response is None:
         raise AnnotationQueuesAPIException(f"Failed to {operation} annotation queue template: no response")
     return AnnotationTemplate(template=response)
+
+
+def _to_annotation_template_constraints(
+    constraints: _AnnotationTemplateResponseConstraints,
+) -> AnnotationTemplateConstraints:
+    if isinstance(constraints, TreeChoiceDBConstraints):
+        return TreeChoiceConstraints(
+            annotation_type=constraints.annotation_type,
+            choices_tree=constraints.choices_tree,
+            choices_tree_yaml=constraints.choices_tree_yaml,
+        )
+    return cast(AnnotationTemplateConstraints, constraints)
 
 
 def _format_validation_error(error: HTTPValidationError) -> str:
