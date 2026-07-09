@@ -21,8 +21,16 @@ from galileo.resources.api.annotation_queue import (
     update_annotation_queue_user_role_annotation_queues_queue_id_users_user_id_patch,
     update_queue_template_annotation_queues_queue_id_templates_template_id_patch,
 )
+from galileo.resources.api.annotation_queue_records import (
+    add_records_to_annotation_queue_annotation_queues_queue_id_records_post,
+    remove_records_from_annotation_queue_annotation_queues_queue_id_records_remove_post,
+)
+from galileo.resources.models.add_records_to_queue_request import AddRecordsToQueueRequest
+from galileo.resources.models.add_records_to_queue_response import AddRecordsToQueueResponse
 from galileo.resources.models.annotation_queue_name_filter import AnnotationQueueNameFilter
 from galileo.resources.models.annotation_queue_name_filter_operator import AnnotationQueueNameFilterOperator
+from galileo.resources.models.annotation_queue_records_by_filter_tree import AnnotationQueueRecordsByFilterTree
+from galileo.resources.models.annotation_queue_records_by_record_i_ds import AnnotationQueueRecordsByRecordIDs
 from galileo.resources.models.annotation_queue_response import AnnotationQueueResponse
 from galileo.resources.models.annotation_queue_updated_at_sort import AnnotationQueueUpdatedAtSort
 from galileo.resources.models.annotation_queue_user_collaborator_create import AnnotationQueueUserCollaboratorCreate
@@ -43,6 +51,8 @@ from galileo.resources.models.list_annotation_queue_params import ListAnnotation
 from galileo.resources.models.list_annotation_queue_response import ListAnnotationQueueResponse
 from galileo.resources.models.name import Name
 from galileo.resources.models.permission import Permission
+from galileo.resources.models.remove_records_from_queue_request import RemoveRecordsFromQueueRequest
+from galileo.resources.models.remove_records_from_queue_response import RemoveRecordsFromQueueResponse
 from galileo.resources.models.score_constraints import ScoreConstraints
 from galileo.resources.models.star_constraints import StarConstraints
 from galileo.resources.models.tags_constraints import TagsConstraints
@@ -70,6 +80,7 @@ AnnotationTemplateConstraints: TypeAlias = (
     | TreeChoiceConstraints
 )
 _AnnotationTemplateResponseConstraints: TypeAlias = AnnotationTemplateConstraints | TreeChoiceDBConstraints
+AnnotationQueueRecordSelector: TypeAlias = AnnotationQueueRecordsByRecordIDs | AnnotationQueueRecordsByFilterTree
 
 
 class AnnotationTemplate:
@@ -351,6 +362,87 @@ class AnnotationQueues:
 
         response = create_annotation_queue_annotation_queues_post.sync(client=self.config.api_client, body=body)
         return _to_annotation_queue(response, "create")
+
+    def add_records(
+        self,
+        queue_id: str,
+        *,
+        project_id: str,
+        log_stream_id: str | None = None,
+        experiment_id: str | None = None,
+        record_ids: builtins.list[str] | None = None,
+        record_selector: AnnotationQueueRecordSelector | None = None,
+    ) -> int:
+        """
+        Add records to an annotation queue.
+
+        Exactly one of `record_ids` or `record_selector` must be provided.
+
+        Parameters
+        ----------
+        queue_id : str
+            The ID of the annotation queue.
+        project_id : str
+            The ID of the project containing the records.
+        log_stream_id : str | None
+            The ID of the log stream containing the records.
+        experiment_id : str | None
+            The ID of the experiment containing the records.
+        record_ids : list[str] | None
+            Optional list of record IDs to add.
+        record_selector : AnnotationQueueRecordSelector | None
+            Optional generated selector for adding records by record IDs or filter tree.
+
+        Returns
+        -------
+        int
+            The number of records added to the queue.
+        """
+        queue_id = _validate_required_string("queue_id", queue_id)
+        project_id = _validate_required_string("project_id", project_id)
+        run_id = _to_annotation_queue_run_id(log_stream_id=log_stream_id, experiment_id=experiment_id)
+        selector = _to_annotation_queue_record_selector(record_ids=record_ids, record_selector=record_selector)
+
+        body = AddRecordsToQueueRequest(project_id=project_id, run_id=run_id, record_selector=selector)
+        response = add_records_to_annotation_queue_annotation_queues_queue_id_records_post.sync(
+            queue_id=queue_id, client=self.config.api_client, body=body
+        )
+        return _to_add_records_response(response)
+
+    def remove_records(
+        self,
+        queue_id: str,
+        *,
+        record_ids: builtins.list[str] | None = None,
+        record_selector: AnnotationQueueRecordSelector | None = None,
+    ) -> int:
+        """
+        Remove records from an annotation queue.
+
+        Exactly one of `record_ids` or `record_selector` must be provided.
+
+        Parameters
+        ----------
+        queue_id : str
+            The ID of the annotation queue.
+        record_ids : list[str] | None
+            Optional list of record IDs to remove.
+        record_selector : AnnotationQueueRecordSelector | None
+            Optional generated selector for removing records by record IDs or filter tree.
+
+        Returns
+        -------
+        int
+            The number of records removed from the queue.
+        """
+        queue_id = _validate_required_string("queue_id", queue_id)
+        selector = _to_annotation_queue_record_selector(record_ids=record_ids, record_selector=record_selector)
+
+        body = RemoveRecordsFromQueueRequest(record_selector=selector)
+        response = remove_records_from_annotation_queue_annotation_queues_queue_id_records_remove_post.sync(
+            queue_id=queue_id, client=self.config.api_client, body=body
+        )
+        return _to_remove_records_response(response)
 
     def share(
         self,
@@ -722,6 +814,35 @@ def share_annotation_queue(
     )
 
 
+def add_records_to_annotation_queue(
+    queue_id: str,
+    *,
+    project_id: str,
+    log_stream_id: str | None = None,
+    experiment_id: str | None = None,
+    record_ids: list[str] | None = None,
+    record_selector: AnnotationQueueRecordSelector | None = None,
+) -> int:
+    """Add records to an annotation queue."""
+    queues = AnnotationQueues()
+    return queues.add_records(
+        queue_id=queue_id,
+        project_id=project_id,
+        log_stream_id=log_stream_id,
+        experiment_id=experiment_id,
+        record_ids=record_ids,
+        record_selector=record_selector,
+    )
+
+
+def remove_records_from_annotation_queue(
+    queue_id: str, *, record_ids: list[str] | None = None, record_selector: AnnotationQueueRecordSelector | None = None
+) -> int:
+    """Remove records from an annotation queue."""
+    queues = AnnotationQueues()
+    return queues.remove_records(queue_id=queue_id, record_ids=record_ids, record_selector=record_selector)
+
+
 @overload
 def get_annotation_queue(*, id: str) -> AnnotationQueue | None: ...
 
@@ -836,6 +957,61 @@ def _to_annotation_queue_user_list(
     if response is None:
         return ListAnnotationQueueCollaboratorsResponse(collaborators=[])
     return response
+
+
+def _validate_required_string(field_name: str, value: str) -> str:
+    value = value.strip()
+    if not value:
+        raise ValueError(f"'{field_name}' must be provided.")
+    return value
+
+
+def _to_annotation_queue_run_id(*, log_stream_id: str | None, experiment_id: str | None) -> str:
+    if (log_stream_id is None) == (experiment_id is None):
+        raise ValueError("Exactly one of 'log_stream_id' or 'experiment_id' must be provided")
+
+    if log_stream_id is not None:
+        return _validate_required_string("log_stream_id", log_stream_id)
+
+    assert experiment_id is not None
+    return _validate_required_string("experiment_id", experiment_id)
+
+
+def _to_annotation_queue_record_selector(
+    *, record_ids: list[str] | None, record_selector: AnnotationQueueRecordSelector | None
+) -> AnnotationQueueRecordSelector:
+    if (record_ids is None) == (record_selector is None):
+        raise ValueError("Exactly one of 'record_ids' or 'record_selector' must be provided")
+
+    if record_selector is not None:
+        return record_selector
+
+    assert record_ids is not None
+    clean_record_ids = [record_id.strip() for record_id in record_ids]
+    if not clean_record_ids or any(not record_id for record_id in clean_record_ids):
+        raise ValueError("'record_ids' must contain at least one non-empty record ID.")
+
+    return AnnotationQueueRecordsByRecordIDs(record_ids=clean_record_ids)
+
+
+def _to_add_records_response(response: AddRecordsToQueueResponse | HTTPValidationError | None) -> int:
+    if isinstance(response, HTTPValidationError):
+        raise AnnotationQueuesAPIException(
+            f"Failed to add records to annotation queue: {_format_validation_error(response)}"
+        )
+    if response is None:
+        raise AnnotationQueuesAPIException("Failed to add records to annotation queue: no response")
+    return response.num_records_added
+
+
+def _to_remove_records_response(response: RemoveRecordsFromQueueResponse | HTTPValidationError | None) -> int:
+    if isinstance(response, HTTPValidationError):
+        raise AnnotationQueuesAPIException(
+            f"Failed to remove records from annotation queue: {_format_validation_error(response)}"
+        )
+    if response is None:
+        raise AnnotationQueuesAPIException("Failed to remove records from annotation queue: no response")
+    return response.num_records_removed
 
 
 def _to_annotation_queue_user_create_response(

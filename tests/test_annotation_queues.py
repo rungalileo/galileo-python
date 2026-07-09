@@ -9,6 +9,7 @@ from galileo.annotation_queues import (
     AnnotationQueuesAPIException,
     AnnotationQueueUser,
     AnnotationTemplate,
+    add_records_to_annotation_queue,
     create_annotation_queue,
     create_annotation_queue_template,
     delete_annotation_queue,
@@ -18,12 +19,14 @@ from galileo.annotation_queues import (
     list_annotation_queue_users,
     list_annotation_queues,
     remove_annotation_queue_user,
+    remove_records_from_annotation_queue,
     share_annotation_queue,
     update_annotation_queue,
     update_annotation_queue_template,
     update_annotation_queue_user,
 )
 from galileo.exceptions import NotFoundError
+from galileo.resources.models.add_records_to_queue_response import AddRecordsToQueueResponse
 from galileo.resources.models.annotation_queue_response import AnnotationQueueResponse
 from galileo.resources.models.annotation_template_db import AnnotationTemplateDB
 from galileo.resources.models.collaborator_role import CollaboratorRole
@@ -33,6 +36,7 @@ from galileo.resources.models.list_annotation_queue_collaborators_response impor
     ListAnnotationQueueCollaboratorsResponse,
 )
 from galileo.resources.models.list_annotation_queue_response import ListAnnotationQueueResponse
+from galileo.resources.models.remove_records_from_queue_response import RemoveRecordsFromQueueResponse
 from galileo.resources.models.tree_choice_constraints import TreeChoiceConstraints
 from galileo.resources.models.tree_choice_db_constraints import TreeChoiceDBConstraints
 from galileo.resources.models.tree_choice_node import TreeChoiceNode
@@ -235,6 +239,74 @@ def test_list_annotation_queue_users_returns_all_pages(mock_list: Mock, mock_get
     assert mock_list.call_count == 2
     assert mock_list.call_args_list[0].kwargs["starting_token"] == 0
     assert mock_list.call_args_list[1].kwargs["starting_token"] == 100
+
+
+@patch("galileo.annotation_queues.GalileoPythonConfig.get")
+@patch("galileo.annotation_queues.add_records_to_annotation_queue_annotation_queues_queue_id_records_post.sync")
+def test_add_records_to_annotation_queue_sends_expected_request(
+    mock_add: Mock, mock_get_config: Mock, mock_config: Mock
+):
+    # Given: a successful add records response
+    mock_get_config.return_value = mock_config
+    mock_add.return_value = AddRecordsToQueueResponse(num_records_added=2)
+
+    # When: adding records to an annotation queue
+    count = add_records_to_annotation_queue(
+        " queue-123 ",
+        project_id=" project-123 ",
+        experiment_id=" experiment-123 ",
+        record_ids=[" record-1 ", "record-2"],
+    )
+
+    # Then: the generated endpoint receives a record IDs selector
+    assert count == 2
+    mock_add.assert_called_once_with(queue_id="queue-123", client=ANY, body=ANY)
+    body = mock_add.call_args.kwargs["body"]
+    assert body.project_id == "project-123"
+    assert body.run_id == "experiment-123"
+    assert body.record_selector.type_ == "record_ids"
+    assert body.record_selector.record_ids == ["record-1", "record-2"]
+
+
+@patch("galileo.annotation_queues.GalileoPythonConfig.get")
+@patch("galileo.annotation_queues.add_records_to_annotation_queue_annotation_queues_queue_id_records_post.sync")
+def test_add_records_to_annotation_queue_accepts_log_stream_id(
+    mock_add: Mock, mock_get_config: Mock, mock_config: Mock
+):
+    # Given: a successful add records response
+    mock_get_config.return_value = mock_config
+    mock_add.return_value = AddRecordsToQueueResponse(num_records_added=1)
+
+    # When: adding log stream records to an annotation queue
+    add_records_to_annotation_queue(
+        "queue-123", project_id="project-123", log_stream_id=" log-stream-123 ", record_ids=["record-1"]
+    )
+
+    # Then: the generated request uses the log stream ID as the API run ID
+    body = mock_add.call_args.kwargs["body"]
+    assert body.run_id == "log-stream-123"
+
+
+@patch("galileo.annotation_queues.GalileoPythonConfig.get")
+@patch(
+    "galileo.annotation_queues.remove_records_from_annotation_queue_annotation_queues_queue_id_records_remove_post.sync"
+)
+def test_remove_records_from_annotation_queue_sends_expected_request(
+    mock_remove: Mock, mock_get_config: Mock, mock_config: Mock
+):
+    # Given: a successful remove records response
+    mock_get_config.return_value = mock_config
+    mock_remove.return_value = RemoveRecordsFromQueueResponse(num_records_removed=1)
+
+    # When: removing records from an annotation queue
+    count = remove_records_from_annotation_queue(" queue-123 ", record_ids=[" record-1 "])
+
+    # Then: the generated endpoint receives a record IDs selector
+    assert count == 1
+    mock_remove.assert_called_once_with(queue_id="queue-123", client=ANY, body=ANY)
+    body = mock_remove.call_args.kwargs["body"]
+    assert body.record_selector.type_ == "record_ids"
+    assert body.record_selector.record_ids == ["record-1"]
 
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
@@ -489,6 +561,36 @@ def test_update_annotation_queue_requires_a_change():
     # When/Then: updating with no fields raises a validation error
     with pytest.raises(ValueError, match="At least one"):
         queues.update(id="queue-123")
+
+
+def test_add_records_to_annotation_queue_requires_one_selector():
+    # Given: an annotation queue client
+    queues = AnnotationQueues.__new__(AnnotationQueues)
+    queues.config = Mock(api_client=Mock())
+
+    # When/Then: adding records without a selector raises a validation error
+    with pytest.raises(ValueError, match="Exactly one"):
+        queues.add_records(queue_id="queue-123", project_id="project-123", experiment_id="experiment-123")
+
+
+def test_add_records_to_annotation_queue_requires_one_run_source():
+    # Given: an annotation queue client
+    queues = AnnotationQueues.__new__(AnnotationQueues)
+    queues.config = Mock(api_client=Mock())
+
+    # When/Then: adding records without a log stream or experiment ID raises a validation error
+    with pytest.raises(ValueError, match="Exactly one"):
+        queues.add_records(queue_id="queue-123", project_id="project-123", record_ids=["record-1"])
+
+
+def test_remove_records_from_annotation_queue_rejects_empty_record_ids():
+    # Given: an annotation queue client
+    queues = AnnotationQueues.__new__(AnnotationQueues)
+    queues.config = Mock(api_client=Mock())
+
+    # When/Then: removing records with an empty record ID raises a validation error
+    with pytest.raises(ValueError, match="'record_ids' must contain"):
+        queues.remove_records(queue_id="queue-123", record_ids=[" "])
 
 
 def test_create_annotation_queue_template_requires_name():
