@@ -51,7 +51,7 @@ def mock_decode_jwt() -> Generator[MagicMock, None, None]:
 
 @pytest.fixture
 def mock_projects(mock_request: Callable) -> Generator[None, None, None]:
-    """Mock the projects endpoint used by galileo_context.get_logger_instance().
+    """Mock the projects endpoint used by splunk_ao_context.get_logger_instance().
 
     ProjectDB schema requires:
     - id, created_by, created_by_user (UserInfo), runs, created_at, updated_at

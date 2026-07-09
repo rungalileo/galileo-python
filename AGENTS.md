@@ -66,7 +66,7 @@ src/galileo/
 ├── prompts.py               # Prompt service (current API)
 ├── projects.py              # Project service (current API)
 ├── log_streams.py           # LogStream service (current API)
-├── decorator.py             # @log decorator and galileo_context
+├── decorator.py             # @log decorator and splunk_ao_context
 └── config.py                # GalileoPythonConfig configuration
 ```
 
@@ -74,7 +74,7 @@ src/galileo/
 
 **GalileoLogger** (`src/galileo/logger/logger.py`): Central class for uploading traces to Galileo. Supports batch and streaming modes. Manages traces, spans (LLM, retriever, tool, workflow, agent), and sessions.
 
-**Decorators** (`src/galileo/decorator.py`): The `@log` decorator and `galileo_context` context manager for automatic function tracing. Uses ContextVars for thread-safe nested span tracking.
+**Decorators** (`src/galileo/decorator.py`): The `@log` decorator and `splunk_ao_context` context manager for automatic function tracing. Uses ContextVars for thread-safe nested span tracking.
 
 **Handlers** (`src/galileo/handlers/`): Framework-specific integrations:
 - `langchain/` - LangChain callback handler (`GalileoCallback`)
@@ -167,7 +167,7 @@ results = run_experiment(
 ### Logging with Decorators
 
 ```python
-from galileo import log, galileo_context
+from galileo import log, splunk_ao_context
 
 # Auto-trace function calls
 @log
@@ -181,7 +181,7 @@ def retrieve_docs(query: str):
     return ["doc1", "doc2"]
 
 # Context manager for explicit control
-with galileo_context(project="my-project", log_stream="prod"):
+with splunk_ao_context(project="my-project", log_stream="prod"):
     my_workflow()
 ```
 

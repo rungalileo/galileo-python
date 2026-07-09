@@ -847,25 +847,25 @@ class TestLogStreamContext:
     """Test suite for LogStream.context() method."""
 
     @patch("galileo.shared.project_resolver.Projects")
-    @patch("galileo.log_stream.galileo_context")
+    @patch("galileo.log_stream.splunk_ao_context")
     @patch("galileo.log_stream.LogStreams")
-    def test_context_returns_galileo_context(
+    def test_context_returns_splunk_ao_context(
         self,
         mock_logstreams_class: MagicMock,
-        mock_galileo_context: MagicMock,
+        mock_splunk_ao_context: MagicMock,
         mock_projects_class: MagicMock,
         reset_configuration: None,
         mock_logstream: MagicMock,
         mock_project: MagicMock,
     ) -> None:
         mock_projects_class.return_value.get_with_env_fallbacks.return_value = mock_project
-        """Test context() returns a properly configured galileo_context."""
+        """Test context() returns a properly configured splunk_ao_context."""
         mock_logstream_service = MagicMock()
         mock_logstreams_class.return_value = mock_logstream_service
         mock_logstream_service.get.return_value = mock_logstream
 
         mock_context = MagicMock()
-        mock_galileo_context.return_value = mock_context
+        mock_splunk_ao_context.return_value = mock_context
 
         # Mock the project property
         with patch("galileo.log_stream.Project") as mock_project_class:
@@ -876,7 +876,7 @@ class TestLogStreamContext:
             log_stream = LogStream.get(name="Test Stream", project_id="test-project-id")
             result = log_stream.context()
 
-            mock_galileo_context.assert_called_once_with(project="Test Project", log_stream="Test Stream")
+            mock_splunk_ao_context.assert_called_once_with(project="Test Project", log_stream="Test Stream")
             assert result == mock_context
 
 

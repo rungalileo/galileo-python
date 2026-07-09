@@ -9,7 +9,7 @@ from galileo_adk.data_converters import (
     _try_direct_attributes,
     _try_function_declarations,
     _try_to_dict,
-    convert_adk_content_to_galileo_messages,
+    convert_adk_content_to_splunk_ao_messages,
 )
 
 
@@ -28,7 +28,7 @@ class MockContent:
 class TestConvertADKContent:
     def test_text_part(self) -> None:
         content = MockContent([MockPart(text="hello")])
-        messages = convert_adk_content_to_galileo_messages(content)
+        messages = convert_adk_content_to_splunk_ao_messages(content)
         assert len(messages) == 1
         assert messages[0].content == "hello"
         assert messages[0].role == MessageRole.user
@@ -36,7 +36,7 @@ class TestConvertADKContent:
     def test_inline_data_part(self) -> None:
         inline = MockPart(mime_type="image/png", data=b"\x89PNG")
         content = MockContent([MockPart(inline_data=inline)])
-        messages = convert_adk_content_to_galileo_messages(content)
+        messages = convert_adk_content_to_splunk_ao_messages(content)
         assert len(messages) == 1
         payload = json.loads(messages[0].content)
         assert payload["type"] == "inline_data"
@@ -46,7 +46,7 @@ class TestConvertADKContent:
     def test_file_data_part(self) -> None:
         file_d = MockPart(file_uri="gs://bucket/file.pdf", mime_type="application/pdf")
         content = MockContent([MockPart(file_data=file_d)])
-        messages = convert_adk_content_to_galileo_messages(content)
+        messages = convert_adk_content_to_splunk_ao_messages(content)
         assert len(messages) == 1
         payload = json.loads(messages[0].content)
         assert payload["type"] == "file_data"
@@ -55,7 +55,7 @@ class TestConvertADKContent:
     def test_function_call_part(self) -> None:
         func_call = MockPart(name="search", args={"query": "weather"})
         content = MockContent([MockPart(function_call=func_call)], role="model")
-        messages = convert_adk_content_to_galileo_messages(content)
+        messages = convert_adk_content_to_splunk_ao_messages(content)
         assert len(messages) == 1
         assert messages[0].role == MessageRole.assistant
         assert messages[0].content == ""
@@ -67,7 +67,7 @@ class TestConvertADKContent:
     def test_function_response_part(self) -> None:
         func_resp = MockPart(name="search", response={"result": "sunny"})
         content = MockContent([MockPart(function_response=func_resp)])
-        messages = convert_adk_content_to_galileo_messages(content)
+        messages = convert_adk_content_to_splunk_ao_messages(content)
         assert len(messages) == 1
         assert messages[0].role == MessageRole.tool
         payload = json.loads(messages[0].content)
@@ -81,7 +81,7 @@ class TestConvertADKContent:
             MockPart(text="Step 2"),
         ]
         content = MockContent(parts, role="model")
-        messages = convert_adk_content_to_galileo_messages(content)
+        messages = convert_adk_content_to_splunk_ao_messages(content)
         assert len(messages) == 4
         assert messages[0].content == "Step 1"
         assert messages[1].role == MessageRole.assistant
@@ -92,11 +92,11 @@ class TestConvertADKContent:
 
     def test_empty_content(self) -> None:
         content = MockContent([])
-        assert convert_adk_content_to_galileo_messages(content) == []
+        assert convert_adk_content_to_splunk_ao_messages(content) == []
 
     def test_unknown_part_skipped(self) -> None:
         content = MockContent([MockPart(unknown_field="value")])
-        assert convert_adk_content_to_galileo_messages(content) == []
+        assert convert_adk_content_to_splunk_ao_messages(content) == []
 
     def test_multiple_function_calls_same_name_with_unique_ids(self) -> None:
         """Multiple function calls with same name but unique IDs should link correctly."""
@@ -107,7 +107,7 @@ class TestConvertADKContent:
             MockPart(function_response=MockPart(id="call_2", name="search", response="result_2")),
         ]
         content = MockContent(parts, role="model")
-        messages = convert_adk_content_to_galileo_messages(content)
+        messages = convert_adk_content_to_splunk_ao_messages(content)
 
         assert len(messages) == 4
         # First call and its response should share the same call_id
@@ -126,7 +126,7 @@ class TestConvertADKContent:
             MockPart(function_response=MockPart(name="calc", response=42)),
         ]
         content = MockContent(parts, role="model")
-        messages = convert_adk_content_to_galileo_messages(content)
+        messages = convert_adk_content_to_splunk_ao_messages(content)
 
         assert len(messages) == 2
         # Without ADK ids, responses can't link to calls (different part indices)

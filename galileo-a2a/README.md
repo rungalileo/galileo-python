@@ -44,12 +44,12 @@ pip install galileo-a2a
 ## Quick Start
 
 ```python
-from galileo.otel import GalileoSpanProcessor, add_galileo_span_processor
+from galileo.otel import GalileoSpanProcessor, add_splunk_ao_span_processor
 from galileo_a2a import A2AInstrumentor
 from opentelemetry.sdk.trace import TracerProvider
 
 provider = TracerProvider()
-add_galileo_span_processor(provider, GalileoSpanProcessor())
+add_splunk_ao_span_processor(provider, GalileoSpanProcessor())
 A2AInstrumentor().instrument(tracer_provider=provider, agent_name="orchestrator")
 ```
 
@@ -119,7 +119,7 @@ from a2a.types import (
     AgentCapabilities, AgentCard, AgentSkill, Message, Role,
     TaskState, TaskStatus, TaskStatusUpdateEvent, TextPart,
 )
-from galileo.otel import GalileoSpanProcessor, add_galileo_span_processor
+from galileo.otel import GalileoSpanProcessor, add_splunk_ao_span_processor
 from galileo_a2a import A2AInstrumentor
 from langchain.agents import create_agent
 from langchain_core.tools import tool
@@ -132,7 +132,7 @@ from typing_extensions import TypedDict
 
 # ---- Only 4 lines needed for full distributed tracing ----
 provider = TracerProvider()
-add_galileo_span_processor(provider, GalileoSpanProcessor())
+add_splunk_ao_span_processor(provider, GalileoSpanProcessor())
 A2AInstrumentor().instrument(tracer_provider=provider, agent_name="orchestrator")
 LangchainInstrumentor().instrument(tracer_provider=provider)
 

@@ -29,16 +29,16 @@ How to use decorators:
 
 3. Using context manager for grouping related operations:
    ```python
-   from galileo import galileo_context
+   from galileo import splunk_ao_context
 
-   with galileo_context(project="my-project", log_stream="production"):
+   with splunk_ao_context(project="my-project", log_stream="production"):
        result1 = my_function()
        result2 = another_function()
    ```
 
 Setup requirements:
 - Galileo API key must be set (via environment variable GALILEO_API_KEY or programmatically)
-- Project and Log Stream names should be defined if using the `log` decorator (either via environment variables GALILEO_PROJECT and GALILEO_LOG_STREAM, or via `galileo_context.init()`)
+- Project and Log Stream names should be defined if using the `log` decorator (either via environment variables GALILEO_PROJECT and GALILEO_LOG_STREAM, or via `splunk_ao_context.init()`)
 
 For more examples and detailed usage, see the Galileo SDK documentation.
 """
@@ -194,7 +194,7 @@ class GalileoDecorator:
 
         This allows usage like:
         ```python
-        with galileo_context(project="my_project", log_stream="my_stream"):
+        with splunk_ao_context(project="my_project", log_stream="my_stream"):
             # Code to be traced
         ```
 
@@ -1285,13 +1285,13 @@ class GalileoDecorator:
         self.get_logger_instance().set_session(session_id)
 
 
-galileo_context = GalileoDecorator()
-log = galileo_context.log
-start_session = galileo_context.start_session
+splunk_ao_context = GalileoDecorator()
+log = splunk_ao_context.log
+start_session = splunk_ao_context.start_session
 
 
 @contextmanager
-def galileo_dataset_context(
+def splunk_ao_dataset_context(
     *,
     dataset_input: str | None = None,
     dataset_output: str | None = None,
@@ -1315,10 +1315,10 @@ def galileo_dataset_context(
 
     Examples
     --------
-    >>> from galileo.decorator import galileo_dataset_context
+    >>> from galileo.decorator import splunk_ao_dataset_context
     >>>
     >>> # Set ground truth for a single agent call
-    >>> with galileo_dataset_context(
+    >>> with splunk_ao_dataset_context(
     ...     dataset_input="What is the capital of France?",
     ...     dataset_output="Paris",
     ...     dataset_metadata={"source": "geography_quiz"}
@@ -1327,7 +1327,7 @@ def galileo_dataset_context(
     >>>
     >>> # Use with experiment datasets
     >>> for row in dataset:
-    ...     with galileo_dataset_context(
+    ...     with splunk_ao_dataset_context(
     ...         dataset_input=row["input"],
     ...         dataset_output=row["expected_output"],
     ...     ):

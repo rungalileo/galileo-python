@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from galileo import Message, MessageRole, galileo_context, log
+from galileo import Message, MessageRole, splunk_ao_context, log
 from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
 from galileo.decorator import _parent_id_context, _trace_id_context
 from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
@@ -25,9 +25,9 @@ from tests.testutils.setup import (
 @pytest.fixture
 def reset_context():
     """Reset the decorator context before each test."""
-    galileo_context.reset()
+    splunk_ao_context.reset()
     yield
-    galileo_context.reset()
+    splunk_ao_context.reset()
 
 
 @pytest.fixture
@@ -57,7 +57,7 @@ def test_decorator_get_tracing_headers(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
     @log(span_type="workflow")
     def orchestrator(query: str) -> dict:
@@ -72,7 +72,7 @@ def test_decorator_get_tracing_headers(
     assert PARENT_ID_HEADER in headers
 
     # Verify the trace ID matches the logger's trace
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     assert headers[TRACE_ID_HEADER] == str(logger.traces[0].id)
 
 
@@ -91,7 +91,7 @@ def test_decorator_with_middleware_context(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
     # Simulate middleware setting context variables
     trace_id = "12345678-1234-4678-9abc-123456789abc"
@@ -109,7 +109,7 @@ def test_decorator_with_middleware_context(
     assert result == "processed: test input"
 
     # Verify logger was created with distributed tracing context
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     assert logger.mode == "distributed"
     assert len(logger.traces) == 1
 
@@ -133,9 +133,9 @@ def test_decorator_updates_trace_with_output_and_duration(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     capture = setup_thread_pool_request_capture(logger)
 
     @log(span_type="workflow")
@@ -196,7 +196,7 @@ def test_decorator_server_side_does_not_conclude_trace(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
     # Simulate middleware setting context variables (server receiving trace_id/span_id)
     trace_id = "12345678-1234-4678-9abc-123456789abc"
@@ -205,7 +205,7 @@ def test_decorator_server_side_does_not_conclude_trace(
     _trace_id_context.set(trace_id)
     _parent_id_context.set(parent_id)
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     capture = setup_thread_pool_request_capture(logger)
 
     @log(span_type="workflow")
@@ -244,10 +244,10 @@ def test_decorator_client_and_server_side_behavior(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
     # CLIENT SIDE: Start a new trace
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     capture_client = setup_thread_pool_request_capture(logger)
 
     @log(span_type="workflow")
@@ -288,8 +288,8 @@ def test_decorator_client_and_server_side_behavior(
     assert client_trace_request.is_complete, "Trace should be marked complete"
 
     # Reset context for server-side test
-    galileo_context.reset()
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.reset()
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
     # SERVER SIDE: Receive distributed tracing headers
     trace_id = "aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa"
@@ -298,7 +298,7 @@ def test_decorator_client_and_server_side_behavior(
     _trace_id_context.set(trace_id)
     _parent_id_context.set(parent_id)
 
-    logger_server = galileo_context.get_logger_instance()
+    logger_server = splunk_ao_context.get_logger_instance()
     capture_server = setup_thread_pool_request_capture(logger_server)
 
     @log(span_type="workflow")
@@ -335,9 +335,9 @@ def test_decorator_workflow_span_output_is_set(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     capture = setup_thread_pool_request_capture(logger)
 
     @log(span_type="workflow")
@@ -385,9 +385,9 @@ def test_decorator_both_trace_and_workflow_span_have_output(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     capture = setup_thread_pool_request_capture(logger)
 
     # @log without span_type creates a workflow span, and starts a trace if needed
@@ -451,9 +451,9 @@ def test_decorator_workflow_span_empty_string_output_is_set(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     capture = setup_thread_pool_request_capture(logger)
 
     @log(span_type="workflow")
@@ -495,9 +495,9 @@ def test_decorator_trace_duration_is_set_and_accumulates(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     capture = setup_thread_pool_request_capture(logger)
 
     @log(span_type="workflow")
@@ -558,9 +558,9 @@ def test_decorator_distributed_content_blocks_preserved_on_trace(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     capture = setup_thread_pool_request_capture(logger)
 
     blocks = [
@@ -604,9 +604,9 @@ def test_decorator_distributed_messages_serialized_on_trace(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     capture = setup_thread_pool_request_capture(logger)
 
     @log(span_type="workflow")
@@ -645,9 +645,9 @@ def test_decorator_distributed_documents_serialized_on_trace(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    galileo_context.init(project="test-project", log_stream="test-stream")
+    splunk_ao_context.init(project="test-project", log_stream="test-stream")
 
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     capture = setup_thread_pool_request_capture(logger)
 
     @log(span_type="workflow")

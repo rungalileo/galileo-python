@@ -6,7 +6,7 @@ import pytest
 
 from galileo import AgentControlTarget, AgentControlTargetUnresolvedError, get_agent_control_target
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
-from galileo.decorator import galileo_context
+from galileo.decorator import splunk_ao_context
 from galileo.utils.singleton import GalileoLoggerSingleton
 
 
@@ -20,14 +20,14 @@ def reset_agent_control_helper_state(monkeypatch):
     GalileoLoggerSingleton().reset_all()
     monkeypatch.setattr(GalileoLoggerSingleton, "get_all_loggers", lambda self: {})
     monkeypatch.setattr(
-        galileo_context, "get_logger_instance", lambda *args, **kwargs: SimpleNamespace(flush=lambda: None)
+        splunk_ao_context, "get_logger_instance", lambda *args, **kwargs: SimpleNamespace(flush=lambda: None)
     )
-    galileo_context.reset()
+    splunk_ao_context.reset()
 
     yield
 
     # Then: context and singleton state are restored for following tests
-    galileo_context.reset()
+    splunk_ao_context.reset()
     GalileoLoggerSingleton().reset_all()
 
 
@@ -128,7 +128,7 @@ def test_get_agent_control_target_uses_cached_context_logger(monkeypatch) -> Non
     _stub_cached_logger(monkeypatch, logger)
 
     # When: resolving an Agent Control target
-    with galileo_context(project="project-a", log_stream="stream-a"):
+    with splunk_ao_context(project="project-a", log_stream="stream-a"):
         target = get_agent_control_target()
 
     # Then: the helper reads the resolved IDs without creating a new logger

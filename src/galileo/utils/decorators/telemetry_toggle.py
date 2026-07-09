@@ -14,7 +14,7 @@ from typing import Any
 _logger = logging.getLogger(__name__)
 
 
-def galileo_logging_enabled() -> bool:
+def splunk_ao_logging_enabled() -> bool:
     """
     Check if Galileo logging/telemetry is enabled.
 
@@ -46,7 +46,7 @@ def nop_sync(f: Callable) -> Callable:
 
     @functools.wraps(f)
     def decorated(*args: Any, **kwargs: Any) -> Any:
-        if galileo_logging_enabled():
+        if splunk_ao_logging_enabled():
             return f(*args, **kwargs)
         _logger.debug(f"Bypassing logging for {f.__name__}. Logging is currently disabled.")
         return None
@@ -74,7 +74,7 @@ def nop_async(f: Callable) -> Callable:
 
     @functools.wraps(f)
     async def decorated(*args: Any, **kwargs: Any) -> Any:
-        if galileo_logging_enabled():
+        if splunk_ao_logging_enabled():
             return await f(*args, **kwargs)
         _logger.debug(f"Bypassing logging for {f.__name__}. Logging is currently disabled.")
         return None

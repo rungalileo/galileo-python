@@ -4,7 +4,7 @@ from galileo.agent_control import AgentControlTarget, AgentControlTargetUnresolv
 from galileo.collaborator import Collaborator, CollaboratorRole
 from galileo.configuration import Configuration
 from galileo.dataset import Dataset
-from galileo.decorator import GalileoDecorator, galileo_context, log, start_session
+from galileo.decorator import GalileoDecorator, splunk_ao_context, log, start_session
 from galileo.exceptions import (
     AuthenticationError,
     BadRequestError,
@@ -149,7 +149,6 @@ __all__ = [
     "create_protect_stage",
     "delete_api_key",
     "enable_console_logging",
-    "galileo_context",
     "get_agent_control_target",
     "get_protect_stage",
     "get_tracing_headers",
@@ -160,6 +159,7 @@ __all__ = [
     "pause_protect_stage",
     "resume_protect_stage",
     "setup_agent_control_bridge",
+    "splunk_ao_context",
     "start_session",
     "update_protect_stage",
 ]

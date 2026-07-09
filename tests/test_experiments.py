@@ -14,7 +14,7 @@ from time_machine import travel
 import galileo.experiments
 import galileo.jobs
 import galileo.utils.datasets
-from galileo import galileo_context
+from galileo import splunk_ao_context
 from galileo.decorator import SPAN_TYPE
 from galileo.experiments import (
     Experiments,
@@ -56,7 +56,7 @@ from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_proje
 
 @pytest.fixture
 def reset_context(auto_use=True) -> None:
-    galileo_context.reset()
+    splunk_ao_context.reset()
     os.environ.pop("GALILEO_PROJECT", None)
     os.environ.pop("GALILEO_PROJECT_ID", None)
 
@@ -152,7 +152,7 @@ def prompt_run_settings():
 
 
 def complex_trace_function(input):
-    logger = galileo_context.get_logger_instance()
+    logger = splunk_ao_context.get_logger_instance()
     output = input + " output"
     logger.add_llm_span(input=input, output=output, model="example")
     return output
@@ -1319,7 +1319,7 @@ class TestExperiments:
         on_error = Mock()
 
         # When: run_experiment() is called with a function and on_error (function flow)
-        with patch("galileo.experiments.galileo_context.flush") as mock_flush:
+        with patch("galileo.experiments.splunk_ao_context.flush") as mock_flush:
             run_experiment(
                 experiment_name="test_experiment",
                 project="awesome-new-project",

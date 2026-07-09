@@ -123,7 +123,7 @@ class TestGalileoADKCallback:
         assert callback._handler is not None
 
     def test_initialization_with_project_and_log_stream(self) -> None:
-        with patch("galileo_adk.observer.galileo_context") as mock_context:
+        with patch("galileo_adk.observer.splunk_ao_context") as mock_context:
             mock_logger = MagicMock()
             mock_context.get_logger_instance.return_value = mock_logger
 

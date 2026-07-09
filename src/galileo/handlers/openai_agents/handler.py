@@ -6,7 +6,7 @@ from typing import Any, cast
 from agents import Span, Trace, TracingProcessor
 from agents.tracing import ResponseSpanData, get_current_span, get_trace_provider
 
-from galileo import GalileoLogger, galileo_context
+from galileo import GalileoLogger, splunk_ao_context
 from galileo.schema.handlers import Node
 from galileo.utils import _get_timestamp
 from galileo.utils.openai_agents import (
@@ -52,7 +52,7 @@ class GalileoTracingProcessor(TracingProcessor):
         flush_on_trace_end : bool
             Whether to automatically flush the log batch to Galileo when a trace ends.
         """
-        self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance()
+        self._galileo_logger: GalileoLogger = galileo_logger or splunk_ao_context.get_logger_instance()
         self._flush_on_trace_end: bool = flush_on_trace_end
         self._nodes: dict[str, Node] = {}
         self._last_output: Any = None
@@ -492,7 +492,7 @@ class GalileoTracingProcessor(TracingProcessor):
         return serialize_to_str(item_dict.get("output") or item_dict.get("results"))
 
     @staticmethod
-    def add_galileo_custom_span(span: GalileoSpan) -> Span[GalileoCustomSpan]:
+    def add_splunk_ao_custom_span(span: GalileoSpan) -> Span[GalileoCustomSpan]:
         """Add a Galileo custom span to the trace."""
         trace_provider = get_trace_provider()
         current_span = get_current_span()

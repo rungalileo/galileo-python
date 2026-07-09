@@ -8,7 +8,7 @@ DEFAULT_API_URL = "https://api.galileo.ai/"
 DEFAULT_CONSOLE_URL = "https://app.galileo.ai/"
 
 # HTTP header prefix for all Galileo headers
-GALILEO_HEADER_PREFIX = "X-Galileo"
+SPLUNK_AO_HEADER_PREFIX = "X-Galileo"
 
 # Type definitions
 LoggerModeType = Literal["batch", "distributed"]
@@ -19,6 +19,6 @@ __all__ = (
     "DEFAULT_LOG_STREAM_NAME",
     "DEFAULT_MODE",
     "DEFAULT_PROJECT_NAME",
-    "GALILEO_HEADER_PREFIX",
+    "SPLUNK_AO_HEADER_PREFIX",
     "LoggerModeType",
 )

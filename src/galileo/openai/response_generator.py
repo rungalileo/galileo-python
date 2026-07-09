@@ -4,7 +4,7 @@ from typing import Any
 
 from galileo import GalileoLogger
 from galileo.openai.extractors import (
-    convert_to_galileo_message,
+    convert_to_splunk_ao_message,
     extract_streamed_openai_response,
     has_pending_function_calls,
     process_function_call_outputs,
@@ -110,9 +110,9 @@ class ResponseGeneratorSync:
         )
 
         if isinstance(self.input_data.input, list):
-            span_input = [convert_to_galileo_message(msg) for msg in self.input_data.input]
+            span_input = [convert_to_splunk_ao_message(msg) for msg in self.input_data.input]
         else:
-            span_input = [convert_to_galileo_message(self.input_data.input)]
+            span_input = [convert_to_splunk_ao_message(self.input_data.input)]
 
         # probably can create a shared function for handling both streaming and non-streaming
         # Process Responses API output items sequentially if present (same as non-streaming)
@@ -142,7 +142,7 @@ class ResponseGeneratorSync:
                 )
             else:
                 # Fallback: create basic span if no output items
-                span_output = convert_to_galileo_message(completion, "assistant")
+                span_output = convert_to_splunk_ao_message(completion, "assistant")
                 span = self.logger.add_llm_span(
                     input=span_input,
                     output=span_output,
@@ -161,7 +161,7 @@ class ResponseGeneratorSync:
                 span.metrics.num_cached_input_tokens = usage.get("cached_tokens", 0) if usage else 0
         else:
             # For non-Responses API (chat or completion), create the main span as before
-            span_output = convert_to_galileo_message(completion, "assistant")
+            span_output = convert_to_splunk_ao_message(completion, "assistant")
 
             # Add a span to the current trace or span (if this is a nested trace)
             span = self.logger.add_llm_span(
@@ -195,10 +195,10 @@ class ResponseGeneratorSync:
                 # For other APIs, add the final span output
                 full_conversation = []
                 if isinstance(self.input_data.input, list):
-                    full_conversation.extend([convert_to_galileo_message(msg) for msg in self.input_data.input])
+                    full_conversation.extend([convert_to_splunk_ao_message(msg) for msg in self.input_data.input])
                 else:
-                    full_conversation.append(convert_to_galileo_message(self.input_data.input))
-                full_conversation.append(convert_to_galileo_message(completion, "assistant"))
+                    full_conversation.append(convert_to_splunk_ao_message(self.input_data.input))
+                full_conversation.append(convert_to_splunk_ao_message(completion, "assistant"))
 
             # Serialize with "messages" wrapper for UI compatibility
             trace_output = {"messages": [msg.model_dump(exclude_none=True) for msg in full_conversation]}

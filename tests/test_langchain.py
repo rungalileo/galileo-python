@@ -10,7 +10,7 @@ from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.outputs import ChatGeneration, LLMResult
 
-from galileo import Message, MessageRole, galileo_context
+from galileo import Message, MessageRole, splunk_ao_context
 from galileo.config import GalileoPythonConfig
 from galileo.handlers.langchain import GalileoAsyncCallback, GalileoCallback
 from galileo.handlers.langchain.utils import parse_llm_result, update_root_to_agent
@@ -1035,7 +1035,7 @@ class TestGalileoCallbackWithIngestionHook:
         [
             lambda hook: GalileoCallback(ingestion_hook=hook),
             lambda hook: GalileoCallback(galileo_logger=GalileoLogger(), ingestion_hook=hook),
-            lambda hook: GalileoCallback(galileo_logger=galileo_context.get_logger_instance(), ingestion_hook=hook),
+            lambda hook: GalileoCallback(galileo_logger=splunk_ao_context.get_logger_instance(), ingestion_hook=hook),
         ],
     )
     def test_on_chain_end_with_ingestion_hook(self, callback_builder):

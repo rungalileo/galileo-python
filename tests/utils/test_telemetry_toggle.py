@@ -1,11 +1,11 @@
-from galileo.utils.decorators import galileo_logging_enabled
+from galileo.utils.decorators import splunk_ao_logging_enabled
 
 
-def test_galileo_logging_enabled(monkeypatch) -> None:
-    assert galileo_logging_enabled() is True
+def test_splunk_ao_logging_enabled(monkeypatch) -> None:
+    assert splunk_ao_logging_enabled() is True
 
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
-    assert galileo_logging_enabled() is False
+    assert splunk_ao_logging_enabled() is False
 
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "1")
-    assert galileo_logging_enabled() is False
+    assert splunk_ao_logging_enabled() is False
