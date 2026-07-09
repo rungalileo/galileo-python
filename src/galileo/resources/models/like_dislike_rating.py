@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,10 +14,9 @@ T = TypeVar("T", bound="LikeDislikeRating")
 @_attrs_define
 class LikeDislikeRating:
     """
-    Attributes
-    ----------
+    Attributes:
         value (bool):
-        feedback_type (Union[Literal['like_dislike'], Unset]):  Default: 'like_dislike'.
+        feedback_type (Literal['like_dislike'] | Unset):  Default: 'like_dislike'.
     """
 
     value: bool

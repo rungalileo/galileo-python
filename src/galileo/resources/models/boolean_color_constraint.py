@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -21,8 +23,7 @@ class BooleanColorConstraint:
         {"color": "green", "operator": "eq", "value": true}
         {"color": "red", "operator": "eq", "value": false}
 
-    Attributes
-    ----------
+        Attributes:
             color (MetricColor): Allowed colors for metric threshold visualization in the UI.
             operator (Literal['eq']):
             value (bool):

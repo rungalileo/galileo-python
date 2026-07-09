@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,15 +14,14 @@ T = TypeVar("T", bound="ScorerNameSort")
 @_attrs_define
 class ScorerNameSort:
     """
-    Attributes
-    ----------
-        name (Union[Literal['name'], Unset]):  Default: 'name'.
-        ascending (Union[Unset, bool]):  Default: True.
-        sort_type (Union[Literal['column'], Unset]):  Default: 'column'.
+    Attributes:
+        name (Literal['name'] | Unset):  Default: 'name'.
+        ascending (bool | Unset):  Default: True.
+        sort_type (Literal['column'] | Unset):  Default: 'column'.
     """
 
     name: Literal["name"] | Unset = "name"
-    ascending: Unset | bool = True
+    ascending: bool | Unset = True
     sort_type: Literal["column"] | Unset = "column"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

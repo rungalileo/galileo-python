@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -14,12 +16,11 @@ T = TypeVar("T", bound="MetadataFilter")
 class MetadataFilter:
     """Filters on metadata key-value pairs in scorer jobs.
 
-    Attributes
-    ----------
+    Attributes:
         operator (MetadataFilterOperator):
         key (str):
-        value (Union[list[str], str]):
-        name (Union[Literal['metadata'], Unset]):  Default: 'metadata'.
+        value (list[str] | str):
+        name (Literal['metadata'] | Unset):  Default: 'metadata'.
     """
 
     operator: MetadataFilterOperator
@@ -34,7 +35,11 @@ class MetadataFilter:
         key = self.key
 
         value: list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         name = self.name
 
@@ -57,8 +62,9 @@ class MetadataFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

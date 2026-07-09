@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -15,11 +17,10 @@ class ModalityFilter:
     """Filters on content modalities in scorer jobs.
     Matches if at least one of the specified modalities is present.
 
-    Attributes
-    ----------
+        Attributes:
             operator (ModalityFilterOperator):
-            value (Union[list[str], str]):
-            name (Union[Literal['modality'], Unset]):  Default: 'modality'.
+            value (list[str] | str):
+            name (Literal['modality'] | Unset):  Default: 'modality'.
     """
 
     operator: ModalityFilterOperator
@@ -31,7 +32,11 @@ class ModalityFilter:
         operator = self.operator.value
 
         value: list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         name = self.name
 
@@ -52,8 +57,9 @@ class ModalityFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

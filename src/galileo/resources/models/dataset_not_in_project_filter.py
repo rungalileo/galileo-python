@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,10 +14,9 @@ T = TypeVar("T", bound="DatasetNotInProjectFilter")
 @_attrs_define
 class DatasetNotInProjectFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         value (str):
-        name (Union[Literal['not_in_project'], Unset]):  Default: 'not_in_project'.
+        name (Literal['not_in_project'] | Unset):  Default: 'not_in_project'.
     """
 
     value: str

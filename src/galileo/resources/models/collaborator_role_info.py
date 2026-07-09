@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -12,8 +14,7 @@ T = TypeVar("T", bound="CollaboratorRoleInfo")
 @_attrs_define
 class CollaboratorRoleInfo:
     """
-    Attributes
-    ----------
+    Attributes:
         name (CollaboratorRole):
         display_name (str):
         description (str):

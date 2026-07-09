@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -11,8 +13,7 @@ T = TypeVar("T", bound="LogStreamInfo")
 class LogStreamInfo:
     """Minimal log stream representation (id and name only).
 
-    Attributes
-    ----------
+    Attributes:
         id (str):
         name (str):
     """

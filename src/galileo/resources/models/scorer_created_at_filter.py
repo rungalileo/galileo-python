@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
@@ -15,11 +17,10 @@ T = TypeVar("T", bound="ScorerCreatedAtFilter")
 @_attrs_define
 class ScorerCreatedAtFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         operator (ScorerCreatedAtFilterOperator):
         value (datetime.datetime):
-        name (Union[Literal['created_at'], Unset]):  Default: 'created_at'.
+        name (Literal['created_at'] | Unset):  Default: 'created_at'.
     """
 
     operator: ScorerCreatedAtFilterOperator

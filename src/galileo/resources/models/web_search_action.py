@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,26 +15,31 @@ T = TypeVar("T", bound="WebSearchAction")
 class WebSearchAction:
     """Action payload for a web search call event.
 
-    Attributes
-    ----------
+    Attributes:
         type_ (Literal['search']): Type of web search action
-        query (Union[None, Unset, str]): Search query string
-        sources (Union[Any, None, Unset]): Optional provider-specific sources
+        query (None | str | Unset): Search query string
+        sources (Any | None | Unset): Optional provider-specific sources
     """
 
     type_: Literal["search"]
-    query: None | Unset | str = UNSET
+    query: None | str | Unset = UNSET
     sources: Any | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         type_ = self.type_
 
-        query: None | Unset | str
-        query = UNSET if isinstance(self.query, Unset) else self.query
+        query: None | str | Unset
+        if isinstance(self.query, Unset):
+            query = UNSET
+        else:
+            query = self.query
 
         sources: Any | None | Unset
-        sources = UNSET if isinstance(self.sources, Unset) else self.sources
+        if isinstance(self.sources, Unset):
+            sources = UNSET
+        else:
+            sources = self.sources
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -51,12 +58,12 @@ class WebSearchAction:
         if type_ != "search":
             raise ValueError(f"type must match const 'search', got '{type_}'")
 
-        def _parse_query(data: object) -> None | Unset | str:
+        def _parse_query(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         query = _parse_query(d.pop("query", UNSET))
 

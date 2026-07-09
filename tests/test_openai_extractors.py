@@ -7,7 +7,10 @@ from unittest.mock import Mock
 
 import pytest
 
-from galileo.openai.extractors import _parse_usage
+from galileo.openai.extractors import _openai_content_parts_to_blocks, _parse_usage, convert_to_galileo_message
+from galileo.schema.content_blocks import DataContentBlock, TextContentBlock
+from galileo.schema.message import LoggedMessage
+from galileo_core.schemas.logging.llm import Message
 
 
 class TestParseUsage:
@@ -131,3 +134,132 @@ class TestParseUsage:
 
         # Then: result contains expected keys
         assert set(result.keys()) == expected_keys
+
+
+class TestOpenAiContentPartsToBlocks:
+    """Tests for _openai_content_parts_to_blocks."""
+
+    def test_text_part(self) -> None:
+        # Given: a single text content part
+        parts = [{"type": "text", "text": "hello"}]
+
+        # When: converting parts to blocks
+        result = _openai_content_parts_to_blocks(parts)
+
+        # Then: a TextContentBlock is returned
+        assert result is not None
+        assert len(result) == 1
+        assert isinstance(result[0], TextContentBlock)
+        assert result[0].text == "hello"
+
+    def test_image_url_data_uri(self) -> None:
+        # Given: an image_url part containing a data URI
+        parts = [{"type": "image_url", "image_url": {"url": "data:image/png;base64,abc123"}}]
+
+        # When: converting parts to blocks
+        result = _openai_content_parts_to_blocks(parts)
+
+        # Then: a DataContentBlock is returned with the parsed mime type and base64 data
+        assert result is not None
+        assert len(result) == 1
+        block = result[0]
+        assert isinstance(block, DataContentBlock)
+        assert block.mime_type == "image/png"
+        assert block.base64 == "abc123"
+
+    def test_image_url_plain_url(self) -> None:
+        # Given: an image_url part with a plain HTTPS URL (not a data URI)
+        parts = [{"type": "image_url", "image_url": {"url": "https://example.com/img.jpg"}}]
+
+        # When: converting parts to blocks
+        result = _openai_content_parts_to_blocks(parts)
+
+        # Then: a DataContentBlock with a url field is returned
+        assert result is not None
+        block = result[0]
+        assert isinstance(block, DataContentBlock)
+        assert block.url == "https://example.com/img.jpg"
+
+    def test_input_audio_part(self) -> None:
+        # Given: an input_audio part with base64 PCM data
+        parts = [{"type": "input_audio", "input_audio": {"data": "audiob64==", "format": "mp3"}}]
+
+        # When: converting parts to blocks
+        result = _openai_content_parts_to_blocks(parts)
+
+        # Then: a DataContentBlock with audio mime type is returned
+        assert result is not None
+        block = result[0]
+        assert isinstance(block, DataContentBlock)
+        assert block.mime_type == "audio/mp3"
+        assert block.base64 == "audiob64=="
+
+    def test_unrecognized_part_returns_none(self) -> None:
+        # Given: a list containing an unrecognized part type
+        parts = [{"type": "text", "text": "hi"}, {"type": "video_url", "url": "..."}]
+
+        # When: converting parts to blocks
+        result = _openai_content_parts_to_blocks(parts)
+
+        # Then: None is returned so the caller can fall back to string serialisation
+        assert result is None
+
+    def test_mixed_text_and_image(self) -> None:
+        # Given: a list with a text part followed by an image data URI
+        parts = [
+            {"type": "text", "text": "look at this"},
+            {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64,xyz"}},
+        ]
+
+        # When: converting parts to blocks
+        result = _openai_content_parts_to_blocks(parts)
+
+        # Then: both blocks are returned in order
+        assert result is not None
+        assert len(result) == 2
+        assert isinstance(result[0], TextContentBlock)
+        assert isinstance(result[1], DataContentBlock)
+        assert result[1].mime_type == "image/jpeg"
+
+
+class TestConvertToGalileoMessage:
+    """Tests for convert_to_galileo_message — tool linkage with multimodal content."""
+
+    def test_tool_role_with_list_content_preserves_tool_call_id(self) -> None:
+        # Given: a tool-role message where content is an array of parts (not a string)
+        msg = {"role": "tool", "tool_call_id": "call_abc123", "content": [{"type": "text", "text": "result"}]}
+
+        # When: converting to a Galileo message
+        result = convert_to_galileo_message(msg)
+
+        # Then: tool_call_id is preserved on the returned LoggedMessage
+        assert isinstance(result, LoggedMessage)
+        assert result.tool_call_id == "call_abc123"
+
+    def test_assistant_with_list_content_and_tool_calls_preserves_linkage(self) -> None:
+        # Given: an assistant message with array content and a tool_calls list
+        msg = {
+            "role": "assistant",
+            "content": [{"type": "text", "text": "I'll call the tool"}],
+            "tool_calls": [{"id": "call_xyz", "function": {"name": "my_tool", "arguments": '{"x": 1}'}}],
+        }
+
+        # When: converting to a Galileo message
+        result = convert_to_galileo_message(msg)
+
+        # Then: tool_calls are preserved on the returned LoggedMessage
+        assert isinstance(result, LoggedMessage)
+        assert result.tool_calls is not None
+        assert len(result.tool_calls) == 1
+        assert result.tool_calls[0].id == "call_xyz"
+
+    def test_string_content_with_tool_call_id_falls_through_to_message(self) -> None:
+        # Given: a tool-role message with plain string content (not a list)
+        msg = {"role": "tool", "tool_call_id": "call_def456", "content": "plain result"}
+
+        # When: converting to a Galileo message
+        result = convert_to_galileo_message(msg)
+
+        # Then: a standard Message is returned (not LoggedMessage) with tool_call_id
+        assert isinstance(result, Message)
+        assert result.tool_call_id == "call_def456"

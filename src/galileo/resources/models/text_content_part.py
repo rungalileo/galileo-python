@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,10 +15,9 @@ T = TypeVar("T", bound="TextContentPart")
 class TextContentPart:
     """A text segment within a message.
 
-    Attributes
-    ----------
+    Attributes:
         text (str):
-        type_ (Union[Literal['text'], Unset]):  Default: 'text'.
+        type_ (Literal['text'] | Unset):  Default: 'text'.
     """
 
     text: str

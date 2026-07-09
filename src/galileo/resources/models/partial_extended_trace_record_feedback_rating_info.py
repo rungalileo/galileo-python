@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -13,9 +15,9 @@ T = TypeVar("T", bound="PartialExtendedTraceRecordFeedbackRatingInfo")
 
 @_attrs_define
 class PartialExtendedTraceRecordFeedbackRatingInfo:
-    """Feedback information related to the record."""
+    """Feedback information related to the record"""
 
-    additional_properties: dict[str, "FeedbackRatingInfo"] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, FeedbackRatingInfo] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         field_dict: dict[str, Any] = {}
@@ -44,10 +46,10 @@ class PartialExtendedTraceRecordFeedbackRatingInfo:
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> "FeedbackRatingInfo":
+    def __getitem__(self, key: str) -> FeedbackRatingInfo:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: "FeedbackRatingInfo") -> None:
+    def __setitem__(self, key: str, value: FeedbackRatingInfo) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

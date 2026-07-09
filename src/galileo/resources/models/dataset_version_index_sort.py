@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,15 +14,14 @@ T = TypeVar("T", bound="DatasetVersionIndexSort")
 @_attrs_define
 class DatasetVersionIndexSort:
     """
-    Attributes
-    ----------
-        name (Union[Literal['version_index'], Unset]):  Default: 'version_index'.
-        ascending (Union[Unset, bool]):  Default: True.
-        sort_type (Union[Literal['column'], Unset]):  Default: 'column'.
+    Attributes:
+        name (Literal['version_index'] | Unset):  Default: 'version_index'.
+        ascending (bool | Unset):  Default: True.
+        sort_type (Literal['column'] | Unset):  Default: 'column'.
     """
 
     name: Literal["version_index"] | Unset = "version_index"
-    ascending: Unset | bool = True
+    ascending: bool | Unset = True
     sort_type: Literal["column"] | Unset = "column"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,25 +15,28 @@ T = TypeVar("T", bound="ScorerScoreableNodeTypesFilter")
 @_attrs_define
 class ScorerScoreableNodeTypesFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         operator (ScorerScoreableNodeTypesFilterOperator):
-        value (Union[list[str], str]):
-        name (Union[Literal['scoreable_node_types'], Unset]):  Default: 'scoreable_node_types'.
-        case_sensitive (Union[Unset, bool]):  Default: True.
+        value (list[str] | str):
+        name (Literal['scoreable_node_types'] | Unset):  Default: 'scoreable_node_types'.
+        case_sensitive (bool | Unset):  Default: True.
     """
 
     operator: ScorerScoreableNodeTypesFilterOperator
     value: list[str] | str
     name: Literal["scoreable_node_types"] | Unset = "scoreable_node_types"
-    case_sensitive: Unset | bool = True
+    case_sensitive: bool | Unset = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         operator = self.operator.value
 
         value: list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         name = self.name
 
@@ -56,8 +61,9 @@ class ScorerScoreableNodeTypesFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

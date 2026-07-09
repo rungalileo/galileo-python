@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,16 +15,15 @@ T = TypeVar("T", bound="ProjectIDFilter")
 @_attrs_define
 class ProjectIDFilter:
     """
-    Attributes
-    ----------
-        value (Union[list[str], str]):
-        name (Union[Literal['id'], Unset]):  Default: 'id'.
-        operator (Union[Unset, ProjectIDFilterOperator]):  Default: ProjectIDFilterOperator.EQ.
+    Attributes:
+        value (list[str] | str):
+        name (Literal['id'] | Unset):  Default: 'id'.
+        operator (ProjectIDFilterOperator | Unset):  Default: ProjectIDFilterOperator.EQ.
     """
 
     value: list[str] | str
     name: Literal["id"] | Unset = "id"
-    operator: Unset | ProjectIDFilterOperator = ProjectIDFilterOperator.EQ
+    operator: ProjectIDFilterOperator | Unset = ProjectIDFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,7 +40,7 @@ class ProjectIDFilter:
 
         name = self.name
 
-        operator: Unset | str = UNSET
+        operator: str | Unset = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -84,8 +85,11 @@ class ProjectIDFilter:
             raise ValueError(f"name must match const 'id', got '{name}'")
 
         _operator = d.pop("operator", UNSET)
-        operator: Unset | ProjectIDFilterOperator
-        operator = UNSET if isinstance(_operator, Unset) else ProjectIDFilterOperator(_operator)
+        operator: ProjectIDFilterOperator | Unset
+        if isinstance(_operator, Unset):
+            operator = UNSET
+        else:
+            operator = ProjectIDFilterOperator(_operator)
 
         project_id_filter = cls(value=value, name=name, operator=operator)
 

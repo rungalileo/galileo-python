@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
@@ -14,16 +16,15 @@ T = TypeVar("T", bound="CreateUpdateRegisteredScorerResponse")
 @_attrs_define
 class CreateUpdateRegisteredScorerResponse:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         name (str):
-        score_type (Union[None, str]):
+        score_type (None | str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         created_by (str):
-        data_type (Union[DataTypeOptions, None]):
-        scoreable_node_types (Union[None, list[str]]):
+        data_type (DataTypeOptions | None):
+        scoreable_node_types (list[str] | None):
     """
 
     id: str
@@ -33,7 +34,7 @@ class CreateUpdateRegisteredScorerResponse:
     updated_at: datetime.datetime
     created_by: str
     data_type: DataTypeOptions | None
-    scoreable_node_types: None | list[str]
+    scoreable_node_types: list[str] | None
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -51,9 +52,12 @@ class CreateUpdateRegisteredScorerResponse:
         created_by = self.created_by
 
         data_type: None | str
-        data_type = self.data_type.value if isinstance(self.data_type, DataTypeOptions) else self.data_type
+        if isinstance(self.data_type, DataTypeOptions):
+            data_type = self.data_type.value
+        else:
+            data_type = self.data_type
 
-        scoreable_node_types: None | list[str]
+        scoreable_node_types: list[str] | None
         if isinstance(self.scoreable_node_types, list):
             scoreable_node_types = self.scoreable_node_types
 
@@ -103,25 +107,27 @@ class CreateUpdateRegisteredScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return DataTypeOptions(data)
+                data_type_type_0 = DataTypeOptions(data)
 
+                return data_type_type_0
             except:  # noqa: E722
                 pass
             return cast(DataTypeOptions | None, data)
 
         data_type = _parse_data_type(d.pop("data_type"))
 
-        def _parse_scoreable_node_types(data: object) -> None | list[str]:
+        def _parse_scoreable_node_types(data: object) -> list[str] | None:
             if data is None:
                 return data
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                scoreable_node_types_type_0 = cast(list[str], data)
 
+                return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | list[str], data)
+            return cast(list[str] | None, data)
 
         scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types"))
 

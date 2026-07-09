@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -38,7 +38,9 @@ def _get_kwargs() -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> AvailableIntegrations:
     if response.status_code == 200:
-        return AvailableIntegrations.from_dict(response.json())
+        response_200 = AvailableIntegrations.from_dict(response.json())
+
+        return response_200
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -68,19 +70,18 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(*, client: ApiClient) -> Response[AvailableIntegrations]:
-    """List Available Integrations.
+    """List Available Integrations
 
      List all of the available integrations to be created in Galileo.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[AvailableIntegrations]
     """
+
     kwargs = _get_kwargs()
 
     response = client.request(**kwargs)
@@ -88,37 +89,35 @@ def sync_detailed(*, client: ApiClient) -> Response[AvailableIntegrations]:
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient) -> AvailableIntegrations | None:
-    """List Available Integrations.
+def sync(*, client: ApiClient) -> Optional[AvailableIntegrations]:
+    """List Available Integrations
 
      List all of the available integrations to be created in Galileo.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         AvailableIntegrations
     """
+
     return sync_detailed(client=client).parsed
 
 
 async def asyncio_detailed(*, client: ApiClient) -> Response[AvailableIntegrations]:
-    """List Available Integrations.
+    """List Available Integrations
 
      List all of the available integrations to be created in Galileo.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[AvailableIntegrations]
     """
+
     kwargs = _get_kwargs()
 
     response = await client.arequest(**kwargs)
@@ -126,18 +125,17 @@ async def asyncio_detailed(*, client: ApiClient) -> Response[AvailableIntegratio
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient) -> AvailableIntegrations | None:
-    """List Available Integrations.
+async def asyncio(*, client: ApiClient) -> Optional[AvailableIntegrations]:
+    """List Available Integrations
 
      List all of the available integrations to be created in Galileo.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         AvailableIntegrations
     """
+
     return (await asyncio_detailed(client=client)).parsed

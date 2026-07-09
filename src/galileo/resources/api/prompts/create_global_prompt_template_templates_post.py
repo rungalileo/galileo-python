@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -24,14 +24,17 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | Unset | str = UNSET
+    *, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | str | Unset = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
-    json_project_id: None | Unset | str
-    json_project_id = UNSET if isinstance(project_id, Unset) else project_id
+    json_project_id: None | str | Unset
+    if isinstance(project_id, Unset):
+        json_project_id = UNSET
+    else:
+        json_project_id = project_id
     params["project_id"] = json_project_id
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
@@ -55,10 +58,14 @@ def _get_kwargs(
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> BasePromptTemplateResponse | HTTPValidationError:
     if response.status_code == 200:
-        return BasePromptTemplateResponse.from_dict(response.json())
+        response_200 = BasePromptTemplateResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -90,9 +97,9 @@ def _build_response(
 
 
 def sync_detailed(
-    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | Unset | str = UNSET
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | str | Unset = UNSET
 ) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
-    """Create Global Prompt Template.
+    """Create Global Prompt Template
 
      Create a global prompt template.
 
@@ -111,21 +118,20 @@ def sync_detailed(
         Details about the created prompt template.
 
     Args:
-        project_id (Union[None, Unset, str]):
+        project_id (None | str | Unset):
         body (CreatePromptTemplateWithVersionRequestBody): Body to create a new prompt template
             with version.
 
             This is only used for parsing the body from the request.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
+    Returns:
+        Response[BasePromptTemplateResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(body=body, project_id=project_id)
 
     response = client.request(**kwargs)
@@ -134,9 +140,9 @@ def sync_detailed(
 
 
 def sync(
-    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | Unset | str = UNSET
-) -> BasePromptTemplateResponse | HTTPValidationError | None:
-    """Create Global Prompt Template.
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | str | Unset = UNSET
+) -> Optional[BasePromptTemplateResponse | HTTPValidationError]:
+    """Create Global Prompt Template
 
      Create a global prompt template.
 
@@ -155,28 +161,27 @@ def sync(
         Details about the created prompt template.
 
     Args:
-        project_id (Union[None, Unset, str]):
+        project_id (None | str | Unset):
         body (CreatePromptTemplateWithVersionRequestBody): Body to create a new prompt template
             with version.
 
             This is only used for parsing the body from the request.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[BasePromptTemplateResponse, HTTPValidationError]
+    Returns:
+        BasePromptTemplateResponse | HTTPValidationError
     """
+
     return sync_detailed(client=client, body=body, project_id=project_id).parsed
 
 
 async def asyncio_detailed(
-    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | Unset | str = UNSET
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | str | Unset = UNSET
 ) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
-    """Create Global Prompt Template.
+    """Create Global Prompt Template
 
      Create a global prompt template.
 
@@ -195,21 +200,20 @@ async def asyncio_detailed(
         Details about the created prompt template.
 
     Args:
-        project_id (Union[None, Unset, str]):
+        project_id (None | str | Unset):
         body (CreatePromptTemplateWithVersionRequestBody): Body to create a new prompt template
             with version.
 
             This is only used for parsing the body from the request.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
+    Returns:
+        Response[BasePromptTemplateResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(body=body, project_id=project_id)
 
     response = await client.arequest(**kwargs)
@@ -218,9 +222,9 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | Unset | str = UNSET
-) -> BasePromptTemplateResponse | HTTPValidationError | None:
-    """Create Global Prompt Template.
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: None | str | Unset = UNSET
+) -> Optional[BasePromptTemplateResponse | HTTPValidationError]:
+    """Create Global Prompt Template
 
      Create a global prompt template.
 
@@ -239,19 +243,18 @@ async def asyncio(
         Details about the created prompt template.
 
     Args:
-        project_id (Union[None, Unset, str]):
+        project_id (None | str | Unset):
         body (CreatePromptTemplateWithVersionRequestBody): Body to create a new prompt template
             with version.
 
             This is only used for parsing the body from the request.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[BasePromptTemplateResponse, HTTPValidationError]
+    Returns:
+        BasePromptTemplateResponse | HTTPValidationError
     """
+
     return (await asyncio_detailed(client=client, body=body, project_id=project_id)).parsed

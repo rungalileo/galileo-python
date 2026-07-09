@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
@@ -18,21 +20,20 @@ T = TypeVar("T", bound="ValidResult")
 @_attrs_define
 class ValidResult:
     """
-    Attributes
-    ----------
+    Attributes:
         score_type (str):
         scoreable_node_types (list[NodeType]):
-        test_scores (list['TestScore']):
-        result_type (Union[Literal['valid'], Unset]):  Default: 'valid'.
-        include_llm_credentials (Union[Unset, bool]):  Default: False.
-        chain_aggregation (Union[ChainAggregationStrategy, None, Unset]):
+        test_scores (list[TestScore]):
+        result_type (Literal['valid'] | Unset):  Default: 'valid'.
+        include_llm_credentials (bool | Unset):  Default: False.
+        chain_aggregation (ChainAggregationStrategy | None | Unset):
     """
 
     score_type: str
     scoreable_node_types: list[NodeType]
-    test_scores: list["TestScore"]
+    test_scores: list[TestScore]
     result_type: Literal["valid"] | Unset = "valid"
-    include_llm_credentials: Unset | bool = False
+    include_llm_credentials: bool | Unset = False
     chain_aggregation: ChainAggregationStrategy | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -53,7 +54,7 @@ class ValidResult:
 
         include_llm_credentials = self.include_llm_credentials
 
-        chain_aggregation: None | Unset | str
+        chain_aggregation: None | str | Unset
         if isinstance(self.chain_aggregation, Unset):
             chain_aggregation = UNSET
         elif isinstance(self.chain_aggregation, ChainAggregationStrategy):
@@ -110,8 +111,9 @@ class ValidResult:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return ChainAggregationStrategy(data)
+                chain_aggregation_type_0 = ChainAggregationStrategy(data)
 
+                return chain_aggregation_type_0
             except:  # noqa: E722
                 pass
             return cast(ChainAggregationStrategy | None | Unset, data)

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,15 +14,14 @@ T = TypeVar("T", bound="ProjectBookmarkSort")
 @_attrs_define
 class ProjectBookmarkSort:
     """
-    Attributes
-    ----------
-        name (Union[Literal['bookmark'], Unset]):  Default: 'bookmark'.
-        ascending (Union[Unset, bool]):  Default: True.
-        sort_type (Union[Literal['custom'], Unset]):  Default: 'custom'.
+    Attributes:
+        name (Literal['bookmark'] | Unset):  Default: 'bookmark'.
+        ascending (bool | Unset):  Default: True.
+        sort_type (Literal['custom'] | Unset):  Default: 'custom'.
     """
 
     name: Literal["bookmark"] | Unset = "bookmark"
-    ascending: Unset | bool = True
+    ascending: bool | Unset = True
     sort_type: Literal["custom"] | Unset = "custom"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

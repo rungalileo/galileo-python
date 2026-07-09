@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -24,11 +26,10 @@ class CategoricalColorConstraint:
         {"color": "green", "operator": "eq", "value": "pass"}
         {"color": "red", "operator": "one_of", "value": ["fail", "error"]}
 
-    Attributes
-    ----------
+        Attributes:
             color (MetricColor): Allowed colors for metric threshold visualization in the UI.
             operator (CategoricalColorConstraintOperator):
-            value (Union[list[str], str]):
+            value (list[str] | str):
     """
 
     color: MetricColor
@@ -42,7 +43,11 @@ class CategoricalColorConstraint:
         operator = self.operator.value
 
         value: list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -61,8 +66,9 @@ class CategoricalColorConstraint:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

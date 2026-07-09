@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,19 +15,18 @@ T = TypeVar("T", bound="LogRecordsTextFilter")
 @_attrs_define
 class LogRecordsTextFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         column_id (str): ID of the column to filter.
         operator (LogRecordsTextFilterOperator):
-        value (Union[list[str], str]):
-        case_sensitive (Union[Unset, bool]):  Default: True.
-        type_ (Union[Literal['text'], Unset]):  Default: 'text'.
+        value (list[str] | str):
+        case_sensitive (bool | Unset):  Default: True.
+        type_ (Literal['text'] | Unset):  Default: 'text'.
     """
 
     column_id: str
     operator: LogRecordsTextFilterOperator
     value: list[str] | str
-    case_sensitive: Unset | bool = True
+    case_sensitive: bool | Unset = True
     type_: Literal["text"] | Unset = "text"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -35,7 +36,11 @@ class LogRecordsTextFilter:
         operator = self.operator.value
 
         value: list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         case_sensitive = self.case_sensitive
 
@@ -62,8 +67,9 @@ class LogRecordsTextFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_1 = cast(list[str], data)
 
+                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(list[str] | str, data)

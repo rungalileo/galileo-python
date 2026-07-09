@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -13,15 +15,14 @@ T = TypeVar("T", bound="InsightSummary")
 @_attrs_define
 class InsightSummary:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         title (str):
         observation (str):
         details (str):
         suggested_action (str):
         priority (int):
-        priority_category (Union[InsightSummaryPriorityCategoryType0, None, Unset]):
+        priority_category (InsightSummaryPriorityCategoryType0 | None | Unset):
     """
 
     id: str
@@ -46,7 +47,7 @@ class InsightSummary:
 
         priority = self.priority
 
-        priority_category: None | Unset | str
+        priority_category: None | str | Unset
         if isinstance(self.priority_category, Unset):
             priority_category = UNSET
         elif isinstance(self.priority_category, InsightSummaryPriorityCategoryType0):
@@ -94,8 +95,9 @@ class InsightSummary:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return InsightSummaryPriorityCategoryType0(data)
+                priority_category_type_0 = InsightSummaryPriorityCategoryType0(data)
 
+                return priority_category_type_0
             except:  # noqa: E722
                 pass
             return cast(InsightSummaryPriorityCategoryType0 | None | Unset, data)

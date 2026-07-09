@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,10 +14,9 @@ T = TypeVar("T", bound="ProjectBookmarkFilter")
 @_attrs_define
 class ProjectBookmarkFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         value (bool):
-        name (Union[Literal['bookmark'], Unset]):  Default: 'bookmark'.
+        name (Literal['bookmark'] | Unset):  Default: 'bookmark'.
     """
 
     value: bool

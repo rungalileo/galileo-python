@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,16 +15,15 @@ T = TypeVar("T", bound="ScorerCreatorFilter")
 @_attrs_define
 class ScorerCreatorFilter:
     """
-    Attributes
-    ----------
-        value (Union[list[str], str]):
-        name (Union[Literal['creator'], Unset]):  Default: 'creator'.
-        operator (Union[Unset, ScorerCreatorFilterOperator]):  Default: ScorerCreatorFilterOperator.EQ.
+    Attributes:
+        value (list[str] | str):
+        name (Literal['creator'] | Unset):  Default: 'creator'.
+        operator (ScorerCreatorFilterOperator | Unset):  Default: ScorerCreatorFilterOperator.EQ.
     """
 
     value: list[str] | str
     name: Literal["creator"] | Unset = "creator"
-    operator: Unset | ScorerCreatorFilterOperator = ScorerCreatorFilterOperator.EQ
+    operator: ScorerCreatorFilterOperator | Unset = ScorerCreatorFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,7 +40,7 @@ class ScorerCreatorFilter:
 
         name = self.name
 
-        operator: Unset | str = UNSET
+        operator: str | Unset = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -84,8 +85,11 @@ class ScorerCreatorFilter:
             raise ValueError(f"name must match const 'creator', got '{name}'")
 
         _operator = d.pop("operator", UNSET)
-        operator: Unset | ScorerCreatorFilterOperator
-        operator = UNSET if isinstance(_operator, Unset) else ScorerCreatorFilterOperator(_operator)
+        operator: ScorerCreatorFilterOperator | Unset
+        if isinstance(_operator, Unset):
+            operator = UNSET
+        else:
+            operator = ScorerCreatorFilterOperator(_operator)
 
         scorer_creator_filter = cls(value=value, name=name, operator=operator)
 

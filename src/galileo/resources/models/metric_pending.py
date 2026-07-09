@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,22 +15,21 @@ T = TypeVar("T", bound="MetricPending")
 @_attrs_define
 class MetricPending:
     """
-    Attributes
-    ----------
-        status_type (Union[Literal['pending'], Unset]):  Default: 'pending'.
-        scorer_type (Union[None, ScorerType, Unset]):
-        metric_key_alias (Union[None, Unset, str]):
+    Attributes:
+        status_type (Literal['pending'] | Unset):  Default: 'pending'.
+        scorer_type (None | ScorerType | Unset):
+        metric_key_alias (None | str | Unset):
     """
 
     status_type: Literal["pending"] | Unset = "pending"
     scorer_type: None | ScorerType | Unset = UNSET
-    metric_key_alias: None | Unset | str = UNSET
+    metric_key_alias: None | str | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         status_type = self.status_type
 
-        scorer_type: None | Unset | str
+        scorer_type: None | str | Unset
         if isinstance(self.scorer_type, Unset):
             scorer_type = UNSET
         elif isinstance(self.scorer_type, ScorerType):
@@ -36,8 +37,11 @@ class MetricPending:
         else:
             scorer_type = self.scorer_type
 
-        metric_key_alias: None | Unset | str
-        metric_key_alias = UNSET if isinstance(self.metric_key_alias, Unset) else self.metric_key_alias
+        metric_key_alias: None | str | Unset
+        if isinstance(self.metric_key_alias, Unset):
+            metric_key_alias = UNSET
+        else:
+            metric_key_alias = self.metric_key_alias
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -66,20 +70,21 @@ class MetricPending:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return ScorerType(data)
+                scorer_type_type_0 = ScorerType(data)
 
+                return scorer_type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ScorerType | Unset, data)
 
         scorer_type = _parse_scorer_type(d.pop("scorer_type", UNSET))
 
-        def _parse_metric_key_alias(data: object) -> None | Unset | str:
+        def _parse_metric_key_alias(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         metric_key_alias = _parse_metric_key_alias(d.pop("metric_key_alias", UNSET))
 

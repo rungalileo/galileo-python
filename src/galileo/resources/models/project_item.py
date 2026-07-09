@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,20 +24,19 @@ T = TypeVar("T", bound="ProjectItem")
 class ProjectItem:
     """Represents a single project item for the UI list.
 
-    Attributes
-    ----------
+    Attributes:
         id (str):
         name (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        permissions (Union[Unset, list['Permission']]):
-        bookmark (Union[Unset, bool]):  Default: False.
-        num_logstreams (Union[None, Unset, int]): Count of runs with task_type=15
-        num_experiments (Union[None, Unset, int]): Count of runs with task_type=16
-        created_by_user (Union['UserInfo', None, Unset]):
-        description (Union[None, Unset, str]):
-        labels (Union[Unset, list[ProjectLabels]]): List of labels associated with the project.
-        log_streams (Union[None, Unset, list['LogStreamInfo']]): Log streams for this project. Only populated when
+        permissions (list[Permission] | Unset):
+        bookmark (bool | Unset):  Default: False.
+        num_logstreams (int | None | Unset): Count of runs with task_type=15
+        num_experiments (int | None | Unset): Count of runs with task_type=16
+        created_by_user (None | Unset | UserInfo):
+        description (None | str | Unset):
+        labels (list[ProjectLabels] | Unset): List of labels associated with the project.
+        log_streams (list[LogStreamInfo] | None | Unset): Log streams for this project. Only populated when
             include_logstreams=True.
     """
 
@@ -43,14 +44,14 @@ class ProjectItem:
     name: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    permissions: Unset | list["Permission"] = UNSET
-    bookmark: Unset | bool = False
-    num_logstreams: None | Unset | int = UNSET
-    num_experiments: None | Unset | int = UNSET
-    created_by_user: Union["UserInfo", None, Unset] = UNSET
-    description: None | Unset | str = UNSET
-    labels: Unset | list[ProjectLabels] = UNSET
-    log_streams: None | Unset | list["LogStreamInfo"] = UNSET
+    permissions: list[Permission] | Unset = UNSET
+    bookmark: bool | Unset = False
+    num_logstreams: int | None | Unset = UNSET
+    num_experiments: int | None | Unset = UNSET
+    created_by_user: None | Unset | UserInfo = UNSET
+    description: None | str | Unset = UNSET
+    labels: list[ProjectLabels] | Unset = UNSET
+    log_streams: list[LogStreamInfo] | None | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -64,7 +65,7 @@ class ProjectItem:
 
         updated_at = self.updated_at.isoformat()
 
-        permissions: Unset | list[dict[str, Any]] = UNSET
+        permissions: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
@@ -73,13 +74,19 @@ class ProjectItem:
 
         bookmark = self.bookmark
 
-        num_logstreams: None | Unset | int
-        num_logstreams = UNSET if isinstance(self.num_logstreams, Unset) else self.num_logstreams
+        num_logstreams: int | None | Unset
+        if isinstance(self.num_logstreams, Unset):
+            num_logstreams = UNSET
+        else:
+            num_logstreams = self.num_logstreams
 
-        num_experiments: None | Unset | int
-        num_experiments = UNSET if isinstance(self.num_experiments, Unset) else self.num_experiments
+        num_experiments: int | None | Unset
+        if isinstance(self.num_experiments, Unset):
+            num_experiments = UNSET
+        else:
+            num_experiments = self.num_experiments
 
-        created_by_user: None | Unset | dict[str, Any]
+        created_by_user: dict[str, Any] | None | Unset
         if isinstance(self.created_by_user, Unset):
             created_by_user = UNSET
         elif isinstance(self.created_by_user, UserInfo):
@@ -87,17 +94,20 @@ class ProjectItem:
         else:
             created_by_user = self.created_by_user
 
-        description: None | Unset | str
-        description = UNSET if isinstance(self.description, Unset) else self.description
+        description: None | str | Unset
+        if isinstance(self.description, Unset):
+            description = UNSET
+        else:
+            description = self.description
 
-        labels: Unset | list[str] = UNSET
+        labels: list[str] | Unset = UNSET
         if not isinstance(self.labels, Unset):
             labels = []
             for labels_item_data in self.labels:
                 labels_item = labels_item_data.value
                 labels.append(labels_item)
 
-        log_streams: None | Unset | list[dict[str, Any]]
+        log_streams: list[dict[str, Any]] | None | Unset
         if isinstance(self.log_streams, Unset):
             log_streams = UNSET
         elif isinstance(self.log_streams, list):
@@ -146,34 +156,36 @@ class ProjectItem:
 
         updated_at = isoparse(d.pop("updated_at"))
 
-        permissions = []
         _permissions = d.pop("permissions", UNSET)
-        for permissions_item_data in _permissions or []:
-            permissions_item = Permission.from_dict(permissions_item_data)
+        permissions: list[Permission] | Unset = UNSET
+        if _permissions is not UNSET:
+            permissions = []
+            for permissions_item_data in _permissions:
+                permissions_item = Permission.from_dict(permissions_item_data)
 
-            permissions.append(permissions_item)
+                permissions.append(permissions_item)
 
         bookmark = d.pop("bookmark", UNSET)
 
-        def _parse_num_logstreams(data: object) -> None | Unset | int:
+        def _parse_num_logstreams(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(int | None | Unset, data)
 
         num_logstreams = _parse_num_logstreams(d.pop("num_logstreams", UNSET))
 
-        def _parse_num_experiments(data: object) -> None | Unset | int:
+        def _parse_num_experiments(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(int | None | Unset, data)
 
         num_experiments = _parse_num_experiments(d.pop("num_experiments", UNSET))
 
-        def _parse_created_by_user(data: object) -> Union["UserInfo", None, Unset]:
+        def _parse_created_by_user(data: object) -> None | Unset | UserInfo:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -181,31 +193,34 @@ class ProjectItem:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return UserInfo.from_dict(data)
+                created_by_user_type_0 = UserInfo.from_dict(data)
 
+                return created_by_user_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["UserInfo", None, Unset], data)
+            return cast(None | Unset | UserInfo, data)
 
         created_by_user = _parse_created_by_user(d.pop("created_by_user", UNSET))
 
-        def _parse_description(data: object) -> None | Unset | str:
+        def _parse_description(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         description = _parse_description(d.pop("description", UNSET))
 
-        labels = []
         _labels = d.pop("labels", UNSET)
-        for labels_item_data in _labels or []:
-            labels_item = ProjectLabels(labels_item_data)
+        labels: list[ProjectLabels] | Unset = UNSET
+        if _labels is not UNSET:
+            labels = []
+            for labels_item_data in _labels:
+                labels_item = ProjectLabels(labels_item_data)
 
-            labels.append(labels_item)
+                labels.append(labels_item)
 
-        def _parse_log_streams(data: object) -> None | Unset | list["LogStreamInfo"]:
+        def _parse_log_streams(data: object) -> list[LogStreamInfo] | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -223,7 +238,7 @@ class ProjectItem:
                 return log_streams_type_0
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list["LogStreamInfo"], data)
+            return cast(list[LogStreamInfo] | None | Unset, data)
 
         log_streams = _parse_log_streams(d.pop("log_streams", UNSET))
 

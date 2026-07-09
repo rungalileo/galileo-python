@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,10 +14,9 @@ T = TypeVar("T", bound="StarRating")
 @_attrs_define
 class StarRating:
     """
-    Attributes
-    ----------
+    Attributes:
         value (int):
-        feedback_type (Union[Literal['star'], Unset]):  Default: 'star'.
+        feedback_type (Literal['star'] | Unset):  Default: 'star'.
     """
 
     value: int

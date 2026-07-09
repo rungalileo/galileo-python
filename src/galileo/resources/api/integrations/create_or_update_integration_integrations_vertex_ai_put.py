@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -44,10 +44,14 @@ def _get_kwargs(*, body: VertexAIIntegrationCreate) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | IntegrationDB:
     if response.status_code == 200:
-        return IntegrationDB.from_dict(response.json())
+        response_200 = IntegrationDB.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -79,22 +83,21 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(
     *, client: ApiClient, body: VertexAIIntegrationCreate
 ) -> Response[HTTPValidationError | IntegrationDB]:
-    """Create or update Vertex AI integration.
+    """Create or update Vertex AI integration
 
      Create or update a Google Vertex AI integration for a user.
 
     Args:
         body (VertexAIIntegrationCreate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, IntegrationDB]]
+    Returns:
+        Response[HTTPValidationError | IntegrationDB]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -102,45 +105,43 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: ApiClient, body: VertexAIIntegrationCreate) -> HTTPValidationError | IntegrationDB | None:
-    """Create or update Vertex AI integration.
+def sync(*, client: ApiClient, body: VertexAIIntegrationCreate) -> Optional[HTTPValidationError | IntegrationDB]:
+    """Create or update Vertex AI integration
 
      Create or update a Google Vertex AI integration for a user.
 
     Args:
         body (VertexAIIntegrationCreate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, IntegrationDB]
+    Returns:
+        HTTPValidationError | IntegrationDB
     """
+
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: VertexAIIntegrationCreate
 ) -> Response[HTTPValidationError | IntegrationDB]:
-    """Create or update Vertex AI integration.
+    """Create or update Vertex AI integration
 
      Create or update a Google Vertex AI integration for a user.
 
     Args:
         body (VertexAIIntegrationCreate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, IntegrationDB]]
+    Returns:
+        Response[HTTPValidationError | IntegrationDB]
     """
+
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -148,21 +149,22 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: ApiClient, body: VertexAIIntegrationCreate) -> HTTPValidationError | IntegrationDB | None:
-    """Create or update Vertex AI integration.
+async def asyncio(
+    *, client: ApiClient, body: VertexAIIntegrationCreate
+) -> Optional[HTTPValidationError | IntegrationDB]:
+    """Create or update Vertex AI integration
 
      Create or update a Google Vertex AI integration for a user.
 
     Args:
         body (VertexAIIntegrationCreate):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, IntegrationDB]
+    Returns:
+        HTTPValidationError | IntegrationDB
     """
+
     return (await asyncio_detailed(client=client, body=body)).parsed

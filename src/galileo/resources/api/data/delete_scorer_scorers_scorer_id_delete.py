@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -28,7 +28,7 @@ def _get_kwargs(scorer_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.DELETE,
         "return_raw_response": True,
-        "path": f"/scorers/{scorer_id}",
+        "path": "/scorers/{scorer_id}".format(scorer_id=scorer_id),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -39,10 +39,14 @@ def _get_kwargs(scorer_id: str) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> DeleteScorerResponse | HTTPValidationError:
     if response.status_code == 200:
-        return DeleteScorerResponse.from_dict(response.json())
+        response_200 = DeleteScorerResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -74,20 +78,19 @@ def _build_response(
 
 
 def sync_detailed(scorer_id: str, *, client: ApiClient) -> Response[DeleteScorerResponse | HTTPValidationError]:
-    """Delete Scorer.
+    """Delete Scorer
 
     Args:
         scorer_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[DeleteScorerResponse, HTTPValidationError]]
+    Returns:
+        Response[DeleteScorerResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(scorer_id=scorer_id)
 
     response = client.request(**kwargs)
@@ -95,41 +98,39 @@ def sync_detailed(scorer_id: str, *, client: ApiClient) -> Response[DeleteScorer
     return _build_response(client=client, response=response)
 
 
-def sync(scorer_id: str, *, client: ApiClient) -> DeleteScorerResponse | HTTPValidationError | None:
-    """Delete Scorer.
+def sync(scorer_id: str, *, client: ApiClient) -> Optional[DeleteScorerResponse | HTTPValidationError]:
+    """Delete Scorer
 
     Args:
         scorer_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[DeleteScorerResponse, HTTPValidationError]
+    Returns:
+        DeleteScorerResponse | HTTPValidationError
     """
+
     return sync_detailed(scorer_id=scorer_id, client=client).parsed
 
 
 async def asyncio_detailed(
     scorer_id: str, *, client: ApiClient
 ) -> Response[DeleteScorerResponse | HTTPValidationError]:
-    """Delete Scorer.
+    """Delete Scorer
 
     Args:
         scorer_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[DeleteScorerResponse, HTTPValidationError]]
+    Returns:
+        Response[DeleteScorerResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(scorer_id=scorer_id)
 
     response = await client.arequest(**kwargs)
@@ -137,19 +138,18 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(scorer_id: str, *, client: ApiClient) -> DeleteScorerResponse | HTTPValidationError | None:
-    """Delete Scorer.
+async def asyncio(scorer_id: str, *, client: ApiClient) -> Optional[DeleteScorerResponse | HTTPValidationError]:
+    """Delete Scorer
 
     Args:
         scorer_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[DeleteScorerResponse, HTTPValidationError]
+    Returns:
+        DeleteScorerResponse | HTTPValidationError
     """
+
     return (await asyncio_detailed(scorer_id=scorer_id, client=client)).parsed

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -13,8 +15,7 @@ T = TypeVar("T", bound="CreateCodeMetricGenerationResponse")
 class CreateCodeMetricGenerationResponse:
     """Response with generation ID for polling.
 
-    Attributes
-    ----------
+    Attributes:
         id (str):
         status (CodeMetricGenerationStatus):
     """

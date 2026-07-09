@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
@@ -28,13 +30,12 @@ class MetricColorPickerBoolean:
             ]
         }
 
-    Attributes
-    ----------
-            constraints (list['BooleanColorConstraint']):
-            type_ (Union[Literal['boolean'], Unset]):  Default: 'boolean'.
+        Attributes:
+            constraints (list[BooleanColorConstraint]):
+            type_ (Literal['boolean'] | Unset):  Default: 'boolean'.
     """
 
-    constraints: list["BooleanColorConstraint"]
+    constraints: list[BooleanColorConstraint]
     type_: Literal["boolean"] | Unset = "boolean"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

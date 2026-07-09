@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -12,8 +14,7 @@ T = TypeVar("T", bound="MetricAggregationDetail")
 @_attrs_define
 class MetricAggregationDetail:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str): Identifier for the metric in the response (e.g., 'w1', 'w2')
         metric_name (str): Name of the metric to aggregate
         aggregation (MetricAggregation):

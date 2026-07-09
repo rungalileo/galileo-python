@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
@@ -15,9 +17,9 @@ T = TypeVar("T", bound="ExtendedTraceRecordWithChildrenAnnotations")
 
 @_attrs_define
 class ExtendedTraceRecordWithChildrenAnnotations:
-    """Annotations keyed by template ID and annotator ID."""
+    """Annotations keyed by template ID and annotator ID"""
 
-    additional_properties: dict[str, "ExtendedTraceRecordWithChildrenAnnotationsAdditionalProperty"] = _attrs_field(
+    additional_properties: dict[str, ExtendedTraceRecordWithChildrenAnnotationsAdditionalProperty] = _attrs_field(
         init=False, factory=dict
     )
 
@@ -50,10 +52,10 @@ class ExtendedTraceRecordWithChildrenAnnotations:
     def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
-    def __getitem__(self, key: str) -> "ExtendedTraceRecordWithChildrenAnnotationsAdditionalProperty":
+    def __getitem__(self, key: str) -> ExtendedTraceRecordWithChildrenAnnotationsAdditionalProperty:
         return self.additional_properties[key]
 
-    def __setitem__(self, key: str, value: "ExtendedTraceRecordWithChildrenAnnotationsAdditionalProperty") -> None:
+    def __setitem__(self, key: str, value: ExtendedTraceRecordWithChildrenAnnotationsAdditionalProperty) -> None:
         self.additional_properties[key] = value
 
     def __delitem__(self, key: str) -> None:

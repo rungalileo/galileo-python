@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -23,7 +23,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    project_id: str, *, include_counts: Unset | bool = False, starting_token: Unset | int = 0, limit: Unset | int = 100
+    project_id: str, *, include_counts: bool | Unset = False, starting_token: int | Unset = 0, limit: int | Unset = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -40,7 +40,7 @@ def _get_kwargs(
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/experiments/paginated",
+        "path": "/projects/{project_id}/experiments/paginated".format(project_id=project_id),
         "params": params,
     }
 
@@ -52,10 +52,14 @@ def _get_kwargs(
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError | ListExperimentResponse:
     if response.status_code == 200:
-        return ListExperimentResponse.from_dict(response.json())
+        response_200 = ListExperimentResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -90,29 +94,28 @@ def sync_detailed(
     project_id: str,
     *,
     client: ApiClient,
-    include_counts: Unset | bool = False,
-    starting_token: Unset | int = 0,
-    limit: Unset | int = 100,
+    include_counts: bool | Unset = False,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
 ) -> Response[HTTPValidationError | ListExperimentResponse]:
-    """List Experiments Paginated.
+    """List Experiments Paginated
 
      Retrieve all experiments for a project with pagination.
 
     Args:
         project_id (str):
-        include_counts (Union[Unset, bool]):  Default: False.
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        include_counts (bool | Unset):  Default: False.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, ListExperimentResponse]]
+    Returns:
+        Response[HTTPValidationError | ListExperimentResponse]
     """
+
     kwargs = _get_kwargs(
         project_id=project_id, include_counts=include_counts, starting_token=starting_token, limit=limit
     )
@@ -126,29 +129,28 @@ def sync(
     project_id: str,
     *,
     client: ApiClient,
-    include_counts: Unset | bool = False,
-    starting_token: Unset | int = 0,
-    limit: Unset | int = 100,
-) -> HTTPValidationError | ListExperimentResponse | None:
-    """List Experiments Paginated.
+    include_counts: bool | Unset = False,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> Optional[HTTPValidationError | ListExperimentResponse]:
+    """List Experiments Paginated
 
      Retrieve all experiments for a project with pagination.
 
     Args:
         project_id (str):
-        include_counts (Union[Unset, bool]):  Default: False.
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        include_counts (bool | Unset):  Default: False.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, ListExperimentResponse]
+    Returns:
+        HTTPValidationError | ListExperimentResponse
     """
+
     return sync_detailed(
         project_id=project_id, client=client, include_counts=include_counts, starting_token=starting_token, limit=limit
     ).parsed
@@ -158,29 +160,28 @@ async def asyncio_detailed(
     project_id: str,
     *,
     client: ApiClient,
-    include_counts: Unset | bool = False,
-    starting_token: Unset | int = 0,
-    limit: Unset | int = 100,
+    include_counts: bool | Unset = False,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
 ) -> Response[HTTPValidationError | ListExperimentResponse]:
-    """List Experiments Paginated.
+    """List Experiments Paginated
 
      Retrieve all experiments for a project with pagination.
 
     Args:
         project_id (str):
-        include_counts (Union[Unset, bool]):  Default: False.
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        include_counts (bool | Unset):  Default: False.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[HTTPValidationError, ListExperimentResponse]]
+    Returns:
+        Response[HTTPValidationError | ListExperimentResponse]
     """
+
     kwargs = _get_kwargs(
         project_id=project_id, include_counts=include_counts, starting_token=starting_token, limit=limit
     )
@@ -194,29 +195,28 @@ async def asyncio(
     project_id: str,
     *,
     client: ApiClient,
-    include_counts: Unset | bool = False,
-    starting_token: Unset | int = 0,
-    limit: Unset | int = 100,
-) -> HTTPValidationError | ListExperimentResponse | None:
-    """List Experiments Paginated.
+    include_counts: bool | Unset = False,
+    starting_token: int | Unset = 0,
+    limit: int | Unset = 100,
+) -> Optional[HTTPValidationError | ListExperimentResponse]:
+    """List Experiments Paginated
 
      Retrieve all experiments for a project with pagination.
 
     Args:
         project_id (str):
-        include_counts (Union[Unset, bool]):  Default: False.
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
+        include_counts (bool | Unset):  Default: False.
+        starting_token (int | Unset):  Default: 0.
+        limit (int | Unset):  Default: 100.
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[HTTPValidationError, ListExperimentResponse]
+    Returns:
+        HTTPValidationError | ListExperimentResponse
     """
+
     return (
         await asyncio_detailed(
             project_id=project_id,

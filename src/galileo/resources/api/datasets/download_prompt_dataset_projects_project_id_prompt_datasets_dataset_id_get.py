@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, cast
+from typing import Any, Optional, cast
 
 import httpx
 
@@ -27,7 +27,9 @@ def _get_kwargs(project_id: str, dataset_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/prompt_datasets/{dataset_id}",
+        "path": "/projects/{project_id}/prompt_datasets/{dataset_id}".format(
+            project_id=project_id, dataset_id=dataset_id
+        ),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -38,10 +40,13 @@ def _get_kwargs(project_id: str, dataset_id: str) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Any | HTTPValidationError:
     if response.status_code == 200:
-        return cast(Any, None)
+        response_200 = cast(Any, None)
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -71,21 +76,20 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(project_id: str, dataset_id: str, *, client: ApiClient) -> Response[Any | HTTPValidationError]:
-    """Download Prompt Dataset.
+    """Download Prompt Dataset
 
     Args:
         project_id (str):
         dataset_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[Any, HTTPValidationError]]
+    Returns:
+        Response[Any | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, dataset_id=dataset_id)
 
     response = client.request(**kwargs)
@@ -93,43 +97,41 @@ def sync_detailed(project_id: str, dataset_id: str, *, client: ApiClient) -> Res
     return _build_response(client=client, response=response)
 
 
-def sync(project_id: str, dataset_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
-    """Download Prompt Dataset.
+def sync(project_id: str, dataset_id: str, *, client: ApiClient) -> Optional[Any | HTTPValidationError]:
+    """Download Prompt Dataset
 
     Args:
         project_id (str):
         dataset_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[Any, HTTPValidationError]
+    Returns:
+        Any | HTTPValidationError
     """
+
     return sync_detailed(project_id=project_id, dataset_id=dataset_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, dataset_id: str, *, client: ApiClient
 ) -> Response[Any | HTTPValidationError]:
-    """Download Prompt Dataset.
+    """Download Prompt Dataset
 
     Args:
         project_id (str):
         dataset_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[Any, HTTPValidationError]]
+    Returns:
+        Response[Any | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, dataset_id=dataset_id)
 
     response = await client.arequest(**kwargs)
@@ -137,20 +139,19 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(project_id: str, dataset_id: str, *, client: ApiClient) -> Any | HTTPValidationError | None:
-    """Download Prompt Dataset.
+async def asyncio(project_id: str, dataset_id: str, *, client: ApiClient) -> Optional[Any | HTTPValidationError]:
+    """Download Prompt Dataset
 
     Args:
         project_id (str):
         dataset_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[Any, HTTPValidationError]
+    Returns:
+        Any | HTTPValidationError
     """
+
     return (await asyncio_detailed(project_id=project_id, dataset_id=dataset_id, client=client)).parsed

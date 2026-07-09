@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
@@ -15,11 +17,10 @@ T = TypeVar("T", bound="ProjectUpdatedAtFilter")
 @_attrs_define
 class ProjectUpdatedAtFilter:
     """
-    Attributes
-    ----------
+    Attributes:
         operator (ProjectUpdatedAtFilterOperator):
         value (datetime.datetime):
-        name (Union[Literal['updated_at'], Unset]):  Default: 'updated_at'.
+        name (Literal['updated_at'] | Unset):  Default: 'updated_at'.
     """
 
     operator: ProjectUpdatedAtFilterOperator

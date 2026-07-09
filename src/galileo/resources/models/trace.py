@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -28,61 +30,53 @@ T = TypeVar("T", bound="Trace")
 @_attrs_define
 class Trace:
     """
-    Attributes
-    ----------
-        type_ (Union[Literal['trace'], Unset]): Type of the trace, span or session. Default: 'trace'.
-        input_ (Union[Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Input to the trace or span.
-            Default: ''.
-        redacted_input (Union[None, Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Redacted input of
-            the trace or span.
-        output (Union[None, Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Output of the trace or
+    Attributes:
+        type_ (Literal['trace'] | Unset): Type of the trace, span or session. Default: 'trace'.
+        input_ (list[FileContentPart | TextContentPart] | str | Unset): Input to the trace or span. Default: ''.
+        redacted_input (list[FileContentPart | TextContentPart] | None | str | Unset): Redacted input of the trace or
             span.
-        redacted_output (Union[None, Unset, list[Union['FileContentPart', 'TextContentPart']], str]): Redacted output of
-            the trace or span.
-        name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
-        created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
-        user_metadata (Union[Unset, TraceUserMetadata]): Metadata associated with this trace or span.
-        tags (Union[Unset, list[str]]): Tags associated with this trace or span.
-        status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
-            states.
-        metrics (Union[Unset, Metrics]):
-        external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
-        dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
-        dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
-        dataset_metadata (Union[Unset, TraceDatasetMetadata]): Metadata from the dataset associated with this trace
-        id (Union[None, Unset, str]): Galileo ID of the session, trace or span
-        session_id (Union[None, Unset, str]): Galileo ID of the session containing the trace or span or session
-        trace_id (Union[None, Unset, str]): Galileo ID of the trace containing the span (or the same value as id for a
-            trace)
-        step_number (Union[None, Unset, int]): Topological step number of the span.
-        parent_id (Union[None, Unset, str]): Galileo ID of the parent of this span
-        spans (Union[Unset, list[Union['AgentSpan', 'ControlSpan', 'LlmSpan', 'RetrieverSpan', 'ToolSpan',
-            'WorkflowSpan']]]): Child spans.
+        output (list[FileContentPart | TextContentPart] | None | str | Unset): Output of the trace or span.
+        redacted_output (list[FileContentPart | TextContentPart] | None | str | Unset): Redacted output of the trace or
+            span.
+        name (str | Unset): Name of the trace, span or session. Default: ''.
+        created_at (datetime.datetime | Unset): Timestamp of the trace or span's creation.
+        user_metadata (TraceUserMetadata | Unset): Metadata associated with this trace or span.
+        tags (list[str] | Unset): Tags associated with this trace or span.
+        status_code (int | None | Unset): Status code of the trace or span. Used for logging failure or error states.
+        metrics (Metrics | Unset):
+        external_id (None | str | Unset): A user-provided session, trace or span ID.
+        dataset_input (None | str | Unset): Input to the dataset associated with this trace
+        dataset_output (None | str | Unset): Output from the dataset associated with this trace
+        dataset_metadata (TraceDatasetMetadata | Unset): Metadata from the dataset associated with this trace
+        id (None | str | Unset): Galileo ID of the session, trace or span
+        session_id (None | str | Unset): Galileo ID of the session containing the trace or span or session
+        trace_id (None | str | Unset): Galileo ID of the trace containing the span (or the same value as id for a trace)
+        step_number (int | None | Unset): Topological step number of the span.
+        parent_id (None | str | Unset): Galileo ID of the parent of this span
+        spans (list[AgentSpan | ControlSpan | LlmSpan | RetrieverSpan | ToolSpan | WorkflowSpan] | Unset): Child spans.
     """
 
     type_: Literal["trace"] | Unset = "trace"
-    input_: Unset | list[Union["FileContentPart", "TextContentPart"]] | str = ""
-    redacted_input: None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str = UNSET
-    output: None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str = UNSET
-    redacted_output: None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str = UNSET
-    name: Unset | str = ""
-    created_at: Unset | datetime.datetime = UNSET
-    user_metadata: Union[Unset, "TraceUserMetadata"] = UNSET
-    tags: Unset | list[str] = UNSET
-    status_code: None | Unset | int = UNSET
-    metrics: Union[Unset, "Metrics"] = UNSET
-    external_id: None | Unset | str = UNSET
-    dataset_input: None | Unset | str = UNSET
-    dataset_output: None | Unset | str = UNSET
-    dataset_metadata: Union[Unset, "TraceDatasetMetadata"] = UNSET
-    id: None | Unset | str = UNSET
-    session_id: None | Unset | str = UNSET
-    trace_id: None | Unset | str = UNSET
-    step_number: None | Unset | int = UNSET
-    parent_id: None | Unset | str = UNSET
-    spans: Unset | list[Union["AgentSpan", "ControlSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]] = (
-        UNSET
-    )
+    input_: list[FileContentPart | TextContentPart] | str | Unset = ""
+    redacted_input: list[FileContentPart | TextContentPart] | None | str | Unset = UNSET
+    output: list[FileContentPart | TextContentPart] | None | str | Unset = UNSET
+    redacted_output: list[FileContentPart | TextContentPart] | None | str | Unset = UNSET
+    name: str | Unset = ""
+    created_at: datetime.datetime | Unset = UNSET
+    user_metadata: TraceUserMetadata | Unset = UNSET
+    tags: list[str] | Unset = UNSET
+    status_code: int | None | Unset = UNSET
+    metrics: Metrics | Unset = UNSET
+    external_id: None | str | Unset = UNSET
+    dataset_input: None | str | Unset = UNSET
+    dataset_output: None | str | Unset = UNSET
+    dataset_metadata: TraceDatasetMetadata | Unset = UNSET
+    id: None | str | Unset = UNSET
+    session_id: None | str | Unset = UNSET
+    trace_id: None | str | Unset = UNSET
+    step_number: int | None | Unset = UNSET
+    parent_id: None | str | Unset = UNSET
+    spans: list[AgentSpan | ControlSpan | LlmSpan | RetrieverSpan | ToolSpan | WorkflowSpan] | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -95,7 +89,7 @@ class Trace:
 
         type_ = self.type_
 
-        input_: Unset | list[dict[str, Any]] | str
+        input_: list[dict[str, Any]] | str | Unset
         if isinstance(self.input_, Unset):
             input_ = UNSET
         elif isinstance(self.input_, list):
@@ -112,7 +106,7 @@ class Trace:
         else:
             input_ = self.input_
 
-        redacted_input: None | Unset | list[dict[str, Any]] | str
+        redacted_input: list[dict[str, Any]] | None | str | Unset
         if isinstance(self.redacted_input, Unset):
             redacted_input = UNSET
         elif isinstance(self.redacted_input, list):
@@ -129,7 +123,7 @@ class Trace:
         else:
             redacted_input = self.redacted_input
 
-        output: None | Unset | list[dict[str, Any]] | str
+        output: list[dict[str, Any]] | None | str | Unset
         if isinstance(self.output, Unset):
             output = UNSET
         elif isinstance(self.output, list):
@@ -146,7 +140,7 @@ class Trace:
         else:
             output = self.output
 
-        redacted_output: None | Unset | list[dict[str, Any]] | str
+        redacted_output: list[dict[str, Any]] | None | str | Unset
         if isinstance(self.redacted_output, Unset):
             redacted_output = UNSET
         elif isinstance(self.redacted_output, list):
@@ -165,59 +159,94 @@ class Trace:
 
         name = self.name
 
-        created_at: Unset | str = UNSET
+        created_at: str | Unset = UNSET
         if not isinstance(self.created_at, Unset):
             created_at = self.created_at.isoformat()
 
-        user_metadata: Unset | dict[str, Any] = UNSET
+        user_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.user_metadata, Unset):
             user_metadata = self.user_metadata.to_dict()
 
-        tags: Unset | list[str] = UNSET
+        tags: list[str] | Unset = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
-        status_code: None | Unset | int
-        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
+        status_code: int | None | Unset
+        if isinstance(self.status_code, Unset):
+            status_code = UNSET
+        else:
+            status_code = self.status_code
 
-        metrics: Unset | dict[str, Any] = UNSET
+        metrics: dict[str, Any] | Unset = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
-        external_id: None | Unset | str
-        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
+        external_id: None | str | Unset
+        if isinstance(self.external_id, Unset):
+            external_id = UNSET
+        else:
+            external_id = self.external_id
 
-        dataset_input: None | Unset | str
-        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
+        dataset_input: None | str | Unset
+        if isinstance(self.dataset_input, Unset):
+            dataset_input = UNSET
+        else:
+            dataset_input = self.dataset_input
 
-        dataset_output: None | Unset | str
-        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
+        dataset_output: None | str | Unset
+        if isinstance(self.dataset_output, Unset):
+            dataset_output = UNSET
+        else:
+            dataset_output = self.dataset_output
 
-        dataset_metadata: Unset | dict[str, Any] = UNSET
+        dataset_metadata: dict[str, Any] | Unset = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
-        id: None | Unset | str
-        id = UNSET if isinstance(self.id, Unset) else self.id
+        id: None | str | Unset
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
-        session_id: None | Unset | str
-        session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
+        session_id: None | str | Unset
+        if isinstance(self.session_id, Unset):
+            session_id = UNSET
+        else:
+            session_id = self.session_id
 
-        trace_id: None | Unset | str
-        trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
+        trace_id: None | str | Unset
+        if isinstance(self.trace_id, Unset):
+            trace_id = UNSET
+        else:
+            trace_id = self.trace_id
 
-        step_number: None | Unset | int
-        step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
+        step_number: int | None | Unset
+        if isinstance(self.step_number, Unset):
+            step_number = UNSET
+        else:
+            step_number = self.step_number
 
-        parent_id: None | Unset | str
-        parent_id = UNSET if isinstance(self.parent_id, Unset) else self.parent_id
+        parent_id: None | str | Unset
+        if isinstance(self.parent_id, Unset):
+            parent_id = UNSET
+        else:
+            parent_id = self.parent_id
 
-        spans: Unset | list[dict[str, Any]] = UNSET
+        spans: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.spans, Unset):
             spans = []
             for spans_item_data in self.spans:
                 spans_item: dict[str, Any]
-                if isinstance(spans_item_data, AgentSpan | WorkflowSpan | LlmSpan | RetrieverSpan | ToolSpan):
+                if isinstance(spans_item_data, AgentSpan):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, WorkflowSpan):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, LlmSpan):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, RetrieverSpan):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, ToolSpan):
                     spans_item = spans_item_data.to_dict()
                 else:
                     spans_item = spans_item_data.to_dict()
@@ -291,7 +320,7 @@ class Trace:
         if type_ != "trace" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'trace', got '{type_}'")
 
-        def _parse_input_(data: object) -> Unset | list[Union["FileContentPart", "TextContentPart"]] | str:
+        def _parse_input_(data: object) -> list[FileContentPart | TextContentPart] | str | Unset:
             if isinstance(data, Unset):
                 return data
             try:
@@ -301,17 +330,20 @@ class Trace:
                 _input_type_1 = data
                 for input_type_1_item_data in _input_type_1:
 
-                    def _parse_input_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                    def _parse_input_type_1_item(data: object) -> FileContentPart | TextContentPart:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            input_type_1_item_type_0 = TextContentPart.from_dict(data)
 
+                            return input_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        input_type_1_item_type_1 = FileContentPart.from_dict(data)
+
+                        return input_type_1_item_type_1
 
                     input_type_1_item = _parse_input_type_1_item(input_type_1_item_data)
 
@@ -320,13 +352,11 @@ class Trace:
                 return input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Unset | list[Union["FileContentPart", "TextContentPart"]] | str, data)
+            return cast(list[FileContentPart | TextContentPart] | str | Unset, data)
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
-        def _parse_redacted_input(
-            data: object,
-        ) -> None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str:
+        def _parse_redacted_input(data: object) -> list[FileContentPart | TextContentPart] | None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -338,17 +368,20 @@ class Trace:
                 _redacted_input_type_1 = data
                 for redacted_input_type_1_item_data in _redacted_input_type_1:
 
-                    def _parse_redacted_input_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                    def _parse_redacted_input_type_1_item(data: object) -> FileContentPart | TextContentPart:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            redacted_input_type_1_item_type_0 = TextContentPart.from_dict(data)
 
+                            return redacted_input_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        redacted_input_type_1_item_type_1 = FileContentPart.from_dict(data)
+
+                        return redacted_input_type_1_item_type_1
 
                     redacted_input_type_1_item = _parse_redacted_input_type_1_item(redacted_input_type_1_item_data)
 
@@ -357,11 +390,11 @@ class Trace:
                 return redacted_input_type_1
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str, data)
+            return cast(list[FileContentPart | TextContentPart] | None | str | Unset, data)
 
         redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
-        def _parse_output(data: object) -> None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str:
+        def _parse_output(data: object) -> list[FileContentPart | TextContentPart] | None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -373,17 +406,20 @@ class Trace:
                 _output_type_1 = data
                 for output_type_1_item_data in _output_type_1:
 
-                    def _parse_output_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                    def _parse_output_type_1_item(data: object) -> FileContentPart | TextContentPart:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            output_type_1_item_type_0 = TextContentPart.from_dict(data)
 
+                            return output_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        output_type_1_item_type_1 = FileContentPart.from_dict(data)
+
+                        return output_type_1_item_type_1
 
                     output_type_1_item = _parse_output_type_1_item(output_type_1_item_data)
 
@@ -392,13 +428,11 @@ class Trace:
                 return output_type_1
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str, data)
+            return cast(list[FileContentPart | TextContentPart] | None | str | Unset, data)
 
         output = _parse_output(d.pop("output", UNSET))
 
-        def _parse_redacted_output(
-            data: object,
-        ) -> None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str:
+        def _parse_redacted_output(data: object) -> list[FileContentPart | TextContentPart] | None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -410,17 +444,20 @@ class Trace:
                 _redacted_output_type_1 = data
                 for redacted_output_type_1_item_data in _redacted_output_type_1:
 
-                    def _parse_redacted_output_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                    def _parse_redacted_output_type_1_item(data: object) -> FileContentPart | TextContentPart:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            redacted_output_type_1_item_type_0 = TextContentPart.from_dict(data)
 
+                            return redacted_output_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        redacted_output_type_1_item_type_1 = FileContentPart.from_dict(data)
+
+                        return redacted_output_type_1_item_type_1
 
                     redacted_output_type_1_item = _parse_redacted_output_type_1_item(redacted_output_type_1_item_data)
 
@@ -429,163 +466,181 @@ class Trace:
                 return redacted_output_type_1
             except:  # noqa: E722
                 pass
-            return cast(None | Unset | list[Union["FileContentPart", "TextContentPart"]] | str, data)
+            return cast(list[FileContentPart | TextContentPart] | None | str | Unset, data)
 
         redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
 
         name = d.pop("name", UNSET)
 
         _created_at = d.pop("created_at", UNSET)
-        created_at: Unset | datetime.datetime
-        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
+        created_at: datetime.datetime | Unset
+        if isinstance(_created_at, Unset):
+            created_at = UNSET
+        else:
+            created_at = isoparse(_created_at)
 
         _user_metadata = d.pop("user_metadata", UNSET)
-        user_metadata: Unset | TraceUserMetadata
-        user_metadata = UNSET if isinstance(_user_metadata, Unset) else TraceUserMetadata.from_dict(_user_metadata)
+        user_metadata: TraceUserMetadata | Unset
+        if isinstance(_user_metadata, Unset):
+            user_metadata = UNSET
+        else:
+            user_metadata = TraceUserMetadata.from_dict(_user_metadata)
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
-        def _parse_status_code(data: object) -> None | Unset | int:
+        def _parse_status_code(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(int | None | Unset, data)
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
         _metrics = d.pop("metrics", UNSET)
-        metrics: Unset | Metrics
-        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
+        metrics: Metrics | Unset
+        if isinstance(_metrics, Unset):
+            metrics = UNSET
+        else:
+            metrics = Metrics.from_dict(_metrics)
 
-        def _parse_external_id(data: object) -> None | Unset | str:
+        def _parse_external_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         external_id = _parse_external_id(d.pop("external_id", UNSET))
 
-        def _parse_dataset_input(data: object) -> None | Unset | str:
+        def _parse_dataset_input(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
 
-        def _parse_dataset_output(data: object) -> None | Unset | str:
+        def _parse_dataset_output(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
 
         _dataset_metadata = d.pop("dataset_metadata", UNSET)
-        dataset_metadata: Unset | TraceDatasetMetadata
+        dataset_metadata: TraceDatasetMetadata | Unset
         if isinstance(_dataset_metadata, Unset):
             dataset_metadata = UNSET
         else:
             dataset_metadata = TraceDatasetMetadata.from_dict(_dataset_metadata)
 
-        def _parse_id(data: object) -> None | Unset | str:
+        def _parse_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         id = _parse_id(d.pop("id", UNSET))
 
-        def _parse_session_id(data: object) -> None | Unset | str:
+        def _parse_session_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         session_id = _parse_session_id(d.pop("session_id", UNSET))
 
-        def _parse_trace_id(data: object) -> None | Unset | str:
+        def _parse_trace_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
 
-        def _parse_step_number(data: object) -> None | Unset | int:
+        def _parse_step_number(data: object) -> int | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | int, data)
+            return cast(int | None | Unset, data)
 
         step_number = _parse_step_number(d.pop("step_number", UNSET))
 
-        def _parse_parent_id(data: object) -> None | Unset | str:
+        def _parse_parent_id(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         parent_id = _parse_parent_id(d.pop("parent_id", UNSET))
 
-        spans = []
         _spans = d.pop("spans", UNSET)
-        for spans_item_data in _spans or []:
+        spans: list[AgentSpan | ControlSpan | LlmSpan | RetrieverSpan | ToolSpan | WorkflowSpan] | Unset = UNSET
+        if _spans is not UNSET:
+            spans = []
+            for spans_item_data in _spans:
 
-            def _parse_spans_item(
-                data: object,
-            ) -> Union["AgentSpan", "ControlSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]:
-                try:
+                def _parse_spans_item(
+                    data: object,
+                ) -> AgentSpan | ControlSpan | LlmSpan | RetrieverSpan | ToolSpan | WorkflowSpan:
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        spans_item_type_0 = AgentSpan.from_dict(data)
+
+                        return spans_item_type_0
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        spans_item_type_1 = WorkflowSpan.from_dict(data)
+
+                        return spans_item_type_1
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        spans_item_type_2 = LlmSpan.from_dict(data)
+
+                        return spans_item_type_2
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        spans_item_type_3 = RetrieverSpan.from_dict(data)
+
+                        return spans_item_type_3
+                    except:  # noqa: E722
+                        pass
+                    try:
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        spans_item_type_4 = ToolSpan.from_dict(data)
+
+                        return spans_item_type_4
+                    except:  # noqa: E722
+                        pass
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return AgentSpan.from_dict(data)
+                    spans_item_type_5 = ControlSpan.from_dict(data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return WorkflowSpan.from_dict(data)
+                    return spans_item_type_5
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return LlmSpan.from_dict(data)
+                spans_item = _parse_spans_item(spans_item_data)
 
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return RetrieverSpan.from_dict(data)
-
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    return ToolSpan.from_dict(data)
-
-                except:  # noqa: E722
-                    pass
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return ControlSpan.from_dict(data)
-
-            spans_item = _parse_spans_item(spans_item_data)
-
-            spans.append(spans_item)
+                spans.append(spans_item)
 
         trace = cls(
             type_=type_,

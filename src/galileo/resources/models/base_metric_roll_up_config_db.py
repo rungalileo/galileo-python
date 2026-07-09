@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -14,10 +16,9 @@ T = TypeVar("T", bound="BaseMetricRollUpConfigDB")
 class BaseMetricRollUpConfigDB:
     """Configuration for rolling up metrics to parent/trace/session.
 
-    Attributes
-    ----------
-        roll_up_methods (Union[list[CategoricalRollUpMethod], list[NumericRollUpMethod]]): List of roll up methods to
-            apply to the metric. For numeric scorers we support doing multiple roll up types per metric.
+    Attributes:
+        roll_up_methods (list[CategoricalRollUpMethod] | list[NumericRollUpMethod]): List of roll up methods to apply to
+            the metric. For numeric scorers we support doing multiple roll up types per metric.
     """
 
     roll_up_methods: list[CategoricalRollUpMethod] | list[NumericRollUpMethod]

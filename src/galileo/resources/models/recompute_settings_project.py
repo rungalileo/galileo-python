@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,9 +14,8 @@ T = TypeVar("T", bound="RecomputeSettingsProject")
 @_attrs_define
 class RecomputeSettingsProject:
     """
-    Attributes
-    ----------
-        mode (Union[Literal['project'], Unset]):  Default: 'project'.
+    Attributes:
+        mode (Literal['project'] | Unset):  Default: 'project'.
     """
 
     mode: Literal["project"] | Unset = "project"

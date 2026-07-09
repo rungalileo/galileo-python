@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -13,16 +15,15 @@ T = TypeVar("T", bound="RunCreatedByFilter")
 @_attrs_define
 class RunCreatedByFilter:
     """
-    Attributes
-    ----------
-        value (Union[list[str], str]):
-        name (Union[Literal['created_by'], Unset]):  Default: 'created_by'.
-        operator (Union[Unset, RunCreatedByFilterOperator]):  Default: RunCreatedByFilterOperator.EQ.
+    Attributes:
+        value (list[str] | str):
+        name (Literal['created_by'] | Unset):  Default: 'created_by'.
+        operator (RunCreatedByFilterOperator | Unset):  Default: RunCreatedByFilterOperator.EQ.
     """
 
     value: list[str] | str
     name: Literal["created_by"] | Unset = "created_by"
-    operator: Unset | RunCreatedByFilterOperator = RunCreatedByFilterOperator.EQ
+    operator: RunCreatedByFilterOperator | Unset = RunCreatedByFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -39,7 +40,7 @@ class RunCreatedByFilter:
 
         name = self.name
 
-        operator: Unset | str = UNSET
+        operator: str | Unset = UNSET
         if not isinstance(self.operator, Unset):
             operator = self.operator.value
 
@@ -84,8 +85,11 @@ class RunCreatedByFilter:
             raise ValueError(f"name must match const 'created_by', got '{name}'")
 
         _operator = d.pop("operator", UNSET)
-        operator: Unset | RunCreatedByFilterOperator
-        operator = UNSET if isinstance(_operator, Unset) else RunCreatedByFilterOperator(_operator)
+        operator: RunCreatedByFilterOperator | Unset
+        if isinstance(_operator, Unset):
+            operator = UNSET
+        else:
+            operator = RunCreatedByFilterOperator(_operator)
 
         run_created_by_filter = cls(value=value, name=name, operator=operator)
 

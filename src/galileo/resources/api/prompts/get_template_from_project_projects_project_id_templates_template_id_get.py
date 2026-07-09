@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -28,7 +28,7 @@ def _get_kwargs(project_id: str, template_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/templates/{template_id}",
+        "path": "/projects/{project_id}/templates/{template_id}".format(project_id=project_id, template_id=template_id),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -39,10 +39,14 @@ def _get_kwargs(project_id: str, template_id: str) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> BasePromptTemplateResponse | HTTPValidationError:
     if response.status_code == 200:
-        return BasePromptTemplateResponse.from_dict(response.json())
+        response_200 = BasePromptTemplateResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -76,7 +80,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, template_id: str, *, client: ApiClient
 ) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
-    """Get Template From Project.
+    """Get Template From Project
 
      Get a prompt template from a project.
 
@@ -98,15 +102,14 @@ def sync_detailed(
         project_id (str):
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
+    Returns:
+        Response[BasePromptTemplateResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id)
 
     response = client.request(**kwargs)
@@ -116,8 +119,8 @@ def sync_detailed(
 
 def sync(
     project_id: str, template_id: str, *, client: ApiClient
-) -> BasePromptTemplateResponse | HTTPValidationError | None:
-    """Get Template From Project.
+) -> Optional[BasePromptTemplateResponse | HTTPValidationError]:
+    """Get Template From Project
 
      Get a prompt template from a project.
 
@@ -139,22 +142,21 @@ def sync(
         project_id (str):
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[BasePromptTemplateResponse, HTTPValidationError]
+    Returns:
+        BasePromptTemplateResponse | HTTPValidationError
     """
+
     return sync_detailed(project_id=project_id, template_id=template_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, template_id: str, *, client: ApiClient
 ) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
-    """Get Template From Project.
+    """Get Template From Project
 
      Get a prompt template from a project.
 
@@ -176,15 +178,14 @@ async def asyncio_detailed(
         project_id (str):
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
+    Returns:
+        Response[BasePromptTemplateResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id)
 
     response = await client.arequest(**kwargs)
@@ -194,8 +195,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, template_id: str, *, client: ApiClient
-) -> BasePromptTemplateResponse | HTTPValidationError | None:
-    """Get Template From Project.
+) -> Optional[BasePromptTemplateResponse | HTTPValidationError]:
+    """Get Template From Project
 
      Get a prompt template from a project.
 
@@ -217,13 +218,12 @@ async def asyncio(
         project_id (str):
         template_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[BasePromptTemplateResponse, HTTPValidationError]
+    Returns:
+        BasePromptTemplateResponse | HTTPValidationError
     """
+
     return (await asyncio_detailed(project_id=project_id, template_id=template_id, client=client)).parsed

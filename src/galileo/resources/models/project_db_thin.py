@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import datetime
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
@@ -20,28 +22,27 @@ T = TypeVar("T", bound="ProjectDBThin")
 @_attrs_define
 class ProjectDBThin:
     """
-    Attributes
-    ----------
+    Attributes:
         id (str):
         created_by (str):
-        runs (list['RunDBThin']):
+        runs (list[RunDBThin]):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        permissions (Union[Unset, list['Permission']]):
-        name (Union[None, Unset, str]):
-        type_ (Union[None, ProjectType, Unset]):
-        bookmark (Union[Unset, bool]):  Default: False.
+        permissions (list[Permission] | Unset):
+        name (None | str | Unset):
+        type_ (None | ProjectType | Unset):
+        bookmark (bool | Unset):  Default: False.
     """
 
     id: str
     created_by: str
-    runs: list["RunDBThin"]
+    runs: list[RunDBThin]
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    permissions: Unset | list["Permission"] = UNSET
-    name: None | Unset | str = UNSET
+    permissions: list[Permission] | Unset = UNSET
+    name: None | str | Unset = UNSET
     type_: None | ProjectType | Unset = UNSET
-    bookmark: Unset | bool = False
+    bookmark: bool | Unset = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,17 +59,20 @@ class ProjectDBThin:
 
         updated_at = self.updated_at.isoformat()
 
-        permissions: Unset | list[dict[str, Any]] = UNSET
+        permissions: list[dict[str, Any]] | Unset = UNSET
         if not isinstance(self.permissions, Unset):
             permissions = []
             for permissions_item_data in self.permissions:
                 permissions_item = permissions_item_data.to_dict()
                 permissions.append(permissions_item)
 
-        name: None | Unset | str
-        name = UNSET if isinstance(self.name, Unset) else self.name
+        name: None | str | Unset
+        if isinstance(self.name, Unset):
+            name = UNSET
+        else:
+            name = self.name
 
-        type_: None | Unset | str
+        type_: None | str | Unset
         if isinstance(self.type_, Unset):
             type_ = UNSET
         elif isinstance(self.type_, ProjectType):
@@ -115,19 +119,21 @@ class ProjectDBThin:
 
         updated_at = isoparse(d.pop("updated_at"))
 
-        permissions = []
         _permissions = d.pop("permissions", UNSET)
-        for permissions_item_data in _permissions or []:
-            permissions_item = Permission.from_dict(permissions_item_data)
+        permissions: list[Permission] | Unset = UNSET
+        if _permissions is not UNSET:
+            permissions = []
+            for permissions_item_data in _permissions:
+                permissions_item = Permission.from_dict(permissions_item_data)
 
-            permissions.append(permissions_item)
+                permissions.append(permissions_item)
 
-        def _parse_name(data: object) -> None | Unset | str:
+        def _parse_name(data: object) -> None | str | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | str, data)
+            return cast(None | str | Unset, data)
 
         name = _parse_name(d.pop("name", UNSET))
 
@@ -139,8 +145,9 @@ class ProjectDBThin:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return ProjectType(data)
+                type_type_0 = ProjectType(data)
 
+                return type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | ProjectType | Unset, data)

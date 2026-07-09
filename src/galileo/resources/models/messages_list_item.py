@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,13 +19,12 @@ T = TypeVar("T", bound="MessagesListItem")
 @_attrs_define
 class MessagesListItem:
     """
-    Attributes
-    ----------
-        content (Union[list[Union['FileContentPart', 'TextContentPart']], str]):
-        role (Union[MessagesListItemRole, str]):
+    Attributes:
+        content (list[FileContentPart | TextContentPart] | str):
+        role (MessagesListItemRole | str):
     """
 
-    content: list[Union["FileContentPart", "TextContentPart"]] | str
+    content: list[FileContentPart | TextContentPart] | str
     role: MessagesListItemRole | str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -46,7 +47,10 @@ class MessagesListItem:
             content = self.content
 
         role: str
-        role = self.role.value if isinstance(self.role, MessagesListItemRole) else self.role
+        if isinstance(self.role, MessagesListItemRole):
+            role = self.role.value
+        else:
+            role = self.role
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -61,7 +65,7 @@ class MessagesListItem:
 
         d = dict(src_dict)
 
-        def _parse_content(data: object) -> list[Union["FileContentPart", "TextContentPart"]] | str:
+        def _parse_content(data: object) -> list[FileContentPart | TextContentPart] | str:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
@@ -69,17 +73,20 @@ class MessagesListItem:
                 _content_type_1 = data
                 for content_type_1_item_data in _content_type_1:
 
-                    def _parse_content_type_1_item(data: object) -> Union["FileContentPart", "TextContentPart"]:
+                    def _parse_content_type_1_item(data: object) -> FileContentPart | TextContentPart:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            return TextContentPart.from_dict(data)
+                            content_type_1_item_type_0 = TextContentPart.from_dict(data)
 
+                            return content_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        return FileContentPart.from_dict(data)
+                        content_type_1_item_type_1 = FileContentPart.from_dict(data)
+
+                        return content_type_1_item_type_1
 
                     content_type_1_item = _parse_content_type_1_item(content_type_1_item_data)
 
@@ -88,7 +95,7 @@ class MessagesListItem:
                 return content_type_1
             except:  # noqa: E722
                 pass
-            return cast(list[Union["FileContentPart", "TextContentPart"]] | str, data)
+            return cast(list[FileContentPart | TextContentPart] | str, data)
 
         content = _parse_content(d.pop("content"))
 
@@ -96,8 +103,9 @@ class MessagesListItem:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return MessagesListItemRole(data)
+                role_type_1 = MessagesListItemRole(data)
 
+                return role_type_1
             except:  # noqa: E722
                 pass
             return cast(MessagesListItemRole | str, data)

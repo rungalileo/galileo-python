@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, cast
 
@@ -12,11 +14,10 @@ T = TypeVar("T", bound="RecomputeSettingsLogStream")
 @_attrs_define
 class RecomputeSettingsLogStream:
     """
-    Attributes
-    ----------
+    Attributes:
         run_id (str):
         filters (list[Any]):
-        mode (Union[Literal['log_stream_filters'], Unset]):  Default: 'log_stream_filters'.
+        mode (Literal['log_stream_filters'] | Unset):  Default: 'log_stream_filters'.
     """
 
     run_id: str

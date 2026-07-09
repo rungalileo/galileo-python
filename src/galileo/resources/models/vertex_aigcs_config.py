@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -11,8 +13,7 @@ T = TypeVar("T", bound="VertexAIGCSConfig")
 class VertexAIGCSConfig:
     """Configuration for GCS file uploads in Vertex AI.
 
-    Attributes
-    ----------
+    Attributes:
         service_account_credentials (str):
         bucket_name (str):
         object_path_prefix (str):

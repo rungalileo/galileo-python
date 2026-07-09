@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, cast
 
@@ -16,14 +18,13 @@ T = TypeVar("T", bound="TagsAggregate")
 @_attrs_define
 class TagsAggregate:
     """
-    Attributes
-    ----------
+    Attributes:
         counts (TagsAggregateCounts):
         unrated_count (int):
-        feedback_type (Union[Literal['tags'], Unset]):  Default: 'tags'.
+        feedback_type (Literal['tags'] | Unset):  Default: 'tags'.
     """
 
-    counts: "TagsAggregateCounts"
+    counts: TagsAggregateCounts
     unrated_count: int
     feedback_type: Literal["tags"] | Unset = "tags"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)

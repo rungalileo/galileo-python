@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -12,11 +14,10 @@ T = TypeVar("T", bound="FeedbackRatingInfo")
 @_attrs_define
 class FeedbackRatingInfo:
     """
-    Attributes
-    ----------
+    Attributes:
         feedback_type (FeedbackType):
-        value (Union[bool, int, list[str], str]):
-        explanation (Union[None, str]):
+        value (bool | int | list[str] | str):
+        explanation (None | str):
     """
 
     feedback_type: FeedbackType
@@ -28,7 +29,11 @@ class FeedbackRatingInfo:
         feedback_type = self.feedback_type.value
 
         value: bool | int | list[str] | str
-        value = self.value if isinstance(self.value, list) else self.value
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         explanation: None | str
         explanation = self.explanation
@@ -48,8 +53,9 @@ class FeedbackRatingInfo:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                return cast(list[str], data)
+                value_type_3 = cast(list[str], data)
 
+                return value_type_3
             except:  # noqa: E722
                 pass
             return cast(bool | int | list[str] | str, data)

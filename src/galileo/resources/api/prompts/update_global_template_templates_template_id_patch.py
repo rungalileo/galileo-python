@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -29,7 +29,7 @@ def _get_kwargs(template_id: str, *, body: UpdatePromptTemplateRequest) -> dict[
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PATCH,
         "return_raw_response": True,
-        "path": f"/templates/{template_id}",
+        "path": "/templates/{template_id}".format(template_id=template_id),
     }
 
     _kwargs["json"] = body.to_dict()
@@ -44,10 +44,14 @@ def _get_kwargs(template_id: str, *, body: UpdatePromptTemplateRequest) -> dict[
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> BasePromptTemplateResponse | HTTPValidationError:
     if response.status_code == 200:
-        return BasePromptTemplateResponse.from_dict(response.json())
+        response_200 = BasePromptTemplateResponse.from_dict(response.json())
+
+        return response_200
 
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -81,7 +85,7 @@ def _build_response(
 def sync_detailed(
     template_id: str, *, client: ApiClient, body: UpdatePromptTemplateRequest
 ) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
-    """Update Global Template.
+    """Update Global Template
 
      Update a global prompt template.
 
@@ -105,15 +109,14 @@ def sync_detailed(
         template_id (str):
         body (UpdatePromptTemplateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
+    Returns:
+        Response[BasePromptTemplateResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(template_id=template_id, body=body)
 
     response = client.request(**kwargs)
@@ -123,8 +126,8 @@ def sync_detailed(
 
 def sync(
     template_id: str, *, client: ApiClient, body: UpdatePromptTemplateRequest
-) -> BasePromptTemplateResponse | HTTPValidationError | None:
-    """Update Global Template.
+) -> Optional[BasePromptTemplateResponse | HTTPValidationError]:
+    """Update Global Template
 
      Update a global prompt template.
 
@@ -148,22 +151,21 @@ def sync(
         template_id (str):
         body (UpdatePromptTemplateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[BasePromptTemplateResponse, HTTPValidationError]
+    Returns:
+        BasePromptTemplateResponse | HTTPValidationError
     """
+
     return sync_detailed(template_id=template_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     template_id: str, *, client: ApiClient, body: UpdatePromptTemplateRequest
 ) -> Response[BasePromptTemplateResponse | HTTPValidationError]:
-    """Update Global Template.
+    """Update Global Template
 
      Update a global prompt template.
 
@@ -187,15 +189,14 @@ async def asyncio_detailed(
         template_id (str):
         body (UpdatePromptTemplateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
+    Returns:
+        Response[BasePromptTemplateResponse | HTTPValidationError]
     """
+
     kwargs = _get_kwargs(template_id=template_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -205,8 +206,8 @@ async def asyncio_detailed(
 
 async def asyncio(
     template_id: str, *, client: ApiClient, body: UpdatePromptTemplateRequest
-) -> BasePromptTemplateResponse | HTTPValidationError | None:
-    """Update Global Template.
+) -> Optional[BasePromptTemplateResponse | HTTPValidationError]:
+    """Update Global Template
 
      Update a global prompt template.
 
@@ -230,13 +231,12 @@ async def asyncio(
         template_id (str):
         body (UpdatePromptTemplateRequest):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
-        Union[BasePromptTemplateResponse, HTTPValidationError]
+    Returns:
+        BasePromptTemplateResponse | HTTPValidationError
     """
+
     return (await asyncio_detailed(template_id=template_id, client=client, body=body)).parsed

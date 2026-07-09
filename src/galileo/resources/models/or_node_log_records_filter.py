@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -16,17 +18,12 @@ T = TypeVar("T", bound="OrNodeLogRecordsFilter")
 @_attrs_define
 class OrNodeLogRecordsFilter:
     """
-    Attributes
-    ----------
-        or_ (list[Union['AndNodeLogRecordsFilter', 'FilterLeafLogRecordsFilter', 'NotNodeLogRecordsFilter',
-            'OrNodeLogRecordsFilter']]):
+    Attributes:
+        or_ (list[AndNodeLogRecordsFilter | FilterLeafLogRecordsFilter | NotNodeLogRecordsFilter |
+            OrNodeLogRecordsFilter]):
     """
 
-    or_: list[
-        Union[
-            "AndNodeLogRecordsFilter", "FilterLeafLogRecordsFilter", "NotNodeLogRecordsFilter", "OrNodeLogRecordsFilter"
-        ]
-    ]
+    or_: list[AndNodeLogRecordsFilter | FilterLeafLogRecordsFilter | NotNodeLogRecordsFilter | OrNodeLogRecordsFilter]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -36,7 +33,11 @@ class OrNodeLogRecordsFilter:
         or_ = []
         for or_item_data in self.or_:
             or_item: dict[str, Any]
-            if isinstance(or_item_data, FilterLeafLogRecordsFilter | AndNodeLogRecordsFilter | OrNodeLogRecordsFilter):
+            if isinstance(or_item_data, FilterLeafLogRecordsFilter):
+                or_item = or_item_data.to_dict()
+            elif isinstance(or_item_data, AndNodeLogRecordsFilter):
+                or_item = or_item_data.to_dict()
+            elif isinstance(or_item_data, OrNodeLogRecordsFilter):
                 or_item = or_item_data.to_dict()
             else:
                 or_item = or_item_data.to_dict()
@@ -62,36 +63,38 @@ class OrNodeLogRecordsFilter:
 
             def _parse_or_item(
                 data: object,
-            ) -> Union[
-                "AndNodeLogRecordsFilter",
-                "FilterLeafLogRecordsFilter",
-                "NotNodeLogRecordsFilter",
-                "OrNodeLogRecordsFilter",
-            ]:
+            ) -> (
+                AndNodeLogRecordsFilter | FilterLeafLogRecordsFilter | NotNodeLogRecordsFilter | OrNodeLogRecordsFilter
+            ):
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return FilterLeafLogRecordsFilter.from_dict(data)
+                    or_item_type_0 = FilterLeafLogRecordsFilter.from_dict(data)
 
+                    return or_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return AndNodeLogRecordsFilter.from_dict(data)
+                    or_item_type_1 = AndNodeLogRecordsFilter.from_dict(data)
 
+                    return or_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return OrNodeLogRecordsFilter.from_dict(data)
+                    or_item_type_2 = OrNodeLogRecordsFilter.from_dict(data)
 
+                    return or_item_type_2
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return NotNodeLogRecordsFilter.from_dict(data)
+                or_item_type_3 = NotNodeLogRecordsFilter.from_dict(data)
+
+                return or_item_type_3
 
             or_item = _parse_or_item(or_item_data)
 

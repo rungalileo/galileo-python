@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -27,7 +27,7 @@ def _get_kwargs(dataset_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
-        "path": f"/datasets/{dataset_id}/variable_preview",
+        "path": "/datasets/{dataset_id}/variable_preview".format(dataset_id=dataset_id),
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -38,7 +38,9 @@ def _get_kwargs(dataset_id: str) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> HTTPValidationError:
     if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -68,22 +70,21 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[HTTPValidationError]:
-    """Get Dataset Variable Preview.
+    """Get Dataset Variable Preview
 
      Return a variable preview derived from the sampled dataset input rows.
 
     Args:
         dataset_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[HTTPValidationError]
     """
+
     kwargs = _get_kwargs(dataset_id=dataset_id)
 
     response = client.request(**kwargs)
@@ -91,43 +92,41 @@ def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[HTTPValidat
     return _build_response(client=client, response=response)
 
 
-def sync(dataset_id: str, *, client: ApiClient) -> HTTPValidationError | None:
-    """Get Dataset Variable Preview.
+def sync(dataset_id: str, *, client: ApiClient) -> Optional[HTTPValidationError]:
+    """Get Dataset Variable Preview
 
      Return a variable preview derived from the sampled dataset input rows.
 
     Args:
         dataset_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         HTTPValidationError
     """
+
     return sync_detailed(dataset_id=dataset_id, client=client).parsed
 
 
 async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[HTTPValidationError]:
-    """Get Dataset Variable Preview.
+    """Get Dataset Variable Preview
 
      Return a variable preview derived from the sampled dataset input rows.
 
     Args:
         dataset_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         Response[HTTPValidationError]
     """
+
     kwargs = _get_kwargs(dataset_id=dataset_id)
 
     response = await client.arequest(**kwargs)
@@ -135,21 +134,20 @@ async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[HT
     return _build_response(client=client, response=response)
 
 
-async def asyncio(dataset_id: str, *, client: ApiClient) -> HTTPValidationError | None:
-    """Get Dataset Variable Preview.
+async def asyncio(dataset_id: str, *, client: ApiClient) -> Optional[HTTPValidationError]:
+    """Get Dataset Variable Preview
 
      Return a variable preview derived from the sampled dataset input rows.
 
     Args:
         dataset_id (str):
 
-    Raises
-    ------
+    Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns
-    -------
+    Returns:
         HTTPValidationError
     """
+
     return (await asyncio_detailed(dataset_id=dataset_id, client=client)).parsed

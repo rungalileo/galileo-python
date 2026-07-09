@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
@@ -10,9 +12,8 @@ T = TypeVar("T", bound="ValidationError")
 @_attrs_define
 class ValidationError:
     """
-    Attributes
-    ----------
-        loc (list[Union[int, str]]):
+    Attributes:
+        loc (list[int | str]):
         msg (str):
         type_ (str):
     """

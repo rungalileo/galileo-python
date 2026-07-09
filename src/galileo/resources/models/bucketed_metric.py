@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -18,18 +20,17 @@ T = TypeVar("T", bound="BucketedMetric")
 @_attrs_define
 class BucketedMetric:
     """
-    Attributes
-    ----------
+    Attributes:
         name (str):
         buckets (BucketedMetricBuckets):
-        average (Union[None, Unset, float]):
-        roll_up_method (Union[None, RollUpMethodDisplayOptions, Unset]):
-        data_type (Union[None, OutputTypeEnum, Unset]):
+        average (float | None | Unset):
+        roll_up_method (None | RollUpMethodDisplayOptions | Unset):
+        data_type (None | OutputTypeEnum | Unset):
     """
 
     name: str
-    buckets: "BucketedMetricBuckets"
-    average: None | Unset | float = UNSET
+    buckets: BucketedMetricBuckets
+    average: float | None | Unset = UNSET
     roll_up_method: None | RollUpMethodDisplayOptions | Unset = UNSET
     data_type: None | OutputTypeEnum | Unset = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -39,10 +40,13 @@ class BucketedMetric:
 
         buckets = self.buckets.to_dict()
 
-        average: None | Unset | float
-        average = UNSET if isinstance(self.average, Unset) else self.average
+        average: float | None | Unset
+        if isinstance(self.average, Unset):
+            average = UNSET
+        else:
+            average = self.average
 
-        roll_up_method: None | Unset | str
+        roll_up_method: None | str | Unset
         if isinstance(self.roll_up_method, Unset):
             roll_up_method = UNSET
         elif isinstance(self.roll_up_method, RollUpMethodDisplayOptions):
@@ -50,7 +54,7 @@ class BucketedMetric:
         else:
             roll_up_method = self.roll_up_method
 
-        data_type: None | Unset | str
+        data_type: None | str | Unset
         if isinstance(self.data_type, Unset):
             data_type = UNSET
         elif isinstance(self.data_type, OutputTypeEnum):
@@ -79,12 +83,12 @@ class BucketedMetric:
 
         buckets = BucketedMetricBuckets.from_dict(d.pop("buckets"))
 
-        def _parse_average(data: object) -> None | Unset | float:
+        def _parse_average(data: object) -> float | None | Unset:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(None | Unset | float, data)
+            return cast(float | None | Unset, data)
 
         average = _parse_average(d.pop("average", UNSET))
 
@@ -96,8 +100,9 @@ class BucketedMetric:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return RollUpMethodDisplayOptions(data)
+                roll_up_method_type_0 = RollUpMethodDisplayOptions(data)
 
+                return roll_up_method_type_0
             except:  # noqa: E722
                 pass
             return cast(None | RollUpMethodDisplayOptions | Unset, data)
@@ -112,8 +117,9 @@ class BucketedMetric:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                return OutputTypeEnum(data)
+                data_type_type_0 = OutputTypeEnum(data)
 
+                return data_type_type_0
             except:  # noqa: E722
                 pass
             return cast(None | OutputTypeEnum | Unset, data)

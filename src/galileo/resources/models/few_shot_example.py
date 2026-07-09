@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from collections.abc import Mapping
 from typing import Any, TypeVar
 
@@ -11,8 +13,7 @@ T = TypeVar("T", bound="FewShotExample")
 class FewShotExample:
     """Few-shot example for a chainpoll metric prompt.
 
-    Attributes
-    ----------
+    Attributes:
         generation_prompt_and_response (str):
         evaluating_response (str):
     """
