@@ -70,7 +70,7 @@ class AnnotationQueuesAPIException(APIException):
     pass
 
 
-AnnotationTemplateConstraints: TypeAlias = (
+AnnotationFieldConstraints: TypeAlias = (
     ChoiceConstraints
     | LikeDislikeConstraints
     | ScoreConstraints
@@ -79,33 +79,33 @@ AnnotationTemplateConstraints: TypeAlias = (
     | TextConstraints
     | TreeChoiceConstraints
 )
-_AnnotationTemplateResponseConstraints: TypeAlias = AnnotationTemplateConstraints | TreeChoiceDBConstraints
+_AnnotationFieldResponseConstraints: TypeAlias = AnnotationFieldConstraints | TreeChoiceDBConstraints
 AnnotationQueueRecordSelector: TypeAlias = AnnotationQueueRecordsByRecordIDs | AnnotationQueueRecordsByFilterTree
 
 
-class AnnotationTemplate:
-    """Represents an annotation template in an annotation queue."""
+class AnnotationField:
+    """Represents an annotation field in an annotation queue."""
 
     id: str
     name: str
     include_explanation: bool
-    constraints: AnnotationTemplateConstraints
+    constraints: AnnotationFieldConstraints
     created_at: datetime.datetime
     created_by: str | None
     position: int
     usage_count: int
     criteria: str | None | Unset
 
-    def __init__(self, template: AnnotationTemplateDB) -> None:
-        self.id = template.id
-        self.name = template.name
-        self.include_explanation = template.include_explanation
-        self.constraints = _to_annotation_template_constraints(template.constraints)
-        self.created_at = template.created_at
-        self.created_by = template.created_by
-        self.position = template.position
-        self.usage_count = template.usage_count
-        self.criteria = template.criteria
+    def __init__(self, field: AnnotationTemplateDB) -> None:
+        self.id = field.id
+        self.name = field.name
+        self.include_explanation = field.include_explanation
+        self.constraints = _to_annotation_field_constraints(field.constraints)
+        self.created_at = field.created_at
+        self.created_by = field.created_by
+        self.position = field.position
+        self.usage_count = field.usage_count
+        self.criteria = field.criteria
 
 
 class AnnotationQueueUser:
@@ -155,9 +155,9 @@ class AnnotationQueue:
     num_log_records: Unset | int
     num_annotators: Unset | int
     num_users: Unset | int
-    num_templates: Unset | int
+    num_fields: Unset | int
     overall_progress: None | Unset | float
-    templates: Unset | list[AnnotationTemplate]
+    fields: Unset | list[AnnotationField]
 
     def __init__(self, queue: AnnotationQueueResponse) -> None:
         self.id = queue.id
@@ -170,12 +170,10 @@ class AnnotationQueue:
         self.num_log_records = queue.num_log_records
         self.num_annotators = queue.num_annotators
         self.num_users = queue.num_users
-        self.num_templates = queue.num_templates
+        self.num_fields = queue.num_templates
         self.overall_progress = queue.overall_progress
-        self.templates = (
-            UNSET
-            if isinstance(queue.templates, Unset)
-            else [AnnotationTemplate(template=template) for template in queue.templates]
+        self.fields = (
+            UNSET if isinstance(queue.templates, Unset) else [AnnotationField(field=field) for field in queue.templates]
         )
 
 
@@ -193,6 +191,8 @@ class AnnotationQueues:
         ----------
         limit : Union[Unset, int]
             The maximum number of annotation queues to return. Default is 100.
+            This method returns a single page and does not retrieve queues
+            beyond the requested limit.
 
         Returns
         -------
@@ -233,16 +233,16 @@ class AnnotationQueues:
             list_response = _to_annotation_queue_user_list(response)
             users.extend(AnnotationQueueUser(collaborator=collaborator) for collaborator in list_response.collaborators)
 
-            if list_response.paginated and list_response.next_starting_token is not None:
+            if list_response.paginated and isinstance(list_response.next_starting_token, int):
                 starting_token = list_response.next_starting_token
             else:
                 starting_token = None
 
         return users
 
-    def list_templates(self, queue_id: str) -> builtins.list[AnnotationTemplate]:
+    def list_fields(self, queue_id: str) -> builtins.list[AnnotationField]:
         """
-        List templates for an annotation queue.
+        List fields for an annotation queue.
 
         Parameters
         ----------
@@ -251,8 +251,8 @@ class AnnotationQueues:
 
         Returns
         -------
-        list[AnnotationTemplate]
-            A list of annotation templates.
+        list[AnnotationField]
+            A list of annotation fields.
         """
         queue_id = queue_id.strip()
         if not queue_id:
@@ -261,7 +261,7 @@ class AnnotationQueues:
         response = get_queue_templates_annotation_queues_queue_id_templates_get.sync(
             queue_id=queue_id, client=self.config.api_client
         )
-        return _to_annotation_template_list(response, "list")
+        return _to_annotation_field_list(response, "list")
 
     @overload
     def get(self, *, id: str) -> AnnotationQueue | None: ...
@@ -326,7 +326,7 @@ class AnnotationQueues:
         name: str,
         description: str | None = None,
         annotator_emails: builtins.list[str] | None = None,
-        copy_templates_from_queue_id: str | None = None,
+        copy_fields_from_queue_id: str | None = None,
     ) -> AnnotationQueue:
         """
         Create an annotation queue.
@@ -339,8 +339,8 @@ class AnnotationQueues:
             Optional annotation queue description.
         annotator_emails : list[str] | None
             Optional annotator emails to invite or assign.
-        copy_templates_from_queue_id : str | None
-            Optional annotation queue ID to copy templates from.
+        copy_fields_from_queue_id : str | None
+            Optional annotation queue ID to copy fields from.
 
         Returns
         -------
@@ -355,9 +355,7 @@ class AnnotationQueues:
             name=Name(value=name),
             description=description if description is not None else UNSET,
             annotator_emails=annotator_emails if annotator_emails is not None else UNSET,
-            copy_templates_from_queue_id=copy_templates_from_queue_id
-            if copy_templates_from_queue_id is not None
-            else UNSET,
+            copy_templates_from_queue_id=copy_fields_from_queue_id if copy_fields_from_queue_id is not None else UNSET,
         )
 
         response = create_annotation_queue_annotation_queues_post.sync(client=self.config.api_client, body=body)
@@ -506,26 +504,26 @@ class AnnotationQueues:
         )
         return _to_annotation_queue_user_create_response(response)
 
-    def create_template(
+    def create_field(
         self,
         queue_id: str,
         *,
         name: str,
-        constraints: AnnotationTemplateConstraints,
+        constraints: AnnotationFieldConstraints,
         include_explanation: bool = False,
         criteria: str | None | Unset = UNSET,
-    ) -> AnnotationTemplate:
+    ) -> AnnotationField:
         """
-        Create a template in an annotation queue.
+        Create a field in an annotation queue.
 
         Parameters
         ----------
         queue_id : str
             The ID of the annotation queue.
         name : str
-            The name of the annotation template.
-        constraints : AnnotationTemplateConstraints
-            The annotation template constraints.
+            The name of the annotation field.
+        constraints : AnnotationFieldConstraints
+            The annotation field constraints.
         include_explanation : bool
             Whether annotators should include explanations.
         criteria : str | None | Unset
@@ -533,8 +531,8 @@ class AnnotationQueues:
 
         Returns
         -------
-        AnnotationTemplate
-            The created annotation template.
+        AnnotationField
+            The created annotation field.
         """
         queue_id = queue_id.strip()
         if not queue_id:
@@ -552,7 +550,7 @@ class AnnotationQueues:
         response = create_queue_template_annotation_queues_queue_id_templates_post.sync(
             queue_id=queue_id, client=self.config.api_client, body=body
         )
-        return _to_annotation_template_create_response(response)
+        return _to_annotation_field_create_response(response)
 
     def update(self, id: str, *, name: str | None = None, description: str | None | Unset = UNSET) -> AnnotationQueue:
         """
@@ -630,35 +628,33 @@ class AnnotationQueues:
         )
         return _to_annotation_queue_user(response, "update")
 
-    def update_template(
-        self, queue_id: str, template_id: str, *, name: str, criteria: str | None
-    ) -> AnnotationTemplate:
+    def update_field(self, queue_id: str, field_id: str, *, name: str, criteria: str | None) -> AnnotationField:
         """
-        Update a template in an annotation queue.
+        Update a field in an annotation queue.
 
         Parameters
         ----------
         queue_id : str
             The ID of the annotation queue.
-        template_id : str
-            The ID of the annotation template.
+        field_id : str
+            The ID of the annotation field.
         name : str
-            The new name for the annotation template.
+            The new name for the annotation field.
         criteria : str | None
-            The new criteria for the annotation template.
+            The new criteria for the annotation field.
 
         Returns
         -------
-        AnnotationTemplate
-            The updated annotation template.
+        AnnotationField
+            The updated annotation field.
         """
         queue_id = queue_id.strip()
         if not queue_id:
             raise ValueError("'queue_id' must be provided.")
 
-        template_id = template_id.strip()
-        if not template_id:
-            raise ValueError("'template_id' must be provided.")
+        field_id = field_id.strip()
+        if not field_id:
+            raise ValueError("'field_id' must be provided.")
 
         name = name.strip()
         if not name:
@@ -666,9 +662,9 @@ class AnnotationQueues:
 
         body = AnnotationTemplateUpdate(name=name, criteria=criteria)
         response = update_queue_template_annotation_queues_queue_id_templates_template_id_patch.sync(
-            queue_id=queue_id, template_id=template_id, client=self.config.api_client, body=body
+            queue_id=queue_id, template_id=field_id, client=self.config.api_client, body=body
         )
-        return _to_annotation_template(response, "update")
+        return _to_annotation_field(response, "update")
 
     @overload
     def delete(self, *, id: str) -> None: ...
@@ -733,34 +729,34 @@ class AnnotationQueues:
             raise AnnotationQueuesAPIException(f"Failed to remove annotation queue user: {user_id}")
         return
 
-    def delete_template(self, queue_id: str, template_id: str) -> None:
+    def delete_field(self, queue_id: str, field_id: str) -> None:
         """
-        Delete a template from an annotation queue.
+        Delete a field from an annotation queue.
 
         Parameters
         ----------
         queue_id : str
             The ID of the annotation queue.
-        template_id : str
-            The ID of the annotation template.
+        field_id : str
+            The ID of the annotation field.
         """
         queue_id = queue_id.strip()
         if not queue_id:
             raise ValueError("'queue_id' must be provided.")
 
-        template_id = template_id.strip()
-        if not template_id:
-            raise ValueError("'template_id' must be provided.")
+        field_id = field_id.strip()
+        if not field_id:
+            raise ValueError("'field_id' must be provided.")
 
         response = delete_queue_template_annotation_queues_queue_id_templates_template_id_delete.sync(
-            queue_id=queue_id, template_id=template_id, client=self.config.api_client
+            queue_id=queue_id, template_id=field_id, client=self.config.api_client
         )
         if isinstance(response, HTTPValidationError):
             raise AnnotationQueuesAPIException(
-                f"Failed to delete annotation queue template: {_format_validation_error(response)}"
+                f"Failed to delete annotation queue field: {_format_validation_error(response)}"
             )
         if response is None:
-            raise AnnotationQueuesAPIException(f"Failed to delete annotation queue template: {template_id}")
+            raise AnnotationQueuesAPIException(f"Failed to delete annotation queue field: {field_id}")
         return
 
 
@@ -768,7 +764,7 @@ def create_annotation_queue(
     name: str,
     description: str | None = None,
     annotator_emails: list[str] | None = None,
-    copy_templates_from_queue_id: str | None = None,
+    copy_fields_from_queue_id: str | None = None,
 ) -> AnnotationQueue:
     """Create an annotation queue."""
     queues = AnnotationQueues()
@@ -776,21 +772,21 @@ def create_annotation_queue(
         name=name,
         description=description,
         annotator_emails=annotator_emails,
-        copy_templates_from_queue_id=copy_templates_from_queue_id,
+        copy_fields_from_queue_id=copy_fields_from_queue_id,
     )
 
 
-def create_annotation_queue_template(
+def create_annotation_queue_field(
     queue_id: str,
     *,
     name: str,
-    constraints: AnnotationTemplateConstraints,
+    constraints: AnnotationFieldConstraints,
     include_explanation: bool = False,
     criteria: str | None | Unset = UNSET,
-) -> AnnotationTemplate:
-    """Create a template in an annotation queue."""
+) -> AnnotationField:
+    """Create a field in an annotation queue."""
     queues = AnnotationQueues()
-    return queues.create_template(
+    return queues.create_field(
         queue_id=queue_id,
         name=name,
         constraints=constraints,
@@ -869,10 +865,10 @@ def list_annotation_queue_users(queue_id: str) -> list[AnnotationQueueUser]:
     return queues.list_users(queue_id=queue_id)
 
 
-def list_annotation_queue_templates(queue_id: str) -> list[AnnotationTemplate]:
-    """List templates for an annotation queue."""
+def list_annotation_queue_fields(queue_id: str) -> list[AnnotationField]:
+    """List fields for an annotation queue."""
     queues = AnnotationQueues()
-    return queues.list_templates(queue_id=queue_id)
+    return queues.list_fields(queue_id=queue_id)
 
 
 def update_annotation_queue(
@@ -891,12 +887,10 @@ def update_annotation_queue_user(
     return queues.update_user(queue_id=queue_id, user_id=user_id, role=role, track_progress=track_progress)
 
 
-def update_annotation_queue_template(
-    queue_id: str, template_id: str, *, name: str, criteria: str | None
-) -> AnnotationTemplate:
-    """Update a template in an annotation queue."""
+def update_annotation_queue_field(queue_id: str, field_id: str, *, name: str, criteria: str | None) -> AnnotationField:
+    """Update a field in an annotation queue."""
     queues = AnnotationQueues()
-    return queues.update_template(queue_id=queue_id, template_id=template_id, name=name, criteria=criteria)
+    return queues.update_field(queue_id=queue_id, field_id=field_id, name=name, criteria=criteria)
 
 
 @overload
@@ -919,10 +913,10 @@ def remove_annotation_queue_user(queue_id: str, user_id: str) -> None:
     return queues.remove_user(queue_id=queue_id, user_id=user_id)
 
 
-def delete_annotation_queue_template(queue_id: str, template_id: str) -> None:
-    """Delete a template from an annotation queue."""
+def delete_annotation_queue_field(queue_id: str, field_id: str) -> None:
+    """Delete a field from an annotation queue."""
     queues = AnnotationQueues()
-    return queues.delete_template(queue_id=queue_id, template_id=template_id)
+    return queues.delete_field(queue_id=queue_id, field_id=field_id)
 
 
 def _to_annotation_queue(
@@ -1036,52 +1030,50 @@ def _to_annotation_queue_user(
     return AnnotationQueueUser(collaborator=response)
 
 
-def _to_annotation_template_create_response(
+def _to_annotation_field_create_response(
     response: list[AnnotationTemplateDB] | HTTPValidationError | None,
-) -> AnnotationTemplate:
+) -> AnnotationField:
     if isinstance(response, HTTPValidationError):
         raise AnnotationQueuesAPIException(
-            f"Failed to create annotation queue template: {_format_validation_error(response)}"
+            f"Failed to create annotation queue field: {_format_validation_error(response)}"
         )
     if not response:
-        raise AnnotationQueuesAPIException("Failed to create annotation queue template: no response")
-    return AnnotationTemplate(template=response[0])
+        raise AnnotationQueuesAPIException("Failed to create annotation queue field: no response")
+    return AnnotationField(field=response[0])
 
 
-def _to_annotation_template_list(
+def _to_annotation_field_list(
     response: list[AnnotationTemplateDB] | HTTPValidationError | None, operation: str
-) -> list[AnnotationTemplate]:
+) -> list[AnnotationField]:
     if isinstance(response, HTTPValidationError):
         raise AnnotationQueuesAPIException(
-            f"Failed to {operation} annotation queue templates: {_format_validation_error(response)}"
+            f"Failed to {operation} annotation queue fields: {_format_validation_error(response)}"
         )
     if response is None:
         return []
-    return [AnnotationTemplate(template=template) for template in response]
+    return [AnnotationField(field=field) for field in response]
 
 
-def _to_annotation_template(
+def _to_annotation_field(
     response: AnnotationTemplateDB | HTTPValidationError | None, operation: str
-) -> AnnotationTemplate:
+) -> AnnotationField:
     if isinstance(response, HTTPValidationError):
         raise AnnotationQueuesAPIException(
-            f"Failed to {operation} annotation queue template: {_format_validation_error(response)}"
+            f"Failed to {operation} annotation queue field: {_format_validation_error(response)}"
         )
     if response is None:
-        raise AnnotationQueuesAPIException(f"Failed to {operation} annotation queue template: no response")
-    return AnnotationTemplate(template=response)
+        raise AnnotationQueuesAPIException(f"Failed to {operation} annotation queue field: no response")
+    return AnnotationField(field=response)
 
 
-def _to_annotation_template_constraints(
-    constraints: _AnnotationTemplateResponseConstraints,
-) -> AnnotationTemplateConstraints:
+def _to_annotation_field_constraints(constraints: _AnnotationFieldResponseConstraints) -> AnnotationFieldConstraints:
     if isinstance(constraints, TreeChoiceDBConstraints):
         return TreeChoiceConstraints(
             annotation_type=constraints.annotation_type,
             choices_tree=constraints.choices_tree,
             choices_tree_yaml=constraints.choices_tree_yaml,
         )
-    return cast(AnnotationTemplateConstraints, constraints)
+    return cast(AnnotationFieldConstraints, constraints)
 
 
 def _format_validation_error(error: HTTPValidationError) -> str:

@@ -4,29 +4,31 @@ from unittest.mock import ANY, Mock, patch
 import pytest
 
 from galileo.annotation_queues import (
+    AnnotationField,
     AnnotationQueue,
     AnnotationQueues,
     AnnotationQueuesAPIException,
     AnnotationQueueUser,
-    AnnotationTemplate,
     add_records_to_annotation_queue,
     create_annotation_queue,
-    create_annotation_queue_template,
+    create_annotation_queue_field,
     delete_annotation_queue,
-    delete_annotation_queue_template,
+    delete_annotation_queue_field,
     get_annotation_queue,
-    list_annotation_queue_templates,
+    list_annotation_queue_fields,
     list_annotation_queue_users,
     list_annotation_queues,
     remove_annotation_queue_user,
     remove_records_from_annotation_queue,
     share_annotation_queue,
     update_annotation_queue,
-    update_annotation_queue_template,
+    update_annotation_queue_field,
     update_annotation_queue_user,
 )
 from galileo.exceptions import NotFoundError
 from galileo.resources.models.add_records_to_queue_response import AddRecordsToQueueResponse
+from galileo.resources.models.and_node_log_records_filter import AndNodeLogRecordsFilter
+from galileo.resources.models.annotation_queue_records_by_filter_tree import AnnotationQueueRecordsByFilterTree
 from galileo.resources.models.annotation_queue_response import AnnotationQueueResponse
 from galileo.resources.models.annotation_template_db import AnnotationTemplateDB
 from galileo.resources.models.collaborator_role import CollaboratorRole
@@ -56,9 +58,9 @@ def make_annotation_queue_response() -> AnnotationQueueResponse:
     )
 
 
-def make_annotation_template_response() -> AnnotationTemplateDB:
+def make_annotation_field_response() -> AnnotationTemplateDB:
     return AnnotationTemplateDB(
-        id="template-123",
+        id="field-123",
         name="quality",
         include_explanation=True,
         constraints=LikeDislikeConstraints(annotation_type="like_dislike"),
@@ -102,7 +104,7 @@ def test_create_annotation_queue_sends_expected_request(mock_create: Mock, mock_
         name=" review queue ",
         description="Needs human review",
         annotator_emails=["person@example.com"],
-        copy_templates_from_queue_id="template-source",
+        copy_fields_from_queue_id="field-source",
     )
 
     # Then: the generated endpoint receives the expected request body
@@ -114,37 +116,37 @@ def test_create_annotation_queue_sends_expected_request(mock_create: Mock, mock_
     assert body.name.append_suffix_if_duplicate is False
     assert body.description == "Needs human review"
     assert body.annotator_emails == ["person@example.com"]
-    assert body.copy_templates_from_queue_id == "template-source"
+    assert body.copy_templates_from_queue_id == "field-source"
 
 
-def test_annotation_queue_wraps_templates():
-    # Given: an annotation queue response with generated template models
+def test_annotation_queue_wraps_fields():
+    # Given: an annotation queue response with generated field models
     response = make_annotation_queue_response()
-    response.templates = [make_annotation_template_response()]
+    response.templates = [make_annotation_field_response()]
 
     # When: wrapping the response in an SDK annotation queue
     queue = AnnotationQueue(response)
 
-    # Then: templates are exposed as SDK annotation template objects
-    assert isinstance(queue.templates[0], AnnotationTemplate)
-    assert queue.templates[0].id == "template-123"
+    # Then: fields are exposed as SDK annotation field objects
+    assert isinstance(queue.fields[0], AnnotationField)
+    assert queue.fields[0].id == "field-123"
 
 
-def test_annotation_template_converts_tree_choice_db_constraints():
-    # Given: a generated template response with response-only tree choice constraints
-    response = make_annotation_template_response()
+def test_annotation_field_converts_tree_choice_db_constraints():
+    # Given: a generated field response with response-only tree choice constraints
+    response = make_annotation_field_response()
     response.constraints = TreeChoiceDBConstraints(
         annotation_type="tree_choice",
         choices_tree=[TreeChoiceNode(label="Helpful", id="helpful")],
         choices_tree_yaml="- id: helpful\n  label: Helpful",
     )
 
-    # When: wrapping the response in an SDK annotation template
-    template = AnnotationTemplate(response)
+    # When: wrapping the response in an SDK annotation field
+    field = AnnotationField(response)
 
     # Then: constraints are exposed with the public tree choice type
-    assert isinstance(template.constraints, TreeChoiceConstraints)
-    assert template.constraints.choices_tree_yaml == "- id: helpful\n  label: Helpful"
+    assert isinstance(field.constraints, TreeChoiceConstraints)
+    assert field.constraints.choices_tree_yaml == "- id: helpful\n  label: Helpful"
 
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
@@ -173,22 +175,22 @@ def test_share_annotation_queue_sends_expected_request(mock_share: Mock, mock_ge
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
 @patch("galileo.annotation_queues.create_queue_template_annotation_queues_queue_id_templates_post.sync")
-def test_create_annotation_queue_template_sends_expected_request(
+def test_create_annotation_queue_field_sends_expected_request(
     mock_create: Mock, mock_get_config: Mock, mock_config: Mock
 ):
-    # Given: a successful create template response
+    # Given: a successful create field response
     mock_get_config.return_value = mock_config
-    mock_create.return_value = [make_annotation_template_response()]
+    mock_create.return_value = [make_annotation_field_response()]
     constraints = LikeDislikeConstraints(annotation_type="like_dislike")
 
-    # When: creating an annotation queue template
-    template = create_annotation_queue_template(
+    # When: creating an annotation queue field
+    field = create_annotation_queue_field(
         " queue-123 ", name=" quality ", constraints=constraints, include_explanation=True, criteria="Check quality"
     )
 
     # Then: the generated endpoint receives the expected request body
-    assert isinstance(template, AnnotationTemplate)
-    assert template.id == "template-123"
+    assert isinstance(field, AnnotationField)
+    assert field.id == "field-123"
     mock_create.assert_called_once_with(queue_id="queue-123", client=ANY, body=ANY)
     body = mock_create.call_args.kwargs["body"]
     assert body.template.name == "quality"
@@ -199,18 +201,18 @@ def test_create_annotation_queue_template_sends_expected_request(
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
 @patch("galileo.annotation_queues.get_queue_templates_annotation_queues_queue_id_templates_get.sync")
-def test_list_annotation_queue_templates_returns_templates(mock_list: Mock, mock_get_config: Mock, mock_config: Mock):
-    # Given: a successful list templates response
+def test_list_annotation_queue_fields_returns_fields(mock_list: Mock, mock_get_config: Mock, mock_config: Mock):
+    # Given: a successful list fields response
     mock_get_config.return_value = mock_config
-    mock_list.return_value = [make_annotation_template_response()]
+    mock_list.return_value = [make_annotation_field_response()]
 
-    # When: listing annotation queue templates
-    templates = list_annotation_queue_templates(" queue-123 ")
+    # When: listing annotation queue fields
+    fields = list_annotation_queue_fields(" queue-123 ")
 
-    # Then: templates are exposed as SDK annotation template objects
-    assert len(templates) == 1
-    assert isinstance(templates[0], AnnotationTemplate)
-    assert templates[0].id == "template-123"
+    # Then: fields are exposed as SDK annotation field objects
+    assert len(fields) == 1
+    assert isinstance(fields[0], AnnotationField)
+    assert fields[0].id == "field-123"
     mock_list.assert_called_once_with(queue_id="queue-123", client=ANY)
 
 
@@ -239,6 +241,25 @@ def test_list_annotation_queue_users_returns_all_pages(mock_list: Mock, mock_get
     assert mock_list.call_count == 2
     assert mock_list.call_args_list[0].kwargs["starting_token"] == 0
     assert mock_list.call_args_list[1].kwargs["starting_token"] == 100
+
+
+@patch("galileo.annotation_queues.GalileoPythonConfig.get")
+@patch("galileo.annotation_queues.list_annotation_queue_users_annotation_queues_queue_id_users_get.sync")
+def test_list_annotation_queue_users_stops_when_next_token_is_unset(
+    mock_list: Mock, mock_get_config: Mock, mock_config: Mock
+):
+    # Given: a paginated response without a next page token
+    mock_get_config.return_value = mock_config
+    mock_list.return_value = ListAnnotationQueueCollaboratorsResponse(
+        collaborators=[make_annotation_queue_user_response()], paginated=True, next_starting_token=UNSET
+    )
+
+    # When: listing annotation queue users
+    users = list_annotation_queue_users(" queue-123 ")
+
+    # Then: the SDK returns the page and does not re-request page 0
+    assert [user.email for user in users] == ["ada@example.com"]
+    mock_list.assert_called_once_with(queue_id="queue-123", client=ANY, starting_token=0)
 
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
@@ -288,6 +309,27 @@ def test_add_records_to_annotation_queue_accepts_log_stream_id(
 
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
+@patch("galileo.annotation_queues.add_records_to_annotation_queue_annotation_queues_queue_id_records_post.sync")
+def test_add_records_to_annotation_queue_forwards_filter_selector(
+    mock_add: Mock, mock_get_config: Mock, mock_config: Mock
+):
+    # Given: a generated filter-tree selector
+    mock_get_config.return_value = mock_config
+    mock_add.return_value = AddRecordsToQueueResponse(num_records_added=3)
+    record_selector = AnnotationQueueRecordsByFilterTree(filter_tree=AndNodeLogRecordsFilter(and_=[]))
+
+    # When: adding records by filter tree
+    count = add_records_to_annotation_queue(
+        "queue-123", project_id="project-123", experiment_id="experiment-123", record_selector=record_selector
+    )
+
+    # Then: the generated endpoint receives the selector unchanged
+    assert count == 3
+    body = mock_add.call_args.kwargs["body"]
+    assert body.record_selector is record_selector
+
+
+@patch("galileo.annotation_queues.GalileoPythonConfig.get")
 @patch(
     "galileo.annotation_queues.remove_records_from_annotation_queue_annotation_queues_queue_id_records_remove_post.sync"
 )
@@ -307,6 +349,27 @@ def test_remove_records_from_annotation_queue_sends_expected_request(
     body = mock_remove.call_args.kwargs["body"]
     assert body.record_selector.type_ == "record_ids"
     assert body.record_selector.record_ids == ["record-1"]
+
+
+@patch("galileo.annotation_queues.GalileoPythonConfig.get")
+@patch(
+    "galileo.annotation_queues.remove_records_from_annotation_queue_annotation_queues_queue_id_records_remove_post.sync"
+)
+def test_remove_records_from_annotation_queue_forwards_filter_selector(
+    mock_remove: Mock, mock_get_config: Mock, mock_config: Mock
+):
+    # Given: a generated filter-tree selector
+    mock_get_config.return_value = mock_config
+    mock_remove.return_value = RemoveRecordsFromQueueResponse(num_records_removed=3)
+    record_selector = AnnotationQueueRecordsByFilterTree(filter_tree=AndNodeLogRecordsFilter(and_=[]))
+
+    # When: removing records by filter tree
+    count = remove_records_from_annotation_queue("queue-123", record_selector=record_selector)
+
+    # Then: the generated endpoint receives the selector unchanged
+    assert count == 3
+    body = mock_remove.call_args.kwargs["body"]
+    assert body.record_selector is record_selector
 
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
@@ -348,20 +411,20 @@ def test_update_annotation_queue_can_update_only_description(
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
 @patch("galileo.annotation_queues.update_queue_template_annotation_queues_queue_id_templates_template_id_patch.sync")
-def test_update_annotation_queue_template_sends_expected_request(
+def test_update_annotation_queue_field_sends_expected_request(
     mock_update: Mock, mock_get_config: Mock, mock_config: Mock
 ):
-    # Given: a successful update template response
+    # Given: a successful update field response
     mock_get_config.return_value = mock_config
-    mock_update.return_value = make_annotation_template_response()
+    mock_update.return_value = make_annotation_field_response()
 
-    # When: updating an annotation queue template
-    template = update_annotation_queue_template(" queue-123 ", " template-123 ", name=" quality ", criteria=None)
+    # When: updating an annotation queue field
+    field = update_annotation_queue_field(" queue-123 ", " field-123 ", name=" quality ", criteria=None)
 
     # Then: the generated endpoint receives the expected request body
-    assert isinstance(template, AnnotationTemplate)
-    assert template.id == "template-123"
-    mock_update.assert_called_once_with(queue_id="queue-123", template_id="template-123", client=ANY, body=ANY)
+    assert isinstance(field, AnnotationField)
+    assert field.id == "field-123"
+    mock_update.assert_called_once_with(queue_id="queue-123", template_id="field-123", client=ANY, body=ANY)
     body = mock_update.call_args.kwargs["body"]
     assert body.name == "quality"
     assert body.criteria is None
@@ -444,17 +507,17 @@ def test_remove_annotation_queue_user_returns_none(mock_remove: Mock, mock_get_c
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
 @patch("galileo.annotation_queues.delete_queue_template_annotation_queues_queue_id_templates_template_id_delete.sync")
-def test_delete_annotation_queue_template_returns_none(mock_delete: Mock, mock_get_config: Mock, mock_config: Mock):
-    # Given: a successful delete template response
+def test_delete_annotation_queue_field_returns_none(mock_delete: Mock, mock_get_config: Mock, mock_config: Mock):
+    # Given: a successful delete field response
     mock_get_config.return_value = mock_config
     mock_delete.return_value = {"deleted": True}
 
-    # When: deleting an annotation queue template
-    result = delete_annotation_queue_template(" queue-123 ", " template-123 ")
+    # When: deleting an annotation queue field
+    result = delete_annotation_queue_field(" queue-123 ", " field-123 ")
 
     # Then: the SDK reports success with no return value
     assert result is None
-    mock_delete.assert_called_once_with(queue_id="queue-123", template_id="template-123", client=ANY)
+    mock_delete.assert_called_once_with(queue_id="queue-123", template_id="field-123", client=ANY)
 
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
@@ -573,6 +636,23 @@ def test_add_records_to_annotation_queue_requires_one_selector():
         queues.add_records(queue_id="queue-123", project_id="project-123", experiment_id="experiment-123")
 
 
+def test_add_records_to_annotation_queue_rejects_multiple_selectors():
+    # Given: an annotation queue client and two selector inputs
+    queues = AnnotationQueues.__new__(AnnotationQueues)
+    queues.config = Mock(api_client=Mock())
+    record_selector = AnnotationQueueRecordsByFilterTree(filter_tree=AndNodeLogRecordsFilter(and_=[]))
+
+    # When/Then: adding records with both selector styles raises a validation error
+    with pytest.raises(ValueError, match="Exactly one"):
+        queues.add_records(
+            queue_id="queue-123",
+            project_id="project-123",
+            experiment_id="experiment-123",
+            record_ids=["record-1"],
+            record_selector=record_selector,
+        )
+
+
 def test_add_records_to_annotation_queue_requires_one_run_source():
     # Given: an annotation queue client
     queues = AnnotationQueues.__new__(AnnotationQueues)
@@ -593,36 +673,36 @@ def test_remove_records_from_annotation_queue_rejects_empty_record_ids():
         queues.remove_records(queue_id="queue-123", record_ids=[" "])
 
 
-def test_create_annotation_queue_template_requires_name():
+def test_create_annotation_queue_field_requires_name():
     # Given: an annotation queue client
     queues = AnnotationQueues.__new__(AnnotationQueues)
     queues.config = Mock(api_client=Mock())
 
-    # When/Then: creating a template with a blank name raises a validation error
+    # When/Then: creating a field with a blank name raises a validation error
     with pytest.raises(ValueError, match="'name' must be provided"):
-        queues.create_template(
+        queues.create_field(
             queue_id="queue-123", name=" ", constraints=LikeDislikeConstraints(annotation_type="like_dislike")
         )
 
 
-def test_update_annotation_queue_template_requires_template_id():
+def test_update_annotation_queue_field_requires_field_id():
     # Given: an annotation queue client
     queues = AnnotationQueues.__new__(AnnotationQueues)
     queues.config = Mock(api_client=Mock())
 
-    # When/Then: updating a template with a blank template ID raises a validation error
-    with pytest.raises(ValueError, match="'template_id' must be provided"):
-        queues.update_template(queue_id="queue-123", template_id=" ", name="quality", criteria=None)
+    # When/Then: updating a field with a blank field ID raises a validation error
+    with pytest.raises(ValueError, match="'field_id' must be provided"):
+        queues.update_field(queue_id="queue-123", field_id=" ", name="quality", criteria=None)
 
 
-def test_list_annotation_queue_templates_requires_queue_id():
+def test_list_annotation_queue_fields_requires_queue_id():
     # Given: an annotation queue client
     queues = AnnotationQueues.__new__(AnnotationQueues)
     queues.config = Mock(api_client=Mock())
 
-    # When/Then: listing templates with a blank queue ID raises a validation error
+    # When/Then: listing fields with a blank queue ID raises a validation error
     with pytest.raises(ValueError, match="'queue_id' must be provided"):
-        queues.list_templates(queue_id=" ")
+        queues.list_fields(queue_id=" ")
 
 
 def test_share_annotation_queue_requires_exactly_one_user_identifier():
@@ -681,7 +761,7 @@ def test_create_annotation_queue_raises_for_http_validation_error(
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
 @patch("galileo.annotation_queues.create_queue_template_annotation_queues_queue_id_templates_post.sync")
-def test_create_annotation_queue_template_raises_for_http_validation_error(
+def test_create_annotation_queue_field_raises_for_http_validation_error(
     mock_create: Mock, mock_get_config: Mock, mock_config: Mock
 ):
     # Given: the API returns an HTTP validation error
@@ -690,9 +770,9 @@ def test_create_annotation_queue_template_raises_for_http_validation_error(
         detail=[ValidationError(loc=["body", "template", "name"], msg="Name already exists", type_="value_error")]
     )
 
-    # When/Then: creating the template raises an SDK API exception
+    # When/Then: creating the field raises an SDK API exception
     with pytest.raises(AnnotationQueuesAPIException, match="Name already exists"):
-        create_annotation_queue_template(
+        create_annotation_queue_field(
             queue_id="queue-123", name="quality", constraints=LikeDislikeConstraints(annotation_type="like_dislike")
         )
 
@@ -715,7 +795,7 @@ def test_share_annotation_queue_raises_for_http_validation_error(
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
 @patch("galileo.annotation_queues.get_queue_templates_annotation_queues_queue_id_templates_get.sync")
-def test_list_annotation_queue_templates_raises_for_http_validation_error(
+def test_list_annotation_queue_fields_raises_for_http_validation_error(
     mock_list: Mock, mock_get_config: Mock, mock_config: Mock
 ):
     # Given: the API returns an HTTP validation error
@@ -724,9 +804,9 @@ def test_list_annotation_queue_templates_raises_for_http_validation_error(
         detail=[ValidationError(loc=["path", "queue_id"], msg="Invalid queue", type_="value_error")]
     )
 
-    # When/Then: listing templates raises an SDK API exception
+    # When/Then: listing fields raises an SDK API exception
     with pytest.raises(AnnotationQueuesAPIException, match="Invalid queue"):
-        list_annotation_queue_templates("queue-123")
+        list_annotation_queue_fields("queue-123")
 
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
