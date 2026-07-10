@@ -42,6 +42,7 @@ class BaseScorerVersionResponse:
             (sessions_normalized, trace_io_only, etc.).
         chain_poll_template (Union['ChainPollTemplate', None, Unset]):
         allowed_model (Union[None, Unset, bool]):
+        created_by (Union[None, Unset, str]):
     """
 
     id: str
@@ -60,6 +61,7 @@ class BaseScorerVersionResponse:
     input_type: InputTypeEnum | None | Unset = UNSET
     chain_poll_template: Union["ChainPollTemplate", None, Unset] = UNSET
     allowed_model: None | Unset | bool = UNSET
+    created_by: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -147,6 +149,9 @@ class BaseScorerVersionResponse:
         allowed_model: None | Unset | bool
         allowed_model = UNSET if isinstance(self.allowed_model, Unset) else self.allowed_model
 
+        created_by: None | Unset | str
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -174,6 +179,8 @@ class BaseScorerVersionResponse:
             field_dict["chain_poll_template"] = chain_poll_template
         if allowed_model is not UNSET:
             field_dict["allowed_model"] = allowed_model
+        if created_by is not UNSET:
+            field_dict["created_by"] = created_by
 
         return field_dict
 
@@ -343,6 +350,15 @@ class BaseScorerVersionResponse:
 
         allowed_model = _parse_allowed_model(d.pop("allowed_model", UNSET))
 
+        def _parse_created_by(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        created_by = _parse_created_by(d.pop("created_by", UNSET))
+
         base_scorer_version_response = cls(
             id=id,
             version=version,
@@ -360,6 +376,7 @@ class BaseScorerVersionResponse:
             input_type=input_type,
             chain_poll_template=chain_poll_template,
             allowed_model=allowed_model,
+            created_by=created_by,
         )
 
         base_scorer_version_response.additional_properties = d

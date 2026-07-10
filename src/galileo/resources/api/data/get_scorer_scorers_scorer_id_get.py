@@ -18,17 +18,32 @@ from galileo_core.helpers.api_client import ApiClient
 
 from ... import errors
 from ...models.http_validation_error import HTTPValidationError
+from ...models.scorer_action import ScorerAction
 from ...models.scorer_response import ScorerResponse
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(scorer_id: str) -> dict[str, Any]:
+def _get_kwargs(scorer_id: str, *, actions: Unset | list[ScorerAction] = UNSET) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+
+    params: dict[str, Any] = {}
+
+    json_actions: Unset | list[str] = UNSET
+    if not isinstance(actions, Unset):
+        json_actions = []
+        for actions_item_data in actions:
+            actions_item = actions_item_data.value
+            json_actions.append(actions_item)
+
+    params["actions"] = json_actions
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
         "path": f"/scorers/{scorer_id}",
+        "params": params,
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
@@ -71,11 +86,15 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(scorer_id: str, *, client: ApiClient) -> Response[HTTPValidationError | ScorerResponse]:
+def sync_detailed(
+    scorer_id: str, *, client: ApiClient, actions: Unset | list[ScorerAction] = UNSET
+) -> Response[HTTPValidationError | ScorerResponse]:
     """Get Scorer.
 
     Args:
         scorer_id (str):
+        actions (Union[Unset, list[ScorerAction]]): Actions to include in the 'permissions' field
+            of the scorer.
 
     Raises
     ------
@@ -86,18 +105,22 @@ def sync_detailed(scorer_id: str, *, client: ApiClient) -> Response[HTTPValidati
     -------
         Response[Union[HTTPValidationError, ScorerResponse]]
     """
-    kwargs = _get_kwargs(scorer_id=scorer_id)
+    kwargs = _get_kwargs(scorer_id=scorer_id, actions=actions)
 
     response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(scorer_id: str, *, client: ApiClient) -> HTTPValidationError | ScorerResponse | None:
+def sync(
+    scorer_id: str, *, client: ApiClient, actions: Unset | list[ScorerAction] = UNSET
+) -> HTTPValidationError | ScorerResponse | None:
     """Get Scorer.
 
     Args:
         scorer_id (str):
+        actions (Union[Unset, list[ScorerAction]]): Actions to include in the 'permissions' field
+            of the scorer.
 
     Raises
     ------
@@ -108,14 +131,18 @@ def sync(scorer_id: str, *, client: ApiClient) -> HTTPValidationError | ScorerRe
     -------
         Union[HTTPValidationError, ScorerResponse]
     """
-    return sync_detailed(scorer_id=scorer_id, client=client).parsed
+    return sync_detailed(scorer_id=scorer_id, client=client, actions=actions).parsed
 
 
-async def asyncio_detailed(scorer_id: str, *, client: ApiClient) -> Response[HTTPValidationError | ScorerResponse]:
+async def asyncio_detailed(
+    scorer_id: str, *, client: ApiClient, actions: Unset | list[ScorerAction] = UNSET
+) -> Response[HTTPValidationError | ScorerResponse]:
     """Get Scorer.
 
     Args:
         scorer_id (str):
+        actions (Union[Unset, list[ScorerAction]]): Actions to include in the 'permissions' field
+            of the scorer.
 
     Raises
     ------
@@ -126,18 +153,22 @@ async def asyncio_detailed(scorer_id: str, *, client: ApiClient) -> Response[HTT
     -------
         Response[Union[HTTPValidationError, ScorerResponse]]
     """
-    kwargs = _get_kwargs(scorer_id=scorer_id)
+    kwargs = _get_kwargs(scorer_id=scorer_id, actions=actions)
 
     response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(scorer_id: str, *, client: ApiClient) -> HTTPValidationError | ScorerResponse | None:
+async def asyncio(
+    scorer_id: str, *, client: ApiClient, actions: Unset | list[ScorerAction] = UNSET
+) -> HTTPValidationError | ScorerResponse | None:
     """Get Scorer.
 
     Args:
         scorer_id (str):
+        actions (Union[Unset, list[ScorerAction]]): Actions to include in the 'permissions' field
+            of the scorer.
 
     Raises
     ------
@@ -148,4 +179,4 @@ async def asyncio(scorer_id: str, *, client: ApiClient) -> HTTPValidationError |
     -------
         Union[HTTPValidationError, ScorerResponse]
     """
-    return (await asyncio_detailed(scorer_id=scorer_id, client=client)).parsed
+    return (await asyncio_detailed(scorer_id=scorer_id, client=client, actions=actions)).parsed

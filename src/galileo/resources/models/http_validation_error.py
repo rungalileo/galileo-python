@@ -45,7 +45,7 @@ class HTTPValidationError:
         from ..models.validation_error import ValidationError
 
         d = dict(src_dict)
-        detail: Union[Unset, list[ValidationError]] = UNSET
+        detail: Unset | list[ValidationError] = UNSET
         _detail = d.pop("detail", UNSET)
         if isinstance(_detail, list):
             detail = [ValidationError.from_dict(item) for item in _detail]

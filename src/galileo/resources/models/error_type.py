@@ -9,6 +9,7 @@ class ErrorType(str, Enum):
     NOT_APPLICABLE_REASON = "not_applicable_reason"
     NOT_FOUND_ERROR = "not_found_error"
     PERMISSION_ERROR = "permission_error"
+    RATE_LIMIT_ERROR = "rate_limit_error"
     SYSTEM_ERROR = "system_error"
     UNCATALOGED_ERROR = "uncataloged_error"
     WORKFLOW_ERROR = "workflow_error"

@@ -9,6 +9,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.and_node_log_records_filter import AndNodeLogRecordsFilter
     from ..models.chain_poll_template import ChainPollTemplate
+    from ..models.file_content_part import FileContentPart
     from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
     from ..models.generated_scorer_configuration import GeneratedScorerConfiguration
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
     from ..models.log_records_text_filter import LogRecordsTextFilter
     from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
     from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
+    from ..models.text_content_part import TextContentPart
 
 
 T = TypeVar("T", bound="ValidateLLMScorerLogRecordRequest")
@@ -55,6 +57,12 @@ class ValidateLLMScorerLogRecordRequest:
             truncate_fields (Union[Unset, bool]):  Default: False.
             include_counts (Union[Unset, bool]): If True, include computed child counts (e.g., num_traces for sessions,
                 num_spans for traces). Default: False.
+            include_code_metric_metadata (Union[Unset, bool]): If True, include per-row scorer metadata (the dict returned
+                alongside the score by code-based scorers via the (score, metadata) tuple-return contract) on each MetricSuccess
+                in the response. Off by default to keep payloads small for callers that don't need it. Default: False.
+            normalized_input (Union[None, Unset, list[Union['FileContentPart', 'TextContentPart']]]): Optional multimodal
+                content parts. When set, replaces the text-only query/response formatting in the validation job so that file
+                content is passed through to the LLM.
     """
 
     query: str
@@ -93,6 +101,8 @@ class ValidateLLMScorerLogRecordRequest:
     sort: Union["LogRecordsSortClause", None, Unset] = UNSET
     truncate_fields: Unset | bool = False
     include_counts: Unset | bool = False
+    include_code_metric_metadata: Unset | bool = False
+    normalized_input: None | Unset | list[Union["FileContentPart", "TextContentPart"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -107,6 +117,7 @@ class ValidateLLMScorerLogRecordRequest:
         from ..models.log_records_text_filter import LogRecordsTextFilter
         from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
         from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
+        from ..models.text_content_part import TextContentPart
 
         query = self.query
 
@@ -176,6 +187,25 @@ class ValidateLLMScorerLogRecordRequest:
 
         include_counts = self.include_counts
 
+        include_code_metric_metadata = self.include_code_metric_metadata
+
+        normalized_input: None | Unset | list[dict[str, Any]]
+        if isinstance(self.normalized_input, Unset):
+            normalized_input = UNSET
+        elif isinstance(self.normalized_input, list):
+            normalized_input = []
+            for normalized_input_type_0_item_data in self.normalized_input:
+                normalized_input_type_0_item: dict[str, Any]
+                if isinstance(normalized_input_type_0_item_data, TextContentPart):
+                    normalized_input_type_0_item = normalized_input_type_0_item_data.to_dict()
+                else:
+                    normalized_input_type_0_item = normalized_input_type_0_item_data.to_dict()
+
+                normalized_input.append(normalized_input_type_0_item)
+
+        else:
+            normalized_input = self.normalized_input
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -209,6 +239,10 @@ class ValidateLLMScorerLogRecordRequest:
             field_dict["truncate_fields"] = truncate_fields
         if include_counts is not UNSET:
             field_dict["include_counts"] = include_counts
+        if include_code_metric_metadata is not UNSET:
+            field_dict["include_code_metric_metadata"] = include_code_metric_metadata
+        if normalized_input is not UNSET:
+            field_dict["normalized_input"] = normalized_input
 
         return field_dict
 
@@ -216,6 +250,7 @@ class ValidateLLMScorerLogRecordRequest:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.and_node_log_records_filter import AndNodeLogRecordsFilter
         from ..models.chain_poll_template import ChainPollTemplate
+        from ..models.file_content_part import FileContentPart
         from ..models.filter_leaf_log_records_filter import FilterLeafLogRecordsFilter
         from ..models.generated_scorer_configuration import GeneratedScorerConfiguration
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
@@ -228,6 +263,7 @@ class ValidateLLMScorerLogRecordRequest:
         from ..models.log_records_text_filter import LogRecordsTextFilter
         from ..models.not_node_log_records_filter import NotNodeLogRecordsFilter
         from ..models.or_node_log_records_filter import OrNodeLogRecordsFilter
+        from ..models.text_content_part import TextContentPart
 
         d = dict(src_dict)
         query = d.pop("query")
@@ -421,6 +457,47 @@ class ValidateLLMScorerLogRecordRequest:
 
         include_counts = d.pop("include_counts", UNSET)
 
+        include_code_metric_metadata = d.pop("include_code_metric_metadata", UNSET)
+
+        def _parse_normalized_input(data: object) -> None | Unset | list[Union["FileContentPart", "TextContentPart"]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                normalized_input_type_0 = []
+                _normalized_input_type_0 = data
+                for normalized_input_type_0_item_data in _normalized_input_type_0:
+
+                    def _parse_normalized_input_type_0_item(
+                        data: object,
+                    ) -> Union["FileContentPart", "TextContentPart"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            return TextContentPart.from_dict(data)
+
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        return FileContentPart.from_dict(data)
+
+                    normalized_input_type_0_item = _parse_normalized_input_type_0_item(
+                        normalized_input_type_0_item_data
+                    )
+
+                    normalized_input_type_0.append(normalized_input_type_0_item)
+
+                return normalized_input_type_0
+            except:  # noqa: E722
+                pass
+            return cast(None | Unset | list[Union["FileContentPart", "TextContentPart"]], data)
+
+        normalized_input = _parse_normalized_input(d.pop("normalized_input", UNSET))
+
         validate_llm_scorer_log_record_request = cls(
             query=query,
             response=response,
@@ -438,6 +515,8 @@ class ValidateLLMScorerLogRecordRequest:
             sort=sort,
             truncate_fields=truncate_fields,
             include_counts=include_counts,
+            include_code_metric_metadata=include_code_metric_metadata,
+            normalized_input=normalized_input,
         )
 
         validate_llm_scorer_log_record_request.additional_properties = d

@@ -31,4 +31,9 @@ rm -r "$OUTPUT_PATH"_backup
 # drift, which `set -e` propagates to fail the regen.
 poetry run python "$HOME_DIR/patch_http_validation_error.py" "$HOME_DIR/$OUTPUT_PATH/models/http_validation_error.py"
 
+# Normalize generated code to match the checked-in client shape. Ruff may leave
+# generated-code lint findings behind, so keep generation moving after fixes.
+poetry run ruff check "$OUTPUT_PATH" --fix || true
+poetry run ruff format "$OUTPUT_PATH"
+
 echo "OpenAPI Python client generated."

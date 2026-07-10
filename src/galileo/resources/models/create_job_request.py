@@ -1,5 +1,4 @@
 from collections.abc import Mapping
-from io import BytesIO
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -7,7 +6,7 @@ from attrs import field as _attrs_field
 
 from ..models.scorer_name import ScorerName
 from ..models.task_type import TaskType
-from ..types import UNSET, File, FileTypes, Unset
+from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
@@ -44,13 +43,11 @@ if TYPE_CHECKING:
     from ..models.input_tone_scorer import InputToneScorer
     from ..models.input_toxicity_scorer import InputToxicityScorer
     from ..models.instruction_adherence_scorer import InstructionAdherenceScorer
-    from ..models.metric_critique_job_configuration import MetricCritiqueJobConfiguration
     from ..models.output_pii_scorer import OutputPIIScorer
     from ..models.output_sexist_scorer import OutputSexistScorer
     from ..models.output_tone_scorer import OutputToneScorer
     from ..models.output_toxicity_scorer import OutputToxicityScorer
     from ..models.prompt_injection_scorer import PromptInjectionScorer
-    from ..models.prompt_optimization_configuration import PromptOptimizationConfiguration
     from ..models.prompt_perplexity_scorer import PromptPerplexityScorer
     from ..models.prompt_run_settings import PromptRunSettings
     from ..models.registered_scorer import RegisteredScorer
@@ -76,7 +73,7 @@ class CreateJobRequest:
         run_id (str):
         resource_limits (Union['TaskResourceLimits', None, Unset]):
         job_id (Union[None, Unset, str]):
-        job_name (Union[Unset, str]):  Default: 'default'.
+        job_name (Union[Unset, str]):  Default: 'log_stream_scorer'.
         should_retry (Union[Unset, bool]):  Default: True.
         user_id (Union[None, Unset, str]):
         task_type (Union[None, TaskType, Unset]):
@@ -94,7 +91,7 @@ class CreateJobRequest:
         prompt_template_version_id (Union[None, Unset, str]):
         monitor_batch_id (Union[None, Unset, str]):
         protect_trace_id (Union[None, Unset, str]):
-        protect_scorer_payload (Union[File, None, Unset]):
+        protect_scorer_payload (Union[None, Unset, str]):
         prompt_settings (Union['PromptRunSettings', None, Unset]):
         scorers (Union[None, Unset, list['ScorerConfig'], list[Union['AgenticSessionSuccessScorer',
             'AgenticWorkflowSuccessScorer', 'BleuScorer', 'ChunkAttributionUtilizationScorer', 'CompletenessScorer',
@@ -120,22 +117,21 @@ class CreateJobRequest:
         sub_scorers (Union[Unset, list[ScorerName]]):
         luna_model (Union[None, Unset, str]):
         segment_filters (Union[None, Unset, list['SegmentFilter']]):
-        prompt_optimization_configuration (Union['PromptOptimizationConfiguration', None, Unset]):
-        epoch (Union[Unset, int]):  Default: 0.
-        metric_critique_configuration (Union['MetricCritiqueJobConfiguration', None, Unset]):
         is_session (Union[None, Unset, bool]):
         validation_config (Union['CreateJobRequestValidationConfigType0', None, Unset]):
         upload_data_in_separate_task (Union[Unset, bool]):  Default: True.
         log_metric_computing_records (Union[Unset, bool]):  Default: True.
         stream_metrics (Union[Unset, bool]):  Default: False.
         multijudge_average_boolean_metrics (Union[Unset, bool]):  Default: False.
+        store_metric_ids (Union[Unset, bool]):  Default: False.
+        trace_ids (Union[Unset, list[str]]):
     """
 
     project_id: str
     run_id: str
     resource_limits: Union["TaskResourceLimits", None, Unset] = UNSET
     job_id: None | Unset | str = UNSET
-    job_name: Unset | str = "default"
+    job_name: Unset | str = "log_stream_scorer"
     should_retry: Unset | bool = True
     user_id: None | Unset | str = UNSET
     task_type: None | TaskType | Unset = UNSET
@@ -153,7 +149,7 @@ class CreateJobRequest:
     prompt_template_version_id: None | Unset | str = UNSET
     monitor_batch_id: None | Unset | str = UNSET
     protect_trace_id: None | Unset | str = UNSET
-    protect_scorer_payload: File | None | Unset = UNSET
+    protect_scorer_payload: None | Unset | str = UNSET
     prompt_settings: Union["PromptRunSettings", None, Unset] = UNSET
     scorers: (
         None
@@ -220,15 +216,14 @@ class CreateJobRequest:
     sub_scorers: Unset | list[ScorerName] = UNSET
     luna_model: None | Unset | str = UNSET
     segment_filters: None | Unset | list["SegmentFilter"] = UNSET
-    prompt_optimization_configuration: Union["PromptOptimizationConfiguration", None, Unset] = UNSET
-    epoch: Unset | int = 0
-    metric_critique_configuration: Union["MetricCritiqueJobConfiguration", None, Unset] = UNSET
     is_session: None | Unset | bool = UNSET
     validation_config: Union["CreateJobRequestValidationConfigType0", None, Unset] = UNSET
     upload_data_in_separate_task: Unset | bool = True
     log_metric_computing_records: Unset | bool = True
     stream_metrics: Unset | bool = False
     multijudge_average_boolean_metrics: Unset | bool = False
+    store_metric_ids: Unset | bool = False
+    trace_ids: Unset | list[str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -264,13 +259,11 @@ class CreateJobRequest:
         from ..models.input_tone_scorer import InputToneScorer
         from ..models.input_toxicity_scorer import InputToxicityScorer
         from ..models.instruction_adherence_scorer import InstructionAdherenceScorer
-        from ..models.metric_critique_job_configuration import MetricCritiqueJobConfiguration
         from ..models.output_pii_scorer import OutputPIIScorer
         from ..models.output_sexist_scorer import OutputSexistScorer
         from ..models.output_tone_scorer import OutputToneScorer
         from ..models.output_toxicity_scorer import OutputToxicityScorer
         from ..models.prompt_injection_scorer import PromptInjectionScorer
-        from ..models.prompt_optimization_configuration import PromptOptimizationConfiguration
         from ..models.prompt_perplexity_scorer import PromptPerplexityScorer
         from ..models.prompt_run_settings import PromptRunSettings
         from ..models.rouge_scorer import RougeScorer
@@ -380,12 +373,9 @@ class CreateJobRequest:
         protect_trace_id: None | Unset | str
         protect_trace_id = UNSET if isinstance(self.protect_trace_id, Unset) else self.protect_trace_id
 
-        protect_scorer_payload: FileTypes | None | Unset
+        protect_scorer_payload: None | Unset | str
         if isinstance(self.protect_scorer_payload, Unset):
             protect_scorer_payload = UNSET
-        elif isinstance(self.protect_scorer_payload, File):
-            protect_scorer_payload = self.protect_scorer_payload.to_tuple()
-
         else:
             protect_scorer_payload = self.protect_scorer_payload
 
@@ -565,24 +555,6 @@ class CreateJobRequest:
         else:
             segment_filters = self.segment_filters
 
-        prompt_optimization_configuration: None | Unset | dict[str, Any]
-        if isinstance(self.prompt_optimization_configuration, Unset):
-            prompt_optimization_configuration = UNSET
-        elif isinstance(self.prompt_optimization_configuration, PromptOptimizationConfiguration):
-            prompt_optimization_configuration = self.prompt_optimization_configuration.to_dict()
-        else:
-            prompt_optimization_configuration = self.prompt_optimization_configuration
-
-        epoch = self.epoch
-
-        metric_critique_configuration: None | Unset | dict[str, Any]
-        if isinstance(self.metric_critique_configuration, Unset):
-            metric_critique_configuration = UNSET
-        elif isinstance(self.metric_critique_configuration, MetricCritiqueJobConfiguration):
-            metric_critique_configuration = self.metric_critique_configuration.to_dict()
-        else:
-            metric_critique_configuration = self.metric_critique_configuration
-
         is_session: None | Unset | bool
         is_session = UNSET if isinstance(self.is_session, Unset) else self.is_session
 
@@ -601,6 +573,12 @@ class CreateJobRequest:
         stream_metrics = self.stream_metrics
 
         multijudge_average_boolean_metrics = self.multijudge_average_boolean_metrics
+
+        store_metric_ids = self.store_metric_ids
+
+        trace_ids: Unset | list[str] = UNSET
+        if not isinstance(self.trace_ids, Unset):
+            trace_ids = self.trace_ids
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -671,12 +649,6 @@ class CreateJobRequest:
             field_dict["luna_model"] = luna_model
         if segment_filters is not UNSET:
             field_dict["segment_filters"] = segment_filters
-        if prompt_optimization_configuration is not UNSET:
-            field_dict["prompt_optimization_configuration"] = prompt_optimization_configuration
-        if epoch is not UNSET:
-            field_dict["epoch"] = epoch
-        if metric_critique_configuration is not UNSET:
-            field_dict["metric_critique_configuration"] = metric_critique_configuration
         if is_session is not UNSET:
             field_dict["is_session"] = is_session
         if validation_config is not UNSET:
@@ -689,6 +661,10 @@ class CreateJobRequest:
             field_dict["stream_metrics"] = stream_metrics
         if multijudge_average_boolean_metrics is not UNSET:
             field_dict["multijudge_average_boolean_metrics"] = multijudge_average_boolean_metrics
+        if store_metric_ids is not UNSET:
+            field_dict["store_metric_ids"] = store_metric_ids
+        if trace_ids is not UNSET:
+            field_dict["trace_ids"] = trace_ids
 
         return field_dict
 
@@ -728,13 +704,11 @@ class CreateJobRequest:
         from ..models.input_tone_scorer import InputToneScorer
         from ..models.input_toxicity_scorer import InputToxicityScorer
         from ..models.instruction_adherence_scorer import InstructionAdherenceScorer
-        from ..models.metric_critique_job_configuration import MetricCritiqueJobConfiguration
         from ..models.output_pii_scorer import OutputPIIScorer
         from ..models.output_sexist_scorer import OutputSexistScorer
         from ..models.output_tone_scorer import OutputToneScorer
         from ..models.output_toxicity_scorer import OutputToxicityScorer
         from ..models.prompt_injection_scorer import PromptInjectionScorer
-        from ..models.prompt_optimization_configuration import PromptOptimizationConfiguration
         from ..models.prompt_perplexity_scorer import PromptPerplexityScorer
         from ..models.prompt_run_settings import PromptRunSettings
         from ..models.registered_scorer import RegisteredScorer
@@ -945,19 +919,12 @@ class CreateJobRequest:
 
         protect_trace_id = _parse_protect_trace_id(d.pop("protect_trace_id", UNSET))
 
-        def _parse_protect_scorer_payload(data: object) -> File | None | Unset:
+        def _parse_protect_scorer_payload(data: object) -> None | Unset | str:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, bytes):
-                    raise TypeError()
-                return File(payload=BytesIO(data))
-
-            except:  # noqa: E722
-                pass
-            return cast(File | None | Unset, data)
+            return cast(None | Unset | str, data)
 
         protect_scorer_payload = _parse_protect_scorer_payload(d.pop("protect_scorer_payload", UNSET))
 
@@ -1638,46 +1605,6 @@ class CreateJobRequest:
 
         segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
 
-        def _parse_prompt_optimization_configuration(
-            data: object,
-        ) -> Union["PromptOptimizationConfiguration", None, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return PromptOptimizationConfiguration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union["PromptOptimizationConfiguration", None, Unset], data)
-
-        prompt_optimization_configuration = _parse_prompt_optimization_configuration(
-            d.pop("prompt_optimization_configuration", UNSET)
-        )
-
-        epoch = d.pop("epoch", UNSET)
-
-        def _parse_metric_critique_configuration(data: object) -> Union["MetricCritiqueJobConfiguration", None, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return MetricCritiqueJobConfiguration.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union["MetricCritiqueJobConfiguration", None, Unset], data)
-
-        metric_critique_configuration = _parse_metric_critique_configuration(
-            d.pop("metric_critique_configuration", UNSET)
-        )
-
         def _parse_is_session(data: object) -> None | Unset | bool:
             if data is None:
                 return data
@@ -1710,6 +1637,10 @@ class CreateJobRequest:
         stream_metrics = d.pop("stream_metrics", UNSET)
 
         multijudge_average_boolean_metrics = d.pop("multijudge_average_boolean_metrics", UNSET)
+
+        store_metric_ids = d.pop("store_metric_ids", UNSET)
+
+        trace_ids = cast(list[str], d.pop("trace_ids", UNSET))
 
         create_job_request = cls(
             project_id=project_id,
@@ -1747,15 +1678,14 @@ class CreateJobRequest:
             sub_scorers=sub_scorers,
             luna_model=luna_model,
             segment_filters=segment_filters,
-            prompt_optimization_configuration=prompt_optimization_configuration,
-            epoch=epoch,
-            metric_critique_configuration=metric_critique_configuration,
             is_session=is_session,
             validation_config=validation_config,
             upload_data_in_separate_task=upload_data_in_separate_task,
             log_metric_computing_records=log_metric_computing_records,
             stream_metrics=stream_metrics,
             multijudge_average_boolean_metrics=multijudge_average_boolean_metrics,
+            store_metric_ids=store_metric_ids,
+            trace_ids=trace_ids,
         )
 
         create_job_request.additional_properties = d

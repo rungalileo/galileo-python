@@ -92,7 +92,7 @@ def sync_detailed(
 ) -> Response[HTTPValidationError | list["JobDB"]]:
     """Get Jobs For Project Run.
 
-     Get all jobs by for a project and run.
+     Get all jobs for a project and run.
 
     Returns them in order of creation from newest to oldest.
 
@@ -122,7 +122,7 @@ def sync(
 ) -> HTTPValidationError | list["JobDB"] | None:
     """Get Jobs For Project Run.
 
-     Get all jobs by for a project and run.
+     Get all jobs for a project and run.
 
     Returns them in order of creation from newest to oldest.
 
@@ -148,7 +148,7 @@ async def asyncio_detailed(
 ) -> Response[HTTPValidationError | list["JobDB"]]:
     """Get Jobs For Project Run.
 
-     Get all jobs by for a project and run.
+     Get all jobs for a project and run.
 
     Returns them in order of creation from newest to oldest.
 
@@ -178,7 +178,7 @@ async def asyncio(
 ) -> HTTPValidationError | list["JobDB"] | None:
     """Get Jobs For Project Run.
 
-     Get all jobs by for a project and run.
+     Get all jobs for a project and run.
 
     Returns them in order of creation from newest to oldest.
 

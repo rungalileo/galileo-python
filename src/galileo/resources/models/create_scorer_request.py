@@ -30,6 +30,8 @@ class CreateScorerRequest:
     ----------
         name (str):
         scorer_type (ScorerTypes):
+        id (Union[None, Unset, str]):
+        label (Union[None, Unset, str]):
         description (Union[Unset, str]):  Default: ''.
         tags (Union[Unset, list[str]]):
         defaults (Union['ScorerDefaults', None, Unset]):
@@ -43,13 +45,18 @@ class CreateScorerRequest:
         input_type (Union[InputTypeEnum, None, Unset]):
         multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
         required_scorers (Union[None, Unset, list[str]]):
+        required_metric_ids (Union[None, Unset, list[str]]):
         roll_up_method (Union[None, RollUpMethodDisplayOptions, Unset]):
         metric_color_picker_config (Union['MetricColorPickerBoolean', 'MetricColorPickerCategorical',
             'MetricColorPickerMultiLabel', 'MetricColorPickerNumeric', None, Unset]):
+        is_global (Union[None, Unset, bool]):
+        project_ids (Union[Unset, list[str]]):
     """
 
     name: str
     scorer_type: ScorerTypes
+    id: None | Unset | str = UNSET
+    label: None | Unset | str = UNSET
     description: Unset | str = ""
     tags: Unset | list[str] = UNSET
     defaults: Union["ScorerDefaults", None, Unset] = UNSET
@@ -63,6 +70,7 @@ class CreateScorerRequest:
     input_type: InputTypeEnum | None | Unset = UNSET
     multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET
     required_scorers: None | Unset | list[str] = UNSET
+    required_metric_ids: None | Unset | list[str] = UNSET
     roll_up_method: None | RollUpMethodDisplayOptions | Unset = UNSET
     metric_color_picker_config: Union[
         "MetricColorPickerBoolean",
@@ -72,6 +80,8 @@ class CreateScorerRequest:
         None,
         Unset,
     ] = UNSET
+    is_global: None | Unset | bool = UNSET
+    project_ids: Unset | list[str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -84,6 +94,12 @@ class CreateScorerRequest:
         name = self.name
 
         scorer_type = self.scorer_type.value
+
+        id: None | Unset | str
+        id = UNSET if isinstance(self.id, Unset) else self.id
+
+        label: None | Unset | str
+        label = UNSET if isinstance(self.label, Unset) else self.label
 
         description = self.description
 
@@ -165,6 +181,15 @@ class CreateScorerRequest:
         else:
             required_scorers = self.required_scorers
 
+        required_metric_ids: None | Unset | list[str]
+        if isinstance(self.required_metric_ids, Unset):
+            required_metric_ids = UNSET
+        elif isinstance(self.required_metric_ids, list):
+            required_metric_ids = self.required_metric_ids
+
+        else:
+            required_metric_ids = self.required_metric_ids
+
         roll_up_method: None | Unset | str
         if isinstance(self.roll_up_method, Unset):
             roll_up_method = UNSET
@@ -187,9 +212,20 @@ class CreateScorerRequest:
         else:
             metric_color_picker_config = self.metric_color_picker_config
 
+        is_global: None | Unset | bool
+        is_global = UNSET if isinstance(self.is_global, Unset) else self.is_global
+
+        project_ids: Unset | list[str] = UNSET
+        if not isinstance(self.project_ids, Unset):
+            project_ids = self.project_ids
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"name": name, "scorer_type": scorer_type})
+        if id is not UNSET:
+            field_dict["id"] = id
+        if label is not UNSET:
+            field_dict["label"] = label
         if description is not UNSET:
             field_dict["description"] = description
         if tags is not UNSET:
@@ -216,10 +252,16 @@ class CreateScorerRequest:
             field_dict["multimodal_capabilities"] = multimodal_capabilities
         if required_scorers is not UNSET:
             field_dict["required_scorers"] = required_scorers
+        if required_metric_ids is not UNSET:
+            field_dict["required_metric_ids"] = required_metric_ids
         if roll_up_method is not UNSET:
             field_dict["roll_up_method"] = roll_up_method
         if metric_color_picker_config is not UNSET:
             field_dict["metric_color_picker_config"] = metric_color_picker_config
+        if is_global is not UNSET:
+            field_dict["is_global"] = is_global
+        if project_ids is not UNSET:
+            field_dict["project_ids"] = project_ids
 
         return field_dict
 
@@ -235,6 +277,24 @@ class CreateScorerRequest:
         name = d.pop("name")
 
         scorer_type = ScorerTypes(d.pop("scorer_type"))
+
+        def _parse_id(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        id = _parse_id(d.pop("id", UNSET))
+
+        def _parse_label(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        label = _parse_label(d.pop("label", UNSET))
 
         description = d.pop("description", UNSET)
 
@@ -394,6 +454,22 @@ class CreateScorerRequest:
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
 
+        def _parse_required_metric_ids(data: object) -> None | Unset | list[str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(None | Unset | list[str], data)
+
+        required_metric_ids = _parse_required_metric_ids(d.pop("required_metric_ids", UNSET))
+
         def _parse_roll_up_method(data: object) -> None | RollUpMethodDisplayOptions | Unset:
             if data is None:
                 return data
@@ -466,9 +542,22 @@ class CreateScorerRequest:
 
         metric_color_picker_config = _parse_metric_color_picker_config(d.pop("metric_color_picker_config", UNSET))
 
+        def _parse_is_global(data: object) -> None | Unset | bool:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | bool, data)
+
+        is_global = _parse_is_global(d.pop("is_global", UNSET))
+
+        project_ids = cast(list[str], d.pop("project_ids", UNSET))
+
         create_scorer_request = cls(
             name=name,
             scorer_type=scorer_type,
+            id=id,
+            label=label,
             description=description,
             tags=tags,
             defaults=defaults,
@@ -482,8 +571,11 @@ class CreateScorerRequest:
             input_type=input_type,
             multimodal_capabilities=multimodal_capabilities,
             required_scorers=required_scorers,
+            required_metric_ids=required_metric_ids,
             roll_up_method=roll_up_method,
             metric_color_picker_config=metric_color_picker_config,
+            is_global=is_global,
+            project_ids=project_ids,
         )
 
         create_scorer_request.additional_properties = d

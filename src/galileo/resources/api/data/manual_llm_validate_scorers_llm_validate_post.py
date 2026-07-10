@@ -18,12 +18,10 @@ from galileo_core.helpers.api_client import ApiClient
 
 from ... import errors
 from ...models.generated_scorer_validation_response import GeneratedScorerValidationResponse
-from ...models.http_validation_error import HTTPValidationError
-from ...models.manual_llm_validate_scorers_llm_validate_post_body import ManualLlmValidateScorersLlmValidatePostBody
 from ...types import Response
 
 
-def _get_kwargs(*, body: ManualLlmValidateScorersLlmValidatePostBody) -> dict[str, Any]:
+def _get_kwargs() -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
@@ -32,24 +30,15 @@ def _get_kwargs(*, body: ManualLlmValidateScorersLlmValidatePostBody) -> dict[st
         "path": "/scorers/llm/validate",
     }
 
-    _kwargs["json"] = body.to_dict()
-
-    headers["Content-Type"] = "application/json"
-
     headers["X-Galileo-SDK"] = get_sdk_header()
 
     _kwargs["content_headers"] = headers
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> GeneratedScorerValidationResponse | HTTPValidationError:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> GeneratedScorerValidationResponse:
     if response.status_code == 200:
         return GeneratedScorerValidationResponse.from_dict(response.json())
-
-    if response.status_code == 422:
-        return HTTPValidationError.from_dict(response.json())
 
     # Handle common HTTP errors with actionable messages
     if response.status_code == 400:
@@ -69,9 +58,7 @@ def _parse_response(
     raise errors.UnexpectedStatus(response.status_code, response.content)
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[GeneratedScorerValidationResponse | HTTPValidationError]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[GeneratedScorerValidationResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,13 +67,8 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
-) -> Response[GeneratedScorerValidationResponse | HTTPValidationError]:
+def sync_detailed(*, client: ApiClient) -> Response[GeneratedScorerValidationResponse]:
     """Manual Llm Validate.
-
-    Args:
-        body (ManualLlmValidateScorersLlmValidatePostBody):
 
     Raises
     ------
@@ -95,22 +77,17 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[GeneratedScorerValidationResponse, HTTPValidationError]]
+        Response[GeneratedScorerValidationResponse]
     """
-    kwargs = _get_kwargs(body=body)
+    kwargs = _get_kwargs()
 
     response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
-) -> GeneratedScorerValidationResponse | HTTPValidationError | None:
+def sync(*, client: ApiClient) -> GeneratedScorerValidationResponse | None:
     """Manual Llm Validate.
-
-    Args:
-        body (ManualLlmValidateScorersLlmValidatePostBody):
 
     Raises
     ------
@@ -119,18 +96,13 @@ def sync(
 
     Returns
     -------
-        Union[GeneratedScorerValidationResponse, HTTPValidationError]
+        GeneratedScorerValidationResponse
     """
-    return sync_detailed(client=client, body=body).parsed
+    return sync_detailed(client=client).parsed
 
 
-async def asyncio_detailed(
-    *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
-) -> Response[GeneratedScorerValidationResponse | HTTPValidationError]:
+async def asyncio_detailed(*, client: ApiClient) -> Response[GeneratedScorerValidationResponse]:
     """Manual Llm Validate.
-
-    Args:
-        body (ManualLlmValidateScorersLlmValidatePostBody):
 
     Raises
     ------
@@ -139,22 +111,17 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[GeneratedScorerValidationResponse, HTTPValidationError]]
+        Response[GeneratedScorerValidationResponse]
     """
-    kwargs = _get_kwargs(body=body)
+    kwargs = _get_kwargs()
 
     response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *, client: ApiClient, body: ManualLlmValidateScorersLlmValidatePostBody
-) -> GeneratedScorerValidationResponse | HTTPValidationError | None:
+async def asyncio(*, client: ApiClient) -> GeneratedScorerValidationResponse | None:
     """Manual Llm Validate.
-
-    Args:
-        body (ManualLlmValidateScorersLlmValidatePostBody):
 
     Raises
     ------
@@ -163,6 +130,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[GeneratedScorerValidationResponse, HTTPValidationError]
+        GeneratedScorerValidationResponse
     """
-    return (await asyncio_detailed(client=client, body=body)).parsed
+    return (await asyncio_detailed(client=client)).parsed

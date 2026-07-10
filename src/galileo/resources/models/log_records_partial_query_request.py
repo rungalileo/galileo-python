@@ -48,6 +48,9 @@ class LogRecordsPartialQueryRequest:
         truncate_fields (Union[Unset, bool]):  Default: False.
         include_counts (Union[Unset, bool]): If True, include computed child counts (e.g., num_traces for sessions,
             num_spans for traces). Default: False.
+        include_code_metric_metadata (Union[Unset, bool]): If True, include per-row scorer metadata (the dict returned
+            alongside the score by code-based scorers via the (score, metadata) tuple-return contract) on each MetricSuccess
+            in the response. Off by default to keep payloads small for callers that don't need it. Default: False.
     """
 
     select_columns: "SelectColumns"
@@ -82,6 +85,7 @@ class LogRecordsPartialQueryRequest:
     sort: Union["LogRecordsSortClause", None, Unset] = UNSET
     truncate_fields: Unset | bool = False
     include_counts: Unset | bool = False
+    include_code_metric_metadata: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -157,6 +161,8 @@ class LogRecordsPartialQueryRequest:
 
         include_counts = self.include_counts
 
+        include_code_metric_metadata = self.include_code_metric_metadata
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"select_columns": select_columns})
@@ -182,6 +188,8 @@ class LogRecordsPartialQueryRequest:
             field_dict["truncate_fields"] = truncate_fields
         if include_counts is not UNSET:
             field_dict["include_counts"] = include_counts
+        if include_code_metric_metadata is not UNSET:
+            field_dict["include_code_metric_metadata"] = include_code_metric_metadata
 
         return field_dict
 
@@ -385,6 +393,8 @@ class LogRecordsPartialQueryRequest:
 
         include_counts = d.pop("include_counts", UNSET)
 
+        include_code_metric_metadata = d.pop("include_code_metric_metadata", UNSET)
+
         log_records_partial_query_request = cls(
             select_columns=select_columns,
             starting_token=starting_token,
@@ -398,6 +408,7 @@ class LogRecordsPartialQueryRequest:
             sort=sort,
             truncate_fields=truncate_fields,
             include_counts=include_counts,
+            include_code_metric_metadata=include_code_metric_metadata,
         )
 
         log_records_partial_query_request.additional_properties = d

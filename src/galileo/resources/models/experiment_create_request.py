@@ -29,6 +29,8 @@ class ExperimentCreateRequest:
         prompt_settings (Union['PromptRunSettings', None, Unset]):
         scorers (Union[Unset, list['ScorerConfig']]):
         trigger (Union[Unset, bool]):  Default: False.
+        experiment_group_id (Union[None, Unset, str]):
+        experiment_group_name (Union[None, Unset, str]):
     """
 
     name: str
@@ -40,6 +42,8 @@ class ExperimentCreateRequest:
     prompt_settings: Union["PromptRunSettings", None, Unset] = UNSET
     scorers: Unset | list["ScorerConfig"] = UNSET
     trigger: Unset | bool = False
+    experiment_group_id: None | Unset | str = UNSET
+    experiment_group_name: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -88,6 +92,12 @@ class ExperimentCreateRequest:
 
         trigger = self.trigger
 
+        experiment_group_id: None | Unset | str
+        experiment_group_id = UNSET if isinstance(self.experiment_group_id, Unset) else self.experiment_group_id
+
+        experiment_group_name: None | Unset | str
+        experiment_group_name = UNSET if isinstance(self.experiment_group_name, Unset) else self.experiment_group_name
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"name": name})
@@ -107,6 +117,10 @@ class ExperimentCreateRequest:
             field_dict["scorers"] = scorers
         if trigger is not UNSET:
             field_dict["trigger"] = trigger
+        if experiment_group_id is not UNSET:
+            field_dict["experiment_group_id"] = experiment_group_id
+        if experiment_group_name is not UNSET:
+            field_dict["experiment_group_name"] = experiment_group_name
 
         return field_dict
 
@@ -201,6 +215,24 @@ class ExperimentCreateRequest:
 
         trigger = d.pop("trigger", UNSET)
 
+        def _parse_experiment_group_id(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        experiment_group_id = _parse_experiment_group_id(d.pop("experiment_group_id", UNSET))
+
+        def _parse_experiment_group_name(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        experiment_group_name = _parse_experiment_group_name(d.pop("experiment_group_name", UNSET))
+
         experiment_create_request = cls(
             name=name,
             task_type=task_type,
@@ -211,6 +243,8 @@ class ExperimentCreateRequest:
             prompt_settings=prompt_settings,
             scorers=scorers,
             trigger=trigger,
+            experiment_group_id=experiment_group_id,
+            experiment_group_name=experiment_group_name,
         )
 
         experiment_create_request.additional_properties = d

@@ -109,19 +109,15 @@ def sync_detailed(
 
     Parameters
     ----------
-    template_id : UUID4
-        ID of the template to query versions for
     params : ListPromptTemplateVersionParams
-        Query parameters for filtering and sorting
+        Query parameters for filtering and sorting.
     pagination : PaginationRequestMixin
-        Pagination parameters
-    ctx : Context
-        User context containing database session and user information
+        Pagination parameters.
 
     Returns
     -------
     ListPromptTemplateVersionResponse
-        Paginated list of template version responses
+        Paginated list of template version responses.
 
     Args:
         template_id (str):
@@ -159,19 +155,15 @@ def sync(
 
     Parameters
     ----------
-    template_id : UUID4
-        ID of the template to query versions for
     params : ListPromptTemplateVersionParams
-        Query parameters for filtering and sorting
+        Query parameters for filtering and sorting.
     pagination : PaginationRequestMixin
-        Pagination parameters
-    ctx : Context
-        User context containing database session and user information
+        Pagination parameters.
 
     Returns
     -------
     ListPromptTemplateVersionResponse
-        Paginated list of template version responses
+        Paginated list of template version responses.
 
     Args:
         template_id (str):
@@ -207,19 +199,15 @@ async def asyncio_detailed(
 
     Parameters
     ----------
-    template_id : UUID4
-        ID of the template to query versions for
     params : ListPromptTemplateVersionParams
-        Query parameters for filtering and sorting
+        Query parameters for filtering and sorting.
     pagination : PaginationRequestMixin
-        Pagination parameters
-    ctx : Context
-        User context containing database session and user information
+        Pagination parameters.
 
     Returns
     -------
     ListPromptTemplateVersionResponse
-        Paginated list of template version responses
+        Paginated list of template version responses.
 
     Args:
         template_id (str):
@@ -257,19 +245,15 @@ async def asyncio(
 
     Parameters
     ----------
-    template_id : UUID4
-        ID of the template to query versions for
     params : ListPromptTemplateVersionParams
-        Query parameters for filtering and sorting
+        Query parameters for filtering and sorting.
     pagination : PaginationRequestMixin
-        Pagination parameters
-    ctx : Context
-        User context containing database session and user information
+        Pagination parameters.
 
     Returns
     -------
     ListPromptTemplateVersionResponse
-        Paginated list of template version responses
+        Paginated list of template version responses.
 
     Args:
         template_id (str):

@@ -18,11 +18,11 @@ from galileo_core.helpers.api_client import ApiClient
 
 from ... import errors
 from ...models.http_validation_error import HTTPValidationError
-from ...models.integration_name import IntegrationName
+from ...models.integration_provider import IntegrationProvider
 from ...types import Response
 
 
-def _get_kwargs(name: IntegrationName) -> dict[str, Any]:
+def _get_kwargs(name: IntegrationProvider) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
@@ -68,13 +68,13 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
     )
 
 
-def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[HTTPValidationError]:
+def sync_detailed(name: IntegrationProvider, *, client: ApiClient) -> Response[HTTPValidationError]:
     """Get Integration.
 
      Gets the integration data formatted for the specified integration.
 
     Args:
-        name (IntegrationName):
+        name (IntegrationProvider):
 
     Raises
     ------
@@ -92,13 +92,13 @@ def sync_detailed(name: IntegrationName, *, client: ApiClient) -> Response[HTTPV
     return _build_response(client=client, response=response)
 
 
-def sync(name: IntegrationName, *, client: ApiClient) -> HTTPValidationError | None:
+def sync(name: IntegrationProvider, *, client: ApiClient) -> HTTPValidationError | None:
     """Get Integration.
 
      Gets the integration data formatted for the specified integration.
 
     Args:
-        name (IntegrationName):
+        name (IntegrationProvider):
 
     Raises
     ------
@@ -112,13 +112,13 @@ def sync(name: IntegrationName, *, client: ApiClient) -> HTTPValidationError | N
     return sync_detailed(name=name, client=client).parsed
 
 
-async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Response[HTTPValidationError]:
+async def asyncio_detailed(name: IntegrationProvider, *, client: ApiClient) -> Response[HTTPValidationError]:
     """Get Integration.
 
      Gets the integration data formatted for the specified integration.
 
     Args:
-        name (IntegrationName):
+        name (IntegrationProvider):
 
     Raises
     ------
@@ -136,13 +136,13 @@ async def asyncio_detailed(name: IntegrationName, *, client: ApiClient) -> Respo
     return _build_response(client=client, response=response)
 
 
-async def asyncio(name: IntegrationName, *, client: ApiClient) -> HTTPValidationError | None:
+async def asyncio(name: IntegrationProvider, *, client: ApiClient) -> HTTPValidationError | None:
     """Get Integration.
 
      Gets the integration data formatted for the specified integration.
 
     Args:
-        name (IntegrationName):
+        name (IntegrationProvider):
 
     Raises
     ------

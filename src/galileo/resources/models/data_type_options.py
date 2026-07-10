@@ -4,6 +4,8 @@ from enum import Enum
 class DataTypeOptions(str, Enum):
     ARRAY = "array"
     BOOLEAN = "boolean"
+    CHOICE_RATING = "choice_rating"
+    CHOICE_RATING_AGGREGATE = "choice_rating_aggregate"
     DOLLARS = "dollars"
     FLOATING_POINT = "floating_point"
     HALLUCINATION_SEGMENTS = "hallucination_segments"

@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ..models.feedback_rating_db import FeedbackRatingDB
     from ..models.hallucination_segment import HallucinationSegment
     from ..models.metric_critique_columnar import MetricCritiqueColumnar
+    from ..models.metric_roll_up_metadata_type_0 import MetricRollUpMetadataType0
     from ..models.metric_roll_up_roll_up_metrics import MetricRollUpRollUpMetrics
     from ..models.segment import Segment
 
@@ -42,10 +43,14 @@ class MetricRollUp:
         cost (Union[None, Unset, float]):
         model_alias (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
+        multijudge_average (Union[None, Unset, float]):
         input_tokens (Union[None, Unset, int]):
         output_tokens (Union[None, Unset, int]):
         total_tokens (Union[None, Unset, int]):
         critique (Union['MetricCritiqueColumnar', None, Unset]):
+        metadata (Union['MetricRollUpMetadataType0', None, Unset]): Optional per-row context returned alongside the
+            score by code-based scorers that return a (score, metadata) tuple. Sourced from the {metric_name}_metadata
+            auxiliary key, which is stored as a JSON string in ClickHouse.
         roll_up_metrics (Union[Unset, MetricRollUpRollUpMetrics]): Roll up metrics e.g. sum, average, min, max for
             numeric, and category_count for categorical metrics.
     """
@@ -125,10 +130,12 @@ class MetricRollUp:
     cost: None | Unset | float = UNSET
     model_alias: None | Unset | str = UNSET
     num_judges: None | Unset | int = UNSET
+    multijudge_average: None | Unset | float = UNSET
     input_tokens: None | Unset | int = UNSET
     output_tokens: None | Unset | int = UNSET
     total_tokens: None | Unset | int = UNSET
     critique: Union["MetricCritiqueColumnar", None, Unset] = UNSET
+    metadata: Union["MetricRollUpMetadataType0", None, Unset] = UNSET
     roll_up_metrics: Union[Unset, "MetricRollUpRollUpMetrics"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -138,6 +145,7 @@ class MetricRollUp:
         from ..models.feedback_rating_db import FeedbackRatingDB
         from ..models.hallucination_segment import HallucinationSegment
         from ..models.metric_critique_columnar import MetricCritiqueColumnar
+        from ..models.metric_roll_up_metadata_type_0 import MetricRollUpMetadataType0
         from ..models.segment import Segment
 
         value: (
@@ -248,6 +256,9 @@ class MetricRollUp:
         num_judges: None | Unset | int
         num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
+        multijudge_average: None | Unset | float
+        multijudge_average = UNSET if isinstance(self.multijudge_average, Unset) else self.multijudge_average
+
         input_tokens: None | Unset | int
         input_tokens = UNSET if isinstance(self.input_tokens, Unset) else self.input_tokens
 
@@ -264,6 +275,14 @@ class MetricRollUp:
             critique = self.critique.to_dict()
         else:
             critique = self.critique
+
+        metadata: None | Unset | dict[str, Any]
+        if isinstance(self.metadata, Unset):
+            metadata = UNSET
+        elif isinstance(self.metadata, MetricRollUpMetadataType0):
+            metadata = self.metadata.to_dict()
+        else:
+            metadata = self.metadata
 
         roll_up_metrics: Unset | dict[str, Any] = UNSET
         if not isinstance(self.roll_up_metrics, Unset):
@@ -286,6 +305,8 @@ class MetricRollUp:
             field_dict["model_alias"] = model_alias
         if num_judges is not UNSET:
             field_dict["num_judges"] = num_judges
+        if multijudge_average is not UNSET:
+            field_dict["multijudge_average"] = multijudge_average
         if input_tokens is not UNSET:
             field_dict["input_tokens"] = input_tokens
         if output_tokens is not UNSET:
@@ -294,6 +315,8 @@ class MetricRollUp:
             field_dict["total_tokens"] = total_tokens
         if critique is not UNSET:
             field_dict["critique"] = critique
+        if metadata is not UNSET:
+            field_dict["metadata"] = metadata
         if roll_up_metrics is not UNSET:
             field_dict["roll_up_metrics"] = roll_up_metrics
 
@@ -306,6 +329,7 @@ class MetricRollUp:
         from ..models.feedback_rating_db import FeedbackRatingDB
         from ..models.hallucination_segment import HallucinationSegment
         from ..models.metric_critique_columnar import MetricCritiqueColumnar
+        from ..models.metric_roll_up_metadata_type_0 import MetricRollUpMetadataType0
         from ..models.metric_roll_up_roll_up_metrics import MetricRollUpRollUpMetrics
         from ..models.segment import Segment
 
@@ -885,6 +909,15 @@ class MetricRollUp:
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
+        def _parse_multijudge_average(data: object) -> None | Unset | float:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | float, data)
+
+        multijudge_average = _parse_multijudge_average(d.pop("multijudge_average", UNSET))
+
         def _parse_input_tokens(data: object) -> None | Unset | int:
             if data is None:
                 return data
@@ -928,6 +961,22 @@ class MetricRollUp:
 
         critique = _parse_critique(d.pop("critique", UNSET))
 
+        def _parse_metadata(data: object) -> Union["MetricRollUpMetadataType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return MetricRollUpMetadataType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["MetricRollUpMetadataType0", None, Unset], data)
+
+        metadata = _parse_metadata(d.pop("metadata", UNSET))
+
         _roll_up_metrics = d.pop("roll_up_metrics", UNSET)
         roll_up_metrics: Unset | MetricRollUpRollUpMetrics
         if isinstance(_roll_up_metrics, Unset):
@@ -944,10 +993,12 @@ class MetricRollUp:
             cost=cost,
             model_alias=model_alias,
             num_judges=num_judges,
+            multijudge_average=multijudge_average,
             input_tokens=input_tokens,
             output_tokens=output_tokens,
             total_tokens=total_tokens,
             critique=critique,
+            metadata=metadata,
             roll_up_metrics=roll_up_metrics,
         )
 

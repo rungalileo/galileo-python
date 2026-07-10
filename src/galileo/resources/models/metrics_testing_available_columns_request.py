@@ -20,7 +20,8 @@ class MetricsTestingAvailableColumnsRequest:
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
-        output_type (Union[Unset, OutputTypeEnum]): Enumeration of output types.
+        output_type (Union[None, OutputTypeEnum, Unset]): Output type of the scorer. Required when metric_key is
+            REGISTERED_SCORER_VALIDATION; used to determine the data_type for validation columns.
         cot_enabled (Union[Unset, bool]): Whether the metrics testing table is using chain of thought (CoT) enabled
             scorers. If True, the columns will be generated for CoT enabled scorers. Default: False.
         metric_key (Union[Unset, str]): The metric key to use for column generation (e.g., 'generated_scorer_validation'
@@ -35,7 +36,7 @@ class MetricsTestingAvailableColumnsRequest:
     log_stream_id: None | Unset | str = UNSET
     experiment_id: None | Unset | str = UNSET
     metrics_testing_id: None | Unset | str = UNSET
-    output_type: Unset | OutputTypeEnum = UNSET
+    output_type: None | OutputTypeEnum | Unset = UNSET
     cot_enabled: Unset | bool = False
     metric_key: Unset | str = "generated_scorer_validation"
     required_scorers: None | Unset | list[str] = UNSET
@@ -54,9 +55,13 @@ class MetricsTestingAvailableColumnsRequest:
         metrics_testing_id: None | Unset | str
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
-        output_type: Unset | str = UNSET
-        if not isinstance(self.output_type, Unset):
+        output_type: None | Unset | str
+        if isinstance(self.output_type, Unset):
+            output_type = UNSET
+        elif isinstance(self.output_type, OutputTypeEnum):
             output_type = self.output_type.value
+        else:
+            output_type = self.output_type
 
         cot_enabled = self.cot_enabled
 
@@ -128,9 +133,21 @@ class MetricsTestingAvailableColumnsRequest:
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
-        _output_type = d.pop("output_type", UNSET)
-        output_type: Unset | OutputTypeEnum
-        output_type = UNSET if isinstance(_output_type, Unset) else OutputTypeEnum(_output_type)
+        def _parse_output_type(data: object) -> None | OutputTypeEnum | Unset:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return OutputTypeEnum(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(None | OutputTypeEnum | Unset, data)
+
+        output_type = _parse_output_type(d.pop("output_type", UNSET))
 
         cot_enabled = d.pop("cot_enabled", UNSET)
 

@@ -89,8 +89,9 @@ def sync_detailed(
     The `index` and `column_name` fields are treated as keys tied to a specific version of the dataset.
     As such, these values are considered immutable identifiers for the dataset's structure.
 
-    For example, if an edit operation changes the name of a column, subsequent edit operations in
-    the same request should reference the column using its original name.
+    Edits are applied sequentially in list order, and each edit sees the table state left by the
+    previous one. For example, after a `rename_column` edit renames `col_a` to `col_b`, any
+    subsequent `update_row` in the same request must reference the column as `col_b`, not `col_a`.
 
     The `If-Match` header is used to ensure that updates are only applied if the client's version of the
     dataset
@@ -137,8 +138,9 @@ def sync(
     The `index` and `column_name` fields are treated as keys tied to a specific version of the dataset.
     As such, these values are considered immutable identifiers for the dataset's structure.
 
-    For example, if an edit operation changes the name of a column, subsequent edit operations in
-    the same request should reference the column using its original name.
+    Edits are applied sequentially in list order, and each edit sees the table state left by the
+    previous one. For example, after a `rename_column` edit renames `col_a` to `col_b`, any
+    subsequent `update_row` in the same request must reference the column as `col_b`, not `col_a`.
 
     The `If-Match` header is used to ensure that updates are only applied if the client's version of the
     dataset
@@ -181,8 +183,9 @@ async def asyncio_detailed(
     The `index` and `column_name` fields are treated as keys tied to a specific version of the dataset.
     As such, these values are considered immutable identifiers for the dataset's structure.
 
-    For example, if an edit operation changes the name of a column, subsequent edit operations in
-    the same request should reference the column using its original name.
+    Edits are applied sequentially in list order, and each edit sees the table state left by the
+    previous one. For example, after a `rename_column` edit renames `col_a` to `col_b`, any
+    subsequent `update_row` in the same request must reference the column as `col_b`, not `col_a`.
 
     The `If-Match` header is used to ensure that updates are only applied if the client's version of the
     dataset
@@ -229,8 +232,9 @@ async def asyncio(
     The `index` and `column_name` fields are treated as keys tied to a specific version of the dataset.
     As such, these values are considered immutable identifiers for the dataset's structure.
 
-    For example, if an edit operation changes the name of a column, subsequent edit operations in
-    the same request should reference the column using its original name.
+    Edits are applied sequentially in list order, and each edit sees the table state left by the
+    previous one. For example, after a `rename_column` edit renames `col_a` to `col_b`, any
+    subsequent `update_row` in the same request must reference the column as `col_b`, not `col_a`.
 
     The `If-Match` header is used to ensure that updates are only applied if the client's version of the
     dataset

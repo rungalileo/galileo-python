@@ -93,12 +93,8 @@ def sync_detailed(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    body : dict, optional
-        Body of the request, by default Body( ...,
-            examples=[CreatePromptTemplateVersionRequest.test_data()],
-        )
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    base_prompt_template_version : BasePromptTemplateVersion
+        Version details to create.
 
     Returns
     -------
@@ -139,12 +135,8 @@ def sync(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    body : dict, optional
-        Body of the request, by default Body( ...,
-            examples=[CreatePromptTemplateVersionRequest.test_data()],
-        )
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    base_prompt_template_version : BasePromptTemplateVersion
+        Version details to create.
 
     Returns
     -------
@@ -181,12 +173,8 @@ async def asyncio_detailed(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    body : dict, optional
-        Body of the request, by default Body( ...,
-            examples=[CreatePromptTemplateVersionRequest.test_data()],
-        )
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    base_prompt_template_version : BasePromptTemplateVersion
+        Version details to create.
 
     Returns
     -------
@@ -227,12 +215,8 @@ async def asyncio(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    body : dict, optional
-        Body of the request, by default Body( ...,
-            examples=[CreatePromptTemplateVersionRequest.test_data()],
-        )
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    base_prompt_template_version : BasePromptTemplateVersion
+        Version details to create.
 
     Returns
     -------

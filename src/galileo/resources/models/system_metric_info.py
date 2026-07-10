@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,6 +21,8 @@ class SystemMetricInfo:
     ----------
         name (str): Unique identifier for the metric
         label (str): Human-readable display name for the metric
+        aggregation_type (Union[Literal['numeric'], Unset]): Discriminator: numeric metrics aggregated via
+            stats/histogram Default: 'numeric'.
         unit (Union[DataUnit, None, Unset]): Unit of measurement, if any
         values (Union[Unset, list[float]]): Raw metric values used to compute statistics and histograms
         mean (Union[None, Unset, float]): Arithmetic mean of the metric values
@@ -36,6 +38,7 @@ class SystemMetricInfo:
 
     name: str
     label: str
+    aggregation_type: Literal["numeric"] | Unset = "numeric"
     unit: DataUnit | None | Unset = UNSET
     values: Unset | list[float] = UNSET
     mean: None | Unset | float = UNSET
@@ -55,6 +58,8 @@ class SystemMetricInfo:
         name = self.name
 
         label = self.label
+
+        aggregation_type = self.aggregation_type
 
         unit: None | Unset | str
         if isinstance(self.unit, Unset):
@@ -103,6 +108,8 @@ class SystemMetricInfo:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"name": name, "label": label})
+        if aggregation_type is not UNSET:
+            field_dict["aggregation_type"] = aggregation_type
         if unit is not UNSET:
             field_dict["unit"] = unit
         if values is not UNSET:
@@ -136,6 +143,10 @@ class SystemMetricInfo:
         name = d.pop("name")
 
         label = d.pop("label")
+
+        aggregation_type = cast(Literal["numeric"] | Unset, d.pop("aggregation_type", UNSET))
+        if aggregation_type != "numeric" and not isinstance(aggregation_type, Unset):
+            raise ValueError(f"aggregation_type must match const 'numeric', got '{aggregation_type}'")
 
         def _parse_unit(data: object) -> DataUnit | None | Unset:
             if data is None:
@@ -246,6 +257,7 @@ class SystemMetricInfo:
         system_metric_info = cls(
             name=name,
             label=label,
+            aggregation_type=aggregation_type,
             unit=unit,
             values=values,
             mean=mean,

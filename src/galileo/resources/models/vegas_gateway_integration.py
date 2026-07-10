@@ -20,11 +20,13 @@ class VegasGatewayIntegration:
     ----------
         id (Union[None, Unset, str]):
         name (Union[Literal['vegas_gateway'], Unset]):  Default: 'vegas_gateway'.
+        provider (Union[Literal['vegas_gateway'], Unset]):  Default: 'vegas_gateway'.
         extra (Union['VegasGatewayIntegrationExtraType0', None, Unset]):
     """
 
     id: None | Unset | str = UNSET
     name: Literal["vegas_gateway"] | Unset = "vegas_gateway"
+    provider: Literal["vegas_gateway"] | Unset = "vegas_gateway"
     extra: Union["VegasGatewayIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -35,6 +37,8 @@ class VegasGatewayIntegration:
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
+
+        provider = self.provider
 
         extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
@@ -51,6 +55,8 @@ class VegasGatewayIntegration:
             field_dict["id"] = id
         if name is not UNSET:
             field_dict["name"] = name
+        if provider is not UNSET:
+            field_dict["provider"] = provider
         if extra is not UNSET:
             field_dict["extra"] = extra
 
@@ -75,6 +81,10 @@ class VegasGatewayIntegration:
         if name != "vegas_gateway" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'vegas_gateway', got '{name}'")
 
+        provider = cast(Literal["vegas_gateway"] | Unset, d.pop("provider", UNSET))
+        if provider != "vegas_gateway" and not isinstance(provider, Unset):
+            raise ValueError(f"provider must match const 'vegas_gateway', got '{provider}'")
+
         def _parse_extra(data: object) -> Union["VegasGatewayIntegrationExtraType0", None, Unset]:
             if data is None:
                 return data
@@ -91,7 +101,7 @@ class VegasGatewayIntegration:
 
         extra = _parse_extra(d.pop("extra", UNSET))
 
-        vegas_gateway_integration = cls(id=id, name=name, extra=extra)
+        vegas_gateway_integration = cls(id=id, name=name, provider=provider, extra=extra)
 
         vegas_gateway_integration.additional_properties = d
         return vegas_gateway_integration

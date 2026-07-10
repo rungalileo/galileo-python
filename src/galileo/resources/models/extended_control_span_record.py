@@ -22,9 +22,6 @@ if TYPE_CHECKING:
     from ..models.extended_control_span_record_feedback_rating_info import ExtendedControlSpanRecordFeedbackRatingInfo
     from ..models.extended_control_span_record_files_type_0 import ExtendedControlSpanRecordFilesType0
     from ..models.extended_control_span_record_metric_info_type_0 import ExtendedControlSpanRecordMetricInfoType0
-    from ..models.extended_control_span_record_overall_annotation_agreement import (
-        ExtendedControlSpanRecordOverallAnnotationAgreement,
-    )
     from ..models.extended_control_span_record_user_metadata import ExtendedControlSpanRecordUserMetadata
     from ..models.file_content_part import FileContentPart
     from ..models.message import Message
@@ -81,9 +78,12 @@ class ExtendedControlSpanRecord:
             information keyed by template ID
         annotation_agreement (Union[Unset, ExtendedControlSpanRecordAnnotationAgreement]): Annotation agreement scores
             keyed by template ID
-        overall_annotation_agreement (Union[Unset, ExtendedControlSpanRecordOverallAnnotationAgreement]): Average
-            annotation agreement per queue (keyed by queue ID)
+        overall_annotation_agreement (Union[None, Unset, float]): Average annotation agreement across all templates in
+            the queue
         annotation_queue_ids (Union[Unset, list[str]]): IDs of annotation queues this record is in
+        fully_annotated (Union[None, Unset, bool]): Whether every field is annotated by every annotator in the queue
+        progress_message (Union[Unset, str]): Runner progress text written directly to CH span Default: ''.
+        error_message (Union[Unset, str]): Runner error text written directly to CH span Default: ''.
         metric_info (Union['ExtendedControlSpanRecordMetricInfoType0', None, Unset]): Detailed information about the
             metrics associated with this trace or span
         files (Union['ExtendedControlSpanRecordFilesType0', None, Unset]): File metadata keyed by file ID for files
@@ -133,8 +133,11 @@ class ExtendedControlSpanRecord:
     file_modalities: Unset | list[ContentModality] = UNSET
     annotation_aggregates: Union[Unset, "ExtendedControlSpanRecordAnnotationAggregates"] = UNSET
     annotation_agreement: Union[Unset, "ExtendedControlSpanRecordAnnotationAgreement"] = UNSET
-    overall_annotation_agreement: Union[Unset, "ExtendedControlSpanRecordOverallAnnotationAgreement"] = UNSET
+    overall_annotation_agreement: None | Unset | float = UNSET
     annotation_queue_ids: Unset | list[str] = UNSET
+    fully_annotated: None | Unset | bool = UNSET
+    progress_message: Unset | str = ""
+    error_message: Unset | str = ""
     metric_info: Union["ExtendedControlSpanRecordMetricInfoType0", None, Unset] = UNSET
     files: Union["ExtendedControlSpanRecordFilesType0", None, Unset] = UNSET
     is_complete: Unset | bool = True
@@ -308,13 +311,22 @@ class ExtendedControlSpanRecord:
         if not isinstance(self.annotation_agreement, Unset):
             annotation_agreement = self.annotation_agreement.to_dict()
 
-        overall_annotation_agreement: Unset | dict[str, Any] = UNSET
-        if not isinstance(self.overall_annotation_agreement, Unset):
-            overall_annotation_agreement = self.overall_annotation_agreement.to_dict()
+        overall_annotation_agreement: None | Unset | float
+        if isinstance(self.overall_annotation_agreement, Unset):
+            overall_annotation_agreement = UNSET
+        else:
+            overall_annotation_agreement = self.overall_annotation_agreement
 
         annotation_queue_ids: Unset | list[str] = UNSET
         if not isinstance(self.annotation_queue_ids, Unset):
             annotation_queue_ids = self.annotation_queue_ids
+
+        fully_annotated: None | Unset | bool
+        fully_annotated = UNSET if isinstance(self.fully_annotated, Unset) else self.fully_annotated
+
+        progress_message = self.progress_message
+
+        error_message = self.error_message
 
         metric_info: None | Unset | dict[str, Any]
         if isinstance(self.metric_info, Unset):
@@ -426,6 +438,12 @@ class ExtendedControlSpanRecord:
             field_dict["overall_annotation_agreement"] = overall_annotation_agreement
         if annotation_queue_ids is not UNSET:
             field_dict["annotation_queue_ids"] = annotation_queue_ids
+        if fully_annotated is not UNSET:
+            field_dict["fully_annotated"] = fully_annotated
+        if progress_message is not UNSET:
+            field_dict["progress_message"] = progress_message
+        if error_message is not UNSET:
+            field_dict["error_message"] = error_message
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
         if files is not UNSET:
@@ -465,9 +483,6 @@ class ExtendedControlSpanRecord:
         )
         from ..models.extended_control_span_record_files_type_0 import ExtendedControlSpanRecordFilesType0
         from ..models.extended_control_span_record_metric_info_type_0 import ExtendedControlSpanRecordMetricInfoType0
-        from ..models.extended_control_span_record_overall_annotation_agreement import (
-            ExtendedControlSpanRecordOverallAnnotationAgreement,
-        )
         from ..models.extended_control_span_record_user_metadata import ExtendedControlSpanRecordUserMetadata
         from ..models.file_content_part import FileContentPart
         from ..models.message import Message
@@ -770,16 +785,29 @@ class ExtendedControlSpanRecord:
         else:
             annotation_agreement = ExtendedControlSpanRecordAnnotationAgreement.from_dict(_annotation_agreement)
 
-        _overall_annotation_agreement = d.pop("overall_annotation_agreement", UNSET)
-        overall_annotation_agreement: Unset | ExtendedControlSpanRecordOverallAnnotationAgreement
-        if isinstance(_overall_annotation_agreement, Unset):
-            overall_annotation_agreement = UNSET
-        else:
-            overall_annotation_agreement = ExtendedControlSpanRecordOverallAnnotationAgreement.from_dict(
-                _overall_annotation_agreement
-            )
+        def _parse_overall_annotation_agreement(data: object) -> None | Unset | float:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | float, data)
+
+        overall_annotation_agreement = _parse_overall_annotation_agreement(d.pop("overall_annotation_agreement", UNSET))
 
         annotation_queue_ids = cast(list[str], d.pop("annotation_queue_ids", UNSET))
+
+        def _parse_fully_annotated(data: object) -> None | Unset | bool:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | bool, data)
+
+        fully_annotated = _parse_fully_annotated(d.pop("fully_annotated", UNSET))
+
+        progress_message = d.pop("progress_message", UNSET)
+
+        error_message = d.pop("error_message", UNSET)
 
         def _parse_metric_info(data: object) -> Union["ExtendedControlSpanRecordMetricInfoType0", None, Unset]:
             if data is None:
@@ -926,6 +954,9 @@ class ExtendedControlSpanRecord:
             annotation_agreement=annotation_agreement,
             overall_annotation_agreement=overall_annotation_agreement,
             annotation_queue_ids=annotation_queue_ids,
+            fully_annotated=fully_annotated,
+            progress_message=progress_message,
+            error_message=error_message,
             metric_info=metric_info,
             files=files,
             is_complete=is_complete,
