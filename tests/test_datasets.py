@@ -21,7 +21,9 @@ from galileo.datasets import (
     list_dataset_projects,
 )
 from galileo.resources.models import (
+    BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost,
     BodyCreateDatasetDatasetsPost,
+    BodyValidateCodeScorerScorersCodeValidatePost,
     DatasetContent,
     DatasetDB,
     DatasetFormat,
@@ -1336,12 +1338,31 @@ def test_create_dataset_without_project_uses_unset(create_dataset_mock: Mock) ->
 
 
 def test_create_dataset_body_serializes_file_as_multipart_upload() -> None:
+    # Given: a dataset body constructed with a File payload
     file = File(payload=Mock(), file_name="dataset.jsonl", mime_type="application/octet-stream")
     body = BodyCreateDatasetDatasetsPost(file=file, name="dataset.jsonl")
 
+    # When: serializing the body to multipart form data
     multipart_data = dict(body.to_multipart())
 
+    # Then: the file field is emitted as a binary multipart upload
     assert multipart_data["file"] == file.to_tuple()
+
+
+def test_code_scorer_bodies_serialize_files_as_multipart_uploads() -> None:
+    # Given: generated code-scorer bodies constructed with File payloads
+    file = File(payload=Mock(), file_name="scorer.py", mime_type="text/x-python")
+    bodies = [
+        BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost(file=file, validation_result="{}"),
+        BodyValidateCodeScorerScorersCodeValidatePost(file=file),
+    ]
+
+    for body in bodies:
+        # When: serializing the body to multipart form data
+        multipart_data = dict(body.to_multipart())
+
+        # Then: the file field is emitted as a binary multipart upload
+        assert multipart_data["file"] == file.to_tuple()
 
 
 @patch("galileo.resources.api.datasets.list_dataset_projects_datasets_dataset_id_projects_get.sync")
