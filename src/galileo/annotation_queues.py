@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import builtins
 import datetime
-from typing import TypeAlias, cast, overload
+from typing import TypeAlias, TypeVar, cast, overload
 
 from galileo.config import GalileoPythonConfig
 from galileo.exceptions import NotFoundError
@@ -93,6 +93,7 @@ AnnotationQueueRecordSelector: TypeAlias = AnnotationQueueRecordsByRecordIDs | A
 AnnotationQueueRecordsFilter: TypeAlias = (
     AndNodeLogRecordsFilter | FilterLeafLogRecordsFilter | NotNodeLogRecordsFilter | OrNodeLogRecordsFilter
 )
+_ResponseT = TypeVar("_ResponseT")
 
 
 class AnnotationField:
@@ -777,12 +778,7 @@ class AnnotationQueues:
         response = delete_annotation_queue_annotation_queues_queue_id_delete.sync(
             queue_id=queue_id, client=self.config.api_client
         )
-        if isinstance(response, HTTPValidationError):
-            raise AnnotationQueuesAPIException(
-                f"Failed to delete annotation queue: {_format_validation_error(response)}"
-            )
-        if response is None:
-            raise AnnotationQueuesAPIException(f"Failed to delete annotation queue: {queue_id}")
+        _require_response(response, "Failed to delete annotation queue")
         return
 
     def remove_user(self, queue_id: str, user_id: str) -> None:
@@ -807,12 +803,7 @@ class AnnotationQueues:
         response = remove_annotation_queue_user_annotation_queues_queue_id_users_user_id_delete.sync(
             queue_id=queue_id, user_id=user_id, client=self.config.api_client
         )
-        if isinstance(response, HTTPValidationError):
-            raise AnnotationQueuesAPIException(
-                f"Failed to remove annotation queue user: {_format_validation_error(response)}"
-            )
-        if response is None:
-            raise AnnotationQueuesAPIException(f"Failed to remove annotation queue user: {user_id}")
+        _require_response(response, "Failed to remove annotation queue user")
         return
 
     def delete_field(self, queue_id: str, field_id: str) -> None:
@@ -837,12 +828,7 @@ class AnnotationQueues:
         response = delete_queue_template_annotation_queues_queue_id_templates_template_id_delete.sync(
             queue_id=queue_id, template_id=field_id, client=self.config.api_client
         )
-        if isinstance(response, HTTPValidationError):
-            raise AnnotationQueuesAPIException(
-                f"Failed to delete annotation queue field: {_format_validation_error(response)}"
-            )
-        if response is None:
-            raise AnnotationQueuesAPIException(f"Failed to delete annotation queue field: {field_id}")
+        _require_response(response, "Failed to delete annotation queue field")
         return
 
 
@@ -1029,12 +1015,7 @@ def delete_annotation_queue_field(queue_id: str, field_id: str) -> None:
 def _to_annotation_queue(
     response: AnnotationQueueResponse | HTTPValidationError | None, operation: str
 ) -> AnnotationQueue:
-    if isinstance(response, HTTPValidationError):
-        raise AnnotationQueuesAPIException(
-            f"Failed to {operation} annotation queue: {_format_validation_error(response)}"
-        )
-    if response is None:
-        raise AnnotationQueuesAPIException(f"Failed to {operation} annotation queue: no response")
+    response = _require_response(response, f"Failed to {operation} annotation queue")
     return AnnotationQueue(queue=response)
 
 
@@ -1063,7 +1044,7 @@ def _to_annotation_queue_user_list(
 def _next_starting_token(
     *, paginated: Unset | bool, next_starting_token: None | Unset | int, current_starting_token: int
 ) -> int | None:
-    if paginated and isinstance(next_starting_token, int) and next_starting_token > current_starting_token:
+    if isinstance(next_starting_token, int) and next_starting_token > current_starting_token:
         return next_starting_token
     return None
 
@@ -1104,42 +1085,25 @@ def _to_annotation_queue_record_selector(
 
 
 def _to_add_records_response(response: AddRecordsToQueueResponse | HTTPValidationError | None) -> int:
-    if isinstance(response, HTTPValidationError):
-        raise AnnotationQueuesAPIException(
-            f"Failed to add records to annotation queue: {_format_validation_error(response)}"
-        )
-    if response is None:
-        raise AnnotationQueuesAPIException("Failed to add records to annotation queue: no response")
+    response = _require_response(response, "Failed to add records to annotation queue")
     return response.num_records_added
 
 
 def _to_remove_records_response(response: RemoveRecordsFromQueueResponse | HTTPValidationError | None) -> int:
-    if isinstance(response, HTTPValidationError):
-        raise AnnotationQueuesAPIException(
-            f"Failed to remove records from annotation queue: {_format_validation_error(response)}"
-        )
-    if response is None:
-        raise AnnotationQueuesAPIException("Failed to remove records from annotation queue: no response")
+    response = _require_response(response, "Failed to remove records from annotation queue")
     return response.num_records_removed
 
 
 def _to_annotation_queue_records_response(
     response: LogRecordsPartialQueryResponse | HTTPValidationError | None,
 ) -> LogRecordsPartialQueryResponse:
-    if isinstance(response, HTTPValidationError):
-        raise AnnotationQueuesAPIException(
-            f"Failed to get annotation queue records: {_format_validation_error(response)}"
-        )
-    if response is None:
-        raise AnnotationQueuesAPIException("Failed to get annotation queue records: no response")
-    return response
+    return _require_response(response, "Failed to get annotation queue records")
 
 
 def _to_annotation_queue_user_create_response(
     response: list[UserAnnotationQueueCollaborator] | HTTPValidationError | None,
 ) -> AnnotationQueueUser:
-    if isinstance(response, HTTPValidationError):
-        raise AnnotationQueuesAPIException(f"Failed to share annotation queue: {_format_validation_error(response)}")
+    response = _require_response(response, "Failed to share annotation queue")
     if not response:
         raise AnnotationQueuesAPIException("Failed to share annotation queue: no response")
     return AnnotationQueueUser(collaborator=response[0])
@@ -1148,22 +1112,14 @@ def _to_annotation_queue_user_create_response(
 def _to_annotation_queue_user(
     response: UserAnnotationQueueCollaborator | HTTPValidationError | None, operation: str
 ) -> AnnotationQueueUser:
-    if isinstance(response, HTTPValidationError):
-        raise AnnotationQueuesAPIException(
-            f"Failed to {operation} annotation queue user: {_format_validation_error(response)}"
-        )
-    if response is None:
-        raise AnnotationQueuesAPIException(f"Failed to {operation} annotation queue user: no response")
+    response = _require_response(response, f"Failed to {operation} annotation queue user")
     return AnnotationQueueUser(collaborator=response)
 
 
 def _to_annotation_field_create_response(
     response: list[AnnotationTemplateDB] | HTTPValidationError | None, *, name: str
 ) -> AnnotationField:
-    if isinstance(response, HTTPValidationError):
-        raise AnnotationQueuesAPIException(
-            f"Failed to create annotation queue field: {_format_validation_error(response)}"
-        )
+    response = _require_response(response, "Failed to create annotation queue field")
     if not response:
         raise AnnotationQueuesAPIException("Failed to create annotation queue field: no response")
     for field in response:
@@ -1187,12 +1143,7 @@ def _to_annotation_field_list(
 def _to_annotation_field(
     response: AnnotationTemplateDB | HTTPValidationError | None, operation: str
 ) -> AnnotationField:
-    if isinstance(response, HTTPValidationError):
-        raise AnnotationQueuesAPIException(
-            f"Failed to {operation} annotation queue field: {_format_validation_error(response)}"
-        )
-    if response is None:
-        raise AnnotationQueuesAPIException(f"Failed to {operation} annotation queue field: no response")
+    response = _require_response(response, f"Failed to {operation} annotation queue field")
     return AnnotationField(field=response)
 
 
@@ -1214,3 +1165,11 @@ def _format_validation_error(error: HTTPValidationError) -> str:
     if not messages:
         return "validation error"
     return "; ".join(cast(list[str], messages))
+
+
+def _require_response(response: _ResponseT | HTTPValidationError | None, failure_message: str) -> _ResponseT:
+    if isinstance(response, HTTPValidationError):
+        raise AnnotationQueuesAPIException(f"{failure_message}: {_format_validation_error(response)}")
+    if response is None:
+        raise AnnotationQueuesAPIException(f"{failure_message}: no response")
+    return response

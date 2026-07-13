@@ -270,6 +270,33 @@ def test_list_annotation_queue_users_returns_all_pages(mock_list: Mock, mock_get
 
 @patch("galileo.annotation_queues.GalileoPythonConfig.get")
 @patch("galileo.annotation_queues.list_annotation_queue_users_annotation_queues_queue_id_users_get.sync")
+def test_list_annotation_queue_users_continues_when_paginated_flag_is_false(
+    mock_list: Mock, mock_get_config: Mock, mock_config: Mock
+):
+    # Given: a response with an advancing next token but no paginated flag
+    mock_get_config.return_value = mock_config
+    second_user = make_annotation_queue_user_response()
+    second_user.id = "collab-456"
+    second_user.user_id = "user-456"
+    second_user.email = "grace@example.com"
+    mock_list.side_effect = [
+        ListAnnotationQueueCollaboratorsResponse(
+            collaborators=[make_annotation_queue_user_response()], paginated=False, next_starting_token=100
+        ),
+        ListAnnotationQueueCollaboratorsResponse(collaborators=[second_user]),
+    ]
+
+    # When: listing annotation queue users
+    users = list_annotation_queue_users(" queue-123 ")
+
+    # Then: the SDK treats the advancing token as authoritative
+    assert [user.email for user in users] == ["ada@example.com", "grace@example.com"]
+    assert mock_list.call_count == 2
+    assert mock_list.call_args_list[1].kwargs["starting_token"] == 100
+
+
+@patch("galileo.annotation_queues.GalileoPythonConfig.get")
+@patch("galileo.annotation_queues.list_annotation_queue_users_annotation_queues_queue_id_users_get.sync")
 def test_list_annotation_queue_users_stops_when_next_token_is_unset(
     mock_list: Mock, mock_get_config: Mock, mock_config: Mock
 ):
@@ -716,6 +743,31 @@ def test_list_annotation_queues_returns_all_pages(mock_query: Mock, mock_get_con
     assert [queue.id for queue in queues] == ["queue-123", "queue-456"]
     assert mock_query.call_count == 2
     assert mock_query.call_args_list[0].kwargs["starting_token"] == 0
+    assert mock_query.call_args_list[1].kwargs["starting_token"] == 100
+
+
+@patch("galileo.annotation_queues.GalileoPythonConfig.get")
+@patch("galileo.annotation_queues.query_annotation_queues_annotation_queues_query_post.sync")
+def test_list_annotation_queues_continues_when_paginated_flag_is_false(
+    mock_query: Mock, mock_get_config: Mock, mock_config: Mock
+):
+    # Given: a response with an advancing next token but no paginated flag
+    mock_get_config.return_value = mock_config
+    second_queue = make_annotation_queue_response()
+    second_queue.id = "queue-456"
+    mock_query.side_effect = [
+        ListAnnotationQueueResponse(
+            annotation_queues=[make_annotation_queue_response()], paginated=False, next_starting_token=100
+        ),
+        ListAnnotationQueueResponse(annotation_queues=[second_queue]),
+    ]
+
+    # When: listing annotation queues
+    queues = list_annotation_queues(limit=100)
+
+    # Then: the SDK treats the advancing token as authoritative
+    assert [queue.id for queue in queues] == ["queue-123", "queue-456"]
+    assert mock_query.call_count == 2
     assert mock_query.call_args_list[1].kwargs["starting_token"] == 100
 
 
