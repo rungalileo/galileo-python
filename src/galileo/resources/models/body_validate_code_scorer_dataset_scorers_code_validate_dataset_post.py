@@ -1,4 +1,5 @@
 from collections.abc import Mapping
+from io import BytesIO
 from typing import Any, TypeVar, cast
 from uuid import UUID
 
@@ -6,7 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from .. import types
-from ..types import UNSET, Unset
+from ..types import UNSET, File, Unset
 
 T = TypeVar("T", bound="BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost")
 
@@ -16,7 +17,7 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
     """
     Attributes
     ----------
-        file (str):
+        file (File):
         dataset_id (UUID):
         dataset_version_index (Union[None, Unset, int]):
         limit (Union[Unset, int]):  Default: 100.
@@ -26,7 +27,7 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
         score_type (Union[None, Unset, str]):
     """
 
-    file: str
+    file: File
     dataset_id: UUID
     dataset_version_index: None | Unset | int = UNSET
     limit: Unset | int = 100
@@ -37,7 +38,7 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        file = self.file
+        file = self.file.to_tuple()
 
         dataset_id = str(self.dataset_id)
 
@@ -91,7 +92,7 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
     def to_multipart(self) -> types.RequestFiles:
         files: types.RequestFiles = []
 
-        files.append(("file", (None, str(self.file).encode(), "text/plain")))
+        files.append(("file", self.file.to_tuple()))
 
         files.append(("dataset_id", (None, str(self.dataset_id), "text/plain")))
 
@@ -149,7 +150,7 @@ class BodyValidateCodeScorerDatasetScorersCodeValidateDatasetPost:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        file = d.pop("file")
+        file = File(payload=BytesIO(d.pop("file")))
 
         dataset_id = UUID(d.pop("dataset_id"))
 
