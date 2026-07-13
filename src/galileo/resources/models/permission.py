@@ -6,6 +6,7 @@ from attrs import field as _attrs_field
 
 from ..models.annotation_queue_action import AnnotationQueueAction
 from ..models.api_key_action import ApiKeyAction
+from ..models.control_resource_action import ControlResourceAction
 from ..models.dataset_action import DatasetAction
 from ..models.fine_tuned_scorer_action import FineTunedScorerAction
 from ..models.generated_scorer_action import GeneratedScorerAction
@@ -15,6 +16,7 @@ from ..models.integration_action import IntegrationAction
 from ..models.organization_action import OrganizationAction
 from ..models.project_action import ProjectAction
 from ..models.registered_scorer_action import RegisteredScorerAction
+from ..models.scorer_action import ScorerAction
 from ..models.user_action import UserAction
 from ..types import UNSET, Unset
 
@@ -26,9 +28,9 @@ class Permission:
     """
     Attributes
     ----------
-        action (Union[AnnotationQueueAction, ApiKeyAction, DatasetAction, FineTunedScorerAction, GeneratedScorerAction,
-            GroupAction, GroupMemberAction, IntegrationAction, OrganizationAction, ProjectAction, RegisteredScorerAction,
-            UserAction]):
+        action (Union[AnnotationQueueAction, ApiKeyAction, ControlResourceAction, DatasetAction, FineTunedScorerAction,
+            GeneratedScorerAction, GroupAction, GroupMemberAction, IntegrationAction, OrganizationAction, ProjectAction,
+            RegisteredScorerAction, ScorerAction, UserAction]):
         allowed (bool):
         message (Union[None, Unset, str]):
     """
@@ -36,6 +38,7 @@ class Permission:
     action: (
         AnnotationQueueAction
         | ApiKeyAction
+        | ControlResourceAction
         | DatasetAction
         | FineTunedScorerAction
         | GeneratedScorerAction
@@ -45,6 +48,7 @@ class Permission:
         | OrganizationAction
         | ProjectAction
         | RegisteredScorerAction
+        | ScorerAction
         | UserAction
     )
     allowed: bool
@@ -59,10 +63,11 @@ class Permission:
             | GroupAction
             | GroupMemberAction
             | ProjectAction
-            | (RegisteredScorerAction | ApiKeyAction)
+            | (ScorerAction | RegisteredScorerAction)
+            | ApiKeyAction
             | GeneratedScorerAction
-            | FineTunedScorerAction
-            | (DatasetAction | IntegrationAction | OrganizationAction),
+            | (FineTunedScorerAction | DatasetAction | IntegrationAction | OrganizationAction)
+            | AnnotationQueueAction,
         ):
             action = self.action.value
         else:
@@ -90,6 +95,7 @@ class Permission:
         ) -> (
             AnnotationQueueAction
             | ApiKeyAction
+            | ControlResourceAction
             | DatasetAction
             | FineTunedScorerAction
             | GeneratedScorerAction
@@ -99,6 +105,7 @@ class Permission:
             | OrganizationAction
             | ProjectAction
             | RegisteredScorerAction
+            | ScorerAction
             | UserAction
         ):
             try:
@@ -126,6 +133,13 @@ class Permission:
                 if not isinstance(data, str):
                     raise TypeError()
                 return ProjectAction(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return ScorerAction(data)
 
             except:  # noqa: E722
                 pass
@@ -178,9 +192,16 @@ class Permission:
 
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return AnnotationQueueAction(data)
+
+            except:  # noqa: E722
+                pass
             if not isinstance(data, str):
                 raise TypeError()
-            return AnnotationQueueAction(data)
+            return ControlResourceAction(data)
 
         action = _parse_action(d.pop("action"))
 

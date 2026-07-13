@@ -72,7 +72,9 @@ class CustomizedToolSelectionQualityGPTScorer:
         output_type (Union[None, OutputTypeEnum, Unset]):
         input_type (Union[InputTypeEnum, None, Unset]):
         multimodal_capabilities (Union[None, Unset, list[MultimodalCapability]]):
+        requires_tools_in_llm_span (Union[Unset, bool]):  Default: False.
         required_scorers (Union[None, Unset, list[str]]):
+        required_metric_ids (Union[None, Unset, list[str]]):
         roll_up_strategy (Union[None, RollUpStrategy, Unset]):
         roll_up_methods (Union[None, Unset, list[CategoricalRollUpMethod], list[NumericRollUpMethod]]):
         prompt (Union[None, Unset, str]):
@@ -82,6 +84,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         luna_output_type (Union[LunaOutputTypeEnum, None, Unset]):
         class_name_to_vocab_ix (Union['CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0',
             'CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1', None, Unset]):
+        scorer_path_name (Union[None, Unset, str]):
     """
 
     scorer_name: Literal["_customized_tool_selection_quality"] | Unset = "_customized_tool_selection_quality"
@@ -111,7 +114,9 @@ class CustomizedToolSelectionQualityGPTScorer:
     output_type: None | OutputTypeEnum | Unset = UNSET
     input_type: InputTypeEnum | None | Unset = UNSET
     multimodal_capabilities: None | Unset | list[MultimodalCapability] = UNSET
+    requires_tools_in_llm_span: Unset | bool = False
     required_scorers: None | Unset | list[str] = UNSET
+    required_metric_ids: None | Unset | list[str] = UNSET
     roll_up_strategy: None | RollUpStrategy | Unset = UNSET
     roll_up_methods: None | Unset | list[CategoricalRollUpMethod] | list[NumericRollUpMethod] = UNSET
     prompt: None | Unset | str = UNSET
@@ -125,6 +130,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         None,
         Unset,
     ] = UNSET
+    scorer_path_name: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -289,6 +295,8 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             multimodal_capabilities = self.multimodal_capabilities
 
+        requires_tools_in_llm_span = self.requires_tools_in_llm_span
+
         required_scorers: None | Unset | list[str]
         if isinstance(self.required_scorers, Unset):
             required_scorers = UNSET
@@ -297,6 +305,15 @@ class CustomizedToolSelectionQualityGPTScorer:
 
         else:
             required_scorers = self.required_scorers
+
+        required_metric_ids: None | Unset | list[str]
+        if isinstance(self.required_metric_ids, Unset):
+            required_metric_ids = UNSET
+        elif isinstance(self.required_metric_ids, list):
+            required_metric_ids = self.required_metric_ids
+
+        else:
+            required_metric_ids = self.required_metric_ids
 
         roll_up_strategy: None | Unset | str
         if isinstance(self.roll_up_strategy, Unset):
@@ -361,6 +378,9 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             class_name_to_vocab_ix = self.class_name_to_vocab_ix
 
+        scorer_path_name: None | Unset | str
+        scorer_path_name = UNSET if isinstance(self.scorer_path_name, Unset) else self.scorer_path_name
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -418,8 +438,12 @@ class CustomizedToolSelectionQualityGPTScorer:
             field_dict["input_type"] = input_type
         if multimodal_capabilities is not UNSET:
             field_dict["multimodal_capabilities"] = multimodal_capabilities
+        if requires_tools_in_llm_span is not UNSET:
+            field_dict["requires_tools_in_llm_span"] = requires_tools_in_llm_span
         if required_scorers is not UNSET:
             field_dict["required_scorers"] = required_scorers
+        if required_metric_ids is not UNSET:
+            field_dict["required_metric_ids"] = required_metric_ids
         if roll_up_strategy is not UNSET:
             field_dict["roll_up_strategy"] = roll_up_strategy
         if roll_up_methods is not UNSET:
@@ -436,6 +460,8 @@ class CustomizedToolSelectionQualityGPTScorer:
             field_dict["luna_output_type"] = luna_output_type
         if class_name_to_vocab_ix is not UNSET:
             field_dict["class_name_to_vocab_ix"] = class_name_to_vocab_ix
+        if scorer_path_name is not UNSET:
+            field_dict["scorer_path_name"] = scorer_path_name
 
         return field_dict
 
@@ -767,6 +793,8 @@ class CustomizedToolSelectionQualityGPTScorer:
 
         multimodal_capabilities = _parse_multimodal_capabilities(d.pop("multimodal_capabilities", UNSET))
 
+        requires_tools_in_llm_span = d.pop("requires_tools_in_llm_span", UNSET)
+
         def _parse_required_scorers(data: object) -> None | Unset | list[str]:
             if data is None:
                 return data
@@ -782,6 +810,22 @@ class CustomizedToolSelectionQualityGPTScorer:
             return cast(None | Unset | list[str], data)
 
         required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
+
+        def _parse_required_metric_ids(data: object) -> None | Unset | list[str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(None | Unset | list[str], data)
+
+        required_metric_ids = _parse_required_metric_ids(d.pop("required_metric_ids", UNSET))
 
         def _parse_roll_up_strategy(data: object) -> None | RollUpStrategy | Unset:
             if data is None:
@@ -933,6 +977,15 @@ class CustomizedToolSelectionQualityGPTScorer:
 
         class_name_to_vocab_ix = _parse_class_name_to_vocab_ix(d.pop("class_name_to_vocab_ix", UNSET))
 
+        def _parse_scorer_path_name(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        scorer_path_name = _parse_scorer_path_name(d.pop("scorer_path_name", UNSET))
+
         customized_tool_selection_quality_gpt_scorer = cls(
             scorer_name=scorer_name,
             model_alias=model_alias,
@@ -961,7 +1014,9 @@ class CustomizedToolSelectionQualityGPTScorer:
             output_type=output_type,
             input_type=input_type,
             multimodal_capabilities=multimodal_capabilities,
+            requires_tools_in_llm_span=requires_tools_in_llm_span,
             required_scorers=required_scorers,
+            required_metric_ids=required_metric_ids,
             roll_up_strategy=roll_up_strategy,
             roll_up_methods=roll_up_methods,
             prompt=prompt,
@@ -970,6 +1025,7 @@ class CustomizedToolSelectionQualityGPTScorer:
             luna_input_type=luna_input_type,
             luna_output_type=luna_output_type,
             class_name_to_vocab_ix=class_name_to_vocab_ix,
+            scorer_path_name=scorer_path_name,
         )
 
         customized_tool_selection_quality_gpt_scorer.additional_properties = d

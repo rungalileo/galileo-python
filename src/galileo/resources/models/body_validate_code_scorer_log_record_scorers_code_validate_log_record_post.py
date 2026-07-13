@@ -1,12 +1,11 @@
 from collections.abc import Mapping
-from io import BytesIO
 from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from .. import types
-from ..types import UNSET, File, Unset
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost")
 
@@ -16,7 +15,7 @@ class BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost:
     """
     Attributes
     ----------
-        file (File):
+        file (str):
         log_stream_id (Union[None, Unset, str]):
         experiment_id (Union[None, Unset, str]):
         limit (Union[Unset, int]):  Default: 100.
@@ -27,7 +26,7 @@ class BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost:
         scoreable_node_types (Union[None, Unset, list[str], str]):
     """
 
-    file: File
+    file: str
     log_stream_id: None | Unset | str = UNSET
     experiment_id: None | Unset | str = UNSET
     limit: Unset | int = 100
@@ -39,7 +38,7 @@ class BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        file = self.file.to_tuple()
+        file = self.file
 
         log_stream_id: None | Unset | str
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
@@ -101,7 +100,7 @@ class BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost:
     def to_multipart(self) -> types.RequestFiles:
         files: types.RequestFiles = []
 
-        files.append(("file", self.file.to_tuple()))
+        files.append(("file", (None, str(self.file).encode(), "text/plain")))
 
         if not isinstance(self.log_stream_id, Unset):
             if isinstance(self.log_stream_id, str):
@@ -169,7 +168,7 @@ class BodyValidateCodeScorerLogRecordScorersCodeValidateLogRecordPost:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        file = File(payload=BytesIO(d.pop("file")))
+        file = d.pop("file")
 
         def _parse_log_stream_id(data: object) -> None | Unset | str:
             if data is None:

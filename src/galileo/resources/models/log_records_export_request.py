@@ -36,6 +36,10 @@ class LogRecordsExportRequest:
         export_format (Union[Unset, LLMExportFormat]):
         redact (Union[Unset, bool]): Redact sensitive data Default: True.
         file_name (Union[None, Unset, str]): Optional filename for the exported file
+        export_computed_metrics_only (Union[Unset, bool]): When true, export only enabled scorer metrics with computed
+            values (success or roll_up). For session exports, omit entire sessions unless every enabled metric at session,
+            trace, or span level is ready (success, roll_up, or not_applicable). Not supported with export_format=jsonl_flat
+            (returns 422); use jsonl or csv instead. Default: False.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
@@ -44,9 +48,9 @@ class LogRecordsExportRequest:
             'LogRecordsTextFilter']]]): Filters to apply on the export
         sort (Union['LogRecordsSortClause', None, Unset]): Sort clause for the export.  Defaults to native sort
             (created_at, id descending).
-        include_code_metric_metadata (Union[Unset, bool]): If True, include per-row scorer metadata (the dict
-            returned alongside the score by code-based scorers via the (score, metadata) tuple-return contract) on
-            each MetricSuccess in the export. Default: False.
+        include_code_metric_metadata (Union[Unset, bool]): If True, include per-row scorer metadata (the dict returned
+            alongside the score by code-based scorers via the (score, metadata) tuple-return contract) on each MetricSuccess
+            in the export. Off by default to keep payloads small for callers that don't need it. Default: False.
     """
 
     root_type: RootType
@@ -54,6 +58,7 @@ class LogRecordsExportRequest:
     export_format: Unset | LLMExportFormat = UNSET
     redact: Unset | bool = True
     file_name: None | Unset | str = UNSET
+    export_computed_metrics_only: Unset | bool = False
     log_stream_id: None | Unset | str = UNSET
     experiment_id: None | Unset | str = UNSET
     metrics_testing_id: None | Unset | str = UNSET
@@ -104,6 +109,8 @@ class LogRecordsExportRequest:
         file_name: None | Unset | str
         file_name = UNSET if isinstance(self.file_name, Unset) else self.file_name
 
+        export_computed_metrics_only = self.export_computed_metrics_only
+
         log_stream_id: None | Unset | str
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
@@ -153,6 +160,8 @@ class LogRecordsExportRequest:
             field_dict["redact"] = redact
         if file_name is not UNSET:
             field_dict["file_name"] = file_name
+        if export_computed_metrics_only is not UNSET:
+            field_dict["export_computed_metrics_only"] = export_computed_metrics_only
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
         if experiment_id is not UNSET:
@@ -212,6 +221,8 @@ class LogRecordsExportRequest:
             return cast(None | Unset | str, data)
 
         file_name = _parse_file_name(d.pop("file_name", UNSET))
+
+        export_computed_metrics_only = d.pop("export_computed_metrics_only", UNSET)
 
         def _parse_log_stream_id(data: object) -> None | Unset | str:
             if data is None:
@@ -329,6 +340,7 @@ class LogRecordsExportRequest:
             export_format=export_format,
             redact=redact,
             file_name=file_name,
+            export_computed_metrics_only=export_computed_metrics_only,
             log_stream_id=log_stream_id,
             experiment_id=experiment_id,
             metrics_testing_id=metrics_testing_id,

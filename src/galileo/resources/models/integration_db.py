@@ -6,7 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.integration_name import IntegrationName
+from ..models.integration_provider import IntegrationProvider
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -22,7 +22,8 @@ class IntegrationDB:
     Attributes
     ----------
         id (str):
-        name (IntegrationName):
+        name (str):
+        provider (IntegrationProvider):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         created_by (str):
@@ -32,7 +33,8 @@ class IntegrationDB:
     """
 
     id: str
-    name: IntegrationName
+    name: str
+    provider: IntegrationProvider
     created_at: datetime.datetime
     updated_at: datetime.datetime
     created_by: str
@@ -44,7 +46,9 @@ class IntegrationDB:
     def to_dict(self) -> dict[str, Any]:
         id = self.id
 
-        name = self.name.value
+        name = self.name
+
+        provider = self.provider.value
 
         created_at = self.created_at.isoformat()
 
@@ -66,7 +70,14 @@ class IntegrationDB:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {"id": id, "name": name, "created_at": created_at, "updated_at": updated_at, "created_by": created_by}
+            {
+                "id": id,
+                "name": name,
+                "provider": provider,
+                "created_at": created_at,
+                "updated_at": updated_at,
+                "created_by": created_by,
+            }
         )
         if permissions is not UNSET:
             field_dict["permissions"] = permissions
@@ -84,7 +95,9 @@ class IntegrationDB:
         d = dict(src_dict)
         id = d.pop("id")
 
-        name = IntegrationName(d.pop("name"))
+        name = d.pop("name")
+
+        provider = IntegrationProvider(d.pop("provider"))
 
         created_at = isoparse(d.pop("created_at"))
 
@@ -106,6 +119,7 @@ class IntegrationDB:
         integration_db = cls(
             id=id,
             name=name,
+            provider=provider,
             created_at=created_at,
             updated_at=updated_at,
             created_by=created_by,

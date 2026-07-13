@@ -7,6 +7,7 @@ class DataType(str, Enum):
     CATEGORY_COUNT = "category_count"
     DATASET = "dataset"
     FLOATING_POINT = "floating_point"
+    FULLY_ANNOTATED = "fully_annotated"
     INTEGER = "integer"
     PLAYGROUND = "playground"
     PROMPT = "prompt"

@@ -21,12 +21,14 @@ class OpenAIIntegration:
         organization_id (Union[None, Unset, str]):
         id (Union[None, Unset, str]):
         name (Union[Literal['openai'], Unset]):  Default: 'openai'.
+        provider (Union[Literal['openai'], Unset]):  Default: 'openai'.
         extra (Union['OpenAIIntegrationExtraType0', None, Unset]):
     """
 
     organization_id: None | Unset | str = UNSET
     id: None | Unset | str = UNSET
     name: Literal["openai"] | Unset = "openai"
+    provider: Literal["openai"] | Unset = "openai"
     extra: Union["OpenAIIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -40,6 +42,8 @@ class OpenAIIntegration:
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
+
+        provider = self.provider
 
         extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
@@ -58,6 +62,8 @@ class OpenAIIntegration:
             field_dict["id"] = id
         if name is not UNSET:
             field_dict["name"] = name
+        if provider is not UNSET:
+            field_dict["provider"] = provider
         if extra is not UNSET:
             field_dict["extra"] = extra
 
@@ -91,6 +97,10 @@ class OpenAIIntegration:
         if name != "openai" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'openai', got '{name}'")
 
+        provider = cast(Literal["openai"] | Unset, d.pop("provider", UNSET))
+        if provider != "openai" and not isinstance(provider, Unset):
+            raise ValueError(f"provider must match const 'openai', got '{provider}'")
+
         def _parse_extra(data: object) -> Union["OpenAIIntegrationExtraType0", None, Unset]:
             if data is None:
                 return data
@@ -107,7 +117,7 @@ class OpenAIIntegration:
 
         extra = _parse_extra(d.pop("extra", UNSET))
 
-        open_ai_integration = cls(organization_id=organization_id, id=id, name=name, extra=extra)
+        open_ai_integration = cls(organization_id=organization_id, id=id, name=name, provider=provider, extra=extra)
 
         open_ai_integration.additional_properties = d
         return open_ai_integration

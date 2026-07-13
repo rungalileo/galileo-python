@@ -98,10 +98,8 @@ def sync_detailed(
 
     Parameters
     ----------
-    ctx : Context
-        Request context including authentication information
     create_request : CreatePromptTemplateWithVersionRequestBody
-        Request body containing template name and content
+        Request body containing template name and content.
     principal : Principal
         Principal object.
 
@@ -142,10 +140,8 @@ def sync(
 
     Parameters
     ----------
-    ctx : Context
-        Request context including authentication information
     create_request : CreatePromptTemplateWithVersionRequestBody
-        Request body containing template name and content
+        Request body containing template name and content.
     principal : Principal
         Principal object.
 
@@ -182,10 +178,8 @@ async def asyncio_detailed(
 
     Parameters
     ----------
-    ctx : Context
-        Request context including authentication information
     create_request : CreatePromptTemplateWithVersionRequestBody
-        Request body containing template name and content
+        Request body containing template name and content.
     principal : Principal
         Principal object.
 
@@ -226,10 +220,8 @@ async def asyncio(
 
     Parameters
     ----------
-    ctx : Context
-        Request context including authentication information
     create_request : CreatePromptTemplateWithVersionRequestBody
-        Request body containing template name and content
+        Request body containing template name and content.
     principal : Principal
         Principal object.
 

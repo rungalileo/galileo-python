@@ -31,6 +31,7 @@ class AnthropicIntegration:
             mapping from internal fields to be included in the LLM request.
         id (Union[None, Unset, str]):
         name (Union[Literal['anthropic'], Unset]):  Default: 'anthropic'.
+        provider (Union[Literal['anthropic'], Unset]):  Default: 'anthropic'.
         extra (Union['AnthropicIntegrationExtraType0', None, Unset]):
     """
 
@@ -42,6 +43,7 @@ class AnthropicIntegration:
     custom_header_mapping: Union["AnthropicIntegrationCustomHeaderMappingType0", None, Unset] = UNSET
     id: None | Unset | str = UNSET
     name: Literal["anthropic"] | Unset = "anthropic"
+    provider: Literal["anthropic"] | Unset = "anthropic"
     extra: Union["AnthropicIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -86,6 +88,8 @@ class AnthropicIntegration:
 
         name = self.name
 
+        provider = self.provider
+
         extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
             extra = UNSET
@@ -113,6 +117,8 @@ class AnthropicIntegration:
             field_dict["id"] = id
         if name is not UNSET:
             field_dict["name"] = name
+        if provider is not UNSET:
+            field_dict["provider"] = provider
         if extra is not UNSET:
             field_dict["extra"] = extra
 
@@ -209,6 +215,10 @@ class AnthropicIntegration:
         if name != "anthropic" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'anthropic', got '{name}'")
 
+        provider = cast(Literal["anthropic"] | Unset, d.pop("provider", UNSET))
+        if provider != "anthropic" and not isinstance(provider, Unset):
+            raise ValueError(f"provider must match const 'anthropic', got '{provider}'")
+
         def _parse_extra(data: object) -> Union["AnthropicIntegrationExtraType0", None, Unset]:
             if data is None:
                 return data
@@ -234,6 +244,7 @@ class AnthropicIntegration:
             custom_header_mapping=custom_header_mapping,
             id=id,
             name=name,
+            provider=provider,
             extra=extra,
         )
 

@@ -96,18 +96,15 @@ def sync_detailed(
     Parameters
     ----------
     project_id : UUID4
-        Prokect ID.
+        Project ID.
     template_name : str
         Prompt template name.
     version : Optional[int]
         Version number to fetch. defaults to selected version.
-    ctx : Context, optional
-        User context with database session, by default Depends(get_user_context).
-
 
     Returns
     -------
-    GetTemplateResponse
+    BasePromptTemplateVersionResponse
         Prompt template response.
 
     Args:
@@ -141,18 +138,15 @@ def sync(
     Parameters
     ----------
     project_id : UUID4
-        Prokect ID.
+        Project ID.
     template_name : str
         Prompt template name.
     version : Optional[int]
         Version number to fetch. defaults to selected version.
-    ctx : Context, optional
-        User context with database session, by default Depends(get_user_context).
-
 
     Returns
     -------
-    GetTemplateResponse
+    BasePromptTemplateVersionResponse
         Prompt template response.
 
     Args:
@@ -182,18 +176,15 @@ async def asyncio_detailed(
     Parameters
     ----------
     project_id : UUID4
-        Prokect ID.
+        Project ID.
     template_name : str
         Prompt template name.
     version : Optional[int]
         Version number to fetch. defaults to selected version.
-    ctx : Context, optional
-        User context with database session, by default Depends(get_user_context).
-
 
     Returns
     -------
-    GetTemplateResponse
+    BasePromptTemplateVersionResponse
         Prompt template response.
 
     Args:
@@ -227,18 +218,15 @@ async def asyncio(
     Parameters
     ----------
     project_id : UUID4
-        Prokect ID.
+        Project ID.
     template_name : str
         Prompt template name.
     version : Optional[int]
         Version number to fetch. defaults to selected version.
-    ctx : Context, optional
-        User context with database session, by default Depends(get_user_context).
-
 
     Returns
     -------
-    GetTemplateResponse
+    BasePromptTemplateVersionResponse
         Prompt template response.
 
     Args:

@@ -21,12 +21,14 @@ class WriterIntegration:
         organization_id (str):
         id (Union[None, Unset, str]):
         name (Union[Literal['writer'], Unset]):  Default: 'writer'.
+        provider (Union[Literal['writer'], Unset]):  Default: 'writer'.
         extra (Union['WriterIntegrationExtraType0', None, Unset]):
     """
 
     organization_id: str
     id: None | Unset | str = UNSET
     name: Literal["writer"] | Unset = "writer"
+    provider: Literal["writer"] | Unset = "writer"
     extra: Union["WriterIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -39,6 +41,8 @@ class WriterIntegration:
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         name = self.name
+
+        provider = self.provider
 
         extra: None | Unset | dict[str, Any]
         if isinstance(self.extra, Unset):
@@ -55,6 +59,8 @@ class WriterIntegration:
             field_dict["id"] = id
         if name is not UNSET:
             field_dict["name"] = name
+        if provider is not UNSET:
+            field_dict["provider"] = provider
         if extra is not UNSET:
             field_dict["extra"] = extra
 
@@ -80,6 +86,10 @@ class WriterIntegration:
         if name != "writer" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'writer', got '{name}'")
 
+        provider = cast(Literal["writer"] | Unset, d.pop("provider", UNSET))
+        if provider != "writer" and not isinstance(provider, Unset):
+            raise ValueError(f"provider must match const 'writer', got '{provider}'")
+
         def _parse_extra(data: object) -> Union["WriterIntegrationExtraType0", None, Unset]:
             if data is None:
                 return data
@@ -96,7 +106,7 @@ class WriterIntegration:
 
         extra = _parse_extra(d.pop("extra", UNSET))
 
-        writer_integration = cls(organization_id=organization_id, id=id, name=name, extra=extra)
+        writer_integration = cls(organization_id=organization_id, id=id, name=name, provider=provider, extra=extra)
 
         writer_integration.additional_properties = d
         return writer_integration

@@ -5,11 +5,13 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.annotation_choice_aggregate import AnnotationChoiceAggregate
     from ..models.annotation_like_dislike_aggregate import AnnotationLikeDislikeAggregate
     from ..models.annotation_score_aggregate import AnnotationScoreAggregate
     from ..models.annotation_star_aggregate import AnnotationStarAggregate
     from ..models.annotation_tags_aggregate import AnnotationTagsAggregate
     from ..models.annotation_text_aggregate import AnnotationTextAggregate
+    from ..models.annotation_tree_choice_aggregate import AnnotationTreeChoiceAggregate
 
 
 T = TypeVar("T", bound="AnnotationAggregate")
@@ -20,24 +22,29 @@ class AnnotationAggregate:
     """
     Attributes
     ----------
-        aggregate (Union['AnnotationLikeDislikeAggregate', 'AnnotationScoreAggregate', 'AnnotationStarAggregate',
-            'AnnotationTagsAggregate', 'AnnotationTextAggregate']):
+        aggregate (Union['AnnotationChoiceAggregate', 'AnnotationLikeDislikeAggregate', 'AnnotationScoreAggregate',
+            'AnnotationStarAggregate', 'AnnotationTagsAggregate', 'AnnotationTextAggregate',
+            'AnnotationTreeChoiceAggregate']):
     """
 
     aggregate: Union[
+        "AnnotationChoiceAggregate",
         "AnnotationLikeDislikeAggregate",
         "AnnotationScoreAggregate",
         "AnnotationStarAggregate",
         "AnnotationTagsAggregate",
         "AnnotationTextAggregate",
+        "AnnotationTreeChoiceAggregate",
     ]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.annotation_choice_aggregate import AnnotationChoiceAggregate
         from ..models.annotation_like_dislike_aggregate import AnnotationLikeDislikeAggregate
         from ..models.annotation_score_aggregate import AnnotationScoreAggregate
         from ..models.annotation_star_aggregate import AnnotationStarAggregate
         from ..models.annotation_tags_aggregate import AnnotationTagsAggregate
+        from ..models.annotation_tree_choice_aggregate import AnnotationTreeChoiceAggregate
 
         aggregate: dict[str, Any]
         if isinstance(
@@ -45,7 +52,8 @@ class AnnotationAggregate:
             AnnotationLikeDislikeAggregate
             | AnnotationStarAggregate
             | AnnotationScoreAggregate
-            | AnnotationTagsAggregate,
+            | AnnotationTagsAggregate
+            | (AnnotationChoiceAggregate | AnnotationTreeChoiceAggregate),
         ):
             aggregate = self.aggregate.to_dict()
         else:
@@ -59,22 +67,26 @@ class AnnotationAggregate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.annotation_choice_aggregate import AnnotationChoiceAggregate
         from ..models.annotation_like_dislike_aggregate import AnnotationLikeDislikeAggregate
         from ..models.annotation_score_aggregate import AnnotationScoreAggregate
         from ..models.annotation_star_aggregate import AnnotationStarAggregate
         from ..models.annotation_tags_aggregate import AnnotationTagsAggregate
         from ..models.annotation_text_aggregate import AnnotationTextAggregate
+        from ..models.annotation_tree_choice_aggregate import AnnotationTreeChoiceAggregate
 
         d = dict(src_dict)
 
         def _parse_aggregate(
             data: object,
         ) -> Union[
+            "AnnotationChoiceAggregate",
             "AnnotationLikeDislikeAggregate",
             "AnnotationScoreAggregate",
             "AnnotationStarAggregate",
             "AnnotationTagsAggregate",
             "AnnotationTextAggregate",
+            "AnnotationTreeChoiceAggregate",
         ]:
             try:
                 if not isinstance(data, dict):
@@ -101,6 +113,20 @@ class AnnotationAggregate:
                 if not isinstance(data, dict):
                     raise TypeError()
                 return AnnotationTagsAggregate.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return AnnotationChoiceAggregate.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return AnnotationTreeChoiceAggregate.from_dict(data)
 
             except:  # noqa: E722
                 pass

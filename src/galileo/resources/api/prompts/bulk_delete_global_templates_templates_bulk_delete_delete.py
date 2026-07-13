@@ -78,23 +78,18 @@ def sync_detailed(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) 
      Delete multiple global prompt templates in bulk.
 
     This endpoint allows efficient deletion of multiple global prompt templates at once.
-    It validates permissions for each template in the service and provides detailed feedback about
-    successful and failed deletions for each template.
+    It validates permissions for each template in the service and provides detailed
+    feedback about successful and failed deletions for each template.
 
     Parameters
     ----------
     delete_request : BulkDeletePromptTemplatesRequest
-        Request containing list of template IDs to delete (max 100)
-    ctx : Context
-        Request context including authentication information
+        Request containing list of template IDs to delete (max 100).
 
     Returns
     -------
     BulkDeletePromptTemplatesResponse
-        Details about the bulk deletion operation including:
-        - Number of successfully deleted templates
-        - List of failed deletions with reasons
-        - Summary message
+        Details about the bulk deletion operation including deleted count and failures.
 
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.
@@ -121,23 +116,18 @@ def sync(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> HTTPVa
      Delete multiple global prompt templates in bulk.
 
     This endpoint allows efficient deletion of multiple global prompt templates at once.
-    It validates permissions for each template in the service and provides detailed feedback about
-    successful and failed deletions for each template.
+    It validates permissions for each template in the service and provides detailed
+    feedback about successful and failed deletions for each template.
 
     Parameters
     ----------
     delete_request : BulkDeletePromptTemplatesRequest
-        Request containing list of template IDs to delete (max 100)
-    ctx : Context
-        Request context including authentication information
+        Request containing list of template IDs to delete (max 100).
 
     Returns
     -------
     BulkDeletePromptTemplatesResponse
-        Details about the bulk deletion operation including:
-        - Number of successfully deleted templates
-        - List of failed deletions with reasons
-        - Summary message
+        Details about the bulk deletion operation including deleted count and failures.
 
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.
@@ -162,23 +152,18 @@ async def asyncio_detailed(
      Delete multiple global prompt templates in bulk.
 
     This endpoint allows efficient deletion of multiple global prompt templates at once.
-    It validates permissions for each template in the service and provides detailed feedback about
-    successful and failed deletions for each template.
+    It validates permissions for each template in the service and provides detailed
+    feedback about successful and failed deletions for each template.
 
     Parameters
     ----------
     delete_request : BulkDeletePromptTemplatesRequest
-        Request containing list of template IDs to delete (max 100)
-    ctx : Context
-        Request context including authentication information
+        Request containing list of template IDs to delete (max 100).
 
     Returns
     -------
     BulkDeletePromptTemplatesResponse
-        Details about the bulk deletion operation including:
-        - Number of successfully deleted templates
-        - List of failed deletions with reasons
-        - Summary message
+        Details about the bulk deletion operation including deleted count and failures.
 
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.
@@ -205,23 +190,18 @@ async def asyncio(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) 
      Delete multiple global prompt templates in bulk.
 
     This endpoint allows efficient deletion of multiple global prompt templates at once.
-    It validates permissions for each template in the service and provides detailed feedback about
-    successful and failed deletions for each template.
+    It validates permissions for each template in the service and provides detailed
+    feedback about successful and failed deletions for each template.
 
     Parameters
     ----------
     delete_request : BulkDeletePromptTemplatesRequest
-        Request containing list of template IDs to delete (max 100)
-    ctx : Context
-        Request context including authentication information
+        Request containing list of template IDs to delete (max 100).
 
     Returns
     -------
     BulkDeletePromptTemplatesResponse
-        Details about the bulk deletion operation including:
-        - Number of successfully deleted templates
-        - List of failed deletions with reasons
-        - Summary message
+        Details about the bulk deletion operation including deleted count and failures.
 
     Args:
         body (BulkDeletePromptTemplatesRequest): Request to delete multiple prompt templates.

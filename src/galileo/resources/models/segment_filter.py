@@ -24,11 +24,13 @@ class SegmentFilter:
         filter_ (Union['MetadataFilter', 'ModalityFilter', 'NodeNameFilter', None, Unset]): Filter to apply to the
             segment. By default sample on all data.
         llm_scorers (Union[Unset, bool]): Whether to sample only on LLM scorers. Default: False.
+        multimodal_scorers (Union[Unset, bool]): Whether to sample only on multimodal scorers. Default: False.
     """
 
     sample_rate: float
     filter_: Union["MetadataFilter", "ModalityFilter", "NodeNameFilter", None, Unset] = UNSET
     llm_scorers: Unset | bool = False
+    multimodal_scorers: Unset | bool = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -48,6 +50,8 @@ class SegmentFilter:
 
         llm_scorers = self.llm_scorers
 
+        multimodal_scorers = self.multimodal_scorers
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"sample_rate": sample_rate})
@@ -55,6 +59,8 @@ class SegmentFilter:
             field_dict["filter"] = filter_
         if llm_scorers is not UNSET:
             field_dict["llm_scorers"] = llm_scorers
+        if multimodal_scorers is not UNSET:
+            field_dict["multimodal_scorers"] = multimodal_scorers
 
         return field_dict
 
@@ -99,7 +105,11 @@ class SegmentFilter:
 
         llm_scorers = d.pop("llm_scorers", UNSET)
 
-        segment_filter = cls(sample_rate=sample_rate, filter_=filter_, llm_scorers=llm_scorers)
+        multimodal_scorers = d.pop("multimodal_scorers", UNSET)
+
+        segment_filter = cls(
+            sample_rate=sample_rate, filter_=filter_, llm_scorers=llm_scorers, multimodal_scorers=multimodal_scorers
+        )
 
         segment_filter.additional_properties = d
         return segment_filter

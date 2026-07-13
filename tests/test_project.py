@@ -6,6 +6,7 @@ import pytest
 
 from galileo.collaborator import Collaborator, CollaboratorRole
 from galileo.project import Project
+from galileo.resources.types import UNSET as RESOURCES_UNSET
 from galileo.shared.base import SyncState
 from galileo.shared.exceptions import APIError, ValidationError
 
@@ -213,8 +214,6 @@ class TestProjectSave:
         mock_projects_class.return_value = mock_service
         mock_service.get.return_value = mock_project
 
-        from galileo.resources.types import UNSET as RESOURCES_UNSET
-
         updated_at = MagicMock()
         updated_response = MagicMock()
         updated_response.id = mock_project.id
@@ -241,6 +240,9 @@ class TestProjectSave:
 
         # Then: the direct API call is made and synced fields are updated
         mock_update_put.sync_detailed.assert_called_once()
+        update_body = mock_update_put.sync_detailed.call_args.kwargs["body"]
+        assert update_body.name == "Renamed Project"
+        assert update_body.to_dict() == {"name": "Renamed Project"}
         assert result.name == "Renamed Project"
         assert result.updated_at == updated_at
         assert result.id == mock_project.id

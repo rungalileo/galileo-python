@@ -16,10 +16,14 @@ class ExperimentUpdateRequest:
     ----------
         name (str):
         task_type (Union[Literal[16], Literal[17], Unset]):  Default: 16.
+        experiment_group_id (Union[None, Unset, str]):
+        experiment_group_name (Union[None, Unset, str]):
     """
 
     name: str
     task_type: Literal[16] | Literal[17] | Unset = 16
+    experiment_group_id: None | Unset | str = UNSET
+    experiment_group_name: None | Unset | str = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -28,11 +32,21 @@ class ExperimentUpdateRequest:
         task_type: Literal[16] | Literal[17] | Unset
         task_type = UNSET if isinstance(self.task_type, Unset) else self.task_type
 
+        experiment_group_id: None | Unset | str
+        experiment_group_id = UNSET if isinstance(self.experiment_group_id, Unset) else self.experiment_group_id
+
+        experiment_group_name: None | Unset | str
+        experiment_group_name = UNSET if isinstance(self.experiment_group_name, Unset) else self.experiment_group_name
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"name": name})
         if task_type is not UNSET:
             field_dict["task_type"] = task_type
+        if experiment_group_id is not UNSET:
+            field_dict["experiment_group_id"] = experiment_group_id
+        if experiment_group_name is not UNSET:
+            field_dict["experiment_group_name"] = experiment_group_name
 
         return field_dict
 
@@ -55,7 +69,30 @@ class ExperimentUpdateRequest:
 
         task_type = _parse_task_type(d.pop("task_type", UNSET))
 
-        experiment_update_request = cls(name=name, task_type=task_type)
+        def _parse_experiment_group_id(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        experiment_group_id = _parse_experiment_group_id(d.pop("experiment_group_id", UNSET))
+
+        def _parse_experiment_group_name(data: object) -> None | Unset | str:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(None | Unset | str, data)
+
+        experiment_group_name = _parse_experiment_group_name(d.pop("experiment_group_name", UNSET))
+
+        experiment_update_request = cls(
+            name=name,
+            task_type=task_type,
+            experiment_group_id=experiment_group_id,
+            experiment_group_name=experiment_group_name,
+        )
 
         experiment_update_request.additional_properties = d
         return experiment_update_request

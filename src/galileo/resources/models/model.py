@@ -35,8 +35,6 @@ class Model:
         input_token_limit (Union[None, Unset, int]):
         output_token_limit (Union[None, Unset, int]):
         token_limit (Union[None, Unset, int]):
-        output_price (Union[Unset, float]):  Default: 0.0.
-        input_price (Union[Unset, float]):  Default: 0.0.
         cost_by (Union[Unset, ModelCostBy]):
         is_chat (Union[Unset, bool]):  Default: False.
         provides_log_probs (Union[Unset, bool]):  Default: False.
@@ -64,8 +62,6 @@ class Model:
     input_token_limit: None | Unset | int = UNSET
     output_token_limit: None | Unset | int = UNSET
     token_limit: None | Unset | int = UNSET
-    output_price: Unset | float = 0.0
-    input_price: Unset | float = 0.0
     cost_by: Unset | ModelCostBy = UNSET
     is_chat: Unset | bool = False
     provides_log_probs: Unset | bool = False
@@ -119,10 +115,6 @@ class Model:
 
         token_limit: None | Unset | int
         token_limit = UNSET if isinstance(self.token_limit, Unset) else self.token_limit
-
-        output_price = self.output_price
-
-        input_price = self.input_price
 
         cost_by: Unset | str = UNSET
         if not isinstance(self.cost_by, Unset):
@@ -187,10 +179,6 @@ class Model:
             field_dict["output_token_limit"] = output_token_limit
         if token_limit is not UNSET:
             field_dict["token_limit"] = token_limit
-        if output_price is not UNSET:
-            field_dict["output_price"] = output_price
-        if input_price is not UNSET:
-            field_dict["input_price"] = input_price
         if cost_by is not UNSET:
             field_dict["cost_by"] = cost_by
         if is_chat is not UNSET:
@@ -289,10 +277,6 @@ class Model:
 
         token_limit = _parse_token_limit(d.pop("token_limit", UNSET))
 
-        output_price = d.pop("output_price", UNSET)
-
-        input_price = d.pop("input_price", UNSET)
-
         _cost_by = d.pop("cost_by", UNSET)
         cost_by: Unset | ModelCostBy
         cost_by = UNSET if isinstance(_cost_by, Unset) else ModelCostBy(_cost_by)
@@ -375,8 +359,6 @@ class Model:
             input_token_limit=input_token_limit,
             output_token_limit=output_token_limit,
             token_limit=token_limit,
-            output_price=output_price,
-            input_price=input_price,
             cost_by=cost_by,
             is_chat=is_chat,
             provides_log_probs=provides_log_probs,

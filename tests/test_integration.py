@@ -15,23 +15,26 @@ from galileo.provider import (
 )
 from galileo.resources.models.available_integrations import AvailableIntegrations
 from galileo.resources.models.integration_db import IntegrationDB
-from galileo.resources.models.integration_name import IntegrationName
+from galileo.resources.models.integration_provider import IntegrationProvider
 from galileo.shared.exceptions import IntegrationNotConfiguredError, ValidationError
 
 # Test data
 INTEGRATION_TYPES = [
-    ("openai", IntegrationName.OPENAI, OpenAIProvider),
-    ("anthropic", IntegrationName.ANTHROPIC, AnthropicProvider),
-    ("azure", IntegrationName.AZURE, AzureProvider),
-    ("aws_bedrock", IntegrationName.AWS_BEDROCK, BedrockProvider),
+    ("openai", IntegrationProvider.OPENAI, OpenAIProvider),
+    ("anthropic", IntegrationProvider.ANTHROPIC, AnthropicProvider),
+    ("azure", IntegrationProvider.AZURE, AzureProvider),
+    ("aws_bedrock", IntegrationProvider.AWS_BEDROCK, BedrockProvider),
 ]
 
 
-def create_mock_integration(name: IntegrationName, is_selected: bool = False) -> IntegrationDB:
+def create_mock_integration(
+    provider: IntegrationProvider, is_selected: bool = False, name: str | None = None
+) -> IntegrationDB:
     """Create a mock integration DB response."""
     mock = MagicMock(spec=IntegrationDB)
     mock.id = str(uuid4())
-    mock.name = name
+    mock.name = name or provider.value
+    mock.provider = provider
     mock.created_at = datetime.now()
     mock.updated_at = datetime.now()
     mock.created_by = str(uuid4())
@@ -57,7 +60,11 @@ class TestIntegrationList:
     def test_list_all_returns_strings(self, mock_available, mock_config):
         """list(all=True) returns list of string type names."""
         mock_response = MagicMock(spec=AvailableIntegrations)
-        mock_response.integrations = [IntegrationName.OPENAI, IntegrationName.ANTHROPIC, IntegrationName.AZURE]
+        mock_response.integrations = [
+            IntegrationProvider.OPENAI,
+            IntegrationProvider.ANTHROPIC,
+            IntegrationProvider.AZURE,
+        ]
         mock_available.sync.return_value = mock_response
 
         result = Integration.list(all=True)
@@ -73,8 +80,8 @@ class TestIntegrationList:
     def test_list_returns_providers(self, mock_list, mock_config):
         """list() returns Provider objects."""
         mock_list.sync.return_value = [
-            create_mock_integration(IntegrationName.OPENAI, is_selected=True),
-            create_mock_integration(IntegrationName.ANTHROPIC),
+            create_mock_integration(IntegrationProvider.OPENAI, is_selected=True),
+            create_mock_integration(IntegrationProvider.ANTHROPIC),
         ]
 
         result = Integration.list()
@@ -118,11 +125,11 @@ class TestIntegrationRefresh:
     @patch("galileo.integration.list_integrations_integrations_get")
     def test_refresh_updates_attributes(self, mock_list, mock_config):
         """refresh() updates integration attributes from API."""
-        mock_integration = create_mock_integration(IntegrationName.OPENAI)
+        mock_integration = create_mock_integration(IntegrationProvider.OPENAI)
         integration = Integration._from_api_response(mock_integration)
 
         # Update mock for refresh
-        updated_mock = create_mock_integration(IntegrationName.OPENAI)
+        updated_mock = create_mock_integration(IntegrationProvider.OPENAI)
         updated_mock.id = mock_integration.id
         updated_mock.is_selected = True
         updated_mock.permissions = ["read", "update"]
@@ -148,12 +155,26 @@ class TestIntegrationConvenienceProperties:
     @patch("galileo.integration.list_integrations_integrations_get")
     def test_property_returns_configured_integration(self, mock_list, mock_config):
         """Integration.openai returns OpenAI provider if configured."""
-        mock_list.sync.return_value = [create_mock_integration(IntegrationName.OPENAI)]
+        mock_list.sync.return_value = [create_mock_integration(IntegrationProvider.OPENAI)]
 
         result = Integration.openai
 
         assert isinstance(result, OpenAIProvider)
         assert result.name == "openai"
+
+    @patch("galileo.integration.GalileoPythonConfig.get")
+    @patch("galileo.integration.list_integrations_integrations_get")
+    def test_property_matches_provider_when_display_name_differs(self, mock_list, mock_config):
+        """Integration.openai matches provider slug instead of display name."""
+        # Given: an API integration with a custom display name
+        mock_list.sync.return_value = [create_mock_integration(IntegrationProvider.OPENAI, name="Production OpenAI")]
+
+        # When: looking up the convenience property by provider type
+        result = Integration.openai
+
+        # Then: the configured provider is returned with its display name preserved
+        assert isinstance(result, OpenAIProvider)
+        assert result.name == "Production OpenAI"
 
     @patch("galileo.integration.GalileoPythonConfig.get")
     @patch("galileo.integration.list_integrations_integrations_get")
@@ -169,8 +190,8 @@ class TestIntegrationConvenienceProperties:
     @patch("galileo.integration.list_integrations_integrations_get")
     def test_property_prefers_selected_integration(self, mock_list, mock_config):
         """Property returns selected integration when multiple exist."""
-        mock1 = create_mock_integration(IntegrationName.OPENAI, is_selected=False)
-        mock2 = create_mock_integration(IntegrationName.OPENAI, is_selected=True)
+        mock1 = create_mock_integration(IntegrationProvider.OPENAI, is_selected=False)
+        mock2 = create_mock_integration(IntegrationProvider.OPENAI, is_selected=True)
         mock_list.sync.return_value = [mock1, mock2]
 
         result = Integration.openai
@@ -186,7 +207,7 @@ class TestIntegrationFactoryMethods:
     @patch("galileo.provider.create_or_update_integration_integrations_openai_put")
     def test_create_openai_returns_provider(self, mock_create, mock_config):
         """create_openai() returns OpenAIProvider."""
-        mock_response = create_mock_integration(IntegrationName.OPENAI)
+        mock_response = create_mock_integration(IntegrationProvider.OPENAI)
         mock_create.sync.return_value = mock_response
 
         result = Integration.create_openai(token="sk-test")
@@ -198,7 +219,7 @@ class TestIntegrationFactoryMethods:
     @patch("galileo.provider.create_or_update_integration_integrations_azure_put")
     def test_create_azure_returns_provider(self, mock_create, mock_config):
         """create_azure() returns AzureProvider."""
-        mock_response = create_mock_integration(IntegrationName.AZURE)
+        mock_response = create_mock_integration(IntegrationProvider.AZURE)
         mock_create.sync.return_value = mock_response
 
         result = Integration.create_azure(token="key", endpoint="https://test.openai.azure.com")
@@ -210,7 +231,7 @@ class TestIntegrationFactoryMethods:
     @patch("galileo.provider.create_or_update_integration_integrations_aws_bedrock_put")
     def test_create_bedrock_returns_provider(self, mock_create, mock_config):
         """create_bedrock() returns BedrockProvider."""
-        mock_response = create_mock_integration(IntegrationName.AWS_BEDROCK)
+        mock_response = create_mock_integration(IntegrationProvider.AWS_BEDROCK)
         mock_create.sync.return_value = mock_response
 
         result = Integration.create_bedrock(aws_access_key_id="AKIA", aws_secret_access_key="secret")
@@ -222,7 +243,7 @@ class TestIntegrationFactoryMethods:
     @patch("galileo.provider.create_or_update_integration_integrations_anthropic_put")
     def test_create_anthropic_returns_provider(self, mock_create, mock_config):
         """create_anthropic() returns AnthropicProvider."""
-        mock_response = create_mock_integration(IntegrationName.ANTHROPIC)
+        mock_response = create_mock_integration(IntegrationProvider.ANTHROPIC)
         mock_create.sync.return_value = mock_response
 
         result = Integration.create_anthropic(token="sk-ant-test")
@@ -248,7 +269,7 @@ class TestIntegrationToProvider:
 
     def test_creates_generic_provider_for_unknown_type(self):
         """_to_provider() creates GenericProvider for unsupported types."""
-        mock_integration = create_mock_integration(IntegrationName.MISTRAL)
+        mock_integration = create_mock_integration(IntegrationProvider.MISTRAL)
 
         provider = Integration._to_provider(mock_integration)
 
@@ -361,7 +382,7 @@ class TestProviderModels:
     def test_models_returns_model_list(self, mock_get_models, mock_config):
         """models property returns list of Model objects."""
         # Create a synced provider
-        mock_integration = create_mock_integration(IntegrationName.OPENAI)
+        mock_integration = create_mock_integration(IntegrationProvider.OPENAI)
         provider = Integration._to_provider(mock_integration)
 
         # Mock API response with model names
@@ -397,10 +418,10 @@ class TestProviderModels:
         """models property works for different provider types."""
         # Test multiple provider types
         test_cases = [
-            (IntegrationName.OPENAI, "openai", ["gpt-4o", "gpt-3.5-turbo"]),
-            (IntegrationName.ANTHROPIC, "anthropic", ["claude-3-5-sonnet-20241022"]),
-            (IntegrationName.AZURE, "azure", ["gpt-4"]),
-            (IntegrationName.AWS_BEDROCK, "aws_bedrock", ["anthropic.claude-v2"]),
+            (IntegrationProvider.OPENAI, "openai", ["gpt-4o", "gpt-3.5-turbo"]),
+            (IntegrationProvider.ANTHROPIC, "anthropic", ["claude-3-5-sonnet-20241022"]),
+            (IntegrationProvider.AZURE, "azure", ["gpt-4"]),
+            (IntegrationProvider.AWS_BEDROCK, "aws_bedrock", ["anthropic.claude-v2"]),
         ]
 
         for integration_name, provider_name, model_names in test_cases:
