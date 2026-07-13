@@ -1,10 +1,12 @@
 from collections.abc import Mapping
+from io import BytesIO
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from .. import types
+from ..types import File
 
 T = TypeVar("T", bound="BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost")
 
@@ -14,16 +16,16 @@ class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
     """
     Attributes
     ----------
-        file (str):
+        file (File):
         validation_result (str): Pre-validated result as JSON string from the validate endpoint.
     """
 
-    file: str
+    file: File
     validation_result: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        file = self.file
+        file = self.file.to_tuple()
 
         validation_result = self.validation_result
 
@@ -36,7 +38,7 @@ class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
     def to_multipart(self) -> types.RequestFiles:
         files: types.RequestFiles = []
 
-        files.append(("file", (None, str(self.file).encode(), "text/plain")))
+        files.append(("file", self.file.to_tuple()))
 
         files.append(("validation_result", (None, str(self.validation_result).encode(), "text/plain")))
 
@@ -48,7 +50,7 @@ class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        file = d.pop("file")
+        file = File(payload=BytesIO(d.pop("file")))
 
         validation_result = d.pop("validation_result")
 

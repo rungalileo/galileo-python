@@ -38,7 +38,7 @@ from galileo.resources.models import (
 from galileo.resources.models.dataset_row import DatasetRow
 from galileo.resources.models.dataset_row_values_dict import DatasetRowValuesDict
 from galileo.resources.models.http_validation_error import HTTPValidationError
-from galileo.resources.types import UNSET, Response
+from galileo.resources.types import UNSET, File, Response
 from galileo.schema.datasets import DatasetRecord
 
 
@@ -1333,6 +1333,15 @@ def test_create_dataset_without_project_uses_unset(create_dataset_mock: Mock) ->
             field_content = field_value[1]
             if isinstance(field_content, bytes) and field_content == b"None":
                 pytest.fail(f"Field {field_name} contains string 'None' which would cause 422 error")
+
+
+def test_create_dataset_body_serializes_file_as_multipart_upload() -> None:
+    file = File(payload=Mock(), file_name="dataset.jsonl", mime_type="application/octet-stream")
+    body = BodyCreateDatasetDatasetsPost(file=file, name="dataset.jsonl")
+
+    multipart_data = dict(body.to_multipart())
+
+    assert multipart_data["file"] == file.to_tuple()
 
 
 @patch("galileo.resources.api.datasets.list_dataset_projects_datasets_dataset_id_projects_get.sync")
