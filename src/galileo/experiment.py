@@ -3,6 +3,7 @@ from __future__ import annotations
 import builtins
 import datetime
 import re
+import warnings
 from collections.abc import Iterator
 from time import sleep
 from typing import TYPE_CHECKING, Any
@@ -1124,7 +1125,7 @@ class Experiment(StateManagementMixin):
 
         return ExperimentStatusInfo(self._experiment_response)
 
-    def monitor_progress(self, poll_interval: float = 2.0) -> None:
+    def monitor_progress(self, poll_interval_seconds: float = 2.0, *, job_id: str | None = None) -> None:
         """
         Monitor the progress of the experiment with a progress bar.
 
@@ -1132,7 +1133,9 @@ class Experiment(StateManagementMixin):
         displaying a tqdm progress bar reflecting `log_generation` progress.
 
         Args:
-            poll_interval: Seconds to wait between status polls. Defaults to 2.0.
+            poll_interval_seconds: Seconds to wait between status polls. Defaults to 2.0.
+            job_id: Deprecated. This parameter is ignored; it existed in a prior version
+                that polled the jobs table, which has been retired.
 
         Raises
         ------
@@ -1148,6 +1151,14 @@ class Experiment(StateManagementMixin):
 
             experiment.monitor_progress()
         """
+        if job_id is not None:
+            warnings.warn(
+                "The 'job_id' parameter of monitor_progress() is deprecated and will be removed in a future release. "
+                "Progress is now tracked directly via experiment status; the job_id value is ignored.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         if self.id is None:
             raise ValueError("Experiment ID is not set. Cannot monitor progress for a local-only experiment.")
         if self.project_id is None:
@@ -1161,7 +1172,7 @@ class Experiment(StateManagementMixin):
             while not status.is_complete:
                 new_progress = status.overall_progress
                 progress_bar.update(new_progress - progress_bar.n)
-                sleep(poll_interval)
+                sleep(poll_interval_seconds)
                 status = self.get_status()
             progress_bar.update(100 - progress_bar.n)
         finally:
