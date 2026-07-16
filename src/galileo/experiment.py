@@ -1132,14 +1132,22 @@ class Experiment(StateManagementMixin):
         Polls the experiment status via the API until the experiment completes,
         displaying a tqdm progress bar reflecting `log_generation` progress.
 
-        Args:
-            poll_interval_seconds: Seconds to wait between status polls. Defaults to 2.0.
-            job_id: Deprecated. This parameter is ignored; it existed in a prior version
-                that polled the jobs table, which has been retired.
+        Parameters
+        ----------
+        poll_interval_seconds : float, optional
+            Seconds to wait between status polls. Defaults to 2.0.
+        job_id : str or None, optional
+            Deprecated. This parameter is ignored; it existed in a prior version
+            that polled the jobs table, which has been retired.
+
+        Returns
+        -------
+        None
 
         Raises
         ------
-            ValueError: If the experiment lacks required id or project_id attributes.
+        ValueError
+            If the experiment lacks required id or project_id attributes.
 
         Examples
         --------
