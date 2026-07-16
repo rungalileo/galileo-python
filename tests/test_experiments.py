@@ -12,7 +12,6 @@ import pytest
 from time_machine import travel
 
 import galileo.experiments
-import galileo.jobs
 import galileo.utils.datasets
 from galileo import galileo_context
 from galileo.decorator import SPAN_TYPE
@@ -543,20 +542,12 @@ class TestExperiments:
         assert str(exc_info.value) == "To load dataset records, dataset, dataset_name, or dataset_id must be provided"
 
     @patch.object(galileo.datasets.Datasets, "get")
-    @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_with_project_name_loads_project(
-        self,
-        mock_get_project: Mock,
-        mock_get_experiment: Mock,
-        mock_create_job: Mock,
-        mock_get_dataset: Mock,
-        dataset_content: DatasetContent,
+        self, mock_get_project: Mock, mock_get_experiment: Mock, mock_get_dataset: Mock, dataset_content: DatasetContent
     ) -> None:
-        mock_create_job.return_value = MagicMock()
-
         dataset_id = str(UUID(int=0))
         run_experiment(
             "test_experiment", project="awesome-new-project", dataset_id=dataset_id, prompt_template=prompt_template()
@@ -565,20 +556,12 @@ class TestExperiments:
         mock_get_project.assert_called_once_with(id=None, name="awesome-new-project")
 
     @patch.object(galileo.datasets.Datasets, "get")
-    @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_with_project_id_loads_project(
-        self,
-        mock_get_project: Mock,
-        mock_get_experiment: Mock,
-        mock_create_job: Mock,
-        mock_get_dataset: Mock,
-        dataset_content: DatasetContent,
+        self, mock_get_project: Mock, mock_get_experiment: Mock, mock_get_dataset: Mock, dataset_content: DatasetContent
     ) -> None:
-        mock_create_job.return_value = MagicMock()
-
         dataset_id = str(UUID(int=0))
         run_experiment(
             "test_experiment",
@@ -590,20 +573,12 @@ class TestExperiments:
         mock_get_project.assert_called_once_with(id="awesome-new-project", name=None)
 
     @patch.object(galileo.datasets.Datasets, "get")
-    @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=None)
     def test_run_experiment_with_invalid_project_id_gives_error(
-        self,
-        mock_get_project: Mock,
-        mock_get_experiment: Mock,
-        mock_create_job: Mock,
-        mock_get_dataset: Mock,
-        dataset_content: DatasetContent,
+        self, mock_get_project: Mock, mock_get_experiment: Mock, mock_get_dataset: Mock, dataset_content: DatasetContent
     ) -> None:
-        mock_create_job.return_value = MagicMock()
-
         dataset_id = str(UUID(int=0))
         with pytest.raises(ValueError) as exc_info:
             run_experiment(
@@ -616,20 +591,12 @@ class TestExperiments:
         assert str(exc_info.value) == "Project with Id awesome-new-project does not exist"
 
     @patch.object(galileo.datasets.Datasets, "get")
-    @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=None)
     def test_run_experiment_with_invalid_project_name_gives_error(
-        self,
-        mock_get_project: Mock,
-        mock_get_experiment: Mock,
-        mock_create_job: Mock,
-        mock_get_dataset: Mock,
-        dataset_content: DatasetContent,
+        self, mock_get_project: Mock, mock_get_experiment: Mock, mock_get_dataset: Mock, dataset_content: DatasetContent
     ) -> None:
-        mock_create_job.return_value = MagicMock()
-
         dataset_id = str(UUID(int=0))
         with pytest.raises(ValueError) as exc_info:
             run_experiment(
@@ -677,7 +644,6 @@ class TestExperiments:
     @pytest.mark.parametrize("console_url", ["http://localtest:8088", "http://localtest:8088/"])
     @travel(datetime(2012, 1, 1), tick=False)
     @patch.object(galileo.datasets.Datasets, "get")
-    @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
@@ -686,13 +652,11 @@ class TestExperiments:
         mock_get_project: Mock,
         mock_get_experiment: Mock,
         mock_create_experiment: Mock,
-        mock_create_job: Mock,
         mock_get_dataset: Mock,
         console_url: str,
         dataset_content: DatasetContent,
     ) -> None:
         # Given: a console_url with or without a trailing slash
-        mock_create_job.return_value = MagicMock()
         mock_config = MagicMock()
         mock_config.console_url = console_url
 
@@ -776,17 +740,11 @@ class TestExperiments:
         )
 
     @patch.object(galileo.datasets.Datasets, "get", return_value=None)
-    @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_no_prompt_no_dataset_raises(
-        self,
-        mock_get_project: Mock,
-        mock_get_experiment: Mock,
-        mock_create_experiment: Mock,
-        mock_create_job: Mock,
-        mock_get_dataset: Mock,
+        self, mock_get_project: Mock, mock_get_experiment: Mock, mock_create_experiment: Mock, mock_get_dataset: Mock
     ) -> None:
         # Given: no prompt_template and no dataset
         # When/Then: ValueError is raised requiring a dataset
@@ -1166,7 +1124,6 @@ class TestExperiments:
     @patch("galileo.logger.logger.Projects")
     @patch("galileo.logger.logger.Traces")
     @patch.object(galileo.datasets.Datasets, "get")
-    @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
@@ -1175,7 +1132,6 @@ class TestExperiments:
         mock_get_project: Mock,
         mock_get_experiment: Mock,
         mock_create_experiment: Mock,
-        mock_create_job: Mock,
         mock_get_dataset: Mock,
         mock_traces_client: Mock,
         mock_projects_client: Mock,
@@ -1186,8 +1142,6 @@ class TestExperiments:
         mock_core_api_instance = setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
-
-        mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
         # Return dataset_content on first call (starting_token=0), then None to signal end of pagination
@@ -1523,7 +1477,6 @@ class TestExperiments:
 
     @patch("galileo.experiments.upsert_experiment_tag")
     @patch.object(galileo.datasets.Datasets, "get")
-    @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=None)
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
@@ -1532,13 +1485,11 @@ class TestExperiments:
         mock_get_project: Mock,
         mock_get_experiment: Mock,
         mock_create_experiment: Mock,
-        mock_create_job: Mock,
         mock_get_dataset: Mock,
         mock_upsert_tag: Mock,
         dataset_content: DatasetContent,
     ) -> None:
         """Test that experiment_tags are applied when running experiments."""
-        mock_create_job.return_value = MagicMock()
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 

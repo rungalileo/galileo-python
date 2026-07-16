@@ -3,8 +3,12 @@ from __future__ import annotations
 import builtins
 import datetime
 import re
+import warnings
 from collections.abc import Iterator
+from time import sleep
 from typing import TYPE_CHECKING, Any
+
+from tqdm.auto import tqdm
 
 from galileo.config import GalileoPythonConfig
 from galileo.datasets import Dataset as LegacyDataset
@@ -13,7 +17,6 @@ from galileo.experiment_tags import upsert_experiment_tag
 from galileo.experiments import Experiments as ExperimentsService
 from galileo.experiments import _default_prompt_settings
 from galileo.export import ExportClient
-from galileo.job_progress import get_run_scorer_jobs, job_progress
 from galileo.prompts import PromptTemplate, get_prompt
 from galileo.resources.api.experiment import (
     delete_experiment_projects_project_id_experiments_experiment_id_delete,
@@ -1122,54 +1125,68 @@ class Experiment(StateManagementMixin):
 
         return ExperimentStatusInfo(self._experiment_response)
 
-    def monitor_progress(self, job_id: str | None = None) -> str:
+    def monitor_progress(self, poll_interval_seconds: float = 2.0, *, job_id: str | None = None) -> None:
         """
-        Monitor the progress of the experiment job with a progress bar.
+        Monitor the progress of the experiment with a progress bar.
 
-        Args:
-            job_id: Optional job ID to monitor. If not provided, will attempt to find
-                   the primary job for this experiment.
+        Polls the experiment status via the API until the experiment completes,
+        displaying a tqdm progress bar reflecting `log_generation` progress.
+
+        Parameters
+        ----------
+        poll_interval_seconds : float, optional
+            Seconds to wait between status polls. Defaults to 2.0.
+        job_id : str or None, optional
+            Deprecated. This parameter is ignored; it existed in a prior version
+            that polled the jobs table, which has been retired.
 
         Returns
         -------
-            str: The unique identifier of the completed job.
+        None
 
         Raises
         ------
-            ValueError: If the experiment lacks required id or project_id attributes,
-                       or if no job_id is provided and no job can be found.
+        ValueError
+            If the experiment lacks required id or project_id attributes.
 
         Examples
         --------
-            experiment = Experiment.get(name="ml-evaluation", project_name="My AI Project")
-            result = experiment.run()
+            experiment = Experiment(
+                name="ml-evaluation",
+                dataset_name="ml-dataset",
+                project_name="My AI Project"
+            ).create()
 
-            # Monitor the job progress
-            completed_job_id = experiment.monitor_progress()
+            experiment.monitor_progress()
         """
+        if job_id is not None:
+            warnings.warn(
+                "The 'job_id' parameter of monitor_progress() is deprecated and will be removed in a future release. "
+                "Progress is now tracked directly via experiment status; the job_id value is ignored.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+
         if self.id is None:
             raise ValueError("Experiment ID is not set. Cannot monitor progress for a local-only experiment.")
         if self.project_id is None:
             raise ValueError("Project ID is not set. Cannot monitor progress without project_id.")
 
-        if job_id is None:
-            # Try to get job from stored state or query for it
-            if self._job_id:
-                job_id = self._job_id
-            else:
-                # Get the first scorer job
-                scorer_jobs = get_run_scorer_jobs(project_id=self.project_id, run_id=self.id)
-                if not scorer_jobs:
-                    raise ValueError("No job found for this experiment. Run the experiment first.")
-                job_id = str(scorer_jobs[0].id)
+        _logger.info(f"Experiment.monitor_progress: experiment_id='{self.id}' - started")
 
-        _logger.info(f"Experiment.monitor_progress: experiment_id='{self.id}' job_id='{job_id}' - started")
-
-        # Monitor job progress with progress bar
-        completed_job_id = job_progress(job_id=job_id, project_id=self.project_id, run_id=self.id)
+        status = self.get_status()
+        progress_bar = tqdm(total=100, unit="%", desc="Experiment progress")
+        try:
+            while not status.is_complete:
+                new_progress = status.overall_progress
+                progress_bar.update(new_progress - progress_bar.n)
+                sleep(poll_interval_seconds)
+                status = self.get_status()
+            progress_bar.update(100 - progress_bar.n)
+        finally:
+            progress_bar.close()
 
         _logger.info(f"Experiment.monitor_progress: experiment_id='{self.id}' - completed")
-        return str(completed_job_id)
 
     # Query and export methods - similar to LogStream
 
