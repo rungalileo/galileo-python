@@ -56,7 +56,7 @@ def test_galileo_logger_exceptions() -> None:
 
 @patch("galileo.logger.logger.Traces")
 def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog, enable_galileo_logging) -> None:
-    monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
+    monkeypatch.setenv("SPLUNK_AO_LOGGING_DISABLED", "true")
 
     with caplog.at_level(logging.DEBUG):
         logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
@@ -2269,8 +2269,8 @@ def test_ingestion_hook_without_api_config() -> None:
 def test_ingestion_hook_without_project_or_log_stream(monkeypatch) -> None:
     """Test that ingestion_hook allows initialization without project/log_stream."""
     # Given: no project or log_stream in environment
-    monkeypatch.delenv("GALILEO_PROJECT", raising=False)
-    monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
+    monkeypatch.delenv("SPLUNK_AO_PROJECT", raising=False)
+    monkeypatch.delenv("SPLUNK_AO_LOG_STREAM", raising=False)
 
     # Given: an ingestion hook
     hook = Mock()

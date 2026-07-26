@@ -34,7 +34,7 @@ def test_galileo_logger_exceptions() -> None:
 
 @patch("galileo.logger.logger.Traces")
 def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog) -> None:
-    monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
+    monkeypatch.setenv("SPLUNK_AO_LOGGING_DISABLED", "true")
 
     with caplog.at_level(logging.WARNING):
         logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")

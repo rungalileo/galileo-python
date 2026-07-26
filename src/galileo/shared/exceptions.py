@@ -122,8 +122,8 @@ def _resolve_project_identifiers(project_id: str | None, project_name: str | Non
     """Apply env-fallback precedence to produce a normalized ``(id, name)`` tuple.
 
     Matches the precedence documented by :meth:`galileo.projects.Projects.get_with_env_fallbacks`
-    exactly: explicit ``project_id`` > explicit ``project_name`` > ``GALILEO_PROJECT_ID``
-    > ``GALILEO_PROJECT``. Once an id is chosen, name is dropped; once a name is chosen,
+    exactly: explicit ``project_id`` > explicit ``project_name`` > ``SPLUNK_AO_PROJECT_ID``
+    > ``SPLUNK_AO_PROJECT``. Once an id is chosen, name is dropped; once a name is chosen,
     env-id is *not* consulted (an explicit name suppresses env-id fallback).
 
     Whitespace-only values (explicit kwargs or env vars) are treated as missing, so
@@ -175,5 +175,5 @@ def _project_not_found_error(project_id: str | None, project_name: str | None) -
             "Use Project(name=...).create() or the Galileo UI to create a project first."
         )
     return ResourceNotFoundError(
-        "No project specified. Provide project_id, project_name, or set GALILEO_PROJECT env var."
+        "No project specified. Provide project_id, project_name, or set SPLUNK_AO_PROJECT env var."
     )

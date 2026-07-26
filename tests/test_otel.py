@@ -40,7 +40,7 @@ class TestGalileoOTLPExporter:
     @pytest.fixture
     def clear_env_vars(self):
         """Clear relevant environment variables and context vars for clean test state."""
-        env_vars = ["GALILEO_API_KEY", "GALILEO_CONSOLE_URL", "GALILEO_PROJECT", "GALILEO_LOG_STREAM"]
+        env_vars = ["SPLUNK_AO_API_KEY", "SPLUNK_AO_CONSOLE_URL", "SPLUNK_AO_PROJECT", "SPLUNK_AO_LOG_STREAM"]
         original_values = {var: os.environ.pop(var, None) for var in env_vars}
         _project_context.set(None)
         _log_stream_context.set(None)
@@ -79,7 +79,7 @@ class TestGalileoOTLPExporter:
 
         # Test that params override env vars
         mock_otlp_init.reset_mock()
-        with patch.dict(os.environ, {"GALILEO_PROJECT": "env-project", "GALILEO_LOG_STREAM": "env-logstream"}):
+        with patch.dict(os.environ, {"SPLUNK_AO_PROJECT": "env-project", "SPLUNK_AO_LOG_STREAM": "env-logstream"}):
             exporter = GalileoOTLPExporter(project="param-project", logstream="param-logstream")
             assert exporter.project == "param-project"  # Param wins over env
 
@@ -87,7 +87,7 @@ class TestGalileoOTLPExporter:
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
     def test_init_with_env_variables(self, mock_otlp_init, mock_config, clear_env_vars):
         """Test initialization using environment variables."""
-        with patch.dict(os.environ, {"GALILEO_PROJECT": "env-project", "GALILEO_LOG_STREAM": "env-logstream"}):
+        with patch.dict(os.environ, {"SPLUNK_AO_PROJECT": "env-project", "SPLUNK_AO_LOG_STREAM": "env-logstream"}):
             exporter = GalileoOTLPExporter()
             assert exporter.project == "env-project"
             assert exporter.logstream == "env-logstream"
@@ -381,8 +381,8 @@ class TestOTelContextIntegration:
     def test_processor_on_start_sets_span_attributes(self, mock_processor_deps, reset_decorator_context, monkeypatch):
         """Test on_start sets context attributes on spans, handling None values."""
         # Pin env vars for this test to avoid flakiness from parallel workers
-        monkeypatch.setenv("GALILEO_PROJECT", "test-project")
-        monkeypatch.setenv("GALILEO_LOG_STREAM", "test-log-stream")
+        monkeypatch.setenv("SPLUNK_AO_PROJECT", "test-project")
+        monkeypatch.setenv("SPLUNK_AO_LOG_STREAM", "test-log-stream")
 
         # Given: all context vars set (experiment_id takes priority over logstream)
         _project_context.set("test-project")
@@ -410,7 +410,7 @@ class TestOTelContextIntegration:
         _session_id_context.set(None)
 
         monkeypatch = pytest.MonkeyPatch()
-        monkeypatch.setenv("GALILEO_LOG_STREAM", "test-log-stream")
+        monkeypatch.setenv("SPLUNK_AO_LOG_STREAM", "test-log-stream")
         try:
             processor2 = GalileoSpanProcessor()
             mock_span2 = Mock()
@@ -420,7 +420,7 @@ class TestOTelContextIntegration:
             assert mock_span2.set_attribute.call_count == 2
             actual_calls = {(args[0], args[1]) for args, _ in mock_span2.set_attribute.call_args_list}
             assert ("galileo.project.name", "test-project") in actual_calls
-            # Falls back to GALILEO_LOG_STREAM env var
+            # Falls back to SPLUNK_AO_LOG_STREAM env var
             assert ("galileo.logstream.name", "test-log-stream") in actual_calls
         finally:
             monkeypatch.undo()

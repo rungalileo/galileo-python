@@ -9,7 +9,7 @@ First, create a client:
 ```python
 from galileo.api_client import GalileoApiClient
 
-# Make sure you've set the GALILEO_CONSOLE_URL and GALILEO_API_KEY env vars
+# Make sure you've set the SPLUNK_AO_CONSOLE_URL and SPLUNK_AO_API_KEY env vars
 # Optionally, you can specify both base_url and api_key
 client = GalileoApiClient()
 ```

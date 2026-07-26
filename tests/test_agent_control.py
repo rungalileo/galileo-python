@@ -13,10 +13,10 @@ from galileo.utils.singleton import GalileoLoggerSingleton
 @pytest.fixture(autouse=True)
 def reset_agent_control_helper_state(monkeypatch):
     # Given: no log stream ID environment override or cached logger state
-    monkeypatch.delenv("GALILEO_PROJECT", raising=False)
-    monkeypatch.delenv("GALILEO_LOG_STREAM", raising=False)
-    monkeypatch.delenv("GALILEO_LOG_STREAM_ID", raising=False)
-    monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
+    monkeypatch.delenv("SPLUNK_AO_PROJECT", raising=False)
+    monkeypatch.delenv("SPLUNK_AO_LOG_STREAM", raising=False)
+    monkeypatch.delenv("SPLUNK_AO_LOG_STREAM_ID", raising=False)
+    monkeypatch.delenv("SPLUNK_AO_PROJECT_ID", raising=False)
     GalileoLoggerSingleton().reset_all()
     monkeypatch.setattr(GalileoLoggerSingleton, "get_all_loggers", lambda self: {})
     monkeypatch.setattr(
@@ -55,7 +55,7 @@ def test_get_agent_control_target_uses_env_project_id_with_explicit_log_stream_i
     # Given: an explicit Galileo log stream ID and project ID from the environment
     log_stream_id = str(uuid4())
     project_id = str(uuid4())
-    monkeypatch.setenv("GALILEO_PROJECT_ID", project_id)
+    monkeypatch.setenv("SPLUNK_AO_PROJECT_ID", project_id)
 
     # When: resolving an Agent Control target
     target = get_agent_control_target(log_stream_id=log_stream_id)
@@ -79,8 +79,8 @@ def test_get_agent_control_target_uses_env_log_stream_id(monkeypatch) -> None:
     # Given: a Galileo log stream ID in the environment
     log_stream_id = str(uuid4())
     project_id = str(uuid4())
-    monkeypatch.setenv("GALILEO_LOG_STREAM_ID", log_stream_id)
-    monkeypatch.setenv("GALILEO_PROJECT_ID", project_id)
+    monkeypatch.setenv("SPLUNK_AO_LOG_STREAM_ID", log_stream_id)
+    monkeypatch.setenv("SPLUNK_AO_PROJECT_ID", project_id)
 
     # When: resolving an Agent Control target
     target = get_agent_control_target()
@@ -93,8 +93,8 @@ def test_get_agent_control_target_strips_env_ids(monkeypatch) -> None:
     # Given: Galileo ID environment values with accidental surrounding whitespace
     log_stream_id = str(uuid4())
     project_id = str(uuid4())
-    monkeypatch.setenv("GALILEO_LOG_STREAM_ID", f"  {log_stream_id}  ")
-    monkeypatch.setenv("GALILEO_PROJECT_ID", f"  {project_id}  ")
+    monkeypatch.setenv("SPLUNK_AO_LOG_STREAM_ID", f"  {log_stream_id}  ")
+    monkeypatch.setenv("SPLUNK_AO_PROJECT_ID", f"  {project_id}  ")
 
     # When: resolving an Agent Control target
     target = get_agent_control_target()
@@ -159,8 +159,8 @@ def test_get_agent_control_target_uses_cached_env_default_logger(monkeypatch) ->
     # Given: Galileo initialized a logger using environment-provided default names
     project_id = str(uuid4())
     log_stream_id = str(uuid4())
-    monkeypatch.setenv("GALILEO_PROJECT", "project-env")
-    monkeypatch.setenv("GALILEO_LOG_STREAM", "stream-env")
+    monkeypatch.setenv("SPLUNK_AO_PROJECT", "project-env")
+    monkeypatch.setenv("SPLUNK_AO_LOG_STREAM", "stream-env")
     logger = SimpleNamespace(
         project_name="project-env",
         log_stream_name="stream-env",
@@ -200,7 +200,7 @@ def test_get_agent_control_target_prefers_cached_logger_project_id_over_env(monk
     cached_project_id = str(uuid4())
     env_project_id = str(uuid4())
     log_stream_id = str(uuid4())
-    monkeypatch.setenv("GALILEO_PROJECT_ID", env_project_id)
+    monkeypatch.setenv("SPLUNK_AO_PROJECT_ID", env_project_id)
     logger = SimpleNamespace(
         project_name=DEFAULT_PROJECT_NAME,
         log_stream_name=DEFAULT_LOG_STREAM_NAME,
@@ -242,10 +242,10 @@ def test_get_agent_control_target_uses_explicit_project_id_with_cached_logger(mo
 
 def test_get_agent_control_target_rejects_invalid_log_stream_id(monkeypatch) -> None:
     # Given: an invalid Galileo log stream ID in the environment
-    monkeypatch.setenv("GALILEO_LOG_STREAM_ID", "prod")
+    monkeypatch.setenv("SPLUNK_AO_LOG_STREAM_ID", "prod")
 
     # When/Then: resolving the target fails before sending a malformed target to Agent Control
-    with pytest.raises(AgentControlTargetUnresolvedError, match="GALILEO_LOG_STREAM_ID='prod' is not a valid UUID"):
+    with pytest.raises(AgentControlTargetUnresolvedError, match="SPLUNK_AO_LOG_STREAM_ID='prod' is not a valid UUID"):
         get_agent_control_target()
 
 

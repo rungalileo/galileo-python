@@ -18,7 +18,7 @@ class GalileoLoggerSingleton:
     provides a thread-safe way to retrieve or create GalileoLogger clients based on
     the given 'project' and 'log_stream' parameters. If the parameters are not provided,
     the class attempts to read the values from the environment variables
-    GALILEO_PROJECT and GALILEO_LOG_STREAM. The loggers are stored in a dictionary
+    SPLUNK_AO_PROJECT and SPLUNK_AO_LOG_STREAM. The loggers are stored in a dictionary
     using a tuple (project, log_stream) as the key.
     """
 
@@ -57,7 +57,7 @@ class GalileoLoggerSingleton:
         Generate a key tuple based on project, log_stream, and tracing parameters.
 
         If project or log_stream are None, the method attempts to retrieve them
-        from environment variables (GALILEO_PROJECT and GALILEO_LOG_STREAM). If still
+        from environment variables (SPLUNK_AO_PROJECT and SPLUNK_AO_LOG_STREAM). If still
         None, defaults to "default".
 
         Parameters
@@ -204,7 +204,7 @@ class GalileoLoggerSingleton:
         experiment_id (Optional[str], optional)
             The experiment ID. Defaults to None.
         mode (Optional[str], optional)
-            The logger mode. Defaults to GALILEO_MODE env var, or "batch" if not set.
+            The logger mode. Defaults to SPLUNK_AO_MODE env var, or "batch" if not set.
         """
         mode = _get_mode_or_default(mode)
 
@@ -248,7 +248,7 @@ class GalileoLoggerSingleton:
         experiment_id (Optional[str], optional)
             The experiment ID. Defaults to None.
         mode (Optional[str], optional)
-            The logger mode. Defaults to GALILEO_MODE env var, or "batch" if not set.
+            The logger mode. Defaults to SPLUNK_AO_MODE env var, or "batch" if not set.
         """
         mode = _get_mode_or_default(mode)
 

@@ -166,8 +166,8 @@ class Projects:
 
         At least one of `id` or `name` must be provided (directly or via environment).
         If both are provided, `id` takes precedence and `name` is ignored. If neither is
-        provided, the method will attempt to read from `GALILEO_PROJECT_ID` and
-        `GALILEO_PROJECT`; if both environment variables are set, `GALILEO_PROJECT_ID`
+        provided, the method will attempt to read from `SPLUNK_AO_PROJECT_ID` and
+        `SPLUNK_AO_PROJECT`; if both environment variables are set, `SPLUNK_AO_PROJECT_ID`
         takes precedence.
 
         Parameters

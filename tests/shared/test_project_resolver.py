@@ -42,8 +42,8 @@ class TestResolveProject:
     ) -> None:
         """No id, no name, no env vars must raise without touching the API client."""
         # Given: env vars are unset
-        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
-        monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_PROJECT", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_PROJECT_ID", raising=False)
 
         # When/Then: resolving raises NotFoundError without instantiating Projects
         with pytest.raises(NotFoundError, match="No project specified"):
@@ -56,8 +56,8 @@ class TestResolveProject:
     ) -> None:
         """Backward-compat: the raised error is also a ResourceNotFoundError."""
         # Given: no identifier anywhere
-        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
-        monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_PROJECT", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_PROJECT_ID", raising=False)
 
         # When/Then: the raised exception is BOTH a NotFoundError and a ResourceNotFoundError
         with pytest.raises(NotFoundError) as exc_info:
@@ -109,8 +109,8 @@ class TestResolveProject:
         whitespace up-front so the user gets the documented ``NotFoundError`` instead.
         """
         # Given: env vars unset; explicit kwargs are whitespace-only
-        monkeypatch.delenv("GALILEO_PROJECT", raising=False)
-        monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_PROJECT", raising=False)
+        monkeypatch.delenv("SPLUNK_AO_PROJECT_ID", raising=False)
 
         # When/Then: resolver short-circuits without instantiating Projects
         with pytest.raises(NotFoundError, match="No project specified"):
@@ -123,13 +123,13 @@ class TestResolveProject:
     ) -> None:
         """Whitespace-only env vars must also be treated as missing.
 
-        Without normalization, ``GALILEO_PROJECT="  "`` would pass the truthy
+        Without normalization, ``SPLUNK_AO_PROJECT="  "`` would pass the truthy
         pre-check, hit ``Projects().get_with_env_fallbacks``, and leak a raw
         ``ValueError`` after the API client strips it.
         """
-        # Given: GALILEO_PROJECT is set but only contains whitespace
-        monkeypatch.setenv("GALILEO_PROJECT", "   ")
-        monkeypatch.delenv("GALILEO_PROJECT_ID", raising=False)
+        # Given: SPLUNK_AO_PROJECT is set but only contains whitespace
+        monkeypatch.setenv("SPLUNK_AO_PROJECT", "   ")
+        monkeypatch.delenv("SPLUNK_AO_PROJECT_ID", raising=False)
 
         # When/Then: resolver short-circuits with NotFoundError
         with pytest.raises(NotFoundError, match="No project specified"):
@@ -158,14 +158,14 @@ class TestResolveProject:
     def test_explicit_name_suppresses_env_id_fallback(
         self, mock_projects_class: MagicMock, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """Explicit ``project_name`` must beat ``GALILEO_PROJECT_ID``.
+        """Explicit ``project_name`` must beat ``SPLUNK_AO_PROJECT_ID``.
 
         ``Projects.get_with_env_fallbacks`` documents that an explicit name suppresses
         the env-id fallback (``id = id or (None if name else env_id)``). The resolver
         must match this precedence so it doesn't silently look up the wrong project.
         """
-        # Given: GALILEO_PROJECT_ID is set, but the caller passed an explicit name
-        monkeypatch.setenv("GALILEO_PROJECT_ID", "env-id-should-be-ignored")
+        # Given: SPLUNK_AO_PROJECT_ID is set, but the caller passed an explicit name
+        monkeypatch.setenv("SPLUNK_AO_PROJECT_ID", "env-id-should-be-ignored")
         mock_project = MagicMock()
         mock_project.id = "name-resolved-id"
         mock_project.name = "Explicit Name"

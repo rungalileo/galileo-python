@@ -29,7 +29,7 @@ class ConfigKey:
     name : str
         The attribute name used in the Configuration class (e.g., "galileo_api_key").
     env_var : str
-        The corresponding environment variable name (e.g., "GALILEO_API_KEY").
+        The corresponding environment variable name (e.g., "SPLUNK_AO_API_KEY").
     description : str
         Human-readable description of the configuration key's purpose.
     required : bool
@@ -72,15 +72,15 @@ def parse_log_level(value: str) -> str:
 _CONFIGURATION_KEYS = [
     ConfigKey(
         name="galileo_api_key",
-        env_var="GALILEO_API_KEY",
-        description="API key for authenticating with Galileo",
+        env_var="SPLUNK_AO_API_KEY",
+        description="API key for authenticating with Splunk Agent Observability",
         required=True,
         sensitive=True,
     ),
     ConfigKey(
         name="console_url",
-        env_var="GALILEO_CONSOLE_URL",
-        description="URL of the Galileo console",
+        env_var="SPLUNK_AO_CONSOLE_URL",
+        description="URL of the Splunk Agent Observability console",
         default=DEFAULT_CONSOLE_URL,
     ),
     ConfigKey(
@@ -89,19 +89,19 @@ _CONFIGURATION_KEYS = [
         description="OpenAI API key for interoperability with OpenAI SDK",
         sensitive=True,
     ),
-    ConfigKey(name="default_project_name", env_var="GALILEO_PROJECT", description="Default project name"),
-    ConfigKey(name="default_project_id", env_var="GALILEO_PROJECT_ID", description="Default project ID"),
-    ConfigKey(name="default_logstream_name", env_var="GALILEO_LOG_STREAM", description="Default log stream name"),
-    ConfigKey(name="default_logstream_id", env_var="GALILEO_LOG_STREAM_ID", description="Default log stream ID"),
+    ConfigKey(name="default_project_name", env_var="SPLUNK_AO_PROJECT", description="Default project name"),
+    ConfigKey(name="default_project_id", env_var="SPLUNK_AO_PROJECT_ID", description="Default project ID"),
+    ConfigKey(name="default_logstream_name", env_var="SPLUNK_AO_LOG_STREAM", description="Default log stream name"),
+    ConfigKey(name="default_logstream_id", env_var="SPLUNK_AO_LOG_STREAM_ID", description="Default log stream ID"),
     ConfigKey(
         name="default_scorer_model",
-        env_var="GALILEO_DEFAULT_SCORER_MODEL",
+        env_var="SPLUNK_AO_DEFAULT_SCORER_MODEL",
         description="Default model for LLM-based scorers/metrics",
         default="gpt-4.1-mini",
     ),
     ConfigKey(
         name="default_scorer_judges",
-        env_var="GALILEO_DEFAULT_SCORER_JUDGES",
+        env_var="SPLUNK_AO_DEFAULT_SCORER_JUDGES",
         description="Default number of judges for LLM-based scorers/metrics",
         default=3,
         value_type=int,
@@ -109,15 +109,15 @@ _CONFIGURATION_KEYS = [
     ),
     ConfigKey(
         name="logging_disabled",
-        env_var="GALILEO_LOGGING_DISABLED",
-        description="Disable all telemetry logging to Galileo",
+        env_var="SPLUNK_AO_LOGGING_DISABLED",
+        description="Disable all telemetry logging to Splunk Agent Observability",
         default=False,
         value_type=bool,
         parser=lambda v: v.lower() in ("true", "1", "t", "yes"),
     ),
     ConfigKey(
         name="log_level",
-        env_var="GALILEO_LOG_LEVEL",
+        env_var="SPLUNK_AO_LOG_LEVEL",
         description="Python logging level for SDK output (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
         default=None,
         value_type=str,
@@ -125,7 +125,7 @@ _CONFIGURATION_KEYS = [
     ),
     ConfigKey(
         name="code_validation_timeout",
-        env_var="GALILEO_CODE_VALIDATION_TIMEOUT",
+        env_var="SPLUNK_AO_CODE_VALIDATION_TIMEOUT",
         description="Timeout in seconds for code scorer validation",
         default=60.0,
         value_type=float,
@@ -133,7 +133,7 @@ _CONFIGURATION_KEYS = [
     ),
     ConfigKey(
         name="code_validation_initial_delay",
-        env_var="GALILEO_CODE_VALIDATION_INITIAL_DELAY",
+        env_var="SPLUNK_AO_CODE_VALIDATION_INITIAL_DELAY",
         description="Initial delay in seconds between validation polling attempts",
         default=5.0,
         value_type=float,
@@ -141,7 +141,7 @@ _CONFIGURATION_KEYS = [
     ),
     ConfigKey(
         name="code_validation_max_delay",
-        env_var="GALILEO_CODE_VALIDATION_MAX_DELAY",
+        env_var="SPLUNK_AO_CODE_VALIDATION_MAX_DELAY",
         description="Maximum delay in seconds between validation polling attempts",
         default=30.0,
         value_type=float,
@@ -149,7 +149,7 @@ _CONFIGURATION_KEYS = [
     ),
     ConfigKey(
         name="code_validation_backoff_multiplier",
-        env_var="GALILEO_CODE_VALIDATION_BACKOFF_MULTIPLIER",
+        env_var="SPLUNK_AO_CODE_VALIDATION_BACKOFF_MULTIPLIER",
         description="Multiplier for exponential backoff between validation polling attempts",
         default=1.5,
         value_type=float,
@@ -242,7 +242,7 @@ class ConfigurationMeta(type):
 
         When setting a configuration key, the value is:
         1. Stored internally with underscore prefix (e.g., `_galileo_api_key`)
-        2. Synced to the corresponding environment variable (e.g., `GALILEO_API_KEY`)
+        2. Synced to the corresponding environment variable (e.g., `SPLUNK_AO_API_KEY`)
 
         This ensures that both the Configuration class and environment variables
         remain consistent, maintaining compatibility with third-party libraries.
@@ -276,7 +276,7 @@ class Configuration(metaclass=ConfigurationMeta):
     attribute, with values resolved in the following priority order:
 
     1. Explicitly set value (via `Configuration.key = value`)
-    2. Environment variable (e.g., GALILEO_API_KEY)
+    2. Environment variable (e.g., SPLUNK_AO_API_KEY)
     3. .env file (loaded automatically on first access)
     4. Default value (defined in the key configuration)
 
@@ -311,7 +311,7 @@ class Configuration(metaclass=ConfigurationMeta):
     ```python
     # Set explicitly (also updates environment variables)
     Configuration.galileo_api_key = "your-api-key"
-    Configuration.console_url = "https://console.galileo.ai"
+    Configuration.console_url = "your-console-url"
     ```
 
     Checking and connecting:
@@ -388,7 +388,7 @@ class Configuration(metaclass=ConfigurationMeta):
 
         if not cls.galileo_api_key:
             raise ConfigurationError(
-                "Galileo API key is required. Set Configuration.galileo_api_key or GALILEO_API_KEY."
+                "Splunk AO API key is required. Set Configuration.galileo_api_key or SPLUNK_AO_API_KEY."
             )
 
         logger.info("Validating Galileo configuration and connectivity...")
