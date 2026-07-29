@@ -455,8 +455,31 @@ fix:, perf:, chore:, docs:, style:, refactor:
 | `GALILEO_PROJECT` | No | Default project name |
 | `GALILEO_LOG_STREAM` | No | Default log stream name |
 | `GALILEO_LOGGING_DISABLED` | No | Disable trace collection |
+| `GALILEO_EXTRA_HEADERS` | No | JSON object of extra HTTP headers sent with every API request (e.g. for an IBM APIC gateway). See "Custom HTTP Headers" below. |
 
 *Required for non-production environments
+
+### Custom HTTP Headers (API gateways / IBM APIC)
+
+When the Galileo API is fronted by a gateway (e.g. IBM APIC) that requires additional
+headers such as `ibm_client_id` / `ibm_client_secret` on every request, set
+`GALILEO_EXTRA_HEADERS` to a JSON object, or pass `extra_headers=...` programmatically.
+The headers are applied to **all** egress paths — resource management, batch trace
+ingestion, the distributed ingest service, and the pre-auth login/healthcheck calls.
+Galileo's own auth and content headers always win on key collisions.
+
+```bash
+export GALILEO_EXTRA_HEADERS='{"ibm_client_id": "my_client_id", "ibm_client_secret": "my_client_secret"}'
+```
+
+```python
+from galileo.config import GalileoPythonConfig
+
+# Programmatic equivalent (kwarg maps to the GalileoConfig field inherited from galileo-core)
+GalileoPythonConfig.get(
+    extra_headers={"ibm_client_id": "my_client_id", "ibm_client_secret": "my_client_secret"}
+)
+```
 
 ## References
 

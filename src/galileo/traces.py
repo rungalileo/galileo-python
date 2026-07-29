@@ -178,12 +178,17 @@ class IngestTraces:
         api_key: str,
         log_stream_id: str | None = None,
         experiment_id: str | None = None,
+        extra_headers: dict[str, str] | None = None,
     ) -> None:
         self.project_id = project_id
         self.log_stream_id = log_stream_id
         self.experiment_id = experiment_id
         self.base_url = base_url.rstrip("/")
+        # Apply customer-supplied extra headers first (e.g. for an API gateway such as
+        # Cisco APIC) so Galileo's own headers always win on key collisions. This mirrors
+        # the precedence used by galileo_core.ApiClient for the standard API path.
         self._headers = {
+            **(extra_headers or {}),
             "Content-Type": "application/json",
             "Galileo-API-Key": api_key,
             "X-Galileo-SDK": get_sdk_header(),

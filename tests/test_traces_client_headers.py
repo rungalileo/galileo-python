@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from galileo.traces import Traces
+from galileo.traces import IngestTraces, Traces
 from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 
@@ -48,3 +48,43 @@ class TestTracesHeaders:
         assert header_value.startswith(f"galileo-python/{get_package_version()}")
         # Should contain the method name (e.g., "_make_async_request@galileo.traces")
         assert "@galileo.traces" in header_value
+
+
+class TestIngestTracesExtraHeaders:
+    """Test that IngestTraces applies customer-supplied extra headers (e.g. IBM APIC)."""
+
+    def test_extra_headers_included(self) -> None:
+        # Given/When: an IngestTraces client configured with extra headers
+        client = IngestTraces(
+            project_id="p",
+            base_url="http://ingest/",
+            api_key="KEY",
+            extra_headers={"ibm_client_id": "my_client_id", "ibm_client_secret": "my_client_secret"},
+        )
+
+        # Then: the extra headers are present alongside Galileo's own headers
+        assert client._headers["ibm_client_id"] == "my_client_id"
+        assert client._headers["ibm_client_secret"] == "my_client_secret"
+        assert client._headers["Galileo-API-Key"] == "KEY"
+        assert client._headers["Content-Type"] == "application/json"
+
+    def test_extra_headers_cannot_override_galileo_headers(self) -> None:
+        # Given/When: extra headers that collide with Galileo's own headers
+        client = IngestTraces(
+            project_id="p",
+            base_url="http://ingest/",
+            api_key="KEY",
+            extra_headers={"Galileo-API-Key": "evil", "Content-Type": "text/evil"},
+        )
+
+        # Then: Galileo's own headers win on collision
+        assert client._headers["Galileo-API-Key"] == "KEY"
+        assert client._headers["Content-Type"] == "application/json"
+
+    def test_no_extra_headers_by_default(self) -> None:
+        # Given/When: an IngestTraces client with no extra headers
+        client = IngestTraces(project_id="p", base_url="http://ingest/", api_key="KEY")
+
+        # Then: only Galileo's own headers are present
+        assert "ibm_client_id" not in client._headers
+        assert client._headers["Galileo-API-Key"] == "KEY"

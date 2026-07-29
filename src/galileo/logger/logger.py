@@ -446,6 +446,7 @@ class GalileoLogger(TracesLogger):
                     api_key=api_key,
                     log_stream_id=self.log_stream_id,
                     experiment_id=self.experiment_id,
+                    extra_headers=config.extra_headers,
                 )
             _logger.debug("No API key available, falling back to standard Traces client")
 
