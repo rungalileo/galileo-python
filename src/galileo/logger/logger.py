@@ -446,7 +446,9 @@ class GalileoLogger(TracesLogger):
                     api_key=api_key,
                     log_stream_id=self.log_stream_id,
                     experiment_id=self.experiment_id,
-                    extra_headers=config.extra_headers,
+                    # `extra_headers` is provided by newer galileo-core; fall back to
+                    # None so the SDK keeps working against older core releases.
+                    extra_headers=getattr(config, "extra_headers", None),
                 )
             _logger.debug("No API key available, falling back to standard Traces client")
 
