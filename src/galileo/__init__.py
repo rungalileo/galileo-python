@@ -95,7 +95,7 @@ from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
 from galileo_core.schemas.protect.stage import StageType
 
-__version__ = "2.5.1"
+__version__ = "2.6.0"
 
 __all__ = [
     "APIError",
