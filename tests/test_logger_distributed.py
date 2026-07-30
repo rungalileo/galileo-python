@@ -8,6 +8,7 @@ from uuid import UUID
 
 import pytest
 
+import galileo.logger.logger as logger_module
 from galileo.logger import GalileoLogger
 from galileo.logger.logger import GalileoLoggerException
 from galileo.schema.trace import SpansIngestRequest, SpanUpdateRequest, TracesIngestRequest, TraceUpdateRequest
@@ -116,6 +117,30 @@ def test_distributed_logger_uses_ingest_client_when_ingest_service_is_available(
     assert logger._traces_client is mock_ingest_traces_client.return_value
     mock_ingest_traces_client.assert_called_once()
     mock_traces_client.assert_not_called()
+
+
+def test_is_ingest_service_available_forwards_extra_headers() -> None:
+    # Given: a config carrying customer extra headers (e.g. IBM APIC gateway credentials)
+    # and a cleared availability cache so the probe actually runs.
+    logger_module._ingest_service_cache.clear()
+    extra_headers = {"X-IBM-Client-Id": "id", "X-IBM-Client-Secret": "secret"}
+    mock_config = Mock()
+    mock_config.api_url = "https://gateway.example.com"
+    mock_config.extra_headers = extra_headers
+
+    with (
+        patch.object(logger_module.GalileoPythonConfig, "get", return_value=mock_config),
+        patch("galileo.logger.logger.httpx.get") as mock_get,
+    ):
+        mock_get.return_value = Mock(is_success=True, status_code=200)
+
+        # When: the ingest availability probe runs
+        assert GalileoLogger._is_ingest_service_available() is True
+
+    # Then: the probe forwards the extra headers so a header-enforcing gateway accepts it
+    mock_get.assert_called_once()
+    assert mock_get.call_args.kwargs["headers"] == extra_headers
+    logger_module._ingest_service_cache.clear()
 
 
 @patch("galileo.logger.logger.LogStreams")

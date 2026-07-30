@@ -465,8 +465,10 @@ When the Galileo API is fronted by a gateway (e.g. IBM APIC) that requires addit
 headers such as `ibm_client_id` / `ibm_client_secret` on every request, set
 `GALILEO_EXTRA_HEADERS` to a JSON object, or pass `extra_headers=...` programmatically.
 The headers are applied to **all** egress paths — resource management, batch trace
-ingestion, the distributed ingest service, and the pre-auth login/healthcheck calls.
-Galileo's own auth and content headers always win on key collisions.
+ingestion, the distributed ingest service (including its `/ingest/healthz`
+availability probe), and the pre-auth login/healthcheck calls.
+Galileo's own auth and content headers always win on key collisions, matched
+case-insensitively so a differently-cased duplicate can't slip a second copy onto the wire.
 
 ```bash
 export GALILEO_EXTRA_HEADERS='{"ibm_client_id": "my_client_id", "ibm_client_secret": "my_client_secret"}'

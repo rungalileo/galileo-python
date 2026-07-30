@@ -81,6 +81,25 @@ class TestIngestTracesExtraHeaders:
         assert client._headers["Galileo-API-Key"] == "KEY"
         assert client._headers["Content-Type"] == "application/json"
 
+    def test_extra_headers_case_insensitive_collision_dropped(self) -> None:
+        # Given/When: extra headers that collide with Galileo's own headers only by case
+        # (HTTP header names are case-insensitive), plus surrounding whitespace.
+        client = IngestTraces(
+            project_id="p",
+            base_url="http://ingest/",
+            api_key="KEY",
+            extra_headers={"content-type": "text/evil", " Galileo-API-Key ": "evil", "X-GALILEO-SDK": "evil"},
+        )
+
+        # Then: Galileo's canonical headers win and the colliding variants never reach the wire.
+        assert client._headers["Content-Type"] == "application/json"
+        assert client._headers["Galileo-API-Key"] == "KEY"
+        assert "content-type" not in client._headers
+        assert " Galileo-API-Key " not in client._headers
+        assert "X-GALILEO-SDK" not in client._headers
+        # X-Galileo-SDK is set by Galileo, not the caller's "evil" value.
+        assert client._headers["X-Galileo-SDK"] != "evil"
+
     def test_no_extra_headers_by_default(self) -> None:
         # Given/When: an IngestTraces client with no extra headers
         client = IngestTraces(project_id="p", base_url="http://ingest/", api_key="KEY")

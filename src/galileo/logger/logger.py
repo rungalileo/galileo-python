@@ -405,10 +405,17 @@ class GalileoLogger(TracesLogger):
 
         if "result" not in _ingest_service_cache:
             try:
-                api_url = str(GalileoPythonConfig.get().api_url).rstrip("/")
+                config = GalileoPythonConfig.get()
+                api_url = str(config.api_url).rstrip("/")
                 if "localhost" in api_url:
                     api_url = api_url.replace("8088", "8081")
-                resp = httpx.get(f"{api_url}/ingest/healthz", timeout=2.0)
+                # Forward customer-supplied extra headers (e.g. IBM APIC gateway
+                # credentials) on the probe too. A gateway that enforces those headers on
+                # every request — health checks included — would otherwise 401 this call
+                # and make the ingest service look unavailable. `extra_headers` is provided
+                # by newer galileo-core; fall back to None for older core releases.
+                extra_headers = getattr(config, "extra_headers", None)
+                resp = httpx.get(f"{api_url}/ingest/healthz", timeout=2.0, headers=extra_headers or None)
                 _ingest_service_cache["result"] = resp.is_success
                 if _ingest_service_cache["result"]:
                     _logger.info("Ingest service healthy at %s, using IngestTraces client", api_url)

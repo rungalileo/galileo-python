@@ -187,8 +187,15 @@ class IngestTraces:
         # Apply customer-supplied extra headers first (e.g. for an API gateway such as
         # Cisco APIC) so Galileo's own headers always win on key collisions. This mirrors
         # the precedence used by galileo_core.ApiClient for the standard API path.
+        #
+        # HTTP header names are case-insensitive, so we drop any extra header whose name
+        # case-insensitively collides with one of Galileo's reserved headers. A plain dict
+        # merge would only override exact-case duplicates, letting e.g. a caller-supplied
+        # ``content-type`` and Galileo's ``Content-Type`` both reach the wire.
+        reserved = {"content-type", "galileo-api-key", "x-galileo-sdk"}
+        safe_extra = {k: v for k, v in (extra_headers or {}).items() if k.strip().lower() not in reserved}
         self._headers = {
-            **(extra_headers or {}),
+            **safe_extra,
             "Content-Type": "application/json",
             "Galileo-API-Key": api_key,
             "X-Galileo-SDK": get_sdk_header(),
