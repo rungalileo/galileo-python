@@ -108,9 +108,21 @@ DEFAULT_TERMINATE_TIMEOUT_SECONDS = 90
 _SLOW_SHUTDOWN_WARN_THRESHOLD_SECONDS = 1.0
 STUB_TRACE_NAME = "stub_trace"  # Name for stub traces created from distributed tracing headers
 
-# Cached result of the ingest service healthz probe. Key "result" is absent until first check.
+# Cached results of the ingest service healthz probe, keyed by the effective probe configuration
+# (see `_ingest_cache_key`) so a change in api_url or extra_headers re-probes instead of reusing a
+# result gathered under a different gateway/auth. Empty until the first check for a given config.
 _ingest_service_cache: dict[str, bool] = {}
 _logger = logging.getLogger("galileo.logger")
+
+
+def _ingest_cache_key(api_url: str, extra_headers: dict[str, str] | None) -> str:
+    """Build a stable cache key from the values that determine the healthz probe's outcome.
+
+    The ingest URL and the headers sent on the probe both affect whether the gateway accepts it, so
+    both are part of the key. Headers are sorted for order-independence.
+    """
+    headers = tuple(sorted((extra_headers or {}).items()))
+    return f"{api_url}|{headers}"
 
 
 class GalileoLogger(TracesLogger):
@@ -396,28 +408,40 @@ class GalileoLogger(TracesLogger):
     def _is_ingest_service_available(cls) -> bool:
         """Check whether the ingest service is reachable, caching the result for the process lifetime.
 
-        The cache is bypassed (and cleared) whenever GALILEO_INGEST_BETA_DISABLED is set so that
-        toggling the flag within the same process takes effect immediately.
+        The cache is keyed by the effective probe configuration (api_url + extra_headers) so that a
+        later ``GalileoPythonConfig.reset()`` or ``get(extra_headers=...)`` that changes where/how we
+        probe re-runs the check instead of reusing an availability result gathered under a different
+        gateway or set of auth headers. The cache is bypassed (and cleared) whenever
+        GALILEO_INGEST_BETA_DISABLED is set so that toggling the flag within the same process takes
+        effect immediately.
         """
         if os.environ.get("GALILEO_INGEST_BETA_DISABLED", "").lower() in ("1", "true", "yes"):
             _ingest_service_cache.clear()
             return False
 
-        if "result" not in _ingest_service_cache:
+        config = GalileoPythonConfig.get()
+        api_url = str(config.api_url).rstrip("/")
+        if "localhost" in api_url:
+            api_url = api_url.replace("8088", "8081")
+        # Forward customer-supplied extra headers (e.g. IBM APIC gateway credentials) on the probe
+        # too. A gateway that enforces those headers on every request — health checks included —
+        # would otherwise 401 this call and make the ingest service look unavailable. `extra_headers`
+        # is provided by newer galileo-core; fall back to None for older core releases.
+        extra_headers = getattr(config, "extra_headers", None)
+        cache_key = _ingest_cache_key(api_url, extra_headers)
+
+        if cache_key not in _ingest_service_cache:
             try:
-                api_url = str(GalileoPythonConfig.get().api_url).rstrip("/")
-                if "localhost" in api_url:
-                    api_url = api_url.replace("8088", "8081")
-                resp = httpx.get(f"{api_url}/ingest/healthz", timeout=2.0)
-                _ingest_service_cache["result"] = resp.is_success
-                if _ingest_service_cache["result"]:
+                resp = httpx.get(f"{api_url}/ingest/healthz", timeout=2.0, headers=extra_headers or None)
+                _ingest_service_cache[cache_key] = resp.is_success
+                if _ingest_service_cache[cache_key]:
                     _logger.info("Ingest service healthy at %s, using IngestTraces client", api_url)
                 else:
                     _logger.debug("Ingest service healthz returned %s, using standard client", resp.status_code)
             except Exception:
-                _ingest_service_cache["result"] = False
+                _ingest_service_cache[cache_key] = False
                 _logger.debug("Ingest service healthz check failed, using standard client")
-        return _ingest_service_cache["result"]
+        return _ingest_service_cache[cache_key]
 
     @nop_sync
     def _create_traces_client(self) -> Traces | IngestTraces:
@@ -446,6 +470,9 @@ class GalileoLogger(TracesLogger):
                     api_key=api_key,
                     log_stream_id=self.log_stream_id,
                     experiment_id=self.experiment_id,
+                    # `extra_headers` is provided by newer galileo-core; fall back to
+                    # None so the SDK keeps working against older core releases.
+                    extra_headers=getattr(config, "extra_headers", None),
                 )
             _logger.debug("No API key available, falling back to standard Traces client")
 
