@@ -11,7 +11,7 @@ from galileo.datasets import Dataset as LegacyDataset
 from galileo.exceptions import NotFoundError
 from galileo.experiment_tags import upsert_experiment_tag
 from galileo.experiments import Experiments as ExperimentsService
-from galileo.experiments import _default_prompt_settings
+from galileo.experiments import _default_prompt_settings, _prompt_template_settings
 from galileo.export import ExportClient
 from galileo.job_progress import get_run_scorer_jobs, job_progress
 from galileo.prompts import PromptTemplate, get_prompt
@@ -98,9 +98,9 @@ class Experiment(StateManagementMixin):
         passed to run() completely overrides any settings stored in the prompt template
         itself. The Runners service uses ONLY the settings provided at job creation time.
 
-        If you don't provide prompt_settings to run(), default values will be used.
-        To use the template's settings, retrieve them first using get_prompt_template_settings()
-        and pass them explicitly.
+        If you don't provide prompt_settings to run(), the selected prompt template
+        version's settings will be used when available; otherwise default values
+        will be used.
 
     **Experiment Immutability:**
         Once an experiment has been run and has traces, it cannot be run again.
@@ -442,7 +442,7 @@ class Experiment(StateManagementMixin):
                     self._prompt_template = get_prompt(name=self.prompt_name)
 
             # Determine effective prompt settings
-            # Priority: 1. explicit prompt_settings, 2. model parameter, 3. defaults for prompt-template flow
+            # Priority: 1. explicit prompt_settings, 2. model parameter, 3. template settings, 4. defaults
             effective_prompt_settings = self.prompt_settings
             if self.model_alias:
                 if effective_prompt_settings is None:
@@ -456,8 +456,9 @@ class Experiment(StateManagementMixin):
                     settings_dict["model_alias"] = self.model_alias
                     effective_prompt_settings = PromptRunSettings(**settings_dict)
             elif self._prompt_template is not None and effective_prompt_settings is None:
-                # Default prompt settings for prompt-template flow (same as ExperimentsService.run())
-                effective_prompt_settings = _default_prompt_settings()
+                effective_prompt_settings = (
+                    _prompt_template_settings(self._prompt_template) or _default_prompt_settings()
+                )
 
             # Set up metrics if provided
             scorer_settings: list[ScorerConfig] | None = None
@@ -962,10 +963,8 @@ class Experiment(StateManagementMixin):
         """
         Get the settings from the associated prompt template.
 
-        WARNING: These settings are NOT automatically used when running the experiment.
-        The Runners service ignores template settings and only uses the prompt_settings
-        passed to the run() method. Use this method to retrieve template settings if
-        you want to apply them to the job.
+        Explicit prompt_settings still take precedence, but these template settings
+        are used by default for prompt-template experiment creation when available.
 
         Returns
         -------
@@ -983,8 +982,8 @@ class Experiment(StateManagementMixin):
             # Get settings from template
             template_settings = experiment.get_prompt_template_settings()
 
-            # Note: Current run() doesn't accept prompt_settings parameter
-            # This would require updating the run() signature
+            # These settings are also used automatically when no explicit
+            # prompt_settings are passed.
         """
         if self._prompt_template is None:
             if self.prompt_id:

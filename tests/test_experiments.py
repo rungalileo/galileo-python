@@ -81,7 +81,10 @@ def experiment_response():
     )
 
 
-def prompt_template():
+def prompt_template(settings: PromptRunSettings | dict | None = None):
+    if settings is None:
+        settings = {}
+
     return PromptTemplate(
         prompt_template=BasePromptTemplateResponse(
             all_available_versions=[1, 2, 3],
@@ -99,7 +102,7 @@ def prompt_template():
                 lines_edited=0,
                 lines_removed=0,
                 model_changed=False,
-                settings={},
+                settings=settings,
                 settings_changed=False,
                 template="test",
                 updated_at=datetime.now(),
@@ -996,6 +999,33 @@ class TestExperiments:
         mock_scorers_class.return_value.list_by_labels.assert_called_once()
         # ScorerSettings.create NOT called for trigger=True flow (API handles it)
         mock_scorer_settings_class.return_value.create.assert_not_called()
+
+    @travel(datetime(2012, 1, 1), tick=False)
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_w_prompt_template_uses_template_settings(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ) -> None:
+        saved_settings = PromptRunSettings(model_alias="GPT 5.4 Mini (custom)", temperature=0.0, max_tokens=-1)
+
+        run_experiment(
+            "test_experiment",
+            project="awesome-new-project",
+            dataset_id=str(UUID(int=0)),
+            prompt_template=prompt_template(saved_settings),
+        )
+
+        mock_create_experiment.assert_called_once()
+        actual_settings = mock_create_experiment.call_args.kwargs["prompt_settings"]
+        assert actual_settings is saved_settings
+        assert actual_settings.model_alias == "GPT 5.4 Mini (custom)"
 
     @travel(datetime(2012, 1, 1), tick=False)
     @patch.object(galileo.datasets.Datasets, "get")

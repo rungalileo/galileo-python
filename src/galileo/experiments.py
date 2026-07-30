@@ -19,6 +19,7 @@ from galileo.resources.api.experiment import (
     list_experiments_projects_project_id_experiments_get,
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
+from galileo.resources.types import Unset
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.experiment_group import ExperimentGroupResponse
 from galileo.schema.metrics import GalileoMetrics, LocalMetricConfig, Metric
@@ -58,6 +59,22 @@ def _default_prompt_settings(model_alias: str = "GPT-4o") -> PromptRunSettings:
         presence_penalty=0.0,
         frequency_penalty=0.0,
     )
+
+
+def _prompt_template_settings(prompt_template: PromptTemplate | None) -> PromptRunSettings | None:
+    if prompt_template is None:
+        return None
+
+    selected_version = getattr(prompt_template, "selected_version", None)
+    settings = getattr(selected_version, "settings", None)
+    if settings is None or isinstance(settings, Unset):
+        return None
+    if isinstance(settings, PromptRunSettings):
+        return settings
+    if isinstance(settings, dict) and settings:
+        return PromptRunSettings.from_dict(settings)
+
+    return None
 
 
 MAX_REQUEST_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
@@ -193,9 +210,10 @@ class Experiments:
         if isinstance(prompt_settings, dict):
             prompt_settings = PromptRunSettings.from_dict(prompt_settings)
 
-        # Only set default prompt_settings for prompt-driven flow (when a template is provided)
+        # Prompt-driven runs need settings in the create+trigger request. Reuse the
+        # selected template settings when available; fall back only for legacy templates.
         if prompt_template is not None and prompt_settings is None:
-            prompt_settings = _default_prompt_settings()
+            prompt_settings = _prompt_template_settings(prompt_template) or _default_prompt_settings()
 
         # Single API call: create experiment + trigger job via trigger=True
         # Only forward group kwargs when set so existing callers/tests aren't affected.

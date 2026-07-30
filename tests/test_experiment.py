@@ -626,6 +626,50 @@ class TestExperimentCreate:
     @patch("galileo.experiment.load_dataset_and_records")
     @patch("galileo.shared.project_resolver.Projects")
     @patch("galileo.experiment.ExperimentsService")
+    def test_create_uses_prompt_template_settings_when_available(
+        self,
+        mock_experiments_class: MagicMock,
+        mock_projects_class: MagicMock,
+        mock_load_dataset: MagicMock,
+        mock_get_prompt: MagicMock,
+        mock_create_metrics: MagicMock,
+        reset_configuration: None,
+        mock_experiment_response: MagicMock,
+        mock_project: MagicMock,
+    ) -> None:
+        mock_projects_service = MagicMock()
+        mock_projects_class.return_value = mock_projects_service
+        mock_projects_service.get_with_env_fallbacks.return_value = mock_project
+
+        mock_dataset = MagicMock()
+        mock_load_dataset.return_value = (mock_dataset, [])
+
+        saved_settings = PromptRunSettings(model_alias="GPT 5.4 Mini (custom)", temperature=0.0, max_tokens=-1)
+        mock_prompt = MagicMock()
+        mock_prompt.selected_version_id = str(uuid4())
+        mock_prompt.selected_version.settings = saved_settings
+        mock_get_prompt.return_value = mock_prompt
+
+        mock_create_metrics.return_value = (None, [])
+
+        mock_experiments_service = MagicMock()
+        mock_experiments_class.return_value = mock_experiments_service
+        mock_experiments_service.get.return_value = None
+        mock_experiments_service.create.return_value = mock_experiment_response
+
+        Experiment(
+            name="Test Experiment", dataset_name="test-dataset", prompt_name="test-prompt", project_name="Test Project"
+        ).create()
+
+        actual_settings = mock_experiments_service.create.call_args.kwargs["prompt_settings"]
+        assert actual_settings is saved_settings
+        assert actual_settings.model_alias == "GPT 5.4 Mini (custom)"
+
+    @patch("galileo.experiment.create_metric_configs")
+    @patch("galileo.experiment.get_prompt")
+    @patch("galileo.experiment.load_dataset_and_records")
+    @patch("galileo.shared.project_resolver.Projects")
+    @patch("galileo.experiment.ExperimentsService")
     def test_create_preserves_user_prompt_settings_when_overriding_model_alias(
         self,
         mock_experiments_class: MagicMock,
