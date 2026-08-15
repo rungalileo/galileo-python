@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import json
 import logging
@@ -2477,3 +2478,106 @@ def test_ingest_traces_reuses_existing_client(
 
     # Then: no additional Traces client was created (reuses the existing one)
     assert mock_traces_cls.call_count == call_count_before
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_trace_added_during_ingest_is_not_dropped(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A trace appended while a flush is in flight must still reach the backend.
+
+    Concurrent tasks sharing one ``GalileoLogger`` also share its trace list. Because the
+    ingest payload is frozen before the network await, a trace appended during that await is
+    not part of it, so the flush must hand its batch off rather than clear the list
+    afterwards - a blind clear discards that trace, and the next flush then finds an empty
+    list, sends nothing, and still reports success.
+
+    Only the network egress (``ingest_traces``) is mocked; the shared list, the payload built
+    before the await, the batch hand-off, and the empty-list early return are all real. The
+    mock's only job is to hold the await open deterministically, because in production that
+    window is ordinary network latency and timing-dependent tests are unreliable.
+
+    ``_flush_batch()`` is awaited directly rather than via the public sync ``flush()``,
+    which blocks its OS thread and so cannot interleave.
+    """
+    # Given: a logger whose in-flight ingest is held open until a second trace is appended
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_in_flight = asyncio.Event()
+    second_trace_appended = asyncio.Event()
+    ingested_trace_names: list[str] = []
+
+    async def hold_the_window_open(request: TracesIngestRequest) -> dict:
+        ingested_trace_names.extend(trace.name for trace in request.traces)
+        if not ingest_in_flight.is_set():
+            ingest_in_flight.set()
+            await second_trace_appended.wait()
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=hold_the_window_open)
+
+    logger.start_trace(input="weather in New York?", name="New York")
+    logger.conclude(output="sunny in New York")
+
+    # When: a second trace is appended while the first flush sits in its ingest await,
+    # then each trace is flushed
+    first_flush = asyncio.create_task(logger._flush_batch())
+    await ingest_in_flight.wait()
+
+    logger.start_trace(input="weather in London?", name="London")
+    logger.conclude(output="rainy in London")
+    second_trace_appended.set()
+
+    await first_flush
+    await logger._flush_batch()
+
+    # Then: both traces were sent, and neither was silently discarded
+    assert sorted(set(ingested_trace_names)) == ["London", "New York"]
+    assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_failed_ingest_retains_traces_for_next_flush(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A failed send must leave its traces queued rather than dropping them.
+
+    ``_flush_batch`` detaches the batch from ``self.traces`` before sending, so it has to put
+    the batch back if the send raises. Otherwise avoiding a silent drop under concurrency
+    would introduce a silent drop on every ingest error.
+    """
+    # Given: a logger whose first ingest attempt fails and whose second succeeds
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="input", name="test-trace")
+    logger.conclude(output="output")
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=ConnectionError("backend unavailable"))
+
+    # When: the flush fails
+    with pytest.raises(ConnectionError):
+        await logger._flush_batch()
+
+    # Then: the trace is still queued, and a later successful flush sends it
+    assert [trace.name for trace in logger.traces] == ["test-trace"]
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(return_value={})
+    await logger._flush_batch()
+
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    assert [trace.name for trace in payload.traces] == ["test-trace"]
+    assert logger.traces == []

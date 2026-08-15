@@ -181,3 +181,6 @@ node_modules/
 
 # PyDoc generated docs
 .generated_docs/
+
+# Local-only scratch and credentials (never committed)
+.local/

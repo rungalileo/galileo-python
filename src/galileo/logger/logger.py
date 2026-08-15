@@ -2246,7 +2246,13 @@ class GalileoLogger(TracesLogger):
             for trace in self.traces:
                 populate_local_metrics(trace, self.local_metrics)
 
-        logged_traces = self.traces
+        # Detach the batch up-front. `self.traces` can be shared by concurrent tasks (see
+        # GalileoLoggerSingleton._get_key, which keys on thread+project+log_stream), so a
+        # trace appended while the request below is in flight must land in the *new* list
+        # and be picked up by the next flush. Clearing after the await instead would
+        # discard it silently: it was never in the frozen payload, and the next flush would
+        # find an empty list and no-op while still reporting success.
+        logged_traces, self.traces = self.traces, []
         trace_count = len(logged_traces)
         self._logger.info(f"Flushing {trace_count} {'trace' if trace_count == 1 else 'traces'}...")
 
@@ -2257,6 +2263,22 @@ class GalileoLogger(TracesLogger):
             experiment_id=self.experiment_id,
         )
 
+        try:
+            await self._send_ingest_request(traces_ingest_request)
+        except Exception:
+            # The batch was detached before the send, so put it back for the next flush.
+            # Without this, detaching up-front would turn a failed send into data loss,
+            # whereas previously the traces stayed in place and were retried.
+            self.traces = logged_traces + self.traces
+            raise
+
+        self._logger.info(f"Successfully flushed {trace_count} {'trace' if trace_count == 1 else 'traces'}.")
+
+        self._set_current_parent(None)  # Reset parent tracking
+        return logged_traces
+
+    async def _send_ingest_request(self, traces_ingest_request: TracesIngestRequest) -> None:
+        """Hand a built ingest request to the ingestion hook, or to the traces client."""
         if self._ingestion_hook:
             if inspect.iscoroutinefunction(self._ingestion_hook):
                 await self._ingestion_hook(traces_ingest_request)
@@ -2275,12 +2297,6 @@ class GalileoLogger(TracesLogger):
                 await asyncio.to_thread(self._ingestion_hook, traces_ingest_request)
         else:
             await self._traces_client.ingest_traces(traces_ingest_request)
-
-        self._logger.info(f"Successfully flushed {trace_count} {'trace' if trace_count == 1 else 'traces'}.")
-
-        self.traces = []
-        self._set_current_parent(None)  # Reset parent tracking
-        return logged_traces
 
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
