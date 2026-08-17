@@ -2581,3 +2581,127 @@ async def test_failed_ingest_retains_traces_for_next_flush(
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
     assert [trace.name for trace in payload.traces] == ["test-trace"]
     assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_cancelled_flush_retains_traces_for_next_flush(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A cancelled flush must leave its traces queued rather than dropping them.
+
+    ``_flush_batch`` detaches its batch before sending, so it has to put the batch back whenever
+    the send does not complete. ``asyncio.CancelledError`` does not derive from ``Exception``, so a
+    restore guarded by ``except Exception`` would let a cancelled flush lose the batch outright -
+    worse than clearing after the await, where cancellation simply skipped the clear.
+
+    Cancellation is driven through the public ``async_flush()``, the path a caller reaches via
+    ``asyncio.wait_for`` or task-group teardown. Neither of its decorators intercepts
+    ``CancelledError``: ``async_warn_catch_exception(exceptions=(Exception,))`` does not match it,
+    and ``nop_async`` has no handler at all. The sync ``flush()`` runs on a pool thread and so
+    cannot be cancelled from here.
+    """
+    # Given: a logger whose ingest parks indefinitely once it is in flight
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_in_flight = asyncio.Event()
+    never_released = asyncio.Event()
+
+    async def park_in_flight(request: TracesIngestRequest) -> dict:
+        ingest_in_flight.set()
+        await never_released.wait()
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=park_in_flight)
+
+    logger.start_trace(input="input", name="test-trace")
+    logger.conclude(output="output")
+
+    # When: the flush is cancelled while sitting in its ingest await
+    flush = asyncio.create_task(logger.async_flush())
+    await asyncio.wait_for(ingest_in_flight.wait(), timeout=5)
+    flush.cancel()
+
+    with pytest.raises(asyncio.CancelledError):
+        await flush
+
+    # Then: the trace is still queued, and a later successful flush sends it
+    assert [trace.name for trace in logger.traces] == ["test-trace"]
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(return_value={})
+    await logger._flush_batch()
+
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    assert [trace.name for trace in payload.traces] == ["test-trace"]
+    assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_concurrent_flushes_do_not_duplicate_traces(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Two flushes in flight at once must not both send the same trace.
+
+    Because ``_flush_batch`` detaches its batch before sending, a flush that starts while another
+    is still awaiting picks up only the traces appended since. Leaving the list in place until
+    after the await instead hands the second flush a batch that still holds the first flush's
+    traces, sending them twice - traffic the backend hides by collapsing repeated trace ids.
+
+    Both flushes are held inside their ingest await simultaneously, so the overlap is real rather
+    than sequential, and payloads are asserted by multiplicity: a duplicate send shows up as a
+    repeated name rather than being folded away.
+    """
+    # Given: a logger whose ingests all park until released, recording each payload as it arrives
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    release_ingest = asyncio.Event()
+    first_ingest_entered = asyncio.Event()
+    second_ingest_entered = asyncio.Event()
+    ingest_payloads: list[list[str]] = []
+
+    async def park_until_released(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        if len(ingest_payloads) == 1:
+            first_ingest_entered.set()
+        else:
+            second_ingest_entered.set()
+        await release_ingest.wait()
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=park_until_released)
+
+    logger.start_trace(input="weather in New York?", name="New York")
+    logger.conclude(output="sunny in New York")
+
+    # When: a second flush reaches its ingest while the first is still in flight, then both finish
+    first_flush = asyncio.create_task(logger._flush_batch())
+    await asyncio.wait_for(first_ingest_entered.wait(), timeout=5)
+
+    logger.start_trace(input="weather in London?", name="London")
+    logger.conclude(output="rainy in London")
+
+    second_flush = asyncio.create_task(logger._flush_batch())
+    await asyncio.wait_for(second_ingest_entered.wait(), timeout=5)
+
+    release_ingest.set()
+    await asyncio.gather(first_flush, second_flush)
+
+    # Then: each trace was sent exactly once, carried by exactly one of the two flushes
+    assert sorted(name for payload in ingest_payloads for name in payload) == ["London", "New York"]
+    assert [len(payload) for payload in ingest_payloads] == [1, 1]
+    assert mock_traces_client_instance.ingest_traces.call_count == 2
+    assert logger.traces == []

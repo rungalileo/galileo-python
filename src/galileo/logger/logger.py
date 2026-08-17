@@ -2265,10 +2265,13 @@ class GalileoLogger(TracesLogger):
 
         try:
             await self._send_ingest_request(traces_ingest_request)
-        except Exception:
+        except BaseException:
             # The batch was detached before the send, so put it back for the next flush.
             # Without this, detaching up-front would turn a failed send into data loss,
             # whereas previously the traces stayed in place and were retried.
+            # BaseException, not Exception: `asyncio.CancelledError` does not derive from
+            # Exception, so cancelling an in-flight `async_flush()` would otherwise drop the
+            # detached batch outright.
             self.traces = logged_traces + self.traces
             raise
 
