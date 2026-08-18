@@ -1,7 +1,9 @@
 import asyncio
+import contextvars
 import datetime
 import json
 import logging
+import threading
 import uuid
 from collections import deque
 from unittest.mock import AsyncMock, Mock, patch
@@ -2528,7 +2530,7 @@ async def test_trace_added_during_ingest_is_not_dropped(
 
     # When: a second trace is appended while the first flush sits in its ingest await,
     # then each trace is flushed
-    first_flush = asyncio.create_task(logger._flush_batch(None))
+    first_flush = asyncio.create_task(logger._flush_batch(None, threading.current_thread()))
     await ingest_in_flight.wait()
 
     logger.start_trace(input="weather in London?", name="London")
@@ -2536,7 +2538,7 @@ async def test_trace_added_during_ingest_is_not_dropped(
     second_trace_appended.set()
 
     await first_flush
-    await logger._flush_batch(None)
+    await logger._flush_batch(None, threading.current_thread())
 
     # Then: both traces were sent, and neither was silently discarded
     assert sorted(set(ingested_trace_names)) == ["London", "New York"]
@@ -2569,13 +2571,13 @@ async def test_failed_ingest_retains_traces_for_next_flush(
 
     # When: the flush fails
     with pytest.raises(ConnectionError):
-        await logger._flush_batch(None)
+        await logger._flush_batch(None, threading.current_thread())
 
     # Then: the trace is still queued, and a later successful flush sends it
     assert [trace.name for trace in logger.traces] == ["test-trace"]
 
     mock_traces_client_instance.ingest_traces = AsyncMock(return_value={})
-    await logger._flush_batch(None)
+    await logger._flush_batch(None, threading.current_thread())
 
     mock_traces_client_instance.ingest_traces.assert_called_once()
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
@@ -2635,7 +2637,7 @@ async def test_cancelled_flush_retains_traces_for_next_flush(
     assert [trace.name for trace in logger.traces] == ["test-trace"]
 
     mock_traces_client_instance.ingest_traces = AsyncMock(return_value={})
-    await logger._flush_batch(None)
+    await logger._flush_batch(None, threading.current_thread())
 
     mock_traces_client_instance.ingest_traces.assert_called_once()
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
@@ -2688,13 +2690,13 @@ async def test_concurrent_flushes_do_not_duplicate_traces(
     logger.conclude(output="sunny in New York")
 
     # When: a second flush reaches its ingest while the first is still in flight, then both finish
-    first_flush = asyncio.create_task(logger._flush_batch(None))
+    first_flush = asyncio.create_task(logger._flush_batch(None, threading.current_thread()))
     await asyncio.wait_for(first_ingest_entered.wait(), timeout=5)
 
     logger.start_trace(input="weather in London?", name="London")
     logger.conclude(output="rainy in London")
 
-    second_flush = asyncio.create_task(logger._flush_batch(None))
+    second_flush = asyncio.create_task(logger._flush_batch(None, threading.current_thread()))
     await asyncio.wait_for(second_ingest_entered.wait(), timeout=5)
 
     release_ingest.set()
@@ -3213,3 +3215,122 @@ async def test_reset_parent_tracking_in_another_context_does_not_strand_a_trace(
     # Then: the abandoned trace was sent
     assert ingest_payloads == [["London"]]
     assert logger.traces == []
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_sends_a_trace_abandoned_on_a_still_alive_pool_thread(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A worker thread outliving the job that abandoned a trace must not hold it forever.
+
+    For a synchronous caller the owner recorded is the thread, and a pool worker stays alive long
+    after the job that started the trace returned. The next job on that worker cannot claim the trace
+    either: pools that copy the context per job - anyio, and therefore FastAPI's synchronous
+    endpoints - hand it an empty parent chain. Liveness alone would hold the trace for the life of
+    the worker, where before this rule existed it was sent on the first flush.
+
+    Each job runs inside its own ``copy_context()``, because that isolation is the property that
+    matters rather than the pool library: ``ThreadPoolExecutor`` does not copy, so its second job
+    still sees the first job's parent chain and claims the trace. The flush goes through the public
+    ``flush()`` so the thread is captured where a real caller captures it - reading it inside
+    ``_flush_batch`` would see an ``EventLoopThreadPool`` thread instead.
+    """
+    # Given: a job on a worker thread that starts a trace and returns without concluding it
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_payloads: list[list[str]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+
+    def abandoning_job() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="rainy in London", model="gpt-4o")
+
+    queued_between_jobs: list[list[str]] = []
+
+    def worker() -> None:
+        contextvars.copy_context().run(abandoning_job)
+        queued_between_jobs.append([trace.name for trace in logger.traces])
+        contextvars.copy_context().run(logger.flush)
+
+    # When: a later job on the same still-alive worker flushes, in a context of its own
+    worker_thread = threading.Thread(target=worker, name="AnyIO worker thread")
+    worker_thread.start()
+    worker_thread.join(timeout=30)
+
+    # Then: the abandoned trace was sent, not held until the worker dies or the process exits
+    assert not worker_thread.is_alive()
+    assert queued_between_jobs == [["London"]]
+    assert ingest_payloads == [["London"]]
+    assert logger.traces == []
+    assert logger._traces_being_built == {}
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_holds_back_a_trace_another_live_thread_is_building(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Releasing a trace whose owner is the flushing thread must not release another thread's.
+
+    This is the other half of that rule, and it matters most where it is least visible: anyio names
+    every worker ``"AnyIO worker thread"``, so they resolve to one ``GalileoLogger`` and share one
+    trace list. Comparing thread *names* rather than identity would therefore let one worker's flush
+    ship another worker's half-built trace - the failure the hold-back exists to prevent - so the
+    flushing thread here is deliberately given the builder's name.
+    """
+    # Given: a worker thread that is still building a trace, parked while it holds it open
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_payloads: list[list[str]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+
+    trace_started = threading.Event()
+    let_builder_finish = threading.Event()
+
+    def building_job() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="rainy in London", model="gpt-4o")
+        trace_started.set()
+        let_builder_finish.wait(timeout=30)
+
+    builder = threading.Thread(target=building_job, name="AnyIO worker thread")
+    builder.start()
+    try:
+        assert trace_started.wait(timeout=30)
+
+        # When: a different, still-live thread carrying the same name flushes
+        flusher = threading.Thread(target=logger.flush, name="AnyIO worker thread")
+        flusher.start()
+        flusher.join(timeout=30)
+        assert not flusher.is_alive()
+    finally:
+        # Always release the builder: an unreleased event would park an xdist worker until the
+        # suite-wide `--timeout` fires.
+        let_builder_finish.set()
+        builder.join(timeout=30)
+
+    # Then: the trace stayed behind for the thread that is still building it
+    assert ingest_payloads == []
+    assert [trace.name for trace in logger.traces] == ["London"]
+    assert len(logger._traces_being_built) == 1

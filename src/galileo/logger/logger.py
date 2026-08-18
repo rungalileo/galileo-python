@@ -966,8 +966,9 @@ class GalileoLogger(TracesLogger):
         """Record that a context is building this trace, so other contexts' flushes skip it.
 
         The guarantee for anything that marks a trace: a flush from another context skips it while
-        the marking task or thread is alive. A marker that never releases it therefore costs a trace
-        that ships unconcluded once its owner finishes - not one that is never sent at all.
+        the marking task is alive, or while the marking thread is alive and is not itself the thread
+        asking for the flush. A marker that never releases it therefore costs a trace that ships
+        unconcluded once its owner finishes - not one that is never sent at all.
         """
         self._traces_being_built[trace_id] = self._current_owner_ref()
 
@@ -980,12 +981,20 @@ class GalileoLogger(TracesLogger):
         """
         self._traces_being_built.pop(trace_id, None)
 
-    def _still_being_built(self, trace_id: uuid.UUID) -> bool:
+    def _still_being_built(self, trace_id: uuid.UUID, flushing_thread: threading.Thread) -> bool:
         """Whether a live context is still adding to this trace.
 
         A trace whose owner has finished is being built by nobody: no context will conclude it or
         add to it, and none can claim it either, since the claim comes from the caller's own parent
         chain. Holding it back would mean never sending it.
+
+        Parameters
+        ----------
+        trace_id : uuid.UUID
+            Trace to test.
+        flushing_thread : threading.Thread
+            Thread the flush was requested from, captured before dispatch. A synchronous owner that
+            is this thread is done with the trace: a thread cannot be flushing and mid-build at once.
         """
         if trace_id not in self._traces_being_built:
             return False
@@ -999,7 +1008,11 @@ class GalileoLogger(TracesLogger):
         if isinstance(owner, asyncio.Task):
             return not owner.done()
         if isinstance(owner, threading.Thread):
-            return owner.is_alive()
+            # `is_alive()` alone would hold a trace for the life of a pool worker, which outlives the
+            # job that started the trace - and the next job on that worker cannot claim it, because
+            # pools that copy the context per job (anyio, so FastAPI's sync endpoints) hand it an
+            # empty parent chain. Comparing identity, not name: anyio names every worker alike.
+            return owner is not flushing_thread and owner.is_alive()
         return True
 
     def reset_parent_tracking(self) -> None:
@@ -2131,7 +2144,11 @@ class GalileoLogger(TracesLogger):
     @nop_sync
     def flush(self, on_error: Callable[[Exception], None] | None = None) -> list[LoggedTrace]:
         """
-        Upload all traces to Galileo.
+        Upload traces to Galileo.
+
+        Sends this caller's own trace, plus every trace no live context is still building. A trace
+        another context is part-way through building leaves with that context's flush instead, so
+        that it is not sent without its output, spans and duration.
 
         Parameters
         ----------
@@ -2147,13 +2164,15 @@ class GalileoLogger(TracesLogger):
             The list of uploaded traces.
         """
         # Resolved before dispatch so the claim reflects the caller, not whatever the
-        # EventLoopThreadPool thread happens to see in its copy of the context.
+        # EventLoopThreadPool thread happens to see in its copy of the context. The thread is
+        # captured for the same reason: from here `_flush_batch` runs on a pool thread.
         claimed_trace_id = self._current_trace_id()
+        flushing_thread = threading.current_thread()
         try:
             try:
                 if self.mode == "distributed":
                     return async_run(self._flush_distributed())
-                return async_run(self._flush_batch(claimed_trace_id))
+                return async_run(self._flush_batch(claimed_trace_id, flushing_thread))
             finally:
                 # Reset parent tracking in the main thread (async_run uses thread pool).
                 # Using finally ensures cleanup even if ingestion fails.
@@ -2177,7 +2196,10 @@ class GalileoLogger(TracesLogger):
     @async_warn_catch_exception(exceptions=(Exception,))
     async def async_flush(self) -> list[LoggedTrace]:
         """
-        Async upload all traces to Galileo.
+        Async upload traces to Galileo.
+
+        Sends this caller's own trace, plus every trace no live context is still building — see
+        `flush()`.
 
         Returns
         -------
@@ -2185,10 +2207,11 @@ class GalileoLogger(TracesLogger):
             The list of uploaded traces.
         """
         claimed_trace_id = self._current_trace_id()
+        flushing_thread = threading.current_thread()
         try:
             if self.mode == "distributed":
                 return await self._flush_distributed()
-            return await self._flush_batch(claimed_trace_id)
+            return await self._flush_batch(claimed_trace_id, flushing_thread)
         finally:
             # Reset parent tracking. Using finally ensures cleanup even if ingestion fails.
             self._set_current_parent(None)
@@ -2328,7 +2351,9 @@ class GalileoLogger(TracesLogger):
 
         return []
 
-    async def _flush_batch(self, claimed_trace_id: uuid.UUID | None) -> list[LoggedTrace]:
+    async def _flush_batch(
+        self, claimed_trace_id: uuid.UUID | None, flushing_thread: threading.Thread
+    ) -> list[LoggedTrace]:
         """Flush in batch mode: conclude unconcluded traces and send all traces to backend.
 
         Parameters
@@ -2337,6 +2362,10 @@ class GalileoLogger(TracesLogger):
             Trace the flushing context was building, from `_current_trace_id()`. It ships
             even if unconcluded — the caller asked for it — while traces belonging to other
             contexts are held back until they finish.
+        flushing_thread : threading.Thread
+            Thread the flush was requested from, captured before dispatch. Both must be resolved
+            in the caller's own thread and context; neither is readable from here, because the
+            synchronous `flush()` runs this coroutine on an `EventLoopThreadPool` thread.
         """
         if not self.traces:
             self._logger.info("No traces to flush.")
@@ -2363,7 +2392,7 @@ class GalileoLogger(TracesLogger):
         ready: list[LoggedTrace] = []
         still_running: list[LoggedTrace] = []
         for trace in self.traces:
-            if trace.id != claimed_trace_id and self._still_being_built(trace.id):
+            if trace.id != claimed_trace_id and self._still_being_built(trace.id, flushing_thread):
                 still_running.append(trace)
             else:
                 ready.append(trace)
