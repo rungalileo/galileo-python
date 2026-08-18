@@ -6,8 +6,10 @@ import inspect
 import json
 import logging
 import os
+import threading
 import time
 import uuid
+import weakref
 from collections.abc import Callable
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Union
@@ -203,10 +205,13 @@ class GalileoLogger(TracesLogger):
     _traces_client: Union["Traces", "IngestTraces"] | None = None
     _task_handler: ThreadPoolTaskHandler
     _trace_completion_submitted: bool
-    # Ids of traces a context is still building. `self.traces` is shared across concurrent
-    # tasks (GalileoLoggerSingleton._get_key keys on thread+project+log_stream), so a flush
-    # must not ship a sibling's unfinished trace.
-    _active_trace_ids: set[uuid.UUID]
+    # Traces a context is still building, each mapped to a weak reference to the asyncio task or
+    # thread building it. `self.traces` is shared across concurrent tasks
+    # (GalileoLoggerSingleton._get_key keys on thread+project+log_stream), so a flush must not ship
+    # a sibling's unfinished trace - but it must ship one whose owner has gone away, or nothing
+    # ever will: the claim in `_flush_batch` comes from the caller's own parent chain, and an
+    # abandoned trace's chain died with its owner.
+    _traces_being_built: dict[uuid.UUID, weakref.ref[Any] | None]
 
     def __init__(
         self,
@@ -265,7 +270,7 @@ class GalileoLogger(TracesLogger):
         mode = _get_mode_or_default(mode)
         self.mode: LoggerModeType = mode
         self._task_counter = 0
-        self._active_trace_ids = set()
+        self._traces_being_built = {}
 
         self._ingestion_hook = ingestion_hook
         if self._ingestion_hook and self.mode == "distributed":
@@ -942,9 +947,29 @@ class GalileoLogger(TracesLogger):
         parent_stack = self._parent_stack
         return parent_stack[0].id if parent_stack else None
 
+    @staticmethod
+    def _current_owner_ref() -> weakref.ref[Any] | None:
+        """Weak reference to the task or thread building a trace, for later liveness checks."""
+        try:
+            owner: Any = asyncio.current_task()
+        except RuntimeError:
+            # No running event loop: the caller is plain synchronous code.
+            owner = None
+        try:
+            return weakref.ref(owner if owner is not None else threading.current_thread())
+        except TypeError:
+            # Not weak-referenceable. Treated as alive, i.e. exactly the behaviour of a marker
+            # with no liveness information at all.
+            return None
+
     def _mark_trace_unfinished(self, trace_id: uuid.UUID) -> None:
-        """Record that a context is building this trace, so other contexts' flushes skip it."""
-        self._active_trace_ids.add(trace_id)
+        """Record that a context is building this trace, so other contexts' flushes skip it.
+
+        The guarantee for anything that marks a trace: a flush from another context skips it while
+        the marking task or thread is alive. A marker that never releases it therefore costs a trace
+        that ships unconcluded once its owner finishes - not one that is never sent at all.
+        """
+        self._traces_being_built[trace_id] = self._current_owner_ref()
 
     def _mark_trace_finished(self, trace_id: uuid.UUID) -> None:
         """Record that nobody is building this trace any more, so any flush may send it.
@@ -953,7 +978,29 @@ class GalileoLogger(TracesLogger):
         `@log` leaves the trace open so a later decorated call in the same context can reuse it,
         and reports the hand-off through here instead.
         """
-        self._active_trace_ids.discard(trace_id)
+        self._traces_being_built.pop(trace_id, None)
+
+    def _still_being_built(self, trace_id: uuid.UUID) -> bool:
+        """Whether a live context is still adding to this trace.
+
+        A trace whose owner has finished is being built by nobody: no context will conclude it or
+        add to it, and none can claim it either, since the claim comes from the caller's own parent
+        chain. Holding it back would mean never sending it.
+        """
+        if trace_id not in self._traces_being_built:
+            return False
+        owner_ref = self._traces_being_built[trace_id]
+        if owner_ref is None:
+            return True
+        owner = owner_ref()
+        if owner is None:
+            # The owner was collected, so it cannot still be running.
+            return False
+        if isinstance(owner, asyncio.Task):
+            return not owner.done()
+        if isinstance(owner, threading.Thread):
+            return owner.is_alive()
+        return True
 
     def reset_parent_tracking(self) -> None:
         """Drop this context's parent chain, abandoning the trace it was building."""
@@ -2274,14 +2321,14 @@ class GalileoLogger(TracesLogger):
         self._logger.info("All distributed tracing requests are complete.")
 
         self.traces = []
-        # Only batch mode reads this set; clearing it alongside the traces keeps a long-lived
-        # distributed logger from accumulating ids for traces it has already sent.
-        self._active_trace_ids.clear()
+        # Only batch mode reads this; clearing it alongside the traces keeps a long-lived
+        # distributed logger from accumulating entries for traces it has already sent.
+        self._traces_being_built.clear()
         self._set_current_parent(None)
 
         return []
 
-    async def _flush_batch(self, claimed_trace_id: uuid.UUID | None = None) -> list[LoggedTrace]:
+    async def _flush_batch(self, claimed_trace_id: uuid.UUID | None) -> list[LoggedTrace]:
         """Flush in batch mode: conclude unconcluded traces and send all traces to backend.
 
         Parameters
@@ -2308,17 +2355,21 @@ class GalileoLogger(TracesLogger):
         # riding along: `ingest_traces` serialises the payload synchronously, so sending it
         # now would put it on the wire without its output, spans or duration, and — since
         # the batch is detached — its owner's own flush would find nothing left to send.
+        # Only while that context is still alive, though: a trace whose owner has finished
+        # without concluding it can never be claimed by anyone, so holding it back would mean
+        # never sending it at all.
         # This loop must stay free of awaits so nothing can append between the partition
         # and the rebinding.
         ready: list[LoggedTrace] = []
         still_running: list[LoggedTrace] = []
         for trace in self.traces:
-            if trace.id in self._active_trace_ids and trace.id != claimed_trace_id:
+            if trace.id != claimed_trace_id and self._still_being_built(trace.id):
                 still_running.append(trace)
             else:
                 ready.append(trace)
         logged_traces, self.traces = ready, still_running
-        self._active_trace_ids.difference_update(trace.id for trace in logged_traces)
+        for trace in logged_traces:
+            self._traces_being_built.pop(trace.id, None)
 
         if not logged_traces:
             self._logger.info("No traces ready to flush.")
@@ -2406,14 +2457,14 @@ class GalileoLogger(TracesLogger):
                 self._auto_conclude_trace()
                 self._wait_for_all_tasks_sync(timeout_seconds=terminate_timeout_seconds)
                 self.traces = []
-                self._active_trace_ids.clear()
+                self._traces_being_built.clear()
                 self._set_current_parent(None)
             else:
                 # Batch mode: try flush() but don't fail if async_run has issues during shutdown
                 try:
                     # Lifecycle end: nothing can still be running, so let the final flush
                     # ship traces that were never concluded instead of stranding them.
-                    self._active_trace_ids.clear()
+                    self._traces_being_built.clear()
                     self.flush()
                 except RuntimeError as e:
                     # Event loop might be closed during shutdown, log warning but don't crash

@@ -2528,7 +2528,7 @@ async def test_trace_added_during_ingest_is_not_dropped(
 
     # When: a second trace is appended while the first flush sits in its ingest await,
     # then each trace is flushed
-    first_flush = asyncio.create_task(logger._flush_batch())
+    first_flush = asyncio.create_task(logger._flush_batch(None))
     await ingest_in_flight.wait()
 
     logger.start_trace(input="weather in London?", name="London")
@@ -2536,7 +2536,7 @@ async def test_trace_added_during_ingest_is_not_dropped(
     second_trace_appended.set()
 
     await first_flush
-    await logger._flush_batch()
+    await logger._flush_batch(None)
 
     # Then: both traces were sent, and neither was silently discarded
     assert sorted(set(ingested_trace_names)) == ["London", "New York"]
@@ -2569,13 +2569,13 @@ async def test_failed_ingest_retains_traces_for_next_flush(
 
     # When: the flush fails
     with pytest.raises(ConnectionError):
-        await logger._flush_batch()
+        await logger._flush_batch(None)
 
     # Then: the trace is still queued, and a later successful flush sends it
     assert [trace.name for trace in logger.traces] == ["test-trace"]
 
     mock_traces_client_instance.ingest_traces = AsyncMock(return_value={})
-    await logger._flush_batch()
+    await logger._flush_batch(None)
 
     mock_traces_client_instance.ingest_traces.assert_called_once()
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
@@ -2635,7 +2635,7 @@ async def test_cancelled_flush_retains_traces_for_next_flush(
     assert [trace.name for trace in logger.traces] == ["test-trace"]
 
     mock_traces_client_instance.ingest_traces = AsyncMock(return_value={})
-    await logger._flush_batch()
+    await logger._flush_batch(None)
 
     mock_traces_client_instance.ingest_traces.assert_called_once()
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
@@ -2688,13 +2688,13 @@ async def test_concurrent_flushes_do_not_duplicate_traces(
     logger.conclude(output="sunny in New York")
 
     # When: a second flush reaches its ingest while the first is still in flight, then both finish
-    first_flush = asyncio.create_task(logger._flush_batch())
+    first_flush = asyncio.create_task(logger._flush_batch(None))
     await asyncio.wait_for(first_ingest_entered.wait(), timeout=5)
 
     logger.start_trace(input="weather in London?", name="London")
     logger.conclude(output="rainy in London")
 
-    second_flush = asyncio.create_task(logger._flush_batch())
+    second_flush = asyncio.create_task(logger._flush_batch(None))
     await asyncio.wait_for(second_ingest_entered.wait(), timeout=5)
 
     release_ingest.set()
@@ -3118,4 +3118,98 @@ def test_flush_sends_the_callers_own_trace_even_when_concluding_it_fails(
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
     assert [trace.name for trace in payload.traces] == ["New York"]
     assert logger.traces == []
-    assert logger._active_trace_ids == set()
+    assert logger._traces_being_built == {}
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_flush_sends_a_trace_whose_owning_task_has_finished(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A trace is only held back while the context building it is still alive.
+
+    Holding a trace back until its owner finishes is what stops a sibling's flush shipping it
+    half-built. But an owner can go away without concluding - user code raising between
+    ``start_trace()`` and ``conclude()``, or ``_conclude()`` swallowing a coercion error - and then
+    no context can claim it: the claim is resolved from the caller's parent chain, and the owner's
+    chain died with its task. Without a liveness check the trace is skipped by every flush and
+    accumulates in memory, which is a worse outcome than the half-built send this rule prevents.
+
+    The abandoning call runs in its own task and the flush comes from outside it, because a flush in
+    the owning context claims its own trace and would mask the leak.
+    """
+    # Given: a task that starts a trace, adds a span, and finishes without concluding
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_payloads: list[list[str]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+
+    async def abandoning_task() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="rainy in London", model="gpt-4o")
+
+    await asyncio.create_task(abandoning_task())
+    assert [trace.name for trace in logger.traces] == ["London"]
+
+    # When: a context that never owned that trace flushes, after its owner has finished
+    await logger.async_flush()
+
+    # Then: the trace was sent rather than held back until the process exits
+    assert ingest_payloads == [["London"]]
+    assert logger.traces == []
+    assert logger._traces_being_built == {}
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_reset_parent_tracking_in_another_context_does_not_strand_a_trace(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Abandoning a trace from a context that does not own it must not strand it either.
+
+    ``reset_parent_tracking()`` releases the trace it abandons, but only the caller's own: it
+    resolves the id from the caller's parent chain, which is empty in any other context. So the
+    call a reader would reach for to clean up after a finished task does nothing for that task's
+    trace, and only the owner's liveness distinguishes "abandoned" from "still being built".
+    """
+    # Given: a task that starts a trace, adds a span, and finishes without concluding
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_payloads: list[list[str]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+
+    async def abandoning_task() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="rainy in London", model="gpt-4o")
+
+    await asyncio.create_task(abandoning_task())
+
+    # When: another context resets its own parent tracking and then flushes
+    logger.reset_parent_tracking()
+    await logger.async_flush()
+
+    # Then: the abandoned trace was sent
+    assert ingest_payloads == [["London"]]
+    assert logger.traces == []
