@@ -2030,3 +2030,141 @@ async def test_decorated_async_generator_releases_its_trace_when_the_call_return
 
     # Then: the flush carried the trace instead of holding it back for an owner that was done
     assert payloads_after_foreign_flush == [["stream_forecast_async"]]
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_nested_decorated_generator_does_not_release_the_outer_trace(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """A nested decorated generator must not report the hand-off on its caller's behalf.
+
+    ``_prepare_call`` pushes a span only for a workflow, agent or untyped call, so a generator
+    decorated with a non-concludable span type pushes nothing. Reporting the hand-off whenever the
+    span stack holds at most one entry therefore reported it for the *enclosing* call's span, and a
+    sibling's flush carried the outer trace away while its body was still running - without its
+    output, and detached from the list, so the outer call's own flush had nothing left to send.
+
+    The outer call is parked on an await when the foreign flush happens, so its task is alive and an
+    owner-liveness check cannot rescue the trace: only the guard on the stack length can.
+    """
+    # Given: an outer decorated coroutine that consumes a nested decorated generator, then parks
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingest_payloads: list[list[tuple[str, str | None]]] = []
+
+    def record_payload(request) -> dict:
+        ingest_payloads.append([(trace.name, trace.output) for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces.side_effect = record_payload
+
+    @log(span_type="llm")
+    def stream_tokens():
+        yield "sunny "
+        yield "in New York"
+
+    outer_parked = asyncio.Event()
+    outer_may_finish = asyncio.Event()
+
+    @log
+    async def outer_forecast() -> str:
+        assert list(stream_tokens()) == ["sunny ", "in New York"]
+        outer_parked.set()
+        await outer_may_finish.wait()
+        return "sunny in New York"
+
+    with galileo_context(project="project-nested-generator", log_stream="stream-nested-generator"):
+        logger = galileo_context.get_logger_instance(
+            project="project-nested-generator", log_stream="stream-nested-generator"
+        )
+
+        async def outer_request() -> None:
+            await outer_forecast()
+            logger.flush()
+
+        owner = asyncio.create_task(outer_request())
+        await asyncio.wait_for(outer_parked.wait(), timeout=5)
+
+        # When: a context that does not own the trace flushes while the outer call is mid-await
+        logger.flush()
+
+        # Then: the outer trace stayed behind for the task that is still building it
+        assert ingest_payloads == []
+        assert [trace.name for trace in logger.traces] == ["outer_forecast"]
+
+        outer_may_finish.set()
+        await owner
+
+    # Then: it was sent exactly once, by its owner, carrying the output the early release destroyed
+    assert ingest_payloads == [[("outer_forecast", "sunny in New York")]]
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_nested_decorated_async_generator_does_not_release_the_outer_trace(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """An async generator nested in a decorated call must not release its caller's trace either.
+
+    Both generator kinds route through ``_sync_log``, and neither pushes a span when decorated with a
+    non-concludable span type, so the same off-by-one reached them both.
+    """
+    # Given: an outer decorated coroutine that consumes a nested decorated async generator
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingest_payloads: list[list[tuple[str, str | None]]] = []
+
+    def record_payload(request) -> dict:
+        ingest_payloads.append([(trace.name, trace.output) for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces.side_effect = record_payload
+
+    @log(span_type="tool")
+    async def stream_tokens_async():
+        yield "rainy "
+        yield "in London"
+
+    outer_parked = asyncio.Event()
+    outer_may_finish = asyncio.Event()
+
+    @log
+    async def outer_forecast_async() -> str:
+        assert [token async for token in stream_tokens_async()] == ["rainy ", "in London"]
+        outer_parked.set()
+        await outer_may_finish.wait()
+        return "rainy in London"
+
+    with galileo_context(project="project-nested-async-generator", log_stream="stream-nested-async-generator"):
+        logger = galileo_context.get_logger_instance(
+            project="project-nested-async-generator", log_stream="stream-nested-async-generator"
+        )
+
+        async def outer_request() -> None:
+            await outer_forecast_async()
+            logger.flush()
+
+        owner = asyncio.create_task(outer_request())
+        await asyncio.wait_for(outer_parked.wait(), timeout=5)
+
+        # When: a context that does not own the trace flushes while the outer call is mid-await
+        logger.flush()
+
+        # Then: the outer trace stayed behind for the task that is still building it
+        assert ingest_payloads == []
+        assert [trace.name for trace in logger.traces] == ["outer_forecast_async"]
+
+        outer_may_finish.set()
+        await owner
+
+    # Then: it was sent exactly once, by its owner, carrying its output
+    assert ingest_payloads == [[("outer_forecast_async", "rainy in London")]]

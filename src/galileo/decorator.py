@@ -786,7 +786,12 @@ class GalileoDecorator:
             # So on that path nothing would ever release the trace. Reported here instead, where
             # both paths pass. The stack still holds this call's own span - only
             # `_handle_call_result` pops it - so the outermost call is the one that leaves it alone.
-            if len(_get_or_init_list(_span_stack_context)) <= 1:
+            # Only a workflow, agent or untyped call pushed a span in `_prepare_call`: a
+            # non-concludable span type pushed nothing, so for it a stack of one holds an enclosing
+            # call's span, and reporting the hand-off would release a trace that call is still
+            # building.
+            pushed_own_span = not span_type or is_concludable_span_type(span_type)
+            if len(_get_or_init_list(_span_stack_context)) <= (1 if pushed_own_span else 0):
                 self._release_trace_being_built()
             if inspect.isgenerator(result):
                 return self._wrap_sync_generator_result(span_type, span_params, result)
