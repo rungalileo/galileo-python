@@ -182,5 +182,6 @@ node_modules/
 # PyDoc generated docs
 .generated_docs/
 
-# Local-only scratch and credentials (never committed)
-.local/
+# Local-only scratch and credentials (never committed). Anchored, so it cannot also
+# swallow a nested directory that happens to share the name.
+/.local/
