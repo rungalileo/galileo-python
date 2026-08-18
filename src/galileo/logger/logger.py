@@ -2400,8 +2400,9 @@ class GalileoLogger(TracesLogger):
         # Only while that context is still alive, though: a trace whose owner has finished
         # without concluding it can never be claimed by anyone, so holding it back would mean
         # never sending it at all.
-        # This loop must stay free of awaits so nothing can append between the partition
-        # and the rebinding.
+        # This loop must stay free of awaits so no *task* can append between the partition and the
+        # rebinding. It does not exclude a second OS thread: `_get_key` keys on thread name, so anyio
+        # workers share one logger and one list, and that window is not closed here.
         ready: list[LoggedTrace] = []
         still_running: list[LoggedTrace] = []
         for trace in self.traces:
