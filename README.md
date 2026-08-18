@@ -233,6 +233,10 @@ call_openai()
 galileo_context.flush()
 ```
 
+**What a flush uploads.** A flush uploads the trace the calling code is building, plus any trace that no live task or thread is still building. If a concurrent task has started a trace and not finished it, that trace stays queued and is uploaded by that task's own flush instead, so it is never sent without its output and spans.
+
+**A flush is not a receipt for your trace.** `galileo_context.flush()` returns nothing and swallows upload errors, so a normal return is not a confirmation that a given trace was sent. `logger.flush()` returns the batch that was uploaded, which is still not the fate of your own trace: it returns an empty list in three different situations — nothing was pending, a concurrent flush had already carried your trace, or an upload error was swallowed. An empty list therefore does not mean your trace was not sent.
+
 Using the Langchain callback handler:
 
 ```python
