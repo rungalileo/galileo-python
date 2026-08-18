@@ -3,6 +3,14 @@
 
 ## Unreleased
 
+### Bug Fixes
+
+- **Only flush traces that no other task is still building**: Concurrent tasks share one `GalileoLogger`, and therefore one internal trace list, whenever they run on the same thread against the same project and log stream. A flush treated that shared list as if it belonged to the caller, which produced three silent failures: a trace appended while a flush was in flight was discarded; two overlapping flushes each sent the whole list, so a trace went out once per in-flight flush; and a flush sent traces a sibling task had started and not concluded, so they reached Galileo with no output, no duration and no status code.
+
+  A flush now hands the batch off rather than clearing the list afterwards — so a trace appended mid-flush is picked up by the next flush instead of being lost — and it sends only the caller's own trace plus traces that no live context is still building. Traces held back leave with their owner's flush, or once that owner finishes. The batch is restored if the send fails or is cancelled, and finished traces still leave together in one request, so this costs no extra requests.
+
+  Most likely to be seen with `@log` on an async function plus `asyncio.gather`, since a decorated coroutine necessarily holds its trace open across every await inside it. The LangChain callbacks are affected by the dropped and duplicated sends, but not by the premature one: they start, log and conclude a trace with no await in between, so no sibling can observe a half-built trace on that path. ([#634](https://github.com/rungalileo/galileo-python/pull/634))
+
 ### Features
 
 - **New `generated_output` field**: Add `generated_output` field to `DatasetRecord` for storing model-generated outputs separately from ground truth. This allows you to track both the expected output (ground truth) and the actual model output in the same dataset record. In the UI, this field is displayed as "Generated Output".
