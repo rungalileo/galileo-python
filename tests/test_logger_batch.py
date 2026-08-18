@@ -3102,6 +3102,72 @@ async def test_failed_flush_keeps_holding_back_another_tasks_trace(
     assert logger.traces == []
 
 
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_failed_flush_restores_the_ownership_mark_with_the_batch(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A failed send must restore what its batch was marked with, not only the batch.
+
+    A flush takes its own trace whether or not it is finished with it, so a trace still being built
+    can sit inside a batch whose send fails. Restoring the list without the marks would hand that
+    trace to the next flush from any other context - the premature send this guard exists to
+    prevent, reintroduced on the path that exists to prevent data loss.
+
+    The other direction, a restore that adopts a trace it never detached, is pinned by
+    `test_failed_flush_keeps_holding_back_another_tasks_trace`; neither test covers both.
+    """
+    # Given: an owner part-way through a trace, and an ingest that fails
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    owner_flush_failed = asyncio.Event()
+    owner_may_finish = asyncio.Event()
+    ingest_payloads: list[list[str]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    async def owner_task() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="checking London", model="gpt-4o")
+        # When: the owner's own flush detaches its unconcluded trace and the send fails
+        await logger.async_flush()
+        owner_flush_failed.set()
+        # Kept alive deliberately: a trace whose owner has finished is nobody's to build any more,
+        # so the flush below would be let through on liveness alone and pin nothing.
+        await owner_may_finish.wait()
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=ConnectionError("backend unavailable"))
+    owner = asyncio.create_task(owner_task())
+    await asyncio.wait_for(owner_flush_failed.wait(), timeout=5)
+
+    # Then: the trace is back, and back with its owner still recorded
+    assert [trace.name for trace in logger.traces] == ["London"]
+    assert logger.traces[0].id in logger._traces_being_built
+
+    # When: another context flushes while that owner is still running
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+    await logger.async_flush()
+
+    # Then: nothing was sent - London waits for its owner rather than leaving half-built
+    assert ingest_payloads == []
+    assert [trace.name for trace in logger.traces] == ["London"]
+
+    # Then: the restored mark holds the trace for its owner without stranding it
+    owner_may_finish.set()
+    await owner
+    await logger.async_flush()
+    assert ingest_payloads == [["London"]]
+    assert logger.traces == []
+
+
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")

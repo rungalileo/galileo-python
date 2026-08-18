@@ -2377,6 +2377,13 @@ class GalileoLogger(TracesLogger):
             self._logger.info("No traces to flush.")
             return []
 
+        # Snapshot before anything can clear a mark: `_auto_conclude_trace()` releases the caller's
+        # own trace, and the partition below pops every mark it detaches. A failed send puts the
+        # batch back, so it has to put back what the batch was marked with too - otherwise a trace
+        # its owner is still building returns unmarked and the next flush from another context
+        # carries it away half-built.
+        marks_before_send = dict(self._traces_being_built)
+
         self._auto_conclude_trace()
 
         # Detach the batch up-front. `self.traces` can be shared by concurrent tasks (see
@@ -2436,6 +2443,13 @@ class GalileoLogger(TracesLogger):
             # Exception, so cancelling an in-flight `async_flush()` would otherwise drop the
             # detached batch outright.
             self.traces = logged_traces + self.traces
+            for trace in logged_traces:
+                if trace.id in marks_before_send:
+                    # setdefault, not assignment: a context that took the mark again while the send
+                    # was in flight owns the trace now, and its reference must not be overwritten by
+                    # the stale one. Membership test, not truthiness: `None` is a legitimate value,
+                    # meaning an owner that cannot be weak-referenced and so counts as alive.
+                    self._traces_being_built.setdefault(trace.id, marks_before_send[trace.id])
             raise
 
         self._logger.info(f"Successfully flushed {trace_count} {'trace' if trace_count == 1 else 'traces'}.")
