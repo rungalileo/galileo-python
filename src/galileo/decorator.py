@@ -685,6 +685,14 @@ class GalileoDecorator:
                 )
             _trace_context.set(trace)
 
+        # This context owns the trace until the outermost decorated call returns, which is what
+        # _finalize_call reports. Concurrent tasks share one logger and one trace list, so a
+        # sibling's flush must not carry this trace away while spans are still being added to it.
+        # Re-marked on every entry because a reused trace was released by the previous call.
+        trace_being_built = _trace_context.get()
+        if trace_being_built is not None:
+            client_instance._mark_trace_unfinished(trace_being_built.id)
+
         # Start a workflow or agent span here
         # If the user hasn't specified a span type, create and add a workflow span
         if not span_type or span_type in ["workflow", "agent"]:
@@ -904,6 +912,14 @@ class GalileoDecorator:
                     method(**filtered_kwargs)
         except Exception as e:
             _logger.error(f"Failed to create trace for span '{span_name}' (type: {span_type}): {e}", exc_info=True)
+
+        # The outermost decorated call has returned, so this context has stopped adding to the
+        # trace and any flush may now send it. The trace itself is deliberately left open for a
+        # later decorated call in this context to reuse, so concluding is not the signal here.
+        if not _get_or_init_list(_span_stack_context):
+            trace = _trace_context.get()
+            if trace is not None:
+                logger._mark_trace_finished(trace.id)
 
         return result
 

@@ -1,3 +1,4 @@
+import asyncio
 from typing import NoReturn
 from unittest.mock import Mock, patch
 from uuid import UUID
@@ -1670,3 +1671,187 @@ def test_flush_on_error_logs_at_debug_not_warning(
         # Then: debug is called, not warning
         mock_logger.debug.assert_called_once()
         mock_logger.warning.assert_not_called()
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_concurrent_decorated_coroutines_do_not_flush_each_others_traces(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """A flush must not carry a concurrent task's still-running decorated trace.
+
+    ``@log`` on an async function necessarily holds its trace open across every await inside the
+    function, and concurrent tasks under one ``galileo_context`` share a single ``GalileoLogger``
+    and therefore a single trace list. Flushing from one task while another is mid-await used to
+    send the sibling's trace, which is serialised before the request is awaited and so goes out
+    with no output - and, because the batch is detached from the list, the sibling's own flush
+    then finds nothing left to send.
+
+    This is the documented usage shape rather than an exotic one: plain ``@log`` plus
+    ``asyncio.gather``, and the blocking ``flush()``. No ``async_flush()`` is involved.
+    """
+    # Given: two decorated coroutines under one context, one held mid-await
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    london_started = asyncio.Event()
+    london_may_finish = asyncio.Event()
+    ingest_payloads: list[list[tuple[str, str | None]]] = []
+
+    def record_payload(request) -> dict:
+        # Snapshotted synchronously: the real client serialises before its first await, so a
+        # trace sent mid-flight cannot be repaired by a later conclude.
+        ingest_payloads.append([(trace.name, trace.output) for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces.side_effect = record_payload
+
+    @log
+    async def london_forecast() -> str:
+        london_started.set()
+        await london_may_finish.wait()
+        return "rainy in London"
+
+    @log
+    async def new_york_forecast() -> str:
+        return "sunny in New York"
+
+    async def london_request() -> None:
+        await london_forecast()
+        galileo_context.get_logger_instance(project="project-concurrent", log_stream="stream-concurrent").flush()
+
+    with galileo_context(project="project-concurrent", log_stream="stream-concurrent"):
+        logger = galileo_context.get_logger_instance(project="project-concurrent", log_stream="stream-concurrent")
+        london = asyncio.create_task(london_request())
+        await asyncio.wait_for(london_started.wait(), timeout=5)
+
+        # When: the other coroutine finishes and flushes while London is still awaiting
+        await new_york_forecast()
+        logger.flush()
+
+        # Then: only the finished trace was sent, and London waits for its own flush
+        assert ingest_payloads == [[("new_york_forecast", "sunny in New York")]]
+        assert [trace.name for trace in logger.traces] == ["london_forecast"]
+
+        # When: London finishes and flushes from its own task
+        london_may_finish.set()
+        await london
+
+    # Then: London was sent exactly once, carrying its own output
+    assert ingest_payloads == [[("new_york_forecast", "sunny in New York")], [("london_forecast", "rainy in London")]]
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_context_exit_flush_sends_traces_from_finished_tasks(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Traces from tasks that finished without flushing must still leave at context exit.
+
+    ``@log`` leaves its trace open on purpose so a later decorated call in the same context can
+    reuse it, so "not concluded" cannot mean "still being built" - if it did, tasks that finish
+    without flushing would have their traces held back from the exit flush and stranded until the
+    process ends. The decorator therefore reports the hand-off when its outermost call returns.
+
+    Nothing flushes per task here: ``galileo_context.__exit__`` is the only flush.
+    """
+    # Given: three decorated coroutines that run concurrently and never flush themselves
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingest_payloads: list[list[str]] = []
+
+    def record_payload(request) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces.side_effect = record_payload
+
+    @log
+    async def forecast(city: str) -> str:
+        await asyncio.sleep(0)  # yield, so the three tasks genuinely interleave
+        return f"{city}: done"
+
+    # When: they all finish inside the context, and only the exit flush runs
+    with galileo_context(project="project-exit-flush", log_stream="stream-exit-flush"):
+        logger = galileo_context.get_logger_instance(project="project-exit-flush", log_stream="stream-exit-flush")
+        await asyncio.gather(*(forecast(city) for city in ("New York", "London", "Tokyo")))
+        assert len(logger.traces) == 3
+        assert ingest_payloads == []
+
+    # Then: the exit flush carried all three rather than stranding them
+    assert ingest_payloads == [["forecast", "forecast", "forecast"]]
+    assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_reused_trace_is_protected_while_a_second_decorated_call_builds_it(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """A trace reused by a second decorated call is off limits again while that call runs.
+
+    A context that finishes one decorated call releases its trace so any flush can send it, but
+    ``_prepare_call`` reuses that same still-open trace for the next decorated call in the context.
+    The release therefore has to be re-taken on entry, or the second call's spans are exposed to a
+    concurrent task's flush - the original defect, reached through the reuse path.
+    """
+    # Given: a task that completes one decorated call, then starts a second on the same trace
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    second_call_started = asyncio.Event()
+    second_call_may_finish = asyncio.Event()
+    ingest_payloads: list[list[str]] = []
+
+    def record_payload(request) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces.side_effect = record_payload
+
+    @log
+    async def first_step() -> str:
+        return "first step done"
+
+    @log
+    async def second_step() -> str:
+        second_call_started.set()
+        await second_call_may_finish.wait()
+        return "second step done"
+
+    @log
+    async def new_york_forecast() -> str:
+        return "sunny in New York"
+
+    async def two_step_request() -> None:
+        await first_step()
+        await second_step()
+
+    with galileo_context(project="project-trace-reuse", log_stream="stream-trace-reuse"):
+        logger = galileo_context.get_logger_instance(project="project-trace-reuse", log_stream="stream-trace-reuse")
+        request = asyncio.create_task(two_step_request())
+        await asyncio.wait_for(second_call_started.wait(), timeout=5)
+
+        # When: another task flushes while the second call is still building the reused trace
+        await new_york_forecast()
+        logger.flush()
+
+        # Then: the reused trace stayed behind
+        assert ingest_payloads == [["new_york_forecast"]]
+        assert [trace.name for trace in logger.traces] == ["first_step"]
+
+        second_call_may_finish.set()
+        await request
+
+    # Then: it left at context exit, once, with both steps' spans on it
+    assert ingest_payloads == [["new_york_forecast"], ["first_step"]]

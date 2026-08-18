@@ -203,6 +203,10 @@ class GalileoLogger(TracesLogger):
     _traces_client: Union["Traces", "IngestTraces"] | None = None
     _task_handler: ThreadPoolTaskHandler
     _trace_completion_submitted: bool
+    # Ids of traces a context is still building. `self.traces` is shared across concurrent
+    # tasks (GalileoLoggerSingleton._get_key keys on thread+project+log_stream), so a flush
+    # must not ship a sibling's unfinished trace.
+    _active_trace_ids: set[uuid.UUID]
 
     def __init__(
         self,
@@ -261,6 +265,7 @@ class GalileoLogger(TracesLogger):
         mode = _get_mode_or_default(mode)
         self.mode: LoggerModeType = mode
         self._task_counter = 0
+        self._active_trace_ids = set()
 
         self._ingestion_hook = ingestion_hook
         if self._ingestion_hook and self.mode == "distributed":
@@ -560,6 +565,7 @@ class GalileoLogger(TracesLogger):
         )
         trace._parent = None
         self.traces.append(trace)
+        self._mark_trace_unfinished(trace.id)
         self._set_current_parent(trace)
         return trace
 
@@ -926,6 +932,36 @@ class GalileoLogger(TracesLogger):
     @warn_catch_exception(exceptions=(Exception,))
     def previous_parent(self) -> StepWithChildSpans | None:
         return self._parent_stack[-2] if len(self._parent_stack) > 1 else None
+
+    def _current_trace_id(self) -> uuid.UUID | None:
+        """Id of the trace this context is currently building, if any.
+
+        The parent chain lives in a ContextVar, so this only answers for the calling
+        context — never for a concurrent task sharing the same logger.
+        """
+        parent_stack = self._parent_stack
+        return parent_stack[0].id if parent_stack else None
+
+    def _mark_trace_unfinished(self, trace_id: uuid.UUID) -> None:
+        """Record that a context is building this trace, so other contexts' flushes skip it."""
+        self._active_trace_ids.add(trace_id)
+
+    def _mark_trace_finished(self, trace_id: uuid.UUID) -> None:
+        """Record that nobody is building this trace any more, so any flush may send it.
+
+        `conclude()` implies this, but a caller can be done with a trace without concluding it:
+        `@log` leaves the trace open so a later decorated call in the same context can reuse it,
+        and reports the hand-off through here instead.
+        """
+        self._active_trace_ids.discard(trace_id)
+
+    def reset_parent_tracking(self) -> None:
+        """Drop this context's parent chain, abandoning the trace it was building."""
+        trace_id = self._current_trace_id()
+        if trace_id is not None:
+            # Abandoned, not still running: a later flush must not hold it back forever.
+            self._mark_trace_finished(trace_id)
+        super().reset_parent_tracking()
 
     @nop_sync
     @warn_catch_exception(exceptions=(Exception,))
@@ -1978,6 +2014,9 @@ class GalileoLogger(TracesLogger):
 
         # Navigate up to parent via _parent pointer
         finished_step = current_parent
+        if finished_step._parent is None:
+            # Root of the chain: this context's trace is finished and may now be flushed.
+            self._mark_trace_finished(finished_step.id)
         self._set_current_parent(current_parent._parent)
         return (finished_step, self.current_parent())
 
@@ -2060,11 +2099,14 @@ class GalileoLogger(TracesLogger):
         list[LoggedTrace]
             The list of uploaded traces.
         """
+        # Resolved before dispatch so the claim reflects the caller, not whatever the
+        # EventLoopThreadPool thread happens to see in its copy of the context.
+        claimed_trace_id = self._current_trace_id()
         try:
             try:
                 if self.mode == "distributed":
                     return async_run(self._flush_distributed())
-                return async_run(self._flush_batch())
+                return async_run(self._flush_batch(claimed_trace_id))
             finally:
                 # Reset parent tracking in the main thread (async_run uses thread pool).
                 # Using finally ensures cleanup even if ingestion fails.
@@ -2095,10 +2137,11 @@ class GalileoLogger(TracesLogger):
         list[LoggedTrace]
             The list of uploaded traces.
         """
+        claimed_trace_id = self._current_trace_id()
         try:
             if self.mode == "distributed":
                 return await self._flush_distributed()
-            return await self._flush_batch()
+            return await self._flush_batch(claimed_trace_id)
         finally:
             # Reset parent tracking. Using finally ensures cleanup even if ingestion fails.
             self._set_current_parent(None)
@@ -2174,14 +2217,17 @@ class GalileoLogger(TracesLogger):
     def _auto_conclude_trace(self) -> None:
         """Helper to auto-conclude any unconcluded trace/spans before flushing.
 
-        Note: We assume at most one active trace at a time. add_trace() enforces this
-        by raising an error if current_parent() is not None.
+        Only concludes the chain belonging to the calling context: `self.traces` can hold
+        concurrent tasks' traces, and concluding one of those on its owner's behalf would
+        stamp it with an output derived from someone else's spans.
         """
         if not self.traces:
             return
 
-        # Use the last trace in self.traces (should be the only active trace)
-        trace = self.traces[-1]
+        parent_stack = self._parent_stack
+        # Root of *this* context's chain. The fallback only matters in distributed mode,
+        # where start_trace() resets self.traces to the single trace being built.
+        trace = parent_stack[0] if parent_stack else self.traces[-1]
 
         # Don't auto-conclude stub traces - they're owned by the upstream service
         # Downstream services that receive distributed tracing headers create stubs
@@ -2190,7 +2236,7 @@ class GalileoLogger(TracesLogger):
             return
 
         # If there are unconcluded items in the stack, conclude them
-        if self._parent_stack:
+        if parent_stack:
             self._logger.info("Concluding unconcluded spans before flush...")
             # Get output from last child span if trace has no explicit output
             output, redacted_output = GalileoLogger._get_last_output(trace)
@@ -2228,23 +2274,28 @@ class GalileoLogger(TracesLogger):
         self._logger.info("All distributed tracing requests are complete.")
 
         self.traces = []
+        # Only batch mode reads this set; clearing it alongside the traces keeps a long-lived
+        # distributed logger from accumulating ids for traces it has already sent.
+        self._active_trace_ids.clear()
         self._set_current_parent(None)
 
         return []
 
-    async def _flush_batch(self) -> list[LoggedTrace]:
-        """Flush in batch mode: conclude unconcluded traces and send all traces to backend."""
+    async def _flush_batch(self, claimed_trace_id: uuid.UUID | None = None) -> list[LoggedTrace]:
+        """Flush in batch mode: conclude unconcluded traces and send all traces to backend.
+
+        Parameters
+        ----------
+        claimed_trace_id : Optional[uuid.UUID]
+            Trace the flushing context was building, from `_current_trace_id()`. It ships
+            even if unconcluded — the caller asked for it — while traces belonging to other
+            contexts are held back until they finish.
+        """
         if not self.traces:
             self._logger.info("No traces to flush.")
             return []
 
         self._auto_conclude_trace()
-
-        if self.local_metrics:
-            self._logger.info("Computing metrics for local scorers...")
-            # TODO: parallelize, possibly with asyncio to_thread/gather
-            for trace in self.traces:
-                populate_local_metrics(trace, self.local_metrics)
 
         # Detach the batch up-front. `self.traces` can be shared by concurrent tasks (see
         # GalileoLoggerSingleton._get_key, which keys on thread+project+log_stream), so a
@@ -2252,7 +2303,33 @@ class GalileoLogger(TracesLogger):
         # and be picked up by the next flush. Clearing after the await instead would
         # discard it silently: it was never in the frozen payload, and the next flush would
         # find an empty list and no-op while still reporting success.
-        logged_traces, self.traces = self.traces, []
+        #
+        # A trace another context started but has not concluded stays behind rather than
+        # riding along: `ingest_traces` serialises the payload synchronously, so sending it
+        # now would put it on the wire without its output, spans or duration, and — since
+        # the batch is detached — its owner's own flush would find nothing left to send.
+        # This loop must stay free of awaits so nothing can append between the partition
+        # and the rebinding.
+        ready: list[LoggedTrace] = []
+        still_running: list[LoggedTrace] = []
+        for trace in self.traces:
+            if trace.id in self._active_trace_ids and trace.id != claimed_trace_id:
+                still_running.append(trace)
+            else:
+                ready.append(trace)
+        logged_traces, self.traces = ready, still_running
+        self._active_trace_ids.difference_update(trace.id for trace in logged_traces)
+
+        if not logged_traces:
+            self._logger.info("No traces ready to flush.")
+            return []
+
+        if self.local_metrics:
+            self._logger.info("Computing metrics for local scorers...")
+            # TODO: parallelize, possibly with asyncio to_thread/gather
+            for trace in logged_traces:
+                populate_local_metrics(trace, self.local_metrics)
+
         trace_count = len(logged_traces)
         self._logger.info(f"Flushing {trace_count} {'trace' if trace_count == 1 else 'traces'}...")
 
@@ -2329,10 +2406,14 @@ class GalileoLogger(TracesLogger):
                 self._auto_conclude_trace()
                 self._wait_for_all_tasks_sync(timeout_seconds=terminate_timeout_seconds)
                 self.traces = []
+                self._active_trace_ids.clear()
                 self._set_current_parent(None)
             else:
                 # Batch mode: try flush() but don't fail if async_run has issues during shutdown
                 try:
+                    # Lifecycle end: nothing can still be running, so let the final flush
+                    # ship traces that were never concluded instead of stranding them.
+                    self._active_trace_ids.clear()
                     self.flush()
                 except RuntimeError as e:
                     # Event loop might be closed during shutdown, log warning but don't crash
