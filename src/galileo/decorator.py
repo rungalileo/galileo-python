@@ -1153,7 +1153,14 @@ class GalileoDecorator:
         on_error: Callable[[Exception], None] | None = None,
     ) -> None:
         """
-        Upload all captured traces under a project and log stream context to Galileo.
+        Upload traces captured under a project and log stream context to Galileo.
+
+        Uploads the trace the calling code is building, plus every trace that no live task or thread is
+        still building. A trace another context is part-way through building stays queued and leaves with
+        that context's own flush instead, so it is not sent without its output, spans and duration.
+
+        Nothing is returned and upload errors are swallowed (see ``on_error``), so a normal return is not
+        a confirmation that a given trace was uploaded.
 
         If no project or log stream is provided, then the currently initialized context is used.
 
@@ -1208,9 +1215,11 @@ class GalileoDecorator:
 
     def flush_all(self) -> None:
         """
-        Upload all captured traces under all contexts to Galileo.
+        Upload traces captured under all contexts to Galileo.
 
-        This method flushes all traces regardless of project or log stream.
+        This method flushes every cached logger regardless of project or log stream. Each one uploads the
+        same set as `flush()` does: the trace the calling code is building, plus every trace that no live
+        task or thread is still building.
         """
         GalileoLoggerSingleton().flush_all()
         _span_stack_context.set([])
