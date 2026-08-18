@@ -655,7 +655,10 @@ class GalileoDecorator:
             if trace_id is not None:
                 logger._mark_trace_finished(trace_id)
         except Exception as e:
-            _logger.warning("Could not release the trace being built: %s", e)
+            # Debug, not a warning: the most likely raiser is `get_logger_instance()` above, and the
+            # caller that could not build a logger has already reported that failure. There is no
+            # trace to release in that case, so a second message per decorated call is pure noise.
+            _logger.debug("Could not release the trace being built: %s", e)
 
     def _prepare_call(
         self, span_type: SPAN_TYPE | None, span_params: dict[str, Any], dataset_record: DatasetRecord | None
@@ -775,9 +778,18 @@ class GalileoDecorator:
         -------
         The original result, possibly wrapped if it's a generator
         """
-        if inspect.isgenerator(result):
-            return self._wrap_sync_generator_result(span_type, span_params, result)
-        if inspect.isasyncgen(result):
+        if inspect.isgenerator(result) or inspect.isasyncgen(result):
+            # The wrappers below report the hand-off from `_handle_call_result` when the generator
+            # is exhausted, but only `_async_log` keeps the wrapper it is handed: `_sync_log`
+            # discards it and returns the raw generator, and both generator kinds route through
+            # `_sync_log` (`asyncio.iscoroutinefunction` is False for an async generator function).
+            # So on that path nothing would ever release the trace. Reported here instead, where
+            # both paths pass. The stack still holds this call's own span - only
+            # `_handle_call_result` pops it - so the outermost call is the one that leaves it alone.
+            if len(_get_or_init_list(_span_stack_context)) <= 1:
+                self._release_trace_being_built()
+            if inspect.isgenerator(result):
+                return self._wrap_sync_generator_result(span_type, span_params, result)
             return self._wrap_async_generator_result(span_type, span_params, result)
         return self._handle_call_result(span_type, span_params, result)
 

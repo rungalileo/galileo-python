@@ -1908,3 +1908,125 @@ async def test_trace_is_not_stranded_when_span_setup_fails(
         logger.flush()
 
     assert ingest_payloads == [["forecast"]]
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_decorated_generator_releases_its_trace_when_the_call_returns(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """A decorated generator must report its hand-off like any other decorated call.
+
+    ``_finalize_call`` wraps a generator result and returns the wrapper, but ``_sync_log`` discards
+    that return value and hands back the unwrapped generator, so the wrapper is never iterated and
+    ``_handle_call_result`` - the only place the decorator reports it has stopped building the trace
+    - never runs. The trace is then held back from every flush.
+
+    The owning task is still alive when the foreign flush happens, so nothing but this hand-off can
+    release the trace: an owner-liveness check cannot rescue it, which is what makes this the shape
+    that pins the release rather than the backstop.
+    """
+    # Given: a decorated generator consumed inside a task that then stays alive
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingest_payloads: list[list[str]] = []
+
+    def record_payload(request) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces.side_effect = record_payload
+
+    @log
+    def stream_forecast():
+        yield "sunny "
+        yield "in New York"
+
+    generator_consumed = asyncio.Event()
+    task_may_finish = asyncio.Event()
+
+    with galileo_context(project="project-decorated-generator", log_stream="stream-decorated-generator"):
+        logger = galileo_context.get_logger_instance(
+            project="project-decorated-generator", log_stream="stream-decorated-generator"
+        )
+
+        async def consuming_task() -> None:
+            assert list(stream_forecast()) == ["sunny ", "in New York"]
+            generator_consumed.set()
+            await task_may_finish.wait()
+
+        consumer = asyncio.create_task(consuming_task())
+        await asyncio.wait_for(generator_consumed.wait(), timeout=5)
+        assert len(logger.traces) == 1
+
+        # When: a context that does not own the trace flushes while the owning task is still alive
+        logger.flush()
+        payloads_after_foreign_flush = list(ingest_payloads)
+
+        task_may_finish.set()
+        await consumer
+
+    # Then: the flush carried the trace instead of holding it back for an owner that was done
+    assert payloads_after_foreign_flush == [["stream_forecast"]]
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_decorated_async_generator_releases_its_trace_when_the_call_returns(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """An async generator reaches the same unreleased path as a sync one.
+
+    ``asyncio.iscoroutinefunction`` is False for an async generator function, so ``@log`` routes it
+    through ``_sync_log`` too, and its wrapper is discarded the same way.
+    """
+    # Given: a decorated async generator consumed inside a task that then stays alive
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingest_payloads: list[list[str]] = []
+
+    def record_payload(request) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces.side_effect = record_payload
+
+    @log
+    async def stream_forecast_async():
+        yield "rainy "
+        yield "in London"
+
+    generator_consumed = asyncio.Event()
+    task_may_finish = asyncio.Event()
+
+    with galileo_context(project="project-decorated-async-generator", log_stream="stream-decorated-async-generator"):
+        logger = galileo_context.get_logger_instance(
+            project="project-decorated-async-generator", log_stream="stream-decorated-async-generator"
+        )
+
+        async def consuming_task() -> None:
+            assert [item async for item in stream_forecast_async()] == ["rainy ", "in London"]
+            generator_consumed.set()
+            await task_may_finish.wait()
+
+        consumer = asyncio.create_task(consuming_task())
+        await asyncio.wait_for(generator_consumed.wait(), timeout=5)
+        assert len(logger.traces) == 1
+
+        # When: a context that does not own the trace flushes while the owning task is still alive
+        logger.flush()
+        payloads_after_foreign_flush = list(ingest_payloads)
+
+        task_may_finish.set()
+        await consumer
+
+    # Then: the flush carried the trace instead of holding it back for an owner that was done
+    assert payloads_after_foreign_flush == [["stream_forecast_async"]]
