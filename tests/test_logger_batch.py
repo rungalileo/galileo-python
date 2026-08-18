@@ -2969,18 +2969,32 @@ def test_reset_parent_tracking_does_not_strand_its_trace(
     building has no owner left to claim it. Treating that as "still being built" would hold it
     back from every subsequent flush until the process exits. ``galileo_context`` setup calls this
     on every entry, so the case is routine rather than exotic.
+
+    The abandoning thread is kept alive and is not the thread that flushes, because a live owner
+    that *is* the flushing thread is already treated as finished - so doing both on one thread
+    would leave this test passing with the release removed.
     """
-    # Given: a logger whose open trace has been abandoned by resetting parent tracking
+    # Given: a live thread that abandoned its open trace by resetting parent tracking
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
-    logger.start_trace(input="weather in New York?", name="New York")
-    logger.reset_parent_tracking()
-    assert logger.current_parent() is None
+    trace_abandoned = threading.Event()
+    owner_may_finish = threading.Event()
 
-    # When: the logger flushes
+    def abandon_a_trace() -> None:
+        logger.start_trace(input="weather in New York?", name="New York")
+        logger.reset_parent_tracking()
+        assert logger.current_parent() is None
+        trace_abandoned.set()
+        owner_may_finish.wait(timeout=5)
+
+    owner = threading.Thread(target=abandon_a_trace, name="trace-owner")
+    owner.start()
+    assert trace_abandoned.wait(timeout=5)
+
+    # When: a different thread flushes while the abandoning thread is still running
     logger.flush()
 
     # Then: the abandoned trace was sent, not held back
@@ -2988,6 +3002,9 @@ def test_reset_parent_tracking_does_not_strand_its_trace(
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
     assert [trace.name for trace in payload.traces] == ["New York"]
     assert logger.traces == []
+
+    owner_may_finish.set()
+    owner.join(timeout=5)
 
 
 @patch("galileo.logger.logger.LogStreams")

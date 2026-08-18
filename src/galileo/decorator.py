@@ -633,6 +633,10 @@ class GalileoDecorator:
         bool
             True if preparation succeeded, False if it failed
         """
+        # Captured before the attempt, not read in the handler below: an enclosing decorated call's
+        # span means the trace being built is that call's, not this one's, and the answer must not
+        # depend on how far `_prepare_call` got before raising.
+        outermost = not _get_or_init_list(_span_stack_context)
         try:
             self._prepare_call(span_type, span_params, dataset_record)
             return True
@@ -644,7 +648,12 @@ class GalileoDecorator:
             # Preparation may already have started a trace, and returning False means the caller
             # skips _finalize_call - so nothing else would ever report this context as done with
             # it, leaving it held back from every flush. This context is not building it.
-            self._release_trace_being_built()
+            #
+            # Only when this call was the outermost one, though: an enclosing call is still building
+            # the trace, and releasing it on that call's behalf would expose it to a sibling's flush
+            # mid-build. That call reports its own hand-off when it returns.
+            if outermost:
+                self._release_trace_being_built()
             return False
 
     def _release_trace_being_built(self) -> None:

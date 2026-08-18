@@ -1872,7 +1872,10 @@ async def test_trace_is_not_stranded_when_span_setup_fails(
     release it, until the process exits.
 
     The failing call runs in its own task and the flush comes from outside it, because a flush in
-    the owning context claims its own trace and would mask the leak.
+    the owning context claims its own trace and would mask the leak. The task is also held alive
+    across the flush: a finished owner is treated as no longer building the trace, so letting the
+    task complete would mask the leak a second way and leave this test passing with the release
+    removed.
     """
     # Given: a decorated call in another task whose span setup fails after the trace exists
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
@@ -1896,18 +1899,29 @@ async def test_trace_is_not_stranded_when_span_setup_fails(
             project="project-span-setup-fails", log_stream="stream-span-setup-fails"
         )
 
+        request_failed = asyncio.Event()
+        task_may_finish = asyncio.Event()
+
         async def failing_request() -> None:
             with patch.object(type(logger), "add_workflow_span", side_effect=RuntimeError("span setup exploded")):
                 await forecast()
+            request_failed.set()
+            await task_may_finish.wait()
 
         # When: the span setup inside _prepare_call raises, so _finalize_call is skipped
-        await asyncio.create_task(failing_request())
+        owner = asyncio.create_task(failing_request())
+        await asyncio.wait_for(request_failed.wait(), timeout=5)
         assert len(logger.traces) == 1
 
-        # Then: a flush from outside that task still carries the trace
+        # Then: a flush from outside that task carries the trace even though its owner is still
+        # alive, so only the release in _safe_prepare_call can have let it go
         logger.flush()
+        payloads_after_foreign_flush = list(ingest_payloads)
 
-    assert ingest_payloads == [["forecast"]]
+        task_may_finish.set()
+        await owner
+
+    assert payloads_after_foreign_flush == [["forecast"]]
 
 
 @pytest.mark.asyncio
@@ -2168,3 +2182,85 @@ async def test_nested_decorated_async_generator_does_not_release_the_outer_trace
 
     # Then: it was sent exactly once, by its owner, carrying its output
     assert ingest_payloads == [[("outer_forecast_async", "rainy in London")]]
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_nested_span_setup_failure_does_not_release_the_outer_trace(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """A nested decorated call whose setup fails must not release its caller's trace.
+
+    ``_safe_prepare_call`` reports the hand-off when ``_prepare_call`` raises, because the wrappers
+    then skip ``_finalize_call`` and nothing else would report it. But the trace it reports on is the
+    root of the caller's parent chain, which a nested call shares with every enclosing call - so
+    reporting it unconditionally handed the outer call's trace to any concurrent flush while the
+    outer call was still running.
+
+    The failure mode here is synthetic: every logger call ``_prepare_call`` makes swallows its own
+    exceptions, so in production the escaping raiser is the bare ``traces[-1]`` index. Patching the
+    span setup is a stand-in that reaches the same release site.
+    """
+    # Given: an outer decorated coroutine whose nested decorated call fails its span setup
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingest_payloads: list[list[tuple[str, str | None]]] = []
+
+    def record_payload(request) -> dict:
+        ingest_payloads.append([(trace.name, trace.output) for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces.side_effect = record_payload
+
+    @log
+    def nested_step() -> str:
+        return "nested step ran"
+
+    outer_parked = asyncio.Event()
+    outer_may_finish = asyncio.Event()
+
+    @log
+    async def outer_forecast() -> str:
+        nested_step()
+        outer_parked.set()
+        await outer_may_finish.wait()
+        return "sunny in New York"
+
+    with galileo_context(project="project-nested-setup-fails", log_stream="stream-nested-setup-fails"):
+        logger = galileo_context.get_logger_instance(
+            project="project-nested-setup-fails", log_stream="stream-nested-setup-fails"
+        )
+
+        real_add_workflow_span = type(logger).add_workflow_span
+        span_setups = {"count": 0}
+
+        def only_the_nested_call_fails(self, *args, **kwargs):
+            span_setups["count"] += 1
+            if span_setups["count"] == 2:
+                raise RuntimeError("nested span setup exploded")
+            return real_add_workflow_span(self, *args, **kwargs)
+
+        async def outer_request() -> None:
+            await outer_forecast()
+            logger.flush()
+
+        with patch.object(type(logger), "add_workflow_span", only_the_nested_call_fails):
+            owner = asyncio.create_task(outer_request())
+            await asyncio.wait_for(outer_parked.wait(), timeout=5)
+
+            # When: a context that does not own the trace flushes while the outer call is mid-await
+            logger.flush()
+
+            # Then: the outer trace stayed behind for the task that is still building it
+            assert ingest_payloads == []
+            assert [trace.name for trace in logger.traces] == ["outer_forecast"]
+
+            outer_may_finish.set()
+            await owner
+
+    # Then: it was sent exactly once, by its owner, carrying the output the early release destroyed
+    assert ingest_payloads == [[("outer_forecast", "sunny in New York")]]

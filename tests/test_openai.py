@@ -683,7 +683,9 @@ async def test_trace_is_not_stranded_when_the_openai_call_raises_a_non_status_er
     one, or nothing would send it until the process exits.
 
     The call runs in its own task and the flush comes from outside it, because a flush in the owning
-    context claims its own trace and would mask the leak.
+    context claims its own trace and would mask the leak. The task is also held alive across the
+    flush: a finished owner is treated as no longer building the trace, so letting the task complete
+    would mask the leak a second way and leave this test passing with the release removed.
     """
     # Given: an OpenAI call that fails with an error the wrapper does not route into processing
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
@@ -693,18 +695,28 @@ async def test_trace_is_not_stranded_when_the_openai_call_raises_a_non_status_er
     galileo_context.reset()
     OpenAIGalileo().register_tracing()
 
+    request_failed = asyncio.Event()
+    task_may_finish = asyncio.Event()
+
     async def failing_request() -> None:
         with pytest.raises(RuntimeError):
             openai.chat.completions.create(
                 messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-3.5-turbo"
             )
+        request_failed.set()
+        await task_may_finish.wait()
 
-    # When: the failure happens in another task, and the flush comes from this one
-    await asyncio.create_task(failing_request())
+    # When: the failure happens in another task that is still alive, and the flush comes from this one
+    owner = asyncio.create_task(failing_request())
+    await asyncio.wait_for(request_failed.wait(), timeout=5)
     galileo_context.flush()
+    ingest_calls_after_foreign_flush = mock_traces_client_instance.ingest_traces.call_args_list[:]
+
+    task_may_finish.set()
+    await owner
 
     # Then: the trace was still sent rather than held back until process exit
     openai_create.assert_called_once()
-    mock_traces_client_instance.ingest_traces.assert_called()
-    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    assert len(ingest_calls_after_foreign_flush) == 1
+    payload = ingest_calls_after_foreign_flush[0][0][0]
     assert len(payload.traces) == 1
