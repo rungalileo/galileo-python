@@ -1016,7 +1016,13 @@ class GalileoLogger(TracesLogger):
         return True
 
     def reset_parent_tracking(self) -> None:
-        """Drop this context's parent chain, abandoning the trace it was building."""
+        """Drop this context's parent chain, abandoning the trace it was building.
+
+        Also reports that nobody is building that trace any more, so a later flush may send it
+        rather than holding it back. This reaches the caller's own trace only - the id comes from
+        the caller's parent chain, which is empty in any other context - so it is not a way to
+        release a trace abandoned by a different task or thread.
+        """
         trace_id = self._current_trace_id()
         if trace_id is not None:
             # Abandoned, not still running: a later flush must not hold it back forever.
