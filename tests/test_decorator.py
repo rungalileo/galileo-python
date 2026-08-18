@@ -1855,3 +1855,56 @@ async def test_reused_trace_is_protected_while_a_second_decorated_call_builds_it
 
     # Then: it left at context exit, once, with both steps' spans on it
     assert ingest_payloads == [["new_york_forecast"], ["first_step"]]
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_trace_is_not_stranded_when_span_setup_fails(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """A trace is never marked as being built unless something will release it.
+
+    The wrappers skip ``_finalize_call`` when ``_prepare_call`` raises, and ``_finalize_call`` is
+    the only thing that reports the decorator's hand-off. Claiming the trace before the span setup
+    that might raise would therefore strand it: held back from every flush, with nothing left to
+    release it, until the process exits.
+
+    The failing call runs in its own task and the flush comes from outside it, because a flush in
+    the owning context claims its own trace and would mask the leak.
+    """
+    # Given: a decorated call in another task whose span setup fails after the trace exists
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingest_payloads: list[list[str]] = []
+
+    def record_payload(request) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces.side_effect = record_payload
+
+    @log
+    async def forecast() -> str:
+        return "sunny in New York"
+
+    with galileo_context(project="project-span-setup-fails", log_stream="stream-span-setup-fails"):
+        logger = galileo_context.get_logger_instance(
+            project="project-span-setup-fails", log_stream="stream-span-setup-fails"
+        )
+
+        async def failing_request() -> None:
+            with patch.object(type(logger), "add_workflow_span", side_effect=RuntimeError("span setup exploded")):
+                await forecast()
+
+        # When: the span setup inside _prepare_call raises, so _finalize_call is skipped
+        await asyncio.create_task(failing_request())
+        assert len(logger.traces) == 1
+
+        # Then: a flush from outside that task still carries the trace
+        logger.flush()
+
+    assert ingest_payloads == [["forecast"]]
