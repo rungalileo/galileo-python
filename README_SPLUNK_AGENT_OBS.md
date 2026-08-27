@@ -20,18 +20,18 @@
 
 ### Installation
 
-`pip install splunkao`
+`pip install splunk-agent-obs`
 
 ### Setup
 
 Set the following environment variables:
 
-- `SPLUNKAO_API_KEY`: Your Splunk AO API key
-- `SPLUNKAO_PROJECT`: (Optional) Project name
-- `SPLUNKAO_LOG_STREAM`: (Optional) Log stream name
-- `SPLUNKAO_LOGGING_DISABLED`: (Optional) Disable collecting and sending logs to Splunk AO.
+- `SPLUNK_AO_API_KEY`: Your Splunk AO API key
+- `SPLUNK_AO_PROJECT`: (Optional) Project name
+- `SPLUNK_AO_LOG_STREAM`: (Optional) Log stream name
+- `SPLUNK_AO_LOGGING_DISABLED`: (Optional) Disable collecting and sending logs to Splunk AO.
 
-Note: if you would like to point to an environment other than `app.galileo.ai`, you'll need to set the `SPLUNKAO_CONSOLE_URL` environment variable.
+Note: if you would like to point to an environment other than `app.galileo.ai`, you'll need to set the `SPLUNK_AO_CONSOLE_URL` environment variable.
 
 ### Usage
 
@@ -40,10 +40,10 @@ Note: if you would like to point to an environment other than `app.galileo.ai`, 
 ```python
 import os
 
-from splunkao import context
-from splunkao.openai import openai
+from splunk_agent_obs import context
+from splunk_agent_obs.openai import openai
 
-# If you've set your SPLUNKAO_PROJECT and SPLUNKAO_LOG_STREAM env vars, you can skip this step
+# If you've set your SPLUNK_AO_PROJECT and SPLUNK_AO_LOG_STREAM env vars, you can skip this step
 context.init(project="your-project-name", log_stream="your-log-stream-name")
 
 # Initialize the Splunk AO wrapped OpenAI client
@@ -67,14 +67,14 @@ context.flush()
 You can also use the `@log` decorator to log spans. Here's how to create a workflow span with two nested LLM spans:
 
 ```python
-from splunkao import log
+from splunk_agent_obs import log
 
 @log
 def make_nested_call():
     call_openai()
     call_openai()
 
-# If you've set your SPLUNKAO_PROJECT and SPLUNKAO_LOG_STREAM env vars, you can skip this step
+# If you've set your SPLUNK_AO_PROJECT and SPLUNK_AO_LOG_STREAM env vars, you can skip this step
 context.init(project="your-project-name", log_stream="your-log-stream-name")
 
 # This will create a trace with a workflow span and two nested LLM spans containing the OpenAI calls
@@ -84,7 +84,7 @@ make_nested_call()
 Here's how to create a retriever span using the decorator:
 
 ```python
-from splunkao import log
+from splunk_agent_obs import log
 
 @log(span_type="retriever")
 def retrieve_documents(query: str):
@@ -97,7 +97,7 @@ retrieve_documents(query="history")
 Here's how to create a tool span using the decorator:
 
 ```python
-from splunkao import log
+from splunk_agent_obs import log
 
 @log(span_type="tool")
 def tool_call(input: str = "tool call input"):
@@ -113,7 +113,7 @@ context.flush()
 In some cases, you may want to wrap a block of code to start and flush a trace automatically. You can do this using the `context` context manager:
 
 ```python
-from splunkao import context
+from splunk_agent_obs import context
 
 # This will log a block of code to the project and log stream specified in the context manager
 with context():
@@ -124,7 +124,7 @@ with context():
 `context` also allows you specify a separate project and log stream for the trace:
 
 ```python
-from splunkao import context
+from splunk_agent_obs import context
 
 # This will log to the project and log stream specified in the context manager
 with context(project="gen-ai-project", log_stream="test2"):
@@ -135,7 +135,7 @@ with context(project="gen-ai-project", log_stream="test2"):
 You can also use the `SplunkaoLogger` for manual logging scenarios:
 
 ```python
-from splunkao.logger import SplunkaoLogger
+from splunk_agent_obs.logger import SplunkaoLogger
 
 # This will log to the project and log stream specified in the logger constructor
 logger = SplunkaoLogger(project="gen-ai-project", log_stream="test3")
@@ -162,7 +162,7 @@ current Splunk AO log stream as the runtime target:
 
 ```python
 import agent_control
-from splunkao import context, get_agent_control_target
+from splunk_agent_obs import context, get_agent_control_target
 
 context.init(project="my-project", log_stream="prod")
 
@@ -177,14 +177,14 @@ agent_control.init(
 )
 ```
 
-The helper resolves an explicit log stream ID, `SPLUNKAO_LOG_STREAM_ID`, or an
+The helper resolves an explicit log stream ID, `SPLUNK_AO_LOG_STREAM_ID`, or an
 already-initialized `context` logger. It does not import the Agent
 Control SDK or resolve log stream names over the network. If you use a direct
 Agent Control client instead of `agent_control.init(...)`, pass
 `target.target_type` and `target.target_id` on each evaluation call.
 
-`splunkao.agent_control` resolves targets for Agent Control calls.
-`splunkao.handlers.agent_control` bridges Agent Control telemetry into Splunk AO
+`splunk_agent_obs.agent_control` resolves targets for Agent Control calls.
+`splunk_agent_obs.handlers.agent_control` bridges Agent Control telemetry into Splunk AO
 logging.
 
 OpenAI streaming example:
@@ -192,7 +192,7 @@ OpenAI streaming example:
 ```python
 import os
 
-from splunkao.openai import openai
+from splunk_agent_obs.openai import openai
 
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
@@ -210,8 +210,8 @@ In some cases (like long-running processes), it may be necessary to explicitly f
 ```python
 import os
 
-from splunkao import context
-from splunkao.openai import openai
+from splunk_agent_obs import context
+from splunk_agent_obs.openai import openai
 
 context.init(project="your-project-name", log_stream="your-log-stream-name")
 
@@ -236,7 +236,7 @@ context.flush()
 Using the Langchain callback handler:
 
 ```python
-from splunkao.handlers.langchain import SplunkaoCallback
+from splunk_agent_obs.handlers.langchain import SplunkaoCallback
 from langchain.schema import HumanMessage
 from langchain_openai import ChatOpenAI
 
@@ -259,7 +259,7 @@ print(response.content)
 Create a dataset:
 
 ```python
-from splunkao.datasets import create_dataset
+from splunk_agent_obs.datasets import create_dataset
 
 create_dataset(
     name="names",
@@ -273,7 +273,7 @@ create_dataset(
 Get a dataset:
 
 ```python
-from splunkao.datasets import get_dataset
+from splunk_agent_obs.datasets import get_dataset
 
 dataset = get_dataset(name="names")
 ```
@@ -281,7 +281,7 @@ dataset = get_dataset(name="names")
 List all datasets:
 
 ```python
-from splunkao.datasets import list_datasets
+from splunk_agent_obs.datasets import list_datasets
 
 datasets = list_datasets()
 ```
@@ -292,7 +292,7 @@ datasets = list_datasets()
 >
 >   Example:
 >   ```python
->   from splunkao.schema.datasets import DatasetRecord
+>   from splunk_agent_obs.schema.datasets import DatasetRecord
 >
 >   record = DatasetRecord(
 >       input="What is 2+2?",
@@ -305,7 +305,7 @@ datasets = list_datasets()
 >
 >   Example:
 >   ```python
->   from splunkao.schema.datasets import DatasetRecord
+>   from splunk_agent_obs.schema.datasets import DatasetRecord
 >
 >   # Using 'output' (backward compatible)
 >   record1 = DatasetRecord(input="What is 2+2?", output="4")
@@ -322,10 +322,10 @@ datasets = list_datasets()
 Run an experiment with a prompt template:
 
 ```python
-from splunkao import Message, MessageRole
-from splunkao.datasets import get_dataset
-from splunkao.experiments import run_experiment
-from splunkao.prompts import create_prompt_template
+from splunk_agent_obs import Message, MessageRole
+from splunk_agent_obs.datasets import get_dataset
+from splunk_agent_obs.experiments import run_experiment
+from splunk_agent_obs.prompts import create_prompt_template
 
 prompt = create_prompt_template(
     name="my-prompt",
@@ -349,7 +349,7 @@ Run an experiment with a runner function with local dataset:
 
 ```python
 import openai
-from splunkao.experiments import run_experiment
+from splunk_agent_obs.experiments import run_experiment
 
 
 dataset = [
@@ -379,7 +379,7 @@ run_experiment(
 Sessions allow you to group related traces together. By default, a session is created for each trace and a session name is auto-generated. If you would like to override this, you can explicitly start a session:
 
 ```python
-from splunkao import SplunkaoLogger
+from splunk_agent_obs import SplunkaoLogger
 
 logger = SplunkaoLogger(project="gen-ai-project", log_stream="my-log-stream")
 session_id =logger.start_session(name="my-session-name")
@@ -393,7 +393,7 @@ logger.flush()
 You can continue a previous session by using the same session ID that was previously generated:
 
 ```python
-from splunkao import SplunkaoLogger
+from splunk_agent_obs import SplunkaoLogger
 
 logger = SplunkaoLogger(project="gen-ai-project", log_stream="my-log-stream")
 logger.set_session(session_id="123e4567-e89b-12d3-a456-426614174000")
@@ -407,7 +407,7 @@ logger.flush()
 All of this can also be done using the `context` context manager:
 
 ```python
-from splunkao import context
+from splunk_agent_obs import context
 
 session_id = context.start_session(name="my-session-name")
 
