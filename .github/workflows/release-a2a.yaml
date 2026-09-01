@@ -87,7 +87,7 @@ jobs:
       - name: Python Semantic Release
         id: semantic_release
         if: inputs.version == ''
-        uses: python-semantic-release/python-semantic-release@v10.2.0
+        uses: python-semantic-release/python-semantic-release@v10.5.3
         with:
           directory: galileo-a2a
           git_committer_name: galileo-automation
