@@ -47,7 +47,7 @@ jobs:
           echo "Using custom version: $INPUT_VERSION"
           poetry version "$INPUT_VERSION"
           git config user.name "galileo-automation"
-          git config user.email "ci@rungalileo.io"
+          git config user.email "${{ vars.SAO_PLATFORM_AUTOMATION_EMAIL }}"
           git add pyproject.toml
           git commit -m "chore: release version $INPUT_VERSION"
           git tag -a "v$INPUT_VERSION" -m "Release v$INPUT_VERSION"
@@ -63,7 +63,7 @@ jobs:
         uses: python-semantic-release/python-semantic-release@v10.2.0
         with:
           git_committer_name: galileo-automation
-          git_committer_email: ci@rungalileo.io
+          git_committer_email: ${{ vars.SAO_PLATFORM_AUTOMATION_EMAIL }}
           github_token: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}
           ssh_public_signing_key: ${{ secrets.GALILEO_AUTOMATION_SSH_PUBLIC_KEY }}
           ssh_private_signing_key: ${{ secrets.GALILEO_AUTOMATION_SSH_PRIVATE_KEY }}

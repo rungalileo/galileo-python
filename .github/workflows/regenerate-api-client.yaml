@@ -55,7 +55,7 @@ jobs:
           git config --global gpg.format ssh
           git config --global user.signingKey ~/.ssh/id_rsa
           git config --global commit.gpgsign true
-          git config --global user.email ci@rungalileo.io
+          git config --global user.email ${{ vars.SAO_PLATFORM_AUTOMATION_EMAIL }}
           git config --global user.name "galileo-automation"
           git checkout -b $BRANCH_NAME
           poetry run ./scripts/import-openapi-yaml.sh https://api.galileo.ai/client
