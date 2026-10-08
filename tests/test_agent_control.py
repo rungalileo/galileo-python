@@ -41,10 +41,7 @@ def _stub_cached_loggers(monkeypatch, loggers: dict[tuple[str, ...], SimpleNames
     monkeypatch.setattr(GalileoLoggerSingleton, "get_all_loggers", lambda self: loggers)
 
 
-@pytest.mark.parametrize(
-    "value",
-    ["llm_call", "tool_call", "retriever_call", "trace_call", "session_call"],
-)
+@pytest.mark.parametrize("value", ["llm_call", "tool_call", "retriever_call", "trace_call", "session_call"])
 def test_control_applies_to_accepts_supported_values(value: str) -> None:
     # Given: one of the supported Agent Control execution types
 

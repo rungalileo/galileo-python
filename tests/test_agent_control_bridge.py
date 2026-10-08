@@ -322,10 +322,7 @@ def test_idle_new_logger_does_not_mask_active_logger_context(
     assert len(workflow_a.spans) == 1
 
 
-@pytest.mark.parametrize(
-    "applies_to",
-    ["llm_call", "tool_call", "retriever_call", "trace_call", "session_call"],
-)
+@pytest.mark.parametrize("applies_to", ["llm_call", "tool_call", "retriever_call", "trace_call", "session_call"])
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
