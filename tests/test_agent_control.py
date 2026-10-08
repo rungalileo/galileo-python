@@ -7,6 +7,7 @@ import pytest
 from galileo import AgentControlTarget, AgentControlTargetUnresolvedError, get_agent_control_target
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.decorator import galileo_context
+from galileo.logger.control import ControlAppliesTo
 from galileo.utils.singleton import GalileoLoggerSingleton
 
 
@@ -38,6 +39,28 @@ def _stub_cached_logger(monkeypatch, logger: SimpleNamespace) -> None:
 
 def _stub_cached_loggers(monkeypatch, loggers: dict[tuple[str, ...], SimpleNamespace]) -> None:
     monkeypatch.setattr(GalileoLoggerSingleton, "get_all_loggers", lambda self: loggers)
+
+
+@pytest.mark.parametrize(
+    "value",
+    ["llm_call", "tool_call", "retriever_call", "trace_call", "session_call"],
+)
+def test_control_applies_to_accepts_supported_values(value: str) -> None:
+    # Given: one of the supported Agent Control execution types
+
+    # When: converting it to Galileo's control applies_to enum
+    applies_to = ControlAppliesTo(value)
+
+    # Then: the enum preserves the supplied supported value
+    assert applies_to.value == value
+
+
+def test_control_applies_to_rejects_unrelated_values() -> None:
+    # Given: an execution type outside the supported Agent Control values
+
+    # When/Then: enum conversion rejects the unrelated value
+    with pytest.raises(ValueError):
+        ControlAppliesTo("workflow_call")
 
 
 def test_get_agent_control_target_uses_explicit_log_stream_id() -> None:

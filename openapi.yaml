@@ -14826,6 +14826,9 @@ components:
       enum:
         - llm_call
         - tool_call
+        - retriever_call
+        - trace_call
+        - session_call
       title: ControlAppliesTo
     ControlCheckStage:
       type: string

@@ -9,17 +9,28 @@ from pydantic import BaseModel, Field, PrivateAttr
 
 from galileo_core.schemas.logging.step import Metrics
 
+
+class ControlAppliesTo(str, Enum):
+    llm_call = "llm_call"
+    tool_call = "tool_call"
+    retriever_call = "retriever_call"
+    trace_call = "trace_call"
+    session_call = "session_call"
+
+
 try:
-    from galileo_core.schemas.logging.control import ControlAppliesTo, ControlCheckStage, ControlResult
-    from galileo_core.schemas.logging.span import ControlSpan
+    from galileo_core.schemas.logging.control import ControlCheckStage, ControlResult
+    from galileo_core.schemas.logging.span import ControlSpan as _CoreControlSpan
 
     HAS_NATIVE_CONTROL_SPAN = True
+
+    class ControlSpan(_CoreControlSpan):
+        """ControlSpan whose applies_to field supports Agent Control event values."""
+
+        applies_to: ControlAppliesTo | None = Field(default=None, description="Parent execution type.")
+
 except ImportError:
     HAS_NATIVE_CONTROL_SPAN = False
-
-    class ControlAppliesTo(str, Enum):
-        llm_call = "llm_call"
-        tool_call = "tool_call"
 
     class ControlCheckStage(str, Enum):
         pre = "pre"
