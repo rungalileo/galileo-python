@@ -12,7 +12,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from galileo.handlers.agent_control import setup_agent_control_bridge
-from galileo.logger.control import ControlResult, ControlSpan
+from galileo.logger.control import ControlAppliesTo, ControlResult, ControlSpan
 from galileo.logger.logger import GalileoLogger
 from galileo.schema.trace import SpansIngestRequest, TracesIngestRequest
 from tests.testutils.setup import (
@@ -322,11 +322,16 @@ def test_idle_new_logger_does_not_mask_active_logger_context(
     assert len(workflow_a.spans) == 1
 
 
+@pytest.mark.parametrize("applies_to", ["llm_call", "tool_call", "retriever_call", "trace_call", "session_call"])
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_agent_control_event_converts_to_control_span_in_batch_mode(
-    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, fake_agent_control_modules
+    mock_traces_client: Mock,
+    mock_projects_client: Mock,
+    mock_logstreams_client: Mock,
+    fake_agent_control_modules,
+    applies_to: str,
 ) -> None:
     # Given: a batch logger with an active parent and a matching Agent Control event
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
@@ -335,8 +340,9 @@ def test_agent_control_event_converts_to_control_span_in_batch_mode(
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     logger.start_trace(input="trace input")
     workflow = logger.add_workflow_span(input="workflow input", name="workflow")
+    logger.set_session(str(uuid.uuid4()))
     bridge = setup_agent_control_bridge(logger)
-    event = _make_event(logger)
+    event = _make_event(logger, applies_to=applies_to)
 
     # When: the bridge receives the event through the public sink contract
     result = bridge.write_events([event])
@@ -350,7 +356,9 @@ def test_agent_control_event_converts_to_control_span_in_batch_mode(
     assert isinstance(control_span, ControlSpan)
     assert control_span.id == uuid.UUID(event.control_execution_id)
     assert control_span.trace_id == logger.traces[0].id
+    assert control_span.session_id == uuid.UUID(logger.session_id)
     assert control_span.parent_id == workflow.id
+    assert control_span.applies_to == ControlAppliesTo(applies_to)
     assert control_span.name == "toxicity-guardrail"
     assert control_span.input == "selected text"
     assert control_span.output == ControlResult(action="observe", matched=True, confidence=0.91)
@@ -369,6 +377,7 @@ def test_agent_control_event_converts_to_control_span_in_batch_mode(
     assert isinstance(flushed_control_span, ControlSpan)
     assert flushed_control_span.id == uuid.UUID(event.control_execution_id)
     assert flushed_control_span.control_id == 7
+    assert flushed_control_span.applies_to == ControlAppliesTo(applies_to)
 
 
 @patch("galileo.logger.logger.LogStreams")
