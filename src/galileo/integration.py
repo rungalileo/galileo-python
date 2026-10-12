@@ -319,8 +319,6 @@ class Integration(StateManagementMixin):
             Provider: A provider-specific instance (OpenAIProvider, AzureProvider, etc.).
                      For unsupported integration types, returns a GenericProvider.
         """
-        name = str(integration_db.name)
-
         provider_name = integration_db.provider
 
         # Create appropriate provider instance based on provider using __new__ to bypass __init__
@@ -343,17 +341,7 @@ class Integration(StateManagementMixin):
         StateManagementMixin.__init__(provider)
 
         # Populate provider attributes from IntegrationDB
-        provider.id = str(integration_db.id)
-        provider.name = name
-        provider.created_at = integration_db.created_at
-        provider.updated_at = integration_db.updated_at
-        provider.created_by = integration_db.created_by
-
-        # Handle Unset for optional fields
-        provider.is_selected = (
-            integration_db.is_selected if not isinstance(integration_db.is_selected, Unset) else False
-        )
-        provider.permissions = integration_db.permissions if not isinstance(integration_db.permissions, Unset) else None
+        provider._update_from_api_response(integration_db)
 
         provider._set_state(SyncState.SYNCED)
 
