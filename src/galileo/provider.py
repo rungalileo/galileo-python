@@ -97,10 +97,11 @@ class Provider(StateManagementMixin, ABC):
 
         The metadata discovery response is matched by this integration's ID, including
         when several owned or shared integrations use the same provider.
+        Discovery HTTP and transport errors propagate without replacing local metadata.
 
         Raises
         ------
-            APIError: If the API call fails or the integration is not found.
+            APIError: If the integration is not found or a legacy APIException is caught.
             ValidationError: If the provider has no ID.
         """
         if self.id is None:
