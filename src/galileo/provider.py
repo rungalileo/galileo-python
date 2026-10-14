@@ -12,7 +12,7 @@ from galileo.resources.api.integrations import (
     create_or_update_integration_integrations_azure_put,
     create_or_update_integration_integrations_openai_put,
     delete_integration_integrations_name_delete,
-    get_integration_integrations_name_get,
+    list_integrations_integrations_get,
 )
 from galileo.resources.api.llm_integrations import get_available_models_llm_integrations_llm_integration_models_get
 from galileo.resources.models import (
@@ -52,6 +52,7 @@ class Provider(StateManagementMixin, ABC):
         updated_at (datetime | None): When the integration was last updated.
         created_by (str | None): The user who created the integration.
         is_selected (bool): Whether this integration is selected by the current user.
+        is_disabled (bool): Whether this integration is disabled for the current user.
         permissions (list | None): Integration permissions for the current user.
     """
 
@@ -61,6 +62,7 @@ class Provider(StateManagementMixin, ABC):
     updated_at: datetime | None
     created_by: str | None
     is_selected: bool
+    is_disabled: bool
     permissions: list[Any] | None
 
     def __init__(self) -> None:
@@ -72,6 +74,7 @@ class Provider(StateManagementMixin, ABC):
         self.updated_at = None
         self.created_by = None
         self.is_selected = False
+        self.is_disabled = False
         self.permissions = None
         self._set_state(SyncState.LOCAL_ONLY)
 
@@ -92,9 +95,13 @@ class Provider(StateManagementMixin, ABC):
         """
         Refresh the provider state from the remote API.
 
+        The metadata discovery response is matched by this integration's ID, including
+        when several owned or shared integrations use the same provider.
+        Discovery HTTP and transport errors propagate without replacing local metadata.
+
         Raises
         ------
-            APIError: If the API call fails or the integration is not found.
+            APIError: If the integration is not found or a legacy APIException is caught.
             ValidationError: If the provider has no ID.
         """
         if self.id is None:
@@ -106,12 +113,10 @@ class Provider(StateManagementMixin, ABC):
 
         try:
             config = GalileoPythonConfig.get()
-            integration_provider = self._get_integration_provider()
+            integrations = list_integrations_integrations_get.sync(client=config.api_client)
+            response = next((integration for integration in integrations or [] if str(integration.id) == self.id), None)
 
-            # Get the specific integration data
-            response = get_integration_integrations_name_get.sync(name=integration_provider, client=config.api_client)
-
-            if response is None or isinstance(response, HTTPValidationError):
+            if response is None:
                 api_error = APIError(f"Provider with ID {self.id} not found")
                 self._set_state(SyncState.FAILED_SYNC, api_error)
                 raise api_error
@@ -140,6 +145,8 @@ class Provider(StateManagementMixin, ABC):
         # Handle Unset for optional fields
         if hasattr(response, "is_selected"):
             self.is_selected = response.is_selected if not isinstance(response.is_selected, Unset) else False
+        if hasattr(response, "is_disabled"):
+            self.is_disabled = response.is_disabled if not isinstance(response.is_disabled, Unset) else False
         if hasattr(response, "permissions"):
             self.permissions = response.permissions if not isinstance(response.permissions, Unset) else None
 
@@ -197,21 +204,28 @@ class Provider(StateManagementMixin, ABC):
         Raises
         ------
             APIError: If the API call fails.
-            ValidationError: If the provider has not been synced with the API.
+            ValidationError: If the provider has not been synced or is not an LLM provider.
         """
         if not self.is_synced():
             error = ValidationError("Cannot get models for provider without syncing")
             raise error
 
+        integration_provider = self._get_integration_provider()
+        try:
+            llm_integration = LLMIntegration(integration_provider.value)
+        except ValueError as e:
+            raise ValidationError(
+                f"Integration provider '{integration_provider.value}' does not support LLM model discovery."
+            ) from e
+
         logger.info(f"{self.__class__.__name__}.models: Fetching models for '{self.name}'")
 
         try:
             config = GalileoPythonConfig.get()
-            integration_provider = self._get_integration_provider()
 
             # Get models from API
             response = get_available_models_llm_integrations_llm_integration_models_get.sync(
-                llm_integration=LLMIntegration(integration_provider.value), client=config.api_client
+                llm_integration=llm_integration, client=config.api_client
             )
 
             if response is None or isinstance(response, HTTPValidationError):

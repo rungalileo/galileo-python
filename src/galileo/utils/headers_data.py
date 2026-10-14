@@ -70,3 +70,8 @@ def get_sdk_header() -> str:
         sdk_header = f"{sdk_header} {method_name}"
 
     return sdk_header
+
+
+def get_integration_capabilities_header() -> str:
+    """Identify the integration providers supported by discovery response decoding."""
+    return "typesafe"

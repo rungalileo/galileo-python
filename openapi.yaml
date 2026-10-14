@@ -29965,6 +29965,7 @@ components:
         - mistral
         - nvidia
         - openai
+        - typesafe
         - vegas_gateway
         - vertex_ai
         - writer

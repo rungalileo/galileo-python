@@ -1,13 +1,33 @@
-"""Tests for X-Galileo-SDK header in API calls."""
+"""Tests for SDK identity and integration capability headers in API calls."""
 
+from collections.abc import Callable
+from typing import Any
 from unittest.mock import patch
+
+import pytest
 
 from galileo.project import Project
 from galileo.projects import list_projects
 from galileo.resources.api.datasets.get_dataset_datasets_dataset_id_get import _get_kwargs as dataset_get_kwargs
 from galileo.resources.api.health.healthcheck_healthcheck_get import _get_kwargs as healthcheck_get_kwargs
+from galileo.resources.api.integrations.create_or_update_integration_integrations_openai_put import (
+    _get_kwargs as openai_put_kwargs,
+)
+from galileo.resources.api.integrations.get_integration_integrations_name_get import (
+    _get_kwargs as integration_get_kwargs,
+)
+from galileo.resources.api.integrations.list_available_integrations_integrations_available_get import (
+    _get_kwargs as available_integrations_get_kwargs,
+)
+from galileo.resources.api.integrations.list_integrations_integrations_get import _get_kwargs as integrations_get_kwargs
+from galileo.resources.api.llm_integrations.get_available_models_llm_integrations_llm_integration_models_get import (
+    _get_kwargs as models_get_kwargs,
+)
 from galileo.resources.api.projects import get_all_projects_projects_all_get
-from galileo.utils.headers_data import get_package_version
+from galileo.resources.models.integration_provider import IntegrationProvider
+from galileo.resources.models.llm_integration import LLMIntegration
+from galileo.resources.models.open_ai_integration_create import OpenAIIntegrationCreate
+from galileo.utils.headers_data import get_integration_capabilities_header, get_package_version
 
 
 class TestApiHeaders:
@@ -108,3 +128,47 @@ class TestApiHeaders:
 
         # Headers should be different
         assert header1 != header2, f"Headers should be different: '{header1}' vs '{header2}'"
+
+
+class TestIntegrationCapabilityHeaders:
+    """Only metadata discovery requests opt into TypeSafe integration decoding."""
+
+    def test_integration_capabilities_header_advertises_typesafe(self) -> None:
+        # Given: the SDK supports decoding TypeSafe integration metadata
+        # When: building the capability header value
+        capabilities = get_integration_capabilities_header()
+
+        # Then: the wire capability is the exact token understood by the API
+        assert capabilities == "typesafe"
+
+    @pytest.mark.parametrize(
+        "get_kwargs,expected_path",
+        [(integrations_get_kwargs, "/integrations"), (available_integrations_get_kwargs, "/integrations/available")],
+    )
+    def test_generated_discovery_methods_opt_into_typesafe(
+        self, get_kwargs: Callable[[], dict[str, Any]], expected_path: str
+    ) -> None:
+        # Given: a generated integration metadata discovery method
+        # When: building the actual request arguments
+        kwargs = get_kwargs()
+
+        # Then: the request advertises TypeSafe decoding together with its SDK identity
+        assert kwargs["path"] == expected_path
+        assert kwargs["content_headers"]["X-Galileo-Integration-Capabilities"] == "typesafe"
+        assert kwargs["content_headers"]["X-Galileo-SDK"].startswith("galileo-python/")
+
+    def test_other_generated_endpoints_do_not_advertise_integration_capabilities(self) -> None:
+        # Given: resource, credential, model, and integration write requests
+        requests = [
+            dataset_get_kwargs(dataset_id="dataset-id"),
+            integration_get_kwargs(name=IntegrationProvider.OPENAI),
+            models_get_kwargs(llm_integration=LLMIntegration.OPENAI),
+            openai_put_kwargs(body=OpenAIIntegrationCreate(token="test-token")),
+        ]
+
+        # When: inspecting their generated request headers
+        headers = [kwargs["content_headers"] for kwargs in requests]
+
+        # Then: the integration discovery capability stays restricted to its two read endpoints
+        assert all("X-Galileo-Integration-Capabilities" not in content_headers for content_headers in headers)
+        assert all("X-Galileo-SDK" in content_headers for content_headers in headers)
