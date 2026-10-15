@@ -12,7 +12,7 @@ from galileo.exceptions import (
     RateLimitError,
     ServerError,
 )
-from galileo.utils.headers_data import get_sdk_header
+from galileo.utils.headers_data import get_scorer_capabilities_header, get_sdk_header
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
 
@@ -41,6 +41,7 @@ def _get_kwargs(scorer_version_id: str, *, starting_token: Unset | int = 0, limi
     }
 
     headers["X-Galileo-SDK"] = get_sdk_header()
+    headers["X-Galileo-Scorer-Capabilities"] = get_scorer_capabilities_header()
 
     _kwargs["content_headers"] = headers
     return _kwargs

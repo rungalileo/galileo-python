@@ -35637,6 +35637,7 @@ components:
         - slm
         - llm
         - code
+        - decision
       title: ModelType
     MultiModalModelIntegrationConfig:
       properties:
@@ -42275,6 +42276,7 @@ components:
         - code
         - luna
         - preset
+        - decision
       title: ScorerTypes
     ScorerUpdatedAtFilter:
       properties:
