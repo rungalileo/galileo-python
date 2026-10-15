@@ -75,3 +75,8 @@ def get_sdk_header() -> str:
 def get_integration_capabilities_header() -> str:
     """Identify the integration providers supported by discovery response decoding."""
     return "typesafe"
+
+
+def get_scorer_capabilities_header() -> str:
+    """Identify the scorer types supported by scorer response decoding."""
+    return "decision"

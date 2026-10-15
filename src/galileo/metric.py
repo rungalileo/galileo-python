@@ -237,7 +237,7 @@ class Metric(StateManagementMixin, ABC):
             return LlmMetric.__new__(LlmMetric)
         if scorer_type == ScorerTypes.CODE:
             return CodeMetric.__new__(CodeMetric)
-        # Default to GalileoMetric for built-in scorers (LUNA, PRESET, etc.)
+        # Default to GalileoMetric for built-in and decision scorers (LUNA, PRESET, DECISION)
         return GalileoMetric.__new__(GalileoMetric)
 
     @classmethod

@@ -13,11 +13,11 @@ from galileo.exceptions import (
     ServerError,
 )
 {% set integration_discovery = endpoint.method | lower == "get" and endpoint.path in ["/integrations", "/integrations/available"] %}
-{% if integration_discovery %}
-from galileo.utils.headers_data import get_integration_capabilities_header, get_sdk_header
-{% else %}
-from galileo.utils.headers_data import get_sdk_header
-{% endif %}
+{# Endpoints whose responses carry scorer_type; the API leaves decision scorers out unless the header is sent.
+   The blank line after the import is needed: trim_blocks drops the newline that follows {% endif %}. #}
+{% set scorer_discovery = endpoint.path.startswith("/scorers") or endpoint.path.endswith("/scorer-settings") or endpoint.path.endswith("/metric_settings") %}
+from galileo.utils.headers_data import get_sdk_header{% if integration_discovery %}, get_integration_capabilities_header{% endif %}{% if scorer_discovery %}, get_scorer_capabilities_header{% endif %}
+
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
 from ...types import Response, UNSET
@@ -80,6 +80,9 @@ def _get_kwargs(
     headers["X-Galileo-SDK"] = get_sdk_header()
 {% if integration_discovery %}
     headers["X-Galileo-Integration-Capabilities"] = get_integration_capabilities_header()
+{% endif %}
+{% if scorer_discovery %}
+    headers["X-Galileo-Scorer-Capabilities"] = get_scorer_capabilities_header()
 {% endif %}
 
     _kwargs["content_headers"] = headers
