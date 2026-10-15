@@ -239,6 +239,10 @@ class GalileoLoggerSingleton:
         and cleared. Otherwise, only the specific logger corresponding to the provided
         key (project, log_stream) is flushed and removed.
 
+        Each logger uploads the trace the calling code is building, plus every trace that no live task or
+        thread is still building; a trace another context is part-way through building stays queued for
+        that context's own flush.
+
         Parameters
         ----------
         project (Optional[str], optional)
@@ -261,7 +265,12 @@ class GalileoLoggerSingleton:
                 self._galileo_loggers[key].flush()
 
     def flush_all(self) -> None:
-        """Flush (upload and clear) all GalileoLogger instances."""
+        """Flush (upload and clear) all GalileoLogger instances.
+
+        Each logger uploads the trace the calling code is building, plus every trace that no live task or
+        thread is still building; a trace another context is part-way through building stays queued for
+        that context's own flush.
+        """
         with self._lock:
             # Terminate and clear all logger instances.
             for logger in self._galileo_loggers.values():

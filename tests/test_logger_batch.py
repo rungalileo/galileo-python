@@ -1,6 +1,9 @@
+import asyncio
+import contextvars
 import datetime
 import json
 import logging
+import threading
 import uuid
 from collections import deque
 from unittest.mock import AsyncMock, Mock, patch
@@ -2477,3 +2480,940 @@ def test_ingest_traces_reuses_existing_client(
 
     # Then: no additional Traces client was created (reuses the existing one)
     assert mock_traces_cls.call_count == call_count_before
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_trace_added_during_ingest_is_not_dropped(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A trace appended while a flush is in flight must still reach the backend.
+
+    Concurrent tasks sharing one ``GalileoLogger`` also share its trace list. Because the
+    ingest payload is frozen before the network await, a trace appended during that await is
+    not part of it, so the flush must hand its batch off rather than clear the list
+    afterwards - a blind clear discards that trace, and the next flush then finds an empty
+    list, sends nothing, and still reports success.
+
+    Only the network egress (``ingest_traces``) is mocked; the shared list, the payload built
+    before the await, the batch hand-off, and the empty-list early return are all real. The
+    mock's only job is to hold the await open deterministically, because in production that
+    window is ordinary network latency and timing-dependent tests are unreliable.
+
+    ``_flush_batch()`` is awaited directly rather than via the public sync ``flush()``,
+    which blocks its OS thread and so cannot interleave.
+    """
+    # Given: a logger whose in-flight ingest is held open until a second trace is appended
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_in_flight = asyncio.Event()
+    second_trace_appended = asyncio.Event()
+    ingested_trace_names: list[str] = []
+
+    async def hold_the_window_open(request: TracesIngestRequest) -> dict:
+        ingested_trace_names.extend(trace.name for trace in request.traces)
+        if not ingest_in_flight.is_set():
+            ingest_in_flight.set()
+            await second_trace_appended.wait()
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=hold_the_window_open)
+
+    logger.start_trace(input="weather in New York?", name="New York")
+    logger.conclude(output="sunny in New York")
+
+    # When: a second trace is appended while the first flush sits in its ingest await,
+    # then each trace is flushed
+    first_flush = asyncio.create_task(logger._flush_batch(None, threading.current_thread()))
+    await ingest_in_flight.wait()
+
+    logger.start_trace(input="weather in London?", name="London")
+    logger.conclude(output="rainy in London")
+    second_trace_appended.set()
+
+    await first_flush
+    await logger._flush_batch(None, threading.current_thread())
+
+    # Then: both traces were sent, and neither was silently discarded
+    assert sorted(set(ingested_trace_names)) == ["London", "New York"]
+    assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_failed_ingest_retains_traces_for_next_flush(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A failed send must leave its traces queued rather than dropping them.
+
+    ``_flush_batch`` detaches the batch from ``self.traces`` before sending, so it has to put
+    the batch back if the send raises. Otherwise avoiding a silent drop under concurrency
+    would introduce a silent drop on every ingest error.
+    """
+    # Given: a logger whose first ingest attempt fails and whose second succeeds
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="input", name="test-trace")
+    logger.conclude(output="output")
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=ConnectionError("backend unavailable"))
+
+    # When: the flush fails
+    with pytest.raises(ConnectionError):
+        await logger._flush_batch(None, threading.current_thread())
+
+    # Then: the trace is still queued, and a later successful flush sends it
+    assert [trace.name for trace in logger.traces] == ["test-trace"]
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(return_value={})
+    await logger._flush_batch(None, threading.current_thread())
+
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    assert [trace.name for trace in payload.traces] == ["test-trace"]
+    assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_cancelled_flush_retains_traces_for_next_flush(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A cancelled flush must leave its traces queued rather than dropping them.
+
+    ``_flush_batch`` detaches its batch before sending, so it has to put the batch back whenever
+    the send does not complete. ``asyncio.CancelledError`` does not derive from ``Exception``, so a
+    restore guarded by ``except Exception`` would let a cancelled flush lose the batch outright -
+    worse than clearing after the await, where cancellation simply skipped the clear.
+
+    Cancellation is driven through the public ``async_flush()``, the path a caller reaches via
+    ``asyncio.wait_for`` or task-group teardown. Neither of its decorators intercepts
+    ``CancelledError``: ``async_warn_catch_exception(exceptions=(Exception,))`` does not match it,
+    and ``nop_async`` has no handler at all. The sync ``flush()`` runs on a pool thread and so
+    cannot be cancelled from here.
+    """
+    # Given: a logger whose ingest parks indefinitely once it is in flight
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_in_flight = asyncio.Event()
+    never_released = asyncio.Event()
+
+    async def park_in_flight(request: TracesIngestRequest) -> dict:
+        ingest_in_flight.set()
+        await never_released.wait()
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=park_in_flight)
+
+    logger.start_trace(input="input", name="test-trace")
+    logger.conclude(output="output")
+
+    # When: the flush is cancelled while sitting in its ingest await
+    flush = asyncio.create_task(logger.async_flush())
+    await asyncio.wait_for(ingest_in_flight.wait(), timeout=5)
+    flush.cancel()
+
+    with pytest.raises(asyncio.CancelledError):
+        await flush
+
+    # Then: the trace is still queued, and a later successful flush sends it
+    assert [trace.name for trace in logger.traces] == ["test-trace"]
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(return_value={})
+    await logger._flush_batch(None, threading.current_thread())
+
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    assert [trace.name for trace in payload.traces] == ["test-trace"]
+    assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_concurrent_flushes_do_not_duplicate_traces(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Two flushes in flight at once must not both send the same trace.
+
+    Because ``_flush_batch`` detaches its batch before sending, a flush that starts while another
+    is still awaiting picks up only the traces appended since. Leaving the list in place until
+    after the await instead hands the second flush a batch that still holds the first flush's
+    traces, sending them twice - traffic the backend hides by collapsing repeated trace ids.
+
+    Both flushes are held inside their ingest await simultaneously, so the overlap is real rather
+    than sequential, and payloads are asserted by multiplicity: a duplicate send shows up as a
+    repeated name rather than being folded away.
+    """
+    # Given: a logger whose ingests all park until released, recording each payload as it arrives
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    release_ingest = asyncio.Event()
+    first_ingest_entered = asyncio.Event()
+    second_ingest_entered = asyncio.Event()
+    ingest_payloads: list[list[str]] = []
+
+    async def park_until_released(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        if len(ingest_payloads) == 1:
+            first_ingest_entered.set()
+        else:
+            second_ingest_entered.set()
+        await release_ingest.wait()
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=park_until_released)
+
+    logger.start_trace(input="weather in New York?", name="New York")
+    logger.conclude(output="sunny in New York")
+
+    # When: a second flush reaches its ingest while the first is still in flight, then both finish
+    first_flush = asyncio.create_task(logger._flush_batch(None, threading.current_thread()))
+    await asyncio.wait_for(first_ingest_entered.wait(), timeout=5)
+
+    logger.start_trace(input="weather in London?", name="London")
+    logger.conclude(output="rainy in London")
+
+    second_flush = asyncio.create_task(logger._flush_batch(None, threading.current_thread()))
+    await asyncio.wait_for(second_ingest_entered.wait(), timeout=5)
+
+    release_ingest.set()
+    await asyncio.gather(first_flush, second_flush)
+
+    # Then: each trace was sent exactly once, carried by exactly one of the two flushes
+    assert sorted(name for payload in ingest_payloads for name in payload) == ["London", "New York"]
+    assert [len(payload) for payload in ingest_payloads] == [1, 1]
+    assert mock_traces_client_instance.ingest_traces.call_count == 2
+    assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_flush_does_not_ship_another_tasks_unconcluded_trace(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A flush must leave behind traces another task is still building.
+
+    Concurrent tasks sharing one ``GalileoLogger`` share its trace list, and a flush has no
+    reason to send a trace that its owner has not finished: ``ingest_traces`` serialises the
+    payload synchronously before its network await, so a trace picked up mid-flight goes on
+    the wire without its output, duration, status code, or any span added after that moment.
+    A later ``conclude()`` mutates a model that has already been serialised and so cannot
+    repair it.
+
+    Each task is an ``asyncio.Task`` so it gets its own copy of the context, which is what
+    makes the two parent chains independent while the trace list stays shared - the real
+    shape of the defect. Ordering is driven by events rather than sleeps.
+    """
+    # Given: two tasks sharing a logger, one holding a trace open while the other flushes
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    london_trace_started = asyncio.Event()
+    london_may_conclude = asyncio.Event()
+    ingest_payloads: list[list[str]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+
+    async def london_task() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        london_trace_started.set()
+        await london_may_conclude.wait()
+        logger.conclude(output="rainy in London")
+        await logger.async_flush()
+
+    london = asyncio.create_task(london_task())
+    await asyncio.wait_for(london_trace_started.wait(), timeout=5)
+
+    # When: New York finishes and flushes while London is still mid-trace
+    logger.start_trace(input="weather in New York?", name="New York")
+    logger.conclude(output="sunny in New York")
+    await logger.async_flush()
+
+    # Then: only New York was sent, and London is still queued for its own flush
+    assert ingest_payloads == [["New York"]]
+    assert [trace.name for trace in logger.traces] == ["London"]
+
+    london_may_conclude.set()
+    await london
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_trace_held_open_during_a_sibling_flush_is_sent_once_with_its_output(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """The customer-visible symptom: every trace reaches the backend complete, exactly once.
+
+    A sibling flush that carries an unconcluded trace both corrupts it - ``output=None`` on the
+    wire - and consumes it, because the batch is detached from the shared list. Its owner's own
+    flush then finds nothing left to send and reports success, so nothing anywhere signals that
+    the trace was shipped half-built. The backend rejects the repeat as a duplicate id, so there
+    is no second chance either.
+
+    Asserts on the serialised outputs, not just the names, because a trace can arrive under the
+    right name and still be missing everything that makes it useful.
+    """
+    # Given: two tasks sharing a logger, each concluding its own trace and flushing
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    london_trace_started = asyncio.Event()
+    new_york_flush_done = asyncio.Event()
+    ingested: list[tuple[str, str | None]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        # Snapshot synchronously: the real client calls model_dump() before its first await,
+        # so reading these later would observe mutations that never reached the wire.
+        ingested.extend((trace.name, trace.output) for trace in request.traces)
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+
+    async def london_task() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        london_trace_started.set()
+        await new_york_flush_done.wait()
+        logger.conclude(output="rainy in London")
+        await logger.async_flush()
+
+    london = asyncio.create_task(london_task())
+    await asyncio.wait_for(london_trace_started.wait(), timeout=5)
+
+    # When: New York's whole trace happens inside London's, and both flush
+    logger.start_trace(input="weather in New York?", name="New York")
+    logger.conclude(output="sunny in New York")
+    await logger.async_flush()
+    new_york_flush_done.set()
+    await london
+
+    # Then: each trace was ingested exactly once, carrying its own output
+    assert sorted(ingested) == [("London", "rainy in London"), ("New York", "sunny in New York")]
+    assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_auto_conclude_does_not_borrow_another_tasks_output(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Auto-concluding a trace must derive its output from the caller's own spans.
+
+    ``_flush_batch`` concludes whatever the flushing context left open, and a trace with no
+    explicit output inherits its last child span's. Selecting that child from the last entry of
+    the shared trace list picks a concurrent task's trace whenever one arrived more recently, so
+    the flushing task's trace is stamped with an answer computed for somebody else's question -
+    a wrong output rather than a missing one, and invisible in the console.
+
+    The flushing task never calls ``conclude()``, so the auto-conclude path inside the flush is
+    what runs. London starts second purely to occupy the last slot in the list, and both tasks
+    are created before either starts a trace: a task created while the creating context already
+    holds an open trace inherits it through the copied context, and ``add_trace()`` then refuses
+    to start a second one.
+    """
+    # Given: two tasks sharing a logger, with the sibling's trace last in the shared list
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    mock_traces_client_instance.ingest_traces = AsyncMock(return_value={})
+
+    new_york_trace_started = asyncio.Event()
+    london_trace_started = asyncio.Event()
+    new_york_flush_done = asyncio.Event()
+    new_york_trace: list[LoggedTrace] = []
+
+    async def new_york_task() -> None:
+        new_york_trace.append(logger.start_trace(input="weather in New York?", name="New York"))
+        logger.add_llm_span(input="weather in New York?", output="sunny in New York", model="gpt-4o")
+        new_york_trace_started.set()
+        await london_trace_started.wait()
+        await logger.async_flush()
+        new_york_flush_done.set()
+
+    async def london_task() -> None:
+        await new_york_trace_started.wait()
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="rainy in London", model="gpt-4o")
+        london_trace_started.set()
+        await new_york_flush_done.wait()
+
+    # When: New York flushes without concluding, so the flush auto-concludes on its behalf
+    await asyncio.wait_for(asyncio.gather(new_york_task(), london_task()), timeout=5)
+
+    # Then: New York's output came from New York's own span
+    assert new_york_trace[0].output is not None
+    assert "sunny in New York" in new_york_trace[0].output
+    assert "rainy in London" not in new_york_trace[0].output
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_sends_the_callers_own_unconcluded_trace(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Flushing your own open trace still sends it.
+
+    Holding back traces that are still being built must not turn into "unconcluded means never
+    sent": a caller that flushes while its own trace is open has asked for that trace, and the
+    flush concludes it on the way out. Only *other* contexts' unfinished traces wait.
+    """
+    # Given: a logger with an open, never-concluded trace
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="weather in New York?", name="New York")
+    logger.add_llm_span(input="weather in New York?", output="sunny in New York", model="gpt-4o")
+
+    # When: the same context flushes without concluding
+    logger.flush()
+
+    # Then: the trace was sent, carrying the output inherited from its span
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    assert [trace.name for trace in payload.traces] == ["New York"]
+    assert payload.traces[0].output is not None
+    assert "sunny in New York" in payload.traces[0].output
+    assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_terminate_sends_a_trace_abandoned_by_a_finished_task(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A trace whose owner never concluded it must still be sent at lifecycle end.
+
+    Holding back traces that another context is still building leaves nobody to flush one whose
+    owner has gone away without concluding it - the context that could claim it no longer exists.
+    ``terminate()`` is the last chance: nothing can still be running, so its final flush sends
+    everything rather than stranding a trace in memory until the process dies.
+    """
+    # Given: a task that starts a trace, never concludes it, and finishes
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    async def abandoning_task() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="rainy in London", model="gpt-4o")
+
+    await asyncio.create_task(abandoning_task())
+    assert [trace.name for trace in logger.traces] == ["London"]
+
+    # When: the logger is terminated from a context that never owned that trace
+    logger.terminate()
+
+    # Then: the abandoned trace was sent rather than stranded
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    assert [trace.name for trace in payload.traces] == ["London"]
+    assert logger.traces == []
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_reset_parent_tracking_does_not_strand_its_trace(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Abandoning a parent chain releases its trace for the next flush.
+
+    ``reset_parent_tracking()`` drops the chain without concluding it, so the trace it was
+    building has no owner left to claim it. Treating that as "still being built" would hold it
+    back from every subsequent flush until the process exits. ``galileo_context`` setup calls this
+    on every entry, so the case is routine rather than exotic.
+
+    The abandoning thread is kept alive and is not the thread that flushes, because a live owner
+    that *is* the flushing thread is already treated as finished - so doing both on one thread
+    would leave this test passing with the release removed.
+    """
+    # Given: a live thread that abandoned its open trace by resetting parent tracking
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    trace_abandoned = threading.Event()
+    owner_may_finish = threading.Event()
+
+    def abandon_a_trace() -> None:
+        logger.start_trace(input="weather in New York?", name="New York")
+        logger.reset_parent_tracking()
+        assert logger.current_parent() is None
+        trace_abandoned.set()
+        owner_may_finish.wait(timeout=5)
+
+    owner = threading.Thread(target=abandon_a_trace, name="trace-owner")
+    owner.start()
+    assert trace_abandoned.wait(timeout=5)
+
+    # When: a different thread flushes while the abandoning thread is still running
+    logger.flush()
+
+    # Then: the abandoned trace was sent, not held back
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    assert [trace.name for trace in payload.traces] == ["New York"]
+    assert logger.traces == []
+
+    owner_may_finish.set()
+    owner.join(timeout=5)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_still_coalesces_concluded_traces_into_one_request(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Batch mode still batches.
+
+    Deciding per-trace whether to send must not degrade into one request per trace: accumulating
+    many traces and flushing once is the pattern batch mode exists to serve, and splitting it
+    would multiply requests for every caller in exchange for a concurrency fix they may not need.
+    """
+    # Given: three traces accumulated and concluded before any flush
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    for city in ("New York", "London", "Tokyo"):
+        logger.start_trace(input=f"weather in {city}?", name=city)
+        logger.conclude(output=f"forecast for {city}")
+
+    # When: the logger flushes once
+    logger.flush()
+
+    # Then: all three left in a single request
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    assert [trace.name for trace in payload.traces] == ["New York", "London", "Tokyo"]
+    assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_failed_flush_keeps_holding_back_another_tasks_trace(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A failed send must restore its own batch without adopting a sibling's open trace.
+
+    The restore path puts the detached batch back into the shared list, which is also where a
+    held-back trace is waiting. If the restore blurred the two, a retry would sweep up the
+    sibling's unfinished trace - reintroducing the defect on exactly the path added to guard
+    against data loss.
+    """
+    # Given: a sibling holding a trace open, a concluded trace of our own, and a failing ingest
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    london_trace_started = asyncio.Event()
+    london_may_conclude = asyncio.Event()
+    ingest_payloads: list[list[str]] = []
+
+    async def london_task() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        london_trace_started.set()
+        await london_may_conclude.wait()
+        logger.conclude(output="rainy in London")
+        await logger.async_flush()
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    london = asyncio.create_task(london_task())
+    await asyncio.wait_for(london_trace_started.wait(), timeout=5)
+
+    logger.start_trace(input="weather in New York?", name="New York")
+    logger.conclude(output="sunny in New York")
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=ConnectionError("backend unavailable"))
+
+    # When: our flush fails and is retried after the backend recovers
+    await logger.async_flush()
+    assert sorted(trace.name for trace in logger.traces) == ["London", "New York"]
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+    await logger.async_flush()
+
+    # Then: the retry sent only our trace, and London still waits for its own flush
+    assert ingest_payloads == [["New York"]]
+    assert [trace.name for trace in logger.traces] == ["London"]
+
+    london_may_conclude.set()
+    await london
+
+    # Then: London's own flush sends it, complete
+    assert ingest_payloads == [["New York"], ["London"]]
+    assert logger.traces == []
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_failed_flush_restores_the_ownership_mark_with_the_batch(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A failed send must restore what its batch was marked with, not only the batch.
+
+    A flush takes its own trace whether or not it is finished with it, so a trace still being built
+    can sit inside a batch whose send fails. Restoring the list without the marks would hand that
+    trace to the next flush from any other context - the premature send this guard exists to
+    prevent, reintroduced on the path that exists to prevent data loss.
+
+    The other direction, a restore that adopts a trace it never detached, is pinned by
+    `test_failed_flush_keeps_holding_back_another_tasks_trace`; neither test covers both.
+    """
+    # Given: an owner part-way through a trace, and an ingest that fails
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    owner_flush_failed = asyncio.Event()
+    owner_may_finish = asyncio.Event()
+    ingest_payloads: list[list[str]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    async def owner_task() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="checking London", model="gpt-4o")
+        # When: the owner's own flush detaches its unconcluded trace and the send fails
+        await logger.async_flush()
+        owner_flush_failed.set()
+        # Kept alive deliberately: a trace whose owner has finished is nobody's to build any more,
+        # so the flush below would be let through on liveness alone and pin nothing.
+        await owner_may_finish.wait()
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=ConnectionError("backend unavailable"))
+    owner = asyncio.create_task(owner_task())
+    await asyncio.wait_for(owner_flush_failed.wait(), timeout=5)
+
+    # Then: the trace is back, and back with its owner still recorded
+    assert [trace.name for trace in logger.traces] == ["London"]
+    assert logger.traces[0].id in logger._traces_being_built
+
+    # When: another context flushes while that owner is still running
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+    await logger.async_flush()
+
+    # Then: nothing was sent - London waits for its owner rather than leaving half-built
+    assert ingest_payloads == []
+    assert [trace.name for trace in logger.traces] == ["London"]
+
+    # Then: the restored mark holds the trace for its owner without stranding it
+    owner_may_finish.set()
+    await owner
+    await logger.async_flush()
+    assert ingest_payloads == [["London"]]
+    assert logger.traces == []
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_sends_the_callers_own_trace_even_when_concluding_it_fails(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """The flushing caller's trace is sent even if the flush cannot conclude it.
+
+    Deciding what to send from "has this been concluded" alone would strand any trace whose
+    auto-conclude did not take effect - and that path swallows its own exceptions, so the failure
+    is invisible. A real case exists today: a child span whose output type cannot be assigned to
+    its parent raises inside ``_auto_conclude_trace()``, which ``warn_catch_exception`` eats. The
+    caller therefore claims its own trace explicitly, independently of whether concluding worked.
+
+    ``_auto_conclude_trace`` is stubbed to a no-op rather than reproducing that type mismatch, so
+    the guarantee is pinned on its own terms and survives whatever happens to the mismatch bug.
+    """
+    # Given: a logger with an open trace whose auto-conclude will silently do nothing
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="weather in New York?", name="New York")
+    logger.add_llm_span(input="weather in New York?", output="sunny in New York", model="gpt-4o")
+
+    # When: the owning context flushes
+    with patch.object(GalileoLogger, "_auto_conclude_trace", lambda self: None):
+        logger.flush()
+
+    # Then: the trace was still sent, and its id was released rather than tracked forever
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    assert [trace.name for trace in payload.traces] == ["New York"]
+    assert logger.traces == []
+    assert logger._traces_being_built == {}
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_flush_sends_a_trace_whose_owning_task_has_finished(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A trace is only held back while the context building it is still alive.
+
+    Holding a trace back until its owner finishes is what stops a sibling's flush shipping it
+    half-built. But an owner can go away without concluding - user code raising between
+    ``start_trace()`` and ``conclude()``, or ``_conclude()`` swallowing a coercion error - and then
+    no context can claim it: the claim is resolved from the caller's parent chain, and the owner's
+    chain died with its task. Without a liveness check the trace is skipped by every flush and
+    accumulates in memory, which is a worse outcome than the half-built send this rule prevents.
+
+    The abandoning call runs in its own task and the flush comes from outside it, because a flush in
+    the owning context claims its own trace and would mask the leak.
+    """
+    # Given: a task that starts a trace, adds a span, and finishes without concluding
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_payloads: list[list[str]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+
+    async def abandoning_task() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="rainy in London", model="gpt-4o")
+
+    await asyncio.create_task(abandoning_task())
+    assert [trace.name for trace in logger.traces] == ["London"]
+
+    # When: a context that never owned that trace flushes, after its owner has finished
+    await logger.async_flush()
+
+    # Then: the trace was sent rather than held back until the process exits
+    assert ingest_payloads == [["London"]]
+    assert logger.traces == []
+    assert logger._traces_being_built == {}
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_reset_parent_tracking_in_another_context_does_not_strand_a_trace(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Abandoning a trace from a context that does not own it must not strand it either.
+
+    ``reset_parent_tracking()`` releases the trace it abandons, but only the caller's own: it
+    resolves the id from the caller's parent chain, which is empty in any other context. So the
+    call a reader would reach for to clean up after a finished task does nothing for that task's
+    trace, and only the owner's liveness distinguishes "abandoned" from "still being built".
+    """
+    # Given: a task that starts a trace, adds a span, and finishes without concluding
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_payloads: list[list[str]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+
+    async def abandoning_task() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="rainy in London", model="gpt-4o")
+
+    await asyncio.create_task(abandoning_task())
+
+    # When: another context resets its own parent tracking and then flushes
+    logger.reset_parent_tracking()
+    await logger.async_flush()
+
+    # Then: the abandoned trace was sent
+    assert ingest_payloads == [["London"]]
+    assert logger.traces == []
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_sends_a_trace_abandoned_on_a_still_alive_pool_thread(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """A worker thread outliving the job that abandoned a trace must not hold it forever.
+
+    For a synchronous caller the owner recorded is the thread, and a pool worker stays alive long
+    after the job that started the trace returned. The next job on that worker cannot claim the trace
+    either: pools that copy the context per job - anyio, and therefore FastAPI's synchronous
+    endpoints - hand it an empty parent chain. Liveness alone would hold the trace for the life of
+    the worker, where before this rule existed it was sent on the first flush.
+
+    Each job runs inside its own ``copy_context()``, because that isolation is the property that
+    matters rather than the pool library: ``ThreadPoolExecutor`` does not copy, so its second job
+    still sees the first job's parent chain and claims the trace. The flush goes through the public
+    ``flush()`` so the thread is captured where a real caller captures it - reading it inside
+    ``_flush_batch`` would see an ``EventLoopThreadPool`` thread instead.
+    """
+    # Given: a job on a worker thread that starts a trace and returns without concluding it
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_payloads: list[list[str]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+
+    def abandoning_job() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="rainy in London", model="gpt-4o")
+
+    queued_between_jobs: list[list[str]] = []
+
+    def worker() -> None:
+        contextvars.copy_context().run(abandoning_job)
+        queued_between_jobs.append([trace.name for trace in logger.traces])
+        contextvars.copy_context().run(logger.flush)
+
+    # When: a later job on the same still-alive worker flushes, in a context of its own
+    worker_thread = threading.Thread(target=worker, name="AnyIO worker thread")
+    worker_thread.start()
+    worker_thread.join(timeout=30)
+
+    # Then: the abandoned trace was sent, not held until the worker dies or the process exits
+    assert not worker_thread.is_alive()
+    assert queued_between_jobs == [["London"]]
+    assert ingest_payloads == [["London"]]
+    assert logger.traces == []
+    assert logger._traces_being_built == {}
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_holds_back_a_trace_another_live_thread_is_building(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Releasing a trace whose owner is the flushing thread must not release another thread's.
+
+    This is the other half of that rule, and it matters most where it is least visible: anyio names
+    every worker ``"AnyIO worker thread"``, so they resolve to one ``GalileoLogger`` and share one
+    trace list. Comparing thread *names* rather than identity would therefore let one worker's flush
+    ship another worker's half-built trace - the failure the hold-back exists to prevent - so the
+    flushing thread here is deliberately given the builder's name.
+    """
+    # Given: a worker thread that is still building a trace, parked while it holds it open
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    ingest_payloads: list[list[str]] = []
+
+    async def record_payload(request: TracesIngestRequest) -> dict:
+        ingest_payloads.append([trace.name for trace in request.traces])
+        return {}
+
+    mock_traces_client_instance.ingest_traces = AsyncMock(side_effect=record_payload)
+
+    trace_started = threading.Event()
+    let_builder_finish = threading.Event()
+
+    def building_job() -> None:
+        logger.start_trace(input="weather in London?", name="London")
+        logger.add_llm_span(input="weather in London?", output="rainy in London", model="gpt-4o")
+        trace_started.set()
+        let_builder_finish.wait(timeout=30)
+
+    builder = threading.Thread(target=building_job, name="AnyIO worker thread")
+    builder.start()
+    try:
+        assert trace_started.wait(timeout=30)
+
+        # When: a different, still-live thread carrying the same name flushes
+        flusher = threading.Thread(target=logger.flush, name="AnyIO worker thread")
+        flusher.start()
+        flusher.join(timeout=30)
+        assert not flusher.is_alive()
+    finally:
+        # Always release the builder: an unreleased event would park an xdist worker until the
+        # suite-wide `--timeout` fires.
+        let_builder_finish.set()
+        builder.join(timeout=30)
+
+    # Then: the trace stayed behind for the thread that is still building it
+    assert ingest_payloads == []
+    assert [trace.name for trace in logger.traces] == ["London"]
+    assert len(logger._traces_being_built) == 1

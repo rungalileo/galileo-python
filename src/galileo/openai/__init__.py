@@ -278,6 +278,13 @@ def _wrap(
             raise exc_info
         return openai_response
     except Exception as ex:
+        if should_complete_trace:
+            # This call started the trace and owns concluding it, but is unwinding before it could.
+            # A flush skips traces another context is still building, so without reporting the
+            # hand-off nothing would send this one until the process exits.
+            trace_id = galileo_logger._current_trace_id()
+            if trace_id is not None:
+                galileo_logger._mark_trace_finished(trace_id)
         _logger.error(f"Error while processing OpenAI request: {ex}")
         raise RuntimeError("Failed to process the OpenAI Request") from ex
 

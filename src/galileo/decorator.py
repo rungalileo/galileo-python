@@ -633,6 +633,10 @@ class GalileoDecorator:
         bool
             True if preparation succeeded, False if it failed
         """
+        # Captured before the attempt, not read in the handler below: an enclosing decorated call's
+        # span means the trace being built is that call's, not this one's, and the answer must not
+        # depend on how far `_prepare_call` got before raising.
+        outermost = not _get_or_init_list(_span_stack_context)
         try:
             self._prepare_call(span_type, span_params, dataset_record)
             return True
@@ -641,7 +645,29 @@ class GalileoDecorator:
                 _logger.error("Galileo logging initialization failed: %s", e, exc_info=True)
             else:
                 _logger.warning("Galileo logging initialization failed, continuing without logging: %s", e)
+            # Preparation may already have started a trace, and returning False means the caller
+            # skips _finalize_call - so nothing else would ever report this context as done with
+            # it, leaving it held back from every flush. This context is not building it.
+            #
+            # Only when this call was the outermost one, though: an enclosing call is still building
+            # the trace, and releasing it on that call's behalf would expose it to a sibling's flush
+            # mid-build. That call reports its own hand-off when it returns.
+            if outermost:
+                self._release_trace_being_built()
             return False
+
+    def _release_trace_being_built(self) -> None:
+        """Report that this context is no longer building the trace it had started, if any."""
+        try:
+            logger = self.get_logger_instance()
+            trace_id = logger._current_trace_id()
+            if trace_id is not None:
+                logger._mark_trace_finished(trace_id)
+        except Exception as e:
+            # Debug, not a warning: the most likely raiser is `get_logger_instance()` above, and the
+            # caller that could not build a logger has already reported that failure. There is no
+            # trace to release in that case, so a second message per decorated call is pure noise.
+            _logger.debug("Could not release the trace being built: %s", e)
 
     def _prepare_call(
         self, span_type: SPAN_TYPE | None, span_params: dict[str, Any], dataset_record: DatasetRecord | None
@@ -698,6 +724,19 @@ class GalileoDecorator:
                 span = client_instance.add_workflow_span(input=input_, name=name, created_at=created_at)
             _get_or_init_list(_span_stack_context).append(span)
 
+        # This context owns the trace until the outermost decorated call returns, which is what
+        # _finalize_call reports. Concurrent tasks share one logger and one trace list, so a
+        # sibling's flush must not carry the trace away while spans are still being added to it.
+        # Re-marked on every entry because a reused trace was released by the previous call.
+        #
+        # Deliberately the last statement: the caller skips _finalize_call when _prepare_call
+        # raises, so marking any earlier would strand the trace - held back from every flush with
+        # nothing left to release it. Nothing above yields, so the trace cannot be observed by
+        # another task before this runs.
+        trace_being_built = _trace_context.get()
+        if trace_being_built is not None:
+            client_instance._mark_trace_unfinished(trace_being_built.id)
+
     def _get_input_from_func_args(
         self, *, is_method: bool = False, func_args: tuple = (), func_kwargs: dict | None = None
     ) -> Any:
@@ -748,9 +787,23 @@ class GalileoDecorator:
         -------
         The original result, possibly wrapped if it's a generator
         """
-        if inspect.isgenerator(result):
-            return self._wrap_sync_generator_result(span_type, span_params, result)
-        if inspect.isasyncgen(result):
+        if inspect.isgenerator(result) or inspect.isasyncgen(result):
+            # The wrappers below report the hand-off from `_handle_call_result` when the generator
+            # is exhausted, but only `_async_log` keeps the wrapper it is handed: `_sync_log`
+            # discards it and returns the raw generator, and both generator kinds route through
+            # `_sync_log` (`asyncio.iscoroutinefunction` is False for an async generator function).
+            # So on that path nothing would ever release the trace. Reported here instead, where
+            # both paths pass. The stack still holds this call's own span - only
+            # `_handle_call_result` pops it - so the outermost call is the one that leaves it alone.
+            # Only a workflow, agent or untyped call pushed a span in `_prepare_call`: a
+            # non-concludable span type pushed nothing, so for it a stack of one holds an enclosing
+            # call's span, and reporting the hand-off would release a trace that call is still
+            # building.
+            pushed_own_span = not span_type or is_concludable_span_type(span_type)
+            if len(_get_or_init_list(_span_stack_context)) <= (1 if pushed_own_span else 0):
+                self._release_trace_being_built()
+            if inspect.isgenerator(result):
+                return self._wrap_sync_generator_result(span_type, span_params, result)
             return self._wrap_async_generator_result(span_type, span_params, result)
         return self._handle_call_result(span_type, span_params, result)
 
@@ -904,6 +957,14 @@ class GalileoDecorator:
                     method(**filtered_kwargs)
         except Exception as e:
             _logger.error(f"Failed to create trace for span '{span_name}' (type: {span_type}): {e}", exc_info=True)
+
+        # The outermost decorated call has returned, so this context has stopped adding to the
+        # trace and any flush may now send it. The trace itself is deliberately left open for a
+        # later decorated call in this context to reuse, so concluding is not the signal here.
+        if not _get_or_init_list(_span_stack_context):
+            trace = _trace_context.get()
+            if trace is not None:
+                logger._mark_trace_finished(trace.id)
 
         return result
 
@@ -1092,7 +1153,14 @@ class GalileoDecorator:
         on_error: Callable[[Exception], None] | None = None,
     ) -> None:
         """
-        Upload all captured traces under a project and log stream context to Galileo.
+        Upload traces captured under a project and log stream context to Galileo.
+
+        Uploads the trace the calling code is building, plus every trace that no live task or thread is
+        still building. A trace another context is part-way through building stays queued and leaves with
+        that context's own flush instead, so it is not sent without its output, spans and duration.
+
+        Nothing is returned and upload errors are swallowed (see ``on_error``), so a normal return is not
+        a confirmation that a given trace was uploaded.
 
         If no project or log stream is provided, then the currently initialized context is used.
 
@@ -1147,9 +1215,11 @@ class GalileoDecorator:
 
     def flush_all(self) -> None:
         """
-        Upload all captured traces under all contexts to Galileo.
+        Upload traces captured under all contexts to Galileo.
 
-        This method flushes all traces regardless of project or log stream.
+        This method flushes every cached logger regardless of project or log stream. Each one uploads the
+        same set as `flush()` does: the trace the calling code is building, plus every trace that no live
+        task or thread is still building.
         """
         GalileoLoggerSingleton().flush_all()
         _span_stack_context.set([])
