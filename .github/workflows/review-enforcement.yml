@@ -1,0 +1,236 @@
+name: Enforce Review Policy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted, dismissed]
+  workflow_run:
+    workflows: ['Test']
+    types: [completed]
+
+jobs:
+  enforce-review:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' || github.event_name == 'pull_request_review'
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Enforce review policy
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const event = context.eventName;
+            const isDependabot = pr.user?.login === 'dependabot[bot]';
+
+            // Skip for Dependabot on all events
+            if (isDependabot) {
+              core.info('Dependabot PR detected - skipping review enforcement.');
+              return;
+            }
+
+            // On opened, no reviews exist yet - pass without enforcing
+            if (event === 'pull_request' && context.payload.action === 'opened') {
+              core.info('PR opened - waiting for review, not enforcing yet.');
+              return;
+            }
+
+            // On synchronize or pull_request_review: check current approval status
+            core.info(`${event}/${context.payload.action} - checking current approval status...`);
+
+            // If this is a review submission event, check the review in the payload first
+            if (event === 'pull_request_review') {
+              const submittedReview = context.payload.review;
+              if (submittedReview?.state === 'APPROVED') {
+                const isNonBazReviewer = submittedReview.user?.login !== 'baz-reviewer' && submittedReview.user?.type === 'User';
+                if (isNonBazReviewer) {
+                  core.info(`Approval received from ${submittedReview.user.login} - approval requirement satisfied.`);
+                  return;
+                }
+              }
+              if (submittedReview?.state === 'DISMISSED') {
+                core.info('Review dismissed - will check if other approvals exist.');
+              }
+            }
+
+            // Fetch reviews with retry for eventual consistency
+            let reviews;
+            let attempts = 0;
+            while (attempts < 3) {
+              const result = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number
+              });
+              reviews = result.data;
+
+              // If we have reviews or this is not a review event, stop retrying
+              if (reviews.length > 0 || event !== 'pull_request_review') {
+                break;
+              }
+
+              // Wait before retry
+              attempts++;
+              if (attempts < 3) {
+                core.info(`No reviews found yet (attempt ${attempts}/3) - retrying...`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+              }
+            }
+
+            const approvals = reviews.filter(r => r.state === 'APPROVED');
+
+            // On synchronize/reopened, if no reviews exist yet, don't block the PR
+            if (event === 'pull_request' && reviews.length === 0) {
+              core.info('No reviews yet - waiting for review, not enforcing.');
+              return;
+            }
+
+            const hasNonBazApproval = approvals.some(
+              r => r.user?.login &&
+                   r.user.login !== 'baz-reviewer' &&
+                   r.user.type === 'User'
+            );
+
+            if (!hasNonBazApproval) {
+              core.setFailed('At least one approval from a non-baz-reviewer is required.');
+            }
+
+  dependabot-auto-merge:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success'
+    # Note: permissions here scope the default GITHUB_TOKEN, but this job uses
+    # GALILEO_AUTOMATION_GITHUB_TOKEN (a PAT) whose scopes are managed separately.
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Auto-approve and merge Dependabot PRs
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}
+          script: |
+            const getDependabotPr = require('./.github/scripts/get-dependabot-pr.js');
+            const result = await getDependabotPr({ github, context, core });
+            if (!result) {
+              core.info('No open Dependabot PR found - skipping auto-merge.');
+              return;
+            }
+            const { prNumber, pr } = result;
+
+            core.info(`Dependabot PR #${prNumber} CI passed - auto-approving and merging.`);
+
+            // Check for existing approval to keep this idempotent
+            const { data: authUser } = await github.rest.users.getAuthenticated();
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+            const hasExistingApproval = reviews.some(
+              r => r.user?.login === authUser.login && r.state === 'APPROVED'
+            );
+
+            if (hasExistingApproval) {
+              core.info(`PR #${prNumber} already approved by ${authUser.login} - skipping approval.`);
+            } else {
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                event: 'APPROVE',
+                body: 'Auto-approved: Dependabot PR with passing CI.'
+              });
+              core.info(`Auto-approved PR #${prNumber}`);
+            }
+
+            // Re-fetch PR state after approval and wait for it to stabilize
+            // (GitHub may return 'unknown' initially, or the state may still be stale)
+            let mergeablePr;
+            for (let attempt = 0; attempt < 5; attempt++) {
+              await new Promise(resolve => setTimeout(resolve, 3000));
+              const { data: refreshed } = await github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber
+              });
+              mergeablePr = refreshed;
+              core.info(`Attempt ${attempt + 1}/5: mergeable=${mergeablePr.mergeable}, mergeable_state=${mergeablePr.mergeable_state}`);
+              if (mergeablePr.mergeable_state !== 'unknown') break;
+            }
+
+            if (mergeablePr.mergeable === false || mergeablePr.mergeable_state === 'dirty') {
+              core.info(`PR #${prNumber} is not mergeable (state: ${mergeablePr.mergeable_state}) - requesting human review.`);
+              const requestProductReviewer = require('./.github/scripts/request-team-reviewer.js');
+              await requestProductReviewer({ github, context, core, prNumber, teamSlug: 'product' });
+              return;
+            }
+
+            // If PR is in clean status, merge directly; otherwise enable auto-merge to wait for checks
+            if (mergeablePr.mergeable_state === 'clean') {
+              core.info(`PR #${prNumber} is in clean status - merging directly.`);
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: prNumber,
+                merge_method: 'squash'
+              });
+              core.info(`Merged PR #${prNumber}`);
+            } else {
+              core.info(`PR #${prNumber} is in ${mergeablePr.mergeable_state} status - enabling auto-merge.`);
+              try {
+                await github.graphql(`
+                  mutation($pullRequestId: ID!) {
+                    enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId, mergeMethod: SQUASH }) {
+                      clientMutationId
+                    }
+                  }
+                `, { pullRequestId: mergeablePr.node_id });
+                core.info(`Auto-merge enabled for PR #${prNumber}`);
+              } catch (error) {
+                if (error.message?.includes('already enabled')) {
+                  core.info(`Auto-merge already enabled for PR #${prNumber} - skipping.`);
+                } else if (error.message?.includes('in clean status')) {
+                  core.info(`PR #${prNumber} became clean during processing - merging directly.`);
+                  await github.rest.pulls.merge({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: prNumber,
+                    merge_method: 'squash'
+                  });
+                  core.info(`Merged PR #${prNumber}`);
+                } else {
+                  throw error;
+                }
+              }
+            }
+
+  dependabot-ci-failure:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'failure'
+    # Note: permissions here scope the default GITHUB_TOKEN, but this job uses
+    # GALILEO_AUTOMATION_GITHUB_TOKEN (a PAT) whose scopes are managed separately.
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Request review from random team member on CI failure
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}
+          script: |
+            const getDependabotPr = require('./.github/scripts/get-dependabot-pr.js');
+            const result = await getDependabotPr({ github, context, core });
+            if (!result) {
+              core.info('No open Dependabot PR found - skipping CI failure notification.');
+              return;
+            }
+            const { prNumber, pr } = result;
+
+            core.info(`Dependabot PR #${prNumber} CI failed - requesting review from random team member.`);
+            const requestProductReviewer = require('./.github/scripts/request-team-reviewer.js');
+            await requestProductReviewer({ github, context, core, prNumber, teamSlug: 'product' });
