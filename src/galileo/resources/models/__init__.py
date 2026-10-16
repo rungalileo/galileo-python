@@ -440,6 +440,7 @@ from .dataset_used_in_project_filter import DatasetUsedInProjectFilter
 from .dataset_version_db import DatasetVersionDB
 from .dataset_version_index_sort import DatasetVersionIndexSort
 from .decision_level import DecisionLevel
+from .decision_scorer_db import DecisionScorerDB
 from .delete_prompt_response import DeletePromptResponse
 from .delete_run_response import DeleteRunResponse
 from .delete_scorer_response import DeleteScorerResponse
@@ -1694,6 +1695,7 @@ __all__ = (
     "DatasetVersionDB",
     "DatasetVersionIndexSort",
     "DecisionLevel",
+    "DecisionScorerDB",
     "DeletePromptResponse",
     "DeleteRunResponse",
     "DeleteScorerResponse",

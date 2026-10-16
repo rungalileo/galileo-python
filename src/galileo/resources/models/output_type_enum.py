@@ -4,6 +4,7 @@ from enum import Enum
 class OutputTypeEnum(str, Enum):
     BOOLEAN = "boolean"
     BOOLEAN_MULTILABEL = "boolean_multilabel"
+    BOOLEAN_PROBABILITY = "boolean_probability"
     CATEGORICAL = "categorical"
     COUNT = "count"
     DISCRETE = "discrete"

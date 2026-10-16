@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.base_finetuned_scorer_db import BaseFinetunedScorerDB
     from ..models.base_generated_scorer_db import BaseGeneratedScorerDB
     from ..models.base_registered_scorer_db import BaseRegisteredScorerDB
+    from ..models.decision_scorer_db import DecisionScorerDB
 
 
 T = TypeVar("T", bound="BaseScorerVersionDB")
@@ -29,6 +30,7 @@ class BaseScorerVersionDB:
         generated_scorer (Union['BaseGeneratedScorerDB', None, Unset]):
         registered_scorer (Union['BaseRegisteredScorerDB', None, Unset]):
         finetuned_scorer (Union['BaseFinetunedScorerDB', None, Unset]):
+        decision_scorer (Union['DecisionScorerDB', None, Unset]):
         model_name (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
         scoreable_node_types (Union[None, Unset, list[str]]): List of node types that can be scored by this scorer.
@@ -47,6 +49,7 @@ class BaseScorerVersionDB:
     generated_scorer: Union["BaseGeneratedScorerDB", None, Unset] = UNSET
     registered_scorer: Union["BaseRegisteredScorerDB", None, Unset] = UNSET
     finetuned_scorer: Union["BaseFinetunedScorerDB", None, Unset] = UNSET
+    decision_scorer: Union["DecisionScorerDB", None, Unset] = UNSET
     model_name: None | Unset | str = UNSET
     num_judges: None | Unset | int = UNSET
     scoreable_node_types: None | Unset | list[str] = UNSET
@@ -59,6 +62,7 @@ class BaseScorerVersionDB:
         from ..models.base_finetuned_scorer_db import BaseFinetunedScorerDB
         from ..models.base_generated_scorer_db import BaseGeneratedScorerDB
         from ..models.base_registered_scorer_db import BaseRegisteredScorerDB
+        from ..models.decision_scorer_db import DecisionScorerDB
 
         id = self.id
 
@@ -89,6 +93,14 @@ class BaseScorerVersionDB:
             finetuned_scorer = self.finetuned_scorer.to_dict()
         else:
             finetuned_scorer = self.finetuned_scorer
+
+        decision_scorer: None | Unset | dict[str, Any]
+        if isinstance(self.decision_scorer, Unset):
+            decision_scorer = UNSET
+        elif isinstance(self.decision_scorer, DecisionScorerDB):
+            decision_scorer = self.decision_scorer.to_dict()
+        else:
+            decision_scorer = self.decision_scorer
 
         model_name: None | Unset | str
         model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
@@ -133,6 +145,8 @@ class BaseScorerVersionDB:
             field_dict["registered_scorer"] = registered_scorer
         if finetuned_scorer is not UNSET:
             field_dict["finetuned_scorer"] = finetuned_scorer
+        if decision_scorer is not UNSET:
+            field_dict["decision_scorer"] = decision_scorer
         if model_name is not UNSET:
             field_dict["model_name"] = model_name
         if num_judges is not UNSET:
@@ -153,6 +167,7 @@ class BaseScorerVersionDB:
         from ..models.base_finetuned_scorer_db import BaseFinetunedScorerDB
         from ..models.base_generated_scorer_db import BaseGeneratedScorerDB
         from ..models.base_registered_scorer_db import BaseRegisteredScorerDB
+        from ..models.decision_scorer_db import DecisionScorerDB
 
         d = dict(src_dict)
         id = d.pop("id")
@@ -208,6 +223,22 @@ class BaseScorerVersionDB:
             return cast(Union["BaseFinetunedScorerDB", None, Unset], data)
 
         finetuned_scorer = _parse_finetuned_scorer(d.pop("finetuned_scorer", UNSET))
+
+        def _parse_decision_scorer(data: object) -> Union["DecisionScorerDB", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return DecisionScorerDB.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["DecisionScorerDB", None, Unset], data)
+
+        decision_scorer = _parse_decision_scorer(d.pop("decision_scorer", UNSET))
 
         def _parse_model_name(data: object) -> None | Unset | str:
             if data is None:
@@ -291,6 +322,7 @@ class BaseScorerVersionDB:
             generated_scorer=generated_scorer,
             registered_scorer=registered_scorer,
             finetuned_scorer=finetuned_scorer,
+            decision_scorer=decision_scorer,
             model_name=model_name,
             num_judges=num_judges,
             scoreable_node_types=scoreable_node_types,

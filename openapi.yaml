@@ -13576,6 +13576,10 @@ components:
           anyOf:
             - $ref: '#/components/schemas/BaseFinetunedScorerDB'
             - type: 'null'
+        decision_scorer:
+          anyOf:
+            - $ref: '#/components/schemas/DecisionScorerDB'
+            - type: 'null'
         model_name:
           anyOf:
             - type: string
@@ -13645,6 +13649,10 @@ components:
         finetuned_scorer:
           anyOf:
             - $ref: '#/components/schemas/FineTunedScorerResponse'
+            - type: 'null'
+        decision_scorer:
+          anyOf:
+            - $ref: '#/components/schemas/DecisionScorerDB'
             - type: 'null'
         model_name:
           anyOf:
@@ -22543,6 +22551,56 @@ components:
         - label
       title: DecisionLevel
       description: One level of a score question. A question's levels run 0, 1, 2 and so on, with no gaps.
+    DecisionScorerDB:
+      properties:
+        id:
+          type: string
+          format: uuid4
+          title: Id
+        organization_id:
+          type: string
+          format: uuid4
+          title: Organization Id
+        created_by:
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
+          title: Created By
+        question:
+          type: string
+          title: Question
+        answer_options:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: '#/components/schemas/DecisionLevel'
+              type: array
+            - type: 'null'
+          title: Answer Options
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+        - id
+        - organization_id
+        - question
+        - created_at
+      title: DecisionScorerDB
+      description: 'A row of the decision_scorers table.
+
+
+        answer_options depends on the output type of the scorer:
+
+        - categorical: a list of labels (list[str]).
+
+        - discrete: a list of DecisionLevel.
+
+        - boolean_probability: None.'
     DeletePromptResponse:
       properties:
         message:
@@ -36225,6 +36283,7 @@ components:
         - multilabel
         - retrieved_chunk_list_boolean
         - boolean_multilabel
+        - boolean_probability
       title: OutputTypeEnum
       description: Enumeration of output types.
     OverrideAction:
