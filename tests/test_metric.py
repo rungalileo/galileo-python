@@ -5,8 +5,16 @@ from uuid import uuid4
 
 import pytest
 
-from galileo.metric import CodeMetric, LlmMetric, LocalMetric, Metric
-from galileo.resources.models import HTTPValidationError, OutputTypeEnum, ScorerTypes
+from galileo.metric import CodeMetric, DecisionMetric, LlmMetric, LocalMetric, Metric
+from galileo.resources.models import (
+    BaseScorerVersionDB,
+    DecisionLevel,
+    DecisionScorerDB,
+    HTTPValidationError,
+    OutputTypeEnum,
+    ScorerResponse,
+    ScorerTypes,
+)
 from galileo.resources.models.invalid_result import InvalidResult
 from galileo.resources.models.task_result_status import TaskResultStatus
 from galileo.shared.base import SyncState
@@ -2025,3 +2033,128 @@ class TestCodeMetricValidationConfiguration:
         assert Configuration.code_validation_initial_delay == 3.0
         assert Configuration.code_validation_max_delay == 45.0
         assert Configuration.code_validation_backoff_multiplier == 1.8
+
+
+class TestDecisionMetric:
+    """Test suite for DecisionMetric create and Metric.get/list."""
+
+    @staticmethod
+    def _decision_scorer(answer_options, output_type: OutputTypeEnum) -> ScorerResponse:
+        version = BaseScorerVersionDB(
+            id=str(uuid4()),
+            version=1,
+            scorer_id="s1",
+            model_name="jev-1.13.0",
+            decision_scorer=DecisionScorerDB(
+                id=str(uuid4()),
+                organization_id=str(uuid4()),
+                question="Which tone?",
+                answer_options=answer_options,
+                created_at="2025-01-01T00:00:00Z",
+            ),
+        )
+        return ScorerResponse(
+            id="s1",
+            name="tone",
+            scorer_type=ScorerTypes.DECISION,
+            tags=["t"],
+            output_type=output_type,
+            scoreable_node_types=["trace"],
+            ground_truth=True,
+            latest_version=version,
+        )
+
+    @patch("galileo.metric.Scorers")
+    def test_get_returns_decision_metric_with_categorical_fields(
+        self, mock_scorers_class: MagicMock, reset_configuration: None
+    ) -> None:
+        mock_scorers_class.return_value.list.return_value = [
+            self._decision_scorer(["a", "b"], OutputTypeEnum.CATEGORICAL)
+        ]
+
+        metric = Metric.get(name="tone")
+
+        assert isinstance(metric, DecisionMetric)
+        assert metric.is_synced()
+        assert metric.question == "Which tone?"
+        assert metric.answer_options == ["a", "b"]
+        assert metric.model == "jev-1.13.0"
+        assert metric.output_type == OutputTypeEnum.CATEGORICAL
+        assert metric.node_level == StepType.trace
+        assert metric.ground_truth is True
+
+    @patch("galileo.metric.Scorers")
+    def test_get_populates_discrete_levels(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
+        mock_scorers_class.return_value.list.return_value = [
+            self._decision_scorer(
+                [DecisionLevel(level=0, label="bad"), DecisionLevel(level=1, label="good")], OutputTypeEnum.DISCRETE
+            )
+        ]
+
+        metric = Metric.get(id="s1")
+
+        assert isinstance(metric, DecisionMetric)
+        assert [(lvl.level, lvl.label) for lvl in metric.answer_options] == [(0, "bad"), (1, "good")]
+
+    @patch("galileo.metric.Scorers")
+    def test_get_without_version_keeps_metric_usable(
+        self, mock_scorers_class: MagicMock, reset_configuration: None
+    ) -> None:
+        scorer = ScorerResponse(
+            id="s1",
+            name="tone",
+            scorer_type=ScorerTypes.DECISION,
+            tags=[],
+            output_type=OutputTypeEnum.BOOLEAN_PROBABILITY,
+        )
+        mock_scorers_class.return_value.list.return_value = [scorer]
+
+        metric = Metric.get(name="tone")
+
+        assert isinstance(metric, DecisionMetric)
+        assert metric.output_type == OutputTypeEnum.BOOLEAN_PROBABILITY
+        assert metric.is_synced()
+
+    @patch("galileo.metric.Scorers")
+    def test_list_returns_decision_metric(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
+        mock_scorers_class.return_value.list.return_value = [
+            self._decision_scorer(["a", "b"], OutputTypeEnum.CATEGORICAL)
+        ]
+
+        metrics = Metric.list()
+
+        assert len(metrics) == 1
+        assert isinstance(metrics[0], DecisionMetric)
+
+    @patch("galileo.metric.Metrics")
+    @patch("galileo.metric.Scorers")
+    def test_create_sends_fields_and_refreshes(
+        self, mock_scorers_class: MagicMock, mock_metrics_class: MagicMock, reset_configuration: None
+    ) -> None:
+        version = MagicMock()
+        version.scorer_id = "s1"
+        mock_metrics_class.return_value.create_decision_metric.return_value = version
+        mock_scorers_class.return_value.list.return_value = [
+            self._decision_scorer(["a", "b"], OutputTypeEnum.CATEGORICAL)
+        ]
+
+        metric = DecisionMetric(
+            name="tone",
+            question="Which tone?",
+            node_level=StepType.trace,
+            output_type=OutputTypeEnum.CATEGORICAL,
+            answer_options=["a", "b"],
+            tags=["t"],
+            ground_truth=True,
+        ).create()
+
+        kwargs = mock_metrics_class.return_value.create_decision_metric.call_args.kwargs
+        assert kwargs["name"] == "tone"
+        assert kwargs["question"] == "Which tone?"
+        assert kwargs["node_level"] == StepType.trace
+        assert kwargs["model_name"] == "jev-1.13.0"
+        assert kwargs["output_type"] == OutputTypeEnum.CATEGORICAL
+        assert kwargs["answer_options"] == ["a", "b"]
+        assert kwargs["ground_truth"] is True
+        assert metric.id == "s1"
+        assert metric.is_synced()

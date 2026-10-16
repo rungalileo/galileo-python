@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from galileo.metric import GalileoMetric, Metric
+from galileo.metric import DecisionMetric, Metric
 from galileo.resources.api.data.get_scorer_scorers_scorer_id_get import _get_kwargs as get_scorer_kwargs
 from galileo.resources.api.data.list_scorers_with_filters_scorers_list_post import _get_kwargs as list_scorers_kwargs
 from galileo.resources.api.datasets.get_dataset_datasets_dataset_id_get import _get_kwargs as dataset_get_kwargs
@@ -101,15 +101,15 @@ def test_scorers_list_returns_decision_scorers(list_scorers_mock: Mock) -> None:
 
 
 @patch("galileo.metric.Scorers")
-def test_metric_get_returns_a_read_only_metric_for_a_decision_scorer(scorers_class: Mock) -> None:
+def test_metric_get_returns_a_decision_metric_for_a_decision_scorer(scorers_class: Mock) -> None:
     # Given: the API has a decision scorer with this name
     scorers_class.return_value.list.return_value = _list_response(_decision_scorer_row()).scorers
 
     # When: getting the metric by name
     metric = Metric.get(name="answers_the_question")
 
-    # Then: it is a GalileoMetric of type decision, and it renders
-    assert isinstance(metric, GalileoMetric)
+    # Then: it is a DecisionMetric of type decision, and it renders
+    assert isinstance(metric, DecisionMetric)
     assert metric.scorer_type == ScorerTypes.DECISION
     assert "decision" in str(metric)
 

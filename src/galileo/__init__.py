@@ -45,7 +45,7 @@ from galileo.integration import Integration
 from galileo.log_stream import LogStream
 from galileo.logger import GalileoLogger
 from galileo.logger.control import ControlAppliesTo, ControlCheckStage, ControlResult, ControlSpan
-from galileo.metric import CodeMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
+from galileo.metric import CodeMetric, DecisionMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
 from galileo.model import Model
 from galileo.project import Project
 from galileo.prompt import Prompt
@@ -123,6 +123,7 @@ __all__ = [
     "ControlResult",
     "ControlSpan",
     "Dataset",
+    "DecisionMetric",
     "Document",
     "ExecutionStatus",
     "Experiment",

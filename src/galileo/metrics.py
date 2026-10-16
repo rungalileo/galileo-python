@@ -1,8 +1,11 @@
 import datetime
 import logging
+from collections.abc import Mapping, Sequence
+from typing import Any
 
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.data import (
+    create_decision_scorer_version_scorers_scorer_id_version_decision_post,
     create_llm_scorer_version_scorers_scorer_id_version_llm_post,
     create_scorers_post,
     delete_scorer_scorers_scorer_id_delete,
@@ -15,15 +18,72 @@ from galileo.resources.models import (
     ScorerTypes,
 )
 from galileo.resources.models.base_scorer_version_response import BaseScorerVersionResponse
+from galileo.resources.models.create_decision_scorer_version_request import CreateDecisionScorerVersionRequest
 from galileo.resources.models.create_llm_scorer_version_request import CreateLLMScorerVersionRequest
 from galileo.resources.models.create_scorer_request import CreateScorerRequest
+from galileo.resources.models.decision_level import DecisionLevel
+from galileo.resources.models.input_type_enum import InputTypeEnum
 from galileo.resources.models.output_type_enum import OutputTypeEnum
 from galileo.resources.models.scorer_defaults import ScorerDefaults
+from galileo.resources.types import UNSET
 from galileo.scorers import Scorers
 from galileo.search import FilterType
 from galileo_core.schemas.logging.step import StepType
 
 _logger = logging.getLogger(__name__)
+
+DEFAULT_DECISION_MODEL_NAME = "jev-1.13.0"
+
+DecisionAnswerOptions = Sequence[str] | Sequence[DecisionLevel | Mapping[str, Any]]
+
+
+def normalize_decision_answer_options(
+    answer_options: DecisionAnswerOptions | None,
+) -> list[str] | list[DecisionLevel] | None:
+    """Convert user-facing answer options into the request shape.
+
+    Strings pass through (categorical). ``DecisionLevel`` objects and ``{level, label, description}`` dicts
+    become ``DecisionLevel`` (discrete). ``None`` stays ``None`` (boolean_probability).
+    """
+    if answer_options is None:
+        return None
+    options = list(answer_options)
+    if all(isinstance(option, str) for option in options):
+        return [str(option) for option in options]
+    levels: list[DecisionLevel] = []
+    for option in options:
+        if isinstance(option, DecisionLevel):
+            levels.append(option)
+        elif isinstance(option, Mapping):
+            levels.append(
+                DecisionLevel(
+                    level=option["level"], label=option["label"], description=option.get("description") or UNSET
+                )
+            )
+        else:
+            raise ValueError(
+                "answer_options must be a list of strings (categorical) or a list of DecisionLevel / "
+                f"{{level, label, description}} dicts (discrete); got {type(option).__name__}."
+            )
+    return levels
+
+
+def _build_decision_version_request(
+    model_name: str, question: str, answer_options: list[str] | list[DecisionLevel] | None
+) -> CreateDecisionScorerVersionRequest:
+    """Build the version request, serializing discrete levels ourselves.
+
+    The generated ``CreateDecisionScorerVersionRequest.to_dict`` has two identical ``isinstance(list)``
+    branches for ``list[str] | list[DecisionLevel]``, so it never calls ``DecisionLevel.to_dict`` and would
+    send raw objects. ``additional_properties`` is merged into the body verbatim, so levels go there.
+    """
+    if answer_options and isinstance(answer_options[0], DecisionLevel):
+        request = CreateDecisionScorerVersionRequest(model_name=model_name, question=question)
+        request.additional_properties["answer_options"] = [
+            level.to_dict() for level in answer_options if isinstance(level, DecisionLevel)
+        ]
+        return request
+    return CreateDecisionScorerVersionRequest(model_name=model_name, question=question, answer_options=answer_options)
 
 
 class Metrics:
@@ -114,6 +174,103 @@ class Metrics:
 
         return version_resp
 
+    def create_decision_metric(
+        self,
+        name: str,
+        question: str,
+        node_level: StepType = StepType.llm,
+        model_name: str = DEFAULT_DECISION_MODEL_NAME,
+        output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN_PROBABILITY,
+        answer_options: DecisionAnswerOptions | None = None,
+        input_type: InputTypeEnum | None = None,
+        description: str = "",
+        tags: list[str] | None = None,
+        ground_truth: bool = False,
+    ) -> BaseScorerVersionResponse:
+        """
+        Create a decision metric.
+
+        Parameters
+        ----------
+        name: str
+            Name of the metric.
+        question: str
+            The question the decision model answers (1-2,000 characters).
+        node_level: StepType
+            The single node type the metric scores.
+        model_name: str
+            Decision model registry version, for example ``jev-1.13.0``.
+        output_type: OutputTypeEnum
+            ``BOOLEAN_PROBABILITY``, ``CATEGORICAL`` or ``DISCRETE``.
+        answer_options: list[str] | list[DecisionLevel | dict] | None
+            ``None`` for ``BOOLEAN_PROBABILITY``. For ``CATEGORICAL``, a list of 2-255 unique labels. For
+            ``DISCRETE``, 2-10 ``DecisionLevel`` objects (or ``{level, label, description}`` dicts) numbered
+            0, 1, 2 and so on in order.
+        input_type: InputTypeEnum | None
+            What the model sees. When ``None``, the server picks a default for the node type.
+        description: str
+            Description of the metric.
+        tags: List[str]
+            Tags associated with the metric.
+        ground_truth: bool
+            Whether the scorer requires ground truth (``reference_output``) from the dataset.
+
+        Returns
+        -------
+        BaseScorerVersionResponse
+            Response containing the created metric version.
+
+        Raises
+        ------
+        ValueError
+            If the API rejects either request. If the scorer was created but its version was rejected,
+            the scorer is deleted before the error is raised.
+        """
+        version_req = _build_decision_version_request(
+            model_name=model_name, question=question, answer_options=normalize_decision_answer_options(answer_options)
+        )
+        create_scorer_request = CreateScorerRequest(
+            name=name,
+            scorer_type=ScorerTypes.DECISION,
+            description=description,
+            tags=tags if tags is not None else [],
+            scoreable_node_types=[node_level],
+            output_type=output_type,
+            input_type=input_type if input_type is not None else UNSET,
+            ground_truth=ground_truth,
+        )
+
+        scorer = create_scorers_post.sync(body=create_scorer_request, client=self.config.api_client)
+        if isinstance(scorer, HTTPValidationError):
+            raise ValueError(scorer.detail)
+        if scorer is None:
+            raise ValueError("Failed to create decision metric.")
+
+        try:
+            version_resp = create_decision_scorer_version_scorers_scorer_id_version_decision_post.sync(
+                scorer_id=scorer.id, body=version_req, client=self.config.api_client
+            )
+            if isinstance(version_resp, HTTPValidationError):
+                raise ValueError(version_resp.detail)
+            if version_resp is None:
+                raise ValueError("Failed to create decision metric version.")
+        except Exception:
+            self._delete_scorer_quietly(scorer.id)
+            raise
+
+        _logger.info("Created decision metric: %s", name)
+
+        return version_resp
+
+    def _delete_scorer_quietly(self, scorer_id: str) -> None:
+        """Best-effort cleanup so a failed create does not leave an empty scorer behind."""
+        try:
+            delete_scorer_scorers_scorer_id_delete.sync(scorer_id=scorer_id, client=self.config.api_client)
+        except Exception:
+            _logger.warning(
+                "Failed to delete scorer after decision metric creation failed", extra={"scorer_id": scorer_id}
+            )
+
     def query(
         self,
         project_id: str,
@@ -196,6 +353,86 @@ def create_custom_llm_metric(
         tags = []
     return Metrics().create_custom_llm_metric(
         name, user_prompt, node_level, cot_enabled, model_name, num_judges, description, tags, output_type, ground_truth
+    )
+
+
+def create_decision_metric(
+    name: str,
+    question: str,
+    node_level: StepType = StepType.llm,
+    model_name: str = DEFAULT_DECISION_MODEL_NAME,
+    output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN_PROBABILITY,
+    answer_options: DecisionAnswerOptions | None = None,
+    input_type: InputTypeEnum | None = None,
+    description: str = "",
+    tags: list[str] | None = None,
+    ground_truth: bool = False,
+) -> BaseScorerVersionResponse:
+    """
+    Create a decision metric.
+
+    A decision metric asks a decision model (for example TypeSafe's Jev) one typed question and
+    scores the node with the probabilities of the answers.
+
+    Parameters
+    ----------
+    name: str
+        Name of the metric.
+    question: str
+        The question the decision model answers (1-2,000 characters).
+    node_level: StepType
+        The single node type the metric scores.
+    model_name: str
+        Decision model registry version, for example ``jev-1.13.0``.
+    output_type: OutputTypeEnum
+        ``BOOLEAN_PROBABILITY``, ``CATEGORICAL`` or ``DISCRETE``.
+    answer_options: list[str] | list[DecisionLevel | dict] | None
+        ``None`` for ``BOOLEAN_PROBABILITY``. For ``CATEGORICAL``, a list of 2-255 unique labels. For
+        ``DISCRETE``, 2-10 ``DecisionLevel`` objects (or ``{level, label, description}`` dicts) numbered
+        0, 1, 2 and so on in order.
+    input_type: InputTypeEnum | None
+        What the model sees. When ``None``, the server picks a default for the node type.
+    description: str
+        Description of the metric.
+    tags: List[str]
+        Tags associated with the metric.
+    ground_truth: bool
+        Whether the scorer requires ground truth (``reference_output``) from the dataset.
+
+    Returns
+    -------
+    BaseScorerVersionResponse
+        Response containing the created metric version.
+
+    Raises
+    ------
+    ValueError
+        If the API rejects either request. If the scorer was created but its version was rejected,
+        the scorer is deleted before the error is raised.
+
+    Examples
+    --------
+        from galileo.metrics import create_decision_metric
+        from galileo.resources.models import OutputTypeEnum
+
+        create_decision_metric(
+            name="tone",
+            question="Is the tone of this response professional?",
+            output_type=OutputTypeEnum.CATEGORICAL,
+            answer_options=["professional", "casual", "rude"],
+        )
+    """
+    return Metrics().create_decision_metric(
+        name=name,
+        question=question,
+        node_level=node_level,
+        model_name=model_name,
+        output_type=output_type,
+        answer_options=answer_options,
+        input_type=input_type,
+        description=description,
+        tags=tags,
+        ground_truth=ground_truth,
     )
 
 

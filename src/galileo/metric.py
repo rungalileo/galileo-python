@@ -15,7 +15,12 @@ if TYPE_CHECKING:
 
 from galileo.config import GalileoPythonConfig
 from galileo.configuration import Configuration
-from galileo.metrics import Metrics
+from galileo.metrics import (
+    DEFAULT_DECISION_MODEL_NAME,
+    DecisionAnswerOptions,
+    Metrics,
+    normalize_decision_answer_options,
+)
 from galileo.resources.api.data import (
     create_code_scorer_version_scorers_scorer_id_version_code_post,
     create_scorers_post,
@@ -27,7 +32,9 @@ from galileo.resources.models import (
     BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost,
     BodyValidateCodeScorerScorersCodeValidatePost,
     CreateScorerRequest,
+    DecisionLevel,
     HTTPValidationError,
+    InputTypeEnum,
     OutputTypeEnum,
     ScorerTypes,
     TaskResultStatus,
@@ -94,6 +101,7 @@ class Metric(StateManagementMixin, ABC):
 
     - **GalileoMetric**: Built-in Galileo scorers (access via Metric.scorers)
     - **LlmMetric**: Custom LLM-based metrics with prompt templates
+    - **DecisionMetric**: Decision model metrics (one typed question per metric)
     - **LocalMetric**: Local function-based metrics
     - **CodeMetric**: Code-based metrics (future support)
 
@@ -226,7 +234,7 @@ class Metric(StateManagementMixin, ABC):
         Returns
         -------
             Metric: An uninitialized instance of the appropriate subclass
-                   (LlmMetric, CodeMetric, or GalileoMetric).
+                   (LlmMetric, CodeMetric, DecisionMetric, or GalileoMetric).
 
         Examples
         --------
@@ -237,7 +245,9 @@ class Metric(StateManagementMixin, ABC):
             return LlmMetric.__new__(LlmMetric)
         if scorer_type == ScorerTypes.CODE:
             return CodeMetric.__new__(CodeMetric)
-        # Default to GalileoMetric for built-in and decision scorers (LUNA, PRESET, DECISION)
+        if scorer_type == ScorerTypes.DECISION:
+            return DecisionMetric.__new__(DecisionMetric)
+        # Default to GalileoMetric for built-in scorers (LUNA, PRESET)
         return GalileoMetric.__new__(GalileoMetric)
 
     @classmethod
@@ -253,7 +263,8 @@ class Metric(StateManagementMixin, ABC):
 
         Returns
         -------
-            Optional[Metric]: The metric if found (GalileoMetric, LlmMetric, or CodeMetric), None otherwise.
+            Optional[Metric]: The metric if found (GalileoMetric, LlmMetric, CodeMetric, or DecisionMetric),
+                None otherwise.
 
         Raises
         ------
@@ -431,6 +442,10 @@ class Metric(StateManagementMixin, ABC):
             )
 
             self._sync_attrs(output_type=output_type, prompt=prompt, node_level=node_level, ground_truth=ground_truth)
+
+        # Decision-specific attributes (only set if this is a DecisionMetric)
+        if isinstance(self, DecisionMetric):
+            self._populate_decision_attrs(scorer_response)
 
         # Code-specific attributes (only set if this is a CodeMetric)
         if isinstance(self, CodeMetric):
@@ -841,6 +856,184 @@ class LlmMetric(Metric):
     def __repr__(self) -> str:
         """Detailed string representation of the metric."""
         return f"LlmMetric(name='{self.name}', id='{self.id}', model='{self.model}', judges={self.judges})"
+
+
+class DecisionMetric(Metric):
+    """
+    Decision model metric.
+
+    A decision metric asks a decision model (for example TypeSafe's Jev) one typed question and scores
+    the node with the probabilities of the answers.
+
+    Attributes
+    ----------
+        question (str | None): The question the model answers.
+        model (str | None): Decision model registry version, for example ``jev-1.13.0``.
+        node_level (StepType | None): The single node type the metric scores.
+        output_type (OutputTypeEnum | None): ``BOOLEAN_PROBABILITY``, ``CATEGORICAL`` or ``DISCRETE``.
+        answer_options (list[str] | list[DecisionLevel] | None): Labels (categorical), levels (discrete) or None.
+        input_type (InputTypeEnum | None): What the model sees. None lets the server choose.
+        ground_truth (bool): Whether the scorer requires ground truth from the dataset.
+
+    Examples
+    --------
+        metric = DecisionMetric(
+            name="tone",
+            question="Is the tone of this response professional?",
+            output_type=OutputTypeEnum.CATEGORICAL,
+            answer_options=["professional", "casual", "rude"],
+        ).create()
+    """
+
+    question: str | None
+    model: str | None
+    node_level: StepType | None
+    output_type: OutputTypeEnum | None
+    answer_options: list[str] | list[DecisionLevel] | None
+    input_type: InputTypeEnum | None
+    ground_truth: bool
+
+    def __init__(
+        self,
+        name: str,
+        *,
+        question: str | None = None,
+        model: str | None = None,
+        node_level: StepType | None = None,
+        output_type: str | OutputTypeEnum | None = None,
+        answer_options: DecisionAnswerOptions | None = None,
+        input_type: InputTypeEnum | None = None,
+        ground_truth: bool = False,
+        description: str = "",
+        tags: list[str] | None = None,
+        version: int | None = None,
+    ) -> None:
+        """
+        Initialize a decision metric.
+
+        Args:
+            name: The name of the metric.
+            question: The question the decision model answers (1-2,000 characters).
+            model: Decision model registry version. Defaults to ``jev-1.13.0``.
+            node_level: The single node type the metric scores. Defaults to StepType.llm.
+            output_type: ``boolean_probability`` (default), ``categorical`` or ``discrete``.
+            answer_options: None for boolean_probability, a list of labels for categorical, or a list of
+                ``DecisionLevel`` / ``{level, label, description}`` dicts for discrete.
+            input_type: What the model sees. None lets the server choose a default for the node type.
+            ground_truth: Whether the scorer requires ground truth (``reference_output``) from the dataset.
+            description: Description of the metric.
+            tags: Tags associated with the metric.
+            version: Specific version to reference (for existing metrics).
+
+        Raises
+        ------
+            ValidationError: If question is not provided.
+        """
+        super().__init__(name=name, description=description, tags=tags, version=version)
+
+        if question is None:
+            raise ValidationError("'question' must be provided for decision metrics.")
+
+        self.question = question
+        self.model = model or DEFAULT_DECISION_MODEL_NAME
+        self.node_level = node_level or StepType.llm
+        self.output_type = Metric._parse_output_type(output_type, default=OutputTypeEnum.BOOLEAN_PROBABILITY)
+        self.answer_options = normalize_decision_answer_options(answer_options)
+        self.input_type = input_type
+        self.ground_truth = ground_truth
+        self.scorer_type = ScorerTypes.DECISION
+
+    def create(self) -> DecisionMetric:
+        """
+        Persist this decision metric to the API.
+
+        Returns
+        -------
+            DecisionMetric: This metric instance with updated attributes from the API.
+
+        Raises
+        ------
+            ValueError: If the API rejects the request. A scorer created before the failure is deleted.
+
+        Examples
+        --------
+            metric = DecisionMetric(name="tone", question="Is the tone professional?").create()
+            assert metric.is_synced()
+        """
+        try:
+            logger.info(f"DecisionMetric.create: name='{self.name}' - started")
+
+            created_version = Metrics().create_decision_metric(
+                name=self.name,
+                question=self.question or "",
+                node_level=self.node_level if self.node_level is not None else StepType.llm,
+                model_name=self.model if self.model is not None else DEFAULT_DECISION_MODEL_NAME,
+                output_type=self.output_type
+                if isinstance(self.output_type, OutputTypeEnum)
+                else OutputTypeEnum.BOOLEAN_PROBABILITY,
+                answer_options=self.answer_options,
+                input_type=self.input_type,
+                description=self.description,
+                tags=self.tags,
+                ground_truth=self.ground_truth,
+            )
+
+            self._sync_attrs(
+                id=str(created_version.scorer_id),
+                created_at=created_version.created_at,
+                updated_at=created_version.updated_at,
+            )
+
+            # Refresh to get full scorer details
+            self.refresh()
+
+            logger.info(f"DecisionMetric.create: id='{self.id}' - completed")
+            return self
+        except Exception as e:
+            self._set_state(SyncState.FAILED_SYNC, error=e)
+            logger.error(f"DecisionMetric.create: name='{self.name}' - failed: {e}")
+            raise
+
+    def _populate_decision_attrs(self, scorer_response: Any) -> None:
+        """Fill decision fields from a scorer response.
+
+        The question and answer options live on the scorer's version, so they stay unchanged when the
+        response carries no version.
+        """
+        output_type = None if isinstance(scorer_response.output_type, Unset) else scorer_response.output_type
+        input_type = None if isinstance(scorer_response.input_type, Unset) else scorer_response.input_type
+        scoreable = scorer_response.scoreable_node_types
+        node_level: StepType | None = None
+        if not isinstance(scoreable, Unset) and scoreable:
+            try:
+                node_level = StepType(scoreable[0])
+            except ValueError:
+                node_level = None
+        ground_truth = (
+            False
+            if isinstance(scorer_response.ground_truth, Unset) or scorer_response.ground_truth is None
+            else scorer_response.ground_truth
+        )
+        self._sync_attrs(
+            output_type=output_type, input_type=input_type, node_level=node_level, ground_truth=ground_truth
+        )
+
+        for version in (scorer_response.default_version, scorer_response.latest_version):
+            if version is None or isinstance(version, Unset):
+                continue
+            decision = version.decision_scorer
+            if decision is not None and not isinstance(decision, Unset):
+                self._sync_attrs(
+                    question=decision.question,
+                    answer_options=normalize_decision_answer_options(decision.answer_options),
+                )
+            if not isinstance(version.model_name, Unset) and version.model_name:
+                self._sync_attrs(model=version.model_name)
+            break
+
+    def __repr__(self) -> str:
+        """Detailed string representation of the metric."""
+        return f"DecisionMetric(name='{self.name}', id='{self.id}', model='{self.model}', question='{self.question}')"
 
 
 class CodeMetric(Metric):

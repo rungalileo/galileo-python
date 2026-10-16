@@ -10,9 +10,11 @@ This module tests the four metric types:
 
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import pytest
 
-from galileo.metric import CodeMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
+from galileo.metric import CodeMetric, DecisionMetric, GalileoMetric, LlmMetric, LocalMetric, Metric
 from galileo.resources.models import OutputTypeEnum, ScorerTypes
 from galileo.shared.exceptions import ValidationError
 from galileo_core.schemas.logging.step import StepType
@@ -400,3 +402,42 @@ class TestMetricEdgeCases:
         assert StepType.llm in metric.scorable_types
         assert StepType.workflow in metric.scorable_types
         assert StepType.agent in metric.scorable_types
+
+
+class TestDecisionMetric:
+    def test_defaults(self):
+        metric = DecisionMetric(name="tone", question="Is it polite?")
+
+        assert metric.scorer_type == ScorerTypes.DECISION
+        assert metric.model == "jev-1.13.0"
+        assert metric.node_level == StepType.llm
+        assert metric.output_type == OutputTypeEnum.BOOLEAN_PROBABILITY
+        assert metric.answer_options is None
+        assert metric.input_type is None
+        assert metric.ground_truth is False
+
+    def test_output_type_string_and_dict_levels(self):
+        metric = DecisionMetric(
+            name="q",
+            question="How good?",
+            output_type="discrete",
+            answer_options=[{"level": 0, "label": "bad"}, {"level": 1, "label": "good"}],
+        )
+
+        assert metric.output_type == OutputTypeEnum.DISCRETE
+        assert [(o.level, o.label) for o in metric.answer_options] == [(0, "bad"), (1, "good")]
+
+    def test_requires_question(self):
+        with pytest.raises(ValidationError, match="question"):
+            DecisionMetric(name="tone")
+
+    def test_repr(self):
+        assert "DecisionMetric(name='tone'" in repr(DecisionMetric(name="tone", question="Is it polite?"))
+
+    def test_create_unsynced_failure_marks_failed_sync(self):
+        metric = DecisionMetric(name="tone", question="q")
+        with patch("galileo.metric.Metrics") as metrics_cls:
+            metrics_cls.return_value.create_decision_metric.side_effect = ValueError("bad model")
+            with pytest.raises(ValueError, match="bad model"):
+                metric.create()
+        assert metric.has_failed()

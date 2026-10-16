@@ -8,6 +8,14 @@ warnings.warn(
     stacklevel=2,
 )
 
-from galileo.metric import BuiltInMetrics, CodeMetric, GalileoMetric, LlmMetric, LocalMetric, Metric  # noqa: E402
+from galileo.metric import (  # noqa: E402
+    BuiltInMetrics,
+    CodeMetric,
+    DecisionMetric,
+    GalileoMetric,
+    LlmMetric,
+    LocalMetric,
+    Metric,
+)
 
-__all__ = ["BuiltInMetrics", "CodeMetric", "GalileoMetric", "LlmMetric", "LocalMetric", "Metric"]
+__all__ = ["BuiltInMetrics", "CodeMetric", "DecisionMetric", "GalileoMetric", "LlmMetric", "LocalMetric", "Metric"]
