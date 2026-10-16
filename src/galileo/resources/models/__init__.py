@@ -224,6 +224,7 @@ from .create_annotation_queue_request import CreateAnnotationQueueRequest
 from .create_code_metric_generation_request import CreateCodeMetricGenerationRequest
 from .create_code_metric_generation_response import CreateCodeMetricGenerationResponse
 from .create_custom_luna_scorer_version_request import CreateCustomLunaScorerVersionRequest
+from .create_decision_scorer_version_request import CreateDecisionScorerVersionRequest
 from .create_job_request import CreateJobRequest
 from .create_job_request_validation_config_type_0 import CreateJobRequestValidationConfigType0
 from .create_job_response import CreateJobResponse
@@ -438,6 +439,7 @@ from .dataset_updated_at_sort import DatasetUpdatedAtSort
 from .dataset_used_in_project_filter import DatasetUsedInProjectFilter
 from .dataset_version_db import DatasetVersionDB
 from .dataset_version_index_sort import DatasetVersionIndexSort
+from .decision_level import DecisionLevel
 from .delete_prompt_response import DeletePromptResponse
 from .delete_run_response import DeleteRunResponse
 from .delete_scorer_response import DeleteScorerResponse
@@ -1550,6 +1552,7 @@ __all__ = (
     "CreateCodeMetricGenerationRequest",
     "CreateCodeMetricGenerationResponse",
     "CreateCustomLunaScorerVersionRequest",
+    "CreateDecisionScorerVersionRequest",
     "CreateJobRequest",
     "CreateJobRequestValidationConfigType0",
     "CreateJobResponse",
@@ -1690,6 +1693,7 @@ __all__ = (
     "DatasetUsedInProjectFilter",
     "DatasetVersionDB",
     "DatasetVersionIndexSort",
+    "DecisionLevel",
     "DeletePromptResponse",
     "DeleteRunResponse",
     "DeleteScorerResponse",

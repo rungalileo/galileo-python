@@ -6802,6 +6802,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /scorers/{scorer_id}/version/decision:
+    post:
+      tags:
+        - data
+        - prompts
+        - rows
+      summary: Create Decision Scorer Version
+      description: Create a decision evaluator version that holds its question, answer options and model.
+      operationId: create_decision_scorer_version_scorers__scorer_id__version_decision_post
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      parameters:
+        - name: scorer_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid4
+            title: Scorer Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDecisionScorerVersionRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseScorerVersionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /scorers/code/validate:
     post:
       tags:
@@ -15214,6 +15254,66 @@ components:
         - lora_task_id
         - prompt
       title: CreateCustomLunaScorerVersionRequest
+    CreateDecisionScorerVersionRequest:
+      properties:
+        model_name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Model Name
+        num_judges:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Num Judges
+        scoreable_node_types:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Scoreable Node Types
+        cot_enabled:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Cot Enabled
+        output_type:
+          anyOf:
+            - $ref: '#/components/schemas/OutputTypeEnum'
+            - type: 'null'
+        input_type:
+          anyOf:
+            - $ref: '#/components/schemas/InputTypeEnum'
+            - type: 'null'
+        question:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Question
+        answer_options:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: '#/components/schemas/DecisionLevel'
+              type: array
+            - type: 'null'
+          title: Answer Options
+      type: object
+      required:
+        - model_name
+        - question
+      title: CreateDecisionScorerVersionRequest
+      description: 'The question and model for a new decision scorer version.
+
+
+        The inherited scoreable_node_types, output_type and input_type are optional, but each must
+
+        match the scorer when sent. The service checks these fields, and it checks answer_options
+
+        against the stored output_type.'
     CreateJobRequest:
       properties:
         resource_limits:
@@ -22422,6 +22522,27 @@ components:
           default: column
       type: object
       title: DatasetVersionIndexSort
+    DecisionLevel:
+      properties:
+        level:
+          type: integer
+          maximum: 9.0
+          minimum: 0.0
+          title: Level
+        label:
+          type: string
+          title: Label
+        description:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Description
+      type: object
+      required:
+        - level
+        - label
+      title: DecisionLevel
+      description: One level of a score question. A question's levels run 0, 1, 2 and so on, with no gaps.
     DeletePromptResponse:
       properties:
         message:
