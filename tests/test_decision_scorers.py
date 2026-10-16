@@ -7,6 +7,9 @@ from unittest.mock import Mock, patch
 import pytest
 
 from galileo.metric import DecisionMetric, Metric
+from galileo.resources.api.data.create_decision_scorer_version_scorers_scorer_id_version_decision_post import (
+    _get_kwargs as create_decision_version_kwargs,
+)
 from galileo.resources.api.data.get_scorer_scorers_scorer_id_get import _get_kwargs as get_scorer_kwargs
 from galileo.resources.api.data.list_scorers_with_filters_scorers_list_post import _get_kwargs as list_scorers_kwargs
 from galileo.resources.api.datasets.get_dataset_datasets_dataset_id_get import _get_kwargs as dataset_get_kwargs
@@ -17,7 +20,13 @@ from galileo.resources.api.log_stream.get_metric_settings_projects_project_id_lo
 from galileo.resources.api.run_scorer_settings.get_settings_projects_project_id_runs_run_id_scorer_settings_get import (
     _get_kwargs as run_scorer_settings_kwargs,
 )
-from galileo.resources.models import ListScorersRequest, ListScorersResponse, ModelType, ScorerTypes
+from galileo.resources.models import (
+    CreateDecisionScorerVersionRequest,
+    ListScorersRequest,
+    ListScorersResponse,
+    ModelType,
+    ScorerTypes,
+)
 from galileo.resources.models.run_scorer_settings_response import RunScorerSettingsResponse
 from galileo.scorers import Scorers
 from galileo.utils.headers_data import get_scorer_capabilities_header
@@ -57,10 +66,13 @@ def test_scorer_capabilities_header_advertises_decision() -> None:
     [
         lambda: list_scorers_kwargs(body=ListScorersRequest()),
         lambda: get_scorer_kwargs(scorer_id="scorer-id"),
+        lambda: create_decision_version_kwargs(
+            scorer_id="scorer-id", body=CreateDecisionScorerVersionRequest(model_name="jev-1.13.0", question="q")
+        ),
         lambda: run_scorer_settings_kwargs(project_id="project-id", run_id="run-id"),
         lambda: log_stream_metric_settings_kwargs(project_id="project-id", log_stream_id="log-stream-id"),
     ],
-    ids=["list_scorers", "get_scorer", "run_scorer_settings", "log_stream_metric_settings"],
+    ids=["list_scorers", "get_scorer", "create_decision_version", "run_scorer_settings", "log_stream_metric_settings"],
 )
 def test_scorer_endpoints_advertise_decision_scorers(get_kwargs: Callable[[], dict[str, Any]]) -> None:
     # Given / When: the SDK builds a request whose response carries scorer_type
