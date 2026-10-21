@@ -5,7 +5,7 @@ import logging
 import re
 from asyncio import Queue
 from collections.abc import Sequence
-from dataclasses import is_dataclass
+from dataclasses import fields, is_dataclass
 from datetime import date, datetime
 from json import JSONEncoder
 from pathlib import Path
@@ -289,7 +289,9 @@ class EventSerializer(JSONEncoder):
                     return {"node": self.default(obj.node), "arg": self.default(obj.arg)}
 
             if is_dataclass(obj):
-                return {self.default(k): self.default(v) for k, v in obj.__dict__.items()}
+                values = dict(getattr(obj, "__dict__", {}))
+                values.update({field.name: getattr(obj, field.name) for field in fields(obj)})
+                return self.default(values)
 
             # Handle Pydantic model classes (not instances)
             if isinstance(obj, type) and issubclass(obj, BaseModel):

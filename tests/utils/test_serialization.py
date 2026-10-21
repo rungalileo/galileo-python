@@ -942,3 +942,29 @@ class TestProtoMessageSerialization:
 
         # Then: nested message is properly serialized
         assert result == {"title": "Great Expectations", "author": {"name": "Dickens"}}
+
+
+@pytest.mark.parametrize("slots", [False, True])
+@pytest.mark.parametrize("frozen", [False, True])
+@pytest.mark.parametrize("nested", [False, True])
+@pytest.mark.parametrize("encode", [serialize_to_str, lambda value: json.dumps(value, cls=EventSerializer)])
+def test_dataclass_field_serialization(slots, frozen, nested, encode):
+    # Given: inherited dataclass fields, optionally stored in slots
+    @dataclass(slots=slots, frozen=frozen)
+    class Base:
+        name: str
+
+    @dataclass(slots=slots, frozen=frozen)
+    class Child(Base):
+        identifier: uuid.UUID
+
+    identifier = uuid.UUID("12345678-1234-5678-1234-567812345678")
+    value = Child(name="synthetic", identifier=identifier)
+    payload = {"result": [value]} if nested else value
+    expected = {"name": "synthetic", "identifier": str(identifier)}
+
+    # When: serializing through either supported JSON entry point
+    result = json.loads(encode(payload))
+
+    # Then: all inherited fields survive and values are recursively serialized
+    assert result == ({"result": [expected]} if nested else expected)
