@@ -82,9 +82,13 @@ class TestProjects:
         assert (preserved_run.creator is None) is creator_deleted
         assert preserved_run.run_tags[0].created_by == (None if creator_deleted else user["id"])
         serialized = parsed[0].to_dict()
+        assert serialized["created_by"] == (None if creator_deleted else user["id"])
         assert serialized["runs"][0]["created_by"] == (None if creator_deleted else user["id"])
+        assert serialized["runs"][0]["last_updated_by"] == (None if creator_deleted else user["id"])
+        assert (serialized["runs"][0]["creator"] is None) is creator_deleted
         if endpoint is get_projects_projects_get:
             assert (parsed[0].created_by_user is None) is creator_deleted
+            assert (serialized["created_by_user"] is None) is creator_deleted
 
     @patch("galileo.projects.get_all_projects_projects_all_get")
     def test_get_all_projects_projects_all_get_exc(self, get_all_projects_projects_all_get) -> None:

@@ -35,7 +35,7 @@ class Project(StateManagementMixin):
     Attributes
     ----------
         created_at (datetime.datetime): When the project was created.
-        created_by (str): The user who created the project.
+        created_by (str | None): The creator's identifier, or None after creator deletion.
         id (str): The unique project identifier.
         updated_at (datetime.datetime): When the project was last updated.
         bookmark (Union[Unset, bool]): Whether the project is bookmarked.
