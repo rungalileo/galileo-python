@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -19,7 +19,7 @@ class RunTagDB:
         tag_type (str):
         project_id (str):
         run_id (str):
-        created_by (str):
+        created_by (Union[None, str]):
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
@@ -30,7 +30,7 @@ class RunTagDB:
     tag_type: str
     project_id: str
     run_id: str
-    created_by: str
+    created_by: None | str
     id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
@@ -47,6 +47,7 @@ class RunTagDB:
 
         run_id = self.run_id
 
+        created_by: None | str
         created_by = self.created_by
 
         id = self.id
@@ -86,7 +87,12 @@ class RunTagDB:
 
         run_id = d.pop("run_id")
 
-        created_by = d.pop("created_by")
+        def _parse_created_by(data: object) -> None | str:
+            if data is None:
+                return data
+            return cast(None | str, data)
+
+        created_by = _parse_created_by(d.pop("created_by"))
 
         id = d.pop("id")
 

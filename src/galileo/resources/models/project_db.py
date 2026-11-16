@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -25,8 +25,8 @@ class ProjectDB:
     Attributes
     ----------
         id (str):
-        created_by (str):
-        created_by_user (UserInfo): A user's basic information, used for display purposes.
+        created_by (Union[None, str]):
+        created_by_user (Union['UserInfo', None]):
         runs (list['RunDB']):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
@@ -39,8 +39,8 @@ class ProjectDB:
     """
 
     id: str
-    created_by: str
-    created_by_user: "UserInfo"
+    created_by: None | str
+    created_by_user: Union["UserInfo", None]
     runs: list["RunDB"]
     created_at: datetime.datetime
     updated_at: datetime.datetime
@@ -53,11 +53,18 @@ class ProjectDB:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.user_info import UserInfo
+
         id = self.id
 
+        created_by: None | str
         created_by = self.created_by
 
-        created_by_user = self.created_by_user.to_dict()
+        created_by_user: None | dict[str, Any]
+        if isinstance(self.created_by_user, UserInfo):
+            created_by_user = self.created_by_user.to_dict()
+        else:
+            created_by_user = self.created_by_user
 
         runs = []
         for runs_item_data in self.runs:
@@ -134,9 +141,26 @@ class ProjectDB:
         d = dict(src_dict)
         id = d.pop("id")
 
-        created_by = d.pop("created_by")
+        def _parse_created_by(data: object) -> None | str:
+            if data is None:
+                return data
+            return cast(None | str, data)
 
-        created_by_user = UserInfo.from_dict(d.pop("created_by_user"))
+        created_by = _parse_created_by(d.pop("created_by"))
+
+        def _parse_created_by_user(data: object) -> Union["UserInfo", None]:
+            if data is None:
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return UserInfo.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["UserInfo", None], data)
+
+        created_by_user = _parse_created_by_user(d.pop("created_by_user"))
 
         runs = []
         _runs = d.pop("runs")

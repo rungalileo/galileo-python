@@ -54,8 +54,8 @@ class Project:
     ----------
     created_at: datetime.datetime
         The timestamp when the project was created.
-    created_by: str
-        The identifier of the user who created the project.
+    created_by: str | None | Unset
+        The creator's identifier, or None after the creator is deleted.
     id: str
         The unique identifier of the project.
     updated_at: datetime.datetime
@@ -97,7 +97,7 @@ class Project:
     """
 
     created_at: datetime.datetime
-    created_by: str
+    created_by: str | None | Unset
     id: str
     updated_at: datetime.datetime
     bookmark: Unset | bool = False

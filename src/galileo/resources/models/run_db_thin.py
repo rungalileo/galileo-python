@@ -1,6 +1,6 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,14 +22,14 @@ class RunDBThin:
     """
     Attributes
     ----------
-        created_by (str):
+        created_by (Union[None, str]):
         num_samples (int):
         winner (bool):
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        last_updated_by (str):
-        creator (UserDB):
+        last_updated_by (Union[None, str]):
+        creator (Union['UserDB', None]):
         name (Union[None, Unset, str]):
         project_id (Union[None, Unset, str]):
         dataset_hash (Union[None, Unset, str]):
@@ -41,14 +41,14 @@ class RunDBThin:
         logged_inference_names (Union[Unset, list[str]]):
     """
 
-    created_by: str
+    created_by: None | str
     num_samples: int
     winner: bool
     id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    last_updated_by: str
-    creator: "UserDB"
+    last_updated_by: None | str
+    creator: Union["UserDB", None]
     name: None | Unset | str = UNSET
     project_id: None | Unset | str = UNSET
     dataset_hash: None | Unset | str = UNSET
@@ -61,6 +61,9 @@ class RunDBThin:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.user_db import UserDB
+
+        created_by: None | str
         created_by = self.created_by
 
         num_samples = self.num_samples
@@ -73,9 +76,11 @@ class RunDBThin:
 
         updated_at = self.updated_at.isoformat()
 
+        last_updated_by: None | str
         last_updated_by = self.last_updated_by
 
-        creator = self.creator.to_dict()
+        creator: None | dict[str, Any]
+        creator = self.creator.to_dict() if isinstance(self.creator, UserDB) else self.creator
 
         name: None | Unset | str
         name = UNSET if isinstance(self.name, Unset) else self.name
@@ -156,7 +161,13 @@ class RunDBThin:
         from ..models.user_db import UserDB
 
         d = dict(src_dict)
-        created_by = d.pop("created_by")
+
+        def _parse_created_by(data: object) -> None | str:
+            if data is None:
+                return data
+            return cast(None | str, data)
+
+        created_by = _parse_created_by(d.pop("created_by"))
 
         num_samples = d.pop("num_samples")
 
@@ -168,9 +179,26 @@ class RunDBThin:
 
         updated_at = isoparse(d.pop("updated_at"))
 
-        last_updated_by = d.pop("last_updated_by")
+        def _parse_last_updated_by(data: object) -> None | str:
+            if data is None:
+                return data
+            return cast(None | str, data)
 
-        creator = UserDB.from_dict(d.pop("creator"))
+        last_updated_by = _parse_last_updated_by(d.pop("last_updated_by"))
+
+        def _parse_creator(data: object) -> Union["UserDB", None]:
+            if data is None:
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return UserDB.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["UserDB", None], data)
+
+        creator = _parse_creator(d.pop("creator"))
 
         def _parse_name(data: object) -> None | Unset | str:
             if data is None:

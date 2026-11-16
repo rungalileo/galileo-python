@@ -1,10 +1,12 @@
 import os
+from types import ModuleType
 from unittest.mock import ANY, Mock, patch
 
 import httpx
 import pytest
 
-from galileo.projects import Projects, ProjectsAPIException, delete_project
+from galileo.projects import Project, Projects, ProjectsAPIException, delete_project
+from galileo.resources.api.projects import get_all_projects_projects_all_get, get_projects_projects_get
 from galileo.resources.models.project_type import ProjectType
 
 
@@ -15,6 +17,75 @@ def reset_env_vars() -> None:
 
 
 class TestProjects:
+    @pytest.mark.parametrize("endpoint", [get_all_projects_projects_all_get, get_projects_projects_get])
+    @pytest.mark.parametrize("creator_deleted", [False, True])
+    def test_project_lists_accept_nullable_creator_objects(self, endpoint: ModuleType, creator_deleted: bool) -> None:
+        """A preserved project or run must not prevent decoding a whole project list."""
+        # Given: a project list containing run metadata and potentially deleted creators
+        timestamp = "2026-11-16T00:00:00Z"
+        user = {
+            "id": "user-id",
+            "email": "user@example.com",
+            "organization_id": "org-id",
+            "organization_name": "Example",
+            "first_name": "Example",
+            "last_name": "User",
+            "created_at": timestamp,
+            "updated_at": timestamp,
+        }
+        projects = []
+        for deleted in (creator_deleted, False):
+            creator_id = None if deleted else user["id"]
+            tag = {
+                "id": "tag-id",
+                "project_id": "project-id",
+                "run_id": "run-id",
+                "created_by": creator_id,
+                "key": "retained",
+                "value": "yes",
+                "tag_type": "generic",
+                "created_at": timestamp,
+                "updated_at": timestamp,
+            }
+            run = {
+                "id": "run-id",
+                "created_by": creator_id,
+                "creator": None if deleted else user,
+                "last_updated_by": creator_id,
+                "num_samples": 1,
+                "winner": False,
+                "created_at": timestamp,
+                "updated_at": timestamp,
+                "run_tags": [tag],
+            }
+            projects.append(
+                {
+                    "id": "project-id",
+                    "created_by": creator_id,
+                    "created_by_user": None if deleted else user,
+                    "created_at": timestamp,
+                    "updated_at": timestamp,
+                    "runs": [run],
+                }
+            )
+
+        # When: the generated endpoint decodes the entire response
+        parsed = endpoint._parse_response(client=Mock(), response=httpx.Response(200, json=projects))
+
+        # Then: both projects and their nested attribution survive decoding and serialization
+        assert len(parsed) == 2
+        assert parsed[0].created_by == (None if creator_deleted else user["id"])
+        assert Project(parsed[0]).created_by == parsed[0].created_by
+        assert parsed[1].created_by == user["id"]
+        preserved_run = parsed[0].runs[0]
+        assert preserved_run.last_updated_by == (None if creator_deleted else user["id"])
+        assert (preserved_run.creator is None) is creator_deleted
+        assert preserved_run.run_tags[0].created_by == (None if creator_deleted else user["id"])
+        serialized = parsed[0].to_dict()
+        assert serialized["runs"][0]["created_by"] == (None if creator_deleted else user["id"])
+        if endpoint is get_projects_projects_get:
+            assert (parsed[0].created_by_user is None) is creator_deleted
+
     @patch("galileo.projects.get_all_projects_projects_all_get")
     def test_get_all_projects_projects_all_get_exc(self, get_all_projects_projects_all_get) -> None:
         """Test that list raises ValueError when API call fails."""

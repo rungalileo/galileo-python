@@ -39110,15 +39110,19 @@ components:
             - type: 'null'
           title: Name
         created_by:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: Created By
         type:
           anyOf:
             - $ref: '#/components/schemas/ProjectType'
             - type: 'null'
         created_by_user:
-          $ref: '#/components/schemas/UserInfo'
+          anyOf:
+            - $ref: '#/components/schemas/UserInfo'
+            - type: 'null'
         runs:
           items:
             $ref: '#/components/schemas/RunDB'
@@ -39173,8 +39177,10 @@ components:
             - type: 'null'
           title: Name
         created_by:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: Created By
         type:
           anyOf:
@@ -40953,8 +40959,10 @@ components:
             - type: 'null'
           title: Project Id
         created_by:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: Created By
         num_samples:
           type: integer
@@ -40990,8 +40998,10 @@ components:
             - $ref: '#/components/schemas/TaskType'
             - type: 'null'
         last_updated_by:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: Last Updated By
         run_tags:
           items:
@@ -41004,7 +41014,9 @@ components:
             - type: 'null'
           title: Example Content Id
         creator:
-          $ref: '#/components/schemas/UserDB'
+          anyOf:
+            - $ref: '#/components/schemas/UserDB'
+            - type: 'null'
         logged_splits:
           items:
             type: string
@@ -41041,8 +41053,10 @@ components:
             - type: 'null'
           title: Project Id
         created_by:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: Created By
         num_samples:
           type: integer
@@ -41078,8 +41092,10 @@ components:
             - $ref: '#/components/schemas/TaskType'
             - type: 'null'
         last_updated_by:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: Last Updated By
         run_tags:
           items:
@@ -41092,7 +41108,9 @@ components:
             - type: 'null'
           title: Example Content Id
         creator:
-          $ref: '#/components/schemas/UserDB'
+          anyOf:
+            - $ref: '#/components/schemas/UserDB'
+            - type: 'null'
         logged_splits:
           items:
             type: string
@@ -41310,8 +41328,10 @@ components:
           format: uuid4
           title: Run Id
         created_by:
-          type: string
-          format: uuid4
+          anyOf:
+            - type: string
+              format: uuid4
+            - type: 'null'
           title: Created By
         id:
           type: string

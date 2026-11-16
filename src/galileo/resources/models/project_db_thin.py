@@ -23,7 +23,7 @@ class ProjectDBThin:
     Attributes
     ----------
         id (str):
-        created_by (str):
+        created_by (Union[None, str]):
         runs (list['RunDBThin']):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
@@ -34,7 +34,7 @@ class ProjectDBThin:
     """
 
     id: str
-    created_by: str
+    created_by: None | str
     runs: list["RunDBThin"]
     created_at: datetime.datetime
     updated_at: datetime.datetime
@@ -47,6 +47,7 @@ class ProjectDBThin:
     def to_dict(self) -> dict[str, Any]:
         id = self.id
 
+        created_by: None | str
         created_by = self.created_by
 
         runs = []
@@ -102,7 +103,12 @@ class ProjectDBThin:
         d = dict(src_dict)
         id = d.pop("id")
 
-        created_by = d.pop("created_by")
+        def _parse_created_by(data: object) -> None | str:
+            if data is None:
+                return data
+            return cast(None | str, data)
+
+        created_by = _parse_created_by(d.pop("created_by"))
 
         runs = []
         _runs = d.pop("runs")
